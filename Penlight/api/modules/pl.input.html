@@ -2,7 +2,7 @@
    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
 <head>
-    <title>Reference</title>
+    <title>pl.input: Module Index</title>
     <link rel="stylesheet" href="../luadoc.css" type="text/css" />
 	<!--meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/-->
 </head>
@@ -21,7 +21,7 @@
 <div id="navigation">
 
 
-<h1>LuaDoc</h1>
+<h2>LuaDoc</h2>
 <ul>
 	
 	<li><a href="../index.html">Index</a></li>
@@ -31,7 +31,7 @@
 
 <!-- Module list -->
 
-<h1>Modules</h1>
+<h2>Modules</h2>
 <ul>
 
 	<li>
@@ -72,6 +72,10 @@
 
 	<li><strong>pl.input</strong></li>
 	
+	<li>
+		<a href="../modules/pl.lapp.html">pl.lapp</a>
+	</li>
+
 	<li>
 		<a href="../modules/pl.lexer.html">pl.lexer</a>
 	</li>
@@ -143,9 +147,15 @@
 
 <div id="content">
 
-<h1>Module <code>pl.input</code></h1>
+<h1>Module "pl.input"</h1>
 
-<p>Iterators for extracting words or numbers from an input source.</p>
+<p>Iterators for extracting words or numbers from an input source.
+<pre class=example>
+   require 'pl'
+   local total,n = <a href="pl.seq.html#seq.sum">seq.sum</a>(input.numbers())
+   print('average',total/n)
+</pre>
+<p> See <a href="../../index.html#lexer">here</a></p>
 
 
 
@@ -155,27 +165,27 @@
 <table class="function_list">
 
 	<tr>
-	<td class="name" nowrap><a href="#alltokens">alltokens</a>&nbsp;(getter, pattern, fn)</td>
+	<td class="name" nowrap><a href="#input.alltokens">input.alltokens</a>&nbsp;(getter, pattern, fn)</td>
 	<td class="summary">create an iterator over all tokens.</td>
 	</tr>
 
 	<tr>
-	<td class="name" nowrap><a href="#create_getter">create_getter</a>&nbsp;(f)</td>
+	<td class="name" nowrap><a href="#input.create_getter">input.create_getter</a>&nbsp;(f)</td>
 	<td class="summary">create a function which grabs the next value from a source.</td>
 	</tr>
 
 	<tr>
-	<td class="name" nowrap><a href="#fields">fields</a>&nbsp;(ids, delim, f, opts)</td>
+	<td class="name" nowrap><a href="#input.fields">input.fields</a>&nbsp;(ids, delim, f, opts)</td>
 	<td class="summary">parse an input source into fields.</td>
 	</tr>
 
 	<tr>
-	<td class="name" nowrap><a href="#numbers">numbers</a>&nbsp;(f)</td>
+	<td class="name" nowrap><a href="#input.numbers">input.numbers</a>&nbsp;(f)</td>
 	<td class="summary">generate a sequence of numbers from a source.</td>
 	</tr>
 
 	<tr>
-	<td class="name" nowrap><a href="#words">words</a>&nbsp;(f)</td>
+	<td class="name" nowrap><a href="#input.words">input.words</a>&nbsp;(f)</td>
 	<td class="summary">generate a sequence of words from a source.</td>
 	</tr>
 
@@ -196,12 +206,13 @@
 
 
 
-<dt><a name="alltokens"></a><strong>alltokens</strong>&nbsp;(getter, pattern, fn)</dt>
+<dt><a name="input.alltokens"></a><strong>input.alltokens</strong>&nbsp;(getter, pattern, fn)</dt>
 <dd>
-create an iterator over all tokens. based on allwords from PiL, 7.1
+create an iterator over all tokens.
+based on allwords from PiL, 7.1
 
 
-<h3>Parameters</h3>
+<h3>Parameters:</h3>
 <ul>
 	
 	<li>
@@ -223,6 +234,8 @@ create an iterator over all tokens. based on allwords from PiL, 7.1
 
 
 
+
+
 <h3>Return value:</h3>
 an iterator
 
@@ -233,12 +246,13 @@ an iterator
 
 
 
-<dt><a name="create_getter"></a><strong>create_getter</strong>&nbsp;(f)</dt>
+<dt><a name="input.create_getter"></a><strong>input.create_getter</strong>&nbsp;(f)</dt>
 <dd>
-create a function which grabs the next value from a source. If the source is a string, then the getter will return the string and thereafter return nil. If not specified then the source is assumed to be stdin.
+create a function which grabs the next value from a source. If the source is a string, then the getter
+will return the string and thereafter return nil. If not specified then the source is assumed to be stdin.
 
 
-<h3>Parameters</h3>
+<h3>Parameters:</h3>
 <ul>
 	
 	<li>
@@ -246,6 +260,8 @@ create a function which grabs the next value from a source. If the source is a s
 	</li>
 	
 </ul>
+
+
 
 
 
@@ -262,12 +278,13 @@ a getter function
 
 
 
-<dt><a name="fields"></a><strong>fields</strong>&nbsp;(ids, delim, f, opts)</dt>
+<dt><a name="input.fields"></a><strong>input.fields</strong>&nbsp;(ids, delim, f, opts)</dt>
 <dd>
-parse an input source into fields. By default, will fail if it cannot convert a field to a number.
+parse an input source into fields.
+By default, will fail if it cannot convert a field to a number.
 
 
-<h3>Parameters</h3>
+<h3>Parameters:</h3>
 <ul>
 	
 	<li>
@@ -296,6 +313,8 @@ for x,y in fields {2,3} do print(x,y) end -- 2nd and 3rd fields from stdin
 
 
 
+
+
 <h3>Return value:</h3>
 an iterator with the field values
 
@@ -306,12 +325,12 @@ an iterator with the field values
 
 
 
-<dt><a name="numbers"></a><strong>numbers</strong>&nbsp;(f)</dt>
+<dt><a name="input.numbers"></a><strong>input.numbers</strong>&nbsp;(f)</dt>
 <dd>
 generate a sequence of numbers from a source.
 
 
-<h3>Parameters</h3>
+<h3>Parameters:</h3>
 <ul>
 	
 	<li>
@@ -319,6 +338,8 @@ generate a sequence of numbers from a source.
 	</li>
 	
 </ul>
+
+
 
 
 
@@ -335,12 +356,12 @@ An iterator
 
 
 
-<dt><a name="words"></a><strong>words</strong>&nbsp;(f)</dt>
+<dt><a name="input.words"></a><strong>input.words</strong>&nbsp;(f)</dt>
 <dd>
 generate a sequence of words from a source.
 
 
-<h3>Parameters</h3>
+<h3>Parameters:</h3>
 <ul>
 	
 	<li>
@@ -348,6 +369,8 @@ generate a sequence of words from a source.
 	</li>
 	
 </ul>
+
+
 
 
 
