@@ -1,0 +1,784 @@
+<html>
+<head>
+<style>
+a.L { text-decoration: none; }
+a.L:hover { color: #FFAAAA; }
+body { margin-top: 20px; margin-left: 30px; }
+.lno { font-weight: bold: color #000; }
+.keyword {font-weight: bold; color: #6666AA; }
+.number  { color: #AA6666; }
+.string  { color: #8888AA; }
+.comment { color: #666600; }
+.prepro { color: #006666; } 
+</style>
+<body>
+<h1>Lua 5.1.4: lvm.c</h1>
+<hr/>
+<pre>
+L0001    <span class="comment">/*
+L0002    ** $Id: lvm.c,v 2.63.1.3 2007/12/28 15:32:23 roberto Exp $
+L0003    ** Lua virtual machine
+L0004    ** See Copyright Notice in lua.h
+L0005    */</span>
+L0006    
+L0007    
+L0008    <span class="prepro">#include &lt;stdio.h&gt;
+</span>L0009    <span class="prepro">#include &lt;stdlib.h&gt;
+</span>L0010    <span class="prepro">#include &lt;string.h&gt;
+</span>L0011    
+L0012    <a name="lvm_c"/a><span class="prepro">#define lvm_c
+</span>L0013    <a name="LUA_CORE"/a><span class="prepro">#define LUA_CORE
+</span>L0014    
+L0015    <span class="prepro"><a class="L" href="lua.h.html#">#include "lua.h"
+</a></span>L0016    
+L0017    <span class="prepro"><a class="L" href="ldebug.h.html#">#include "ldebug.h"
+</a></span>L0018    <span class="prepro"><a class="L" href="ldo.h.html#">#include "ldo.h"
+</a></span>L0019    <span class="prepro"><a class="L" href="lfunc.h.html#">#include "lfunc.h"
+</a></span>L0020    <span class="prepro"><a class="L" href="lgc.h.html#">#include "lgc.h"
+</a></span>L0021    <span class="prepro"><a class="L" href="lobject.h.html#">#include "lobject.h"
+</a></span>L0022    <span class="prepro"><a class="L" href="lopcodes.h.html#">#include "lopcodes.h"
+</a></span>L0023    <span class="prepro"><a class="L" href="lstate.h.html#">#include "lstate.h"
+</a></span>L0024    <span class="prepro"><a class="L" href="lstring.h.html#">#include "lstring.h"
+</a></span>L0025    <span class="prepro"><a class="L" href="ltable.h.html#">#include "ltable.h"
+</a></span>L0026    <span class="prepro"><a class="L" href="ltm.h.html#">#include "ltm.h"
+</a></span>L0027    <span class="prepro"><a class="L" href="lvm.h.html#">#include "lvm.h"
+</a></span>L0028    
+L0029    
+L0030    
+L0031    <span class="comment">/* limit for table tag-method chains (to avoid loops) */</span>
+L0032    <a name="MAXTAGLOOP"/a><span class="prepro">#define MAXTAGLOOP	100
+</span>L0033    
+L0034    
+L0035    <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *<a name="luaV_tonumber"/a><a class="L" href="lvm.c.ref.html#luaV_tonumber">luaV_tonumber</a> (<span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *obj, <a class="L" href="lobject.h.html#TValue">TValue</a> *n) {
+L0036      <a class="L" href="lua.h.html#lua_Number">lua_Number</a> num;
+L0037      <span class="keyword">if</span> (<a class="L" href="lobject.h.html#ttisnumber">ttisnumber</a>(obj)) <span class="keyword">return</span> obj;
+L0038      <span class="keyword">if</span> (<a class="L" href="lobject.h.html#ttisstring">ttisstring</a>(obj) &amp;&amp; <a class="L" href="lobject.c.html#luaO_str2d">luaO_str2d</a>(<a class="L" href="lobject.h.html#svalue">svalue</a>(obj), &amp;num)) {
+L0039        <a class="L" href="lobject.h.html#setnvalue">setnvalue</a>(n, num);
+L0040        <span class="keyword">return</span> n;
+L0041      }
+L0042      <span class="keyword">else</span>
+L0043        <span class="keyword">return</span> NULL;
+L0044    }
+L0045    
+L0046    
+L0047    <span class="keyword">int</span> <a name="luaV_tostring"/a><a class="L" href="lvm.c.ref.html#luaV_tostring">luaV_tostring</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lobject.h.html#StkId">StkId</a> obj) {
+L0048      <span class="keyword">if</span> (!<a class="L" href="lobject.h.html#ttisnumber">ttisnumber</a>(obj))
+L0049        <span class="keyword">return</span> <span class="number">0</span>;
+L0050      <span class="keyword">else</span> {
+L0051        <span class="keyword">char</span> s[<a class="L" href="luaconf.h.html#LUAI_MAXNUMBER2STR">LUAI_MAXNUMBER2STR</a>];
+L0052        <a class="L" href="lua.h.html#lua_Number">lua_Number</a> n = <a class="L" href="lobject.h.html#nvalue">nvalue</a>(obj);
+L0053        <a class="L" href="luaconf.h.html#lua_number2str">lua_number2str</a>(s, n);
+L0054        <a class="L" href="lobject.h.html#setsvalue2s">setsvalue2s</a>(L, obj, <a class="L" href="lstring.h.html#luaS_new">luaS_new</a>(L, s));
+L0055        <span class="keyword">return</span> <span class="number">1</span>;
+L0056      }
+L0057    }
+L0058    
+L0059    
+L0060    <span class="keyword">static</span> <span class="keyword">void</span> <a name="traceexec"/a><a class="L" href="lvm.c.ref.html#traceexec">traceexec</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <a class="L" href="llimits.h.html#Instruction">Instruction</a> *pc) {
+L0061      <a class="L" href="llimits.h.html#lu_byte">lu_byte</a> mask = L-&gt;hookmask;
+L0062      <span class="keyword">const</span> <a class="L" href="llimits.h.html#Instruction">Instruction</a> *oldpc = L-&gt;savedpc;
+L0063      L-&gt;savedpc = pc;
+L0064      <span class="keyword">if</span> ((mask &amp; <a class="L" href="lua.h.html#LUA_MASKCOUNT">LUA_MASKCOUNT</a>) &amp;&amp; L-&gt;hookcount == <span class="number">0</span>) {
+L0065        <a class="L" href="ldebug.h.html#resethookcount">resethookcount</a>(L);
+L0066        <a class="L" href="ldo.c.html#luaD_callhook">luaD_callhook</a>(L, <a class="L" href="lua.h.html#LUA_HOOKCOUNT">LUA_HOOKCOUNT</a>, <span class="number">-1</span>);
+L0067      }
+L0068      <span class="keyword">if</span> (mask &amp; <a class="L" href="lua.h.html#LUA_MASKLINE">LUA_MASKLINE</a>) {
+L0069        <a class="L" href="lobject.h.html#Proto">Proto</a> *p = <a class="L" href="lstate.h.html#ci_func">ci_func</a>(L-&gt;ci)-&gt;l.p;
+L0070        <span class="keyword">int</span> npc = <a class="L" href="ldebug.h.html#pcRel">pcRel</a>(pc, p);
+L0071        <span class="keyword">int</span> newline = <a class="L" href="ldebug.h.html#getline">getline</a>(p, npc);
+L0072        <span class="comment">/* call linehook when enter a new function, when jump back (loop),
+L0073           or when enter a new line */</span>
+L0074        <span class="keyword">if</span> (npc == <span class="number">0</span> || pc &lt;= oldpc || newline != <a class="L" href="ldebug.h.html#getline">getline</a>(p, <a class="L" href="ldebug.h.html#pcRel">pcRel</a>(oldpc, p)))
+L0075          <a class="L" href="ldo.c.html#luaD_callhook">luaD_callhook</a>(L, <a class="L" href="lua.h.html#LUA_HOOKLINE">LUA_HOOKLINE</a>, newline);
+L0076      }
+L0077    }
+L0078    
+L0079    
+L0080    <span class="keyword">static</span> <span class="keyword">void</span> <a name="callTMres"/a><a class="L" href="lvm.c.ref.html#callTMres">callTMres</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lobject.h.html#StkId">StkId</a> res, <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *f,
+L0081                            <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *p1, <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *p2) {
+L0082      ptrdiff_t result = <a class="L" href="ldo.h.html#savestack">savestack</a>(L, res);
+L0083      <a class="L" href="lobject.h.html#setobj2s">setobj2s</a>(L, L-&gt;top, f);  <span class="comment">/* push function */</span>
+L0084      <a class="L" href="lobject.h.html#setobj2s">setobj2s</a>(L, L-&gt;top<span class="number">+1</span>, p1);  <span class="comment">/* 1st argument */</span>
+L0085      <a class="L" href="lobject.h.html#setobj2s">setobj2s</a>(L, L-&gt;top<span class="number">+2</span>, p2);  <span class="comment">/* 2nd argument */</span>
+L0086      <a class="L" href="ldo.h.html#luaD_checkstack">luaD_checkstack</a>(L, <span class="number">3</span>);
+L0087      L-&gt;top += <span class="number">3</span>;
+L0088      <a class="L" href="ldo.c.html#luaD_call">luaD_call</a>(L, L-&gt;top - <span class="number">3</span>, <span class="number">1</span>);
+L0089      res = <a class="L" href="ldo.h.html#restorestack">restorestack</a>(L, result);
+L0090      L-&gt;top--;
+L0091      <a class="L" href="lobject.h.html#setobjs2s">setobjs2s</a>(L, res, L-&gt;top);
+L0092    }
+L0093    
+L0094    
+L0095    
+L0096    <span class="keyword">static</span> <span class="keyword">void</span> <a name="callTM"/a><a class="L" href="lvm.c.ref.html#callTM">callTM</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *f, <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *p1,
+L0097                        <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *p2, <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *p3) {
+L0098      <a class="L" href="lobject.h.html#setobj2s">setobj2s</a>(L, L-&gt;top, f);  <span class="comment">/* push function */</span>
+L0099      <a class="L" href="lobject.h.html#setobj2s">setobj2s</a>(L, L-&gt;top<span class="number">+1</span>, p1);  <span class="comment">/* 1st argument */</span>
+L0100      <a class="L" href="lobject.h.html#setobj2s">setobj2s</a>(L, L-&gt;top<span class="number">+2</span>, p2);  <span class="comment">/* 2nd argument */</span>
+L0101      <a class="L" href="lobject.h.html#setobj2s">setobj2s</a>(L, L-&gt;top<span class="number">+3</span>, p3);  <span class="comment">/* 3th argument */</span>
+L0102      <a class="L" href="ldo.h.html#luaD_checkstack">luaD_checkstack</a>(L, <span class="number">4</span>);
+L0103      L-&gt;top += <span class="number">4</span>;
+L0104      <a class="L" href="ldo.c.html#luaD_call">luaD_call</a>(L, L-&gt;top - <span class="number">4</span>, <span class="number">0</span>);
+L0105    }
+L0106    
+L0107    
+L0108    <span class="keyword">void</span> <a name="luaV_gettable"/a><a class="L" href="lvm.c.ref.html#luaV_gettable">luaV_gettable</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *t, <a class="L" href="lobject.h.html#TValue">TValue</a> *key, <a class="L" href="lobject.h.html#StkId">StkId</a> val) {
+L0109      <span class="keyword">int</span> loop;
+L0110      <span class="keyword">for</span> (loop = <span class="number">0</span>; loop &lt; <a class="L" href="lvm.c.html#MAXTAGLOOP">MAXTAGLOOP</a>; loop++) {
+L0111        <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *tm;
+L0112        <span class="keyword">if</span> (<a class="L" href="lobject.h.html#ttistable">ttistable</a>(t)) {  <span class="comment">/* `t' is a table? */</span>
+L0113          <a class="L" href="lobject.h.html#Table">Table</a> *h = <a class="L" href="lobject.h.html#hvalue">hvalue</a>(t);
+L0114          <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *res = <a class="L" href="ltable.c.html#luaH_get">luaH_get</a>(h, key); <span class="comment">/* do a primitive get */</span>
+L0115          <span class="keyword">if</span> (!<a class="L" href="lobject.h.html#ttisnil">ttisnil</a>(res) ||  <span class="comment">/* result is no nil? */</span>
+L0116              (tm = <a class="L" href="ltm.h.html#fasttm">fasttm</a>(L, h-&gt;metatable, <a class="L" href="ltm.h.html#TM_INDEX">TM_INDEX</a>)) == NULL) { <span class="comment">/* or no TM? */</span>
+L0117            <a class="L" href="lobject.h.html#setobj2s">setobj2s</a>(L, val, res);
+L0118            <span class="keyword">return</span>;
+L0119          }
+L0120          <span class="comment">/* else will try the tag method */</span>
+L0121        }
+L0122        <span class="keyword">else</span> <span class="keyword">if</span> (<a class="L" href="lobject.h.html#ttisnil">ttisnil</a>(tm = <a class="L" href="ltm.c.html#luaT_gettmbyobj">luaT_gettmbyobj</a>(L, t, <a class="L" href="ltm.h.html#TM_INDEX">TM_INDEX</a>)))
+L0123          <a class="L" href="ldebug.c.html#luaG_typeerror">luaG_typeerror</a>(L, t, <span class="string">"index"</span>);
+L0124        <span class="keyword">if</span> (<a class="L" href="lobject.h.html#ttisfunction">ttisfunction</a>(tm)) {
+L0125          <a class="L" href="lvm.c.html#callTMres">callTMres</a>(L, val, tm, t, key);
+L0126          <span class="keyword">return</span>;
+L0127        }
+L0128        t = tm;  <span class="comment">/* else repeat with `tm' */</span> 
+L0129      }
+L0130      <a class="L" href="ldebug.c.html#luaG_runerror">luaG_runerror</a>(L, <span class="string">"loop in gettable"</span>);
+L0131    }
+L0132    
+L0133    
+L0134    <span class="keyword">void</span> <a name="luaV_settable"/a><a class="L" href="lvm.c.ref.html#luaV_settable">luaV_settable</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *t, <a class="L" href="lobject.h.html#TValue">TValue</a> *key, <a class="L" href="lobject.h.html#StkId">StkId</a> val) {
+L0135      <span class="keyword">int</span> loop;
+L0136      <span class="keyword">for</span> (loop = <span class="number">0</span>; loop &lt; <a class="L" href="lvm.c.html#MAXTAGLOOP">MAXTAGLOOP</a>; loop++) {
+L0137        <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *tm;
+L0138        <span class="keyword">if</span> (<a class="L" href="lobject.h.html#ttistable">ttistable</a>(t)) {  <span class="comment">/* `t' is a table? */</span>
+L0139          <a class="L" href="lobject.h.html#Table">Table</a> *h = <a class="L" href="lobject.h.html#hvalue">hvalue</a>(t);
+L0140          <a class="L" href="lobject.h.html#TValue">TValue</a> *oldval = <a class="L" href="ltable.c.html#luaH_set">luaH_set</a>(L, h, key); <span class="comment">/* do a primitive set */</span>
+L0141          <span class="keyword">if</span> (!<a class="L" href="lobject.h.html#ttisnil">ttisnil</a>(oldval) ||  <span class="comment">/* result is no nil? */</span>
+L0142              (tm = <a class="L" href="ltm.h.html#fasttm">fasttm</a>(L, h-&gt;metatable, <a class="L" href="ltm.h.html#TM_NEWINDEX">TM_NEWINDEX</a>)) == NULL) { <span class="comment">/* or no TM? */</span>
+L0143            <a class="L" href="lobject.h.html#setobj2t">setobj2t</a>(L, oldval, val);
+L0144            <a class="L" href="lgc.h.html#luaC_barriert">luaC_barriert</a>(L, h, val);
+L0145            <span class="keyword">return</span>;
+L0146          }
+L0147          <span class="comment">/* else will try the tag method */</span>
+L0148        }
+L0149        <span class="keyword">else</span> <span class="keyword">if</span> (<a class="L" href="lobject.h.html#ttisnil">ttisnil</a>(tm = <a class="L" href="ltm.c.html#luaT_gettmbyobj">luaT_gettmbyobj</a>(L, t, <a class="L" href="ltm.h.html#TM_NEWINDEX">TM_NEWINDEX</a>)))
+L0150          <a class="L" href="ldebug.c.html#luaG_typeerror">luaG_typeerror</a>(L, t, <span class="string">"index"</span>);
+L0151        <span class="keyword">if</span> (<a class="L" href="lobject.h.html#ttisfunction">ttisfunction</a>(tm)) {
+L0152          <a class="L" href="lvm.c.html#callTM">callTM</a>(L, tm, t, key, val);
+L0153          <span class="keyword">return</span>;
+L0154        }
+L0155        t = tm;  <span class="comment">/* else repeat with `tm' */</span> 
+L0156      }
+L0157      <a class="L" href="ldebug.c.html#luaG_runerror">luaG_runerror</a>(L, <span class="string">"loop in settable"</span>);
+L0158    }
+L0159    
+L0160    
+L0161    <span class="keyword">static</span> <span class="keyword">int</span> <a name="call_binTM"/a><a class="L" href="lvm.c.ref.html#call_binTM">call_binTM</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *p1, <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *p2,
+L0162                           <a class="L" href="lobject.h.html#StkId">StkId</a> res, <a class="L" href="ltm.h.html#TMS">TMS</a> event) {
+L0163      <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *tm = <a class="L" href="ltm.c.html#luaT_gettmbyobj">luaT_gettmbyobj</a>(L, p1, event);  <span class="comment">/* try first operand */</span>
+L0164      <span class="keyword">if</span> (<a class="L" href="lobject.h.html#ttisnil">ttisnil</a>(tm))
+L0165        tm = <a class="L" href="ltm.c.html#luaT_gettmbyobj">luaT_gettmbyobj</a>(L, p2, event);  <span class="comment">/* try second operand */</span>
+L0166      <span class="keyword">if</span> (<a class="L" href="lobject.h.html#ttisnil">ttisnil</a>(tm)) <span class="keyword">return</span> <span class="number">0</span>;
+L0167      <a class="L" href="lvm.c.html#callTMres">callTMres</a>(L, res, tm, p1, p2);
+L0168      <span class="keyword">return</span> <span class="number">1</span>;
+L0169    }
+L0170    
+L0171    
+L0172    <span class="keyword">static</span> <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *<a name="get_compTM"/a><a class="L" href="lvm.c.ref.html#get_compTM">get_compTM</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lobject.h.html#Table">Table</a> *mt1, <a class="L" href="lobject.h.html#Table">Table</a> *mt2,
+L0173                                      <a class="L" href="ltm.h.html#TMS">TMS</a> event) {
+L0174      <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *tm1 = <a class="L" href="ltm.h.html#fasttm">fasttm</a>(L, mt1, event);
+L0175      <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *tm2;
+L0176      <span class="keyword">if</span> (tm1 == NULL) <span class="keyword">return</span> NULL;  <span class="comment">/* no metamethod */</span>
+L0177      <span class="keyword">if</span> (mt1 == mt2) <span class="keyword">return</span> tm1;  <span class="comment">/* same metatables =&gt; same metamethods */</span>
+L0178      tm2 = <a class="L" href="ltm.h.html#fasttm">fasttm</a>(L, mt2, event);
+L0179      <span class="keyword">if</span> (tm2 == NULL) <span class="keyword">return</span> NULL;  <span class="comment">/* no metamethod */</span>
+L0180      <span class="keyword">if</span> (<a class="L" href="lobject.c.html#luaO_rawequalObj">luaO_rawequalObj</a>(tm1, tm2))  <span class="comment">/* same metamethods? */</span>
+L0181        <span class="keyword">return</span> tm1;
+L0182      <span class="keyword">return</span> NULL;
+L0183    }
+L0184    
+L0185    
+L0186    <span class="keyword">static</span> <span class="keyword">int</span> <a name="call_orderTM"/a><a class="L" href="lvm.c.ref.html#call_orderTM">call_orderTM</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *p1, <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *p2,
+L0187                             <a class="L" href="ltm.h.html#TMS">TMS</a> event) {
+L0188      <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *tm1 = <a class="L" href="ltm.c.html#luaT_gettmbyobj">luaT_gettmbyobj</a>(L, p1, event);
+L0189      <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *tm2;
+L0190      <span class="keyword">if</span> (<a class="L" href="lobject.h.html#ttisnil">ttisnil</a>(tm1)) <span class="keyword">return</span> <span class="number">-1</span>;  <span class="comment">/* no metamethod? */</span>
+L0191      tm2 = <a class="L" href="ltm.c.html#luaT_gettmbyobj">luaT_gettmbyobj</a>(L, p2, event);
+L0192      <span class="keyword">if</span> (!<a class="L" href="lobject.c.html#luaO_rawequalObj">luaO_rawequalObj</a>(tm1, tm2))  <span class="comment">/* different metamethods? */</span>
+L0193        <span class="keyword">return</span> <span class="number">-1</span>;
+L0194      <a class="L" href="lvm.c.html#callTMres">callTMres</a>(L, L-&gt;top, tm1, p1, p2);
+L0195      <span class="keyword">return</span> !<a class="L" href="lobject.h.html#l_isfalse">l_isfalse</a>(L-&gt;top);
+L0196    }
+L0197    
+L0198    
+L0199    <span class="keyword">static</span> <span class="keyword">int</span> <a name="l_strcmp"/a><a class="L" href="lvm.c.ref.html#l_strcmp">l_strcmp</a> (<span class="keyword">const</span> <a class="L" href="lobject.h.html#TString">TString</a> *ls, <span class="keyword">const</span> <a class="L" href="lobject.h.html#TString">TString</a> *rs) {
+L0200      <span class="keyword">const</span> <span class="keyword">char</span> *l = <a class="L" href="lobject.h.html#getstr">getstr</a>(ls);
+L0201      size_t ll = ls-&gt;tsv.len;
+L0202      <span class="keyword">const</span> <span class="keyword">char</span> *r = <a class="L" href="lobject.h.html#getstr">getstr</a>(rs);
+L0203      size_t lr = rs-&gt;tsv.len;
+L0204      <span class="keyword">for</span> (;;) {
+L0205        <span class="keyword">int</span> temp = strcoll(l, r);
+L0206        <span class="keyword">if</span> (temp != <span class="number">0</span>) <span class="keyword">return</span> temp;
+L0207        <span class="keyword">else</span> {  <span class="comment">/* strings are equal up to a `\0' */</span>
+L0208          size_t len = strlen(l);  <span class="comment">/* index of first `\0' in both strings */</span>
+L0209          <span class="keyword">if</span> (len == lr)  <span class="comment">/* r is finished? */</span>
+L0210            <span class="keyword">return</span> (len == ll) ? <span class="number">0</span> : <span class="number">1</span>;
+L0211          <span class="keyword">else</span> <span class="keyword">if</span> (len == ll)  <span class="comment">/* l is finished? */</span>
+L0212            <span class="keyword">return</span> <span class="number">-1</span>;  <span class="comment">/* l is smaller than r (because r is not finished) */</span>
+L0213          <span class="comment">/* both strings longer than `len'; go on comparing (after the `\0') */</span>
+L0214          len++;
+L0215          l += len; ll -= len; r += len; lr -= len;
+L0216        }
+L0217      }
+L0218    }
+L0219    
+L0220    
+L0221    <span class="keyword">int</span> <a name="luaV_lessthan"/a><a class="L" href="lvm.c.ref.html#luaV_lessthan">luaV_lessthan</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *l, <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *r) {
+L0222      <span class="keyword">int</span> res;
+L0223      <span class="keyword">if</span> (<a class="L" href="lobject.h.html#ttype">ttype</a>(l) != <a class="L" href="lobject.h.html#ttype">ttype</a>(r))
+L0224        <span class="keyword">return</span> <a class="L" href="ldebug.c.html#luaG_ordererror">luaG_ordererror</a>(L, l, r);
+L0225      <span class="keyword">else</span> <span class="keyword">if</span> (<a class="L" href="lobject.h.html#ttisnumber">ttisnumber</a>(l))
+L0226        <span class="keyword">return</span> <a class="L" href="luaconf.h.html#luai_numlt">luai_numlt</a>(<a class="L" href="lobject.h.html#nvalue">nvalue</a>(l), <a class="L" href="lobject.h.html#nvalue">nvalue</a>(r));
+L0227      <span class="keyword">else</span> <span class="keyword">if</span> (<a class="L" href="lobject.h.html#ttisstring">ttisstring</a>(l))
+L0228        <span class="keyword">return</span> <a class="L" href="lvm.c.html#l_strcmp">l_strcmp</a>(<a class="L" href="lobject.h.html#rawtsvalue">rawtsvalue</a>(l), <a class="L" href="lobject.h.html#rawtsvalue">rawtsvalue</a>(r)) &lt; <span class="number">0</span>;
+L0229      <span class="keyword">else</span> <span class="keyword">if</span> ((res = <a class="L" href="lvm.c.html#call_orderTM">call_orderTM</a>(L, l, r, <a class="L" href="ltm.h.html#TM_LT">TM_LT</a>)) != <span class="number">-1</span>)
+L0230        <span class="keyword">return</span> res;
+L0231      <span class="keyword">return</span> <a class="L" href="ldebug.c.html#luaG_ordererror">luaG_ordererror</a>(L, l, r);
+L0232    }
+L0233    
+L0234    
+L0235    <span class="keyword">static</span> <span class="keyword">int</span> <a name="lessequal"/a><a class="L" href="lvm.c.ref.html#lessequal">lessequal</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *l, <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *r) {
+L0236      <span class="keyword">int</span> res;
+L0237      <span class="keyword">if</span> (<a class="L" href="lobject.h.html#ttype">ttype</a>(l) != <a class="L" href="lobject.h.html#ttype">ttype</a>(r))
+L0238        <span class="keyword">return</span> <a class="L" href="ldebug.c.html#luaG_ordererror">luaG_ordererror</a>(L, l, r);
+L0239      <span class="keyword">else</span> <span class="keyword">if</span> (<a class="L" href="lobject.h.html#ttisnumber">ttisnumber</a>(l))
+L0240        <span class="keyword">return</span> <a class="L" href="luaconf.h.html#luai_numle">luai_numle</a>(<a class="L" href="lobject.h.html#nvalue">nvalue</a>(l), <a class="L" href="lobject.h.html#nvalue">nvalue</a>(r));
+L0241      <span class="keyword">else</span> <span class="keyword">if</span> (<a class="L" href="lobject.h.html#ttisstring">ttisstring</a>(l))
+L0242        <span class="keyword">return</span> <a class="L" href="lvm.c.html#l_strcmp">l_strcmp</a>(<a class="L" href="lobject.h.html#rawtsvalue">rawtsvalue</a>(l), <a class="L" href="lobject.h.html#rawtsvalue">rawtsvalue</a>(r)) &lt;= <span class="number">0</span>;
+L0243      <span class="keyword">else</span> <span class="keyword">if</span> ((res = <a class="L" href="lvm.c.html#call_orderTM">call_orderTM</a>(L, l, r, <a class="L" href="ltm.h.html#TM_LE">TM_LE</a>)) != <span class="number">-1</span>)  <span class="comment">/* first try `le' */</span>
+L0244        <span class="keyword">return</span> res;
+L0245      <span class="keyword">else</span> <span class="keyword">if</span> ((res = <a class="L" href="lvm.c.html#call_orderTM">call_orderTM</a>(L, r, l, <a class="L" href="ltm.h.html#TM_LT">TM_LT</a>)) != <span class="number">-1</span>)  <span class="comment">/* else try `lt' */</span>
+L0246        <span class="keyword">return</span> !res;
+L0247      <span class="keyword">return</span> <a class="L" href="ldebug.c.html#luaG_ordererror">luaG_ordererror</a>(L, l, r);
+L0248    }
+L0249    
+L0250    
+L0251    <span class="keyword">int</span> <a name="luaV_equalval"/a><a class="L" href="lvm.c.ref.html#luaV_equalval">luaV_equalval</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *t1, <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *t2) {
+L0252      <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *tm;
+L0253      <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(<a class="L" href="lobject.h.html#ttype">ttype</a>(t1) == <a class="L" href="lobject.h.html#ttype">ttype</a>(t2));
+L0254      <span class="keyword">switch</span> (<a class="L" href="lobject.h.html#ttype">ttype</a>(t1)) {
+L0255        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TNIL">LUA_TNIL</a>: <span class="keyword">return</span> <span class="number">1</span>;
+L0256        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TNUMBER">LUA_TNUMBER</a>: <span class="keyword">return</span> <a class="L" href="luaconf.h.html#luai_numeq">luai_numeq</a>(<a class="L" href="lobject.h.html#nvalue">nvalue</a>(t1), <a class="L" href="lobject.h.html#nvalue">nvalue</a>(t2));
+L0257        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TBOOLEAN">LUA_TBOOLEAN</a>: <span class="keyword">return</span> <a class="L" href="lobject.h.html#bvalue">bvalue</a>(t1) == <a class="L" href="lobject.h.html#bvalue">bvalue</a>(t2);  <span class="comment">/* true must be 1 !! */</span>
+L0258        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TLIGHTUSERDATA">LUA_TLIGHTUSERDATA</a>: <span class="keyword">return</span> <a class="L" href="lobject.h.html#pvalue">pvalue</a>(t1) == <a class="L" href="lobject.h.html#pvalue">pvalue</a>(t2);
+L0259        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TUSERDATA">LUA_TUSERDATA</a>: {
+L0260          <span class="keyword">if</span> (<a class="L" href="lobject.h.html#uvalue">uvalue</a>(t1) == <a class="L" href="lobject.h.html#uvalue">uvalue</a>(t2)) <span class="keyword">return</span> <span class="number">1</span>;
+L0261          tm = <a class="L" href="lvm.c.html#get_compTM">get_compTM</a>(L, <a class="L" href="lobject.h.html#uvalue">uvalue</a>(t1)-&gt;metatable, <a class="L" href="lobject.h.html#uvalue">uvalue</a>(t2)-&gt;metatable,
+L0262                             <a class="L" href="ltm.h.html#TM_EQ">TM_EQ</a>);
+L0263          <span class="keyword">break</span>;  <span class="comment">/* will try TM */</span>
+L0264        }
+L0265        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TTABLE">LUA_TTABLE</a>: {
+L0266          <span class="keyword">if</span> (<a class="L" href="lobject.h.html#hvalue">hvalue</a>(t1) == <a class="L" href="lobject.h.html#hvalue">hvalue</a>(t2)) <span class="keyword">return</span> <span class="number">1</span>;
+L0267          tm = <a class="L" href="lvm.c.html#get_compTM">get_compTM</a>(L, <a class="L" href="lobject.h.html#hvalue">hvalue</a>(t1)-&gt;metatable, <a class="L" href="lobject.h.html#hvalue">hvalue</a>(t2)-&gt;metatable, <a class="L" href="ltm.h.html#TM_EQ">TM_EQ</a>);
+L0268          <span class="keyword">break</span>;  <span class="comment">/* will try TM */</span>
+L0269        }
+L0270        <span class="keyword">default</span>: <span class="keyword">return</span> <a class="L" href="lobject.h.html#gcvalue">gcvalue</a>(t1) == <a class="L" href="lobject.h.html#gcvalue">gcvalue</a>(t2);
+L0271      }
+L0272      <span class="keyword">if</span> (tm == NULL) <span class="keyword">return</span> <span class="number">0</span>;  <span class="comment">/* no TM? */</span>
+L0273      <a class="L" href="lvm.c.html#callTMres">callTMres</a>(L, L-&gt;top, tm, t1, t2);  <span class="comment">/* call TM */</span>
+L0274      <span class="keyword">return</span> !<a class="L" href="lobject.h.html#l_isfalse">l_isfalse</a>(L-&gt;top);
+L0275    }
+L0276    
+L0277    
+L0278    <span class="keyword">void</span> <a name="luaV_concat"/a><a class="L" href="lvm.c.ref.html#luaV_concat">luaV_concat</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> total, <span class="keyword">int</span> last) {
+L0279      <span class="keyword">do</span> {
+L0280        <a class="L" href="lobject.h.html#StkId">StkId</a> top = L-&gt;base + last + <span class="number">1</span>;
+L0281        <span class="keyword">int</span> n = <span class="number">2</span>;  <span class="comment">/* number of elements handled in this pass (at least 2) */</span>
+L0282        <span class="keyword">if</span> (!(<a class="L" href="lobject.h.html#ttisstring">ttisstring</a>(top<span class="number">-2</span>) || <a class="L" href="lobject.h.html#ttisnumber">ttisnumber</a>(top<span class="number">-2</span>)) || !<a class="L" href="lvm.h.html#tostring">tostring</a>(L, top<span class="number">-1</span>)) {
+L0283          <span class="keyword">if</span> (!<a class="L" href="lvm.c.html#call_binTM">call_binTM</a>(L, top<span class="number">-2</span>, top<span class="number">-1</span>, top<span class="number">-2</span>, <a class="L" href="ltm.h.html#TM_CONCAT">TM_CONCAT</a>))
+L0284            <a class="L" href="ldebug.c.html#luaG_concaterror">luaG_concaterror</a>(L, top<span class="number">-2</span>, top<span class="number">-1</span>);
+L0285        } <span class="keyword">else</span> <span class="keyword">if</span> (<a class="L" href="lobject.h.html#tsvalue">tsvalue</a>(top<span class="number">-1</span>)-&gt;len == <span class="number">0</span>)  <span class="comment">/* second op is empty? */</span>
+L0286          (<span class="keyword">void</span>)<a class="L" href="lvm.h.html#tostring">tostring</a>(L, top - <span class="number">2</span>);  <span class="comment">/* result is first op (as string) */</span>
+L0287        <span class="keyword">else</span> {
+L0288          <span class="comment">/* at least two string values; get as many as possible */</span>
+L0289          size_t tl = <a class="L" href="lobject.h.html#tsvalue">tsvalue</a>(top<span class="number">-1</span>)-&gt;len;
+L0290          <span class="keyword">char</span> *buffer;
+L0291          <span class="keyword">int</span> i;
+L0292          <span class="comment">/* collect total length */</span>
+L0293          <span class="keyword">for</span> (n = <span class="number">1</span>; n &lt; total &amp;&amp; <a class="L" href="lvm.h.html#tostring">tostring</a>(L, top-n<span class="number">-1</span>); n++) {
+L0294            size_t l = <a class="L" href="lobject.h.html#tsvalue">tsvalue</a>(top-n<span class="number">-1</span>)-&gt;len;
+L0295            <span class="keyword">if</span> (l &gt;= <a class="L" href="llimits.h.html#MAX_SIZET">MAX_SIZET</a> - tl) <a class="L" href="ldebug.c.html#luaG_runerror">luaG_runerror</a>(L, <span class="string">"string length overflow"</span>);
+L0296            tl += l;
+L0297          }
+L0298          buffer = <a class="L" href="lzio.c.html#luaZ_openspace">luaZ_openspace</a>(L, &amp;<a class="L" href="lstate.h.html#G">G</a>(L)-&gt;buff, tl);
+L0299          tl = <span class="number">0</span>;
+L0300          <span class="keyword">for</span> (i=n; i&gt;<span class="number">0</span>; i--) {  <span class="comment">/* concat all strings */</span>
+L0301            size_t l = <a class="L" href="lobject.h.html#tsvalue">tsvalue</a>(top-i)-&gt;len;
+L0302            memcpy(buffer+tl, <a class="L" href="lobject.h.html#svalue">svalue</a>(top-i), l);
+L0303            tl += l;
+L0304          }
+L0305          <a class="L" href="lobject.h.html#setsvalue2s">setsvalue2s</a>(L, top-n, <a class="L" href="lstring.c.html#luaS_newlstr">luaS_newlstr</a>(L, buffer, tl));
+L0306        }
+L0307        total -= n<span class="number">-1</span>;  <span class="comment">/* got `n' strings to create 1 new */</span>
+L0308        last -= n<span class="number">-1</span>;
+L0309      } <span class="keyword">while</span> (total &gt; <span class="number">1</span>);  <span class="comment">/* repeat until only 1 result left */</span>
+L0310    }
+L0311    
+L0312    
+L0313    <span class="keyword">static</span> <span class="keyword">void</span> <a name="Arith"/a><a class="L" href="lvm.c.ref.html#Arith">Arith</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lobject.h.html#StkId">StkId</a> ra, <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *rb,
+L0314                       <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *rc, <a class="L" href="ltm.h.html#TMS">TMS</a> op) {
+L0315      <a class="L" href="lobject.h.html#TValue">TValue</a> tempb, tempc;
+L0316      <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *b, *c;
+L0317      <span class="keyword">if</span> ((b = <a class="L" href="lvm.c.html#luaV_tonumber">luaV_tonumber</a>(rb, &amp;tempb)) != NULL &amp;&amp;
+L0318          (c = <a class="L" href="lvm.c.html#luaV_tonumber">luaV_tonumber</a>(rc, &amp;tempc)) != NULL) {
+L0319        <a class="L" href="lua.h.html#lua_Number">lua_Number</a> nb = <a class="L" href="lobject.h.html#nvalue">nvalue</a>(b), nc = <a class="L" href="lobject.h.html#nvalue">nvalue</a>(c);
+L0320        <span class="keyword">switch</span> (op) {
+L0321          <span class="keyword">case</span> <a class="L" href="ltm.h.html#TM_ADD">TM_ADD</a>: <a class="L" href="lobject.h.html#setnvalue">setnvalue</a>(ra, <a class="L" href="luaconf.h.html#luai_numadd">luai_numadd</a>(nb, nc)); <span class="keyword">break</span>;
+L0322          <span class="keyword">case</span> <a class="L" href="ltm.h.html#TM_SUB">TM_SUB</a>: <a class="L" href="lobject.h.html#setnvalue">setnvalue</a>(ra, <a class="L" href="luaconf.h.html#luai_numsub">luai_numsub</a>(nb, nc)); <span class="keyword">break</span>;
+L0323          <span class="keyword">case</span> <a class="L" href="ltm.h.html#TM_MUL">TM_MUL</a>: <a class="L" href="lobject.h.html#setnvalue">setnvalue</a>(ra, <a class="L" href="luaconf.h.html#luai_nummul">luai_nummul</a>(nb, nc)); <span class="keyword">break</span>;
+L0324          <span class="keyword">case</span> <a class="L" href="ltm.h.html#TM_DIV">TM_DIV</a>: <a class="L" href="lobject.h.html#setnvalue">setnvalue</a>(ra, <a class="L" href="luaconf.h.html#luai_numdiv">luai_numdiv</a>(nb, nc)); <span class="keyword">break</span>;
+L0325          <span class="keyword">case</span> <a class="L" href="ltm.h.html#TM_MOD">TM_MOD</a>: <a class="L" href="lobject.h.html#setnvalue">setnvalue</a>(ra, <a class="L" href="luaconf.h.html#luai_nummod">luai_nummod</a>(nb, nc)); <span class="keyword">break</span>;
+L0326          <span class="keyword">case</span> <a class="L" href="ltm.h.html#TM_POW">TM_POW</a>: <a class="L" href="lobject.h.html#setnvalue">setnvalue</a>(ra, <a class="L" href="luaconf.h.html#luai_numpow">luai_numpow</a>(nb, nc)); <span class="keyword">break</span>;
+L0327          <span class="keyword">case</span> <a class="L" href="ltm.h.html#TM_UNM">TM_UNM</a>: <a class="L" href="lobject.h.html#setnvalue">setnvalue</a>(ra, <a class="L" href="luaconf.h.html#luai_numunm">luai_numunm</a>(nb)); <span class="keyword">break</span>;
+L0328          <span class="keyword">default</span>: <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(<span class="number">0</span>); <span class="keyword">break</span>;
+L0329        }
+L0330      }
+L0331      <span class="keyword">else</span> <span class="keyword">if</span> (!<a class="L" href="lvm.c.html#call_binTM">call_binTM</a>(L, rb, rc, ra, op))
+L0332        <a class="L" href="ldebug.c.html#luaG_aritherror">luaG_aritherror</a>(L, rb, rc);
+L0333    }
+L0334    
+L0335    
+L0336    
+L0337    <span class="comment">/*
+L0338    ** some macros for common tasks in `luaV_execute'
+L0339    */</span>
+L0340    
+L0341    <a name="runtime_check"/a><span class="prepro">#define runtime_check(L, c)	{ if (!(c)) break; }
+</span>L0342    
+L0343    <a name="RA"/a><span class="prepro">#define RA(i)	(base+GETARG_A(i))
+</span>L0344    <span class="comment">/* to be used after possible stack reallocation */</span>
+L0345    <a name="RB"/a><span class="prepro">#define RB(i)	check_exp(getBMode(GET_OPCODE(i)) == OpArgR, base+GETARG_B(i))
+</span>L0346    <a name="RC"/a><span class="prepro">#define RC(i)	check_exp(getCMode(GET_OPCODE(i)) == OpArgR, base+GETARG_C(i))
+</span>L0347    <a name="RKB"/a><span class="prepro">#define RKB(i)	check_exp(getBMode(GET_OPCODE(i)) == OpArgK, \
+L0348    	ISK(GETARG_B(i)) ? k+INDEXK(GETARG_B(i)) : base+GETARG_B(i))
+</span>L0349    <a name="RKC"/a><span class="prepro">#define RKC(i)	check_exp(getCMode(GET_OPCODE(i)) == OpArgK, \
+L0350    	ISK(GETARG_C(i)) ? k+INDEXK(GETARG_C(i)) : base+GETARG_C(i))
+</span>L0351    <a name="KBx"/a><span class="prepro">#define KBx(i)	check_exp(getBMode(GET_OPCODE(i)) == OpArgK, k+GETARG_Bx(i))
+</span>L0352    
+L0353    
+L0354    <a name="dojump"/a><span class="prepro">#define dojump(L,pc,i)	{(pc) += (i); luai_threadyield(L);}
+</span>L0355    
+L0356    
+L0357    <a name="Protect"/a><span class="prepro">#define Protect(x)	{ L-&gt;savedpc = pc; {x;}; base = L-&gt;base; }
+</span>L0358    
+L0359    
+L0360    <a name="arith_op"/a><span class="prepro">#define arith_op(op,tm) { \
+L0361            TValue *rb = RKB(i); \
+L0362            TValue *rc = RKC(i); \
+L0363            if (ttisnumber(rb) &amp;&amp; ttisnumber(rc)) { \
+L0364              lua_Number nb = nvalue(rb), nc = nvalue(rc); \
+L0365              setnvalue(ra, op(nb, nc)); \
+L0366            } \
+L0367            else \
+L0368              Protect(Arith(L, ra, rb, rc, tm)); \
+L0369          }
+</span>L0370    
+L0371    
+L0372    
+L0373    <span class="keyword">void</span> <a name="luaV_execute"/a><a class="L" href="lvm.c.ref.html#luaV_execute">luaV_execute</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> nexeccalls) {
+L0374      <a class="L" href="lobject.h.html#LClosure">LClosure</a> *cl;
+L0375      <a class="L" href="lobject.h.html#StkId">StkId</a> base;
+L0376      <a class="L" href="lobject.h.html#TValue">TValue</a> *k;
+L0377      <span class="keyword">const</span> <a class="L" href="llimits.h.html#Instruction">Instruction</a> *pc;
+L0378     reentry:  <span class="comment">/* entry point */</span>
+L0379      <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(<a class="L" href="lstate.h.html#isLua">isLua</a>(L-&gt;ci));
+L0380      pc = L-&gt;savedpc;
+L0381      cl = &amp;<a class="L" href="lobject.h.html#clvalue">clvalue</a>(L-&gt;ci-&gt;func)-&gt;l;
+L0382      base = L-&gt;base;
+L0383      k = cl-&gt;p-&gt;k;
+L0384      <span class="comment">/* main loop of interpreter */</span>
+L0385      <span class="keyword">for</span> (;;) {
+L0386        <span class="keyword">const</span> <a class="L" href="llimits.h.html#Instruction">Instruction</a> i = *pc++;
+L0387        <a class="L" href="lobject.h.html#StkId">StkId</a> ra;
+L0388        <span class="keyword">if</span> ((L-&gt;hookmask &amp; (<a class="L" href="lua.h.html#LUA_MASKLINE">LUA_MASKLINE</a> | <a class="L" href="lua.h.html#LUA_MASKCOUNT">LUA_MASKCOUNT</a>)) &amp;&amp;
+L0389            (--L-&gt;hookcount == <span class="number">0</span> || L-&gt;hookmask &amp; <a class="L" href="lua.h.html#LUA_MASKLINE">LUA_MASKLINE</a>)) {
+L0390          <a class="L" href="lvm.c.html#traceexec">traceexec</a>(L, pc);
+L0391          <span class="keyword">if</span> (L-&gt;status == <a class="L" href="lua.h.html#LUA_YIELD">LUA_YIELD</a>) {  <span class="comment">/* did hook yield? */</span>
+L0392            L-&gt;savedpc = pc - <span class="number">1</span>;
+L0393            <span class="keyword">return</span>;
+L0394          }
+L0395          base = L-&gt;base;
+L0396        }
+L0397        <span class="comment">/* warning!! several calls may realloc the stack and invalidate `ra' */</span>
+L0398        ra = <a class="L" href="lvm.c.html#RA">RA</a>(i);
+L0399        <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(base == L-&gt;base &amp;&amp; L-&gt;base == L-&gt;ci-&gt;base);
+L0400        <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(base &lt;= L-&gt;top &amp;&amp; L-&gt;top &lt;= L-&gt;stack + L-&gt;stacksize);
+L0401        <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(L-&gt;top == L-&gt;ci-&gt;top || <a class="L" href="ldebug.c.html#luaG_checkopenop">luaG_checkopenop</a>(i));
+L0402        <span class="keyword">switch</span> (<a class="L" href="lopcodes.h.html#GET_OPCODE">GET_OPCODE</a>(i)) {
+L0403          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_MOVE">OP_MOVE</a>: {
+L0404            <a class="L" href="lobject.h.html#setobjs2s">setobjs2s</a>(L, ra, <a class="L" href="lvm.c.html#RB">RB</a>(i));
+L0405            <span class="keyword">continue</span>;
+L0406          }
+L0407          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_LOADK">OP_LOADK</a>: {
+L0408            <a class="L" href="lobject.h.html#setobj2s">setobj2s</a>(L, ra, <a class="L" href="lvm.c.html#KBx">KBx</a>(i));
+L0409            <span class="keyword">continue</span>;
+L0410          }
+L0411          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_LOADBOOL">OP_LOADBOOL</a>: {
+L0412            <a class="L" href="lobject.h.html#setbvalue">setbvalue</a>(ra, <a class="L" href="lopcodes.h.html#GETARG_B">GETARG_B</a>(i));
+L0413            <span class="keyword">if</span> (<a class="L" href="lopcodes.h.html#GETARG_C">GETARG_C</a>(i)) pc++;  <span class="comment">/* skip next instruction (if C) */</span>
+L0414            <span class="keyword">continue</span>;
+L0415          }
+L0416          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_LOADNIL">OP_LOADNIL</a>: {
+L0417            <a class="L" href="lobject.h.html#TValue">TValue</a> *rb = <a class="L" href="lvm.c.html#RB">RB</a>(i);
+L0418            <span class="keyword">do</span> {
+L0419              <a class="L" href="lobject.h.html#setnilvalue">setnilvalue</a>(rb--);
+L0420            } <span class="keyword">while</span> (rb &gt;= ra);
+L0421            <span class="keyword">continue</span>;
+L0422          }
+L0423          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_GETUPVAL">OP_GETUPVAL</a>: {
+L0424            <span class="keyword">int</span> b = <a class="L" href="lopcodes.h.html#GETARG_B">GETARG_B</a>(i);
+L0425            <a class="L" href="lobject.h.html#setobj2s">setobj2s</a>(L, ra, cl-&gt;upvals[b]-&gt;v);
+L0426            <span class="keyword">continue</span>;
+L0427          }
+L0428          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_GETGLOBAL">OP_GETGLOBAL</a>: {
+L0429            <a class="L" href="lobject.h.html#TValue">TValue</a> g;
+L0430            <a class="L" href="lobject.h.html#TValue">TValue</a> *rb = <a class="L" href="lvm.c.html#KBx">KBx</a>(i);
+L0431            <a class="L" href="lobject.h.html#sethvalue">sethvalue</a>(L, &amp;g, cl-&gt;env);
+L0432            <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(<a class="L" href="lobject.h.html#ttisstring">ttisstring</a>(rb));
+L0433            <a class="L" href="lvm.c.html#Protect">Protect</a>(<a class="L" href="lvm.c.html#luaV_gettable">luaV_gettable</a>(L, &amp;g, rb, ra));
+L0434            <span class="keyword">continue</span>;
+L0435          }
+L0436          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_GETTABLE">OP_GETTABLE</a>: {
+L0437            <a class="L" href="lvm.c.html#Protect">Protect</a>(<a class="L" href="lvm.c.html#luaV_gettable">luaV_gettable</a>(L, <a class="L" href="lvm.c.html#RB">RB</a>(i), <a class="L" href="lvm.c.html#RKC">RKC</a>(i), ra));
+L0438            <span class="keyword">continue</span>;
+L0439          }
+L0440          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_SETGLOBAL">OP_SETGLOBAL</a>: {
+L0441            <a class="L" href="lobject.h.html#TValue">TValue</a> g;
+L0442            <a class="L" href="lobject.h.html#sethvalue">sethvalue</a>(L, &amp;g, cl-&gt;env);
+L0443            <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(<a class="L" href="lobject.h.html#ttisstring">ttisstring</a>(<a class="L" href="lvm.c.html#KBx">KBx</a>(i)));
+L0444            <a class="L" href="lvm.c.html#Protect">Protect</a>(<a class="L" href="lvm.c.html#luaV_settable">luaV_settable</a>(L, &amp;g, <a class="L" href="lvm.c.html#KBx">KBx</a>(i), ra));
+L0445            <span class="keyword">continue</span>;
+L0446          }
+L0447          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_SETUPVAL">OP_SETUPVAL</a>: {
+L0448            <a class="L" href="lobject.h.html#UpVal">UpVal</a> *uv = cl-&gt;upvals[<a class="L" href="lopcodes.h.html#GETARG_B">GETARG_B</a>(i)];
+L0449            <a class="L" href="lobject.h.html#setobj">setobj</a>(L, uv-&gt;v, ra);
+L0450            <a class="L" href="lgc.h.html#luaC_barrier">luaC_barrier</a>(L, uv, ra);
+L0451            <span class="keyword">continue</span>;
+L0452          }
+L0453          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_SETTABLE">OP_SETTABLE</a>: {
+L0454            <a class="L" href="lvm.c.html#Protect">Protect</a>(<a class="L" href="lvm.c.html#luaV_settable">luaV_settable</a>(L, ra, <a class="L" href="lvm.c.html#RKB">RKB</a>(i), <a class="L" href="lvm.c.html#RKC">RKC</a>(i)));
+L0455            <span class="keyword">continue</span>;
+L0456          }
+L0457          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_NEWTABLE">OP_NEWTABLE</a>: {
+L0458            <span class="keyword">int</span> b = <a class="L" href="lopcodes.h.html#GETARG_B">GETARG_B</a>(i);
+L0459            <span class="keyword">int</span> c = <a class="L" href="lopcodes.h.html#GETARG_C">GETARG_C</a>(i);
+L0460            <a class="L" href="lobject.h.html#sethvalue">sethvalue</a>(L, ra, <a class="L" href="ltable.c.html#luaH_new">luaH_new</a>(L, <a class="L" href="lobject.c.html#luaO_fb2int">luaO_fb2int</a>(b), <a class="L" href="lobject.c.html#luaO_fb2int">luaO_fb2int</a>(c)));
+L0461            <a class="L" href="lvm.c.html#Protect">Protect</a>(<a class="L" href="lgc.h.html#luaC_checkGC">luaC_checkGC</a>(L));
+L0462            <span class="keyword">continue</span>;
+L0463          }
+L0464          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_SELF">OP_SELF</a>: {
+L0465            <a class="L" href="lobject.h.html#StkId">StkId</a> rb = <a class="L" href="lvm.c.html#RB">RB</a>(i);
+L0466            <a class="L" href="lobject.h.html#setobjs2s">setobjs2s</a>(L, ra<span class="number">+1</span>, rb);
+L0467            <a class="L" href="lvm.c.html#Protect">Protect</a>(<a class="L" href="lvm.c.html#luaV_gettable">luaV_gettable</a>(L, rb, <a class="L" href="lvm.c.html#RKC">RKC</a>(i), ra));
+L0468            <span class="keyword">continue</span>;
+L0469          }
+L0470          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_ADD">OP_ADD</a>: {
+L0471            <a class="L" href="lvm.c.html#arith_op">arith_op</a>(<a class="L" href="luaconf.h.html#luai_numadd">luai_numadd</a>, <a class="L" href="ltm.h.html#TM_ADD">TM_ADD</a>);
+L0472            <span class="keyword">continue</span>;
+L0473          }
+L0474          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_SUB">OP_SUB</a>: {
+L0475            <a class="L" href="lvm.c.html#arith_op">arith_op</a>(<a class="L" href="luaconf.h.html#luai_numsub">luai_numsub</a>, <a class="L" href="ltm.h.html#TM_SUB">TM_SUB</a>);
+L0476            <span class="keyword">continue</span>;
+L0477          }
+L0478          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_MUL">OP_MUL</a>: {
+L0479            <a class="L" href="lvm.c.html#arith_op">arith_op</a>(<a class="L" href="luaconf.h.html#luai_nummul">luai_nummul</a>, <a class="L" href="ltm.h.html#TM_MUL">TM_MUL</a>);
+L0480            <span class="keyword">continue</span>;
+L0481          }
+L0482          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_DIV">OP_DIV</a>: {
+L0483            <a class="L" href="lvm.c.html#arith_op">arith_op</a>(<a class="L" href="luaconf.h.html#luai_numdiv">luai_numdiv</a>, <a class="L" href="ltm.h.html#TM_DIV">TM_DIV</a>);
+L0484            <span class="keyword">continue</span>;
+L0485          }
+L0486          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_MOD">OP_MOD</a>: {
+L0487            <a class="L" href="lvm.c.html#arith_op">arith_op</a>(<a class="L" href="luaconf.h.html#luai_nummod">luai_nummod</a>, <a class="L" href="ltm.h.html#TM_MOD">TM_MOD</a>);
+L0488            <span class="keyword">continue</span>;
+L0489          }
+L0490          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_POW">OP_POW</a>: {
+L0491            <a class="L" href="lvm.c.html#arith_op">arith_op</a>(<a class="L" href="luaconf.h.html#luai_numpow">luai_numpow</a>, <a class="L" href="ltm.h.html#TM_POW">TM_POW</a>);
+L0492            <span class="keyword">continue</span>;
+L0493          }
+L0494          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_UNM">OP_UNM</a>: {
+L0495            <a class="L" href="lobject.h.html#TValue">TValue</a> *rb = <a class="L" href="lvm.c.html#RB">RB</a>(i);
+L0496            <span class="keyword">if</span> (<a class="L" href="lobject.h.html#ttisnumber">ttisnumber</a>(rb)) {
+L0497              <a class="L" href="lua.h.html#lua_Number">lua_Number</a> nb = <a class="L" href="lobject.h.html#nvalue">nvalue</a>(rb);
+L0498              <a class="L" href="lobject.h.html#setnvalue">setnvalue</a>(ra, <a class="L" href="luaconf.h.html#luai_numunm">luai_numunm</a>(nb));
+L0499            }
+L0500            <span class="keyword">else</span> {
+L0501              <a class="L" href="lvm.c.html#Protect">Protect</a>(<a class="L" href="lvm.c.html#Arith">Arith</a>(L, ra, rb, rb, <a class="L" href="ltm.h.html#TM_UNM">TM_UNM</a>));
+L0502            }
+L0503            <span class="keyword">continue</span>;
+L0504          }
+L0505          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_NOT">OP_NOT</a>: {
+L0506            <span class="keyword">int</span> res = <a class="L" href="lobject.h.html#l_isfalse">l_isfalse</a>(<a class="L" href="lvm.c.html#RB">RB</a>(i));  <span class="comment">/* next assignment may change this value */</span>
+L0507            <a class="L" href="lobject.h.html#setbvalue">setbvalue</a>(ra, res);
+L0508            <span class="keyword">continue</span>;
+L0509          }
+L0510          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_LEN">OP_LEN</a>: {
+L0511            <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *rb = <a class="L" href="lvm.c.html#RB">RB</a>(i);
+L0512            <span class="keyword">switch</span> (<a class="L" href="lobject.h.html#ttype">ttype</a>(rb)) {
+L0513              <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TTABLE">LUA_TTABLE</a>: {
+L0514                <a class="L" href="lobject.h.html#setnvalue">setnvalue</a>(ra, <a class="L" href="llimits.h.html#cast_num">cast_num</a>(<a class="L" href="ltable.c.html#luaH_getn">luaH_getn</a>(<a class="L" href="lobject.h.html#hvalue">hvalue</a>(rb))));
+L0515                <span class="keyword">break</span>;
+L0516              }
+L0517              <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TSTRING">LUA_TSTRING</a>: {
+L0518                <a class="L" href="lobject.h.html#setnvalue">setnvalue</a>(ra, <a class="L" href="llimits.h.html#cast_num">cast_num</a>(<a class="L" href="lobject.h.html#tsvalue">tsvalue</a>(rb)-&gt;len));
+L0519                <span class="keyword">break</span>;
+L0520              }
+L0521              <span class="keyword">default</span>: {  <span class="comment">/* try metamethod */</span>
+L0522                <a class="L" href="lvm.c.html#Protect">Protect</a>(
+L0523                  <span class="keyword">if</span> (!<a class="L" href="lvm.c.html#call_binTM">call_binTM</a>(L, rb, <a class="L" href="lobject.h.html#luaO_nilobject">luaO_nilobject</a>, ra, <a class="L" href="ltm.h.html#TM_LEN">TM_LEN</a>))
+L0524                    <a class="L" href="ldebug.c.html#luaG_typeerror">luaG_typeerror</a>(L, rb, <span class="string">"get length of"</span>);
+L0525                )
+L0526              }
+L0527            }
+L0528            <span class="keyword">continue</span>;
+L0529          }
+L0530          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_CONCAT">OP_CONCAT</a>: {
+L0531            <span class="keyword">int</span> b = <a class="L" href="lopcodes.h.html#GETARG_B">GETARG_B</a>(i);
+L0532            <span class="keyword">int</span> c = <a class="L" href="lopcodes.h.html#GETARG_C">GETARG_C</a>(i);
+L0533            <a class="L" href="lvm.c.html#Protect">Protect</a>(<a class="L" href="lvm.c.html#luaV_concat">luaV_concat</a>(L, c-b<span class="number">+1</span>, c); <a class="L" href="lgc.h.html#luaC_checkGC">luaC_checkGC</a>(L));
+L0534            <a class="L" href="lobject.h.html#setobjs2s">setobjs2s</a>(L, <a class="L" href="lvm.c.html#RA">RA</a>(i), base+b);
+L0535            <span class="keyword">continue</span>;
+L0536          }
+L0537          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_JMP">OP_JMP</a>: {
+L0538            <a class="L" href="lvm.c.html#dojump">dojump</a>(L, pc, <a class="L" href="lopcodes.h.html#GETARG_sBx">GETARG_sBx</a>(i));
+L0539            <span class="keyword">continue</span>;
+L0540          }
+L0541          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_EQ">OP_EQ</a>: {
+L0542            <a class="L" href="lobject.h.html#TValue">TValue</a> *rb = <a class="L" href="lvm.c.html#RKB">RKB</a>(i);
+L0543            <a class="L" href="lobject.h.html#TValue">TValue</a> *rc = <a class="L" href="lvm.c.html#RKC">RKC</a>(i);
+L0544            <a class="L" href="lvm.c.html#Protect">Protect</a>(
+L0545              <span class="keyword">if</span> (<a class="L" href="lvm.h.html#equalobj">equalobj</a>(L, rb, rc) == <a class="L" href="lopcodes.h.html#GETARG_A">GETARG_A</a>(i))
+L0546                <a class="L" href="lvm.c.html#dojump">dojump</a>(L, pc, <a class="L" href="lopcodes.h.html#GETARG_sBx">GETARG_sBx</a>(*pc));
+L0547            )
+L0548            pc++;
+L0549            <span class="keyword">continue</span>;
+L0550          }
+L0551          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_LT">OP_LT</a>: {
+L0552            <a class="L" href="lvm.c.html#Protect">Protect</a>(
+L0553              <span class="keyword">if</span> (<a class="L" href="lvm.c.html#luaV_lessthan">luaV_lessthan</a>(L, <a class="L" href="lvm.c.html#RKB">RKB</a>(i), <a class="L" href="lvm.c.html#RKC">RKC</a>(i)) == <a class="L" href="lopcodes.h.html#GETARG_A">GETARG_A</a>(i))
+L0554                <a class="L" href="lvm.c.html#dojump">dojump</a>(L, pc, <a class="L" href="lopcodes.h.html#GETARG_sBx">GETARG_sBx</a>(*pc));
+L0555            )
+L0556            pc++;
+L0557            <span class="keyword">continue</span>;
+L0558          }
+L0559          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_LE">OP_LE</a>: {
+L0560            <a class="L" href="lvm.c.html#Protect">Protect</a>(
+L0561              <span class="keyword">if</span> (<a class="L" href="lvm.c.html#lessequal">lessequal</a>(L, <a class="L" href="lvm.c.html#RKB">RKB</a>(i), <a class="L" href="lvm.c.html#RKC">RKC</a>(i)) == <a class="L" href="lopcodes.h.html#GETARG_A">GETARG_A</a>(i))
+L0562                <a class="L" href="lvm.c.html#dojump">dojump</a>(L, pc, <a class="L" href="lopcodes.h.html#GETARG_sBx">GETARG_sBx</a>(*pc));
+L0563            )
+L0564            pc++;
+L0565            <span class="keyword">continue</span>;
+L0566          }
+L0567          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_TEST">OP_TEST</a>: {
+L0568            <span class="keyword">if</span> (<a class="L" href="lobject.h.html#l_isfalse">l_isfalse</a>(ra) != <a class="L" href="lopcodes.h.html#GETARG_C">GETARG_C</a>(i))
+L0569              <a class="L" href="lvm.c.html#dojump">dojump</a>(L, pc, <a class="L" href="lopcodes.h.html#GETARG_sBx">GETARG_sBx</a>(*pc));
+L0570            pc++;
+L0571            <span class="keyword">continue</span>;
+L0572          }
+L0573          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_TESTSET">OP_TESTSET</a>: {
+L0574            <a class="L" href="lobject.h.html#TValue">TValue</a> *rb = <a class="L" href="lvm.c.html#RB">RB</a>(i);
+L0575            <span class="keyword">if</span> (<a class="L" href="lobject.h.html#l_isfalse">l_isfalse</a>(rb) != <a class="L" href="lopcodes.h.html#GETARG_C">GETARG_C</a>(i)) {
+L0576              <a class="L" href="lobject.h.html#setobjs2s">setobjs2s</a>(L, ra, rb);
+L0577              <a class="L" href="lvm.c.html#dojump">dojump</a>(L, pc, <a class="L" href="lopcodes.h.html#GETARG_sBx">GETARG_sBx</a>(*pc));
+L0578            }
+L0579            pc++;
+L0580            <span class="keyword">continue</span>;
+L0581          }
+L0582          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_CALL">OP_CALL</a>: {
+L0583            <span class="keyword">int</span> b = <a class="L" href="lopcodes.h.html#GETARG_B">GETARG_B</a>(i);
+L0584            <span class="keyword">int</span> nresults = <a class="L" href="lopcodes.h.html#GETARG_C">GETARG_C</a>(i) - <span class="number">1</span>;
+L0585            <span class="keyword">if</span> (b != <span class="number">0</span>) L-&gt;top = ra+b;  <span class="comment">/* else previous instruction set top */</span>
+L0586            L-&gt;savedpc = pc;
+L0587            <span class="keyword">switch</span> (<a class="L" href="ldo.c.html#luaD_precall">luaD_precall</a>(L, ra, nresults)) {
+L0588              <span class="keyword">case</span> <a class="L" href="ldo.h.html#PCRLUA">PCRLUA</a>: {
+L0589                nexeccalls++;
+L0590                <span class="keyword">goto</span> reentry;  <span class="comment">/* restart luaV_execute over new Lua function */</span>
+L0591              }
+L0592              <span class="keyword">case</span> <a class="L" href="ldo.h.html#PCRC">PCRC</a>: {
+L0593                <span class="comment">/* it was a C function (`precall' called it); adjust results */</span>
+L0594                <span class="keyword">if</span> (nresults &gt;= <span class="number">0</span>) L-&gt;top = L-&gt;ci-&gt;top;
+L0595                base = L-&gt;base;
+L0596                <span class="keyword">continue</span>;
+L0597              }
+L0598              <span class="keyword">default</span>: {
+L0599                <span class="keyword">return</span>;  <span class="comment">/* yield */</span>
+L0600              }
+L0601            }
+L0602          }
+L0603          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_TAILCALL">OP_TAILCALL</a>: {
+L0604            <span class="keyword">int</span> b = <a class="L" href="lopcodes.h.html#GETARG_B">GETARG_B</a>(i);
+L0605            <span class="keyword">if</span> (b != <span class="number">0</span>) L-&gt;top = ra+b;  <span class="comment">/* else previous instruction set top */</span>
+L0606            L-&gt;savedpc = pc;
+L0607            <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(<a class="L" href="lopcodes.h.html#GETARG_C">GETARG_C</a>(i) - <span class="number">1</span> == <a class="L" href="lua.h.html#LUA_MULTRET">LUA_MULTRET</a>);
+L0608            <span class="keyword">switch</span> (<a class="L" href="ldo.c.html#luaD_precall">luaD_precall</a>(L, ra, <a class="L" href="lua.h.html#LUA_MULTRET">LUA_MULTRET</a>)) {
+L0609              <span class="keyword">case</span> <a class="L" href="ldo.h.html#PCRLUA">PCRLUA</a>: {
+L0610                <span class="comment">/* tail call: put new frame in place of previous one */</span>
+L0611                <a class="L" href="lstate.h.html#CallInfo">CallInfo</a> *ci = L-&gt;ci - <span class="number">1</span>;  <span class="comment">/* previous frame */</span>
+L0612                <span class="keyword">int</span> aux;
+L0613                <a class="L" href="lobject.h.html#StkId">StkId</a> func = ci-&gt;func;
+L0614                <a class="L" href="lobject.h.html#StkId">StkId</a> pfunc = (ci<span class="number">+1</span>)-&gt;func;  <span class="comment">/* previous function index */</span>
+L0615                <span class="keyword">if</span> (L-&gt;openupval) <a class="L" href="lfunc.c.html#luaF_close">luaF_close</a>(L, ci-&gt;base);
+L0616                L-&gt;base = ci-&gt;base = ci-&gt;func + ((ci<span class="number">+1</span>)-&gt;base - pfunc);
+L0617                <span class="keyword">for</span> (aux = <span class="number">0</span>; pfunc+aux &lt; L-&gt;top; aux++)  <span class="comment">/* move frame down */</span>
+L0618                  <a class="L" href="lobject.h.html#setobjs2s">setobjs2s</a>(L, func+aux, pfunc+aux);
+L0619                ci-&gt;top = L-&gt;top = func+aux;  <span class="comment">/* correct top */</span>
+L0620                <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(L-&gt;top == L-&gt;base + <a class="L" href="lobject.h.html#clvalue">clvalue</a>(func)-&gt;l.p-&gt;maxstacksize);
+L0621                ci-&gt;savedpc = L-&gt;savedpc;
+L0622                ci-&gt;tailcalls++;  <span class="comment">/* one more call lost */</span>
+L0623                L-&gt;ci--;  <span class="comment">/* remove new frame */</span>
+L0624                <span class="keyword">goto</span> reentry;
+L0625              }
+L0626              <span class="keyword">case</span> <a class="L" href="ldo.h.html#PCRC">PCRC</a>: {  <span class="comment">/* it was a C function (`precall' called it) */</span>
+L0627                base = L-&gt;base;
+L0628                <span class="keyword">continue</span>;
+L0629              }
+L0630              <span class="keyword">default</span>: {
+L0631                <span class="keyword">return</span>;  <span class="comment">/* yield */</span>
+L0632              }
+L0633            }
+L0634          }
+L0635          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_RETURN">OP_RETURN</a>: {
+L0636            <span class="keyword">int</span> b = <a class="L" href="lopcodes.h.html#GETARG_B">GETARG_B</a>(i);
+L0637            <span class="keyword">if</span> (b != <span class="number">0</span>) L-&gt;top = ra+b<span class="number">-1</span>;
+L0638            <span class="keyword">if</span> (L-&gt;openupval) <a class="L" href="lfunc.c.html#luaF_close">luaF_close</a>(L, base);
+L0639            L-&gt;savedpc = pc;
+L0640            b = <a class="L" href="ldo.c.html#luaD_poscall">luaD_poscall</a>(L, ra);
+L0641            <span class="keyword">if</span> (--nexeccalls == <span class="number">0</span>)  <span class="comment">/* was previous function running `here'? */</span>
+L0642              <span class="keyword">return</span>;  <span class="comment">/* no: return */</span>
+L0643            <span class="keyword">else</span> {  <span class="comment">/* yes: continue its execution */</span>
+L0644              <span class="keyword">if</span> (b) L-&gt;top = L-&gt;ci-&gt;top;
+L0645              <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(<a class="L" href="lstate.h.html#isLua">isLua</a>(L-&gt;ci));
+L0646              <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(<a class="L" href="lopcodes.h.html#GET_OPCODE">GET_OPCODE</a>(*((L-&gt;ci)-&gt;savedpc - <span class="number">1</span>)) == <a class="L" href="lopcodes.h.html#OP_CALL">OP_CALL</a>);
+L0647              <span class="keyword">goto</span> reentry;
+L0648            }
+L0649          }
+L0650          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_FORLOOP">OP_FORLOOP</a>: {
+L0651            <a class="L" href="lua.h.html#lua_Number">lua_Number</a> step = <a class="L" href="lobject.h.html#nvalue">nvalue</a>(ra<span class="number">+2</span>);
+L0652            <a class="L" href="lua.h.html#lua_Number">lua_Number</a> idx = <a class="L" href="luaconf.h.html#luai_numadd">luai_numadd</a>(<a class="L" href="lobject.h.html#nvalue">nvalue</a>(ra), step); <span class="comment">/* increment index */</span>
+L0653            <a class="L" href="lua.h.html#lua_Number">lua_Number</a> limit = <a class="L" href="lobject.h.html#nvalue">nvalue</a>(ra<span class="number">+1</span>);
+L0654            <span class="keyword">if</span> (<a class="L" href="luaconf.h.html#luai_numlt">luai_numlt</a>(<span class="number">0</span>, step) ? <a class="L" href="luaconf.h.html#luai_numle">luai_numle</a>(idx, limit)
+L0655                                    : <a class="L" href="luaconf.h.html#luai_numle">luai_numle</a>(limit, idx)) {
+L0656              <a class="L" href="lvm.c.html#dojump">dojump</a>(L, pc, <a class="L" href="lopcodes.h.html#GETARG_sBx">GETARG_sBx</a>(i));  <span class="comment">/* jump back */</span>
+L0657              <a class="L" href="lobject.h.html#setnvalue">setnvalue</a>(ra, idx);  <span class="comment">/* update internal index... */</span>
+L0658              <a class="L" href="lobject.h.html#setnvalue">setnvalue</a>(ra<span class="number">+3</span>, idx);  <span class="comment">/* ...and external index */</span>
+L0659            }
+L0660            <span class="keyword">continue</span>;
+L0661          }
+L0662          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_FORPREP">OP_FORPREP</a>: {
+L0663            <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *init = ra;
+L0664            <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *plimit = ra<span class="number">+1</span>;
+L0665            <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *pstep = ra<span class="number">+2</span>;
+L0666            L-&gt;savedpc = pc;  <span class="comment">/* next steps may throw errors */</span>
+L0667            <span class="keyword">if</span> (!<a class="L" href="lvm.h.html#tonumber">tonumber</a>(init, ra))
+L0668              <a class="L" href="ldebug.c.html#luaG_runerror">luaG_runerror</a>(L, <a class="L" href="luaconf.h.html#LUA_QL">LUA_QL</a>(<span class="string">"for"</span>) <span class="string">" initial value must be a number"</span>);
+L0669            <span class="keyword">else</span> <span class="keyword">if</span> (!<a class="L" href="lvm.h.html#tonumber">tonumber</a>(plimit, ra<span class="number">+1</span>))
+L0670              <a class="L" href="ldebug.c.html#luaG_runerror">luaG_runerror</a>(L, <a class="L" href="luaconf.h.html#LUA_QL">LUA_QL</a>(<span class="string">"for"</span>) <span class="string">" limit must be a number"</span>);
+L0671            <span class="keyword">else</span> <span class="keyword">if</span> (!<a class="L" href="lvm.h.html#tonumber">tonumber</a>(pstep, ra<span class="number">+2</span>))
+L0672              <a class="L" href="ldebug.c.html#luaG_runerror">luaG_runerror</a>(L, <a class="L" href="luaconf.h.html#LUA_QL">LUA_QL</a>(<span class="string">"for"</span>) <span class="string">" step must be a number"</span>);
+L0673            <a class="L" href="lobject.h.html#setnvalue">setnvalue</a>(ra, <a class="L" href="luaconf.h.html#luai_numsub">luai_numsub</a>(<a class="L" href="lobject.h.html#nvalue">nvalue</a>(ra), <a class="L" href="lobject.h.html#nvalue">nvalue</a>(pstep)));
+L0674            <a class="L" href="lvm.c.html#dojump">dojump</a>(L, pc, <a class="L" href="lopcodes.h.html#GETARG_sBx">GETARG_sBx</a>(i));
+L0675            <span class="keyword">continue</span>;
+L0676          }
+L0677          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_TFORLOOP">OP_TFORLOOP</a>: {
+L0678            <a class="L" href="lobject.h.html#StkId">StkId</a> cb = ra + <span class="number">3</span>;  <span class="comment">/* call base */</span>
+L0679            <a class="L" href="lobject.h.html#setobjs2s">setobjs2s</a>(L, cb<span class="number">+2</span>, ra<span class="number">+2</span>);
+L0680            <a class="L" href="lobject.h.html#setobjs2s">setobjs2s</a>(L, cb<span class="number">+1</span>, ra<span class="number">+1</span>);
+L0681            <a class="L" href="lobject.h.html#setobjs2s">setobjs2s</a>(L, cb, ra);
+L0682            L-&gt;top = cb<span class="number">+3</span>;  <span class="comment">/* func. + 2 args (state and index) */</span>
+L0683            <a class="L" href="lvm.c.html#Protect">Protect</a>(<a class="L" href="ldo.c.html#luaD_call">luaD_call</a>(L, cb, <a class="L" href="lopcodes.h.html#GETARG_C">GETARG_C</a>(i)));
+L0684            L-&gt;top = L-&gt;ci-&gt;top;
+L0685            cb = <a class="L" href="lvm.c.html#RA">RA</a>(i) + <span class="number">3</span>;  <span class="comment">/* previous call may change the stack */</span>
+L0686            <span class="keyword">if</span> (!<a class="L" href="lobject.h.html#ttisnil">ttisnil</a>(cb)) {  <span class="comment">/* continue loop? */</span>
+L0687              <a class="L" href="lobject.h.html#setobjs2s">setobjs2s</a>(L, cb<span class="number">-1</span>, cb);  <span class="comment">/* save control variable */</span>
+L0688              <a class="L" href="lvm.c.html#dojump">dojump</a>(L, pc, <a class="L" href="lopcodes.h.html#GETARG_sBx">GETARG_sBx</a>(*pc));  <span class="comment">/* jump back */</span>
+L0689            }
+L0690            pc++;
+L0691            <span class="keyword">continue</span>;
+L0692          }
+L0693          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_SETLIST">OP_SETLIST</a>: {
+L0694            <span class="keyword">int</span> n = <a class="L" href="lopcodes.h.html#GETARG_B">GETARG_B</a>(i);
+L0695            <span class="keyword">int</span> c = <a class="L" href="lopcodes.h.html#GETARG_C">GETARG_C</a>(i);
+L0696            <span class="keyword">int</span> last;
+L0697            <a class="L" href="lobject.h.html#Table">Table</a> *h;
+L0698            <span class="keyword">if</span> (n == <span class="number">0</span>) {
+L0699              n = <a class="L" href="llimits.h.html#cast_int">cast_int</a>(L-&gt;top - ra) - <span class="number">1</span>;
+L0700              L-&gt;top = L-&gt;ci-&gt;top;
+L0701            }
+L0702            <span class="keyword">if</span> (c == <span class="number">0</span>) c = <a class="L" href="llimits.h.html#cast_int">cast_int</a>(*pc++);
+L0703            <a class="L" href="lvm.c.html#runtime_check">runtime_check</a>(L, <a class="L" href="lobject.h.html#ttistable">ttistable</a>(ra));
+L0704            h = <a class="L" href="lobject.h.html#hvalue">hvalue</a>(ra);
+L0705            last = ((c<span class="number">-1</span>)*<a class="L" href="lopcodes.h.html#LFIELDS_PER_FLUSH">LFIELDS_PER_FLUSH</a>) + n;
+L0706            <span class="keyword">if</span> (last &gt; h-&gt;sizearray)  <span class="comment">/* needs more space? */</span>
+L0707              <a class="L" href="ltable.c.html#luaH_resizearray">luaH_resizearray</a>(L, h, last);  <span class="comment">/* pre-alloc it at once */</span>
+L0708            <span class="keyword">for</span> (; n &gt; <span class="number">0</span>; n--) {
+L0709              <a class="L" href="lobject.h.html#TValue">TValue</a> *val = ra+n;
+L0710              <a class="L" href="lobject.h.html#setobj2t">setobj2t</a>(L, <a class="L" href="ltable.c.html#luaH_setnum">luaH_setnum</a>(L, h, last--), val);
+L0711              <a class="L" href="lgc.h.html#luaC_barriert">luaC_barriert</a>(L, h, val);
+L0712            }
+L0713            <span class="keyword">continue</span>;
+L0714          }
+L0715          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_CLOSE">OP_CLOSE</a>: {
+L0716            <a class="L" href="lfunc.c.html#luaF_close">luaF_close</a>(L, ra);
+L0717            <span class="keyword">continue</span>;
+L0718          }
+L0719          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_CLOSURE">OP_CLOSURE</a>: {
+L0720            <a class="L" href="lobject.h.html#Proto">Proto</a> *p;
+L0721            <a class="L" href="lobject.h.html#Closure">Closure</a> *ncl;
+L0722            <span class="keyword">int</span> nup, j;
+L0723            p = cl-&gt;p-&gt;p[<a class="L" href="lopcodes.h.html#GETARG_Bx">GETARG_Bx</a>(i)];
+L0724            nup = p-&gt;nups;
+L0725            ncl = <a class="L" href="lfunc.c.html#luaF_newLclosure">luaF_newLclosure</a>(L, nup, cl-&gt;env);
+L0726            ncl-&gt;l.p = p;
+L0727            <span class="keyword">for</span> (j=<span class="number">0</span>; j&lt;nup; j++, pc++) {
+L0728              <span class="keyword">if</span> (<a class="L" href="lopcodes.h.html#GET_OPCODE">GET_OPCODE</a>(*pc) == <a class="L" href="lopcodes.h.html#OP_GETUPVAL">OP_GETUPVAL</a>)
+L0729                ncl-&gt;l.upvals[j] = cl-&gt;upvals[<a class="L" href="lopcodes.h.html#GETARG_B">GETARG_B</a>(*pc)];
+L0730              <span class="keyword">else</span> {
+L0731                <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(<a class="L" href="lopcodes.h.html#GET_OPCODE">GET_OPCODE</a>(*pc) == <a class="L" href="lopcodes.h.html#OP_MOVE">OP_MOVE</a>);
+L0732                ncl-&gt;l.upvals[j] = <a class="L" href="lfunc.c.html#luaF_findupval">luaF_findupval</a>(L, base + <a class="L" href="lopcodes.h.html#GETARG_B">GETARG_B</a>(*pc));
+L0733              }
+L0734            }
+L0735            <a class="L" href="lobject.h.html#setclvalue">setclvalue</a>(L, ra, ncl);
+L0736            <a class="L" href="lvm.c.html#Protect">Protect</a>(<a class="L" href="lgc.h.html#luaC_checkGC">luaC_checkGC</a>(L));
+L0737            <span class="keyword">continue</span>;
+L0738          }
+L0739          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_VARARG">OP_VARARG</a>: {
+L0740            <span class="keyword">int</span> b = <a class="L" href="lopcodes.h.html#GETARG_B">GETARG_B</a>(i) - <span class="number">1</span>;
+L0741            <span class="keyword">int</span> j;
+L0742            <a class="L" href="lstate.h.html#CallInfo">CallInfo</a> *ci = L-&gt;ci;
+L0743            <span class="keyword">int</span> n = <a class="L" href="llimits.h.html#cast_int">cast_int</a>(ci-&gt;base - ci-&gt;func) - cl-&gt;p-&gt;numparams - <span class="number">1</span>;
+L0744            <span class="keyword">if</span> (b == <a class="L" href="lua.h.html#LUA_MULTRET">LUA_MULTRET</a>) {
+L0745              <a class="L" href="lvm.c.html#Protect">Protect</a>(<a class="L" href="ldo.h.html#luaD_checkstack">luaD_checkstack</a>(L, n));
+L0746              ra = <a class="L" href="lvm.c.html#RA">RA</a>(i);  <span class="comment">/* previous call may change the stack */</span>
+L0747              b = n;
+L0748              L-&gt;top = ra + n;
+L0749            }
+L0750            <span class="keyword">for</span> (j = <span class="number">0</span>; j &lt; b; j++) {
+L0751              <span class="keyword">if</span> (j &lt; n) {
+L0752                <a class="L" href="lobject.h.html#setobjs2s">setobjs2s</a>(L, ra + j, ci-&gt;base - n + j);
+L0753              }
+L0754              <span class="keyword">else</span> {
+L0755                <a class="L" href="lobject.h.html#setnilvalue">setnilvalue</a>(ra + j);
+L0756              }
+L0757            }
+L0758            <span class="keyword">continue</span>;
+L0759          }
+L0760        }
+L0761      }
+L0762    }
+L0763    
+</pre>
+<hr/>
+Generated by <a href="pretty.lua.html">pretty.lua</html>
+</body></html>

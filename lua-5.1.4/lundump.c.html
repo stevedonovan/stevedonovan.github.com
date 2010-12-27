@@ -1,0 +1,248 @@
+<html>
+<head>
+<style>
+a.L { text-decoration: none; }
+a.L:hover { color: #FFAAAA; }
+body { margin-top: 20px; margin-left: 30px; }
+.lno { font-weight: bold: color #000; }
+.keyword {font-weight: bold; color: #6666AA; }
+.number  { color: #AA6666; }
+.string  { color: #8888AA; }
+.comment { color: #666600; }
+.prepro { color: #006666; } 
+</style>
+<body>
+<h1>Lua 5.1.4: lundump.c</h1>
+<hr/>
+<pre>
+L0001    <span class="comment">/*
+L0002    ** $Id: lundump.c,v 2.7.1.4 2008/04/04 19:51:41 roberto Exp $
+L0003    ** load precompiled Lua chunks
+L0004    ** See Copyright Notice in lua.h
+L0005    */</span>
+L0006    
+L0007    <span class="prepro">#include &lt;string.h&gt;
+</span>L0008    
+L0009    <a name="lundump_c"/a><span class="prepro">#define lundump_c
+</span>L0010    <a name="LUA_CORE"/a><span class="prepro">#define LUA_CORE
+</span>L0011    
+L0012    <span class="prepro"><a class="L" href="lua.h.html#">#include "lua.h"
+</a></span>L0013    
+L0014    <span class="prepro"><a class="L" href="ldebug.h.html#">#include "ldebug.h"
+</a></span>L0015    <span class="prepro"><a class="L" href="ldo.h.html#">#include "ldo.h"
+</a></span>L0016    <span class="prepro"><a class="L" href="lfunc.h.html#">#include "lfunc.h"
+</a></span>L0017    <span class="prepro"><a class="L" href="lmem.h.html#">#include "lmem.h"
+</a></span>L0018    <span class="prepro"><a class="L" href="lobject.h.html#">#include "lobject.h"
+</a></span>L0019    <span class="prepro"><a class="L" href="lstring.h.html#">#include "lstring.h"
+</a></span>L0020    <span class="prepro"><a class="L" href="lundump.h.html#">#include "lundump.h"
+</a></span>L0021    <span class="prepro"><a class="L" href="lzio.h.html#">#include "lzio.h"
+</a></span>L0022    
+L0023    <span class="keyword">typedef</span> <span class="keyword">struct</span> {
+L0024     <a class="L" href="lstate.h.html#lua_State">lua_State</a>* L;
+L0025     <a class="L" href="lzio.h.html#ZIO">ZIO</a>* <a name="Z"/a><a class="L" href="lundump.c.ref.html#Z">Z</a>;
+L0026     <a class="L" href="lzio.h.html#Mbuffer">Mbuffer</a>* b;
+L0027     <span class="keyword">const</span> <span class="keyword">char</span>* name;
+L0028    } <a name="LoadState"/a><a class="L" href="lundump.c.ref.html#LoadState">LoadState</a>;
+L0029    
+L0030    <span class="prepro">#ifdef LUAC_TRUST_BINARIES
+</span>L0031    <a name="IF"/a><span class="prepro">#define IF(c,s)
+</span>L0032    <a name="error"/a><span class="prepro">#define error(S,s)
+</span>L0033    <span class="prepro">#else
+</span>L0034    <a name="IF"/a><span class="prepro">#define IF(c,s)		if (c) error(S,s)
+</span>L0035    
+L0036    <span class="keyword">static</span> <span class="keyword">void</span> <a class="L" href="lundump.c.html#error">error</a>(<a class="L" href="lundump.c.html#LoadState">LoadState</a>* <a class="L" href="print.c.html#S">S</a>, <span class="keyword">const</span> <span class="keyword">char</span>* why)
+L0037    {
+L0038     <a class="L" href="lobject.c.html#luaO_pushfstring">luaO_pushfstring</a>(<a class="L" href="print.c.html#S">S</a>-&gt;L,<span class="string">"%s: %s in precompiled chunk"</span>,<a class="L" href="print.c.html#S">S</a>-&gt;name,why);
+L0039     <a class="L" href="ldo.c.html#luaD_throw">luaD_throw</a>(<a class="L" href="print.c.html#S">S</a>-&gt;L,<a class="L" href="lua.h.html#LUA_ERRSYNTAX">LUA_ERRSYNTAX</a>);
+L0040    }
+L0041    <span class="prepro">#endif
+</span>L0042    
+L0043    <a name="LoadMem"/a><span class="prepro">#define LoadMem(S,b,n,size)	LoadBlock(S,b,(n)*(size))
+</span>L0044    <a name="LoadByte"/a><span class="prepro">#define	LoadByte(S)		(lu_byte)LoadChar(S)
+</span>L0045    <a name="LoadVar"/a><span class="prepro">#define LoadVar(S,x)		LoadMem(S,&amp;x,1,sizeof(x))
+</span>L0046    <a name="LoadVector"/a><span class="prepro">#define LoadVector(S,b,n,size)	LoadMem(S,b,n,size)
+</span>L0047    
+L0048    <span class="keyword">static</span> <span class="keyword">void</span> <a name="LoadBlock"/a><a class="L" href="lundump.c.ref.html#LoadBlock">LoadBlock</a>(<a class="L" href="lundump.c.html#LoadState">LoadState</a>* <a class="L" href="print.c.html#S">S</a>, <span class="keyword">void</span>* b, size_t size)
+L0049    {
+L0050     size_t r=<a class="L" href="lzio.c.html#luaZ_read">luaZ_read</a>(<a class="L" href="print.c.html#S">S</a>-&gt;Z,b,size);
+L0051     <a class="L" href="lundump.c.html#IF">IF</a> (r!=<span class="number">0</span>, <span class="string">"unexpected end"</span>);
+L0052    }
+L0053    
+L0054    <span class="keyword">static</span> <span class="keyword">int</span> <a name="LoadChar"/a><a class="L" href="lundump.c.ref.html#LoadChar">LoadChar</a>(<a class="L" href="lundump.c.html#LoadState">LoadState</a>* <a class="L" href="print.c.html#S">S</a>)
+L0055    {
+L0056     <span class="keyword">char</span> x;
+L0057     <a class="L" href="lundump.c.html#LoadVar">LoadVar</a>(<a class="L" href="print.c.html#S">S</a>,x);
+L0058     <span class="keyword">return</span> x;
+L0059    }
+L0060    
+L0061    <span class="keyword">static</span> <span class="keyword">int</span> <a name="LoadInt"/a><a class="L" href="lundump.c.ref.html#LoadInt">LoadInt</a>(<a class="L" href="lundump.c.html#LoadState">LoadState</a>* <a class="L" href="print.c.html#S">S</a>)
+L0062    {
+L0063     <span class="keyword">int</span> x;
+L0064     <a class="L" href="lundump.c.html#LoadVar">LoadVar</a>(<a class="L" href="print.c.html#S">S</a>,x);
+L0065     <a class="L" href="lundump.c.html#IF">IF</a> (x&lt;<span class="number">0</span>, <span class="string">"bad integer"</span>);
+L0066     <span class="keyword">return</span> x;
+L0067    }
+L0068    
+L0069    <span class="keyword">static</span> <a class="L" href="lua.h.html#lua_Number">lua_Number</a> <a name="LoadNumber"/a><a class="L" href="lundump.c.ref.html#LoadNumber">LoadNumber</a>(<a class="L" href="lundump.c.html#LoadState">LoadState</a>* <a class="L" href="print.c.html#S">S</a>)
+L0070    {
+L0071     <a class="L" href="lua.h.html#lua_Number">lua_Number</a> x;
+L0072     <a class="L" href="lundump.c.html#LoadVar">LoadVar</a>(<a class="L" href="print.c.html#S">S</a>,x);
+L0073     <span class="keyword">return</span> x;
+L0074    }
+L0075    
+L0076    <span class="keyword">static</span> <a class="L" href="lobject.h.html#TString">TString</a>* <a name="LoadString"/a><a class="L" href="lundump.c.ref.html#LoadString">LoadString</a>(<a class="L" href="lundump.c.html#LoadState">LoadState</a>* <a class="L" href="print.c.html#S">S</a>)
+L0077    {
+L0078     size_t size;
+L0079     <a class="L" href="lundump.c.html#LoadVar">LoadVar</a>(<a class="L" href="print.c.html#S">S</a>,size);
+L0080     <span class="keyword">if</span> (size==<span class="number">0</span>)
+L0081      <span class="keyword">return</span> NULL;
+L0082     <span class="keyword">else</span>
+L0083     {
+L0084      <span class="keyword">char</span>* s=<a class="L" href="lzio.c.html#luaZ_openspace">luaZ_openspace</a>(<a class="L" href="print.c.html#S">S</a>-&gt;L,<a class="L" href="print.c.html#S">S</a>-&gt;b,size);
+L0085      <a class="L" href="lundump.c.html#LoadBlock">LoadBlock</a>(<a class="L" href="print.c.html#S">S</a>,s,size);
+L0086      <span class="keyword">return</span> <a class="L" href="lstring.c.html#luaS_newlstr">luaS_newlstr</a>(<a class="L" href="print.c.html#S">S</a>-&gt;L,s,size<span class="number">-1</span>);		<span class="comment">/* remove trailing '\0' */</span>
+L0087     }
+L0088    }
+L0089    
+L0090    <span class="keyword">static</span> <span class="keyword">void</span> <a name="LoadCode"/a><a class="L" href="lundump.c.ref.html#LoadCode">LoadCode</a>(<a class="L" href="lundump.c.html#LoadState">LoadState</a>* <a class="L" href="print.c.html#S">S</a>, <a class="L" href="lobject.h.html#Proto">Proto</a>* f)
+L0091    {
+L0092     <span class="keyword">int</span> n=<a class="L" href="lundump.c.html#LoadInt">LoadInt</a>(<a class="L" href="print.c.html#S">S</a>);
+L0093     f-&gt;code=<a class="L" href="lmem.h.html#luaM_newvector">luaM_newvector</a>(<a class="L" href="print.c.html#S">S</a>-&gt;L,n,<a class="L" href="llimits.h.html#Instruction">Instruction</a>);
+L0094     f-&gt;sizecode=n;
+L0095     <a class="L" href="lundump.c.html#LoadVector">LoadVector</a>(<a class="L" href="print.c.html#S">S</a>,f-&gt;code,n,<span class="keyword">sizeof</span>(<a class="L" href="llimits.h.html#Instruction">Instruction</a>));
+L0096    }
+L0097    
+L0098    <span class="keyword">static</span> <a class="L" href="lobject.h.html#Proto">Proto</a>* <a class="L" href="lundump.c.html#LoadFunction">LoadFunction</a>(<a class="L" href="lundump.c.html#LoadState">LoadState</a>* <a class="L" href="print.c.html#S">S</a>, <a class="L" href="lobject.h.html#TString">TString</a>* p);
+L0099    
+L0100    <span class="keyword">static</span> <span class="keyword">void</span> <a name="LoadConstants"/a><a class="L" href="lundump.c.ref.html#LoadConstants">LoadConstants</a>(<a class="L" href="lundump.c.html#LoadState">LoadState</a>* <a class="L" href="print.c.html#S">S</a>, <a class="L" href="lobject.h.html#Proto">Proto</a>* f)
+L0101    {
+L0102     <span class="keyword">int</span> i,n;
+L0103     n=<a class="L" href="lundump.c.html#LoadInt">LoadInt</a>(<a class="L" href="print.c.html#S">S</a>);
+L0104     f-&gt;k=<a class="L" href="lmem.h.html#luaM_newvector">luaM_newvector</a>(<a class="L" href="print.c.html#S">S</a>-&gt;L,n,<a class="L" href="lobject.h.html#TValue">TValue</a>);
+L0105     f-&gt;sizek=n;
+L0106     <span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;n; i++) <a class="L" href="lobject.h.html#setnilvalue">setnilvalue</a>(&amp;f-&gt;k[i]);
+L0107     <span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;n; i++)
+L0108     {
+L0109      <a class="L" href="lobject.h.html#TValue">TValue</a>* o=&amp;f-&gt;k[i];
+L0110      <span class="keyword">int</span> t=<a class="L" href="lundump.c.html#LoadChar">LoadChar</a>(<a class="L" href="print.c.html#S">S</a>);
+L0111      <span class="keyword">switch</span> (t)
+L0112      {
+L0113       <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TNIL">LUA_TNIL</a>:
+L0114       	<a class="L" href="lobject.h.html#setnilvalue">setnilvalue</a>(o);
+L0115    	<span class="keyword">break</span>;
+L0116       <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TBOOLEAN">LUA_TBOOLEAN</a>:
+L0117       	<a class="L" href="lobject.h.html#setbvalue">setbvalue</a>(o,<a class="L" href="lundump.c.html#LoadChar">LoadChar</a>(<a class="L" href="print.c.html#S">S</a>)!=<span class="number">0</span>);
+L0118    	<span class="keyword">break</span>;
+L0119       <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TNUMBER">LUA_TNUMBER</a>:
+L0120    	<a class="L" href="lobject.h.html#setnvalue">setnvalue</a>(o,<a class="L" href="lundump.c.html#LoadNumber">LoadNumber</a>(<a class="L" href="print.c.html#S">S</a>));
+L0121    	<span class="keyword">break</span>;
+L0122       <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TSTRING">LUA_TSTRING</a>:
+L0123    	<a class="L" href="lobject.h.html#setsvalue2n">setsvalue2n</a>(<a class="L" href="print.c.html#S">S</a>-&gt;L,o,<a class="L" href="lundump.c.html#LoadString">LoadString</a>(<a class="L" href="print.c.html#S">S</a>));
+L0124    	<span class="keyword">break</span>;
+L0125       <span class="keyword">default</span>:
+L0126    	<a class="L" href="lundump.c.html#error">error</a>(<a class="L" href="print.c.html#S">S</a>,<span class="string">"bad constant"</span>);
+L0127    	<span class="keyword">break</span>;
+L0128      }
+L0129     }
+L0130     n=<a class="L" href="lundump.c.html#LoadInt">LoadInt</a>(<a class="L" href="print.c.html#S">S</a>);
+L0131     f-&gt;p=<a class="L" href="lmem.h.html#luaM_newvector">luaM_newvector</a>(<a class="L" href="print.c.html#S">S</a>-&gt;L,n,<a class="L" href="lobject.h.html#Proto">Proto</a>*);
+L0132     f-&gt;sizep=n;
+L0133     <span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;n; i++) f-&gt;p[i]=NULL;
+L0134     <span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;n; i++) f-&gt;p[i]=<a class="L" href="lundump.c.html#LoadFunction">LoadFunction</a>(<a class="L" href="print.c.html#S">S</a>,f-&gt;source);
+L0135    }
+L0136    
+L0137    <span class="keyword">static</span> <span class="keyword">void</span> <a name="LoadDebug"/a><a class="L" href="lundump.c.ref.html#LoadDebug">LoadDebug</a>(<a class="L" href="lundump.c.html#LoadState">LoadState</a>* <a class="L" href="print.c.html#S">S</a>, <a class="L" href="lobject.h.html#Proto">Proto</a>* f)
+L0138    {
+L0139     <span class="keyword">int</span> i,n;
+L0140     n=<a class="L" href="lundump.c.html#LoadInt">LoadInt</a>(<a class="L" href="print.c.html#S">S</a>);
+L0141     f-&gt;lineinfo=<a class="L" href="lmem.h.html#luaM_newvector">luaM_newvector</a>(<a class="L" href="print.c.html#S">S</a>-&gt;L,n,<span class="keyword">int</span>);
+L0142     f-&gt;sizelineinfo=n;
+L0143     <a class="L" href="lundump.c.html#LoadVector">LoadVector</a>(<a class="L" href="print.c.html#S">S</a>,f-&gt;lineinfo,n,<span class="keyword">sizeof</span>(<span class="keyword">int</span>));
+L0144     n=<a class="L" href="lundump.c.html#LoadInt">LoadInt</a>(<a class="L" href="print.c.html#S">S</a>);
+L0145     f-&gt;locvars=<a class="L" href="lmem.h.html#luaM_newvector">luaM_newvector</a>(<a class="L" href="print.c.html#S">S</a>-&gt;L,n,<a class="L" href="lobject.h.html#LocVar">LocVar</a>);
+L0146     f-&gt;sizelocvars=n;
+L0147     <span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;n; i++) f-&gt;locvars[i].varname=NULL;
+L0148     <span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;n; i++)
+L0149     {
+L0150      f-&gt;locvars[i].varname=<a class="L" href="lundump.c.html#LoadString">LoadString</a>(<a class="L" href="print.c.html#S">S</a>);
+L0151      f-&gt;locvars[i].startpc=<a class="L" href="lundump.c.html#LoadInt">LoadInt</a>(<a class="L" href="print.c.html#S">S</a>);
+L0152      f-&gt;locvars[i].endpc=<a class="L" href="lundump.c.html#LoadInt">LoadInt</a>(<a class="L" href="print.c.html#S">S</a>);
+L0153     }
+L0154     n=<a class="L" href="lundump.c.html#LoadInt">LoadInt</a>(<a class="L" href="print.c.html#S">S</a>);
+L0155     f-&gt;upvalues=<a class="L" href="lmem.h.html#luaM_newvector">luaM_newvector</a>(<a class="L" href="print.c.html#S">S</a>-&gt;L,n,<a class="L" href="lobject.h.html#TString">TString</a>*);
+L0156     f-&gt;sizeupvalues=n;
+L0157     <span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;n; i++) f-&gt;upvalues[i]=NULL;
+L0158     <span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;n; i++) f-&gt;upvalues[i]=<a class="L" href="lundump.c.html#LoadString">LoadString</a>(<a class="L" href="print.c.html#S">S</a>);
+L0159    }
+L0160    
+L0161    <span class="keyword">static</span> <a class="L" href="lobject.h.html#Proto">Proto</a>* <a name="LoadFunction"/a><a class="L" href="lundump.c.ref.html#LoadFunction">LoadFunction</a>(<a class="L" href="lundump.c.html#LoadState">LoadState</a>* <a class="L" href="print.c.html#S">S</a>, <a class="L" href="lobject.h.html#TString">TString</a>* p)
+L0162    {
+L0163     <a class="L" href="lobject.h.html#Proto">Proto</a>* f;
+L0164     <span class="keyword">if</span> (++<a class="L" href="print.c.html#S">S</a>-&gt;L-&gt;nCcalls &gt; <a class="L" href="luaconf.h.html#LUAI_MAXCCALLS">LUAI_MAXCCALLS</a>) <a class="L" href="lundump.c.html#error">error</a>(<a class="L" href="print.c.html#S">S</a>,<span class="string">"code too deep"</span>);
+L0165     f=<a class="L" href="lfunc.c.html#luaF_newproto">luaF_newproto</a>(<a class="L" href="print.c.html#S">S</a>-&gt;L);
+L0166     <a class="L" href="lobject.h.html#setptvalue2s">setptvalue2s</a>(<a class="L" href="print.c.html#S">S</a>-&gt;L,<a class="L" href="print.c.html#S">S</a>-&gt;L-&gt;top,f); <a class="L" href="ldo.h.html#incr_top">incr_top</a>(<a class="L" href="print.c.html#S">S</a>-&gt;L);
+L0167     f-&gt;source=<a class="L" href="lundump.c.html#LoadString">LoadString</a>(<a class="L" href="print.c.html#S">S</a>); <span class="keyword">if</span> (f-&gt;source==NULL) f-&gt;source=p;
+L0168     f-&gt;linedefined=<a class="L" href="lundump.c.html#LoadInt">LoadInt</a>(<a class="L" href="print.c.html#S">S</a>);
+L0169     f-&gt;lastlinedefined=<a class="L" href="lundump.c.html#LoadInt">LoadInt</a>(<a class="L" href="print.c.html#S">S</a>);
+L0170     f-&gt;nups=<a class="L" href="lundump.c.html#LoadByte">LoadByte</a>(<a class="L" href="print.c.html#S">S</a>);
+L0171     f-&gt;numparams=<a class="L" href="lundump.c.html#LoadByte">LoadByte</a>(<a class="L" href="print.c.html#S">S</a>);
+L0172     f-&gt;is_vararg=<a class="L" href="lundump.c.html#LoadByte">LoadByte</a>(<a class="L" href="print.c.html#S">S</a>);
+L0173     f-&gt;maxstacksize=<a class="L" href="lundump.c.html#LoadByte">LoadByte</a>(<a class="L" href="print.c.html#S">S</a>);
+L0174     <a class="L" href="lundump.c.html#LoadCode">LoadCode</a>(<a class="L" href="print.c.html#S">S</a>,f);
+L0175     <a class="L" href="lundump.c.html#LoadConstants">LoadConstants</a>(<a class="L" href="print.c.html#S">S</a>,f);
+L0176     <a class="L" href="lundump.c.html#LoadDebug">LoadDebug</a>(<a class="L" href="print.c.html#S">S</a>,f);
+L0177     <a class="L" href="lundump.c.html#IF">IF</a> (!<a class="L" href="ldebug.c.html#luaG_checkcode">luaG_checkcode</a>(f), <span class="string">"bad code"</span>);
+L0178     <a class="L" href="print.c.html#S">S</a>-&gt;L-&gt;top--;
+L0179     <a class="L" href="print.c.html#S">S</a>-&gt;L-&gt;nCcalls--;
+L0180     <span class="keyword">return</span> f;
+L0181    }
+L0182    
+L0183    <span class="keyword">static</span> <span class="keyword">void</span> <a name="LoadHeader"/a><a class="L" href="lundump.c.ref.html#LoadHeader">LoadHeader</a>(<a class="L" href="lundump.c.html#LoadState">LoadState</a>* <a class="L" href="print.c.html#S">S</a>)
+L0184    {
+L0185     <span class="keyword">char</span> h[<a class="L" href="lundump.h.html#LUAC_HEADERSIZE">LUAC_HEADERSIZE</a>];
+L0186     <span class="keyword">char</span> s[<a class="L" href="lundump.h.html#LUAC_HEADERSIZE">LUAC_HEADERSIZE</a>];
+L0187     <a class="L" href="lundump.c.html#luaU_header">luaU_header</a>(h);
+L0188     <a class="L" href="lundump.c.html#LoadBlock">LoadBlock</a>(<a class="L" href="print.c.html#S">S</a>,s,<a class="L" href="lundump.h.html#LUAC_HEADERSIZE">LUAC_HEADERSIZE</a>);
+L0189     <a class="L" href="lundump.c.html#IF">IF</a> (memcmp(h,s,<a class="L" href="lundump.h.html#LUAC_HEADERSIZE">LUAC_HEADERSIZE</a>)!=<span class="number">0</span>, <span class="string">"bad header"</span>);
+L0190    }
+L0191    
+L0192    <span class="comment">/*
+L0193    ** load precompiled chunk
+L0194    */</span>
+L0195    <a class="L" href="lobject.h.html#Proto">Proto</a>* <a name="luaU_undump"/a><a class="L" href="lundump.c.ref.html#luaU_undump">luaU_undump</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a>* L, <a class="L" href="lzio.h.html#ZIO">ZIO</a>* Z, <a class="L" href="lzio.h.html#Mbuffer">Mbuffer</a>* buff, <span class="keyword">const</span> <span class="keyword">char</span>* name)
+L0196    {
+L0197     <a class="L" href="lundump.c.html#LoadState">LoadState</a> <a class="L" href="print.c.html#S">S</a>;
+L0198     <span class="keyword">if</span> (*name=='@' || *name=='=')
+L0199      <a class="L" href="print.c.html#S">S</a>.name=name<span class="number">+1</span>;
+L0200     <span class="keyword">else</span> <span class="keyword">if</span> (*name==<a class="L" href="lua.h.html#LUA_SIGNATURE">LUA_SIGNATURE</a>[<span class="number">0</span>])
+L0201      <a class="L" href="print.c.html#S">S</a>.name=<span class="string">"binary string"</span>;
+L0202     <span class="keyword">else</span>
+L0203      <a class="L" href="print.c.html#S">S</a>.name=name;
+L0204     <a class="L" href="print.c.html#S">S</a>.L=L;
+L0205     <a class="L" href="print.c.html#S">S</a>.Z=Z;
+L0206     <a class="L" href="print.c.html#S">S</a>.b=buff;
+L0207     <a class="L" href="lundump.c.html#LoadHeader">LoadHeader</a>(&amp;<a class="L" href="print.c.html#S">S</a>);
+L0208     <span class="keyword">return</span> <a class="L" href="lundump.c.html#LoadFunction">LoadFunction</a>(&amp;<a class="L" href="print.c.html#S">S</a>,<a class="L" href="lstring.h.html#luaS_newliteral">luaS_newliteral</a>(L,<span class="string">"=?"</span>));
+L0209    }
+L0210    
+L0211    <span class="comment">/*
+L0212    * make header
+L0213    */</span>
+L0214    <span class="keyword">void</span> <a name="luaU_header"/a><a class="L" href="lundump.c.ref.html#luaU_header">luaU_header</a> (<span class="keyword">char</span>* h)
+L0215    {
+L0216     <span class="keyword">int</span> x=<span class="number">1</span>;
+L0217     memcpy(h,<a class="L" href="lua.h.html#LUA_SIGNATURE">LUA_SIGNATURE</a>,<span class="keyword">sizeof</span>(<a class="L" href="lua.h.html#LUA_SIGNATURE">LUA_SIGNATURE</a>)<span class="number">-1</span>);
+L0218     h+=<span class="keyword">sizeof</span>(<a class="L" href="lua.h.html#LUA_SIGNATURE">LUA_SIGNATURE</a>)<span class="number">-1</span>;
+L0219     *h++=(<span class="keyword">char</span>)<a class="L" href="lundump.h.html#LUAC_VERSION">LUAC_VERSION</a>;
+L0220     *h++=(<span class="keyword">char</span>)<a class="L" href="lundump.h.html#LUAC_FORMAT">LUAC_FORMAT</a>;
+L0221     *h++=(<span class="keyword">char</span>)*(<span class="keyword">char</span>*)&amp;x;				<span class="comment">/* endianness */</span>
+L0222     *h++=(<span class="keyword">char</span>)<span class="keyword">sizeof</span>(<span class="keyword">int</span>);
+L0223     *h++=(<span class="keyword">char</span>)<span class="keyword">sizeof</span>(size_t);
+L0224     *h++=(<span class="keyword">char</span>)<span class="keyword">sizeof</span>(<a class="L" href="llimits.h.html#Instruction">Instruction</a>);
+L0225     *h++=(<span class="keyword">char</span>)<span class="keyword">sizeof</span>(<a class="L" href="lua.h.html#lua_Number">lua_Number</a>);
+L0226     *h++=(<span class="keyword">char</span>)(((<a class="L" href="lua.h.html#lua_Number">lua_Number</a>)<span class="number">0.5</span>)==<span class="number">0</span>);		<span class="comment">/* is lua_Number integral? */</span>
+L0227    }
+</pre>
+<hr/>
+Generated by <a href="pretty.lua.html">pretty.lua</html>
+</body></html>

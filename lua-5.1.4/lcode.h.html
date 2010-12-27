@@ -1,0 +1,97 @@
+<html>
+<head>
+<style>
+a.L { text-decoration: none; }
+a.L:hover { color: #FFAAAA; }
+body { margin-top: 20px; margin-left: 30px; }
+.lno { font-weight: bold: color #000; }
+.keyword {font-weight: bold; color: #6666AA; }
+.number  { color: #AA6666; }
+.string  { color: #8888AA; }
+.comment { color: #666600; }
+.prepro { color: #006666; } 
+</style>
+<body>
+<h1>Lua 5.1.4: lcode.h</h1>
+<hr/>
+<pre>
+L0001    <span class="comment">/*
+L0002    ** $Id: lcode.h,v 1.48.1.1 2007/12/27 13:02:25 roberto Exp $
+L0003    ** Code generator for Lua
+L0004    ** See Copyright Notice in lua.h
+L0005    */</span>
+L0006    
+L0007    <span class="prepro">#ifndef lcode_h
+</span>L0008    <a name="lcode_h"/a><span class="prepro">#define lcode_h
+</span>L0009    
+L0010    <span class="prepro"><a class="L" href="llex.h.html#">#include "llex.h"
+</a></span>L0011    <span class="prepro"><a class="L" href="lobject.h.html#">#include "lobject.h"
+</a></span>L0012    <span class="prepro"><a class="L" href="lopcodes.h.html#">#include "lopcodes.h"
+</a></span>L0013    <span class="prepro"><a class="L" href="lparser.h.html#">#include "lparser.h"
+</a></span>L0014    
+L0015    
+L0016    <span class="comment">/*
+L0017    ** Marks the end of a patch list. It is an invalid value both as an absolute
+L0018    ** address, and as a list link (would link an element to itself).
+L0019    */</span>
+L0020    <a name="NO_JUMP"/a><span class="prepro">#define NO_JUMP (-1)
+</span>L0021    
+L0022    
+L0023    <span class="comment">/*
+L0024    ** grep "ORDER OPR" if you change these enums
+L0025    */</span>
+L0026    <span class="keyword">typedef</span> <span class="keyword">enum</span> <a name="BinOpr"/a><a class="L" href="lcode.h.ref.html#BinOpr">BinOpr</a> {
+L0027      <a name="OPR_ADD"/a><a class="L" href="lcode.h.ref.html#OPR_ADD">OPR_ADD</a>, <a name="OPR_SUB"/a><a class="L" href="lcode.h.ref.html#OPR_SUB">OPR_SUB</a>, <a name="OPR_MUL"/a><a class="L" href="lcode.h.ref.html#OPR_MUL">OPR_MUL</a>, <a name="OPR_DIV"/a><a class="L" href="lcode.h.ref.html#OPR_DIV">OPR_DIV</a>, <a name="OPR_MOD"/a><a class="L" href="lcode.h.ref.html#OPR_MOD">OPR_MOD</a>, <a name="OPR_POW"/a><a class="L" href="lcode.h.ref.html#OPR_POW">OPR_POW</a>,
+L0028      <a name="OPR_CONCAT"/a><a class="L" href="lcode.h.ref.html#OPR_CONCAT">OPR_CONCAT</a>,
+L0029      <a name="OPR_NE"/a><a class="L" href="lcode.h.ref.html#OPR_NE">OPR_NE</a>, <a name="OPR_EQ"/a><a class="L" href="lcode.h.ref.html#OPR_EQ">OPR_EQ</a>,
+L0030      <a name="OPR_LT"/a><a class="L" href="lcode.h.ref.html#OPR_LT">OPR_LT</a>, <a name="OPR_LE"/a><a class="L" href="lcode.h.ref.html#OPR_LE">OPR_LE</a>, <a name="OPR_GT"/a><a class="L" href="lcode.h.ref.html#OPR_GT">OPR_GT</a>, <a name="OPR_GE"/a><a class="L" href="lcode.h.ref.html#OPR_GE">OPR_GE</a>,
+L0031      <a name="OPR_AND"/a><a class="L" href="lcode.h.ref.html#OPR_AND">OPR_AND</a>, <a name="OPR_OR"/a><a class="L" href="lcode.h.ref.html#OPR_OR">OPR_OR</a>,
+L0032      <a name="OPR_NOBINOPR"/a><a class="L" href="lcode.h.ref.html#OPR_NOBINOPR">OPR_NOBINOPR</a>
+L0033    } <a class="L" href="lcode.h.html#BinOpr">BinOpr</a>;
+L0034    
+L0035    
+L0036    <span class="keyword">typedef</span> <span class="keyword">enum</span> <a name="UnOpr"/a><a class="L" href="lcode.h.ref.html#UnOpr">UnOpr</a> { <a name="OPR_MINUS"/a><a class="L" href="lcode.h.ref.html#OPR_MINUS">OPR_MINUS</a>, <a name="OPR_NOT"/a><a class="L" href="lcode.h.ref.html#OPR_NOT">OPR_NOT</a>, <a name="OPR_LEN"/a><a class="L" href="lcode.h.ref.html#OPR_LEN">OPR_LEN</a>, <a name="OPR_NOUNOPR"/a><a class="L" href="lcode.h.ref.html#OPR_NOUNOPR">OPR_NOUNOPR</a> } <a name="UnOpr"/a><a class="L" href="lcode.h.ref.html#UnOpr">UnOpr</a>;
+L0037    
+L0038    
+L0039    <a name="getcode"/a><span class="prepro">#define getcode(fs,e)	((fs)-&gt;f-&gt;code[(e)-&gt;u.s.info])
+</span>L0040    
+L0041    <a name="luaK_codeAsBx"/a><span class="prepro">#define luaK_codeAsBx(fs,o,A,sBx)	luaK_codeABx(fs,o,A,(sBx)+MAXARG_sBx)
+</span>L0042    
+L0043    <a name="luaK_setmultret"/a><span class="prepro">#define luaK_setmultret(fs,e)	luaK_setreturns(fs, e, LUA_MULTRET)
+</span>L0044    
+L0045    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <span class="keyword">int</span> <a class="L" href="lcode.c.html#luaK_codeABx">luaK_codeABx</a> (<a class="L" href="lparser.h.html#FuncState">FuncState</a> *fs, <a class="L" href="lopcodes.h.html#OpCode">OpCode</a> o, <span class="keyword">int</span> A, unsigned <span class="keyword">int</span> Bx);
+L0046    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <span class="keyword">int</span> <a class="L" href="lcode.c.html#luaK_codeABC">luaK_codeABC</a> (<a class="L" href="lparser.h.html#FuncState">FuncState</a> *fs, <a class="L" href="lopcodes.h.html#OpCode">OpCode</a> o, <span class="keyword">int</span> A, <span class="keyword">int</span> B, <span class="keyword">int</span> C);
+L0047    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <span class="keyword">void</span> <a class="L" href="lcode.c.html#luaK_fixline">luaK_fixline</a> (<a class="L" href="lparser.h.html#FuncState">FuncState</a> *fs, <span class="keyword">int</span> line);
+L0048    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <span class="keyword">void</span> <a class="L" href="lcode.c.html#luaK_nil">luaK_nil</a> (<a class="L" href="lparser.h.html#FuncState">FuncState</a> *fs, <span class="keyword">int</span> from, <span class="keyword">int</span> n);
+L0049    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <span class="keyword">void</span> <a class="L" href="lcode.c.html#luaK_reserveregs">luaK_reserveregs</a> (<a class="L" href="lparser.h.html#FuncState">FuncState</a> *fs, <span class="keyword">int</span> n);
+L0050    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <span class="keyword">void</span> <a class="L" href="lcode.c.html#luaK_checkstack">luaK_checkstack</a> (<a class="L" href="lparser.h.html#FuncState">FuncState</a> *fs, <span class="keyword">int</span> n);
+L0051    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <span class="keyword">int</span> <a class="L" href="lcode.c.html#luaK_stringK">luaK_stringK</a> (<a class="L" href="lparser.h.html#FuncState">FuncState</a> *fs, <a class="L" href="lobject.h.html#TString">TString</a> *s);
+L0052    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <span class="keyword">int</span> <a class="L" href="lcode.c.html#luaK_numberK">luaK_numberK</a> (<a class="L" href="lparser.h.html#FuncState">FuncState</a> *fs, <a class="L" href="lua.h.html#lua_Number">lua_Number</a> r);
+L0053    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <span class="keyword">void</span> <a class="L" href="lcode.c.html#luaK_dischargevars">luaK_dischargevars</a> (<a class="L" href="lparser.h.html#FuncState">FuncState</a> *fs, <a class="L" href="lparser.h.html#expdesc">expdesc</a> *e);
+L0054    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <span class="keyword">int</span> <a class="L" href="lcode.c.html#luaK_exp2anyreg">luaK_exp2anyreg</a> (<a class="L" href="lparser.h.html#FuncState">FuncState</a> *fs, <a class="L" href="lparser.h.html#expdesc">expdesc</a> *e);
+L0055    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <span class="keyword">void</span> <a class="L" href="lcode.c.html#luaK_exp2nextreg">luaK_exp2nextreg</a> (<a class="L" href="lparser.h.html#FuncState">FuncState</a> *fs, <a class="L" href="lparser.h.html#expdesc">expdesc</a> *e);
+L0056    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <span class="keyword">void</span> <a class="L" href="lcode.c.html#luaK_exp2val">luaK_exp2val</a> (<a class="L" href="lparser.h.html#FuncState">FuncState</a> *fs, <a class="L" href="lparser.h.html#expdesc">expdesc</a> *e);
+L0057    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <span class="keyword">int</span> <a class="L" href="lcode.c.html#luaK_exp2RK">luaK_exp2RK</a> (<a class="L" href="lparser.h.html#FuncState">FuncState</a> *fs, <a class="L" href="lparser.h.html#expdesc">expdesc</a> *e);
+L0058    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <span class="keyword">void</span> <a class="L" href="lcode.c.html#luaK_self">luaK_self</a> (<a class="L" href="lparser.h.html#FuncState">FuncState</a> *fs, <a class="L" href="lparser.h.html#expdesc">expdesc</a> *e, <a class="L" href="lparser.h.html#expdesc">expdesc</a> *key);
+L0059    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <span class="keyword">void</span> <a class="L" href="lcode.c.html#luaK_indexed">luaK_indexed</a> (<a class="L" href="lparser.h.html#FuncState">FuncState</a> *fs, <a class="L" href="lparser.h.html#expdesc">expdesc</a> *t, <a class="L" href="lparser.h.html#expdesc">expdesc</a> *k);
+L0060    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <span class="keyword">void</span> <a class="L" href="lcode.c.html#luaK_goiftrue">luaK_goiftrue</a> (<a class="L" href="lparser.h.html#FuncState">FuncState</a> *fs, <a class="L" href="lparser.h.html#expdesc">expdesc</a> *e);
+L0061    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <span class="keyword">void</span> <a class="L" href="lcode.c.html#luaK_storevar">luaK_storevar</a> (<a class="L" href="lparser.h.html#FuncState">FuncState</a> *fs, <a class="L" href="lparser.h.html#expdesc">expdesc</a> *var, <a class="L" href="lparser.h.html#expdesc">expdesc</a> *e);
+L0062    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <span class="keyword">void</span> <a class="L" href="lcode.c.html#luaK_setreturns">luaK_setreturns</a> (<a class="L" href="lparser.h.html#FuncState">FuncState</a> *fs, <a class="L" href="lparser.h.html#expdesc">expdesc</a> *e, <span class="keyword">int</span> nresults);
+L0063    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <span class="keyword">void</span> <a class="L" href="lcode.c.html#luaK_setoneret">luaK_setoneret</a> (<a class="L" href="lparser.h.html#FuncState">FuncState</a> *fs, <a class="L" href="lparser.h.html#expdesc">expdesc</a> *e);
+L0064    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <span class="keyword">int</span> <a class="L" href="lcode.c.html#luaK_jump">luaK_jump</a> (<a class="L" href="lparser.h.html#FuncState">FuncState</a> *fs);
+L0065    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <span class="keyword">void</span> <a class="L" href="lcode.c.html#luaK_ret">luaK_ret</a> (<a class="L" href="lparser.h.html#FuncState">FuncState</a> *fs, <span class="keyword">int</span> first, <span class="keyword">int</span> nret);
+L0066    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <span class="keyword">void</span> <a class="L" href="lcode.c.html#luaK_patchlist">luaK_patchlist</a> (<a class="L" href="lparser.h.html#FuncState">FuncState</a> *fs, <span class="keyword">int</span> list, <span class="keyword">int</span> target);
+L0067    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <span class="keyword">void</span> <a class="L" href="lcode.c.html#luaK_patchtohere">luaK_patchtohere</a> (<a class="L" href="lparser.h.html#FuncState">FuncState</a> *fs, <span class="keyword">int</span> list);
+L0068    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <span class="keyword">void</span> <a class="L" href="lcode.c.html#luaK_concat">luaK_concat</a> (<a class="L" href="lparser.h.html#FuncState">FuncState</a> *fs, <span class="keyword">int</span> *l1, <span class="keyword">int</span> l2);
+L0069    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <span class="keyword">int</span> <a class="L" href="lcode.c.html#luaK_getlabel">luaK_getlabel</a> (<a class="L" href="lparser.h.html#FuncState">FuncState</a> *fs);
+L0070    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <span class="keyword">void</span> <a class="L" href="lcode.c.html#luaK_prefix">luaK_prefix</a> (<a class="L" href="lparser.h.html#FuncState">FuncState</a> *fs, <a class="L" href="lcode.h.html#UnOpr">UnOpr</a> op, <a class="L" href="lparser.h.html#expdesc">expdesc</a> *v);
+L0071    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <span class="keyword">void</span> <a class="L" href="lcode.c.html#luaK_infix">luaK_infix</a> (<a class="L" href="lparser.h.html#FuncState">FuncState</a> *fs, <a class="L" href="lcode.h.html#BinOpr">BinOpr</a> op, <a class="L" href="lparser.h.html#expdesc">expdesc</a> *v);
+L0072    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <span class="keyword">void</span> <a class="L" href="lcode.c.html#luaK_posfix">luaK_posfix</a> (<a class="L" href="lparser.h.html#FuncState">FuncState</a> *fs, <a class="L" href="lcode.h.html#BinOpr">BinOpr</a> op, <a class="L" href="lparser.h.html#expdesc">expdesc</a> *v1, <a class="L" href="lparser.h.html#expdesc">expdesc</a> *v2);
+L0073    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <span class="keyword">void</span> <a class="L" href="lcode.c.html#luaK_setlist">luaK_setlist</a> (<a class="L" href="lparser.h.html#FuncState">FuncState</a> *fs, <span class="keyword">int</span> base, <span class="keyword">int</span> nelems, <span class="keyword">int</span> tostore);
+L0074    
+L0075    
+L0076    <span class="prepro">#endif
+</span></pre>
+<hr/>
+Generated by <a href="pretty.lua.html">pretty.lua</html>
+</body></html>

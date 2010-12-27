@@ -1,0 +1,896 @@
+<html>
+<head>
+<style>
+a.L { text-decoration: none; }
+a.L:hover { color: #FFAAAA; }
+body { margin-top: 20px; margin-left: 30px; }
+.lno { font-weight: bold: color #000; }
+.keyword {font-weight: bold; color: #6666AA; }
+.number  { color: #AA6666; }
+.string  { color: #8888AA; }
+.comment { color: #666600; }
+.prepro { color: #006666; } 
+</style>
+<body>
+<h1>Lua 5.1.4: lapi.c references</h1>
+<hr/>
+<a name="lua_call"/><h3>lua_call</h3>
+<ul><li><a href="lstrlib.c.html#add_value">add_value</a> in lstrlib.c</li>
+<li><a href="ltablib.c.html#foreach">foreach</a> in ltablib.c</li>
+<li><a href="lauxlib.c.html#luaL_callmeta">luaL_callmeta</a> in lauxlib.c</li>
+<li><a href="lua.c.html#traceback">traceback</a> in lua.c</li>
+<li><a href="lbaselib.c.html#luaB_dofile">luaB_dofile</a> in lbaselib.c</li>
+<li><a href="ltablib.c.html#foreachi">foreachi</a> in ltablib.c</li>
+<li><a href="ldblib.c.html#hookf">hookf</a> in ldblib.c</li>
+<li><a href="linit.c.html#luaL_openlibs">luaL_openlibs</a> in linit.c</li>
+<li><a href="lbaselib.c.html#luaB_print">luaB_print</a> in lbaselib.c</li>
+<li><a href="lbaselib.c.html#generic_reader">generic_reader</a> in lbaselib.c</li>
+<li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+<li><a href="ltablib.c.html#sort_comp">sort_comp</a> in ltablib.c</li>
+<li><a href="loadlib.c.html#ll_require">ll_require</a> in loadlib.c</li>
+<li><a href="loadlib.c.html#dooptions">dooptions</a> in loadlib.c</li>
+</ul>
+<a name="lua_pushfstring"/><h3>lua_pushfstring</h3>
+<ul><li><a href="loadlib.c.html#loader_Croot">loader_Croot</a> in loadlib.c</li>
+<li><a href="liolib.c.html#fileerror">fileerror</a> in liolib.c</li>
+<li><a href="loslib.c.html#os_pushresult">os_pushresult</a> in loslib.c</li>
+<li><a href="ldblib.c.html#db_errorfb">db_errorfb</a> in ldblib.c</li>
+<li><a href="loadlib.c.html#ll_register">ll_register</a> in loadlib.c</li>
+<li><a href="loadlib.c.html#loader_preload">loader_preload</a> in loadlib.c</li>
+<li><a href="lauxlib.c.html#luaL_where">luaL_where</a> in lauxlib.c</li>
+<li><a href="lauxlib.c.html#errfile">errfile</a> in lauxlib.c</li>
+<li><a href="loadlib.c.html#findfile">findfile</a> in loadlib.c</li>
+<li><a href="loadlib.c.html#errorfromcode">errorfromcode</a> in loadlib.c</li>
+<li><a href="liolib.c.html#pushresult">pushresult</a> in liolib.c</li>
+<li><a href="lua.c.html#dotty">dotty</a> in lua.c</li>
+<li><a href="liolib.c.html#io_tostring">io_tostring</a> in liolib.c</li>
+<li><a href="loadlib.c.html#mkfuncname">mkfuncname</a> in loadlib.c</li>
+<li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+<li><a href="lauxlib.c.html#luaL_typerror">luaL_typerror</a> in lauxlib.c</li>
+<li><a href="lauxlib.c.html#luaL_checkoption">luaL_checkoption</a> in lauxlib.c</li>
+<li><a href="ldblib.c.html#db_getinfo">db_getinfo</a> in ldblib.c</li>
+<li><a href="lauxlib.c.html#luaL_loadfile">luaL_loadfile</a> in lauxlib.c</li>
+<li><a href="lbaselib.c.html#luaB_tostring">luaB_tostring</a> in lbaselib.c</li>
+<li><a href="lua.c.html#pushline">pushline</a> in lua.c</li>
+<li><a href="lbaselib.c.html#auxresume">auxresume</a> in lbaselib.c</li>
+</ul>
+<a name="api_checknelems"/><h3>api_checknelems</h3>
+<ul><li><a href="lapi.c.html#lua_rawseti">lua_rawseti</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_call">lua_call</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_xmove">lua_xmove</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_setmetatable">lua_setmetatable</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_dump">lua_dump</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_pcall">lua_pcall</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_replace">lua_replace</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_error">lua_error</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_setupvalue">lua_setupvalue</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_settable">lua_settable</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_concat">lua_concat</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_setfield">lua_setfield</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_setfenv">lua_setfenv</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_pushcclosure">lua_pushcclosure</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_rawset">lua_rawset</a> in lapi.c</li>
+</ul>
+<a name="lua_tolstring"/><h3>lua_tolstring</h3>
+<ul><li><a href="lauxlib.c.html#luaL_addvalue">luaL_addvalue</a> in lauxlib.c</li>
+<li><a href="lauxlib.c.html#luaL_checklstring">luaL_checklstring</a> in lauxlib.c</li>
+<li><a href="lbaselib.c.html#generic_reader">generic_reader</a> in lbaselib.c</li>
+<li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+<li><a href="lstrlib.c.html#gmatch_aux">gmatch_aux</a> in lstrlib.c</li>
+<li><a href="lua.c.html#incomplete">incomplete</a> in lua.c</li>
+<li><a href="lstrlib.c.html#add_s">add_s</a> in lstrlib.c</li>
+</ul>
+<a name="lua_xmove"/><h3>lua_xmove</h3>
+<ul><li><a href="ldblib.c.html#db_setlocal">db_setlocal</a> in ldblib.c</li>
+<li><a href="ldblib.c.html#treatstackoption">treatstackoption</a> in ldblib.c</li>
+<li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+<li><a href="ldblib.c.html#db_getlocal">db_getlocal</a> in ldblib.c</li>
+<li><a href="lbaselib.c.html#luaB_cocreate">luaB_cocreate</a> in lbaselib.c</li>
+<li><a href="ldblib.c.html#db_getinfo">db_getinfo</a> in ldblib.c</li>
+<li><a href="lbaselib.c.html#auxresume">auxresume</a> in lbaselib.c</li>
+</ul>
+<a name="lua_setlevel"/><h3>lua_setlevel</h3>
+<ul><li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+<li><a href="lbaselib.c.html#auxresume">auxresume</a> in lbaselib.c</li>
+</ul>
+<a name="lua_setfenv"/><h3>lua_setfenv</h3>
+<ul><li><a href="lbaselib.c.html#luaB_setfenv">luaB_setfenv</a> in lbaselib.c</li>
+<li><a href="loadlib.c.html#setfenv">setfenv</a> in loadlib.c</li>
+<li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+<li><a href="ldblib.c.html#db_setfenv">db_setfenv</a> in ldblib.c</li>
+<li><a href="liolib.c.html#createstdfile">createstdfile</a> in liolib.c</li>
+<li><a href="liolib.c.html#luaopen_io">luaopen_io</a> in liolib.c</li>
+</ul>
+<a name="lua_atpanic"/><h3>lua_atpanic</h3>
+<ul><li><a href="lauxlib.c.html#luaL_newstate">luaL_newstate</a> in lauxlib.c</li>
+<li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+</ul>
+<a name="lua_next"/><h3>lua_next</h3>
+<ul><li><a href="ltablib.c.html#foreach">foreach</a> in ltablib.c</li>
+<li><a href="lbaselib.c.html#luaB_next">luaB_next</a> in lbaselib.c</li>
+<li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+<li><a href="ltablib.c.html#maxn">maxn</a> in ltablib.c</li>
+</ul>
+<a name="lua_gettop"/><h3>lua_gettop</h3>
+<ul><li><a href="lbaselib.c.html#costatus">costatus</a> in lbaselib.c</li>
+<li><a href="liolib.c.html#io_lines">io_lines</a> in liolib.c</li>
+<li><a href="ldblib.c.html#db_errorfb">db_errorfb</a> in ldblib.c</li>
+<li><a href="lbaselib.c.html#luaB_auxwrap">luaB_auxwrap</a> in lbaselib.c</li>
+<li><a href="ltablib.c.html#tinsert">tinsert</a> in ltablib.c</li>
+<li><a href="lbaselib.c.html#luaB_dofile">luaB_dofile</a> in lbaselib.c</li>
+<li><a href="lstrlib.c.html#str_char">str_char</a> in lstrlib.c</li>
+<li><a href="lmathlib.c.html#math_random">math_random</a> in lmathlib.c</li>
+<li><a href="liolib.c.html#g_read">g_read</a> in liolib.c</li>
+<li><a href="loadlib.c.html#ll_module">ll_module</a> in loadlib.c</li>
+<li><a href="lua.c.html#dotty">dotty</a> in lua.c</li>
+<li><a href="lmathlib.c.html#math_min">math_min</a> in lmathlib.c</li>
+<li><a href="lmathlib.c.html#math_max">math_max</a> in lmathlib.c</li>
+<li><a href="lbaselib.c.html#luaB_print">luaB_print</a> in lbaselib.c</li>
+<li><a href="lbaselib.c.html#luaB_pcall">luaB_pcall</a> in lbaselib.c</li>
+<li><a href="liolib.c.html#g_write">g_write</a> in liolib.c</li>
+<li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+<li><a href="lua.c.html#docall">docall</a> in lua.c</li>
+<li><a href="lbaselib.c.html#luaB_assert">luaB_assert</a> in lbaselib.c</li>
+<li><a href="lauxlib.c.html#luaL_loadfile">luaL_loadfile</a> in lauxlib.c</li>
+<li><a href="lbaselib.c.html#luaB_xpcall">luaB_xpcall</a> in lbaselib.c</li>
+<li><a href="lbaselib.c.html#luaB_coresume">luaB_coresume</a> in lbaselib.c</li>
+<li><a href="lbaselib.c.html#luaB_yield">luaB_yield</a> in lbaselib.c</li>
+<li><a href="lbaselib.c.html#luaB_select">luaB_select</a> in lbaselib.c</li>
+<li><a href="lbaselib.c.html#auxresume">auxresume</a> in lbaselib.c</li>
+</ul>
+<a name="lua_load"/><h3>lua_load</h3>
+<ul><li><a href="lauxlib.c.html#luaL_loadbuffer">luaL_loadbuffer</a> in lauxlib.c</li>
+<li><a href="lbaselib.c.html#luaB_load">luaB_load</a> in lbaselib.c</li>
+<li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+<li><a href="lauxlib.c.html#luaL_loadfile">luaL_loadfile</a> in lauxlib.c</li>
+</ul>
+<a name="lua_remove"/><h3>lua_remove</h3>
+<ul><li><a href="lauxlib.c.html#luaI_openlib">luaI_openlib</a> in lauxlib.c</li>
+<li><a href="lauxlib.c.html#errfile">errfile</a> in lauxlib.c</li>
+<li><a href="ldblib.c.html#treatstackoption">treatstackoption</a> in ldblib.c</li>
+<li><a href="loadlib.c.html#findfile">findfile</a> in loadlib.c</li>
+<li><a href="loadlib.c.html#setpath">setpath</a> in loadlib.c</li>
+<li><a href="loadlib.c.html#mkfuncname">mkfuncname</a> in loadlib.c</li>
+<li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+<li><a href="lua.c.html#docall">docall</a> in lua.c</li>
+<li><a href="lauxlib.c.html#luaL_getmetafield">luaL_getmetafield</a> in lauxlib.c</li>
+<li><a href="lua.c.html#loadline">loadline</a> in lua.c</li>
+<li><a href="lauxlib.c.html#luaL_loadfile">luaL_loadfile</a> in lauxlib.c</li>
+<li><a href="ldblib.c.html#db_gethook">db_gethook</a> in ldblib.c</li>
+<li><a href="lauxlib.c.html#luaL_findtable">luaL_findtable</a> in lauxlib.c</li>
+</ul>
+<a name="lua_iscfunction"/><h3>lua_iscfunction</h3>
+<ul><li><a href="lbaselib.c.html#luaB_setfenv">luaB_setfenv</a> in lbaselib.c</li>
+<li><a href="loadlib.c.html#setfenv">setfenv</a> in loadlib.c</li>
+<li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+<li><a href="lbaselib.c.html#luaB_getfenv">luaB_getfenv</a> in lbaselib.c</li>
+<li><a href="lbaselib.c.html#luaB_cocreate">luaB_cocreate</a> in lbaselib.c</li>
+<li><a href="ldblib.c.html#auxupvalue">auxupvalue</a> in ldblib.c</li>
+</ul>
+<a name="lua_topointer"/><h3>lua_topointer</h3>
+<ul><li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+<li><a href="lbaselib.c.html#luaB_tostring">luaB_tostring</a> in lbaselib.c</li>
+</ul>
+<a name="lua_isuserdata"/><h3>lua_isuserdata</h3>
+<ul><li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+</ul>
+<a name="lua_status"/><h3>lua_status</h3>
+<ul><li><a href="lbaselib.c.html#costatus">costatus</a> in lbaselib.c</li>
+<li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+</ul>
+<a name="lua_pushinteger"/><h3>lua_pushinteger</h3>
+<ul><li><a href="ltablib.c.html#getn">getn</a> in ltablib.c</li>
+<li><a href="lstrlib.c.html#push_onecapture">push_onecapture</a> in lstrlib.c</li>
+<li><a href="lauxlib.c.html#luaL_unref">luaL_unref</a> in lauxlib.c</li>
+<li><a href="loslib.c.html#os_pushresult">os_pushresult</a> in loslib.c</li>
+<li><a href="liolib.c.html#f_seek">f_seek</a> in liolib.c</li>
+<li><a href="ldblib.c.html#settabsi">settabsi</a> in ldblib.c</li>
+<li><a href="lauxlib.c.html#luaL_setn">luaL_setn</a> in lauxlib.c</li>
+<li><a href="lstrlib.c.html#str_gsub">str_gsub</a> in lstrlib.c</li>
+<li><a href="lua.c.html#traceback">traceback</a> in lua.c</li>
+<li><a href="lbaselib.c.html#luaB_gcinfo">luaB_gcinfo</a> in lbaselib.c</li>
+<li><a href="lstrlib.c.html#str_len">str_len</a> in lstrlib.c</li>
+<li><a href="lstrlib.c.html#str_find_aux">str_find_aux</a> in lstrlib.c</li>
+<li><a href="lmathlib.c.html#math_frexp">math_frexp</a> in lmathlib.c</li>
+<li><a href="lstrlib.c.html#str_byte">str_byte</a> in lstrlib.c</li>
+<li><a href="lstrlib.c.html#gmatch">gmatch</a> in lstrlib.c</li>
+<li><a href="ltablib.c.html#foreachi">foreachi</a> in ltablib.c</li>
+<li><a href="ldblib.c.html#hookf">hookf</a> in ldblib.c</li>
+<li><a href="liolib.c.html#pushresult">pushresult</a> in liolib.c</li>
+<li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+<li><a href="loslib.c.html#os_execute">os_execute</a> in loslib.c</li>
+<li><a href="lbaselib.c.html#ipairsaux">ipairsaux</a> in lbaselib.c</li>
+<li><a href="lbaselib.c.html#luaB_ipairs">luaB_ipairs</a> in lbaselib.c</li>
+<li><a href="lstrlib.c.html#gmatch_aux">gmatch_aux</a> in lstrlib.c</li>
+<li><a href="ldblib.c.html#db_gethook">db_gethook</a> in ldblib.c</li>
+<li><a href="loslib.c.html#setfield">setfield</a> in loslib.c</li>
+<li><a href="lbaselib.c.html#luaB_select">luaB_select</a> in lbaselib.c</li>
+</ul>
+<a name="CallS"/><h3>CallS</h3>
+<ul><li><a href="lapi.c.html#lua_pcall">lua_pcall</a> in lapi.c</li>
+<li><a href="lapi.c.html#f_call">f_call</a> in lapi.c</li>
+</ul>
+<a name="lua_tothread"/><h3>lua_tothread</h3>
+<ul><li><a href="ldblib.c.html#getthread">getthread</a> in ldblib.c</li>
+<li><a href="lbaselib.c.html#luaB_auxwrap">luaB_auxwrap</a> in lbaselib.c</li>
+<li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+<li><a href="lbaselib.c.html#luaB_costatus">luaB_costatus</a> in lbaselib.c</li>
+<li><a href="lbaselib.c.html#luaB_coresume">luaB_coresume</a> in lbaselib.c</li>
+</ul>
+<a name="lua_settable"/><h3>lua_settable</h3>
+<ul><li><a href="loadlib.c.html#ll_register">ll_register</a> in loadlib.c</li>
+<li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+<li><a href="lauxlib.c.html#luaL_findtable">luaL_findtable</a> in lauxlib.c</li>
+</ul>
+<a name="lua_getfenv"/><h3>lua_getfenv</h3>
+<ul><li><a href="liolib.c.html#aux_close">aux_close</a> in liolib.c</li>
+<li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+<li><a href="lbaselib.c.html#luaB_getfenv">luaB_getfenv</a> in lbaselib.c</li>
+<li><a href="ldblib.c.html#db_getfenv">db_getfenv</a> in ldblib.c</li>
+</ul>
+<a name="lua_type"/><h3>lua_type</h3>
+<ul><li><a href="ldblib.c.html#db_setmetatable">db_setmetatable</a> in ldblib.c</li>
+<li><a href="lstrlib.c.html#add_value">add_value</a> in lstrlib.c</li>
+<li><a href="lstrlib.c.html#str_gsub">str_gsub</a> in lstrlib.c</li>
+<li><a href="lauxlib.c.html#checkint">checkint</a> in lauxlib.c</li>
+<li><a href="liolib.c.html#g_read">g_read</a> in liolib.c</li>
+<li><a href="liolib.c.html#g_write">g_write</a> in liolib.c</li>
+<li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+<li><a href="lapi.c.html#lua_isstring">lua_isstring</a> in lapi.c</li>
+<li><a href="lauxlib.c.html#luaL_checktype">luaL_checktype</a> in lauxlib.c</li>
+<li><a href="ltablib.c.html#maxn">maxn</a> in ltablib.c</li>
+<li><a href="lauxlib.c.html#luaL_checkany">luaL_checkany</a> in lauxlib.c</li>
+<li><a href="lbaselib.c.html#luaB_tostring">luaB_tostring</a> in lbaselib.c</li>
+<li><a href="lbaselib.c.html#luaB_setmetatable">luaB_setmetatable</a> in lbaselib.c</li>
+<li><a href="lbaselib.c.html#luaB_select">luaB_select</a> in lbaselib.c</li>
+</ul>
+<a name="lua_pushthread"/><h3>lua_pushthread</h3>
+<ul><li><a href="lbaselib.c.html#luaB_corunning">luaB_corunning</a> in lbaselib.c</li>
+<li><a href="lbaselib.c.html#luaB_setfenv">luaB_setfenv</a> in lbaselib.c</li>
+<li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+</ul>
+<a name="lua_touserdata"/><h3>lua_touserdata</h3>
+<ul><li><a href="liolib.c.html#io_readline">io_readline</a> in liolib.c</li>
+<li><a href="lapi.c.html#lua_topointer">lua_topointer</a> in lapi.c</li>
+<li><a href="loadlib.c.html#ll_register">ll_register</a> in loadlib.c</li>
+<li><a href="lauxlib.c.html#luaL_checkudata">luaL_checkudata</a> in lauxlib.c</li>
+<li><a href="luac.c.html#combine">combine</a> in luac.c</li>
+<li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+<li><a href="lua.c.html#pmain">pmain</a> in lua.c</li>
+<li><a href="liolib.c.html#io_type">io_type</a> in liolib.c</li>
+<li><a href="loadlib.c.html#ll_require">ll_require</a> in loadlib.c</li>
+<li><a href="liolib.c.html#getiofile">getiofile</a> in liolib.c</li>
+</ul>
+<a name="lua_setmetatable"/><h3>lua_setmetatable</h3>
+<ul><li><a href="ldblib.c.html#db_setmetatable">db_setmetatable</a> in ldblib.c</li>
+<li><a href="lbaselib.c.html#base_open">base_open</a> in lbaselib.c</li>
+<li><a href="loadlib.c.html#ll_register">ll_register</a> in loadlib.c</li>
+<li><a href="liolib.c.html#newfile">newfile</a> in liolib.c</li>
+<li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+<li><a href="lauxlib.c.html#getsizes">getsizes</a> in lauxlib.c</li>
+<li><a href="lbaselib.c.html#luaB_setmetatable">luaB_setmetatable</a> in lbaselib.c</li>
+<li><a href="lbaselib.c.html#luaB_newproxy">luaB_newproxy</a> in lbaselib.c</li>
+<li><a href="loadlib.c.html#ll_seeall">ll_seeall</a> in loadlib.c</li>
+<li><a href="lstrlib.c.html#createmetatable">createmetatable</a> in lstrlib.c</li>
+</ul>
+<a name="api_incr_top"/><h3>api_incr_top</h3>
+<ul><li><a href="lapi.c.html#lua_getupvalue">lua_getupvalue</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_pushthread">lua_pushthread</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_pushvalue">lua_pushvalue</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_pushnil">lua_pushnil</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_getmetatable">lua_getmetatable</a> in lapi.c</li>
+<li><a href="lapi.c.html#f_Ccall">f_Ccall</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_createtable">lua_createtable</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_pushinteger">lua_pushinteger</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_pushlightuserdata">lua_pushlightuserdata</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_rawgeti">lua_rawgeti</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_concat">lua_concat</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_pushnumber">lua_pushnumber</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_pushcclosure">lua_pushcclosure</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_newuserdata">lua_newuserdata</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_getfield">lua_getfield</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_getfenv">lua_getfenv</a> in lapi.c</li>
+<li><a href="lapi.c.html#luaA_pushobject">luaA_pushobject</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_next">lua_next</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_pushlstring">lua_pushlstring</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_newthread">lua_newthread</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_pushboolean">lua_pushboolean</a> in lapi.c</li>
+</ul>
+<a name="lua_pushvfstring"/><h3>lua_pushvfstring</h3>
+<ul><li><a href="lauxlib.c.html#luaL_error">luaL_error</a> in lauxlib.c</li>
+<li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+</ul>
+<a name="lua_equal"/><h3>lua_equal</h3>
+<ul><li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+</ul>
+<a name="lua_dump"/><h3>lua_dump</h3>
+<ul><li><a href="lstrlib.c.html#str_dump">str_dump</a> in lstrlib.c</li>
+<li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+</ul>
+<a name="aux_upvalue"/><h3>aux_upvalue</h3>
+<ul><li><a href="lapi.c.html#lua_getupvalue">lua_getupvalue</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_setupvalue">lua_setupvalue</a> in lapi.c</li>
+</ul>
+<a name="lua_rawseti"/><h3>lua_rawseti</h3>
+<ul><li><a href="lauxlib.c.html#luaL_unref">luaL_unref</a> in lauxlib.c</li>
+<li><a href="liolib.c.html#g_iofile">g_iofile</a> in liolib.c</li>
+<li><a href="ltablib.c.html#tremove">tremove</a> in ltablib.c</li>
+<li><a href="ltablib.c.html#tinsert">tinsert</a> in ltablib.c</li>
+<li><a href="ltablib.c.html#set2">set2</a> in ltablib.c</li>
+<li><a href="lua.c.html#getargs">getargs</a> in lua.c</li>
+<li><a href="loadlib.c.html#luaopen_package">luaopen_package</a> in loadlib.c</li>
+<li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+<li><a href="liolib.c.html#createstdfile">createstdfile</a> in liolib.c</li>
+<li><a href="lauxlib.c.html#luaL_ref">luaL_ref</a> in lauxlib.c</li>
+</ul>
+<a name="lua_gc"/><h3>lua_gc</h3>
+<ul><li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+<li><a href="lua.c.html#docall">docall</a> in lua.c</li>
+<li><a href="lbaselib.c.html#luaB_collectgarbage">luaB_collectgarbage</a> in lbaselib.c</li>
+<li><a href="lua.c.html#pmain">pmain</a> in lua.c</li>
+</ul>
+<a name="adjustresults"/><h3>adjustresults</h3>
+<ul><li><a href="lapi.c.html#lua_call">lua_call</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_pcall">lua_pcall</a> in lapi.c</li>
+</ul>
+<a name="lua_error"/><h3>lua_error</h3>
+<ul><li><a href="lauxlib.c.html#luaL_error">luaL_error</a> in lauxlib.c</li>
+<li><a href="lbaselib.c.html#luaB_auxwrap">luaB_auxwrap</a> in lbaselib.c</li>
+<li><a href="lbaselib.c.html#luaB_dofile">luaB_dofile</a> in lbaselib.c</li>
+<li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+<li><a href="lbaselib.c.html#luaB_error">luaB_error</a> in lbaselib.c</li>
+</ul>
+<a name="lua_checkstack"/><h3>lua_checkstack</h3>
+<ul><li><a href="lbaselib.c.html#luaB_unpack">luaB_unpack</a> in lbaselib.c</li>
+<li><a href="lauxlib.c.html#luaL_checkstack">luaL_checkstack</a> in lauxlib.c</li>
+<li><a href="luac.c.html#combine">combine</a> in luac.c</li>
+<li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+<li><a href="lbaselib.c.html#auxresume">auxresume</a> in lbaselib.c</li>
+</ul>
+<a name="lua_pushstring"/><h3>lua_pushstring</h3>
+<ul><li><a href="ldblib.c.html#db_setlocal">db_setlocal</a> in ldblib.c</li>
+<li><a href="loadlib.c.html#ll_loadlib">ll_loadlib</a> in loadlib.c</li>
+<li><a href="lua.c.html#dolibrary">dolibrary</a> in lua.c</li>
+<li><a href="loslib.c.html#os_tmpname">os_tmpname</a> in loslib.c</li>
+<li><a href="lbaselib.c.html#luaB_type">luaB_type</a> in lbaselib.c</li>
+<li><a href="loadlib.c.html#errorfromcode">errorfromcode</a> in loadlib.c</li>
+<li><a href="loadlib.c.html#modinit">modinit</a> in loadlib.c</li>
+<li><a href="ldblib.c.html#hookf">hookf</a> in ldblib.c</li>
+<li><a href="ldblib.c.html#settabss">settabss</a> in ldblib.c</li>
+<li><a href="linit.c.html#luaL_openlibs">luaL_openlibs</a> in linit.c</li>
+<li><a href="loslib.c.html#os_setlocale">os_setlocale</a> in loslib.c</li>
+<li><a href="loslib.c.html#os_getenv">os_getenv</a> in loslib.c</li>
+<li><a href="loadlib.c.html#setpath">setpath</a> in loadlib.c</li>
+<li><a href="lua.c.html#getargs">getargs</a> in lua.c</li>
+<li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+<li><a href="ldblib.c.html#db_getlocal">db_getlocal</a> in ldblib.c</li>
+<li><a href="lauxlib.c.html#luaL_getmetafield">luaL_getmetafield</a> in lauxlib.c</li>
+<li><a href="lbaselib.c.html#luaB_tostring">luaB_tostring</a> in lbaselib.c</li>
+<li><a href="lbaselib.c.html#luaB_costatus">luaB_costatus</a> in lbaselib.c</li>
+<li><a href="lua.c.html#pushline">pushline</a> in lua.c</li>
+<li><a href="ldblib.c.html#db_gethook">db_gethook</a> in ldblib.c</li>
+<li><a href="loadlib.c.html#ll_require">ll_require</a> in loadlib.c</li>
+<li><a href="ldblib.c.html#auxupvalue">auxupvalue</a> in ldblib.c</li>
+</ul>
+<a name="checkresults"/><h3>checkresults</h3>
+<ul><li><a href="lapi.c.html#lua_call">lua_call</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_pcall">lua_pcall</a> in lapi.c</li>
+</ul>
+<a name="lua_tocfunction"/><h3>lua_tocfunction</h3>
+<ul><li><a href="liolib.c.html#aux_close">aux_close</a> in liolib.c</li>
+<li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+</ul>
+<a name="lua_pushlstring"/><h3>lua_pushlstring</h3>
+<ul><li><a href="lstrlib.c.html#push_onecapture">push_onecapture</a> in lstrlib.c</li>
+<li><a href="loadlib.c.html#loader_Croot">loader_Croot</a> in loadlib.c</li>
+<li><a href="lstrlib.c.html#add_value">add_value</a> in lstrlib.c</li>
+<li><a href="lstrlib.c.html#str_sub">str_sub</a> in lstrlib.c</li>
+<li><a href="lapi.c.html#lua_pushstring">lua_pushstring</a> in lapi.c</li>
+<li><a href="loadlib.c.html#modinit">modinit</a> in loadlib.c</li>
+<li><a href="loadlib.c.html#pushnexttemplate">pushnexttemplate</a> in loadlib.c</li>
+<li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+<li><a href="lauxlib.c.html#emptybuffer">emptybuffer</a> in lauxlib.c</li>
+<li><a href="lauxlib.c.html#luaL_findtable">luaL_findtable</a> in lauxlib.c</li>
+<li><a href="liolib.c.html#test_eof">test_eof</a> in liolib.c</li>
+</ul>
+<a name="lua_objlen"/><h3>lua_objlen</h3>
+<ul><li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+<li><a href="lauxlib.c.html#luaL_getn">luaL_getn</a> in lauxlib.c</li>
+<li><a href="liolib.c.html#read_chars">read_chars</a> in liolib.c</li>
+<li><a href="liolib.c.html#read_line">read_line</a> in liolib.c</li>
+<li><a href="lauxlib.c.html#luaL_ref">luaL_ref</a> in lauxlib.c</li>
+</ul>
+<a name="lua_insert"/><h3>lua_insert</h3>
+<ul><li><a href="lbaselib.c.html#load_aux">load_aux</a> in lbaselib.c</li>
+<li><a href="lauxlib.c.html#luaI_openlib">luaI_openlib</a> in lauxlib.c</li>
+<li><a href="lbaselib.c.html#luaB_auxwrap">luaB_auxwrap</a> in lbaselib.c</li>
+<li><a href="loadlib.c.html#ll_loadlib">ll_loadlib</a> in loadlib.c</li>
+<li><a href="lbaselib.c.html#luaB_setfenv">luaB_setfenv</a> in lbaselib.c</li>
+<li><a href="lauxlib.c.html#luaL_addvalue">luaL_addvalue</a> in lauxlib.c</li>
+<li><a href="lua.c.html#dotty">dotty</a> in lua.c</li>
+<li><a href="lbaselib.c.html#luaB_pcall">luaB_pcall</a> in lbaselib.c</li>
+<li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+<li><a href="lua.c.html#docall">docall</a> in lua.c</li>
+<li><a href="lua.c.html#loadline">loadline</a> in lua.c</li>
+<li><a href="lbaselib.c.html#luaB_xpcall">luaB_xpcall</a> in lbaselib.c</li>
+<li><a href="lbaselib.c.html#luaB_coresume">luaB_coresume</a> in lbaselib.c</li>
+<li><a href="lua.c.html#handle_script">handle_script</a> in lua.c</li>
+<li><a href="ldblib.c.html#auxupvalue">auxupvalue</a> in ldblib.c</li>
+</ul>
+<a name="getcurrenv"/><h3>getcurrenv</h3>
+<ul><li><a href="lapi.c.html#f_Ccall">f_Ccall</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_pushcclosure">lua_pushcclosure</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_newuserdata">lua_newuserdata</a> in lapi.c</li>
+</ul>
+<a name="lua_rawequal"/><h3>lua_rawequal</h3>
+<ul><li><a href="lbaselib.c.html#luaB_rawequal">luaB_rawequal</a> in lbaselib.c</li>
+<li><a href="lauxlib.c.html#luaL_checkudata">luaL_checkudata</a> in lauxlib.c</li>
+<li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+<li><a href="liolib.c.html#io_type">io_type</a> in liolib.c</li>
+</ul>
+<a name="CCallS"/><h3>CCallS</h3>
+<ul><li><a href="lapi.c.html#f_Ccall">f_Ccall</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_cpcall">lua_cpcall</a> in lapi.c</li>
+</ul>
+<a name="lua_pcall"/><h3>lua_pcall</h3>
+<ul><li><a href="ldblib.c.html#db_debug">db_debug</a> in ldblib.c</li>
+<li><a href="lua.c.html#dotty">dotty</a> in lua.c</li>
+<li><a href="lbaselib.c.html#luaB_pcall">luaB_pcall</a> in lbaselib.c</li>
+<li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+<li><a href="lua.c.html#docall">docall</a> in lua.c</li>
+<li><a href="lbaselib.c.html#luaB_xpcall">luaB_xpcall</a> in lbaselib.c</li>
+</ul>
+<a name="lua_tointeger"/><h3>lua_tointeger</h3>
+<ul><li><a href="ldblib.c.html#db_errorfb">db_errorfb</a> in ldblib.c</li>
+<li><a href="lauxlib.c.html#checkint">checkint</a> in lauxlib.c</li>
+<li><a href="liolib.c.html#g_read">g_read</a> in liolib.c</li>
+<li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+<li><a href="lauxlib.c.html#luaL_checkinteger">luaL_checkinteger</a> in lauxlib.c</li>
+<li><a href="ldblib.c.html#db_getinfo">db_getinfo</a> in ldblib.c</li>
+<li><a href="lstrlib.c.html#gmatch_aux">gmatch_aux</a> in lstrlib.c</li>
+<li><a href="lauxlib.c.html#luaL_ref">luaL_ref</a> in lauxlib.c</li>
+<li><a href="loslib.c.html#getfield">getfield</a> in loslib.c</li>
+</ul>
+<a name="lua_pushboolean"/><h3>lua_pushboolean</h3>
+<ul><li><a href="ldblib.c.html#db_setmetatable">db_setmetatable</a> in ldblib.c</li>
+<li><a href="loslib.c.html#setboolfield">setboolfield</a> in loslib.c</li>
+<li><a href="loslib.c.html#os_pushresult">os_pushresult</a> in loslib.c</li>
+<li><a href="lbaselib.c.html#luaB_rawequal">luaB_rawequal</a> in lbaselib.c</li>
+<li><a href="liolib.c.html#pushresult">pushresult</a> in liolib.c</li>
+<li><a href="lbaselib.c.html#luaB_pcall">luaB_pcall</a> in lbaselib.c</li>
+<li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+<li><a href="lbaselib.c.html#luaB_collectgarbage">luaB_collectgarbage</a> in lbaselib.c</li>
+<li><a href="lbaselib.c.html#luaB_xpcall">luaB_xpcall</a> in lbaselib.c</li>
+<li><a href="lbaselib.c.html#luaB_newproxy">luaB_newproxy</a> in lbaselib.c</li>
+<li><a href="lbaselib.c.html#luaB_coresume">luaB_coresume</a> in lbaselib.c</li>
+<li><a href="liolib.c.html#aux_lines">aux_lines</a> in liolib.c</li>
+<li><a href="loadlib.c.html#ll_require">ll_require</a> in loadlib.c</li>
+</ul>
+<a name="lua_pushnil"/><h3>lua_pushnil</h3>
+<ul><li><a href="lbaselib.c.html#luaB_corunning">luaB_corunning</a> in lbaselib.c</li>
+<li><a href="lbaselib.c.html#load_aux">load_aux</a> in lbaselib.c</li>
+<li><a href="loslib.c.html#os_pushresult">os_pushresult</a> in loslib.c</li>
+<li><a href="ldblib.c.html#db_getmetatable">db_getmetatable</a> in ldblib.c</li>
+<li><a href="lbaselib.c.html#luaB_pairs">luaB_pairs</a> in lbaselib.c</li>
+<li><a href="ltablib.c.html#foreach">foreach</a> in ltablib.c</li>
+<li><a href="lbaselib.c.html#luaB_tonumber">luaB_tonumber</a> in lbaselib.c</li>
+<li><a href="loadlib.c.html#ll_loadlib">ll_loadlib</a> in loadlib.c</li>
+<li><a href="ltablib.c.html#tremove">tremove</a> in ltablib.c</li>
+<li><a href="lstrlib.c.html#str_find_aux">str_find_aux</a> in lstrlib.c</li>
+<li><a href="lapi.c.html#lua_pushstring">lua_pushstring</a> in lapi.c</li>
+<li><a href="ldblib.c.html#hookf">hookf</a> in ldblib.c</li>
+<li><a href="liolib.c.html#io_noclose">io_noclose</a> in liolib.c</li>
+<li><a href="liolib.c.html#pushresult">pushresult</a> in liolib.c</li>
+<li><a href="liolib.c.html#g_read">g_read</a> in liolib.c</li>
+<li><a href="loslib.c.html#os_time">os_time</a> in loslib.c</li>
+<li><a href="loslib.c.html#os_date">os_date</a> in loslib.c</li>
+<li><a href="lbaselib.c.html#luaB_next">luaB_next</a> in lbaselib.c</li>
+<li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+<li><a href="ldblib.c.html#db_getlocal">db_getlocal</a> in ldblib.c</li>
+<li><a href="ltablib.c.html#maxn">maxn</a> in ltablib.c</li>
+<li><a href="lbaselib.c.html#luaB_getmetatable">luaB_getmetatable</a> in lbaselib.c</li>
+<li><a href="ldblib.c.html#db_getinfo">db_getinfo</a> in ldblib.c</li>
+<li><a href="liolib.c.html#io_type">io_type</a> in liolib.c</li>
+</ul>
+<a name="lua_gettable"/><h3>lua_gettable</h3>
+<ul><li><a href="lstrlib.c.html#add_value">add_value</a> in lstrlib.c</li>
+<li><a href="loadlib.c.html#ll_register">ll_register</a> in loadlib.c</li>
+<li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+</ul>
+<a name="lua_newthread"/><h3>lua_newthread</h3>
+<ul><li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+<li><a href="lbaselib.c.html#luaB_cocreate">luaB_cocreate</a> in lbaselib.c</li>
+</ul>
+<a name="luaA_pushobject"/><h3>luaA_pushobject</h3>
+<ul><li><a href="ldebug.c.html#lua_getlocal">lua_getlocal</a> in ldebug.c</li>
+</ul>
+<a name="lua_rawset"/><h3>lua_rawset</h3>
+<ul><li><a href="ldblib.c.html#db_sethook">db_sethook</a> in ldblib.c</li>
+<li><a href="lauxlib.c.html#luaL_setn">luaL_setn</a> in lauxlib.c</li>
+<li><a href="ldblib.c.html#gethooktable">gethooktable</a> in ldblib.c</li>
+<li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+<li><a href="lbaselib.c.html#luaB_newproxy">luaB_newproxy</a> in lbaselib.c</li>
+<li><a href="lbaselib.c.html#luaB_rawset">luaB_rawset</a> in lbaselib.c</li>
+</ul>
+<a name="lua_tonumber"/><h3>lua_tonumber</h3>
+<ul><li><a href="lbaselib.c.html#luaB_tonumber">luaB_tonumber</a> in lbaselib.c</li>
+<li><a href="lbaselib.c.html#luaB_setfenv">luaB_setfenv</a> in lbaselib.c</li>
+<li><a href="lauxlib.c.html#luaL_checknumber">luaL_checknumber</a> in lauxlib.c</li>
+<li><a href="liolib.c.html#g_write">g_write</a> in liolib.c</li>
+<li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+<li><a href="ltablib.c.html#maxn">maxn</a> in ltablib.c</li>
+</ul>
+<a name="lua_getupvalue"/><h3>lua_getupvalue</h3>
+<ul><li><a href="lua.h.html#lua_Hook">lua_Hook</a> in lua.h</li>
+<li><a href="ldblib.c.html#auxupvalue">auxupvalue</a> in ldblib.c</li>
+</ul>
+<a name="lua_setallocf"/><h3>lua_setallocf</h3>
+<ul><li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+</ul>
+<a name="api_checkvalidindex"/><h3>api_checkvalidindex</h3>
+<ul><li><a href="lapi.c.html#lua_setmetatable">lua_setmetatable</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_pcall">lua_pcall</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_replace">lua_replace</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_remove">lua_remove</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_settable">lua_settable</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_setfield">lua_setfield</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_setfenv">lua_setfenv</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_gettable">lua_gettable</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_getfield">lua_getfield</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_getfenv">lua_getfenv</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_insert">lua_insert</a> in lapi.c</li>
+</ul>
+<a name="lua_getfield"/><h3>lua_getfield</h3>
+<ul><li><a href="liolib.c.html#aux_close">aux_close</a> in liolib.c</li>
+<li><a href="loslib.c.html#getboolfield">getboolfield</a> in loslib.c</li>
+<li><a href="lauxlib.c.html#luaI_openlib">luaI_openlib</a> in lauxlib.c</li>
+<li><a href="loadlib.c.html#loader_preload">loader_preload</a> in loadlib.c</li>
+<li><a href="lauxlib.c.html#luaL_checkudata">luaL_checkudata</a> in lauxlib.c</li>
+<li><a href="lua.c.html#traceback">traceback</a> in lua.c</li>
+<li><a href="lauxlib.c.html#luaL_newmetatable">luaL_newmetatable</a> in lauxlib.c</li>
+<li><a href="loadlib.c.html#findfile">findfile</a> in loadlib.c</li>
+<li><a href="loadlib.c.html#ll_module">ll_module</a> in loadlib.c</li>
+<li><a href="lua.c.html#get_prompt">get_prompt</a> in lua.c</li>
+<li><a href="lstrlib.c.html#luaopen_string">luaopen_string</a> in lstrlib.c</li>
+<li><a href="loadlib.c.html#luaopen_package">luaopen_package</a> in loadlib.c</li>
+<li><a href="lmathlib.c.html#luaopen_math">luaopen_math</a> in lmathlib.c</li>
+<li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+<li><a href="lauxlib.c.html#getsizes">getsizes</a> in lauxlib.c</li>
+<li><a href="liolib.c.html#io_type">io_type</a> in liolib.c</li>
+<li><a href="liolib.c.html#luaopen_io">luaopen_io</a> in liolib.c</li>
+<li><a href="loadlib.c.html#ll_require">ll_require</a> in loadlib.c</li>
+<li><a href="loslib.c.html#getfield">getfield</a> in loslib.c</li>
+</ul>
+<a name="lua_createtable"/><h3>lua_createtable</h3>
+<ul><li><a href="lbaselib.c.html#base_open">base_open</a> in lbaselib.c</li>
+<li><a href="liolib.c.html#newfenv">newfenv</a> in liolib.c</li>
+<li><a href="ldblib.c.html#gethooktable">gethooktable</a> in ldblib.c</li>
+<li><a href="loslib.c.html#os_date">os_date</a> in loslib.c</li>
+<li><a href="lua.c.html#getargs">getargs</a> in lua.c</li>
+<li><a href="loadlib.c.html#luaopen_package">luaopen_package</a> in loadlib.c</li>
+<li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+<li><a href="ldblib.c.html#db_getinfo">db_getinfo</a> in ldblib.c</li>
+<li><a href="loadlib.c.html#ll_seeall">ll_seeall</a> in loadlib.c</li>
+<li><a href="lstrlib.c.html#createmetatable">createmetatable</a> in lstrlib.c</li>
+<li><a href="lauxlib.c.html#luaL_findtable">luaL_findtable</a> in lauxlib.c</li>
+</ul>
+<a name="lua_isnumber"/><h3>lua_isnumber</h3>
+<ul><li><a href="ldblib.c.html#db_errorfb">db_errorfb</a> in ldblib.c</li>
+<li><a href="lbaselib.c.html#luaB_tonumber">luaB_tonumber</a> in lbaselib.c</li>
+<li><a href="lbaselib.c.html#luaB_setfenv">luaB_setfenv</a> in lbaselib.c</li>
+<li><a href="lauxlib.c.html#luaL_checknumber">luaL_checknumber</a> in lauxlib.c</li>
+<li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+<li><a href="lauxlib.c.html#luaL_checkinteger">luaL_checkinteger</a> in lauxlib.c</li>
+<li><a href="ldblib.c.html#db_getinfo">db_getinfo</a> in ldblib.c</li>
+<li><a href="loslib.c.html#getfield">getfield</a> in loslib.c</li>
+</ul>
+<a name="lua_isstring"/><h3>lua_isstring</h3>
+<ul><li><a href="lstrlib.c.html#add_value">add_value</a> in lstrlib.c</li>
+<li><a href="ltablib.c.html#addfield">addfield</a> in ltablib.c</li>
+<li><a href="ldblib.c.html#db_errorfb">db_errorfb</a> in ldblib.c</li>
+<li><a href="lbaselib.c.html#luaB_auxwrap">luaB_auxwrap</a> in lbaselib.c</li>
+<li><a href="lua.c.html#traceback">traceback</a> in lua.c</li>
+<li><a href="lbaselib.c.html#generic_reader">generic_reader</a> in lbaselib.c</li>
+<li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+<li><a href="lbaselib.c.html#luaB_error">luaB_error</a> in lbaselib.c</li>
+<li><a href="loadlib.c.html#ll_require">ll_require</a> in loadlib.c</li>
+</ul>
+<a name="lua_concat"/><h3>lua_concat</h3>
+<ul><li><a href="lauxlib.c.html#luaL_error">luaL_error</a> in lauxlib.c</li>
+<li><a href="lauxlib.c.html#luaL_pushresult">luaL_pushresult</a> in lauxlib.c</li>
+<li><a href="ldblib.c.html#db_errorfb">db_errorfb</a> in ldblib.c</li>
+<li><a href="lbaselib.c.html#luaB_auxwrap">luaB_auxwrap</a> in lbaselib.c</li>
+<li><a href="loadlib.c.html#findfile">findfile</a> in loadlib.c</li>
+<li><a href="lauxlib.c.html#adjuststack">adjuststack</a> in lauxlib.c</li>
+<li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+<li><a href="lua.c.html#loadline">loadline</a> in lua.c</li>
+<li><a href="lbaselib.c.html#luaB_error">luaB_error</a> in lbaselib.c</li>
+<li><a href="loadlib.c.html#ll_require">ll_require</a> in loadlib.c</li>
+</ul>
+<a name="lua_cpcall"/><h3>lua_cpcall</h3>
+<ul><li><a href="luac.c.html#combine">combine</a> in luac.c</li>
+<li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+<li><a href="lua.c.html#main">main</a> in lua.c</li>
+</ul>
+<a name="lua_lessthan"/><h3>lua_lessthan</h3>
+<ul><li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+<li><a href="ltablib.c.html#sort_comp">sort_comp</a> in ltablib.c</li>
+</ul>
+<a name="lua_toboolean"/><h3>lua_toboolean</h3>
+<ul><li><a href="liolib.c.html#io_readline">io_readline</a> in liolib.c</li>
+<li><a href="lstrlib.c.html#add_value">add_value</a> in lstrlib.c</li>
+<li><a href="loslib.c.html#getboolfield">getboolfield</a> in loslib.c</li>
+<li><a href="lstrlib.c.html#str_find_aux">str_find_aux</a> in lstrlib.c</li>
+<li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+<li><a href="ltablib.c.html#sort_comp">sort_comp</a> in ltablib.c</li>
+<li><a href="lbaselib.c.html#luaB_assert">luaB_assert</a> in lbaselib.c</li>
+<li><a href="lbaselib.c.html#luaB_tostring">luaB_tostring</a> in lbaselib.c</li>
+<li><a href="lbaselib.c.html#luaB_newproxy">luaB_newproxy</a> in lbaselib.c</li>
+<li><a href="loadlib.c.html#ll_require">ll_require</a> in loadlib.c</li>
+</ul>
+<a name="lua_getmetatable"/><h3>lua_getmetatable</h3>
+<ul><li><a href="ldblib.c.html#db_getmetatable">db_getmetatable</a> in ldblib.c</li>
+<li><a href="lauxlib.c.html#luaL_checkudata">luaL_checkudata</a> in lauxlib.c</li>
+<li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+<li><a href="lauxlib.c.html#luaL_getmetafield">luaL_getmetafield</a> in lauxlib.c</li>
+<li><a href="lbaselib.c.html#luaB_getmetatable">luaB_getmetatable</a> in lbaselib.c</li>
+<li><a href="lbaselib.c.html#luaB_newproxy">luaB_newproxy</a> in lbaselib.c</li>
+<li><a href="loadlib.c.html#ll_seeall">ll_seeall</a> in loadlib.c</li>
+<li><a href="liolib.c.html#io_type">io_type</a> in liolib.c</li>
+</ul>
+<a name="index2adr"/><h3>index2adr</h3>
+<ul><li><a href="lapi.c.html#lua_getupvalue">lua_getupvalue</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_rawseti">lua_rawseti</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_pushvalue">lua_pushvalue</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_topointer">lua_topointer</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_getmetatable">lua_getmetatable</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_setmetatable">lua_setmetatable</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_pcall">lua_pcall</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_replace">lua_replace</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_touserdata">lua_touserdata</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_objlen">lua_objlen</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_lessthan">lua_lessthan</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_toboolean">lua_toboolean</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_setupvalue">lua_setupvalue</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_remove">lua_remove</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_iscfunction">lua_iscfunction</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_tothread">lua_tothread</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_tolstring">lua_tolstring</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_settable">lua_settable</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_type">lua_type</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_tocfunction">lua_tocfunction</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_rawgeti">lua_rawgeti</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_setfield">lua_setfield</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_setfenv">lua_setfenv</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_rawget">lua_rawget</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_rawequal">lua_rawequal</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_isuserdata">lua_isuserdata</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_isnumber">lua_isnumber</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_gettable">lua_gettable</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_getfield">lua_getfield</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_getfenv">lua_getfenv</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_equal">lua_equal</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_next">lua_next</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_tonumber">lua_tonumber</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_rawset">lua_rawset</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_tointeger">lua_tointeger</a> in lapi.c</li>
+<li><a href="lapi.c.html#lua_insert">lua_insert</a> in lapi.c</li>
+</ul>
+<a name="lua_setupvalue"/><h3>lua_setupvalue</h3>
+<ul><li><a href="lua.h.html#lua_Hook">lua_Hook</a> in lua.h</li>
+<li><a href="ldblib.c.html#auxupvalue">auxupvalue</a> in ldblib.c</li>
+</ul>
+<a name="lua_pushnumber"/><h3>lua_pushnumber</h3>
+<ul><li><a href="lmathlib.c.html#math_pow">math_pow</a> in lmathlib.c</li>
+<li><a href="lmathlib.c.html#math_sqrt">math_sqrt</a> in lmathlib.c</li>
+<li><a href="lmathlib.c.html#math_log10">math_log10</a> in lmathlib.c</li>
+<li><a href="lmathlib.c.html#math_ceil">math_ceil</a> in lmathlib.c</li>
+<li><a href="loslib.c.html#os_difftime">os_difftime</a> in loslib.c</li>
+<li><a href="lbaselib.c.html#luaB_tonumber">luaB_tonumber</a> in lbaselib.c</li>
+<li><a href="lmathlib.c.html#math_tan">math_tan</a> in lmathlib.c</li>
+<li><a href="lmathlib.c.html#math_frexp">math_frexp</a> in lmathlib.c</li>
+<li><a href="lmathlib.c.html#math_random">math_random</a> in lmathlib.c</li>
+<li><a href="lmathlib.c.html#math_sinh">math_sinh</a> in lmathlib.c</li>
+<li><a href="loslib.c.html#os_time">os_time</a> in loslib.c</li>
+<li><a href="lmathlib.c.html#math_cosh">math_cosh</a> in lmathlib.c</li>
+<li><a href="lmathlib.c.html#math_atan">math_atan</a> in lmathlib.c</li>
+<li><a href="lmathlib.c.html#math_tanh">math_tanh</a> in lmathlib.c</li>
+<li><a href="lmathlib.c.html#math_sin">math_sin</a> in lmathlib.c</li>
+<li><a href="lmathlib.c.html#math_rad">math_rad</a> in lmathlib.c</li>
+<li><a href="lmathlib.c.html#math_modf">math_modf</a> in lmathlib.c</li>
+<li><a href="lmathlib.c.html#math_min">math_min</a> in lmathlib.c</li>
+<li><a href="lmathlib.c.html#math_max">math_max</a> in lmathlib.c</li>
+<li><a href="lmathlib.c.html#math_ldexp">math_ldexp</a> in lmathlib.c</li>
+<li><a href="lmathlib.c.html#math_fmod">math_fmod</a> in lmathlib.c</li>
+<li><a href="lmathlib.c.html#math_floor">math_floor</a> in lmathlib.c</li>
+<li><a href="lmathlib.c.html#math_cos">math_cos</a> in lmathlib.c</li>
+<li><a href="lmathlib.c.html#math_atan2">math_atan2</a> in lmathlib.c</li>
+<li><a href="lmathlib.c.html#math_asin">math_asin</a> in lmathlib.c</li>
+<li><a href="lmathlib.c.html#math_acos">math_acos</a> in lmathlib.c</li>
+<li><a href="lmathlib.c.html#luaopen_math">luaopen_math</a> in lmathlib.c</li>
+<li><a href="lmathlib.c.html#math_log">math_log</a> in lmathlib.c</li>
+<li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+<li><a href="lmathlib.c.html#math_abs">math_abs</a> in lmathlib.c</li>
+<li><a href="lmathlib.c.html#math_deg">math_deg</a> in lmathlib.c</li>
+<li><a href="lbaselib.c.html#luaB_collectgarbage">luaB_collectgarbage</a> in lbaselib.c</li>
+<li><a href="ltablib.c.html#maxn">maxn</a> in ltablib.c</li>
+<li><a href="lmathlib.c.html#math_exp">math_exp</a> in lmathlib.c</li>
+<li><a href="liolib.c.html#read_number">read_number</a> in liolib.c</li>
+<li><a href="loslib.c.html#os_clock">os_clock</a> in loslib.c</li>
+</ul>
+<a name="lua_replace"/><h3>lua_replace</h3>
+<ul><li><a href="loadlib.c.html#luaopen_package">luaopen_package</a> in loadlib.c</li>
+<li><a href="lbaselib.c.html#generic_reader">generic_reader</a> in lbaselib.c</li>
+<li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+<li><a href="lbaselib.c.html#luaB_xpcall">luaB_xpcall</a> in lbaselib.c</li>
+<li><a href="lstrlib.c.html#gmatch_aux">gmatch_aux</a> in lstrlib.c</li>
+<li><a href="liolib.c.html#luaopen_io">luaopen_io</a> in liolib.c</li>
+</ul>
+<a name="lua_pushcclosure"/><h3>lua_pushcclosure</h3>
+<ul><li><a href="lbaselib.c.html#base_open">base_open</a> in lbaselib.c</li>
+<li><a href="lauxlib.c.html#luaI_openlib">luaI_openlib</a> in lauxlib.c</li>
+<li><a href="lbaselib.c.html#luaB_cowrap">luaB_cowrap</a> in lbaselib.c</li>
+<li><a href="lbaselib.c.html#auxopen">auxopen</a> in lbaselib.c</li>
+<li><a href="lstrlib.c.html#gmatch">gmatch</a> in lstrlib.c</li>
+<li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+<li><a href="liolib.c.html#aux_lines">aux_lines</a> in liolib.c</li>
+</ul>
+<a name="lua_settop"/><h3>lua_settop</h3>
+<ul><li><a href="ldblib.c.html#db_setmetatable">db_setmetatable</a> in ldblib.c</li>
+<li><a href="ldblib.c.html#db_setlocal">db_setlocal</a> in ldblib.c</li>
+<li><a href="liolib.c.html#io_readline">io_readline</a> in liolib.c</li>
+<li><a href="ltablib.c.html#sort">sort</a> in ltablib.c</li>
+<li><a href="ldblib.c.html#db_sethook">db_sethook</a> in ldblib.c</li>
+<li><a href="lbaselib.c.html#luaB_rawget">luaB_rawget</a> in lbaselib.c</li>
+<li><a href="lstrlib.c.html#str_dump">str_dump</a> in lstrlib.c</li>
+<li><a href="lstrlib.c.html#gmatch">gmatch</a> in lstrlib.c</li>
+<li><a href="ldblib.c.html#db_debug">db_debug</a> in ldblib.c</li>
+<li><a href="loslib.c.html#os_time">os_time</a> in loslib.c</li>
+<li><a href="lbaselib.c.html#luaB_load">luaB_load</a> in lbaselib.c</li>
+<li><a href="lua.c.html#dotty">dotty</a> in lua.c</li>
+<li><a href="lbaselib.c.html#luaB_next">luaB_next</a> in lbaselib.c</li>
+<li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+<li><a href="ldblib.c.html#db_setfenv">db_setfenv</a> in ldblib.c</li>
+<li><a href="lua.c.html#loadline">loadline</a> in lua.c</li>
+<li><a href="lauxlib.c.html#luaL_loadfile">luaL_loadfile</a> in lauxlib.c</li>
+<li><a href="lbaselib.c.html#luaB_xpcall">luaB_xpcall</a> in lbaselib.c</li>
+<li><a href="lbaselib.c.html#luaB_setmetatable">luaB_setmetatable</a> in lbaselib.c</li>
+<li><a href="lbaselib.c.html#luaB_newproxy">luaB_newproxy</a> in lbaselib.c</li>
+<li><a href="lbaselib.c.html#luaB_error">luaB_error</a> in lbaselib.c</li>
+<li><a href="lbaselib.c.html#luaB_rawset">luaB_rawset</a> in lbaselib.c</li>
+<li><a href="loadlib.c.html#ll_require">ll_require</a> in loadlib.c</li>
+</ul>
+<a name="lua_newuserdata"/><h3>lua_newuserdata</h3>
+<ul><li><a href="loadlib.c.html#ll_register">ll_register</a> in loadlib.c</li>
+<li><a href="liolib.c.html#newfile">newfile</a> in liolib.c</li>
+<li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+<li><a href="lbaselib.c.html#luaB_newproxy">luaB_newproxy</a> in lbaselib.c</li>
+</ul>
+<a name="f_call"/><h3>f_call</h3>
+<ul><li><a href="lapi.c.html#lua_pcall">lua_pcall</a> in lapi.c</li>
+</ul>
+<a name="f_Ccall"/><h3>f_Ccall</h3>
+<ul><li><a href="lapi.c.html#lua_cpcall">lua_cpcall</a> in lapi.c</li>
+</ul>
+<a name="lua_getallocf"/><h3>lua_getallocf</h3>
+<ul><li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+</ul>
+<a name="lua_rawgeti"/><h3>lua_rawgeti</h3>
+<ul><li><a href="liolib.c.html#io_lines">io_lines</a> in liolib.c</li>
+<li><a href="lauxlib.c.html#luaL_unref">luaL_unref</a> in lauxlib.c</li>
+<li><a href="ltablib.c.html#addfield">addfield</a> in ltablib.c</li>
+<li><a href="liolib.c.html#io_close">io_close</a> in liolib.c</li>
+<li><a href="liolib.c.html#g_iofile">g_iofile</a> in liolib.c</li>
+<li><a href="ltablib.c.html#tremove">tremove</a> in ltablib.c</li>
+<li><a href="lbaselib.c.html#luaB_unpack">luaB_unpack</a> in lbaselib.c</li>
+<li><a href="ltablib.c.html#tinsert">tinsert</a> in ltablib.c</li>
+<li><a href="ltablib.c.html#foreachi">foreachi</a> in ltablib.c</li>
+<li><a href="ltablib.c.html#auxsort">auxsort</a> in ltablib.c</li>
+<li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+<li><a href="lbaselib.c.html#ipairsaux">ipairsaux</a> in lbaselib.c</li>
+<li><a href="lauxlib.c.html#luaL_ref">luaL_ref</a> in lauxlib.c</li>
+<li><a href="loadlib.c.html#ll_require">ll_require</a> in loadlib.c</li>
+<li><a href="liolib.c.html#getiofile">getiofile</a> in liolib.c</li>
+</ul>
+<a name="lua_setfield"/><h3>lua_setfield</h3>
+<ul><li><a href="lbaselib.c.html#base_open">base_open</a> in lbaselib.c</li>
+<li><a href="loslib.c.html#setboolfield">setboolfield</a> in loslib.c</li>
+<li><a href="lauxlib.c.html#luaI_openlib">luaI_openlib</a> in lauxlib.c</li>
+<li><a href="liolib.c.html#newfenv">newfenv</a> in liolib.c</li>
+<li><a href="ldblib.c.html#settabsi">settabsi</a> in ldblib.c</li>
+<li><a href="ldblib.c.html#treatstackoption">treatstackoption</a> in ldblib.c</li>
+<li><a href="lbaselib.c.html#auxopen">auxopen</a> in lbaselib.c</li>
+<li><a href="lauxlib.c.html#luaL_newmetatable">luaL_newmetatable</a> in lauxlib.c</li>
+<li><a href="loadlib.c.html#modinit">modinit</a> in loadlib.c</li>
+<li><a href="ldblib.c.html#settabss">settabss</a> in ldblib.c</li>
+<li><a href="loadlib.c.html#ll_module">ll_module</a> in loadlib.c</li>
+<li><a href="lstrlib.c.html#luaopen_string">luaopen_string</a> in lstrlib.c</li>
+<li><a href="loadlib.c.html#setpath">setpath</a> in loadlib.c</li>
+<li><a href="loadlib.c.html#luaopen_package">luaopen_package</a> in loadlib.c</li>
+<li><a href="lmathlib.c.html#luaopen_math">luaopen_math</a> in lmathlib.c</li>
+<li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+<li><a href="liolib.c.html#createstdfile">createstdfile</a> in liolib.c</li>
+<li><a href="lauxlib.c.html#getsizes">getsizes</a> in lauxlib.c</li>
+<li><a href="loadlib.c.html#ll_seeall">ll_seeall</a> in loadlib.c</li>
+<li><a href="lstrlib.c.html#createmetatable">createmetatable</a> in lstrlib.c</li>
+<li><a href="liolib.c.html#createmeta">createmeta</a> in liolib.c</li>
+<li><a href="loslib.c.html#setfield">setfield</a> in loslib.c</li>
+<li><a href="loadlib.c.html#ll_require">ll_require</a> in loadlib.c</li>
+</ul>
+<a name="lua_rawget"/><h3>lua_rawget</h3>
+<ul><li><a href="lbaselib.c.html#luaB_rawget">luaB_rawget</a> in lbaselib.c</li>
+<li><a href="lauxlib.c.html#luaL_setn">luaL_setn</a> in lauxlib.c</li>
+<li><a href="ldblib.c.html#gethooktable">gethooktable</a> in ldblib.c</li>
+<li><a href="ldblib.c.html#hookf">hookf</a> in ldblib.c</li>
+<li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+<li><a href="lauxlib.c.html#luaL_getn">luaL_getn</a> in lauxlib.c</li>
+<li><a href="lauxlib.c.html#luaL_getmetafield">luaL_getmetafield</a> in lauxlib.c</li>
+<li><a href="lbaselib.c.html#luaB_newproxy">luaB_newproxy</a> in lbaselib.c</li>
+<li><a href="ldblib.c.html#db_gethook">db_gethook</a> in ldblib.c</li>
+<li><a href="lauxlib.c.html#luaL_findtable">luaL_findtable</a> in lauxlib.c</li>
+</ul>
+<a name="lua_pushlightuserdata"/><h3>lua_pushlightuserdata</h3>
+<ul><li><a href="ldblib.c.html#db_sethook">db_sethook</a> in ldblib.c</li>
+<li><a href="ldblib.c.html#gethooktable">gethooktable</a> in ldblib.c</li>
+<li><a href="ldblib.c.html#hookf">hookf</a> in ldblib.c</li>
+<li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+<li><a href="ldblib.c.html#db_gethook">db_gethook</a> in ldblib.c</li>
+<li><a href="loadlib.c.html#ll_require">ll_require</a> in loadlib.c</li>
+</ul>
+<a name="lua_pushvalue"/><h3>lua_pushvalue</h3>
+<ul><li><a href="liolib.c.html#io_readline">io_readline</a> in liolib.c</li>
+<li><a href="lstrlib.c.html#add_value">add_value</a> in lstrlib.c</li>
+<li><a href="ldblib.c.html#db_sethook">db_sethook</a> in ldblib.c</li>
+<li><a href="lbaselib.c.html#base_open">base_open</a> in lbaselib.c</li>
+<li><a href="lauxlib.c.html#luaI_openlib">luaI_openlib</a> in lauxlib.c</li>
+<li><a href="loadlib.c.html#ll_register">ll_register</a> in loadlib.c</li>
+<li><a href="lbaselib.c.html#getfunc">getfunc</a> in lbaselib.c</li>
+<li><a href="lbaselib.c.html#luaB_pairs">luaB_pairs</a> in lbaselib.c</li>
+<li><a href="liolib.c.html#g_iofile">g_iofile</a> in liolib.c</li>
+<li><a href="ltablib.c.html#foreach">foreach</a> in ltablib.c</li>
+<li><a href="lauxlib.c.html#luaL_setn">luaL_setn</a> in lauxlib.c</li>
+<li><a href="lauxlib.c.html#luaL_callmeta">luaL_callmeta</a> in lauxlib.c</li>
+<li><a href="lbaselib.c.html#luaB_setfenv">luaB_setfenv</a> in lbaselib.c</li>
+<li><a href="ldblib.c.html#treatstackoption">treatstackoption</a> in ldblib.c</li>
+<li><a href="loadlib.c.html#setfenv">setfenv</a> in loadlib.c</li>
+<li><a href="lua.c.html#traceback">traceback</a> in lua.c</li>
+<li><a href="lauxlib.c.html#luaL_newmetatable">luaL_newmetatable</a> in lauxlib.c</li>
+<li><a href="ltablib.c.html#foreachi">foreachi</a> in ltablib.c</li>
+<li><a href="ltablib.c.html#setn">setn</a> in ltablib.c</li>
+<li><a href="loadlib.c.html#modinit">modinit</a> in loadlib.c</li>
+<li><a href="ldblib.c.html#gethooktable">gethooktable</a> in ldblib.c</li>
+<li><a href="loadlib.c.html#ll_module">ll_module</a> in loadlib.c</li>
+<li><a href="lbaselib.c.html#luaB_print">luaB_print</a> in lbaselib.c</li>
+<li><a href="loadlib.c.html#luaopen_package">luaopen_package</a> in loadlib.c</li>
+<li><a href="lbaselib.c.html#generic_reader">generic_reader</a> in lbaselib.c</li>
+<li><a href="ltablib.c.html#auxsort">auxsort</a> in ltablib.c</li>
+<li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+<li><a href="ltablib.c.html#sort_comp">sort_comp</a> in ltablib.c</li>
+<li><a href="liolib.c.html#createstdfile">createstdfile</a> in liolib.c</li>
+<li><a href="lstrlib.c.html#str_format">str_format</a> in lstrlib.c</li>
+<li><a href="lbaselib.c.html#luaB_getfenv">luaB_getfenv</a> in lbaselib.c</li>
+<li><a href="lauxlib.c.html#getsizes">getsizes</a> in lauxlib.c</li>
+<li><a href="ldblib.c.html#db_getlocal">db_getlocal</a> in ldblib.c</li>
+<li><a href="lauxlib.c.html#luaL_getn">luaL_getn</a> in lauxlib.c</li>
+<li><a href="lbaselib.c.html#luaB_cocreate">luaB_cocreate</a> in lbaselib.c</li>
+<li><a href="ldblib.c.html#db_getinfo">db_getinfo</a> in ldblib.c</li>
+<li><a href="lbaselib.c.html#luaB_tostring">luaB_tostring</a> in lbaselib.c</li>
+<li><a href="lbaselib.c.html#luaB_newproxy">luaB_newproxy</a> in lbaselib.c</li>
+<li><a href="lbaselib.c.html#luaB_ipairs">luaB_ipairs</a> in lbaselib.c</li>
+<li><a href="lbaselib.c.html#luaB_error">luaB_error</a> in lbaselib.c</li>
+<li><a href="liolib.c.html#aux_lines">aux_lines</a> in liolib.c</li>
+<li><a href="loadlib.c.html#ll_seeall">ll_seeall</a> in loadlib.c</li>
+<li><a href="lstrlib.c.html#createmetatable">createmetatable</a> in lstrlib.c</li>
+<li><a href="liolib.c.html#createmeta">createmeta</a> in liolib.c</li>
+<li><a href="lauxlib.c.html#luaL_findtable">luaL_findtable</a> in lauxlib.c</li>
+<li><a href="loadlib.c.html#ll_require">ll_require</a> in loadlib.c</li>
+<li><a href="loadlib.c.html#dooptions">dooptions</a> in loadlib.c</li>
+<li><a href="ldblib.c.html#db_getregistry">db_getregistry</a> in ldblib.c</li>
+</ul>
+<a name="lua_typename"/><h3>lua_typename</h3>
+<ul><li><a href="lauxlib.c.html#tag_error">tag_error</a> in lauxlib.c</li>
+<li><a href="lua.h.html#lua_Integer">lua_Integer</a> in lua.h</li>
+</ul>
+<hr/>
+Generated by <a href="pretty.lua.html">pretty.lua</html>
+</body></html>

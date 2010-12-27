@@ -1,0 +1,78 @@
+<html>
+<head>
+<style>
+a.L { text-decoration: none; }
+a.L:hover { color: #FFAAAA; }
+body { margin-top: 20px; margin-left: 30px; }
+.lno { font-weight: bold: color #000; }
+.keyword {font-weight: bold; color: #6666AA; }
+.number  { color: #AA6666; }
+.string  { color: #8888AA; }
+.comment { color: #666600; }
+.prepro { color: #006666; } 
+</style>
+<body>
+<h1>Lua 5.1.4: ldo.h</h1>
+<hr/>
+<pre>
+L0001    <span class="comment">/*
+L0002    ** $Id: ldo.h,v 2.7.1.1 2007/12/27 13:02:25 roberto Exp $
+L0003    ** Stack and Call structure of Lua
+L0004    ** See Copyright Notice in lua.h
+L0005    */</span>
+L0006    
+L0007    <span class="prepro">#ifndef ldo_h
+</span>L0008    <a name="ldo_h"/a><span class="prepro">#define ldo_h
+</span>L0009    
+L0010    
+L0011    <span class="prepro"><a class="L" href="lobject.h.html#">#include "lobject.h"
+</a></span>L0012    <span class="prepro"><a class="L" href="lstate.h.html#">#include "lstate.h"
+</a></span>L0013    <span class="prepro"><a class="L" href="lzio.h.html#">#include "lzio.h"
+</a></span>L0014    
+L0015    
+L0016    <a name="luaD_checkstack"/a><span class="prepro">#define luaD_checkstack(L,n)	\
+L0017      if ((char *)L-&gt;stack_last - (char *)L-&gt;top &lt;= (n)*(int)sizeof(TValue)) \
+L0018        luaD_growstack(L, n); \
+L0019      else condhardstacktests(luaD_reallocstack(L, L-&gt;stacksize - EXTRA_STACK - 1));
+</span>L0020    
+L0021    
+L0022    <a name="incr_top"/a><span class="prepro">#define incr_top(L) {luaD_checkstack(L,1); L-&gt;top++;}
+</span>L0023    
+L0024    <a name="savestack"/a><span class="prepro">#define savestack(L,p)		((char *)(p) - (char *)L-&gt;stack)
+</span>L0025    <a name="restorestack"/a><span class="prepro">#define restorestack(L,n)	((TValue *)((char *)L-&gt;stack + (n)))
+</span>L0026    
+L0027    <a name="saveci"/a><span class="prepro">#define saveci(L,p)		((char *)(p) - (char *)L-&gt;base_ci)
+</span>L0028    <a name="restoreci"/a><span class="prepro">#define restoreci(L,n)		((CallInfo *)((char *)L-&gt;base_ci + (n)))
+</span>L0029    
+L0030    
+L0031    <span class="comment">/* results from luaD_precall */</span>
+L0032    <a name="PCRLUA"/a><span class="prepro">#define PCRLUA		0	/* initiated a call to a Lua function */
+</span>L0033    <a name="PCRC"/a><span class="prepro">#define PCRC		1	/* did a call to a C function */
+</span>L0034    <a name="PCRYIELD"/a><span class="prepro">#define PCRYIELD	2	/* C funtion yielded */
+</span>L0035    
+L0036    
+L0037    <span class="comment">/* type of protected functions, to be ran by `runprotected' */</span>
+L0038    <span class="keyword">typedef</span> <span class="keyword">void</span> (*<a name="Pfunc"/a><a class="L" href="ldo.h.ref.html#Pfunc">Pfunc</a>) (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">void</span> *ud);
+L0039    
+L0040    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <span class="keyword">int</span> <a class="L" href="ldo.c.html#luaD_protectedparser">luaD_protectedparser</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lzio.h.html#ZIO">ZIO</a> *z, <span class="keyword">const</span> <span class="keyword">char</span> *name);
+L0041    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <span class="keyword">void</span> <a class="L" href="ldo.c.html#luaD_callhook">luaD_callhook</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> event, <span class="keyword">int</span> line);
+L0042    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <span class="keyword">int</span> <a class="L" href="ldo.c.html#luaD_precall">luaD_precall</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lobject.h.html#StkId">StkId</a> func, <span class="keyword">int</span> nresults);
+L0043    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <span class="keyword">void</span> <a class="L" href="ldo.c.html#luaD_call">luaD_call</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lobject.h.html#StkId">StkId</a> func, <span class="keyword">int</span> nResults);
+L0044    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <span class="keyword">int</span> <a class="L" href="ldo.c.html#luaD_pcall">luaD_pcall</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="ldo.h.html#Pfunc">Pfunc</a> func, <span class="keyword">void</span> *u,
+L0045                                            ptrdiff_t oldtop, ptrdiff_t ef);
+L0046    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <span class="keyword">int</span> <a class="L" href="ldo.c.html#luaD_poscall">luaD_poscall</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lobject.h.html#StkId">StkId</a> firstResult);
+L0047    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <span class="keyword">void</span> <a class="L" href="ldo.c.html#luaD_reallocCI">luaD_reallocCI</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> newsize);
+L0048    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <span class="keyword">void</span> <a class="L" href="ldo.c.html#luaD_reallocstack">luaD_reallocstack</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> newsize);
+L0049    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <span class="keyword">void</span> <a class="L" href="ldo.c.html#luaD_growstack">luaD_growstack</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> n);
+L0050    
+L0051    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <span class="keyword">void</span> <a class="L" href="ldo.c.html#luaD_throw">luaD_throw</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> errcode);
+L0052    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <span class="keyword">int</span> <a class="L" href="ldo.c.html#luaD_rawrunprotected">luaD_rawrunprotected</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="ldo.h.html#Pfunc">Pfunc</a> f, <span class="keyword">void</span> *ud);
+L0053    
+L0054    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <span class="keyword">void</span> <a class="L" href="ldo.c.html#luaD_seterrorobj">luaD_seterrorobj</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> errcode, <a class="L" href="lobject.h.html#StkId">StkId</a> oldtop);
+L0055    
+L0056    <span class="prepro">#endif
+</span>L0057    
+</pre>
+<hr/>
+Generated by <a href="pretty.lua.html">pretty.lua</html>
+</body></html>

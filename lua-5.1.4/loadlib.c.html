@@ -1,0 +1,687 @@
+<html>
+<head>
+<style>
+a.L { text-decoration: none; }
+a.L:hover { color: #FFAAAA; }
+body { margin-top: 20px; margin-left: 30px; }
+.lno { font-weight: bold: color #000; }
+.keyword {font-weight: bold; color: #6666AA; }
+.number  { color: #AA6666; }
+.string  { color: #8888AA; }
+.comment { color: #666600; }
+.prepro { color: #006666; } 
+</style>
+<body>
+<h1>Lua 5.1.4: loadlib.c</h1>
+<hr/>
+<pre>
+L0001    <span class="comment">/*
+L0002    ** $Id: loadlib.c,v 1.52.1.3 2008/08/06 13:29:28 roberto Exp $
+L0003    ** Dynamic library loader for Lua
+L0004    ** See Copyright Notice in lua.h
+L0005    **
+L0006    ** This module contains an implementation of loadlib for Unix systems
+L0007    ** that have dlfcn, an implementation for Darwin (Mac OS X), an
+L0008    ** implementation for Windows, and a stub for other systems.
+L0009    */</span>
+L0010    
+L0011    
+L0012    <span class="prepro">#include &lt;stdlib.h&gt;
+</span>L0013    <span class="prepro">#include &lt;string.h&gt;
+</span>L0014    
+L0015    
+L0016    <a name="loadlib_c"/a><span class="prepro">#define loadlib_c
+</span>L0017    <a name="LUA_LIB"/a><span class="prepro">#define LUA_LIB
+</span>L0018    
+L0019    <span class="prepro"><a class="L" href="lua.h.html#">#include "lua.h"
+</a></span>L0020    
+L0021    <span class="prepro"><a class="L" href="lauxlib.h.html#">#include "lauxlib.h"
+</a></span>L0022    <span class="prepro"><a class="L" href="lualib.h.html#">#include "lualib.h"
+</a></span>L0023    
+L0024    
+L0025    <span class="comment">/* prefix for open functions in C libraries */</span>
+L0026    <a name="LUA_POF"/a><span class="prepro">#define LUA_POF		"luaopen_"
+</span>L0027    
+L0028    <span class="comment">/* separator for open functions in C libraries */</span>
+L0029    <a name="LUA_OFSEP"/a><span class="prepro">#define LUA_OFSEP	"_"
+</span>L0030    
+L0031    
+L0032    <a name="LIBPREFIX"/a><span class="prepro">#define LIBPREFIX	"LOADLIB: "
+</span>L0033    
+L0034    <a name="POF"/a><span class="prepro">#define POF		LUA_POF
+</span>L0035    <a name="LIB_FAIL"/a><span class="prepro">#define LIB_FAIL	"open"
+</span>L0036    
+L0037    
+L0038    <span class="comment">/* error codes for ll_loadfunc */</span>
+L0039    <a name="ERRLIB"/a><span class="prepro">#define ERRLIB		1
+</span>L0040    <a name="ERRFUNC"/a><span class="prepro">#define ERRFUNC		2
+</span>L0041    
+L0042    <a name="setprogdir"/a><span class="prepro">#define setprogdir(L)		((void)0)
+</span>L0043    
+L0044    
+L0045    <span class="keyword">static</span> <span class="keyword">void</span> <a class="L" href="loadlib.c.html#ll_unloadlib">ll_unloadlib</a> (<span class="keyword">void</span> *lib);
+L0046    <span class="keyword">static</span> <span class="keyword">void</span> *<a class="L" href="loadlib.c.html#ll_load">ll_load</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <span class="keyword">char</span> *path);
+L0047    <span class="keyword">static</span> <a class="L" href="lua.h.html#lua_CFunction">lua_CFunction</a> <a class="L" href="loadlib.c.html#ll_sym">ll_sym</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">void</span> *lib, <span class="keyword">const</span> <span class="keyword">char</span> *sym);
+L0048    
+L0049    
+L0050    
+L0051    <span class="prepro">#if defined(LUA_DL_DLOPEN)
+</span>L0052    <span class="comment">/*
+L0053    ** {========================================================================
+L0054    ** This is an implementation of loadlib based on the dlfcn interface.
+L0055    ** The dlfcn interface is available in Linux, SunOS, Solaris, IRIX, FreeBSD,
+L0056    ** NetBSD, AIX 4.2, HPUX 11, and  probably most other Unix flavors, at least
+L0057    ** as an emulation layer on top of native functions.
+L0058    ** =========================================================================
+L0059    */</span>
+L0060    
+L0061    <span class="prepro">#include &lt;dlfcn.h&gt;
+</span>L0062    
+L0063    <span class="keyword">static</span> <span class="keyword">void</span> <a class="L" href="loadlib.c.html#ll_unloadlib">ll_unloadlib</a> (<span class="keyword">void</span> *lib) {
+L0064      dlclose(lib);
+L0065    }
+L0066    
+L0067    
+L0068    <span class="keyword">static</span> <span class="keyword">void</span> *<a class="L" href="loadlib.c.html#ll_load">ll_load</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <span class="keyword">char</span> *path) {
+L0069      <span class="keyword">void</span> *lib = dlopen(path, RTLD_NOW);
+L0070      <span class="keyword">if</span> (lib == NULL) <a class="L" href="lapi.c.html#lua_pushstring">lua_pushstring</a>(L, dlerror());
+L0071      <span class="keyword">return</span> lib;
+L0072    }
+L0073    
+L0074    
+L0075    <span class="keyword">static</span> <a class="L" href="lua.h.html#lua_CFunction">lua_CFunction</a> <a class="L" href="loadlib.c.html#ll_sym">ll_sym</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">void</span> *lib, <span class="keyword">const</span> <span class="keyword">char</span> *sym) {
+L0076      <a class="L" href="lua.h.html#lua_CFunction">lua_CFunction</a> f = (<a class="L" href="lua.h.html#lua_CFunction">lua_CFunction</a>)dlsym(lib, sym);
+L0077      <span class="keyword">if</span> (f == NULL) <a class="L" href="lapi.c.html#lua_pushstring">lua_pushstring</a>(L, dlerror());
+L0078      <span class="keyword">return</span> f;
+L0079    }
+L0080    
+L0081    <span class="comment">/* }====================================================== */</span>
+L0082    
+L0083    
+L0084    
+L0085    <span class="prepro">#elif defined(LUA_DL_DLL)
+</span>L0086    <span class="comment">/*
+L0087    ** {======================================================================
+L0088    ** This is an implementation of loadlib for Windows using native functions.
+L0089    ** =======================================================================
+L0090    */</span>
+L0091    
+L0092    <span class="prepro">#include &lt;windows.h&gt;
+</span>L0093    
+L0094    
+L0095    <span class="prepro">#undef setprogdir
+</span>L0096    
+L0097    <span class="keyword">static</span> <span class="keyword">void</span> <a class="L" href="loadlib.c.html#setprogdir">setprogdir</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0098      <span class="keyword">char</span> buff[MAX_PATH + <span class="number">1</span>];
+L0099      <span class="keyword">char</span> *lb;
+L0100      DWORD nsize = <span class="keyword">sizeof</span>(buff)/<span class="keyword">sizeof</span>(<span class="keyword">char</span>);
+L0101      DWORD n = GetModuleFileNameA(NULL, buff, nsize);
+L0102      <span class="keyword">if</span> (n == <span class="number">0</span> || n == nsize || (lb = strrchr(buff, '\\')) == NULL)
+L0103        luaL_error(L, "unable to get ModuleFileName");
+L0104      else {
+L0105        *lb = '\<span class="number">0</span>';
+L0106        luaL_gsub(L, lua_tostring(L, -1), LUA_EXECDIR, buff);
+L0107        lua_remove(L, -2);  /* remove original string */
+L0108      }
+L0109    }
+L0110    
+L0111    
+L0112    static void pusherror (lua_State *L) {
+L0113      int error = GetLastError();
+L0114      char buffer[128];
+L0115      if (FormatMessageA(FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_FROM_SYSTEM,
+L0116          NULL, error, 0, buffer, sizeof(buffer), NULL))
+L0117        lua_pushstring(L, buffer);
+L0118      else
+L0119        lua_pushfstring(L, "system error %d\n", error);
+L0120    }
+L0121    
+L0122    static void ll_unloadlib (void *lib) {
+L0123      FreeLibrary((HINSTANCE)lib);
+L0124    }
+L0125    
+L0126    
+L0127    static void *ll_load (lua_State *L, const char *path) {
+L0128      HINSTANCE lib = LoadLibraryA(path);
+L0129      if (lib == NULL) pusherror(L);
+L0130      return lib;
+L0131    }
+L0132    
+L0133    
+L0134    static lua_CFunction ll_sym (lua_State *L, void *lib, const char *sym) {
+L0135      lua_CFunction f = (lua_CFunction)GetProcAddress((HINSTANCE)lib, sym);
+L0136      if (f == NULL) pusherror(L);
+L0137      return f;
+L0138    }
+L0139    
+L0140    /* }====================================================== */
+L0141    
+L0142    
+L0143    
+L0144    #elif defined(LUA_DL_DYLD)
+L0145    /*
+L0146    ** {======================================================================
+L0147    ** Native Mac OS X / Darwin Implementation
+L0148    ** =======================================================================
+L0149    */
+L0150    
+L0151    #include &lt;mach-o/dyld.h&gt;
+L0152    
+L0153    
+L0154    /* Mac appends a `_' before C function names */
+L0155    <span class="prepro">#undef POF
+</span>L0156    <a name="POF"/a><span class="prepro">#define POF	"_" LUA_POF
+</span>L0157    
+L0158    
+L0159    <span class="keyword">static</span> <span class="keyword">void</span> <a class="L" href="loadlib.c.html#pusherror">pusherror</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0160      <span class="keyword">const</span> <span class="keyword">char</span> *err_str;
+L0161      <span class="keyword">const</span> <span class="keyword">char</span> *err_file;
+L0162      NSLinkEditErrors err;
+L0163      <span class="keyword">int</span> err_num;
+L0164      NSLinkEditError(&amp;err, &amp;err_num, &amp;err_file, &amp;err_str);
+L0165      <a class="L" href="lapi.c.html#lua_pushstring">lua_pushstring</a>(L, err_str);
+L0166    }
+L0167    
+L0168    
+L0169    <span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">char</span> *<a name="errorfromcode"/a><a class="L" href="loadlib.c.ref.html#errorfromcode">errorfromcode</a> (NSObjectFileImageReturnCode ret) {
+L0170      <span class="keyword">switch</span> (ret) {
+L0171        <span class="keyword">case</span> NSObjectFileImageInappropriateFile:
+L0172          <span class="keyword">return</span> <span class="string">"file is not a bundle"</span>;
+L0173        <span class="keyword">case</span> NSObjectFileImageArch:
+L0174          <span class="keyword">return</span> <span class="string">"library is for wrong CPU type"</span>;
+L0175        <span class="keyword">case</span> NSObjectFileImageFormat:
+L0176          <span class="keyword">return</span> <span class="string">"bad format"</span>;
+L0177        <span class="keyword">case</span> NSObjectFileImageAccess:
+L0178          <span class="keyword">return</span> <span class="string">"cannot access file"</span>;
+L0179        <span class="keyword">case</span> NSObjectFileImageFailure:
+L0180        <span class="keyword">default</span>:
+L0181          <span class="keyword">return</span> <span class="string">"unable to load library"</span>;
+L0182      }
+L0183    }
+L0184    
+L0185    
+L0186    <span class="keyword">static</span> <span class="keyword">void</span> <a class="L" href="loadlib.c.html#ll_unloadlib">ll_unloadlib</a> (<span class="keyword">void</span> *lib) {
+L0187      NSUnLinkModule((NSModule)lib, NSUNLINKMODULE_OPTION_RESET_LAZY_REFERENCES);
+L0188    }
+L0189    
+L0190    
+L0191    <span class="keyword">static</span> <span class="keyword">void</span> *<a class="L" href="loadlib.c.html#ll_load">ll_load</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <span class="keyword">char</span> *path) {
+L0192      NSObjectFileImage img;
+L0193      NSObjectFileImageReturnCode ret;
+L0194      <span class="comment">/* this would be a rare case, but prevents crashing if it happens */</span>
+L0195      <span class="keyword">if</span>(!_dyld_present()) {
+L0196        <a class="L" href="lua.h.html#lua_pushliteral">lua_pushliteral</a>(L, <span class="string">"dyld not present"</span>);
+L0197        <span class="keyword">return</span> NULL;
+L0198      }
+L0199      ret = NSCreateObjectFileImageFromFile(path, &amp;img);
+L0200      <span class="keyword">if</span> (ret == NSObjectFileImageSuccess) {
+L0201        NSModule mod = NSLinkModule(img, path, NSLINKMODULE_OPTION_PRIVATE |
+L0202                           NSLINKMODULE_OPTION_RETURN_ON_ERROR);
+L0203        NSDestroyObjectFileImage(img);
+L0204        <span class="keyword">if</span> (mod == NULL) <a class="L" href="loadlib.c.html#pusherror">pusherror</a>(L);
+L0205        <span class="keyword">return</span> mod;
+L0206      }
+L0207      <a class="L" href="lapi.c.html#lua_pushstring">lua_pushstring</a>(L, <a class="L" href="loadlib.c.html#errorfromcode">errorfromcode</a>(ret));
+L0208      <span class="keyword">return</span> NULL;
+L0209    }
+L0210    
+L0211    
+L0212    <span class="keyword">static</span> <a class="L" href="lua.h.html#lua_CFunction">lua_CFunction</a> <a class="L" href="loadlib.c.html#ll_sym">ll_sym</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">void</span> *lib, <span class="keyword">const</span> <span class="keyword">char</span> *sym) {
+L0213      NSSymbol nss = NSLookupSymbolInModule((NSModule)lib, sym);
+L0214      <span class="keyword">if</span> (nss == NULL) {
+L0215        <a class="L" href="lapi.c.html#lua_pushfstring">lua_pushfstring</a>(L, <span class="string">"symbol "</span> <a class="L" href="luaconf.h.html#LUA_QS">LUA_QS</a> <span class="string">" not found"</span>, sym);
+L0216        <span class="keyword">return</span> NULL;
+L0217      }
+L0218      <span class="keyword">return</span> (<a class="L" href="lua.h.html#lua_CFunction">lua_CFunction</a>)NSAddressOfSymbol(nss);
+L0219    }
+L0220    
+L0221    <span class="comment">/* }====================================================== */</span>
+L0222    
+L0223    
+L0224    
+L0225    <span class="prepro">#else
+</span>L0226    <span class="comment">/*
+L0227    ** {======================================================
+L0228    ** Fallback for other systems
+L0229    ** =======================================================
+L0230    */</span>
+L0231    
+L0232    <span class="prepro">#undef LIB_FAIL
+</span>L0233    <a name="LIB_FAIL"/a><span class="prepro">#define LIB_FAIL	"absent"
+</span>L0234    
+L0235    
+L0236    <a name="DLMSG"/a><span class="prepro">#define DLMSG	"dynamic libraries not enabled; check your Lua installation"
+</span>L0237    
+L0238    
+L0239    <span class="keyword">static</span> <span class="keyword">void</span> <a class="L" href="loadlib.c.html#ll_unloadlib">ll_unloadlib</a> (<span class="keyword">void</span> *lib) {
+L0240      (<span class="keyword">void</span>)lib;  <span class="comment">/* to avoid warnings */</span>
+L0241    }
+L0242    
+L0243    
+L0244    <span class="keyword">static</span> <span class="keyword">void</span> *<a class="L" href="loadlib.c.html#ll_load">ll_load</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <span class="keyword">char</span> *path) {
+L0245      (<span class="keyword">void</span>)path;  <span class="comment">/* to avoid warnings */</span>
+L0246      <a class="L" href="lua.h.html#lua_pushliteral">lua_pushliteral</a>(L, <a class="L" href="loadlib.c.html#DLMSG">DLMSG</a>);
+L0247      <span class="keyword">return</span> NULL;
+L0248    }
+L0249    
+L0250    
+L0251    <span class="keyword">static</span> <a class="L" href="lua.h.html#lua_CFunction">lua_CFunction</a> <a class="L" href="loadlib.c.html#ll_sym">ll_sym</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">void</span> *lib, <span class="keyword">const</span> <span class="keyword">char</span> *sym) {
+L0252      (<span class="keyword">void</span>)lib; (<span class="keyword">void</span>)sym;  <span class="comment">/* to avoid warnings */</span>
+L0253      <a class="L" href="lua.h.html#lua_pushliteral">lua_pushliteral</a>(L, <a class="L" href="loadlib.c.html#DLMSG">DLMSG</a>);
+L0254      <span class="keyword">return</span> NULL;
+L0255    }
+L0256    
+L0257    <span class="comment">/* }====================================================== */</span>
+L0258    <span class="prepro">#endif
+</span>L0259    
+L0260    
+L0261    
+L0262    <span class="keyword">static</span> <span class="keyword">void</span> **<a name="ll_register"/a><a class="L" href="loadlib.c.ref.html#ll_register">ll_register</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <span class="keyword">char</span> *path) {
+L0263      <span class="keyword">void</span> **plib;
+L0264      <a class="L" href="lapi.c.html#lua_pushfstring">lua_pushfstring</a>(L, <span class="string">"%s%s"</span>, <a class="L" href="loadlib.c.html#LIBPREFIX">LIBPREFIX</a>, path);
+L0265      <a class="L" href="lapi.c.html#lua_gettable">lua_gettable</a>(L, <a class="L" href="lua.h.html#LUA_REGISTRYINDEX">LUA_REGISTRYINDEX</a>);  <span class="comment">/* check library in registry? */</span>
+L0266      <span class="keyword">if</span> (!<a class="L" href="lua.h.html#lua_isnil">lua_isnil</a>(L, <span class="number">-1</span>))  <span class="comment">/* is there an entry? */</span>
+L0267        plib = (<span class="keyword">void</span> **)<a class="L" href="lapi.c.html#lua_touserdata">lua_touserdata</a>(L, <span class="number">-1</span>);
+L0268      <span class="keyword">else</span> {  <span class="comment">/* no entry yet; create one */</span>
+L0269        <a class="L" href="lua.h.html#lua_pop">lua_pop</a>(L, <span class="number">1</span>);
+L0270        plib = (<span class="keyword">void</span> **)<a class="L" href="lapi.c.html#lua_newuserdata">lua_newuserdata</a>(L, <span class="keyword">sizeof</span>(<span class="keyword">const</span> <span class="keyword">void</span> *));
+L0271        *plib = NULL;
+L0272        <a class="L" href="lauxlib.h.html#luaL_getmetatable">luaL_getmetatable</a>(L, <span class="string">"_LOADLIB"</span>);
+L0273        <a class="L" href="lapi.c.html#lua_setmetatable">lua_setmetatable</a>(L, <span class="number">-2</span>);
+L0274        <a class="L" href="lapi.c.html#lua_pushfstring">lua_pushfstring</a>(L, <span class="string">"%s%s"</span>, <a class="L" href="loadlib.c.html#LIBPREFIX">LIBPREFIX</a>, path);
+L0275        <a class="L" href="lapi.c.html#lua_pushvalue">lua_pushvalue</a>(L, <span class="number">-2</span>);
+L0276        <a class="L" href="lapi.c.html#lua_settable">lua_settable</a>(L, <a class="L" href="lua.h.html#LUA_REGISTRYINDEX">LUA_REGISTRYINDEX</a>);
+L0277      }
+L0278      <span class="keyword">return</span> plib;
+L0279    }
+L0280    
+L0281    
+L0282    <span class="comment">/*
+L0283    ** __gc tag method: calls library's `ll_unloadlib' function with the lib
+L0284    ** handle
+L0285    */</span>
+L0286    <span class="keyword">static</span> <span class="keyword">int</span> <a name="gctm"/a><a class="L" href="loadlib.c.ref.html#gctm">gctm</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0287      <span class="keyword">void</span> **lib = (<span class="keyword">void</span> **)<a class="L" href="lauxlib.c.html#luaL_checkudata">luaL_checkudata</a>(L, <span class="number">1</span>, <span class="string">"_LOADLIB"</span>);
+L0288      <span class="keyword">if</span> (*lib) <a class="L" href="loadlib.c.html#ll_unloadlib">ll_unloadlib</a>(*lib);
+L0289      *lib = NULL;  <span class="comment">/* mark library as closed */</span>
+L0290      <span class="keyword">return</span> <span class="number">0</span>;
+L0291    }
+L0292    
+L0293    
+L0294    <span class="keyword">static</span> <span class="keyword">int</span> <a name="ll_loadfunc"/a><a class="L" href="loadlib.c.ref.html#ll_loadfunc">ll_loadfunc</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <span class="keyword">char</span> *path, <span class="keyword">const</span> <span class="keyword">char</span> *sym) {
+L0295      <span class="keyword">void</span> **reg = <a class="L" href="loadlib.c.html#ll_register">ll_register</a>(L, path);
+L0296      <span class="keyword">if</span> (*reg == NULL) *reg = <a class="L" href="loadlib.c.html#ll_load">ll_load</a>(L, path);
+L0297      <span class="keyword">if</span> (*reg == NULL)
+L0298        <span class="keyword">return</span> <a class="L" href="loadlib.c.html#ERRLIB">ERRLIB</a>;  <span class="comment">/* unable to load library */</span>
+L0299      <span class="keyword">else</span> {
+L0300        <a class="L" href="lua.h.html#lua_CFunction">lua_CFunction</a> f = <a class="L" href="loadlib.c.html#ll_sym">ll_sym</a>(L, *reg, sym);
+L0301        <span class="keyword">if</span> (f == NULL)
+L0302          <span class="keyword">return</span> <a class="L" href="loadlib.c.html#ERRFUNC">ERRFUNC</a>;  <span class="comment">/* unable to find function */</span>
+L0303        <a class="L" href="lua.h.html#lua_pushcfunction">lua_pushcfunction</a>(L, f);
+L0304        <span class="keyword">return</span> <span class="number">0</span>;  <span class="comment">/* return function */</span>
+L0305      }
+L0306    }
+L0307    
+L0308    
+L0309    <span class="keyword">static</span> <span class="keyword">int</span> <a name="ll_loadlib"/a><a class="L" href="loadlib.c.ref.html#ll_loadlib">ll_loadlib</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0310      <span class="keyword">const</span> <span class="keyword">char</span> *path = <a class="L" href="lauxlib.h.html#luaL_checkstring">luaL_checkstring</a>(L, <span class="number">1</span>);
+L0311      <span class="keyword">const</span> <span class="keyword">char</span> *init = <a class="L" href="lauxlib.h.html#luaL_checkstring">luaL_checkstring</a>(L, <span class="number">2</span>);
+L0312      <span class="keyword">int</span> stat = <a class="L" href="loadlib.c.html#ll_loadfunc">ll_loadfunc</a>(L, path, init);
+L0313      <span class="keyword">if</span> (stat == <span class="number">0</span>)  <span class="comment">/* no errors? */</span>
+L0314        <span class="keyword">return</span> <span class="number">1</span>;  <span class="comment">/* return the loaded function */</span>
+L0315      <span class="keyword">else</span> {  <span class="comment">/* error; error message is on stack top */</span>
+L0316        <a class="L" href="lapi.c.html#lua_pushnil">lua_pushnil</a>(L);
+L0317        <a class="L" href="lapi.c.html#lua_insert">lua_insert</a>(L, <span class="number">-2</span>);
+L0318        <a class="L" href="lapi.c.html#lua_pushstring">lua_pushstring</a>(L, (stat == <a class="L" href="loadlib.c.html#ERRLIB">ERRLIB</a>) ?  <a class="L" href="loadlib.c.html#LIB_FAIL">LIB_FAIL</a> : <span class="string">"init"</span>);
+L0319        <span class="keyword">return</span> <span class="number">3</span>;  <span class="comment">/* return nil, error message, and where */</span>
+L0320      }
+L0321    }
+L0322    
+L0323    
+L0324    
+L0325    <span class="comment">/*
+L0326    ** {======================================================
+L0327    ** 'require' function
+L0328    ** =======================================================
+L0329    */</span>
+L0330    
+L0331    
+L0332    <span class="keyword">static</span> <span class="keyword">int</span> <a name="readable"/a><a class="L" href="loadlib.c.ref.html#readable">readable</a> (<span class="keyword">const</span> <span class="keyword">char</span> *filename) {
+L0333      FILE *f = fopen(filename, <span class="string">"r"</span>);  <span class="comment">/* try to open file */</span>
+L0334      <span class="keyword">if</span> (f == NULL) <span class="keyword">return</span> <span class="number">0</span>;  <span class="comment">/* open failed */</span>
+L0335      fclose(f);
+L0336      <span class="keyword">return</span> <span class="number">1</span>;
+L0337    }
+L0338    
+L0339    
+L0340    <span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">char</span> *<a name="pushnexttemplate"/a><a class="L" href="loadlib.c.ref.html#pushnexttemplate">pushnexttemplate</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <span class="keyword">char</span> *path) {
+L0341      <span class="keyword">const</span> <span class="keyword">char</span> *l;
+L0342      <span class="keyword">while</span> (*path == *<a class="L" href="luaconf.h.html#LUA_PATHSEP">LUA_PATHSEP</a>) path++;  <span class="comment">/* skip separators */</span>
+L0343      <span class="keyword">if</span> (*path == '\0') <span class="keyword">return</span> NULL;  <span class="comment">/* no more templates */</span>
+L0344      l = strchr(path, *<a class="L" href="luaconf.h.html#LUA_PATHSEP">LUA_PATHSEP</a>);  <span class="comment">/* find next separator */</span>
+L0345      <span class="keyword">if</span> (l == NULL) l = path + strlen(path);
+L0346      <a class="L" href="lapi.c.html#lua_pushlstring">lua_pushlstring</a>(L, path, l - path);  <span class="comment">/* template */</span>
+L0347      <span class="keyword">return</span> l;
+L0348    }
+L0349    
+L0350    
+L0351    <span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">char</span> *<a name="findfile"/a><a class="L" href="loadlib.c.ref.html#findfile">findfile</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <span class="keyword">char</span> *name,
+L0352                                               <span class="keyword">const</span> <span class="keyword">char</span> *pname) {
+L0353      <span class="keyword">const</span> <span class="keyword">char</span> *path;
+L0354      name = <a class="L" href="lauxlib.c.html#luaL_gsub">luaL_gsub</a>(L, name, <span class="string">"."</span>, <a class="L" href="luaconf.h.html#LUA_DIRSEP">LUA_DIRSEP</a>);
+L0355      <a class="L" href="lapi.c.html#lua_getfield">lua_getfield</a>(L, <a class="L" href="lua.h.html#LUA_ENVIRONINDEX">LUA_ENVIRONINDEX</a>, pname);
+L0356      path = <a class="L" href="lua.h.html#lua_tostring">lua_tostring</a>(L, <span class="number">-1</span>);
+L0357      <span class="keyword">if</span> (path == NULL)
+L0358        <a class="L" href="lauxlib.c.html#luaL_error">luaL_error</a>(L, <a class="L" href="luaconf.h.html#LUA_QL">LUA_QL</a>(<span class="string">"package.%s"</span>) <span class="string">" must be a string"</span>, pname);
+L0359      <a class="L" href="lua.h.html#lua_pushliteral">lua_pushliteral</a>(L, <span class="string">""</span>);  <span class="comment">/* error accumulator */</span>
+L0360      <span class="keyword">while</span> ((path = <a class="L" href="loadlib.c.html#pushnexttemplate">pushnexttemplate</a>(L, path)) != NULL) {
+L0361        <span class="keyword">const</span> <span class="keyword">char</span> *filename;
+L0362        filename = <a class="L" href="lauxlib.c.html#luaL_gsub">luaL_gsub</a>(L, <a class="L" href="lua.h.html#lua_tostring">lua_tostring</a>(L, <span class="number">-1</span>), <a class="L" href="luaconf.h.html#LUA_PATH_MARK">LUA_PATH_MARK</a>, name);
+L0363        <a class="L" href="lapi.c.html#lua_remove">lua_remove</a>(L, <span class="number">-2</span>);  <span class="comment">/* remove path template */</span>
+L0364        <span class="keyword">if</span> (<a class="L" href="loadlib.c.html#readable">readable</a>(filename))  <span class="comment">/* does file exist and is readable? */</span>
+L0365          <span class="keyword">return</span> filename;  <span class="comment">/* return that file name */</span>
+L0366        <a class="L" href="lapi.c.html#lua_pushfstring">lua_pushfstring</a>(L, <span class="string">"\n\tno file "</span> <a class="L" href="luaconf.h.html#LUA_QS">LUA_QS</a>, filename);
+L0367        <a class="L" href="lapi.c.html#lua_remove">lua_remove</a>(L, <span class="number">-2</span>);  <span class="comment">/* remove file name */</span>
+L0368        <a class="L" href="lapi.c.html#lua_concat">lua_concat</a>(L, <span class="number">2</span>);  <span class="comment">/* add entry to possible error message */</span>
+L0369      }
+L0370      <span class="keyword">return</span> NULL;  <span class="comment">/* not found */</span>
+L0371    }
+L0372    
+L0373    
+L0374    <span class="keyword">static</span> <span class="keyword">void</span> <a name="loaderror"/a><a class="L" href="loadlib.c.ref.html#loaderror">loaderror</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <span class="keyword">char</span> *filename) {
+L0375      <a class="L" href="lauxlib.c.html#luaL_error">luaL_error</a>(L, <span class="string">"error loading module "</span> <a class="L" href="luaconf.h.html#LUA_QS">LUA_QS</a> <span class="string">" from file "</span> <a class="L" href="luaconf.h.html#LUA_QS">LUA_QS</a> <span class="string">":\n\t%s"</span>,
+L0376                    <a class="L" href="lua.h.html#lua_tostring">lua_tostring</a>(L, <span class="number">1</span>), filename, <a class="L" href="lua.h.html#lua_tostring">lua_tostring</a>(L, <span class="number">-1</span>));
+L0377    }
+L0378    
+L0379    
+L0380    <span class="keyword">static</span> <span class="keyword">int</span> <a name="loader_Lua"/a><a class="L" href="loadlib.c.ref.html#loader_Lua">loader_Lua</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0381      <span class="keyword">const</span> <span class="keyword">char</span> *filename;
+L0382      <span class="keyword">const</span> <span class="keyword">char</span> *name = <a class="L" href="lauxlib.h.html#luaL_checkstring">luaL_checkstring</a>(L, <span class="number">1</span>);
+L0383      filename = <a class="L" href="loadlib.c.html#findfile">findfile</a>(L, name, <span class="string">"path"</span>);
+L0384      <span class="keyword">if</span> (filename == NULL) <span class="keyword">return</span> <span class="number">1</span>;  <span class="comment">/* library not found in this path */</span>
+L0385      <span class="keyword">if</span> (<a class="L" href="lauxlib.c.html#luaL_loadfile">luaL_loadfile</a>(L, filename) != <span class="number">0</span>)
+L0386        <a class="L" href="loadlib.c.html#loaderror">loaderror</a>(L, filename);
+L0387      <span class="keyword">return</span> <span class="number">1</span>;  <span class="comment">/* library loaded successfully */</span>
+L0388    }
+L0389    
+L0390    
+L0391    <span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">char</span> *<a name="mkfuncname"/a><a class="L" href="loadlib.c.ref.html#mkfuncname">mkfuncname</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <span class="keyword">char</span> *modname) {
+L0392      <span class="keyword">const</span> <span class="keyword">char</span> *<a class="L" href="lparser.c.html#funcname">funcname</a>;
+L0393      <span class="keyword">const</span> <span class="keyword">char</span> *mark = strchr(modname, *<a class="L" href="luaconf.h.html#LUA_IGMARK">LUA_IGMARK</a>);
+L0394      <span class="keyword">if</span> (mark) modname = mark + <span class="number">1</span>;
+L0395      <a class="L" href="lparser.c.html#funcname">funcname</a> = <a class="L" href="lauxlib.c.html#luaL_gsub">luaL_gsub</a>(L, modname, <span class="string">"."</span>, <a class="L" href="loadlib.c.html#LUA_OFSEP">LUA_OFSEP</a>);
+L0396      <a class="L" href="lparser.c.html#funcname">funcname</a> = <a class="L" href="lapi.c.html#lua_pushfstring">lua_pushfstring</a>(L, <a class="L" href="loadlib.c.html#POF">POF</a><span class="string">"%s"</span>, <a class="L" href="lparser.c.html#funcname">funcname</a>);
+L0397      <a class="L" href="lapi.c.html#lua_remove">lua_remove</a>(L, <span class="number">-2</span>);  <span class="comment">/* remove 'gsub' result */</span>
+L0398      <span class="keyword">return</span> <a class="L" href="lparser.c.html#funcname">funcname</a>;
+L0399    }
+L0400    
+L0401    
+L0402    <span class="keyword">static</span> <span class="keyword">int</span> <a name="loader_C"/a><a class="L" href="loadlib.c.ref.html#loader_C">loader_C</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0403      <span class="keyword">const</span> <span class="keyword">char</span> *<a class="L" href="lparser.c.html#funcname">funcname</a>;
+L0404      <span class="keyword">const</span> <span class="keyword">char</span> *name = <a class="L" href="lauxlib.h.html#luaL_checkstring">luaL_checkstring</a>(L, <span class="number">1</span>);
+L0405      <span class="keyword">const</span> <span class="keyword">char</span> *filename = <a class="L" href="loadlib.c.html#findfile">findfile</a>(L, name, <span class="string">"cpath"</span>);
+L0406      <span class="keyword">if</span> (filename == NULL) <span class="keyword">return</span> <span class="number">1</span>;  <span class="comment">/* library not found in this path */</span>
+L0407      <a class="L" href="lparser.c.html#funcname">funcname</a> = <a class="L" href="loadlib.c.html#mkfuncname">mkfuncname</a>(L, name);
+L0408      <span class="keyword">if</span> (<a class="L" href="loadlib.c.html#ll_loadfunc">ll_loadfunc</a>(L, filename, <a class="L" href="lparser.c.html#funcname">funcname</a>) != <span class="number">0</span>)
+L0409        <a class="L" href="loadlib.c.html#loaderror">loaderror</a>(L, filename);
+L0410      <span class="keyword">return</span> <span class="number">1</span>;  <span class="comment">/* library loaded successfully */</span>
+L0411    }
+L0412    
+L0413    
+L0414    <span class="keyword">static</span> <span class="keyword">int</span> <a name="loader_Croot"/a><a class="L" href="loadlib.c.ref.html#loader_Croot">loader_Croot</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0415      <span class="keyword">const</span> <span class="keyword">char</span> *<a class="L" href="lparser.c.html#funcname">funcname</a>;
+L0416      <span class="keyword">const</span> <span class="keyword">char</span> *filename;
+L0417      <span class="keyword">const</span> <span class="keyword">char</span> *name = <a class="L" href="lauxlib.h.html#luaL_checkstring">luaL_checkstring</a>(L, <span class="number">1</span>);
+L0418      <span class="keyword">const</span> <span class="keyword">char</span> *p = strchr(name, '.');
+L0419      <span class="keyword">int</span> stat;
+L0420      <span class="keyword">if</span> (p == NULL) <span class="keyword">return</span> <span class="number">0</span>;  <span class="comment">/* is root */</span>
+L0421      <a class="L" href="lapi.c.html#lua_pushlstring">lua_pushlstring</a>(L, name, p - name);
+L0422      filename = <a class="L" href="loadlib.c.html#findfile">findfile</a>(L, <a class="L" href="lua.h.html#lua_tostring">lua_tostring</a>(L, <span class="number">-1</span>), <span class="string">"cpath"</span>);
+L0423      <span class="keyword">if</span> (filename == NULL) <span class="keyword">return</span> <span class="number">1</span>;  <span class="comment">/* root not found */</span>
+L0424      <a class="L" href="lparser.c.html#funcname">funcname</a> = <a class="L" href="loadlib.c.html#mkfuncname">mkfuncname</a>(L, name);
+L0425      <span class="keyword">if</span> ((stat = <a class="L" href="loadlib.c.html#ll_loadfunc">ll_loadfunc</a>(L, filename, <a class="L" href="lparser.c.html#funcname">funcname</a>)) != <span class="number">0</span>) {
+L0426        <span class="keyword">if</span> (stat != <a class="L" href="loadlib.c.html#ERRFUNC">ERRFUNC</a>) <a class="L" href="loadlib.c.html#loaderror">loaderror</a>(L, filename);  <span class="comment">/* real error */</span>
+L0427        <a class="L" href="lapi.c.html#lua_pushfstring">lua_pushfstring</a>(L, <span class="string">"\n\tno module "</span> <a class="L" href="luaconf.h.html#LUA_QS">LUA_QS</a> <span class="string">" in file "</span> <a class="L" href="luaconf.h.html#LUA_QS">LUA_QS</a>,
+L0428                           name, filename);
+L0429        <span class="keyword">return</span> <span class="number">1</span>;  <span class="comment">/* function not found */</span>
+L0430      }
+L0431      <span class="keyword">return</span> <span class="number">1</span>;
+L0432    }
+L0433    
+L0434    
+L0435    <span class="keyword">static</span> <span class="keyword">int</span> <a name="loader_preload"/a><a class="L" href="loadlib.c.ref.html#loader_preload">loader_preload</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0436      <span class="keyword">const</span> <span class="keyword">char</span> *name = <a class="L" href="lauxlib.h.html#luaL_checkstring">luaL_checkstring</a>(L, <span class="number">1</span>);
+L0437      <a class="L" href="lapi.c.html#lua_getfield">lua_getfield</a>(L, <a class="L" href="lua.h.html#LUA_ENVIRONINDEX">LUA_ENVIRONINDEX</a>, <span class="string">"preload"</span>);
+L0438      <span class="keyword">if</span> (!<a class="L" href="lua.h.html#lua_istable">lua_istable</a>(L, <span class="number">-1</span>))
+L0439        <a class="L" href="lauxlib.c.html#luaL_error">luaL_error</a>(L, <a class="L" href="luaconf.h.html#LUA_QL">LUA_QL</a>(<span class="string">"package.preload"</span>) <span class="string">" must be a table"</span>);
+L0440      <a class="L" href="lapi.c.html#lua_getfield">lua_getfield</a>(L, <span class="number">-1</span>, name);
+L0441      <span class="keyword">if</span> (<a class="L" href="lua.h.html#lua_isnil">lua_isnil</a>(L, <span class="number">-1</span>))  <span class="comment">/* not found? */</span>
+L0442        <a class="L" href="lapi.c.html#lua_pushfstring">lua_pushfstring</a>(L, <span class="string">"\n\tno field package.preload['%s']"</span>, name);
+L0443      <span class="keyword">return</span> <span class="number">1</span>;
+L0444    }
+L0445    
+L0446    
+L0447    <span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">int</span> <a name="sentinel_"/a><a class="L" href="loadlib.c.ref.html#sentinel_">sentinel_</a> = <span class="number">0</span>;
+L0448    <a name="sentinel"/a><span class="prepro">#define sentinel	((void *)&amp;sentinel_)
+</span>L0449    
+L0450    
+L0451    <span class="keyword">static</span> <span class="keyword">int</span> <a name="ll_require"/a><a class="L" href="loadlib.c.ref.html#ll_require">ll_require</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0452      <span class="keyword">const</span> <span class="keyword">char</span> *name = <a class="L" href="lauxlib.h.html#luaL_checkstring">luaL_checkstring</a>(L, <span class="number">1</span>);
+L0453      <span class="keyword">int</span> i;
+L0454      <a class="L" href="lapi.c.html#lua_settop">lua_settop</a>(L, <span class="number">1</span>);  <span class="comment">/* _LOADED table will be at index 2 */</span>
+L0455      <a class="L" href="lapi.c.html#lua_getfield">lua_getfield</a>(L, <a class="L" href="lua.h.html#LUA_REGISTRYINDEX">LUA_REGISTRYINDEX</a>, <span class="string">"_LOADED"</span>);
+L0456      <a class="L" href="lapi.c.html#lua_getfield">lua_getfield</a>(L, <span class="number">2</span>, name);
+L0457      <span class="keyword">if</span> (<a class="L" href="lapi.c.html#lua_toboolean">lua_toboolean</a>(L, <span class="number">-1</span>)) {  <span class="comment">/* is it there? */</span>
+L0458        <span class="keyword">if</span> (<a class="L" href="lapi.c.html#lua_touserdata">lua_touserdata</a>(L, <span class="number">-1</span>) == <a class="L" href="loadlib.c.html#sentinel">sentinel</a>)  <span class="comment">/* check loops */</span>
+L0459          <a class="L" href="lauxlib.c.html#luaL_error">luaL_error</a>(L, <span class="string">"loop or previous error loading module "</span> <a class="L" href="luaconf.h.html#LUA_QS">LUA_QS</a>, name);
+L0460        <span class="keyword">return</span> <span class="number">1</span>;  <span class="comment">/* package is already loaded */</span>
+L0461      }
+L0462      <span class="comment">/* else must load it; iterate over available loaders */</span>
+L0463      <a class="L" href="lapi.c.html#lua_getfield">lua_getfield</a>(L, <a class="L" href="lua.h.html#LUA_ENVIRONINDEX">LUA_ENVIRONINDEX</a>, <span class="string">"loaders"</span>);
+L0464      <span class="keyword">if</span> (!<a class="L" href="lua.h.html#lua_istable">lua_istable</a>(L, <span class="number">-1</span>))
+L0465        <a class="L" href="lauxlib.c.html#luaL_error">luaL_error</a>(L, <a class="L" href="luaconf.h.html#LUA_QL">LUA_QL</a>(<span class="string">"package.loaders"</span>) <span class="string">" must be a table"</span>);
+L0466      <a class="L" href="lua.h.html#lua_pushliteral">lua_pushliteral</a>(L, <span class="string">""</span>);  <span class="comment">/* error message accumulator */</span>
+L0467      <span class="keyword">for</span> (i=<span class="number">1</span>; ; i++) {
+L0468        <a class="L" href="lapi.c.html#lua_rawgeti">lua_rawgeti</a>(L, <span class="number">-2</span>, i);  <span class="comment">/* get a loader */</span>
+L0469        <span class="keyword">if</span> (<a class="L" href="lua.h.html#lua_isnil">lua_isnil</a>(L, <span class="number">-1</span>))
+L0470          <a class="L" href="lauxlib.c.html#luaL_error">luaL_error</a>(L, <span class="string">"module "</span> <a class="L" href="luaconf.h.html#LUA_QS">LUA_QS</a> <span class="string">" not found:%s"</span>,
+L0471                        name, <a class="L" href="lua.h.html#lua_tostring">lua_tostring</a>(L, <span class="number">-2</span>));
+L0472        <a class="L" href="lapi.c.html#lua_pushstring">lua_pushstring</a>(L, name);
+L0473        <a class="L" href="lapi.c.html#lua_call">lua_call</a>(L, <span class="number">1</span>, <span class="number">1</span>);  <span class="comment">/* call it */</span>
+L0474        <span class="keyword">if</span> (<a class="L" href="lua.h.html#lua_isfunction">lua_isfunction</a>(L, <span class="number">-1</span>))  <span class="comment">/* did it find module? */</span>
+L0475          <span class="keyword">break</span>;  <span class="comment">/* module loaded successfully */</span>
+L0476        <span class="keyword">else</span> <span class="keyword">if</span> (<a class="L" href="lapi.c.html#lua_isstring">lua_isstring</a>(L, <span class="number">-1</span>))  <span class="comment">/* loader returned error message? */</span>
+L0477          <a class="L" href="lapi.c.html#lua_concat">lua_concat</a>(L, <span class="number">2</span>);  <span class="comment">/* accumulate it */</span>
+L0478        <span class="keyword">else</span>
+L0479          <a class="L" href="lua.h.html#lua_pop">lua_pop</a>(L, <span class="number">1</span>);
+L0480      }
+L0481      <a class="L" href="lapi.c.html#lua_pushlightuserdata">lua_pushlightuserdata</a>(L, <a class="L" href="loadlib.c.html#sentinel">sentinel</a>);
+L0482      <a class="L" href="lapi.c.html#lua_setfield">lua_setfield</a>(L, <span class="number">2</span>, name);  <span class="comment">/* _LOADED[name] = sentinel */</span>
+L0483      <a class="L" href="lapi.c.html#lua_pushstring">lua_pushstring</a>(L, name);  <span class="comment">/* pass name as argument to module */</span>
+L0484      <a class="L" href="lapi.c.html#lua_call">lua_call</a>(L, <span class="number">1</span>, <span class="number">1</span>);  <span class="comment">/* run loaded module */</span>
+L0485      <span class="keyword">if</span> (!<a class="L" href="lua.h.html#lua_isnil">lua_isnil</a>(L, <span class="number">-1</span>))  <span class="comment">/* non-nil return? */</span>
+L0486        <a class="L" href="lapi.c.html#lua_setfield">lua_setfield</a>(L, <span class="number">2</span>, name);  <span class="comment">/* _LOADED[name] = returned value */</span>
+L0487      <a class="L" href="lapi.c.html#lua_getfield">lua_getfield</a>(L, <span class="number">2</span>, name);
+L0488      <span class="keyword">if</span> (<a class="L" href="lapi.c.html#lua_touserdata">lua_touserdata</a>(L, <span class="number">-1</span>) == <a class="L" href="loadlib.c.html#sentinel">sentinel</a>) {   <span class="comment">/* module did not set a value? */</span>
+L0489        <a class="L" href="lapi.c.html#lua_pushboolean">lua_pushboolean</a>(L, <span class="number">1</span>);  <span class="comment">/* use true as result */</span>
+L0490        <a class="L" href="lapi.c.html#lua_pushvalue">lua_pushvalue</a>(L, <span class="number">-1</span>);  <span class="comment">/* extra copy to be returned */</span>
+L0491        <a class="L" href="lapi.c.html#lua_setfield">lua_setfield</a>(L, <span class="number">2</span>, name);  <span class="comment">/* _LOADED[name] = true */</span>
+L0492      }
+L0493      <span class="keyword">return</span> <span class="number">1</span>;
+L0494    }
+L0495    
+L0496    <span class="comment">/* }====================================================== */</span>
+L0497    
+L0498    
+L0499    
+L0500    <span class="comment">/*
+L0501    ** {======================================================
+L0502    ** 'module' function
+L0503    ** =======================================================
+L0504    */</span>
+L0505      
+L0506    
+L0507    <span class="keyword">static</span> <span class="keyword">void</span> <a name="setfenv"/a><a class="L" href="loadlib.c.ref.html#setfenv">setfenv</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0508      <a class="L" href="lua.h.html#lua_Debug">lua_Debug</a> ar;
+L0509      <span class="keyword">if</span> (<a class="L" href="ldebug.c.html#lua_getstack">lua_getstack</a>(L, <span class="number">1</span>, &amp;ar) == <span class="number">0</span> ||
+L0510          <a class="L" href="ldebug.c.html#lua_getinfo">lua_getinfo</a>(L, <span class="string">"f"</span>, &amp;ar) == <span class="number">0</span> ||  <span class="comment">/* get calling function */</span>
+L0511          <a class="L" href="lapi.c.html#lua_iscfunction">lua_iscfunction</a>(L, <span class="number">-1</span>))
+L0512        <a class="L" href="lauxlib.c.html#luaL_error">luaL_error</a>(L, <a class="L" href="luaconf.h.html#LUA_QL">LUA_QL</a>(<span class="string">"module"</span>) <span class="string">" not called from a Lua function"</span>);
+L0513      <a class="L" href="lapi.c.html#lua_pushvalue">lua_pushvalue</a>(L, <span class="number">-2</span>);
+L0514      <a class="L" href="lapi.c.html#lua_setfenv">lua_setfenv</a>(L, <span class="number">-2</span>);
+L0515      <a class="L" href="lua.h.html#lua_pop">lua_pop</a>(L, <span class="number">1</span>);
+L0516    }
+L0517    
+L0518    
+L0519    <span class="keyword">static</span> <span class="keyword">void</span> <a name="dooptions"/a><a class="L" href="loadlib.c.ref.html#dooptions">dooptions</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> n) {
+L0520      <span class="keyword">int</span> i;
+L0521      <span class="keyword">for</span> (i = <span class="number">2</span>; i &lt;= n; i++) {
+L0522        <a class="L" href="lapi.c.html#lua_pushvalue">lua_pushvalue</a>(L, i);  <span class="comment">/* get option (a function) */</span>
+L0523        <a class="L" href="lapi.c.html#lua_pushvalue">lua_pushvalue</a>(L, <span class="number">-2</span>);  <span class="comment">/* module */</span>
+L0524        <a class="L" href="lapi.c.html#lua_call">lua_call</a>(L, <span class="number">1</span>, <span class="number">0</span>);
+L0525      }
+L0526    }
+L0527    
+L0528    
+L0529    <span class="keyword">static</span> <span class="keyword">void</span> <a name="modinit"/a><a class="L" href="loadlib.c.ref.html#modinit">modinit</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <span class="keyword">char</span> *modname) {
+L0530      <span class="keyword">const</span> <span class="keyword">char</span> *dot;
+L0531      <a class="L" href="lapi.c.html#lua_pushvalue">lua_pushvalue</a>(L, <span class="number">-1</span>);
+L0532      <a class="L" href="lapi.c.html#lua_setfield">lua_setfield</a>(L, <span class="number">-2</span>, <span class="string">"_M"</span>);  <span class="comment">/* module._M = module */</span>
+L0533      <a class="L" href="lapi.c.html#lua_pushstring">lua_pushstring</a>(L, modname);
+L0534      <a class="L" href="lapi.c.html#lua_setfield">lua_setfield</a>(L, <span class="number">-2</span>, <span class="string">"_NAME"</span>);
+L0535      dot = strrchr(modname, '.');  <span class="comment">/* look for last dot in module name */</span>
+L0536      <span class="keyword">if</span> (dot == NULL) dot = modname;
+L0537      <span class="keyword">else</span> dot++;
+L0538      <span class="comment">/* set _PACKAGE as package name (full module name minus last part) */</span>
+L0539      <a class="L" href="lapi.c.html#lua_pushlstring">lua_pushlstring</a>(L, modname, dot - modname);
+L0540      <a class="L" href="lapi.c.html#lua_setfield">lua_setfield</a>(L, <span class="number">-2</span>, <span class="string">"_PACKAGE"</span>);
+L0541    }
+L0542    
+L0543    
+L0544    <span class="keyword">static</span> <span class="keyword">int</span> <a name="ll_module"/a><a class="L" href="loadlib.c.ref.html#ll_module">ll_module</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0545      <span class="keyword">const</span> <span class="keyword">char</span> *modname = <a class="L" href="lauxlib.h.html#luaL_checkstring">luaL_checkstring</a>(L, <span class="number">1</span>);
+L0546      <span class="keyword">int</span> loaded = <a class="L" href="lapi.c.html#lua_gettop">lua_gettop</a>(L) + <span class="number">1</span>;  <span class="comment">/* index of _LOADED table */</span>
+L0547      <a class="L" href="lapi.c.html#lua_getfield">lua_getfield</a>(L, <a class="L" href="lua.h.html#LUA_REGISTRYINDEX">LUA_REGISTRYINDEX</a>, <span class="string">"_LOADED"</span>);
+L0548      <a class="L" href="lapi.c.html#lua_getfield">lua_getfield</a>(L, loaded, modname);  <span class="comment">/* get _LOADED[modname] */</span>
+L0549      <span class="keyword">if</span> (!<a class="L" href="lua.h.html#lua_istable">lua_istable</a>(L, <span class="number">-1</span>)) {  <span class="comment">/* not found? */</span>
+L0550        <a class="L" href="lua.h.html#lua_pop">lua_pop</a>(L, <span class="number">1</span>);  <span class="comment">/* remove previous result */</span>
+L0551        <span class="comment">/* try global variable (and create one if it does not exist) */</span>
+L0552        <span class="keyword">if</span> (<a class="L" href="lauxlib.c.html#luaL_findtable">luaL_findtable</a>(L, <a class="L" href="lua.h.html#LUA_GLOBALSINDEX">LUA_GLOBALSINDEX</a>, modname, <span class="number">1</span>) != NULL)
+L0553          <span class="keyword">return</span> <a class="L" href="lauxlib.c.html#luaL_error">luaL_error</a>(L, <span class="string">"name conflict for module "</span> <a class="L" href="luaconf.h.html#LUA_QS">LUA_QS</a>, modname);
+L0554        <a class="L" href="lapi.c.html#lua_pushvalue">lua_pushvalue</a>(L, <span class="number">-1</span>);
+L0555        <a class="L" href="lapi.c.html#lua_setfield">lua_setfield</a>(L, loaded, modname);  <span class="comment">/* _LOADED[modname] = new table */</span>
+L0556      }
+L0557      <span class="comment">/* check whether table already has a _NAME field */</span>
+L0558      <a class="L" href="lapi.c.html#lua_getfield">lua_getfield</a>(L, <span class="number">-1</span>, <span class="string">"_NAME"</span>);
+L0559      <span class="keyword">if</span> (!<a class="L" href="lua.h.html#lua_isnil">lua_isnil</a>(L, <span class="number">-1</span>))  <span class="comment">/* is table an initialized module? */</span>
+L0560        <a class="L" href="lua.h.html#lua_pop">lua_pop</a>(L, <span class="number">1</span>);
+L0561      <span class="keyword">else</span> {  <span class="comment">/* no; initialize it */</span>
+L0562        <a class="L" href="lua.h.html#lua_pop">lua_pop</a>(L, <span class="number">1</span>);
+L0563        <a class="L" href="loadlib.c.html#modinit">modinit</a>(L, modname);
+L0564      }
+L0565      <a class="L" href="lapi.c.html#lua_pushvalue">lua_pushvalue</a>(L, <span class="number">-1</span>);
+L0566      <a class="L" href="loadlib.c.html#setfenv">setfenv</a>(L);
+L0567      <a class="L" href="loadlib.c.html#dooptions">dooptions</a>(L, loaded - <span class="number">1</span>);
+L0568      <span class="keyword">return</span> <span class="number">0</span>;
+L0569    }
+L0570    
+L0571    
+L0572    <span class="keyword">static</span> <span class="keyword">int</span> <a name="ll_seeall"/a><a class="L" href="loadlib.c.ref.html#ll_seeall">ll_seeall</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0573      <a class="L" href="lauxlib.c.html#luaL_checktype">luaL_checktype</a>(L, <span class="number">1</span>, <a class="L" href="lua.h.html#LUA_TTABLE">LUA_TTABLE</a>);
+L0574      <span class="keyword">if</span> (!<a class="L" href="lapi.c.html#lua_getmetatable">lua_getmetatable</a>(L, <span class="number">1</span>)) {
+L0575        <a class="L" href="lapi.c.html#lua_createtable">lua_createtable</a>(L, <span class="number">0</span>, <span class="number">1</span>); <span class="comment">/* create new metatable */</span>
+L0576        <a class="L" href="lapi.c.html#lua_pushvalue">lua_pushvalue</a>(L, <span class="number">-1</span>);
+L0577        <a class="L" href="lapi.c.html#lua_setmetatable">lua_setmetatable</a>(L, <span class="number">1</span>);
+L0578      }
+L0579      <a class="L" href="lapi.c.html#lua_pushvalue">lua_pushvalue</a>(L, <a class="L" href="lua.h.html#LUA_GLOBALSINDEX">LUA_GLOBALSINDEX</a>);
+L0580      <a class="L" href="lapi.c.html#lua_setfield">lua_setfield</a>(L, <span class="number">-2</span>, <span class="string">"__index"</span>);  <span class="comment">/* mt.__index = _G */</span>
+L0581      <span class="keyword">return</span> <span class="number">0</span>;
+L0582    }
+L0583    
+L0584    
+L0585    <span class="comment">/* }====================================================== */</span>
+L0586    
+L0587    
+L0588    
+L0589    <span class="comment">/* auxiliary mark (for internal use) */</span>
+L0590    <a name="AUXMARK"/a><span class="prepro">#define AUXMARK		"\1"
+</span>L0591    
+L0592    <span class="keyword">static</span> <span class="keyword">void</span> <a name="setpath"/a><a class="L" href="loadlib.c.ref.html#setpath">setpath</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <span class="keyword">char</span> *fieldname, <span class="keyword">const</span> <span class="keyword">char</span> *envname,
+L0593                                       <span class="keyword">const</span> <span class="keyword">char</span> *def) {
+L0594      <span class="keyword">const</span> <span class="keyword">char</span> *path = getenv(envname);
+L0595      <span class="keyword">if</span> (path == NULL)  <span class="comment">/* no environment variable? */</span>
+L0596        <a class="L" href="lapi.c.html#lua_pushstring">lua_pushstring</a>(L, def);  <span class="comment">/* use default */</span>
+L0597      <span class="keyword">else</span> {
+L0598        <span class="comment">/* replace ";;" by ";AUXMARK;" and then AUXMARK by default path */</span>
+L0599        path = <a class="L" href="lauxlib.c.html#luaL_gsub">luaL_gsub</a>(L, path, <a class="L" href="luaconf.h.html#LUA_PATHSEP">LUA_PATHSEP</a> <a class="L" href="luaconf.h.html#LUA_PATHSEP">LUA_PATHSEP</a>,
+L0600                                  <a class="L" href="luaconf.h.html#LUA_PATHSEP">LUA_PATHSEP</a> AUXMARK <a class="L" href="luaconf.h.html#LUA_PATHSEP">LUA_PATHSEP</a>);
+L0601        <a class="L" href="lauxlib.c.html#luaL_gsub">luaL_gsub</a>(L, path, AUXMARK, def);
+L0602        <a class="L" href="lapi.c.html#lua_remove">lua_remove</a>(L, <span class="number">-2</span>);
+L0603      }
+L0604      <a class="L" href="loadlib.c.html#setprogdir">setprogdir</a>(L);
+L0605      <a class="L" href="lapi.c.html#lua_setfield">lua_setfield</a>(L, <span class="number">-2</span>, fieldname);
+L0606    }
+L0607    
+L0608    
+L0609    <span class="keyword">static</span> <span class="keyword">const</span> <a class="L" href="lauxlib.h.html#luaL_Reg">luaL_Reg</a> <a name="pk_funcs"/a><a class="L" href="loadlib.c.ref.html#pk_funcs">pk_funcs</a>[] = {
+L0610      {<span class="string">"loadlib"</span>, <a class="L" href="loadlib.c.html#ll_loadlib">ll_loadlib</a>},
+L0611      {<span class="string">"seeall"</span>, <a class="L" href="loadlib.c.html#ll_seeall">ll_seeall</a>},
+L0612      {NULL, NULL}
+L0613    };
+L0614    
+L0615    
+L0616    <span class="keyword">static</span> <span class="keyword">const</span> <a class="L" href="lauxlib.h.html#luaL_Reg">luaL_Reg</a> <a name="ll_funcs"/a><a class="L" href="loadlib.c.ref.html#ll_funcs">ll_funcs</a>[] = {
+L0617      {<span class="string">"module"</span>, <a class="L" href="loadlib.c.html#ll_module">ll_module</a>},
+L0618      {<span class="string">"require"</span>, <a class="L" href="loadlib.c.html#ll_require">ll_require</a>},
+L0619      {NULL, NULL}
+L0620    };
+L0621    
+L0622    
+L0623    <span class="keyword">static</span> <span class="keyword">const</span> <a class="L" href="lua.h.html#lua_CFunction">lua_CFunction</a> <a name="loaders"/a><a class="L" href="loadlib.c.ref.html#loaders">loaders</a>[] =
+L0624      {<a class="L" href="loadlib.c.html#loader_preload">loader_preload</a>, <a class="L" href="loadlib.c.html#loader_Lua">loader_Lua</a>, <a class="L" href="loadlib.c.html#loader_C">loader_C</a>, <a class="L" href="loadlib.c.html#loader_Croot">loader_Croot</a>, NULL};
+L0625    
+L0626    
+L0627    <a class="L" href="luaconf.h.html#LUALIB_API">LUALIB_API</a> <span class="keyword">int</span> <a name="luaopen_package"/a><a class="L" href="loadlib.c.ref.html#luaopen_package">luaopen_package</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0628      <span class="keyword">int</span> i;
+L0629      <span class="comment">/* create new type _LOADLIB */</span>
+L0630      <a class="L" href="lauxlib.c.html#luaL_newmetatable">luaL_newmetatable</a>(L, <span class="string">"_LOADLIB"</span>);
+L0631      <a class="L" href="lua.h.html#lua_pushcfunction">lua_pushcfunction</a>(L, <a class="L" href="loadlib.c.html#gctm">gctm</a>);
+L0632      <a class="L" href="lapi.c.html#lua_setfield">lua_setfield</a>(L, <span class="number">-2</span>, <span class="string">"__gc"</span>);
+L0633      <span class="comment">/* create `package' table */</span>
+L0634      <a class="L" href="lauxlib.c.html#luaL_register">luaL_register</a>(L, <a class="L" href="lualib.h.html#LUA_LOADLIBNAME">LUA_LOADLIBNAME</a>, <a class="L" href="loadlib.c.html#pk_funcs">pk_funcs</a>);
+L0635    <span class="prepro">#if defined(LUA_COMPAT_LOADLIB) 
+</span>L0636      <a class="L" href="lapi.c.html#lua_getfield">lua_getfield</a>(L, <span class="number">-1</span>, <span class="string">"loadlib"</span>);
+L0637      <a class="L" href="lapi.c.html#lua_setfield">lua_setfield</a>(L, <a class="L" href="lua.h.html#LUA_GLOBALSINDEX">LUA_GLOBALSINDEX</a>, <span class="string">"loadlib"</span>);
+L0638    <span class="prepro">#endif
+</span>L0639      <a class="L" href="lapi.c.html#lua_pushvalue">lua_pushvalue</a>(L, <span class="number">-1</span>);
+L0640      <a class="L" href="lapi.c.html#lua_replace">lua_replace</a>(L, <a class="L" href="lua.h.html#LUA_ENVIRONINDEX">LUA_ENVIRONINDEX</a>);
+L0641      <span class="comment">/* create `loaders' table */</span>
+L0642      <a class="L" href="lapi.c.html#lua_createtable">lua_createtable</a>(L, <span class="number">0</span>, <span class="keyword">sizeof</span>(<a class="L" href="loadlib.c.html#loaders">loaders</a>)/<span class="keyword">sizeof</span>(<a class="L" href="loadlib.c.html#loaders">loaders</a>[<span class="number">0</span>]) - <span class="number">1</span>);
+L0643      <span class="comment">/* fill it with pre-defined loaders */</span>
+L0644      <span class="keyword">for</span> (i=<span class="number">0</span>; <a class="L" href="loadlib.c.html#loaders">loaders</a>[i] != NULL; i++) {
+L0645        <a class="L" href="lua.h.html#lua_pushcfunction">lua_pushcfunction</a>(L, <a class="L" href="loadlib.c.html#loaders">loaders</a>[i]);
+L0646        <a class="L" href="lapi.c.html#lua_rawseti">lua_rawseti</a>(L, <span class="number">-2</span>, i<span class="number">+1</span>);
+L0647      }
+L0648      <a class="L" href="lapi.c.html#lua_setfield">lua_setfield</a>(L, <span class="number">-2</span>, <span class="string">"loaders"</span>);  <span class="comment">/* put it in field `loaders' */</span>
+L0649      <a class="L" href="loadlib.c.html#setpath">setpath</a>(L, <span class="string">"path"</span>, <a class="L" href="luaconf.h.html#LUA_PATH">LUA_PATH</a>, <a class="L" href="luaconf.h.html#LUA_PATH_DEFAULT">LUA_PATH_DEFAULT</a>);  <span class="comment">/* set field `path' */</span>
+L0650      <a class="L" href="loadlib.c.html#setpath">setpath</a>(L, <span class="string">"cpath"</span>, <a class="L" href="luaconf.h.html#LUA_CPATH">LUA_CPATH</a>, <a class="L" href="luaconf.h.html#LUA_CPATH_DEFAULT">LUA_CPATH_DEFAULT</a>); <span class="comment">/* set field `cpath' */</span>
+L0651      <span class="comment">/* store config information */</span>
+L0652      <a class="L" href="lua.h.html#lua_pushliteral">lua_pushliteral</a>(L, <a class="L" href="luaconf.h.html#LUA_DIRSEP">LUA_DIRSEP</a> <span class="string">"\n"</span> <a class="L" href="luaconf.h.html#LUA_PATHSEP">LUA_PATHSEP</a> <span class="string">"\n"</span> <a class="L" href="luaconf.h.html#LUA_PATH_MARK">LUA_PATH_MARK</a> <span class="string">"\n"</span>
+L0653                         <a class="L" href="luaconf.h.html#LUA_EXECDIR">LUA_EXECDIR</a> <span class="string">"\n"</span> <a class="L" href="luaconf.h.html#LUA_IGMARK">LUA_IGMARK</a>);
+L0654      <a class="L" href="lapi.c.html#lua_setfield">lua_setfield</a>(L, <span class="number">-2</span>, <span class="string">"config"</span>);
+L0655      <span class="comment">/* set field `loaded' */</span>
+L0656      <a class="L" href="lauxlib.c.html#luaL_findtable">luaL_findtable</a>(L, <a class="L" href="lua.h.html#LUA_REGISTRYINDEX">LUA_REGISTRYINDEX</a>, <span class="string">"_LOADED"</span>, <span class="number">2</span>);
+L0657      <a class="L" href="lapi.c.html#lua_setfield">lua_setfield</a>(L, <span class="number">-2</span>, <span class="string">"loaded"</span>);
+L0658      <span class="comment">/* set field `preload' */</span>
+L0659      <a class="L" href="lua.h.html#lua_newtable">lua_newtable</a>(L);
+L0660      <a class="L" href="lapi.c.html#lua_setfield">lua_setfield</a>(L, <span class="number">-2</span>, <span class="string">"preload"</span>);
+L0661      <a class="L" href="lapi.c.html#lua_pushvalue">lua_pushvalue</a>(L, <a class="L" href="lua.h.html#LUA_GLOBALSINDEX">LUA_GLOBALSINDEX</a>);
+L0662      <a class="L" href="lauxlib.c.html#luaL_register">luaL_register</a>(L, NULL, <a class="L" href="loadlib.c.html#ll_funcs">ll_funcs</a>);  <span class="comment">/* open lib into global table */</span>
+L0663      <a class="L" href="lua.h.html#lua_pop">lua_pop</a>(L, <span class="number">1</span>);
+L0664      <span class="keyword">return</span> <span class="number">1</span>;  <span class="comment">/* return 'package' table */</span>
+L0665    }
+L0666    
+</pre>
+<hr/>
+Generated by <a href="pretty.lua.html">pretty.lua</html>
+</body></html>

@@ -1,0 +1,132 @@
+<html>
+<head>
+<style>
+a.L { text-decoration: none; }
+a.L:hover { color: #FFAAAA; }
+body { margin-top: 20px; margin-left: 30px; }
+.lno { font-weight: bold: color #000; }
+.keyword {font-weight: bold; color: #6666AA; }
+.number  { color: #AA6666; }
+.string  { color: #8888AA; }
+.comment { color: #666600; }
+.prepro { color: #006666; } 
+</style>
+<body>
+<h1>Lua 5.1.4: lstring.c</h1>
+<hr/>
+<pre>
+L0001    <span class="comment">/*
+L0002    ** $Id: lstring.c,v 2.8.1.1 2007/12/27 13:02:25 roberto Exp $
+L0003    ** String table (keeps all strings handled by Lua)
+L0004    ** See Copyright Notice in lua.h
+L0005    */</span>
+L0006    
+L0007    
+L0008    <span class="prepro">#include &lt;string.h&gt;
+</span>L0009    
+L0010    <a name="lstring_c"/a><span class="prepro">#define lstring_c
+</span>L0011    <a name="LUA_CORE"/a><span class="prepro">#define LUA_CORE
+</span>L0012    
+L0013    <span class="prepro"><a class="L" href="lua.h.html#">#include "lua.h"
+</a></span>L0014    
+L0015    <span class="prepro"><a class="L" href="lmem.h.html#">#include "lmem.h"
+</a></span>L0016    <span class="prepro"><a class="L" href="lobject.h.html#">#include "lobject.h"
+</a></span>L0017    <span class="prepro"><a class="L" href="lstate.h.html#">#include "lstate.h"
+</a></span>L0018    <span class="prepro"><a class="L" href="lstring.h.html#">#include "lstring.h"
+</a></span>L0019    
+L0020    
+L0021    
+L0022    <span class="keyword">void</span> <a name="luaS_resize"/a><a class="L" href="lstring.c.ref.html#luaS_resize">luaS_resize</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> newsize) {
+L0023      <a class="L" href="lobject.h.html#GCObject">GCObject</a> **newhash;
+L0024      <a class="L" href="lstate.h.html#stringtable">stringtable</a> *tb;
+L0025      <span class="keyword">int</span> i;
+L0026      <span class="keyword">if</span> (<a class="L" href="lstate.h.html#G">G</a>(L)-&gt;gcstate == <a class="L" href="lgc.h.html#GCSsweepstring">GCSsweepstring</a>)
+L0027        <span class="keyword">return</span>;  <span class="comment">/* cannot resize during GC traverse */</span>
+L0028      newhash = <a class="L" href="lmem.h.html#luaM_newvector">luaM_newvector</a>(L, newsize, <a class="L" href="lobject.h.html#GCObject">GCObject</a> *);
+L0029      tb = &amp;<a class="L" href="lstate.h.html#G">G</a>(L)-&gt;strt;
+L0030      <span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;newsize; i++) newhash[i] = NULL;
+L0031      <span class="comment">/* rehash */</span>
+L0032      <span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;tb-&gt;size; i++) {
+L0033        <a class="L" href="lobject.h.html#GCObject">GCObject</a> *p = tb-&gt;hash[i];
+L0034        <span class="keyword">while</span> (p) {  <span class="comment">/* for each node in the list */</span>
+L0035          <a class="L" href="lobject.h.html#GCObject">GCObject</a> *<a class="L" href="llex.c.html#next">next</a> = p-&gt;gch.<a class="L" href="llex.c.html#next">next</a>;  <span class="comment">/* save next */</span>
+L0036          unsigned <span class="keyword">int</span> h = <a class="L" href="lstate.h.html#gco2ts">gco2ts</a>(p)-&gt;hash;
+L0037          <span class="keyword">int</span> h1 = <a class="L" href="lobject.h.html#lmod">lmod</a>(h, newsize);  <span class="comment">/* new position */</span>
+L0038          <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(<a class="L" href="llimits.h.html#cast_int">cast_int</a>(h%newsize) == <a class="L" href="lobject.h.html#lmod">lmod</a>(h, newsize));
+L0039          p-&gt;gch.<a class="L" href="llex.c.html#next">next</a> = newhash[h1];  <span class="comment">/* chain it */</span>
+L0040          newhash[h1] = p;
+L0041          p = <a class="L" href="llex.c.html#next">next</a>;
+L0042        }
+L0043      }
+L0044      <a class="L" href="lmem.h.html#luaM_freearray">luaM_freearray</a>(L, tb-&gt;hash, tb-&gt;size, <a class="L" href="lobject.h.html#TString">TString</a> *);
+L0045      tb-&gt;size = newsize;
+L0046      tb-&gt;hash = newhash;
+L0047    }
+L0048    
+L0049    
+L0050    <span class="keyword">static</span> <a class="L" href="lobject.h.html#TString">TString</a> *<a name="newlstr"/a><a class="L" href="lstring.c.ref.html#newlstr">newlstr</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <span class="keyword">char</span> *str, size_t l,
+L0051                                           unsigned <span class="keyword">int</span> h) {
+L0052      <a class="L" href="lobject.h.html#TString">TString</a> *ts;
+L0053      <a class="L" href="lstate.h.html#stringtable">stringtable</a> *tb;
+L0054      <span class="keyword">if</span> (l<span class="number">+1</span> &gt; (<a class="L" href="llimits.h.html#MAX_SIZET">MAX_SIZET</a> - <span class="keyword">sizeof</span>(<a class="L" href="lobject.h.html#TString">TString</a>))/<span class="keyword">sizeof</span>(<span class="keyword">char</span>))
+L0055        <a class="L" href="lmem.c.html#luaM_toobig">luaM_toobig</a>(L);
+L0056      ts = <a class="L" href="llimits.h.html#cast">cast</a>(<a class="L" href="lobject.h.html#TString">TString</a> *, <a class="L" href="lmem.h.html#luaM_malloc">luaM_malloc</a>(L, (l<span class="number">+1</span>)*<span class="keyword">sizeof</span>(<span class="keyword">char</span>)+<span class="keyword">sizeof</span>(<a class="L" href="lobject.h.html#TString">TString</a>)));
+L0057      ts-&gt;tsv.len = l;
+L0058      ts-&gt;tsv.hash = h;
+L0059      ts-&gt;tsv.marked = <a class="L" href="lgc.h.html#luaC_white">luaC_white</a>(<a class="L" href="lstate.h.html#G">G</a>(L));
+L0060      ts-&gt;tsv.tt = <a class="L" href="lua.h.html#LUA_TSTRING">LUA_TSTRING</a>;
+L0061      ts-&gt;tsv.reserved = <span class="number">0</span>;
+L0062      memcpy(ts<span class="number">+1</span>, str, l*<span class="keyword">sizeof</span>(<span class="keyword">char</span>));
+L0063      ((<span class="keyword">char</span> *)(ts<span class="number">+1</span>))[l] = '\0';  <span class="comment">/* ending 0 */</span>
+L0064      tb = &amp;<a class="L" href="lstate.h.html#G">G</a>(L)-&gt;strt;
+L0065      h = <a class="L" href="lobject.h.html#lmod">lmod</a>(h, tb-&gt;size);
+L0066      ts-&gt;tsv.<a class="L" href="llex.c.html#next">next</a> = tb-&gt;hash[h];  <span class="comment">/* chain new entry */</span>
+L0067      tb-&gt;hash[h] = <a class="L" href="lstate.h.html#obj2gco">obj2gco</a>(ts);
+L0068      tb-&gt;nuse++;
+L0069      <span class="keyword">if</span> (tb-&gt;nuse &gt; <a class="L" href="llimits.h.html#cast">cast</a>(<a class="L" href="llimits.h.html#lu_int32">lu_int32</a>, tb-&gt;size) &amp;&amp; tb-&gt;size &lt;= <a class="L" href="llimits.h.html#MAX_INT">MAX_INT</a>/<span class="number">2</span>)
+L0070        <a class="L" href="lstring.c.html#luaS_resize">luaS_resize</a>(L, tb-&gt;size*<span class="number">2</span>);  <span class="comment">/* too crowded */</span>
+L0071      <span class="keyword">return</span> ts;
+L0072    }
+L0073    
+L0074    
+L0075    <a class="L" href="lobject.h.html#TString">TString</a> *<a name="luaS_newlstr"/a><a class="L" href="lstring.c.ref.html#luaS_newlstr">luaS_newlstr</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <span class="keyword">char</span> *str, size_t l) {
+L0076      <a class="L" href="lobject.h.html#GCObject">GCObject</a> *o;
+L0077      unsigned <span class="keyword">int</span> h = <a class="L" href="llimits.h.html#cast">cast</a>(unsigned <span class="keyword">int</span>, l);  <span class="comment">/* seed */</span>
+L0078      size_t step = (l&gt;&gt;<span class="number">5</span>)<span class="number">+1</span>;  <span class="comment">/* if string is too long, don't hash all its chars */</span>
+L0079      size_t l1;
+L0080      <span class="keyword">for</span> (l1=l; l1&gt;=step; l1-=step)  <span class="comment">/* compute hash */</span>
+L0081        h = h ^ ((h&lt;&lt;<span class="number">5</span>)+(h&gt;&gt;<span class="number">2</span>)+<a class="L" href="llimits.h.html#cast">cast</a>(unsigned <span class="keyword">char</span>, str[l1<span class="number">-1</span>]));
+L0082      <span class="keyword">for</span> (o = <a class="L" href="lstate.h.html#G">G</a>(L)-&gt;strt.hash[<a class="L" href="lobject.h.html#lmod">lmod</a>(h, <a class="L" href="lstate.h.html#G">G</a>(L)-&gt;strt.size)];
+L0083           o != NULL;
+L0084           o = o-&gt;gch.<a class="L" href="llex.c.html#next">next</a>) {
+L0085        <a class="L" href="lobject.h.html#TString">TString</a> *ts = <a class="L" href="lstate.h.html#rawgco2ts">rawgco2ts</a>(o);
+L0086        <span class="keyword">if</span> (ts-&gt;tsv.len == l &amp;&amp; (memcmp(str, <a class="L" href="lobject.h.html#getstr">getstr</a>(ts), l) == <span class="number">0</span>)) {
+L0087          <span class="comment">/* string may be dead */</span>
+L0088          <span class="keyword">if</span> (<a class="L" href="lgc.h.html#isdead">isdead</a>(<a class="L" href="lstate.h.html#G">G</a>(L), o)) <a class="L" href="lgc.h.html#changewhite">changewhite</a>(o);
+L0089          <span class="keyword">return</span> ts;
+L0090        }
+L0091      }
+L0092      <span class="keyword">return</span> <a class="L" href="lstring.c.html#newlstr">newlstr</a>(L, str, l, h);  <span class="comment">/* not found */</span>
+L0093    }
+L0094    
+L0095    
+L0096    <a class="L" href="lobject.h.html#Udata">Udata</a> *<a name="luaS_newudata"/a><a class="L" href="lstring.c.ref.html#luaS_newudata">luaS_newudata</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, size_t s, <a class="L" href="lobject.h.html#Table">Table</a> *e) {
+L0097      <a class="L" href="lobject.h.html#Udata">Udata</a> *u;
+L0098      <span class="keyword">if</span> (s &gt; <a class="L" href="llimits.h.html#MAX_SIZET">MAX_SIZET</a> - <span class="keyword">sizeof</span>(<a class="L" href="lobject.h.html#Udata">Udata</a>))
+L0099        <a class="L" href="lmem.c.html#luaM_toobig">luaM_toobig</a>(L);
+L0100      u = <a class="L" href="llimits.h.html#cast">cast</a>(<a class="L" href="lobject.h.html#Udata">Udata</a> *, <a class="L" href="lmem.h.html#luaM_malloc">luaM_malloc</a>(L, s + <span class="keyword">sizeof</span>(<a class="L" href="lobject.h.html#Udata">Udata</a>)));
+L0101      u-&gt;uv.marked = <a class="L" href="lgc.h.html#luaC_white">luaC_white</a>(<a class="L" href="lstate.h.html#G">G</a>(L));  <span class="comment">/* is not finalized */</span>
+L0102      u-&gt;uv.tt = <a class="L" href="lua.h.html#LUA_TUSERDATA">LUA_TUSERDATA</a>;
+L0103      u-&gt;uv.len = s;
+L0104      u-&gt;uv.metatable = NULL;
+L0105      u-&gt;uv.env = e;
+L0106      <span class="comment">/* chain it on udata list (after main thread) */</span>
+L0107      u-&gt;uv.<a class="L" href="llex.c.html#next">next</a> = <a class="L" href="lstate.h.html#G">G</a>(L)-&gt;mainthread-&gt;<a class="L" href="llex.c.html#next">next</a>;
+L0108      <a class="L" href="lstate.h.html#G">G</a>(L)-&gt;mainthread-&gt;<a class="L" href="llex.c.html#next">next</a> = <a class="L" href="lstate.h.html#obj2gco">obj2gco</a>(u);
+L0109      <span class="keyword">return</span> u;
+L0110    }
+L0111    
+</pre>
+<hr/>
+Generated by <a href="pretty.lua.html">pretty.lua</html>
+</body></html>

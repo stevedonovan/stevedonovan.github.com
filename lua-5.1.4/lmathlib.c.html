@@ -1,0 +1,284 @@
+<html>
+<head>
+<style>
+a.L { text-decoration: none; }
+a.L:hover { color: #FFAAAA; }
+body { margin-top: 20px; margin-left: 30px; }
+.lno { font-weight: bold: color #000; }
+.keyword {font-weight: bold; color: #6666AA; }
+.number  { color: #AA6666; }
+.string  { color: #8888AA; }
+.comment { color: #666600; }
+.prepro { color: #006666; } 
+</style>
+<body>
+<h1>Lua 5.1.4: lmathlib.c</h1>
+<hr/>
+<pre>
+L0001    <span class="comment">/*
+L0002    ** $Id: lmathlib.c,v 1.67.1.1 2007/12/27 13:02:25 roberto Exp $
+L0003    ** Standard mathematical library
+L0004    ** See Copyright Notice in lua.h
+L0005    */</span>
+L0006    
+L0007    
+L0008    <span class="prepro">#include &lt;stdlib.h&gt;
+</span>L0009    <span class="prepro">#include &lt;math.h&gt;
+</span>L0010    
+L0011    <a name="lmathlib_c"/a><span class="prepro">#define lmathlib_c
+</span>L0012    <a name="LUA_LIB"/a><span class="prepro">#define LUA_LIB
+</span>L0013    
+L0014    <span class="prepro"><a class="L" href="lua.h.html#">#include "lua.h"
+</a></span>L0015    
+L0016    <span class="prepro"><a class="L" href="lauxlib.h.html#">#include "lauxlib.h"
+</a></span>L0017    <span class="prepro"><a class="L" href="lualib.h.html#">#include "lualib.h"
+</a></span>L0018    
+L0019    
+L0020    <span class="prepro">#undef PI
+</span>L0021    <a name="PI"/a><span class="prepro">#define PI (3.14159265358979323846)
+</span>L0022    <a name="RADIANS_PER_DEGREE"/a><span class="prepro">#define RADIANS_PER_DEGREE (PI/180.0)
+</span>L0023    
+L0024    
+L0025    
+L0026    <span class="keyword">static</span> <span class="keyword">int</span> <a name="math_abs"/a><a class="L" href="lmathlib.c.ref.html#math_abs">math_abs</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0027      <a class="L" href="lapi.c.html#lua_pushnumber">lua_pushnumber</a>(L, fabs(<a class="L" href="lauxlib.c.html#luaL_checknumber">luaL_checknumber</a>(L, <span class="number">1</span>)));
+L0028      <span class="keyword">return</span> <span class="number">1</span>;
+L0029    }
+L0030    
+L0031    <span class="keyword">static</span> <span class="keyword">int</span> <a name="math_sin"/a><a class="L" href="lmathlib.c.ref.html#math_sin">math_sin</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0032      <a class="L" href="lapi.c.html#lua_pushnumber">lua_pushnumber</a>(L, sin(<a class="L" href="lauxlib.c.html#luaL_checknumber">luaL_checknumber</a>(L, <span class="number">1</span>)));
+L0033      <span class="keyword">return</span> <span class="number">1</span>;
+L0034    }
+L0035    
+L0036    <span class="keyword">static</span> <span class="keyword">int</span> <a name="math_sinh"/a><a class="L" href="lmathlib.c.ref.html#math_sinh">math_sinh</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0037      <a class="L" href="lapi.c.html#lua_pushnumber">lua_pushnumber</a>(L, sinh(<a class="L" href="lauxlib.c.html#luaL_checknumber">luaL_checknumber</a>(L, <span class="number">1</span>)));
+L0038      <span class="keyword">return</span> <span class="number">1</span>;
+L0039    }
+L0040    
+L0041    <span class="keyword">static</span> <span class="keyword">int</span> <a name="math_cos"/a><a class="L" href="lmathlib.c.ref.html#math_cos">math_cos</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0042      <a class="L" href="lapi.c.html#lua_pushnumber">lua_pushnumber</a>(L, cos(<a class="L" href="lauxlib.c.html#luaL_checknumber">luaL_checknumber</a>(L, <span class="number">1</span>)));
+L0043      <span class="keyword">return</span> <span class="number">1</span>;
+L0044    }
+L0045    
+L0046    <span class="keyword">static</span> <span class="keyword">int</span> <a name="math_cosh"/a><a class="L" href="lmathlib.c.ref.html#math_cosh">math_cosh</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0047      <a class="L" href="lapi.c.html#lua_pushnumber">lua_pushnumber</a>(L, cosh(<a class="L" href="lauxlib.c.html#luaL_checknumber">luaL_checknumber</a>(L, <span class="number">1</span>)));
+L0048      <span class="keyword">return</span> <span class="number">1</span>;
+L0049    }
+L0050    
+L0051    <span class="keyword">static</span> <span class="keyword">int</span> <a name="math_tan"/a><a class="L" href="lmathlib.c.ref.html#math_tan">math_tan</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0052      <a class="L" href="lapi.c.html#lua_pushnumber">lua_pushnumber</a>(L, tan(<a class="L" href="lauxlib.c.html#luaL_checknumber">luaL_checknumber</a>(L, <span class="number">1</span>)));
+L0053      <span class="keyword">return</span> <span class="number">1</span>;
+L0054    }
+L0055    
+L0056    <span class="keyword">static</span> <span class="keyword">int</span> <a name="math_tanh"/a><a class="L" href="lmathlib.c.ref.html#math_tanh">math_tanh</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0057      <a class="L" href="lapi.c.html#lua_pushnumber">lua_pushnumber</a>(L, tanh(<a class="L" href="lauxlib.c.html#luaL_checknumber">luaL_checknumber</a>(L, <span class="number">1</span>)));
+L0058      <span class="keyword">return</span> <span class="number">1</span>;
+L0059    }
+L0060    
+L0061    <span class="keyword">static</span> <span class="keyword">int</span> <a name="math_asin"/a><a class="L" href="lmathlib.c.ref.html#math_asin">math_asin</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0062      <a class="L" href="lapi.c.html#lua_pushnumber">lua_pushnumber</a>(L, asin(<a class="L" href="lauxlib.c.html#luaL_checknumber">luaL_checknumber</a>(L, <span class="number">1</span>)));
+L0063      <span class="keyword">return</span> <span class="number">1</span>;
+L0064    }
+L0065    
+L0066    <span class="keyword">static</span> <span class="keyword">int</span> <a name="math_acos"/a><a class="L" href="lmathlib.c.ref.html#math_acos">math_acos</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0067      <a class="L" href="lapi.c.html#lua_pushnumber">lua_pushnumber</a>(L, acos(<a class="L" href="lauxlib.c.html#luaL_checknumber">luaL_checknumber</a>(L, <span class="number">1</span>)));
+L0068      <span class="keyword">return</span> <span class="number">1</span>;
+L0069    }
+L0070    
+L0071    <span class="keyword">static</span> <span class="keyword">int</span> <a name="math_atan"/a><a class="L" href="lmathlib.c.ref.html#math_atan">math_atan</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0072      <a class="L" href="lapi.c.html#lua_pushnumber">lua_pushnumber</a>(L, atan(<a class="L" href="lauxlib.c.html#luaL_checknumber">luaL_checknumber</a>(L, <span class="number">1</span>)));
+L0073      <span class="keyword">return</span> <span class="number">1</span>;
+L0074    }
+L0075    
+L0076    <span class="keyword">static</span> <span class="keyword">int</span> <a name="math_atan2"/a><a class="L" href="lmathlib.c.ref.html#math_atan2">math_atan2</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0077      <a class="L" href="lapi.c.html#lua_pushnumber">lua_pushnumber</a>(L, atan2(<a class="L" href="lauxlib.c.html#luaL_checknumber">luaL_checknumber</a>(L, <span class="number">1</span>), <a class="L" href="lauxlib.c.html#luaL_checknumber">luaL_checknumber</a>(L, <span class="number">2</span>)));
+L0078      <span class="keyword">return</span> <span class="number">1</span>;
+L0079    }
+L0080    
+L0081    <span class="keyword">static</span> <span class="keyword">int</span> <a name="math_ceil"/a><a class="L" href="lmathlib.c.ref.html#math_ceil">math_ceil</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0082      <a class="L" href="lapi.c.html#lua_pushnumber">lua_pushnumber</a>(L, ceil(<a class="L" href="lauxlib.c.html#luaL_checknumber">luaL_checknumber</a>(L, <span class="number">1</span>)));
+L0083      <span class="keyword">return</span> <span class="number">1</span>;
+L0084    }
+L0085    
+L0086    <span class="keyword">static</span> <span class="keyword">int</span> <a name="math_floor"/a><a class="L" href="lmathlib.c.ref.html#math_floor">math_floor</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0087      <a class="L" href="lapi.c.html#lua_pushnumber">lua_pushnumber</a>(L, floor(<a class="L" href="lauxlib.c.html#luaL_checknumber">luaL_checknumber</a>(L, <span class="number">1</span>)));
+L0088      <span class="keyword">return</span> <span class="number">1</span>;
+L0089    }
+L0090    
+L0091    <span class="keyword">static</span> <span class="keyword">int</span> <a name="math_fmod"/a><a class="L" href="lmathlib.c.ref.html#math_fmod">math_fmod</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0092      <a class="L" href="lapi.c.html#lua_pushnumber">lua_pushnumber</a>(L, fmod(<a class="L" href="lauxlib.c.html#luaL_checknumber">luaL_checknumber</a>(L, <span class="number">1</span>), <a class="L" href="lauxlib.c.html#luaL_checknumber">luaL_checknumber</a>(L, <span class="number">2</span>)));
+L0093      <span class="keyword">return</span> <span class="number">1</span>;
+L0094    }
+L0095    
+L0096    <span class="keyword">static</span> <span class="keyword">int</span> <a name="math_modf"/a><a class="L" href="lmathlib.c.ref.html#math_modf">math_modf</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0097      <span class="keyword">double</span> ip;
+L0098      <span class="keyword">double</span> fp = modf(<a class="L" href="lauxlib.c.html#luaL_checknumber">luaL_checknumber</a>(L, <span class="number">1</span>), &amp;ip);
+L0099      <a class="L" href="lapi.c.html#lua_pushnumber">lua_pushnumber</a>(L, ip);
+L0100      <a class="L" href="lapi.c.html#lua_pushnumber">lua_pushnumber</a>(L, fp);
+L0101      <span class="keyword">return</span> <span class="number">2</span>;
+L0102    }
+L0103    
+L0104    <span class="keyword">static</span> <span class="keyword">int</span> <a name="math_sqrt"/a><a class="L" href="lmathlib.c.ref.html#math_sqrt">math_sqrt</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0105      <a class="L" href="lapi.c.html#lua_pushnumber">lua_pushnumber</a>(L, sqrt(<a class="L" href="lauxlib.c.html#luaL_checknumber">luaL_checknumber</a>(L, <span class="number">1</span>)));
+L0106      <span class="keyword">return</span> <span class="number">1</span>;
+L0107    }
+L0108    
+L0109    <span class="keyword">static</span> <span class="keyword">int</span> <a name="math_pow"/a><a class="L" href="lmathlib.c.ref.html#math_pow">math_pow</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0110      <a class="L" href="lapi.c.html#lua_pushnumber">lua_pushnumber</a>(L, pow(<a class="L" href="lauxlib.c.html#luaL_checknumber">luaL_checknumber</a>(L, <span class="number">1</span>), <a class="L" href="lauxlib.c.html#luaL_checknumber">luaL_checknumber</a>(L, <span class="number">2</span>)));
+L0111      <span class="keyword">return</span> <span class="number">1</span>;
+L0112    }
+L0113    
+L0114    <span class="keyword">static</span> <span class="keyword">int</span> <a name="math_log"/a><a class="L" href="lmathlib.c.ref.html#math_log">math_log</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0115      <a class="L" href="lapi.c.html#lua_pushnumber">lua_pushnumber</a>(L, log(<a class="L" href="lauxlib.c.html#luaL_checknumber">luaL_checknumber</a>(L, <span class="number">1</span>)));
+L0116      <span class="keyword">return</span> <span class="number">1</span>;
+L0117    }
+L0118    
+L0119    <span class="keyword">static</span> <span class="keyword">int</span> <a name="math_log10"/a><a class="L" href="lmathlib.c.ref.html#math_log10">math_log10</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0120      <a class="L" href="lapi.c.html#lua_pushnumber">lua_pushnumber</a>(L, log10(<a class="L" href="lauxlib.c.html#luaL_checknumber">luaL_checknumber</a>(L, <span class="number">1</span>)));
+L0121      <span class="keyword">return</span> <span class="number">1</span>;
+L0122    }
+L0123    
+L0124    <span class="keyword">static</span> <span class="keyword">int</span> <a name="math_exp"/a><a class="L" href="lmathlib.c.ref.html#math_exp">math_exp</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0125      <a class="L" href="lapi.c.html#lua_pushnumber">lua_pushnumber</a>(L, exp(<a class="L" href="lauxlib.c.html#luaL_checknumber">luaL_checknumber</a>(L, <span class="number">1</span>)));
+L0126      <span class="keyword">return</span> <span class="number">1</span>;
+L0127    }
+L0128    
+L0129    <span class="keyword">static</span> <span class="keyword">int</span> <a name="math_deg"/a><a class="L" href="lmathlib.c.ref.html#math_deg">math_deg</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0130      <a class="L" href="lapi.c.html#lua_pushnumber">lua_pushnumber</a>(L, <a class="L" href="lauxlib.c.html#luaL_checknumber">luaL_checknumber</a>(L, <span class="number">1</span>)/<a class="L" href="lmathlib.c.html#RADIANS_PER_DEGREE">RADIANS_PER_DEGREE</a>);
+L0131      <span class="keyword">return</span> <span class="number">1</span>;
+L0132    }
+L0133    
+L0134    <span class="keyword">static</span> <span class="keyword">int</span> <a name="math_rad"/a><a class="L" href="lmathlib.c.ref.html#math_rad">math_rad</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0135      <a class="L" href="lapi.c.html#lua_pushnumber">lua_pushnumber</a>(L, <a class="L" href="lauxlib.c.html#luaL_checknumber">luaL_checknumber</a>(L, <span class="number">1</span>)*<a class="L" href="lmathlib.c.html#RADIANS_PER_DEGREE">RADIANS_PER_DEGREE</a>);
+L0136      <span class="keyword">return</span> <span class="number">1</span>;
+L0137    }
+L0138    
+L0139    <span class="keyword">static</span> <span class="keyword">int</span> <a name="math_frexp"/a><a class="L" href="lmathlib.c.ref.html#math_frexp">math_frexp</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0140      <span class="keyword">int</span> e;
+L0141      <a class="L" href="lapi.c.html#lua_pushnumber">lua_pushnumber</a>(L, frexp(<a class="L" href="lauxlib.c.html#luaL_checknumber">luaL_checknumber</a>(L, <span class="number">1</span>), &amp;e));
+L0142      <a class="L" href="lapi.c.html#lua_pushinteger">lua_pushinteger</a>(L, e);
+L0143      <span class="keyword">return</span> <span class="number">2</span>;
+L0144    }
+L0145    
+L0146    <span class="keyword">static</span> <span class="keyword">int</span> <a name="math_ldexp"/a><a class="L" href="lmathlib.c.ref.html#math_ldexp">math_ldexp</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0147      <a class="L" href="lapi.c.html#lua_pushnumber">lua_pushnumber</a>(L, ldexp(<a class="L" href="lauxlib.c.html#luaL_checknumber">luaL_checknumber</a>(L, <span class="number">1</span>), <a class="L" href="lauxlib.h.html#luaL_checkint">luaL_checkint</a>(L, <span class="number">2</span>)));
+L0148      <span class="keyword">return</span> <span class="number">1</span>;
+L0149    }
+L0150    
+L0151    
+L0152    
+L0153    <span class="keyword">static</span> <span class="keyword">int</span> <a name="math_min"/a><a class="L" href="lmathlib.c.ref.html#math_min">math_min</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0154      <span class="keyword">int</span> n = <a class="L" href="lapi.c.html#lua_gettop">lua_gettop</a>(L);  <span class="comment">/* number of arguments */</span>
+L0155      <a class="L" href="lua.h.html#lua_Number">lua_Number</a> dmin = <a class="L" href="lauxlib.c.html#luaL_checknumber">luaL_checknumber</a>(L, <span class="number">1</span>);
+L0156      <span class="keyword">int</span> i;
+L0157      <span class="keyword">for</span> (i=<span class="number">2</span>; i&lt;=n; i++) {
+L0158        <a class="L" href="lua.h.html#lua_Number">lua_Number</a> d = <a class="L" href="lauxlib.c.html#luaL_checknumber">luaL_checknumber</a>(L, i);
+L0159        <span class="keyword">if</span> (d &lt; dmin)
+L0160          dmin = d;
+L0161      }
+L0162      <a class="L" href="lapi.c.html#lua_pushnumber">lua_pushnumber</a>(L, dmin);
+L0163      <span class="keyword">return</span> <span class="number">1</span>;
+L0164    }
+L0165    
+L0166    
+L0167    <span class="keyword">static</span> <span class="keyword">int</span> <a name="math_max"/a><a class="L" href="lmathlib.c.ref.html#math_max">math_max</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0168      <span class="keyword">int</span> n = <a class="L" href="lapi.c.html#lua_gettop">lua_gettop</a>(L);  <span class="comment">/* number of arguments */</span>
+L0169      <a class="L" href="lua.h.html#lua_Number">lua_Number</a> dmax = <a class="L" href="lauxlib.c.html#luaL_checknumber">luaL_checknumber</a>(L, <span class="number">1</span>);
+L0170      <span class="keyword">int</span> i;
+L0171      <span class="keyword">for</span> (i=<span class="number">2</span>; i&lt;=n; i++) {
+L0172        <a class="L" href="lua.h.html#lua_Number">lua_Number</a> d = <a class="L" href="lauxlib.c.html#luaL_checknumber">luaL_checknumber</a>(L, i);
+L0173        <span class="keyword">if</span> (d &gt; dmax)
+L0174          dmax = d;
+L0175      }
+L0176      <a class="L" href="lapi.c.html#lua_pushnumber">lua_pushnumber</a>(L, dmax);
+L0177      <span class="keyword">return</span> <span class="number">1</span>;
+L0178    }
+L0179    
+L0180    
+L0181    <span class="keyword">static</span> <span class="keyword">int</span> <a name="math_random"/a><a class="L" href="lmathlib.c.ref.html#math_random">math_random</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0182      <span class="comment">/* the `%' avoids the (rare) case of r==1, and is needed also because on
+L0183         some systems (SunOS!) `rand()' may return a value larger than RAND_MAX */</span>
+L0184      <a class="L" href="lua.h.html#lua_Number">lua_Number</a> r = (<a class="L" href="lua.h.html#lua_Number">lua_Number</a>)(rand()%RAND_MAX) / (<a class="L" href="lua.h.html#lua_Number">lua_Number</a>)RAND_MAX;
+L0185      <span class="keyword">switch</span> (<a class="L" href="lapi.c.html#lua_gettop">lua_gettop</a>(L)) {  <span class="comment">/* check number of arguments */</span>
+L0186        <span class="keyword">case</span> <span class="number">0</span>: {  <span class="comment">/* no arguments */</span>
+L0187          <a class="L" href="lapi.c.html#lua_pushnumber">lua_pushnumber</a>(L, r);  <span class="comment">/* Number between 0 and 1 */</span>
+L0188          <span class="keyword">break</span>;
+L0189        }
+L0190        <span class="keyword">case</span> <span class="number">1</span>: {  <span class="comment">/* only upper limit */</span>
+L0191          <span class="keyword">int</span> u = <a class="L" href="lauxlib.h.html#luaL_checkint">luaL_checkint</a>(L, <span class="number">1</span>);
+L0192          <a class="L" href="lauxlib.h.html#luaL_argcheck">luaL_argcheck</a>(L, <span class="number">1</span>&lt;=u, <span class="number">1</span>, <span class="string">"interval is empty"</span>);
+L0193          <a class="L" href="lapi.c.html#lua_pushnumber">lua_pushnumber</a>(L, floor(r*u)<span class="number">+1</span>);  <span class="comment">/* int between 1 and `u' */</span>
+L0194          <span class="keyword">break</span>;
+L0195        }
+L0196        <span class="keyword">case</span> <span class="number">2</span>: {  <span class="comment">/* lower and upper limits */</span>
+L0197          <span class="keyword">int</span> l = <a class="L" href="lauxlib.h.html#luaL_checkint">luaL_checkint</a>(L, <span class="number">1</span>);
+L0198          <span class="keyword">int</span> u = <a class="L" href="lauxlib.h.html#luaL_checkint">luaL_checkint</a>(L, <span class="number">2</span>);
+L0199          <a class="L" href="lauxlib.h.html#luaL_argcheck">luaL_argcheck</a>(L, l&lt;=u, <span class="number">2</span>, <span class="string">"interval is empty"</span>);
+L0200          <a class="L" href="lapi.c.html#lua_pushnumber">lua_pushnumber</a>(L, floor(r*(u-l<span class="number">+1</span>))+l);  <span class="comment">/* int between `l' and `u' */</span>
+L0201          <span class="keyword">break</span>;
+L0202        }
+L0203        <span class="keyword">default</span>: <span class="keyword">return</span> <a class="L" href="lauxlib.c.html#luaL_error">luaL_error</a>(L, <span class="string">"wrong number of arguments"</span>);
+L0204      }
+L0205      <span class="keyword">return</span> <span class="number">1</span>;
+L0206    }
+L0207    
+L0208    
+L0209    <span class="keyword">static</span> <span class="keyword">int</span> <a name="math_randomseed"/a><a class="L" href="lmathlib.c.ref.html#math_randomseed">math_randomseed</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0210      srand(<a class="L" href="lauxlib.h.html#luaL_checkint">luaL_checkint</a>(L, <span class="number">1</span>));
+L0211      <span class="keyword">return</span> <span class="number">0</span>;
+L0212    }
+L0213    
+L0214    
+L0215    <span class="keyword">static</span> <span class="keyword">const</span> <a class="L" href="lauxlib.h.html#luaL_Reg">luaL_Reg</a> <a name="mathlib"/a><a class="L" href="lmathlib.c.ref.html#mathlib">mathlib</a>[] = {
+L0216      {<span class="string">"abs"</span>,   <a class="L" href="lmathlib.c.html#math_abs">math_abs</a>},
+L0217      {<span class="string">"acos"</span>,  <a class="L" href="lmathlib.c.html#math_acos">math_acos</a>},
+L0218      {<span class="string">"asin"</span>,  <a class="L" href="lmathlib.c.html#math_asin">math_asin</a>},
+L0219      {<span class="string">"atan2"</span>, <a class="L" href="lmathlib.c.html#math_atan2">math_atan2</a>},
+L0220      {<span class="string">"atan"</span>,  <a class="L" href="lmathlib.c.html#math_atan">math_atan</a>},
+L0221      {<span class="string">"ceil"</span>,  <a class="L" href="lmathlib.c.html#math_ceil">math_ceil</a>},
+L0222      {<span class="string">"cosh"</span>,   <a class="L" href="lmathlib.c.html#math_cosh">math_cosh</a>},
+L0223      {<span class="string">"cos"</span>,   <a class="L" href="lmathlib.c.html#math_cos">math_cos</a>},
+L0224      {<span class="string">"deg"</span>,   <a class="L" href="lmathlib.c.html#math_deg">math_deg</a>},
+L0225      {<span class="string">"exp"</span>,   <a class="L" href="lmathlib.c.html#math_exp">math_exp</a>},
+L0226      {<span class="string">"floor"</span>, <a class="L" href="lmathlib.c.html#math_floor">math_floor</a>},
+L0227      {<span class="string">"fmod"</span>,   <a class="L" href="lmathlib.c.html#math_fmod">math_fmod</a>},
+L0228      {<span class="string">"frexp"</span>, <a class="L" href="lmathlib.c.html#math_frexp">math_frexp</a>},
+L0229      {<span class="string">"ldexp"</span>, <a class="L" href="lmathlib.c.html#math_ldexp">math_ldexp</a>},
+L0230      {<span class="string">"log10"</span>, <a class="L" href="lmathlib.c.html#math_log10">math_log10</a>},
+L0231      {<span class="string">"log"</span>,   <a class="L" href="lmathlib.c.html#math_log">math_log</a>},
+L0232      {<span class="string">"max"</span>,   <a class="L" href="lmathlib.c.html#math_max">math_max</a>},
+L0233      {<span class="string">"min"</span>,   <a class="L" href="lmathlib.c.html#math_min">math_min</a>},
+L0234      {<span class="string">"modf"</span>,   <a class="L" href="lmathlib.c.html#math_modf">math_modf</a>},
+L0235      {<span class="string">"pow"</span>,   <a class="L" href="lmathlib.c.html#math_pow">math_pow</a>},
+L0236      {<span class="string">"rad"</span>,   <a class="L" href="lmathlib.c.html#math_rad">math_rad</a>},
+L0237      {<span class="string">"random"</span>,     <a class="L" href="lmathlib.c.html#math_random">math_random</a>},
+L0238      {<span class="string">"randomseed"</span>, <a class="L" href="lmathlib.c.html#math_randomseed">math_randomseed</a>},
+L0239      {<span class="string">"sinh"</span>,   <a class="L" href="lmathlib.c.html#math_sinh">math_sinh</a>},
+L0240      {<span class="string">"sin"</span>,   <a class="L" href="lmathlib.c.html#math_sin">math_sin</a>},
+L0241      {<span class="string">"sqrt"</span>,  <a class="L" href="lmathlib.c.html#math_sqrt">math_sqrt</a>},
+L0242      {<span class="string">"tanh"</span>,   <a class="L" href="lmathlib.c.html#math_tanh">math_tanh</a>},
+L0243      {<span class="string">"tan"</span>,   <a class="L" href="lmathlib.c.html#math_tan">math_tan</a>},
+L0244      {NULL, NULL}
+L0245    };
+L0246    
+L0247    
+L0248    <span class="comment">/*
+L0249    ** Open math library
+L0250    */</span>
+L0251    <a class="L" href="luaconf.h.html#LUALIB_API">LUALIB_API</a> <span class="keyword">int</span> <a name="luaopen_math"/a><a class="L" href="lmathlib.c.ref.html#luaopen_math">luaopen_math</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0252      <a class="L" href="lauxlib.c.html#luaL_register">luaL_register</a>(L, <a class="L" href="lualib.h.html#LUA_MATHLIBNAME">LUA_MATHLIBNAME</a>, <a class="L" href="lmathlib.c.html#mathlib">mathlib</a>);
+L0253      <a class="L" href="lapi.c.html#lua_pushnumber">lua_pushnumber</a>(L, <a class="L" href="lmathlib.c.html#PI">PI</a>);
+L0254      <a class="L" href="lapi.c.html#lua_setfield">lua_setfield</a>(L, <span class="number">-2</span>, <span class="string">"pi"</span>);
+L0255      <a class="L" href="lapi.c.html#lua_pushnumber">lua_pushnumber</a>(L, HUGE_VAL);
+L0256      <a class="L" href="lapi.c.html#lua_setfield">lua_setfield</a>(L, <span class="number">-2</span>, <span class="string">"huge"</span>);
+L0257    <span class="prepro">#if defined(LUA_COMPAT_MOD)
+</span>L0258      <a class="L" href="lapi.c.html#lua_getfield">lua_getfield</a>(L, <span class="number">-1</span>, <span class="string">"fmod"</span>);
+L0259      <a class="L" href="lapi.c.html#lua_setfield">lua_setfield</a>(L, <span class="number">-2</span>, <span class="string">"mod"</span>);
+L0260    <span class="prepro">#endif
+</span>L0261      <span class="keyword">return</span> <span class="number">1</span>;
+L0262    }
+L0263    
+</pre>
+<hr/>
+Generated by <a href="pretty.lua.html">pretty.lua</html>
+</body></html>

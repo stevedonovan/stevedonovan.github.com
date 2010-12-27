@@ -1,0 +1,103 @@
+<html>
+<head>
+<style>
+a.L { text-decoration: none; }
+a.L:hover { color: #FFAAAA; }
+body { margin-top: 20px; margin-left: 30px; }
+.lno { font-weight: bold: color #000; }
+.keyword {font-weight: bold; color: #6666AA; }
+.number  { color: #AA6666; }
+.string  { color: #8888AA; }
+.comment { color: #666600; }
+.prepro { color: #006666; } 
+</style>
+<body>
+<h1>Lua 5.1.4: lzio.c</h1>
+<hr/>
+<pre>
+L0001    <span class="comment">/*
+L0002    ** $Id: lzio.c,v 1.31.1.1 2007/12/27 13:02:25 roberto Exp $
+L0003    ** a generic input stream interface
+L0004    ** See Copyright Notice in lua.h
+L0005    */</span>
+L0006    
+L0007    
+L0008    <span class="prepro">#include &lt;string.h&gt;
+</span>L0009    
+L0010    <a name="lzio_c"/a><span class="prepro">#define lzio_c
+</span>L0011    <a name="LUA_CORE"/a><span class="prepro">#define LUA_CORE
+</span>L0012    
+L0013    <span class="prepro"><a class="L" href="lua.h.html#">#include "lua.h"
+</a></span>L0014    
+L0015    <span class="prepro"><a class="L" href="llimits.h.html#">#include "llimits.h"
+</a></span>L0016    <span class="prepro"><a class="L" href="lmem.h.html#">#include "lmem.h"
+</a></span>L0017    <span class="prepro"><a class="L" href="lstate.h.html#">#include "lstate.h"
+</a></span>L0018    <span class="prepro"><a class="L" href="lzio.h.html#">#include "lzio.h"
+</a></span>L0019    
+L0020    
+L0021    <span class="keyword">int</span> <a name="luaZ_fill"/a><a class="L" href="lzio.c.ref.html#luaZ_fill">luaZ_fill</a> (<a class="L" href="lzio.h.html#ZIO">ZIO</a> *z) {
+L0022      size_t size;
+L0023      <a class="L" href="lstate.h.html#lua_State">lua_State</a> *L = z-&gt;L;
+L0024      <span class="keyword">const</span> <span class="keyword">char</span> *buff;
+L0025      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L0026      buff = z-&gt;reader(L, z-&gt;data, &amp;size);
+L0027      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);
+L0028      <span class="keyword">if</span> (buff == NULL || size == <span class="number">0</span>) <span class="keyword">return</span> <a class="L" href="lzio.h.html#EOZ">EOZ</a>;
+L0029      z-&gt;n = size - <span class="number">1</span>;
+L0030      z-&gt;p = buff;
+L0031      <span class="keyword">return</span> <a class="L" href="lzio.h.html#char2int">char2int</a>(*(z-&gt;p++));
+L0032    }
+L0033    
+L0034    
+L0035    <span class="keyword">int</span> <a name="luaZ_lookahead"/a><a class="L" href="lzio.c.ref.html#luaZ_lookahead">luaZ_lookahead</a> (<a class="L" href="lzio.h.html#ZIO">ZIO</a> *z) {
+L0036      <span class="keyword">if</span> (z-&gt;n == <span class="number">0</span>) {
+L0037        <span class="keyword">if</span> (<a class="L" href="lzio.c.html#luaZ_fill">luaZ_fill</a>(z) == <a class="L" href="lzio.h.html#EOZ">EOZ</a>)
+L0038          <span class="keyword">return</span> <a class="L" href="lzio.h.html#EOZ">EOZ</a>;
+L0039        <span class="keyword">else</span> {
+L0040          z-&gt;n++;  <span class="comment">/* luaZ_fill removed first byte; put back it */</span>
+L0041          z-&gt;p--;
+L0042        }
+L0043      }
+L0044      <span class="keyword">return</span> <a class="L" href="lzio.h.html#char2int">char2int</a>(*z-&gt;p);
+L0045    }
+L0046    
+L0047    
+L0048    <span class="keyword">void</span> <a name="luaZ_init"/a><a class="L" href="lzio.c.ref.html#luaZ_init">luaZ_init</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lzio.h.html#ZIO">ZIO</a> *z, <a class="L" href="lua.h.html#lua_Reader">lua_Reader</a> reader, <span class="keyword">void</span> *data) {
+L0049      z-&gt;L = L;
+L0050      z-&gt;reader = reader;
+L0051      z-&gt;data = data;
+L0052      z-&gt;n = <span class="number">0</span>;
+L0053      z-&gt;p = NULL;
+L0054    }
+L0055    
+L0056    
+L0057    <span class="comment">/* --------------------------------------------------------------- read --- */</span>
+L0058    size_t <a name="luaZ_read"/a><a class="L" href="lzio.c.ref.html#luaZ_read">luaZ_read</a> (<a class="L" href="lzio.h.html#ZIO">ZIO</a> *z, <span class="keyword">void</span> *b, size_t n) {
+L0059      <span class="keyword">while</span> (n) {
+L0060        size_t m;
+L0061        <span class="keyword">if</span> (<a class="L" href="lzio.c.html#luaZ_lookahead">luaZ_lookahead</a>(z) == <a class="L" href="lzio.h.html#EOZ">EOZ</a>)
+L0062          <span class="keyword">return</span> n;  <span class="comment">/* return number of missing bytes */</span>
+L0063        m = (n &lt;= z-&gt;n) ? n : z-&gt;n;  <span class="comment">/* min. between n and z-&gt;n */</span>
+L0064        memcpy(b, z-&gt;p, m);
+L0065        z-&gt;n -= m;
+L0066        z-&gt;p += m;
+L0067        b = (<span class="keyword">char</span> *)b + m;
+L0068        n -= m;
+L0069      }
+L0070      <span class="keyword">return</span> <span class="number">0</span>;
+L0071    }
+L0072    
+L0073    <span class="comment">/* ------------------------------------------------------------------------ */</span>
+L0074    <span class="keyword">char</span> *<a name="luaZ_openspace"/a><a class="L" href="lzio.c.ref.html#luaZ_openspace">luaZ_openspace</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lzio.h.html#Mbuffer">Mbuffer</a> *buff, size_t n) {
+L0075      <span class="keyword">if</span> (n &gt; buff-&gt;buffsize) {
+L0076        <span class="keyword">if</span> (n &lt; <a class="L" href="llimits.h.html#LUA_MINBUFFER">LUA_MINBUFFER</a>) n = <a class="L" href="llimits.h.html#LUA_MINBUFFER">LUA_MINBUFFER</a>;
+L0077        <a class="L" href="lzio.h.html#luaZ_resizebuffer">luaZ_resizebuffer</a>(L, buff, n);
+L0078      }
+L0079      <span class="keyword">return</span> buff-&gt;buffer;
+L0080    }
+L0081    
+L0082    
+</pre>
+<hr/>
+Generated by <a href="pretty.lua.html">pretty.lua</html>
+</body></html>

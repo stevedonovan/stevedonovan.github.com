@@ -1,0 +1,102 @@
+<html>
+<head>
+<style>
+a.L { text-decoration: none; }
+a.L:hover { color: #FFAAAA; }
+body { margin-top: 20px; margin-left: 30px; }
+.lno { font-weight: bold: color #000; }
+.keyword {font-weight: bold; color: #6666AA; }
+.number  { color: #AA6666; }
+.string  { color: #8888AA; }
+.comment { color: #666600; }
+.prepro { color: #006666; } 
+</style>
+<body>
+<h1>Lua 5.1.4: llex.h</h1>
+<hr/>
+<pre>
+L0001    <span class="comment">/*
+L0002    ** $Id: llex.h,v 1.58.1.1 2007/12/27 13:02:25 roberto Exp $
+L0003    ** Lexical Analyzer
+L0004    ** See Copyright Notice in lua.h
+L0005    */</span>
+L0006    
+L0007    <span class="prepro">#ifndef llex_h
+</span>L0008    <a name="llex_h"/a><span class="prepro">#define llex_h
+</span>L0009    
+L0010    <span class="prepro"><a class="L" href="lobject.h.html#">#include "lobject.h"
+</a></span>L0011    <span class="prepro"><a class="L" href="lzio.h.html#">#include "lzio.h"
+</a></span>L0012    
+L0013    
+L0014    <a name="FIRST_RESERVED"/a><span class="prepro">#define FIRST_RESERVED	257
+</span>L0015    
+L0016    <span class="comment">/* maximum length of a reserved word */</span>
+L0017    <a name="TOKEN_LEN"/a><span class="prepro">#define TOKEN_LEN	(sizeof("function")/sizeof(char))
+</span>L0018    
+L0019    
+L0020    <span class="comment">/*
+L0021    * WARNING: if you change the order of this enumeration,
+L0022    * grep "ORDER RESERVED"
+L0023    */</span>
+L0024    <span class="keyword">enum</span> <a name="RESERVED"/a><a class="L" href="llex.h.ref.html#RESERVED">RESERVED</a> {
+L0025      <span class="comment">/* terminal symbols denoted by reserved words */</span>
+L0026      <a name="TK_AND"/a><a class="L" href="llex.h.ref.html#TK_AND">TK_AND</a> = <a class="L" href="llex.h.html#FIRST_RESERVED">FIRST_RESERVED</a>, <a name="TK_BREAK"/a><a class="L" href="llex.h.ref.html#TK_BREAK">TK_BREAK</a>,
+L0027      <a name="TK_DO"/a><a class="L" href="llex.h.ref.html#TK_DO">TK_DO</a>, <a name="TK_ELSE"/a><a class="L" href="llex.h.ref.html#TK_ELSE">TK_ELSE</a>, <a name="TK_ELSEIF"/a><a class="L" href="llex.h.ref.html#TK_ELSEIF">TK_ELSEIF</a>, <a name="TK_END"/a><a class="L" href="llex.h.ref.html#TK_END">TK_END</a>, <a name="TK_FALSE"/a><a class="L" href="llex.h.ref.html#TK_FALSE">TK_FALSE</a>, <a name="TK_FOR"/a><a class="L" href="llex.h.ref.html#TK_FOR">TK_FOR</a>, <a name="TK_FUNCTION"/a><a class="L" href="llex.h.ref.html#TK_FUNCTION">TK_FUNCTION</a>,
+L0028      <a name="TK_IF"/a><a class="L" href="llex.h.ref.html#TK_IF">TK_IF</a>, <a name="TK_IN"/a><a class="L" href="llex.h.ref.html#TK_IN">TK_IN</a>, <a name="TK_LOCAL"/a><a class="L" href="llex.h.ref.html#TK_LOCAL">TK_LOCAL</a>, <a name="TK_NIL"/a><a class="L" href="llex.h.ref.html#TK_NIL">TK_NIL</a>, <a name="TK_NOT"/a><a class="L" href="llex.h.ref.html#TK_NOT">TK_NOT</a>, <a name="TK_OR"/a><a class="L" href="llex.h.ref.html#TK_OR">TK_OR</a>, <a name="TK_REPEAT"/a><a class="L" href="llex.h.ref.html#TK_REPEAT">TK_REPEAT</a>,
+L0029      <a name="TK_RETURN"/a><a class="L" href="llex.h.ref.html#TK_RETURN">TK_RETURN</a>, <a name="TK_THEN"/a><a class="L" href="llex.h.ref.html#TK_THEN">TK_THEN</a>, <a name="TK_TRUE"/a><a class="L" href="llex.h.ref.html#TK_TRUE">TK_TRUE</a>, <a name="TK_UNTIL"/a><a class="L" href="llex.h.ref.html#TK_UNTIL">TK_UNTIL</a>, <a name="TK_WHILE"/a><a class="L" href="llex.h.ref.html#TK_WHILE">TK_WHILE</a>,
+L0030      <span class="comment">/* other terminal symbols */</span>
+L0031      <a name="TK_CONCAT"/a><a class="L" href="llex.h.ref.html#TK_CONCAT">TK_CONCAT</a>, <a name="TK_DOTS"/a><a class="L" href="llex.h.ref.html#TK_DOTS">TK_DOTS</a>, <a name="TK_EQ"/a><a class="L" href="llex.h.ref.html#TK_EQ">TK_EQ</a>, <a name="TK_GE"/a><a class="L" href="llex.h.ref.html#TK_GE">TK_GE</a>, <a name="TK_LE"/a><a class="L" href="llex.h.ref.html#TK_LE">TK_LE</a>, <a name="TK_NE"/a><a class="L" href="llex.h.ref.html#TK_NE">TK_NE</a>, <a name="TK_NUMBER"/a><a class="L" href="llex.h.ref.html#TK_NUMBER">TK_NUMBER</a>,
+L0032      <a name="TK_NAME"/a><a class="L" href="llex.h.ref.html#TK_NAME">TK_NAME</a>, <a name="TK_STRING"/a><a class="L" href="llex.h.ref.html#TK_STRING">TK_STRING</a>, <a name="TK_EOS"/a><a class="L" href="llex.h.ref.html#TK_EOS">TK_EOS</a>
+L0033    };
+L0034    
+L0035    <span class="comment">/* number of reserved words */</span>
+L0036    <a name="NUM_RESERVED"/a><span class="prepro">#define NUM_RESERVED	(cast(int, TK_WHILE-FIRST_RESERVED+1))
+</span>L0037    
+L0038    
+L0039    <span class="comment">/* array with token `names' */</span>
+L0040    <a class="L" href="luaconf.h.html#LUAI_DATA">LUAI_DATA</a> <span class="keyword">const</span> <span class="keyword">char</span> *<span class="keyword">const</span> <a class="L" href="llex.c.html#luaX_tokens">luaX_tokens</a> [];
+L0041    
+L0042    
+L0043    <span class="keyword">typedef</span> union {
+L0044      <a class="L" href="lua.h.html#lua_Number">lua_Number</a> <a name="r"/a><a class="L" href="llex.h.ref.html#r">r</a>;
+L0045      <a class="L" href="lobject.h.html#TString">TString</a> *<a name="ts"/a><a class="L" href="llex.h.ref.html#ts">ts</a>;
+L0046    } <a name="SemInfo"/a><a class="L" href="llex.h.ref.html#SemInfo">SemInfo</a>;  <span class="comment">/* semantics information */</span>
+L0047    
+L0048    
+L0049    <span class="keyword">typedef</span> <span class="keyword">struct</span> <a name="Token"/a><a class="L" href="llex.h.ref.html#Token">Token</a> {
+L0050      <span class="keyword">int</span> <a name="token"/a><a class="L" href="llex.h.ref.html#token">token</a>;
+L0051      <a class="L" href="llex.h.html#SemInfo">SemInfo</a> <a name="seminfo"/a><a class="L" href="llex.h.ref.html#seminfo">seminfo</a>;
+L0052    } <a class="L" href="llex.h.html#Token">Token</a>;
+L0053    
+L0054    
+L0055    <span class="keyword">typedef</span> <span class="keyword">struct</span> <a name="LexState"/a><a class="L" href="llex.h.ref.html#LexState">LexState</a> {
+L0056      <span class="keyword">int</span> <a name="current"/a><a class="L" href="llex.h.ref.html#current">current</a>;  <span class="comment">/* current character (charint) */</span>
+L0057      <span class="keyword">int</span> <a name="linenumber"/a><a class="L" href="llex.h.ref.html#linenumber">linenumber</a>;  <span class="comment">/* input line counter */</span>
+L0058      <span class="keyword">int</span> <a name="lastline"/a><a class="L" href="llex.h.ref.html#lastline">lastline</a>;  <span class="comment">/* line of last token `consumed' */</span>
+L0059      <a class="L" href="llex.h.html#Token">Token</a> <a name="t"/a><a class="L" href="llex.h.ref.html#t">t</a>;  <span class="comment">/* current token */</span>
+L0060      <a class="L" href="llex.h.html#Token">Token</a> <a name="lookahead"/a><a class="L" href="llex.h.ref.html#lookahead">lookahead</a>;  <span class="comment">/* look ahead token */</span>
+L0061      <span class="keyword">struct</span> <a class="L" href="lparser.h.html#FuncState">FuncState</a> *<a name="fs"/a><a class="L" href="llex.h.ref.html#fs">fs</a>;  <span class="comment">/* `FuncState' is private to the parser */</span>
+L0062      <span class="keyword">struct</span> <a class="L" href="lstate.h.html#lua_State">lua_State</a> *L;
+L0063      <a class="L" href="lzio.h.html#ZIO">ZIO</a> *z;  <span class="comment">/* input stream */</span>
+L0064      <a class="L" href="lzio.h.html#Mbuffer">Mbuffer</a> *buff;  <span class="comment">/* buffer for tokens */</span>
+L0065      <a class="L" href="lobject.h.html#TString">TString</a> *<a name="source"/a><a class="L" href="llex.h.ref.html#source">source</a>;  <span class="comment">/* current source name */</span>
+L0066      <span class="keyword">char</span> <a name="decpoint"/a><a class="L" href="llex.h.ref.html#decpoint">decpoint</a>;  <span class="comment">/* locale decimal point */</span>
+L0067    } <a class="L" href="llex.h.html#LexState">LexState</a>;
+L0068    
+L0069    
+L0070    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <span class="keyword">void</span> <a class="L" href="llex.c.html#luaX_init">luaX_init</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L);
+L0071    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <span class="keyword">void</span> <a class="L" href="llex.c.html#luaX_setinput">luaX_setinput</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="llex.h.html#LexState">LexState</a> *ls, <a class="L" href="lzio.h.html#ZIO">ZIO</a> *z,
+L0072                                  <a class="L" href="lobject.h.html#TString">TString</a> *source);
+L0073    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <a class="L" href="lobject.h.html#TString">TString</a> *<a class="L" href="llex.c.html#luaX_newstring">luaX_newstring</a> (<a class="L" href="llex.h.html#LexState">LexState</a> *ls, <span class="keyword">const</span> <span class="keyword">char</span> *str, size_t l);
+L0074    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <span class="keyword">void</span> <a class="L" href="llex.c.html#luaX_next">luaX_next</a> (<a class="L" href="llex.h.html#LexState">LexState</a> *ls);
+L0075    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <span class="keyword">void</span> <a class="L" href="llex.c.html#luaX_lookahead">luaX_lookahead</a> (<a class="L" href="llex.h.html#LexState">LexState</a> *ls);
+L0076    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <span class="keyword">void</span> <a class="L" href="llex.c.html#luaX_lexerror">luaX_lexerror</a> (<a class="L" href="llex.h.html#LexState">LexState</a> *ls, <span class="keyword">const</span> <span class="keyword">char</span> *msg, <span class="keyword">int</span> token);
+L0077    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <span class="keyword">void</span> <a class="L" href="llex.c.html#luaX_syntaxerror">luaX_syntaxerror</a> (<a class="L" href="llex.h.html#LexState">LexState</a> *ls, <span class="keyword">const</span> <span class="keyword">char</span> *s);
+L0078    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <span class="keyword">const</span> <span class="keyword">char</span> *<a class="L" href="llex.c.html#luaX_token2str">luaX_token2str</a> (<a class="L" href="llex.h.html#LexState">LexState</a> *ls, <span class="keyword">int</span> token);
+L0079    
+L0080    
+L0081    <span class="prepro">#endif
+</span></pre>
+<hr/>
+Generated by <a href="pretty.lua.html">pretty.lua</html>
+</body></html>

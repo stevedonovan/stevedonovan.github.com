@@ -1,0 +1,1108 @@
+<html>
+<head>
+<style>
+a.L { text-decoration: none; }
+a.L:hover { color: #FFAAAA; }
+body { margin-top: 20px; margin-left: 30px; }
+.lno { font-weight: bold: color #000; }
+.keyword {font-weight: bold; color: #6666AA; }
+.number  { color: #AA6666; }
+.string  { color: #8888AA; }
+.comment { color: #666600; }
+.prepro { color: #006666; } 
+</style>
+<body>
+<h1>Lua 5.1.4: lapi.c</h1>
+<hr/>
+<pre>
+L0001    <span class="comment">/*
+L0002    ** $Id: lapi.c,v 2.55.1.5 2008/07/04 18:41:18 roberto Exp $
+L0003    ** Lua API
+L0004    ** See Copyright Notice in lua.h
+L0005    */</span>
+L0006    
+L0007    
+L0008    <span class="prepro">#include &lt;assert.h&gt;
+</span>L0009    <span class="prepro">#include &lt;math.h&gt;
+</span>L0010    <span class="prepro">#include &lt;stdarg.h&gt;
+</span>L0011    <span class="prepro">#include &lt;string.h&gt;
+</span>L0012    
+L0013    <a name="lapi_c"/a><span class="prepro">#define lapi_c
+</span>L0014    <a name="LUA_CORE"/a><span class="prepro">#define LUA_CORE
+</span>L0015    
+L0016    <span class="prepro"><a class="L" href="lua.h.html#">#include "lua.h"
+</a></span>L0017    
+L0018    <span class="prepro"><a class="L" href="lapi.h.html#">#include "lapi.h"
+</a></span>L0019    <span class="prepro"><a class="L" href="ldebug.h.html#">#include "ldebug.h"
+</a></span>L0020    <span class="prepro"><a class="L" href="ldo.h.html#">#include "ldo.h"
+</a></span>L0021    <span class="prepro"><a class="L" href="lfunc.h.html#">#include "lfunc.h"
+</a></span>L0022    <span class="prepro"><a class="L" href="lgc.h.html#">#include "lgc.h"
+</a></span>L0023    <span class="prepro"><a class="L" href="lmem.h.html#">#include "lmem.h"
+</a></span>L0024    <span class="prepro"><a class="L" href="lobject.h.html#">#include "lobject.h"
+</a></span>L0025    <span class="prepro"><a class="L" href="lstate.h.html#">#include "lstate.h"
+</a></span>L0026    <span class="prepro"><a class="L" href="lstring.h.html#">#include "lstring.h"
+</a></span>L0027    <span class="prepro"><a class="L" href="ltable.h.html#">#include "ltable.h"
+</a></span>L0028    <span class="prepro"><a class="L" href="ltm.h.html#">#include "ltm.h"
+</a></span>L0029    <span class="prepro"><a class="L" href="lundump.h.html#">#include "lundump.h"
+</a></span>L0030    <span class="prepro"><a class="L" href="lvm.h.html#">#include "lvm.h"
+</a></span>L0031    
+L0032    
+L0033    
+L0034    <span class="keyword">const</span> <span class="keyword">char</span> <a name="lua_ident"/a><a class="L" href="lapi.c.ref.html#lua_ident">lua_ident</a>[] =
+L0035      <span class="string">"$Lua: "</span> <a class="L" href="lua.h.html#LUA_RELEASE">LUA_RELEASE</a> <span class="string">" "</span> <a class="L" href="lua.h.html#LUA_COPYRIGHT">LUA_COPYRIGHT</a> <span class="string">" $\n"</span>
+L0036      <span class="string">"$Authors: "</span> <a class="L" href="lua.h.html#LUA_AUTHORS">LUA_AUTHORS</a> <span class="string">" $\n"</span>
+L0037      <span class="string">"$URL: www.lua.org $\n"</span>;
+L0038    
+L0039    
+L0040    
+L0041    <a name="api_checknelems"/a><span class="prepro">#define api_checknelems(L, n)	api_check(L, (n) &lt;= (L-&gt;top - L-&gt;base))
+</span>L0042    
+L0043    <a name="api_checkvalidindex"/a><span class="prepro">#define api_checkvalidindex(L, i)	api_check(L, (i) != luaO_nilobject)
+</span>L0044    
+L0045    <a name="api_incr_top"/a><span class="prepro">#define api_incr_top(L)   {api_check(L, L-&gt;top &lt; L-&gt;ci-&gt;top); L-&gt;top++;}
+</span>L0046    
+L0047    
+L0048    
+L0049    <span class="keyword">static</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *<a name="index2adr"/a><a class="L" href="lapi.c.ref.html#index2adr">index2adr</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> idx) {
+L0050      <span class="keyword">if</span> (idx &gt; <span class="number">0</span>) {
+L0051        <a class="L" href="lobject.h.html#TValue">TValue</a> *o = L-&gt;base + (idx - <span class="number">1</span>);
+L0052        <a class="L" href="llimits.h.html#api_check">api_check</a>(L, idx &lt;= L-&gt;ci-&gt;top - L-&gt;base);
+L0053        <span class="keyword">if</span> (o &gt;= L-&gt;top) <span class="keyword">return</span> <a class="L" href="llimits.h.html#cast">cast</a>(<a class="L" href="lobject.h.html#TValue">TValue</a> *, <a class="L" href="lobject.h.html#luaO_nilobject">luaO_nilobject</a>);
+L0054        <span class="keyword">else</span> <span class="keyword">return</span> o;
+L0055      }
+L0056      <span class="keyword">else</span> <span class="keyword">if</span> (idx &gt; <a class="L" href="lua.h.html#LUA_REGISTRYINDEX">LUA_REGISTRYINDEX</a>) {
+L0057        <a class="L" href="llimits.h.html#api_check">api_check</a>(L, idx != <span class="number">0</span> &amp;&amp; -idx &lt;= L-&gt;top - L-&gt;base);
+L0058        <span class="keyword">return</span> L-&gt;top + idx;
+L0059      }
+L0060      <span class="keyword">else</span> <span class="keyword">switch</span> (idx) {  <span class="comment">/* pseudo-indices */</span>
+L0061        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_REGISTRYINDEX">LUA_REGISTRYINDEX</a>: <span class="keyword">return</span> <a class="L" href="lstate.h.html#registry">registry</a>(L);
+L0062        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_ENVIRONINDEX">LUA_ENVIRONINDEX</a>: {
+L0063          <a class="L" href="lobject.h.html#Closure">Closure</a> *func = <a class="L" href="lstate.h.html#curr_func">curr_func</a>(L);
+L0064          <a class="L" href="lobject.h.html#sethvalue">sethvalue</a>(L, &amp;L-&gt;env, func-&gt;c.env);
+L0065          <span class="keyword">return</span> &amp;L-&gt;env;
+L0066        }
+L0067        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_GLOBALSINDEX">LUA_GLOBALSINDEX</a>: <span class="keyword">return</span> <a class="L" href="lstate.h.html#gt">gt</a>(L);
+L0068        <span class="keyword">default</span>: {
+L0069          <a class="L" href="lobject.h.html#Closure">Closure</a> *func = <a class="L" href="lstate.h.html#curr_func">curr_func</a>(L);
+L0070          idx = <a class="L" href="lua.h.html#LUA_GLOBALSINDEX">LUA_GLOBALSINDEX</a> - idx;
+L0071          <span class="keyword">return</span> (idx &lt;= func-&gt;c.nupvalues)
+L0072                    ? &amp;func-&gt;c.upvalue[idx<span class="number">-1</span>]
+L0073                    : <a class="L" href="llimits.h.html#cast">cast</a>(<a class="L" href="lobject.h.html#TValue">TValue</a> *, <a class="L" href="lobject.h.html#luaO_nilobject">luaO_nilobject</a>);
+L0074        }
+L0075      }
+L0076    }
+L0077    
+L0078    
+L0079    <span class="keyword">static</span> <a class="L" href="lobject.h.html#Table">Table</a> *<a name="getcurrenv"/a><a class="L" href="lapi.c.ref.html#getcurrenv">getcurrenv</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0080      <span class="keyword">if</span> (L-&gt;ci == L-&gt;base_ci)  <span class="comment">/* no enclosing function? */</span>
+L0081        <span class="keyword">return</span> <a class="L" href="lobject.h.html#hvalue">hvalue</a>(<a class="L" href="lstate.h.html#gt">gt</a>(L));  <span class="comment">/* use global table as environment */</span>
+L0082      <span class="keyword">else</span> {
+L0083        <a class="L" href="lobject.h.html#Closure">Closure</a> *func = <a class="L" href="lstate.h.html#curr_func">curr_func</a>(L);
+L0084        <span class="keyword">return</span> func-&gt;c.env;
+L0085      }
+L0086    }
+L0087    
+L0088    
+L0089    <span class="keyword">void</span> <a name="luaA_pushobject"/a><a class="L" href="lapi.c.ref.html#luaA_pushobject">luaA_pushobject</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *o) {
+L0090      <a class="L" href="lobject.h.html#setobj2s">setobj2s</a>(L, L-&gt;top, o);
+L0091      <a class="L" href="lapi.c.html#api_incr_top">api_incr_top</a>(L);
+L0092    }
+L0093    
+L0094    
+L0095    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">int</span> <a name="lua_checkstack"/a><a class="L" href="lapi.c.ref.html#lua_checkstack">lua_checkstack</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> size) {
+L0096      <span class="keyword">int</span> res = <span class="number">1</span>;
+L0097      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);
+L0098      <span class="keyword">if</span> (size &gt; <a class="L" href="luaconf.h.html#LUAI_MAXCSTACK">LUAI_MAXCSTACK</a> || (L-&gt;top - L-&gt;base + size) &gt; <a class="L" href="luaconf.h.html#LUAI_MAXCSTACK">LUAI_MAXCSTACK</a>)
+L0099        res = <span class="number">0</span>;  <span class="comment">/* stack overflow */</span>
+L0100      <span class="keyword">else</span> <span class="keyword">if</span> (size &gt; <span class="number">0</span>) {
+L0101        <a class="L" href="ldo.h.html#luaD_checkstack">luaD_checkstack</a>(L, size);
+L0102        <span class="keyword">if</span> (L-&gt;ci-&gt;top &lt; L-&gt;top + size)
+L0103          L-&gt;ci-&gt;top = L-&gt;top + size;
+L0104      }
+L0105      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L0106      <span class="keyword">return</span> res;
+L0107    }
+L0108    
+L0109    
+L0110    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">void</span> <a name="lua_xmove"/a><a class="L" href="lapi.c.ref.html#lua_xmove">lua_xmove</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *from, <a class="L" href="lstate.h.html#lua_State">lua_State</a> *to, <span class="keyword">int</span> n) {
+L0111      <span class="keyword">int</span> i;
+L0112      <span class="keyword">if</span> (from == to) <span class="keyword">return</span>;
+L0113      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(to);
+L0114      <a class="L" href="lapi.c.html#api_checknelems">api_checknelems</a>(from, n);
+L0115      <a class="L" href="llimits.h.html#api_check">api_check</a>(from, <a class="L" href="lstate.h.html#G">G</a>(from) == <a class="L" href="lstate.h.html#G">G</a>(to));
+L0116      <a class="L" href="llimits.h.html#api_check">api_check</a>(from, to-&gt;ci-&gt;top - to-&gt;top &gt;= n);
+L0117      from-&gt;top -= n;
+L0118      <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; n; i++) {
+L0119        <a class="L" href="lobject.h.html#setobj2s">setobj2s</a>(to, to-&gt;top++, from-&gt;top + i);
+L0120      }
+L0121      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(to);
+L0122    }
+L0123    
+L0124    
+L0125    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">void</span> <a name="lua_setlevel"/a><a class="L" href="lapi.c.ref.html#lua_setlevel">lua_setlevel</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *from, <a class="L" href="lstate.h.html#lua_State">lua_State</a> *to) {
+L0126      to-&gt;nCcalls = from-&gt;nCcalls;
+L0127    }
+L0128    
+L0129    
+L0130    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <a class="L" href="lua.h.html#lua_CFunction">lua_CFunction</a> <a name="lua_atpanic"/a><a class="L" href="lapi.c.ref.html#lua_atpanic">lua_atpanic</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lua.h.html#lua_CFunction">lua_CFunction</a> panicf) {
+L0131      <a class="L" href="lua.h.html#lua_CFunction">lua_CFunction</a> old;
+L0132      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);
+L0133      old = <a class="L" href="lstate.h.html#G">G</a>(L)-&gt;<a class="L" href="lauxlib.c.html#panic">panic</a>;
+L0134      <a class="L" href="lstate.h.html#G">G</a>(L)-&gt;<a class="L" href="lauxlib.c.html#panic">panic</a> = panicf;
+L0135      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L0136      <span class="keyword">return</span> old;
+L0137    }
+L0138    
+L0139    
+L0140    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <a class="L" href="lstate.h.html#lua_State">lua_State</a> *<a name="lua_newthread"/a><a class="L" href="lapi.c.ref.html#lua_newthread">lua_newthread</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0141      <a class="L" href="lstate.h.html#lua_State">lua_State</a> *L1;
+L0142      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);
+L0143      <a class="L" href="lgc.h.html#luaC_checkGC">luaC_checkGC</a>(L);
+L0144      L1 = <a class="L" href="lstate.c.html#luaE_newthread">luaE_newthread</a>(L);
+L0145      <a class="L" href="lobject.h.html#setthvalue">setthvalue</a>(L, L-&gt;top, L1);
+L0146      <a class="L" href="lapi.c.html#api_incr_top">api_incr_top</a>(L);
+L0147      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L0148      <a class="L" href="luaconf.h.html#luai_userstatethread">luai_userstatethread</a>(L, L1);
+L0149      <span class="keyword">return</span> L1;
+L0150    }
+L0151    
+L0152    
+L0153    
+L0154    <span class="comment">/*
+L0155    ** basic stack manipulation
+L0156    */</span>
+L0157    
+L0158    
+L0159    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">int</span> <a name="lua_gettop"/a><a class="L" href="lapi.c.ref.html#lua_gettop">lua_gettop</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0160      <span class="keyword">return</span> <a class="L" href="llimits.h.html#cast_int">cast_int</a>(L-&gt;top - L-&gt;base);
+L0161    }
+L0162    
+L0163    
+L0164    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">void</span> <a name="lua_settop"/a><a class="L" href="lapi.c.ref.html#lua_settop">lua_settop</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> idx) {
+L0165      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);
+L0166      <span class="keyword">if</span> (idx &gt;= <span class="number">0</span>) {
+L0167        <a class="L" href="llimits.h.html#api_check">api_check</a>(L, idx &lt;= L-&gt;stack_last - L-&gt;base);
+L0168        <span class="keyword">while</span> (L-&gt;top &lt; L-&gt;base + idx)
+L0169          <a class="L" href="lobject.h.html#setnilvalue">setnilvalue</a>(L-&gt;top++);
+L0170        L-&gt;top = L-&gt;base + idx;
+L0171      }
+L0172      <span class="keyword">else</span> {
+L0173        <a class="L" href="llimits.h.html#api_check">api_check</a>(L, -(idx<span class="number">+1</span>) &lt;= (L-&gt;top - L-&gt;base));
+L0174        L-&gt;top += idx<span class="number">+1</span>;  <span class="comment">/* `subtract' index (index is negative) */</span>
+L0175      }
+L0176      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L0177    }
+L0178    
+L0179    
+L0180    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">void</span> <a name="lua_remove"/a><a class="L" href="lapi.c.ref.html#lua_remove">lua_remove</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> idx) {
+L0181      <a class="L" href="lobject.h.html#StkId">StkId</a> p;
+L0182      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);
+L0183      p = <a class="L" href="lapi.c.html#index2adr">index2adr</a>(L, idx);
+L0184      <a class="L" href="lapi.c.html#api_checkvalidindex">api_checkvalidindex</a>(L, p);
+L0185      <span class="keyword">while</span> (++p &lt; L-&gt;top) <a class="L" href="lobject.h.html#setobjs2s">setobjs2s</a>(L, p<span class="number">-1</span>, p);
+L0186      L-&gt;top--;
+L0187      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L0188    }
+L0189    
+L0190    
+L0191    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">void</span> <a name="lua_insert"/a><a class="L" href="lapi.c.ref.html#lua_insert">lua_insert</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> idx) {
+L0192      <a class="L" href="lobject.h.html#StkId">StkId</a> p;
+L0193      <a class="L" href="lobject.h.html#StkId">StkId</a> q;
+L0194      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);
+L0195      p = <a class="L" href="lapi.c.html#index2adr">index2adr</a>(L, idx);
+L0196      <a class="L" href="lapi.c.html#api_checkvalidindex">api_checkvalidindex</a>(L, p);
+L0197      <span class="keyword">for</span> (q = L-&gt;top; q&gt;p; q--) <a class="L" href="lobject.h.html#setobjs2s">setobjs2s</a>(L, q, q<span class="number">-1</span>);
+L0198      <a class="L" href="lobject.h.html#setobjs2s">setobjs2s</a>(L, p, L-&gt;top);
+L0199      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L0200    }
+L0201    
+L0202    
+L0203    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">void</span> <a name="lua_replace"/a><a class="L" href="lapi.c.ref.html#lua_replace">lua_replace</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> idx) {
+L0204      <a class="L" href="lobject.h.html#StkId">StkId</a> o;
+L0205      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);
+L0206      <span class="comment">/* explicit test for incompatible code */</span>
+L0207      <span class="keyword">if</span> (idx == <a class="L" href="lua.h.html#LUA_ENVIRONINDEX">LUA_ENVIRONINDEX</a> &amp;&amp; L-&gt;ci == L-&gt;base_ci)
+L0208        <a class="L" href="ldebug.c.html#luaG_runerror">luaG_runerror</a>(L, <span class="string">"no calling environment"</span>);
+L0209      <a class="L" href="lapi.c.html#api_checknelems">api_checknelems</a>(L, <span class="number">1</span>);
+L0210      o = <a class="L" href="lapi.c.html#index2adr">index2adr</a>(L, idx);
+L0211      <a class="L" href="lapi.c.html#api_checkvalidindex">api_checkvalidindex</a>(L, o);
+L0212      <span class="keyword">if</span> (idx == <a class="L" href="lua.h.html#LUA_ENVIRONINDEX">LUA_ENVIRONINDEX</a>) {
+L0213        <a class="L" href="lobject.h.html#Closure">Closure</a> *func = <a class="L" href="lstate.h.html#curr_func">curr_func</a>(L);
+L0214        <a class="L" href="llimits.h.html#api_check">api_check</a>(L, <a class="L" href="lobject.h.html#ttistable">ttistable</a>(L-&gt;top - <span class="number">1</span>)); 
+L0215        func-&gt;c.env = <a class="L" href="lobject.h.html#hvalue">hvalue</a>(L-&gt;top - <span class="number">1</span>);
+L0216        <a class="L" href="lgc.h.html#luaC_barrier">luaC_barrier</a>(L, func, L-&gt;top - <span class="number">1</span>);
+L0217      }
+L0218      <span class="keyword">else</span> {
+L0219        <a class="L" href="lobject.h.html#setobj">setobj</a>(L, o, L-&gt;top - <span class="number">1</span>);
+L0220        <span class="keyword">if</span> (idx &lt; <a class="L" href="lua.h.html#LUA_GLOBALSINDEX">LUA_GLOBALSINDEX</a>)  <span class="comment">/* function upvalue? */</span>
+L0221          <a class="L" href="lgc.h.html#luaC_barrier">luaC_barrier</a>(L, <a class="L" href="lstate.h.html#curr_func">curr_func</a>(L), L-&gt;top - <span class="number">1</span>);
+L0222      }
+L0223      L-&gt;top--;
+L0224      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L0225    }
+L0226    
+L0227    
+L0228    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">void</span> <a name="lua_pushvalue"/a><a class="L" href="lapi.c.ref.html#lua_pushvalue">lua_pushvalue</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> idx) {
+L0229      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);
+L0230      <a class="L" href="lobject.h.html#setobj2s">setobj2s</a>(L, L-&gt;top, <a class="L" href="lapi.c.html#index2adr">index2adr</a>(L, idx));
+L0231      <a class="L" href="lapi.c.html#api_incr_top">api_incr_top</a>(L);
+L0232      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L0233    }
+L0234    
+L0235    
+L0236    
+L0237    <span class="comment">/*
+L0238    ** access functions (stack -&gt; C)
+L0239    */</span>
+L0240    
+L0241    
+L0242    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">int</span> <a name="lua_type"/a><a class="L" href="lapi.c.ref.html#lua_type">lua_type</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> idx) {
+L0243      <a class="L" href="lobject.h.html#StkId">StkId</a> o = <a class="L" href="lapi.c.html#index2adr">index2adr</a>(L, idx);
+L0244      <span class="keyword">return</span> (o == <a class="L" href="lobject.h.html#luaO_nilobject">luaO_nilobject</a>) ? <a class="L" href="lua.h.html#LUA_TNONE">LUA_TNONE</a> : <a class="L" href="lobject.h.html#ttype">ttype</a>(o);
+L0245    }
+L0246    
+L0247    
+L0248    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">const</span> <span class="keyword">char</span> *<a name="lua_typename"/a><a class="L" href="lapi.c.ref.html#lua_typename">lua_typename</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> t) {
+L0249      <a class="L" href="llimits.h.html#UNUSED">UNUSED</a>(L);
+L0250      <span class="keyword">return</span> (t == <a class="L" href="lua.h.html#LUA_TNONE">LUA_TNONE</a>) ? <span class="string">"no value"</span> : <a class="L" href="ltm.c.html#luaT_typenames">luaT_typenames</a>[t];
+L0251    }
+L0252    
+L0253    
+L0254    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">int</span> <a name="lua_iscfunction"/a><a class="L" href="lapi.c.ref.html#lua_iscfunction">lua_iscfunction</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> idx) {
+L0255      <a class="L" href="lobject.h.html#StkId">StkId</a> o = <a class="L" href="lapi.c.html#index2adr">index2adr</a>(L, idx);
+L0256      <span class="keyword">return</span> <a class="L" href="lobject.h.html#iscfunction">iscfunction</a>(o);
+L0257    }
+L0258    
+L0259    
+L0260    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">int</span> <a name="lua_isnumber"/a><a class="L" href="lapi.c.ref.html#lua_isnumber">lua_isnumber</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> idx) {
+L0261      <a class="L" href="lobject.h.html#TValue">TValue</a> n;
+L0262      <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *o = <a class="L" href="lapi.c.html#index2adr">index2adr</a>(L, idx);
+L0263      <span class="keyword">return</span> <a class="L" href="lvm.h.html#tonumber">tonumber</a>(o, &amp;n);
+L0264    }
+L0265    
+L0266    
+L0267    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">int</span> <a name="lua_isstring"/a><a class="L" href="lapi.c.ref.html#lua_isstring">lua_isstring</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> idx) {
+L0268      <span class="keyword">int</span> t = <a class="L" href="lapi.c.html#lua_type">lua_type</a>(L, idx);
+L0269      <span class="keyword">return</span> (t == <a class="L" href="lua.h.html#LUA_TSTRING">LUA_TSTRING</a> || t == <a class="L" href="lua.h.html#LUA_TNUMBER">LUA_TNUMBER</a>);
+L0270    }
+L0271    
+L0272    
+L0273    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">int</span> <a name="lua_isuserdata"/a><a class="L" href="lapi.c.ref.html#lua_isuserdata">lua_isuserdata</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> idx) {
+L0274      <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *o = <a class="L" href="lapi.c.html#index2adr">index2adr</a>(L, idx);
+L0275      <span class="keyword">return</span> (<a class="L" href="lobject.h.html#ttisuserdata">ttisuserdata</a>(o) || <a class="L" href="lobject.h.html#ttislightuserdata">ttislightuserdata</a>(o));
+L0276    }
+L0277    
+L0278    
+L0279    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">int</span> <a name="lua_rawequal"/a><a class="L" href="lapi.c.ref.html#lua_rawequal">lua_rawequal</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> index1, <span class="keyword">int</span> index2) {
+L0280      <a class="L" href="lobject.h.html#StkId">StkId</a> o1 = <a class="L" href="lapi.c.html#index2adr">index2adr</a>(L, index1);
+L0281      <a class="L" href="lobject.h.html#StkId">StkId</a> o2 = <a class="L" href="lapi.c.html#index2adr">index2adr</a>(L, index2);
+L0282      <span class="keyword">return</span> (o1 == <a class="L" href="lobject.h.html#luaO_nilobject">luaO_nilobject</a> || o2 == <a class="L" href="lobject.h.html#luaO_nilobject">luaO_nilobject</a>) ? <span class="number">0</span>
+L0283             : <a class="L" href="lobject.c.html#luaO_rawequalObj">luaO_rawequalObj</a>(o1, o2);
+L0284    }
+L0285    
+L0286    
+L0287    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">int</span> <a name="lua_equal"/a><a class="L" href="lapi.c.ref.html#lua_equal">lua_equal</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> index1, <span class="keyword">int</span> index2) {
+L0288      <a class="L" href="lobject.h.html#StkId">StkId</a> o1, o2;
+L0289      <span class="keyword">int</span> i;
+L0290      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);  <span class="comment">/* may call tag method */</span>
+L0291      o1 = <a class="L" href="lapi.c.html#index2adr">index2adr</a>(L, index1);
+L0292      o2 = <a class="L" href="lapi.c.html#index2adr">index2adr</a>(L, index2);
+L0293      i = (o1 == <a class="L" href="lobject.h.html#luaO_nilobject">luaO_nilobject</a> || o2 == <a class="L" href="lobject.h.html#luaO_nilobject">luaO_nilobject</a>) ? <span class="number">0</span> : <a class="L" href="lvm.h.html#equalobj">equalobj</a>(L, o1, o2);
+L0294      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L0295      <span class="keyword">return</span> i;
+L0296    }
+L0297    
+L0298    
+L0299    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">int</span> <a name="lua_lessthan"/a><a class="L" href="lapi.c.ref.html#lua_lessthan">lua_lessthan</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> index1, <span class="keyword">int</span> index2) {
+L0300      <a class="L" href="lobject.h.html#StkId">StkId</a> o1, o2;
+L0301      <span class="keyword">int</span> i;
+L0302      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);  <span class="comment">/* may call tag method */</span>
+L0303      o1 = <a class="L" href="lapi.c.html#index2adr">index2adr</a>(L, index1);
+L0304      o2 = <a class="L" href="lapi.c.html#index2adr">index2adr</a>(L, index2);
+L0305      i = (o1 == <a class="L" href="lobject.h.html#luaO_nilobject">luaO_nilobject</a> || o2 == <a class="L" href="lobject.h.html#luaO_nilobject">luaO_nilobject</a>) ? <span class="number">0</span>
+L0306           : <a class="L" href="lvm.c.html#luaV_lessthan">luaV_lessthan</a>(L, o1, o2);
+L0307      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L0308      <span class="keyword">return</span> i;
+L0309    }
+L0310    
+L0311    
+L0312    
+L0313    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <a class="L" href="lua.h.html#lua_Number">lua_Number</a> <a name="lua_tonumber"/a><a class="L" href="lapi.c.ref.html#lua_tonumber">lua_tonumber</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> idx) {
+L0314      <a class="L" href="lobject.h.html#TValue">TValue</a> n;
+L0315      <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *o = <a class="L" href="lapi.c.html#index2adr">index2adr</a>(L, idx);
+L0316      <span class="keyword">if</span> (<a class="L" href="lvm.h.html#tonumber">tonumber</a>(o, &amp;n))
+L0317        <span class="keyword">return</span> <a class="L" href="lobject.h.html#nvalue">nvalue</a>(o);
+L0318      <span class="keyword">else</span>
+L0319        <span class="keyword">return</span> <span class="number">0</span>;
+L0320    }
+L0321    
+L0322    
+L0323    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <a class="L" href="lua.h.html#lua_Integer">lua_Integer</a> <a name="lua_tointeger"/a><a class="L" href="lapi.c.ref.html#lua_tointeger">lua_tointeger</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> idx) {
+L0324      <a class="L" href="lobject.h.html#TValue">TValue</a> n;
+L0325      <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *o = <a class="L" href="lapi.c.html#index2adr">index2adr</a>(L, idx);
+L0326      <span class="keyword">if</span> (<a class="L" href="lvm.h.html#tonumber">tonumber</a>(o, &amp;n)) {
+L0327        <a class="L" href="lua.h.html#lua_Integer">lua_Integer</a> res;
+L0328        <a class="L" href="lua.h.html#lua_Number">lua_Number</a> num = <a class="L" href="lobject.h.html#nvalue">nvalue</a>(o);
+L0329        <a class="L" href="luaconf.h.html#lua_number2integer">lua_number2integer</a>(res, num);
+L0330        <span class="keyword">return</span> res;
+L0331      }
+L0332      <span class="keyword">else</span>
+L0333        <span class="keyword">return</span> <span class="number">0</span>;
+L0334    }
+L0335    
+L0336    
+L0337    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">int</span> <a name="lua_toboolean"/a><a class="L" href="lapi.c.ref.html#lua_toboolean">lua_toboolean</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> idx) {
+L0338      <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *o = <a class="L" href="lapi.c.html#index2adr">index2adr</a>(L, idx);
+L0339      <span class="keyword">return</span> !<a class="L" href="lobject.h.html#l_isfalse">l_isfalse</a>(o);
+L0340    }
+L0341    
+L0342    
+L0343    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">const</span> <span class="keyword">char</span> *<a name="lua_tolstring"/a><a class="L" href="lapi.c.ref.html#lua_tolstring">lua_tolstring</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> idx, size_t *len) {
+L0344      <a class="L" href="lobject.h.html#StkId">StkId</a> o = <a class="L" href="lapi.c.html#index2adr">index2adr</a>(L, idx);
+L0345      <span class="keyword">if</span> (!<a class="L" href="lobject.h.html#ttisstring">ttisstring</a>(o)) {
+L0346        <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);  <span class="comment">/* `luaV_tostring' may create a new string */</span>
+L0347        <span class="keyword">if</span> (!<a class="L" href="lvm.c.html#luaV_tostring">luaV_tostring</a>(L, o)) {  <span class="comment">/* conversion failed? */</span>
+L0348          <span class="keyword">if</span> (len != NULL) *len = <span class="number">0</span>;
+L0349          <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L0350          <span class="keyword">return</span> NULL;
+L0351        }
+L0352        <a class="L" href="lgc.h.html#luaC_checkGC">luaC_checkGC</a>(L);
+L0353        o = <a class="L" href="lapi.c.html#index2adr">index2adr</a>(L, idx);  <span class="comment">/* previous call may reallocate the stack */</span>
+L0354        <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L0355      }
+L0356      <span class="keyword">if</span> (len != NULL) *len = <a class="L" href="lobject.h.html#tsvalue">tsvalue</a>(o)-&gt;len;
+L0357      <span class="keyword">return</span> <a class="L" href="lobject.h.html#svalue">svalue</a>(o);
+L0358    }
+L0359    
+L0360    
+L0361    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> size_t <a name="lua_objlen"/a><a class="L" href="lapi.c.ref.html#lua_objlen">lua_objlen</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> idx) {
+L0362      <a class="L" href="lobject.h.html#StkId">StkId</a> o = <a class="L" href="lapi.c.html#index2adr">index2adr</a>(L, idx);
+L0363      <span class="keyword">switch</span> (<a class="L" href="lobject.h.html#ttype">ttype</a>(o)) {
+L0364        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TSTRING">LUA_TSTRING</a>: <span class="keyword">return</span> <a class="L" href="lobject.h.html#tsvalue">tsvalue</a>(o)-&gt;len;
+L0365        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TUSERDATA">LUA_TUSERDATA</a>: <span class="keyword">return</span> <a class="L" href="lobject.h.html#uvalue">uvalue</a>(o)-&gt;len;
+L0366        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TTABLE">LUA_TTABLE</a>: <span class="keyword">return</span> <a class="L" href="ltable.c.html#luaH_getn">luaH_getn</a>(<a class="L" href="lobject.h.html#hvalue">hvalue</a>(o));
+L0367        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TNUMBER">LUA_TNUMBER</a>: {
+L0368          size_t l;
+L0369          <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);  <span class="comment">/* `luaV_tostring' may create a new string */</span>
+L0370          l = (<a class="L" href="lvm.c.html#luaV_tostring">luaV_tostring</a>(L, o) ? <a class="L" href="lobject.h.html#tsvalue">tsvalue</a>(o)-&gt;len : <span class="number">0</span>);
+L0371          <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L0372          <span class="keyword">return</span> l;
+L0373        }
+L0374        <span class="keyword">default</span>: <span class="keyword">return</span> <span class="number">0</span>;
+L0375      }
+L0376    }
+L0377    
+L0378    
+L0379    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <a class="L" href="lua.h.html#lua_CFunction">lua_CFunction</a> <a name="lua_tocfunction"/a><a class="L" href="lapi.c.ref.html#lua_tocfunction">lua_tocfunction</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> idx) {
+L0380      <a class="L" href="lobject.h.html#StkId">StkId</a> o = <a class="L" href="lapi.c.html#index2adr">index2adr</a>(L, idx);
+L0381      <span class="keyword">return</span> (!<a class="L" href="lobject.h.html#iscfunction">iscfunction</a>(o)) ? NULL : <a class="L" href="lobject.h.html#clvalue">clvalue</a>(o)-&gt;c.f;
+L0382    }
+L0383    
+L0384    
+L0385    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">void</span> *<a name="lua_touserdata"/a><a class="L" href="lapi.c.ref.html#lua_touserdata">lua_touserdata</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> idx) {
+L0386      <a class="L" href="lobject.h.html#StkId">StkId</a> o = <a class="L" href="lapi.c.html#index2adr">index2adr</a>(L, idx);
+L0387      <span class="keyword">switch</span> (<a class="L" href="lobject.h.html#ttype">ttype</a>(o)) {
+L0388        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TUSERDATA">LUA_TUSERDATA</a>: <span class="keyword">return</span> (<a class="L" href="lobject.h.html#rawuvalue">rawuvalue</a>(o) + <span class="number">1</span>);
+L0389        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TLIGHTUSERDATA">LUA_TLIGHTUSERDATA</a>: <span class="keyword">return</span> <a class="L" href="lobject.h.html#pvalue">pvalue</a>(o);
+L0390        <span class="keyword">default</span>: <span class="keyword">return</span> NULL;
+L0391      }
+L0392    }
+L0393    
+L0394    
+L0395    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <a class="L" href="lstate.h.html#lua_State">lua_State</a> *<a name="lua_tothread"/a><a class="L" href="lapi.c.ref.html#lua_tothread">lua_tothread</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> idx) {
+L0396      <a class="L" href="lobject.h.html#StkId">StkId</a> o = <a class="L" href="lapi.c.html#index2adr">index2adr</a>(L, idx);
+L0397      <span class="keyword">return</span> (!<a class="L" href="lobject.h.html#ttisthread">ttisthread</a>(o)) ? NULL : <a class="L" href="lobject.h.html#thvalue">thvalue</a>(o);
+L0398    }
+L0399    
+L0400    
+L0401    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">const</span> <span class="keyword">void</span> *<a name="lua_topointer"/a><a class="L" href="lapi.c.ref.html#lua_topointer">lua_topointer</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> idx) {
+L0402      <a class="L" href="lobject.h.html#StkId">StkId</a> o = <a class="L" href="lapi.c.html#index2adr">index2adr</a>(L, idx);
+L0403      <span class="keyword">switch</span> (<a class="L" href="lobject.h.html#ttype">ttype</a>(o)) {
+L0404        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TTABLE">LUA_TTABLE</a>: <span class="keyword">return</span> <a class="L" href="lobject.h.html#hvalue">hvalue</a>(o);
+L0405        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TFUNCTION">LUA_TFUNCTION</a>: <span class="keyword">return</span> <a class="L" href="lobject.h.html#clvalue">clvalue</a>(o);
+L0406        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TTHREAD">LUA_TTHREAD</a>: <span class="keyword">return</span> <a class="L" href="lobject.h.html#thvalue">thvalue</a>(o);
+L0407        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TUSERDATA">LUA_TUSERDATA</a>:
+L0408        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TLIGHTUSERDATA">LUA_TLIGHTUSERDATA</a>:
+L0409          <span class="keyword">return</span> <a class="L" href="lapi.c.html#lua_touserdata">lua_touserdata</a>(L, idx);
+L0410        <span class="keyword">default</span>: <span class="keyword">return</span> NULL;
+L0411      }
+L0412    }
+L0413    
+L0414    
+L0415    
+L0416    <span class="comment">/*
+L0417    ** push functions (C -&gt; stack)
+L0418    */</span>
+L0419    
+L0420    
+L0421    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">void</span> <a name="lua_pushnil"/a><a class="L" href="lapi.c.ref.html#lua_pushnil">lua_pushnil</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0422      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);
+L0423      <a class="L" href="lobject.h.html#setnilvalue">setnilvalue</a>(L-&gt;top);
+L0424      <a class="L" href="lapi.c.html#api_incr_top">api_incr_top</a>(L);
+L0425      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L0426    }
+L0427    
+L0428    
+L0429    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">void</span> <a name="lua_pushnumber"/a><a class="L" href="lapi.c.ref.html#lua_pushnumber">lua_pushnumber</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lua.h.html#lua_Number">lua_Number</a> n) {
+L0430      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);
+L0431      <a class="L" href="lobject.h.html#setnvalue">setnvalue</a>(L-&gt;top, n);
+L0432      <a class="L" href="lapi.c.html#api_incr_top">api_incr_top</a>(L);
+L0433      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L0434    }
+L0435    
+L0436    
+L0437    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">void</span> <a name="lua_pushinteger"/a><a class="L" href="lapi.c.ref.html#lua_pushinteger">lua_pushinteger</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lua.h.html#lua_Integer">lua_Integer</a> n) {
+L0438      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);
+L0439      <a class="L" href="lobject.h.html#setnvalue">setnvalue</a>(L-&gt;top, <a class="L" href="llimits.h.html#cast_num">cast_num</a>(n));
+L0440      <a class="L" href="lapi.c.html#api_incr_top">api_incr_top</a>(L);
+L0441      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L0442    }
+L0443    
+L0444    
+L0445    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">void</span> <a name="lua_pushlstring"/a><a class="L" href="lapi.c.ref.html#lua_pushlstring">lua_pushlstring</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <span class="keyword">char</span> *s, size_t len) {
+L0446      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);
+L0447      <a class="L" href="lgc.h.html#luaC_checkGC">luaC_checkGC</a>(L);
+L0448      <a class="L" href="lobject.h.html#setsvalue2s">setsvalue2s</a>(L, L-&gt;top, <a class="L" href="lstring.c.html#luaS_newlstr">luaS_newlstr</a>(L, s, len));
+L0449      <a class="L" href="lapi.c.html#api_incr_top">api_incr_top</a>(L);
+L0450      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L0451    }
+L0452    
+L0453    
+L0454    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">void</span> <a name="lua_pushstring"/a><a class="L" href="lapi.c.ref.html#lua_pushstring">lua_pushstring</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <span class="keyword">char</span> *s) {
+L0455      <span class="keyword">if</span> (s == NULL)
+L0456        <a class="L" href="lapi.c.html#lua_pushnil">lua_pushnil</a>(L);
+L0457      <span class="keyword">else</span>
+L0458        <a class="L" href="lapi.c.html#lua_pushlstring">lua_pushlstring</a>(L, s, strlen(s));
+L0459    }
+L0460    
+L0461    
+L0462    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">const</span> <span class="keyword">char</span> *<a name="lua_pushvfstring"/a><a class="L" href="lapi.c.ref.html#lua_pushvfstring">lua_pushvfstring</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <span class="keyword">char</span> *fmt,
+L0463                                          va_list argp) {
+L0464      <span class="keyword">const</span> <span class="keyword">char</span> *ret;
+L0465      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);
+L0466      <a class="L" href="lgc.h.html#luaC_checkGC">luaC_checkGC</a>(L);
+L0467      ret = <a class="L" href="lobject.c.html#luaO_pushvfstring">luaO_pushvfstring</a>(L, fmt, argp);
+L0468      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L0469      <span class="keyword">return</span> ret;
+L0470    }
+L0471    
+L0472    
+L0473    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">const</span> <span class="keyword">char</span> *<a name="lua_pushfstring"/a><a class="L" href="lapi.c.ref.html#lua_pushfstring">lua_pushfstring</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <span class="keyword">char</span> *fmt, ...) {
+L0474      <span class="keyword">const</span> <span class="keyword">char</span> *ret;
+L0475      va_list argp;
+L0476      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);
+L0477      <a class="L" href="lgc.h.html#luaC_checkGC">luaC_checkGC</a>(L);
+L0478      va_start(argp, fmt);
+L0479      ret = <a class="L" href="lobject.c.html#luaO_pushvfstring">luaO_pushvfstring</a>(L, fmt, argp);
+L0480      va_end(argp);
+L0481      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L0482      <span class="keyword">return</span> ret;
+L0483    }
+L0484    
+L0485    
+L0486    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">void</span> <a name="lua_pushcclosure"/a><a class="L" href="lapi.c.ref.html#lua_pushcclosure">lua_pushcclosure</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lua.h.html#lua_CFunction">lua_CFunction</a> fn, <span class="keyword">int</span> n) {
+L0487      <a class="L" href="lobject.h.html#Closure">Closure</a> *cl;
+L0488      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);
+L0489      <a class="L" href="lgc.h.html#luaC_checkGC">luaC_checkGC</a>(L);
+L0490      <a class="L" href="lapi.c.html#api_checknelems">api_checknelems</a>(L, n);
+L0491      cl = <a class="L" href="lfunc.c.html#luaF_newCclosure">luaF_newCclosure</a>(L, n, <a class="L" href="lapi.c.html#getcurrenv">getcurrenv</a>(L));
+L0492      cl-&gt;c.f = fn;
+L0493      L-&gt;top -= n;
+L0494      <span class="keyword">while</span> (n--)
+L0495        <a class="L" href="lobject.h.html#setobj2n">setobj2n</a>(L, &amp;cl-&gt;c.upvalue[n], L-&gt;top+n);
+L0496      <a class="L" href="lobject.h.html#setclvalue">setclvalue</a>(L, L-&gt;top, cl);
+L0497      <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(<a class="L" href="lgc.h.html#iswhite">iswhite</a>(<a class="L" href="lstate.h.html#obj2gco">obj2gco</a>(cl)));
+L0498      <a class="L" href="lapi.c.html#api_incr_top">api_incr_top</a>(L);
+L0499      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L0500    }
+L0501    
+L0502    
+L0503    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">void</span> <a name="lua_pushboolean"/a><a class="L" href="lapi.c.ref.html#lua_pushboolean">lua_pushboolean</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> b) {
+L0504      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);
+L0505      <a class="L" href="lobject.h.html#setbvalue">setbvalue</a>(L-&gt;top, (b != <span class="number">0</span>));  <span class="comment">/* ensure that true is 1 */</span>
+L0506      <a class="L" href="lapi.c.html#api_incr_top">api_incr_top</a>(L);
+L0507      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L0508    }
+L0509    
+L0510    
+L0511    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">void</span> <a name="lua_pushlightuserdata"/a><a class="L" href="lapi.c.ref.html#lua_pushlightuserdata">lua_pushlightuserdata</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">void</span> *p) {
+L0512      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);
+L0513      <a class="L" href="lobject.h.html#setpvalue">setpvalue</a>(L-&gt;top, p);
+L0514      <a class="L" href="lapi.c.html#api_incr_top">api_incr_top</a>(L);
+L0515      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L0516    }
+L0517    
+L0518    
+L0519    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">int</span> <a name="lua_pushthread"/a><a class="L" href="lapi.c.ref.html#lua_pushthread">lua_pushthread</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0520      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);
+L0521      <a class="L" href="lobject.h.html#setthvalue">setthvalue</a>(L, L-&gt;top, L);
+L0522      <a class="L" href="lapi.c.html#api_incr_top">api_incr_top</a>(L);
+L0523      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L0524      <span class="keyword">return</span> (<a class="L" href="lstate.h.html#G">G</a>(L)-&gt;mainthread == L);
+L0525    }
+L0526    
+L0527    
+L0528    
+L0529    <span class="comment">/*
+L0530    ** get functions (Lua -&gt; stack)
+L0531    */</span>
+L0532    
+L0533    
+L0534    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">void</span> <a name="lua_gettable"/a><a class="L" href="lapi.c.ref.html#lua_gettable">lua_gettable</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> idx) {
+L0535      <a class="L" href="lobject.h.html#StkId">StkId</a> t;
+L0536      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);
+L0537      t = <a class="L" href="lapi.c.html#index2adr">index2adr</a>(L, idx);
+L0538      <a class="L" href="lapi.c.html#api_checkvalidindex">api_checkvalidindex</a>(L, t);
+L0539      <a class="L" href="lvm.c.html#luaV_gettable">luaV_gettable</a>(L, t, L-&gt;top - <span class="number">1</span>, L-&gt;top - <span class="number">1</span>);
+L0540      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L0541    }
+L0542    
+L0543    
+L0544    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">void</span> <a name="lua_getfield"/a><a class="L" href="lapi.c.ref.html#lua_getfield">lua_getfield</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> idx, <span class="keyword">const</span> <span class="keyword">char</span> *k) {
+L0545      <a class="L" href="lobject.h.html#StkId">StkId</a> t;
+L0546      <a class="L" href="lobject.h.html#TValue">TValue</a> key;
+L0547      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);
+L0548      t = <a class="L" href="lapi.c.html#index2adr">index2adr</a>(L, idx);
+L0549      <a class="L" href="lapi.c.html#api_checkvalidindex">api_checkvalidindex</a>(L, t);
+L0550      <a class="L" href="lobject.h.html#setsvalue">setsvalue</a>(L, &amp;key, <a class="L" href="lstring.h.html#luaS_new">luaS_new</a>(L, k));
+L0551      <a class="L" href="lvm.c.html#luaV_gettable">luaV_gettable</a>(L, t, &amp;key, L-&gt;top);
+L0552      <a class="L" href="lapi.c.html#api_incr_top">api_incr_top</a>(L);
+L0553      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L0554    }
+L0555    
+L0556    
+L0557    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">void</span> <a name="lua_rawget"/a><a class="L" href="lapi.c.ref.html#lua_rawget">lua_rawget</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> idx) {
+L0558      <a class="L" href="lobject.h.html#StkId">StkId</a> t;
+L0559      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);
+L0560      t = <a class="L" href="lapi.c.html#index2adr">index2adr</a>(L, idx);
+L0561      <a class="L" href="llimits.h.html#api_check">api_check</a>(L, <a class="L" href="lobject.h.html#ttistable">ttistable</a>(t));
+L0562      <a class="L" href="lobject.h.html#setobj2s">setobj2s</a>(L, L-&gt;top - <span class="number">1</span>, <a class="L" href="ltable.c.html#luaH_get">luaH_get</a>(<a class="L" href="lobject.h.html#hvalue">hvalue</a>(t), L-&gt;top - <span class="number">1</span>));
+L0563      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L0564    }
+L0565    
+L0566    
+L0567    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">void</span> <a name="lua_rawgeti"/a><a class="L" href="lapi.c.ref.html#lua_rawgeti">lua_rawgeti</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> idx, <span class="keyword">int</span> n) {
+L0568      <a class="L" href="lobject.h.html#StkId">StkId</a> o;
+L0569      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);
+L0570      o = <a class="L" href="lapi.c.html#index2adr">index2adr</a>(L, idx);
+L0571      <a class="L" href="llimits.h.html#api_check">api_check</a>(L, <a class="L" href="lobject.h.html#ttistable">ttistable</a>(o));
+L0572      <a class="L" href="lobject.h.html#setobj2s">setobj2s</a>(L, L-&gt;top, <a class="L" href="ltable.c.html#luaH_getnum">luaH_getnum</a>(<a class="L" href="lobject.h.html#hvalue">hvalue</a>(o), n));
+L0573      <a class="L" href="lapi.c.html#api_incr_top">api_incr_top</a>(L);
+L0574      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L0575    }
+L0576    
+L0577    
+L0578    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">void</span> <a name="lua_createtable"/a><a class="L" href="lapi.c.ref.html#lua_createtable">lua_createtable</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> narray, <span class="keyword">int</span> nrec) {
+L0579      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);
+L0580      <a class="L" href="lgc.h.html#luaC_checkGC">luaC_checkGC</a>(L);
+L0581      <a class="L" href="lobject.h.html#sethvalue">sethvalue</a>(L, L-&gt;top, <a class="L" href="ltable.c.html#luaH_new">luaH_new</a>(L, narray, nrec));
+L0582      <a class="L" href="lapi.c.html#api_incr_top">api_incr_top</a>(L);
+L0583      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L0584    }
+L0585    
+L0586    
+L0587    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">int</span> <a name="lua_getmetatable"/a><a class="L" href="lapi.c.ref.html#lua_getmetatable">lua_getmetatable</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> objindex) {
+L0588      <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *obj;
+L0589      <a class="L" href="lobject.h.html#Table">Table</a> *mt = NULL;
+L0590      <span class="keyword">int</span> res;
+L0591      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);
+L0592      obj = <a class="L" href="lapi.c.html#index2adr">index2adr</a>(L, objindex);
+L0593      <span class="keyword">switch</span> (<a class="L" href="lobject.h.html#ttype">ttype</a>(obj)) {
+L0594        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TTABLE">LUA_TTABLE</a>:
+L0595          mt = <a class="L" href="lobject.h.html#hvalue">hvalue</a>(obj)-&gt;metatable;
+L0596          <span class="keyword">break</span>;
+L0597        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TUSERDATA">LUA_TUSERDATA</a>:
+L0598          mt = <a class="L" href="lobject.h.html#uvalue">uvalue</a>(obj)-&gt;metatable;
+L0599          <span class="keyword">break</span>;
+L0600        <span class="keyword">default</span>:
+L0601          mt = <a class="L" href="lstate.h.html#G">G</a>(L)-&gt;mt[<a class="L" href="lobject.h.html#ttype">ttype</a>(obj)];
+L0602          <span class="keyword">break</span>;
+L0603      }
+L0604      <span class="keyword">if</span> (mt == NULL)
+L0605        res = <span class="number">0</span>;
+L0606      <span class="keyword">else</span> {
+L0607        <a class="L" href="lobject.h.html#sethvalue">sethvalue</a>(L, L-&gt;top, mt);
+L0608        <a class="L" href="lapi.c.html#api_incr_top">api_incr_top</a>(L);
+L0609        res = <span class="number">1</span>;
+L0610      }
+L0611      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L0612      <span class="keyword">return</span> res;
+L0613    }
+L0614    
+L0615    
+L0616    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">void</span> <a name="lua_getfenv"/a><a class="L" href="lapi.c.ref.html#lua_getfenv">lua_getfenv</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> idx) {
+L0617      <a class="L" href="lobject.h.html#StkId">StkId</a> o;
+L0618      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);
+L0619      o = <a class="L" href="lapi.c.html#index2adr">index2adr</a>(L, idx);
+L0620      <a class="L" href="lapi.c.html#api_checkvalidindex">api_checkvalidindex</a>(L, o);
+L0621      <span class="keyword">switch</span> (<a class="L" href="lobject.h.html#ttype">ttype</a>(o)) {
+L0622        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TFUNCTION">LUA_TFUNCTION</a>:
+L0623          <a class="L" href="lobject.h.html#sethvalue">sethvalue</a>(L, L-&gt;top, <a class="L" href="lobject.h.html#clvalue">clvalue</a>(o)-&gt;c.env);
+L0624          <span class="keyword">break</span>;
+L0625        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TUSERDATA">LUA_TUSERDATA</a>:
+L0626          <a class="L" href="lobject.h.html#sethvalue">sethvalue</a>(L, L-&gt;top, <a class="L" href="lobject.h.html#uvalue">uvalue</a>(o)-&gt;env);
+L0627          <span class="keyword">break</span>;
+L0628        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TTHREAD">LUA_TTHREAD</a>:
+L0629          <a class="L" href="lobject.h.html#setobj2s">setobj2s</a>(L, L-&gt;top,  <a class="L" href="lstate.h.html#gt">gt</a>(<a class="L" href="lobject.h.html#thvalue">thvalue</a>(o)));
+L0630          <span class="keyword">break</span>;
+L0631        <span class="keyword">default</span>:
+L0632          <a class="L" href="lobject.h.html#setnilvalue">setnilvalue</a>(L-&gt;top);
+L0633          <span class="keyword">break</span>;
+L0634      }
+L0635      <a class="L" href="lapi.c.html#api_incr_top">api_incr_top</a>(L);
+L0636      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L0637    }
+L0638    
+L0639    
+L0640    <span class="comment">/*
+L0641    ** set functions (stack -&gt; Lua)
+L0642    */</span>
+L0643    
+L0644    
+L0645    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">void</span> <a name="lua_settable"/a><a class="L" href="lapi.c.ref.html#lua_settable">lua_settable</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> idx) {
+L0646      <a class="L" href="lobject.h.html#StkId">StkId</a> t;
+L0647      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);
+L0648      <a class="L" href="lapi.c.html#api_checknelems">api_checknelems</a>(L, <span class="number">2</span>);
+L0649      t = <a class="L" href="lapi.c.html#index2adr">index2adr</a>(L, idx);
+L0650      <a class="L" href="lapi.c.html#api_checkvalidindex">api_checkvalidindex</a>(L, t);
+L0651      <a class="L" href="lvm.c.html#luaV_settable">luaV_settable</a>(L, t, L-&gt;top - <span class="number">2</span>, L-&gt;top - <span class="number">1</span>);
+L0652      L-&gt;top -= <span class="number">2</span>;  <span class="comment">/* pop index and value */</span>
+L0653      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L0654    }
+L0655    
+L0656    
+L0657    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">void</span> <a name="lua_setfield"/a><a class="L" href="lapi.c.ref.html#lua_setfield">lua_setfield</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> idx, <span class="keyword">const</span> <span class="keyword">char</span> *k) {
+L0658      <a class="L" href="lobject.h.html#StkId">StkId</a> t;
+L0659      <a class="L" href="lobject.h.html#TValue">TValue</a> key;
+L0660      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);
+L0661      <a class="L" href="lapi.c.html#api_checknelems">api_checknelems</a>(L, <span class="number">1</span>);
+L0662      t = <a class="L" href="lapi.c.html#index2adr">index2adr</a>(L, idx);
+L0663      <a class="L" href="lapi.c.html#api_checkvalidindex">api_checkvalidindex</a>(L, t);
+L0664      <a class="L" href="lobject.h.html#setsvalue">setsvalue</a>(L, &amp;key, <a class="L" href="lstring.h.html#luaS_new">luaS_new</a>(L, k));
+L0665      <a class="L" href="lvm.c.html#luaV_settable">luaV_settable</a>(L, t, &amp;key, L-&gt;top - <span class="number">1</span>);
+L0666      L-&gt;top--;  <span class="comment">/* pop value */</span>
+L0667      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L0668    }
+L0669    
+L0670    
+L0671    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">void</span> <a name="lua_rawset"/a><a class="L" href="lapi.c.ref.html#lua_rawset">lua_rawset</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> idx) {
+L0672      <a class="L" href="lobject.h.html#StkId">StkId</a> t;
+L0673      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);
+L0674      <a class="L" href="lapi.c.html#api_checknelems">api_checknelems</a>(L, <span class="number">2</span>);
+L0675      t = <a class="L" href="lapi.c.html#index2adr">index2adr</a>(L, idx);
+L0676      <a class="L" href="llimits.h.html#api_check">api_check</a>(L, <a class="L" href="lobject.h.html#ttistable">ttistable</a>(t));
+L0677      <a class="L" href="lobject.h.html#setobj2t">setobj2t</a>(L, <a class="L" href="ltable.c.html#luaH_set">luaH_set</a>(L, <a class="L" href="lobject.h.html#hvalue">hvalue</a>(t), L-&gt;top<span class="number">-2</span>), L-&gt;top<span class="number">-1</span>);
+L0678      <a class="L" href="lgc.h.html#luaC_barriert">luaC_barriert</a>(L, <a class="L" href="lobject.h.html#hvalue">hvalue</a>(t), L-&gt;top<span class="number">-1</span>);
+L0679      L-&gt;top -= <span class="number">2</span>;
+L0680      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L0681    }
+L0682    
+L0683    
+L0684    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">void</span> <a name="lua_rawseti"/a><a class="L" href="lapi.c.ref.html#lua_rawseti">lua_rawseti</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> idx, <span class="keyword">int</span> n) {
+L0685      <a class="L" href="lobject.h.html#StkId">StkId</a> o;
+L0686      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);
+L0687      <a class="L" href="lapi.c.html#api_checknelems">api_checknelems</a>(L, <span class="number">1</span>);
+L0688      o = <a class="L" href="lapi.c.html#index2adr">index2adr</a>(L, idx);
+L0689      <a class="L" href="llimits.h.html#api_check">api_check</a>(L, <a class="L" href="lobject.h.html#ttistable">ttistable</a>(o));
+L0690      <a class="L" href="lobject.h.html#setobj2t">setobj2t</a>(L, <a class="L" href="ltable.c.html#luaH_setnum">luaH_setnum</a>(L, <a class="L" href="lobject.h.html#hvalue">hvalue</a>(o), n), L-&gt;top<span class="number">-1</span>);
+L0691      <a class="L" href="lgc.h.html#luaC_barriert">luaC_barriert</a>(L, <a class="L" href="lobject.h.html#hvalue">hvalue</a>(o), L-&gt;top<span class="number">-1</span>);
+L0692      L-&gt;top--;
+L0693      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L0694    }
+L0695    
+L0696    
+L0697    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">int</span> <a name="lua_setmetatable"/a><a class="L" href="lapi.c.ref.html#lua_setmetatable">lua_setmetatable</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> objindex) {
+L0698      <a class="L" href="lobject.h.html#TValue">TValue</a> *obj;
+L0699      <a class="L" href="lobject.h.html#Table">Table</a> *mt;
+L0700      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);
+L0701      <a class="L" href="lapi.c.html#api_checknelems">api_checknelems</a>(L, <span class="number">1</span>);
+L0702      obj = <a class="L" href="lapi.c.html#index2adr">index2adr</a>(L, objindex);
+L0703      <a class="L" href="lapi.c.html#api_checkvalidindex">api_checkvalidindex</a>(L, obj);
+L0704      <span class="keyword">if</span> (<a class="L" href="lobject.h.html#ttisnil">ttisnil</a>(L-&gt;top - <span class="number">1</span>))
+L0705        mt = NULL;
+L0706      <span class="keyword">else</span> {
+L0707        <a class="L" href="llimits.h.html#api_check">api_check</a>(L, <a class="L" href="lobject.h.html#ttistable">ttistable</a>(L-&gt;top - <span class="number">1</span>));
+L0708        mt = <a class="L" href="lobject.h.html#hvalue">hvalue</a>(L-&gt;top - <span class="number">1</span>);
+L0709      }
+L0710      <span class="keyword">switch</span> (<a class="L" href="lobject.h.html#ttype">ttype</a>(obj)) {
+L0711        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TTABLE">LUA_TTABLE</a>: {
+L0712          <a class="L" href="lobject.h.html#hvalue">hvalue</a>(obj)-&gt;metatable = mt;
+L0713          <span class="keyword">if</span> (mt)
+L0714            <a class="L" href="lgc.h.html#luaC_objbarriert">luaC_objbarriert</a>(L, <a class="L" href="lobject.h.html#hvalue">hvalue</a>(obj), mt);
+L0715          <span class="keyword">break</span>;
+L0716        }
+L0717        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TUSERDATA">LUA_TUSERDATA</a>: {
+L0718          <a class="L" href="lobject.h.html#uvalue">uvalue</a>(obj)-&gt;metatable = mt;
+L0719          <span class="keyword">if</span> (mt)
+L0720            <a class="L" href="lgc.h.html#luaC_objbarrier">luaC_objbarrier</a>(L, <a class="L" href="lobject.h.html#rawuvalue">rawuvalue</a>(obj), mt);
+L0721          <span class="keyword">break</span>;
+L0722        }
+L0723        <span class="keyword">default</span>: {
+L0724          <a class="L" href="lstate.h.html#G">G</a>(L)-&gt;mt[<a class="L" href="lobject.h.html#ttype">ttype</a>(obj)] = mt;
+L0725          <span class="keyword">break</span>;
+L0726        }
+L0727      }
+L0728      L-&gt;top--;
+L0729      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L0730      <span class="keyword">return</span> <span class="number">1</span>;
+L0731    }
+L0732    
+L0733    
+L0734    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">int</span> <a name="lua_setfenv"/a><a class="L" href="lapi.c.ref.html#lua_setfenv">lua_setfenv</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> idx) {
+L0735      <a class="L" href="lobject.h.html#StkId">StkId</a> o;
+L0736      <span class="keyword">int</span> res = <span class="number">1</span>;
+L0737      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);
+L0738      <a class="L" href="lapi.c.html#api_checknelems">api_checknelems</a>(L, <span class="number">1</span>);
+L0739      o = <a class="L" href="lapi.c.html#index2adr">index2adr</a>(L, idx);
+L0740      <a class="L" href="lapi.c.html#api_checkvalidindex">api_checkvalidindex</a>(L, o);
+L0741      <a class="L" href="llimits.h.html#api_check">api_check</a>(L, <a class="L" href="lobject.h.html#ttistable">ttistable</a>(L-&gt;top - <span class="number">1</span>));
+L0742      <span class="keyword">switch</span> (<a class="L" href="lobject.h.html#ttype">ttype</a>(o)) {
+L0743        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TFUNCTION">LUA_TFUNCTION</a>:
+L0744          <a class="L" href="lobject.h.html#clvalue">clvalue</a>(o)-&gt;c.env = <a class="L" href="lobject.h.html#hvalue">hvalue</a>(L-&gt;top - <span class="number">1</span>);
+L0745          <span class="keyword">break</span>;
+L0746        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TUSERDATA">LUA_TUSERDATA</a>:
+L0747          <a class="L" href="lobject.h.html#uvalue">uvalue</a>(o)-&gt;env = <a class="L" href="lobject.h.html#hvalue">hvalue</a>(L-&gt;top - <span class="number">1</span>);
+L0748          <span class="keyword">break</span>;
+L0749        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TTHREAD">LUA_TTHREAD</a>:
+L0750          <a class="L" href="lobject.h.html#sethvalue">sethvalue</a>(L, <a class="L" href="lstate.h.html#gt">gt</a>(<a class="L" href="lobject.h.html#thvalue">thvalue</a>(o)), <a class="L" href="lobject.h.html#hvalue">hvalue</a>(L-&gt;top - <span class="number">1</span>));
+L0751          <span class="keyword">break</span>;
+L0752        <span class="keyword">default</span>:
+L0753          res = <span class="number">0</span>;
+L0754          <span class="keyword">break</span>;
+L0755      }
+L0756      <span class="keyword">if</span> (res) <a class="L" href="lgc.h.html#luaC_objbarrier">luaC_objbarrier</a>(L, <a class="L" href="lobject.h.html#gcvalue">gcvalue</a>(o), <a class="L" href="lobject.h.html#hvalue">hvalue</a>(L-&gt;top - <span class="number">1</span>));
+L0757      L-&gt;top--;
+L0758      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L0759      <span class="keyword">return</span> res;
+L0760    }
+L0761    
+L0762    
+L0763    <span class="comment">/*
+L0764    ** `load' and `call' functions (run Lua code)
+L0765    */</span>
+L0766    
+L0767    
+L0768    <a name="adjustresults"/a><span class="prepro">#define adjustresults(L,nres) \
+L0769        { if (nres == LUA_MULTRET &amp;&amp; L-&gt;top &gt;= L-&gt;ci-&gt;top) L-&gt;ci-&gt;top = L-&gt;top; }
+</span>L0770    
+L0771    
+L0772    <a name="checkresults"/a><span class="prepro">#define checkresults(L,na,nr) \
+L0773         api_check(L, (nr) == LUA_MULTRET || (L-&gt;ci-&gt;top - L-&gt;top &gt;= (nr) - (na)))
+</span>L0774    	
+L0775    
+L0776    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">void</span> <a name="lua_call"/a><a class="L" href="lapi.c.ref.html#lua_call">lua_call</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> nargs, <span class="keyword">int</span> nresults) {
+L0777      <a class="L" href="lobject.h.html#StkId">StkId</a> func;
+L0778      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);
+L0779      <a class="L" href="lapi.c.html#api_checknelems">api_checknelems</a>(L, nargs<span class="number">+1</span>);
+L0780      <a class="L" href="lapi.c.html#checkresults">checkresults</a>(L, nargs, nresults);
+L0781      func = L-&gt;top - (nargs<span class="number">+1</span>);
+L0782      <a class="L" href="ldo.c.html#luaD_call">luaD_call</a>(L, func, nresults);
+L0783      <a class="L" href="lapi.c.html#adjustresults">adjustresults</a>(L, nresults);
+L0784      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L0785    }
+L0786    
+L0787    
+L0788    
+L0789    <span class="comment">/*
+L0790    ** Execute a protected call.
+L0791    */</span>
+L0792    <span class="keyword">struct</span> <a name="CallS"/a><a class="L" href="lapi.c.ref.html#CallS">CallS</a> {  <span class="comment">/* data to `f_call' */</span>
+L0793      <a class="L" href="lobject.h.html#StkId">StkId</a> <a name="func"/a><a class="L" href="lapi.c.ref.html#func">func</a>;
+L0794      <span class="keyword">int</span> <a name="nresults"/a><a class="L" href="lapi.c.ref.html#nresults">nresults</a>;
+L0795    };
+L0796    
+L0797    
+L0798    <span class="keyword">static</span> <span class="keyword">void</span> <a name="f_call"/a><a class="L" href="lapi.c.ref.html#f_call">f_call</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">void</span> *ud) {
+L0799      <span class="keyword">struct</span> <a class="L" href="lapi.c.html#CallS">CallS</a> *c = <a class="L" href="llimits.h.html#cast">cast</a>(<span class="keyword">struct</span> <a class="L" href="lapi.c.html#CallS">CallS</a> *, ud);
+L0800      <a class="L" href="ldo.c.html#luaD_call">luaD_call</a>(L, c-&gt;func, c-&gt;nresults);
+L0801    }
+L0802    
+L0803    
+L0804    
+L0805    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">int</span> <a name="lua_pcall"/a><a class="L" href="lapi.c.ref.html#lua_pcall">lua_pcall</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> nargs, <span class="keyword">int</span> nresults, <span class="keyword">int</span> errfunc) {
+L0806      <span class="keyword">struct</span> <a class="L" href="lapi.c.html#CallS">CallS</a> c;
+L0807      <span class="keyword">int</span> status;
+L0808      ptrdiff_t func;
+L0809      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);
+L0810      <a class="L" href="lapi.c.html#api_checknelems">api_checknelems</a>(L, nargs<span class="number">+1</span>);
+L0811      <a class="L" href="lapi.c.html#checkresults">checkresults</a>(L, nargs, nresults);
+L0812      <span class="keyword">if</span> (errfunc == <span class="number">0</span>)
+L0813        func = <span class="number">0</span>;
+L0814      <span class="keyword">else</span> {
+L0815        <a class="L" href="lobject.h.html#StkId">StkId</a> o = <a class="L" href="lapi.c.html#index2adr">index2adr</a>(L, errfunc);
+L0816        <a class="L" href="lapi.c.html#api_checkvalidindex">api_checkvalidindex</a>(L, o);
+L0817        func = <a class="L" href="ldo.h.html#savestack">savestack</a>(L, o);
+L0818      }
+L0819      c.func = L-&gt;top - (nargs<span class="number">+1</span>);  <span class="comment">/* function to be called */</span>
+L0820      c.nresults = nresults;
+L0821      status = <a class="L" href="ldo.c.html#luaD_pcall">luaD_pcall</a>(L, <a class="L" href="lapi.c.html#f_call">f_call</a>, &amp;c, <a class="L" href="ldo.h.html#savestack">savestack</a>(L, c.func), func);
+L0822      <a class="L" href="lapi.c.html#adjustresults">adjustresults</a>(L, nresults);
+L0823      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L0824      <span class="keyword">return</span> status;
+L0825    }
+L0826    
+L0827    
+L0828    <span class="comment">/*
+L0829    ** Execute a protected C call.
+L0830    */</span>
+L0831    <span class="keyword">struct</span> <a name="CCallS"/a><a class="L" href="lapi.c.ref.html#CCallS">CCallS</a> {  <span class="comment">/* data to `f_Ccall' */</span>
+L0832      <a class="L" href="lua.h.html#lua_CFunction">lua_CFunction</a> func;
+L0833      <span class="keyword">void</span> *<a name="ud"/a><a class="L" href="lapi.c.ref.html#ud">ud</a>;
+L0834    };
+L0835    
+L0836    
+L0837    <span class="keyword">static</span> <span class="keyword">void</span> <a name="f_Ccall"/a><a class="L" href="lapi.c.ref.html#f_Ccall">f_Ccall</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">void</span> *ud) {
+L0838      <span class="keyword">struct</span> <a class="L" href="lapi.c.html#CCallS">CCallS</a> *c = <a class="L" href="llimits.h.html#cast">cast</a>(<span class="keyword">struct</span> <a class="L" href="lapi.c.html#CCallS">CCallS</a> *, ud);
+L0839      <a class="L" href="lobject.h.html#Closure">Closure</a> *cl;
+L0840      cl = <a class="L" href="lfunc.c.html#luaF_newCclosure">luaF_newCclosure</a>(L, <span class="number">0</span>, <a class="L" href="lapi.c.html#getcurrenv">getcurrenv</a>(L));
+L0841      cl-&gt;c.f = c-&gt;func;
+L0842      <a class="L" href="lobject.h.html#setclvalue">setclvalue</a>(L, L-&gt;top, cl);  <span class="comment">/* push function */</span>
+L0843      <a class="L" href="lapi.c.html#api_incr_top">api_incr_top</a>(L);
+L0844      <a class="L" href="lobject.h.html#setpvalue">setpvalue</a>(L-&gt;top, c-&gt;ud);  <span class="comment">/* push only argument */</span>
+L0845      <a class="L" href="lapi.c.html#api_incr_top">api_incr_top</a>(L);
+L0846      <a class="L" href="ldo.c.html#luaD_call">luaD_call</a>(L, L-&gt;top - <span class="number">2</span>, <span class="number">0</span>);
+L0847    }
+L0848    
+L0849    
+L0850    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">int</span> <a name="lua_cpcall"/a><a class="L" href="lapi.c.ref.html#lua_cpcall">lua_cpcall</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lua.h.html#lua_CFunction">lua_CFunction</a> func, <span class="keyword">void</span> *ud) {
+L0851      <span class="keyword">struct</span> <a class="L" href="lapi.c.html#CCallS">CCallS</a> c;
+L0852      <span class="keyword">int</span> status;
+L0853      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);
+L0854      c.func = func;
+L0855      c.ud = ud;
+L0856      status = <a class="L" href="ldo.c.html#luaD_pcall">luaD_pcall</a>(L, <a class="L" href="lapi.c.html#f_Ccall">f_Ccall</a>, &amp;c, <a class="L" href="ldo.h.html#savestack">savestack</a>(L, L-&gt;top), <span class="number">0</span>);
+L0857      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L0858      <span class="keyword">return</span> status;
+L0859    }
+L0860    
+L0861    
+L0862    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">int</span> <a name="lua_load"/a><a class="L" href="lapi.c.ref.html#lua_load">lua_load</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lua.h.html#lua_Reader">lua_Reader</a> reader, <span class="keyword">void</span> *data,
+L0863                          <span class="keyword">const</span> <span class="keyword">char</span> *chunkname) {
+L0864      <a class="L" href="lzio.h.html#ZIO">ZIO</a> z;
+L0865      <span class="keyword">int</span> status;
+L0866      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);
+L0867      <span class="keyword">if</span> (!chunkname) chunkname = <span class="string">"?"</span>;
+L0868      <a class="L" href="lzio.c.html#luaZ_init">luaZ_init</a>(L, &amp;z, reader, data);
+L0869      status = <a class="L" href="ldo.c.html#luaD_protectedparser">luaD_protectedparser</a>(L, &amp;z, chunkname);
+L0870      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L0871      <span class="keyword">return</span> status;
+L0872    }
+L0873    
+L0874    
+L0875    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">int</span> <a name="lua_dump"/a><a class="L" href="lapi.c.ref.html#lua_dump">lua_dump</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lua.h.html#lua_Writer">lua_Writer</a> writer, <span class="keyword">void</span> *data) {
+L0876      <span class="keyword">int</span> status;
+L0877      <a class="L" href="lobject.h.html#TValue">TValue</a> *o;
+L0878      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);
+L0879      <a class="L" href="lapi.c.html#api_checknelems">api_checknelems</a>(L, <span class="number">1</span>);
+L0880      o = L-&gt;top - <span class="number">1</span>;
+L0881      <span class="keyword">if</span> (<a class="L" href="lobject.h.html#isLfunction">isLfunction</a>(o))
+L0882        status = <a class="L" href="ldump.c.html#luaU_dump">luaU_dump</a>(L, <a class="L" href="lobject.h.html#clvalue">clvalue</a>(o)-&gt;l.p, writer, data, <span class="number">0</span>);
+L0883      <span class="keyword">else</span>
+L0884        status = <span class="number">1</span>;
+L0885      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L0886      <span class="keyword">return</span> status;
+L0887    }
+L0888    
+L0889    
+L0890    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">int</span>  <a name="lua_status"/a><a class="L" href="lapi.c.ref.html#lua_status">lua_status</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0891      <span class="keyword">return</span> L-&gt;status;
+L0892    }
+L0893    
+L0894    
+L0895    <span class="comment">/*
+L0896    ** Garbage-collection function
+L0897    */</span>
+L0898    
+L0899    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">int</span> <a name="lua_gc"/a><a class="L" href="lapi.c.ref.html#lua_gc">lua_gc</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> what, <span class="keyword">int</span> data) {
+L0900      <span class="keyword">int</span> res = <span class="number">0</span>;
+L0901      <a class="L" href="lstate.h.html#global_State">global_State</a> *g;
+L0902      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);
+L0903      g = <a class="L" href="lstate.h.html#G">G</a>(L);
+L0904      <span class="keyword">switch</span> (what) {
+L0905        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_GCSTOP">LUA_GCSTOP</a>: {
+L0906          g-&gt;GCthreshold = <a class="L" href="llimits.h.html#MAX_LUMEM">MAX_LUMEM</a>;
+L0907          <span class="keyword">break</span>;
+L0908        }
+L0909        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_GCRESTART">LUA_GCRESTART</a>: {
+L0910          g-&gt;GCthreshold = g-&gt;totalbytes;
+L0911          <span class="keyword">break</span>;
+L0912        }
+L0913        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_GCCOLLECT">LUA_GCCOLLECT</a>: {
+L0914          <a class="L" href="lgc.c.html#luaC_fullgc">luaC_fullgc</a>(L);
+L0915          <span class="keyword">break</span>;
+L0916        }
+L0917        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_GCCOUNT">LUA_GCCOUNT</a>: {
+L0918          <span class="comment">/* GC values are expressed in Kbytes: #bytes/2^10 */</span>
+L0919          res = <a class="L" href="llimits.h.html#cast_int">cast_int</a>(g-&gt;totalbytes &gt;&gt; <span class="number">10</span>);
+L0920          <span class="keyword">break</span>;
+L0921        }
+L0922        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_GCCOUNTB">LUA_GCCOUNTB</a>: {
+L0923          res = <a class="L" href="llimits.h.html#cast_int">cast_int</a>(g-&gt;totalbytes &amp; <span class="number">0x3ff</span>);
+L0924          <span class="keyword">break</span>;
+L0925        }
+L0926        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_GCSTEP">LUA_GCSTEP</a>: {
+L0927          <a class="L" href="llimits.h.html#lu_mem">lu_mem</a> a = (<a class="L" href="llimits.h.html#cast">cast</a>(<a class="L" href="llimits.h.html#lu_mem">lu_mem</a>, data) &lt;&lt; <span class="number">10</span>);
+L0928          <span class="keyword">if</span> (a &lt;= g-&gt;totalbytes)
+L0929            g-&gt;GCthreshold = g-&gt;totalbytes - a;
+L0930          <span class="keyword">else</span>
+L0931            g-&gt;GCthreshold = <span class="number">0</span>;
+L0932          <span class="keyword">while</span> (g-&gt;GCthreshold &lt;= g-&gt;totalbytes) {
+L0933            <a class="L" href="lgc.c.html#luaC_step">luaC_step</a>(L);
+L0934            <span class="keyword">if</span> (g-&gt;gcstate == <a class="L" href="lgc.h.html#GCSpause">GCSpause</a>) {  <span class="comment">/* end of cycle? */</span>
+L0935              res = <span class="number">1</span>;  <span class="comment">/* signal it */</span>
+L0936              <span class="keyword">break</span>;
+L0937            }
+L0938          }
+L0939          <span class="keyword">break</span>;
+L0940        }
+L0941        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_GCSETPAUSE">LUA_GCSETPAUSE</a>: {
+L0942          res = g-&gt;gcpause;
+L0943          g-&gt;gcpause = data;
+L0944          <span class="keyword">break</span>;
+L0945        }
+L0946        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_GCSETSTEPMUL">LUA_GCSETSTEPMUL</a>: {
+L0947          res = g-&gt;gcstepmul;
+L0948          g-&gt;gcstepmul = data;
+L0949          <span class="keyword">break</span>;
+L0950        }
+L0951        <span class="keyword">default</span>: res = <span class="number">-1</span>;  <span class="comment">/* invalid option */</span>
+L0952      }
+L0953      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L0954      <span class="keyword">return</span> res;
+L0955    }
+L0956    
+L0957    
+L0958    
+L0959    <span class="comment">/*
+L0960    ** miscellaneous functions
+L0961    */</span>
+L0962    
+L0963    
+L0964    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">int</span> <a name="lua_error"/a><a class="L" href="lapi.c.ref.html#lua_error">lua_error</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0965      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);
+L0966      <a class="L" href="lapi.c.html#api_checknelems">api_checknelems</a>(L, <span class="number">1</span>);
+L0967      <a class="L" href="ldebug.c.html#luaG_errormsg">luaG_errormsg</a>(L);
+L0968      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L0969      <span class="keyword">return</span> <span class="number">0</span>;  <span class="comment">/* to avoid warnings */</span>
+L0970    }
+L0971    
+L0972    
+L0973    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">int</span> <a name="lua_next"/a><a class="L" href="lapi.c.ref.html#lua_next">lua_next</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> idx) {
+L0974      <a class="L" href="lobject.h.html#StkId">StkId</a> t;
+L0975      <span class="keyword">int</span> more;
+L0976      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);
+L0977      t = <a class="L" href="lapi.c.html#index2adr">index2adr</a>(L, idx);
+L0978      <a class="L" href="llimits.h.html#api_check">api_check</a>(L, <a class="L" href="lobject.h.html#ttistable">ttistable</a>(t));
+L0979      more = <a class="L" href="ltable.c.html#luaH_next">luaH_next</a>(L, <a class="L" href="lobject.h.html#hvalue">hvalue</a>(t), L-&gt;top - <span class="number">1</span>);
+L0980      <span class="keyword">if</span> (more) {
+L0981        <a class="L" href="lapi.c.html#api_incr_top">api_incr_top</a>(L);
+L0982      }
+L0983      <span class="keyword">else</span>  <span class="comment">/* no more elements */</span>
+L0984        L-&gt;top -= <span class="number">1</span>;  <span class="comment">/* remove key */</span>
+L0985      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L0986      <span class="keyword">return</span> more;
+L0987    }
+L0988    
+L0989    
+L0990    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">void</span> <a name="lua_concat"/a><a class="L" href="lapi.c.ref.html#lua_concat">lua_concat</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> n) {
+L0991      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);
+L0992      <a class="L" href="lapi.c.html#api_checknelems">api_checknelems</a>(L, n);
+L0993      <span class="keyword">if</span> (n &gt;= <span class="number">2</span>) {
+L0994        <a class="L" href="lgc.h.html#luaC_checkGC">luaC_checkGC</a>(L);
+L0995        <a class="L" href="lvm.c.html#luaV_concat">luaV_concat</a>(L, n, <a class="L" href="llimits.h.html#cast_int">cast_int</a>(L-&gt;top - L-&gt;base) - <span class="number">1</span>);
+L0996        L-&gt;top -= (n<span class="number">-1</span>);
+L0997      }
+L0998      <span class="keyword">else</span> <span class="keyword">if</span> (n == <span class="number">0</span>) {  <span class="comment">/* push empty string */</span>
+L0999        <a class="L" href="lobject.h.html#setsvalue2s">setsvalue2s</a>(L, L-&gt;top, <a class="L" href="lstring.c.html#luaS_newlstr">luaS_newlstr</a>(L, <span class="string">""</span>, <span class="number">0</span>));
+L1000        <a class="L" href="lapi.c.html#api_incr_top">api_incr_top</a>(L);
+L1001      }
+L1002      <span class="comment">/* else n == 1; nothing to do */</span>
+L1003      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L1004    }
+L1005    
+L1006    
+L1007    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <a class="L" href="lua.h.html#lua_Alloc">lua_Alloc</a> <a name="lua_getallocf"/a><a class="L" href="lapi.c.ref.html#lua_getallocf">lua_getallocf</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">void</span> **ud) {
+L1008      <a class="L" href="lua.h.html#lua_Alloc">lua_Alloc</a> f;
+L1009      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);
+L1010      <span class="keyword">if</span> (ud) *ud = <a class="L" href="lstate.h.html#G">G</a>(L)-&gt;ud;
+L1011      f = <a class="L" href="lstate.h.html#G">G</a>(L)-&gt;frealloc;
+L1012      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L1013      <span class="keyword">return</span> f;
+L1014    }
+L1015    
+L1016    
+L1017    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">void</span> <a name="lua_setallocf"/a><a class="L" href="lapi.c.ref.html#lua_setallocf">lua_setallocf</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lua.h.html#lua_Alloc">lua_Alloc</a> f, <span class="keyword">void</span> *ud) {
+L1018      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);
+L1019      <a class="L" href="lstate.h.html#G">G</a>(L)-&gt;ud = ud;
+L1020      <a class="L" href="lstate.h.html#G">G</a>(L)-&gt;frealloc = f;
+L1021      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L1022    }
+L1023    
+L1024    
+L1025    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">void</span> *<a name="lua_newuserdata"/a><a class="L" href="lapi.c.ref.html#lua_newuserdata">lua_newuserdata</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, size_t size) {
+L1026      <a class="L" href="lobject.h.html#Udata">Udata</a> *u;
+L1027      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);
+L1028      <a class="L" href="lgc.h.html#luaC_checkGC">luaC_checkGC</a>(L);
+L1029      u = <a class="L" href="lstring.c.html#luaS_newudata">luaS_newudata</a>(L, size, <a class="L" href="lapi.c.html#getcurrenv">getcurrenv</a>(L));
+L1030      <a class="L" href="lobject.h.html#setuvalue">setuvalue</a>(L, L-&gt;top, u);
+L1031      <a class="L" href="lapi.c.html#api_incr_top">api_incr_top</a>(L);
+L1032      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L1033      <span class="keyword">return</span> u + <span class="number">1</span>;
+L1034    }
+L1035    
+L1036    
+L1037    
+L1038    
+L1039    <span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">char</span> *<a name="aux_upvalue"/a><a class="L" href="lapi.c.ref.html#aux_upvalue">aux_upvalue</a> (<a class="L" href="lobject.h.html#StkId">StkId</a> fi, <span class="keyword">int</span> n, <a class="L" href="lobject.h.html#TValue">TValue</a> **val) {
+L1040      <a class="L" href="lobject.h.html#Closure">Closure</a> *f;
+L1041      <span class="keyword">if</span> (!<a class="L" href="lobject.h.html#ttisfunction">ttisfunction</a>(fi)) <span class="keyword">return</span> NULL;
+L1042      f = <a class="L" href="lobject.h.html#clvalue">clvalue</a>(fi);
+L1043      <span class="keyword">if</span> (f-&gt;c.isC) {
+L1044        <span class="keyword">if</span> (!(<span class="number">1</span> &lt;= n &amp;&amp; n &lt;= f-&gt;c.nupvalues)) <span class="keyword">return</span> NULL;
+L1045        *val = &amp;f-&gt;c.upvalue[n<span class="number">-1</span>];
+L1046        <span class="keyword">return</span> <span class="string">""</span>;
+L1047      }
+L1048      <span class="keyword">else</span> {
+L1049        <a class="L" href="lobject.h.html#Proto">Proto</a> *p = f-&gt;l.p;
+L1050        <span class="keyword">if</span> (!(<span class="number">1</span> &lt;= n &amp;&amp; n &lt;= p-&gt;sizeupvalues)) <span class="keyword">return</span> NULL;
+L1051        *val = f-&gt;l.upvals[n<span class="number">-1</span>]-&gt;v;
+L1052        <span class="keyword">return</span> <a class="L" href="lobject.h.html#getstr">getstr</a>(p-&gt;upvalues[n<span class="number">-1</span>]);
+L1053      }
+L1054    }
+L1055    
+L1056    
+L1057    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">const</span> <span class="keyword">char</span> *<a name="lua_getupvalue"/a><a class="L" href="lapi.c.ref.html#lua_getupvalue">lua_getupvalue</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> funcindex, <span class="keyword">int</span> n) {
+L1058      <span class="keyword">const</span> <span class="keyword">char</span> *name;
+L1059      <a class="L" href="lobject.h.html#TValue">TValue</a> *val;
+L1060      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);
+L1061      name = <a class="L" href="lapi.c.html#aux_upvalue">aux_upvalue</a>(<a class="L" href="lapi.c.html#index2adr">index2adr</a>(L, funcindex), n, &amp;val);
+L1062      <span class="keyword">if</span> (name) {
+L1063        <a class="L" href="lobject.h.html#setobj2s">setobj2s</a>(L, L-&gt;top, val);
+L1064        <a class="L" href="lapi.c.html#api_incr_top">api_incr_top</a>(L);
+L1065      }
+L1066      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L1067      <span class="keyword">return</span> name;
+L1068    }
+L1069    
+L1070    
+L1071    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">const</span> <span class="keyword">char</span> *<a name="lua_setupvalue"/a><a class="L" href="lapi.c.ref.html#lua_setupvalue">lua_setupvalue</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> funcindex, <span class="keyword">int</span> n) {
+L1072      <span class="keyword">const</span> <span class="keyword">char</span> *name;
+L1073      <a class="L" href="lobject.h.html#TValue">TValue</a> *val;
+L1074      <a class="L" href="lobject.h.html#StkId">StkId</a> fi;
+L1075      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);
+L1076      fi = <a class="L" href="lapi.c.html#index2adr">index2adr</a>(L, funcindex);
+L1077      <a class="L" href="lapi.c.html#api_checknelems">api_checknelems</a>(L, <span class="number">1</span>);
+L1078      name = <a class="L" href="lapi.c.html#aux_upvalue">aux_upvalue</a>(fi, n, &amp;val);
+L1079      <span class="keyword">if</span> (name) {
+L1080        L-&gt;top--;
+L1081        <a class="L" href="lobject.h.html#setobj">setobj</a>(L, val, L-&gt;top);
+L1082        <a class="L" href="lgc.h.html#luaC_barrier">luaC_barrier</a>(L, <a class="L" href="lobject.h.html#clvalue">clvalue</a>(fi), L-&gt;top);
+L1083      }
+L1084      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L1085      <span class="keyword">return</span> name;
+L1086    }
+L1087    
+</pre>
+<hr/>
+Generated by <a href="pretty.lua.html">pretty.lua</html>
+</body></html>

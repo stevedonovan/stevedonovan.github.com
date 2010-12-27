@@ -1,0 +1,659 @@
+<html>
+<head>
+<style>
+a.L { text-decoration: none; }
+a.L:hover { color: #FFAAAA; }
+body { margin-top: 20px; margin-left: 30px; }
+.lno { font-weight: bold: color #000; }
+.keyword {font-weight: bold; color: #6666AA; }
+.number  { color: #AA6666; }
+.string  { color: #8888AA; }
+.comment { color: #666600; }
+.prepro { color: #006666; } 
+</style>
+<body>
+<h1>Lua 5.1.4: ldebug.c</h1>
+<hr/>
+<pre>
+L0001    <span class="comment">/*
+L0002    ** $Id: ldebug.c,v 2.29.1.6 2008/05/08 16:56:26 roberto Exp $
+L0003    ** Debug Interface
+L0004    ** See Copyright Notice in lua.h
+L0005    */</span>
+L0006    
+L0007    
+L0008    <span class="prepro">#include &lt;stdarg.h&gt;
+</span>L0009    <span class="prepro">#include &lt;stddef.h&gt;
+</span>L0010    <span class="prepro">#include &lt;string.h&gt;
+</span>L0011    
+L0012    
+L0013    <a name="ldebug_c"/a><span class="prepro">#define ldebug_c
+</span>L0014    <a name="LUA_CORE"/a><span class="prepro">#define LUA_CORE
+</span>L0015    
+L0016    <span class="prepro"><a class="L" href="lua.h.html#">#include "lua.h"
+</a></span>L0017    
+L0018    <span class="prepro"><a class="L" href="lapi.h.html#">#include "lapi.h"
+</a></span>L0019    <span class="prepro"><a class="L" href="lcode.h.html#">#include "lcode.h"
+</a></span>L0020    <span class="prepro"><a class="L" href="ldebug.h.html#">#include "ldebug.h"
+</a></span>L0021    <span class="prepro"><a class="L" href="ldo.h.html#">#include "ldo.h"
+</a></span>L0022    <span class="prepro"><a class="L" href="lfunc.h.html#">#include "lfunc.h"
+</a></span>L0023    <span class="prepro"><a class="L" href="lobject.h.html#">#include "lobject.h"
+</a></span>L0024    <span class="prepro"><a class="L" href="lopcodes.h.html#">#include "lopcodes.h"
+</a></span>L0025    <span class="prepro"><a class="L" href="lstate.h.html#">#include "lstate.h"
+</a></span>L0026    <span class="prepro"><a class="L" href="lstring.h.html#">#include "lstring.h"
+</a></span>L0027    <span class="prepro"><a class="L" href="ltable.h.html#">#include "ltable.h"
+</a></span>L0028    <span class="prepro"><a class="L" href="ltm.h.html#">#include "ltm.h"
+</a></span>L0029    <span class="prepro"><a class="L" href="lvm.h.html#">#include "lvm.h"
+</a></span>L0030    
+L0031    
+L0032    
+L0033    <span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">char</span> *<a class="L" href="ldebug.c.html#getfuncname">getfuncname</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lstate.h.html#CallInfo">CallInfo</a> *ci, <span class="keyword">const</span> <span class="keyword">char</span> **name);
+L0034    
+L0035    
+L0036    <span class="keyword">static</span> <span class="keyword">int</span> <a name="currentpc"/a><a class="L" href="ldebug.c.ref.html#currentpc">currentpc</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lstate.h.html#CallInfo">CallInfo</a> *ci) {
+L0037      <span class="keyword">if</span> (!<a class="L" href="lstate.h.html#isLua">isLua</a>(ci)) <span class="keyword">return</span> <span class="number">-1</span>;  <span class="comment">/* function is not a Lua function? */</span>
+L0038      <span class="keyword">if</span> (ci == L-&gt;ci)
+L0039        ci-&gt;savedpc = L-&gt;savedpc;
+L0040      <span class="keyword">return</span> <a class="L" href="ldebug.h.html#pcRel">pcRel</a>(ci-&gt;savedpc, <a class="L" href="lstate.h.html#ci_func">ci_func</a>(ci)-&gt;l.p);
+L0041    }
+L0042    
+L0043    
+L0044    <span class="keyword">static</span> <span class="keyword">int</span> <a name="currentline"/a><a class="L" href="ldebug.c.ref.html#currentline">currentline</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lstate.h.html#CallInfo">CallInfo</a> *ci) {
+L0045      <span class="keyword">int</span> pc = <a class="L" href="ldebug.c.html#currentpc">currentpc</a>(L, ci);
+L0046      <span class="keyword">if</span> (pc &lt; <span class="number">0</span>)
+L0047        <span class="keyword">return</span> <span class="number">-1</span>;  <span class="comment">/* only active lua functions have current-line information */</span>
+L0048      <span class="keyword">else</span>
+L0049        <span class="keyword">return</span> <a class="L" href="ldebug.h.html#getline">getline</a>(<a class="L" href="lstate.h.html#ci_func">ci_func</a>(ci)-&gt;l.p, pc);
+L0050    }
+L0051    
+L0052    
+L0053    <span class="comment">/*
+L0054    ** this function can be called asynchronous (e.g. during a signal)
+L0055    */</span>
+L0056    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">int</span> <a name="lua_sethook"/a><a class="L" href="ldebug.c.ref.html#lua_sethook">lua_sethook</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lua.h.html#lua_Hook">lua_Hook</a> func, <span class="keyword">int</span> mask, <span class="keyword">int</span> count) {
+L0057      <span class="keyword">if</span> (func == NULL || mask == <span class="number">0</span>) {  <span class="comment">/* turn off hooks? */</span>
+L0058        mask = <span class="number">0</span>;
+L0059        func = NULL;
+L0060      }
+L0061      L-&gt;hook = func;
+L0062      L-&gt;basehookcount = count;
+L0063      <a class="L" href="ldebug.h.html#resethookcount">resethookcount</a>(L);
+L0064      L-&gt;hookmask = <a class="L" href="llimits.h.html#cast_byte">cast_byte</a>(mask);
+L0065      <span class="keyword">return</span> <span class="number">1</span>;
+L0066    }
+L0067    
+L0068    
+L0069    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <a class="L" href="lua.h.html#lua_Hook">lua_Hook</a> <a name="lua_gethook"/a><a class="L" href="ldebug.c.ref.html#lua_gethook">lua_gethook</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0070      <span class="keyword">return</span> L-&gt;hook;
+L0071    }
+L0072    
+L0073    
+L0074    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">int</span> <a name="lua_gethookmask"/a><a class="L" href="ldebug.c.ref.html#lua_gethookmask">lua_gethookmask</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0075      <span class="keyword">return</span> L-&gt;hookmask;
+L0076    }
+L0077    
+L0078    
+L0079    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">int</span> <a name="lua_gethookcount"/a><a class="L" href="ldebug.c.ref.html#lua_gethookcount">lua_gethookcount</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0080      <span class="keyword">return</span> L-&gt;basehookcount;
+L0081    }
+L0082    
+L0083    
+L0084    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">int</span> <a name="lua_getstack"/a><a class="L" href="ldebug.c.ref.html#lua_getstack">lua_getstack</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> level, <a class="L" href="lua.h.html#lua_Debug">lua_Debug</a> *ar) {
+L0085      <span class="keyword">int</span> status;
+L0086      <a class="L" href="lstate.h.html#CallInfo">CallInfo</a> *ci;
+L0087      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);
+L0088      <span class="keyword">for</span> (ci = L-&gt;ci; level &gt; <span class="number">0</span> &amp;&amp; ci &gt; L-&gt;base_ci; ci--) {
+L0089        level--;
+L0090        <span class="keyword">if</span> (<a class="L" href="lstate.h.html#f_isLua">f_isLua</a>(ci))  <span class="comment">/* Lua function? */</span>
+L0091          level -= ci-&gt;tailcalls;  <span class="comment">/* skip lost tail calls */</span>
+L0092      }
+L0093      <span class="keyword">if</span> (level == <span class="number">0</span> &amp;&amp; ci &gt; L-&gt;base_ci) {  <span class="comment">/* level found? */</span>
+L0094        status = <span class="number">1</span>;
+L0095        ar-&gt;i_ci = <a class="L" href="llimits.h.html#cast_int">cast_int</a>(ci - L-&gt;base_ci);
+L0096      }
+L0097      <span class="keyword">else</span> <span class="keyword">if</span> (level &lt; <span class="number">0</span>) {  <span class="comment">/* level is of a lost tail call? */</span>
+L0098        status = <span class="number">1</span>;
+L0099        ar-&gt;i_ci = <span class="number">0</span>;
+L0100      }
+L0101      <span class="keyword">else</span> status = <span class="number">0</span>;  <span class="comment">/* no such level */</span>
+L0102      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L0103      <span class="keyword">return</span> status;
+L0104    }
+L0105    
+L0106    
+L0107    <span class="keyword">static</span> <a class="L" href="lobject.h.html#Proto">Proto</a> *<a name="getluaproto"/a><a class="L" href="ldebug.c.ref.html#getluaproto">getluaproto</a> (<a class="L" href="lstate.h.html#CallInfo">CallInfo</a> *ci) {
+L0108      <span class="keyword">return</span> (<a class="L" href="lstate.h.html#isLua">isLua</a>(ci) ? <a class="L" href="lstate.h.html#ci_func">ci_func</a>(ci)-&gt;l.p : NULL);
+L0109    }
+L0110    
+L0111    
+L0112    <span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">char</span> *<a name="findlocal"/a><a class="L" href="ldebug.c.ref.html#findlocal">findlocal</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lstate.h.html#CallInfo">CallInfo</a> *ci, <span class="keyword">int</span> n) {
+L0113      <span class="keyword">const</span> <span class="keyword">char</span> *name;
+L0114      <a class="L" href="lobject.h.html#Proto">Proto</a> *fp = <a class="L" href="ldebug.c.html#getluaproto">getluaproto</a>(ci);
+L0115      <span class="keyword">if</span> (fp &amp;&amp; (name = <a class="L" href="lfunc.c.html#luaF_getlocalname">luaF_getlocalname</a>(fp, n, <a class="L" href="ldebug.c.html#currentpc">currentpc</a>(L, ci))) != NULL)
+L0116        <span class="keyword">return</span> name;  <span class="comment">/* is a local variable in a Lua function */</span>
+L0117      <span class="keyword">else</span> {
+L0118        <a class="L" href="lobject.h.html#StkId">StkId</a> limit = (ci == L-&gt;ci) ? L-&gt;top : (ci<span class="number">+1</span>)-&gt;func;
+L0119        <span class="keyword">if</span> (limit - ci-&gt;base &gt;= n &amp;&amp; n &gt; <span class="number">0</span>)  <span class="comment">/* is 'n' inside 'ci' stack? */</span>
+L0120          <span class="keyword">return</span> <span class="string">"(*temporary)"</span>;
+L0121        <span class="keyword">else</span>
+L0122          <span class="keyword">return</span> NULL;
+L0123      }
+L0124    }
+L0125    
+L0126    
+L0127    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">const</span> <span class="keyword">char</span> *<a name="lua_getlocal"/a><a class="L" href="ldebug.c.ref.html#lua_getlocal">lua_getlocal</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <a class="L" href="lua.h.html#lua_Debug">lua_Debug</a> *ar, <span class="keyword">int</span> n) {
+L0128      <a class="L" href="lstate.h.html#CallInfo">CallInfo</a> *ci = L-&gt;base_ci + ar-&gt;i_ci;
+L0129      <span class="keyword">const</span> <span class="keyword">char</span> *name = <a class="L" href="ldebug.c.html#findlocal">findlocal</a>(L, ci, n);
+L0130      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);
+L0131      <span class="keyword">if</span> (name)
+L0132          <a class="L" href="lapi.c.html#luaA_pushobject">luaA_pushobject</a>(L, ci-&gt;base + (n - <span class="number">1</span>));
+L0133      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L0134      <span class="keyword">return</span> name;
+L0135    }
+L0136    
+L0137    
+L0138    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">const</span> <span class="keyword">char</span> *<a name="lua_setlocal"/a><a class="L" href="ldebug.c.ref.html#lua_setlocal">lua_setlocal</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <a class="L" href="lua.h.html#lua_Debug">lua_Debug</a> *ar, <span class="keyword">int</span> n) {
+L0139      <a class="L" href="lstate.h.html#CallInfo">CallInfo</a> *ci = L-&gt;base_ci + ar-&gt;i_ci;
+L0140      <span class="keyword">const</span> <span class="keyword">char</span> *name = <a class="L" href="ldebug.c.html#findlocal">findlocal</a>(L, ci, n);
+L0141      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);
+L0142      <span class="keyword">if</span> (name)
+L0143          <a class="L" href="lobject.h.html#setobjs2s">setobjs2s</a>(L, ci-&gt;base + (n - <span class="number">1</span>), L-&gt;top - <span class="number">1</span>);
+L0144      L-&gt;top--;  <span class="comment">/* pop value */</span>
+L0145      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L0146      <span class="keyword">return</span> name;
+L0147    }
+L0148    
+L0149    
+L0150    <span class="keyword">static</span> <span class="keyword">void</span> <a name="funcinfo"/a><a class="L" href="ldebug.c.ref.html#funcinfo">funcinfo</a> (<a class="L" href="lua.h.html#lua_Debug">lua_Debug</a> *ar, <a class="L" href="lobject.h.html#Closure">Closure</a> *cl) {
+L0151      <span class="keyword">if</span> (cl-&gt;c.isC) {
+L0152        ar-&gt;source = <span class="string">"=[C]"</span>;
+L0153        ar-&gt;linedefined = <span class="number">-1</span>;
+L0154        ar-&gt;lastlinedefined = <span class="number">-1</span>;
+L0155        ar-&gt;what = <span class="string">"C"</span>;
+L0156      }
+L0157      <span class="keyword">else</span> {
+L0158        ar-&gt;source = <a class="L" href="lobject.h.html#getstr">getstr</a>(cl-&gt;l.p-&gt;source);
+L0159        ar-&gt;linedefined = cl-&gt;l.p-&gt;linedefined;
+L0160        ar-&gt;lastlinedefined = cl-&gt;l.p-&gt;lastlinedefined;
+L0161        ar-&gt;what = (ar-&gt;linedefined == <span class="number">0</span>) ? <span class="string">"main"</span> : <span class="string">"Lua"</span>;
+L0162      }
+L0163      <a class="L" href="lobject.c.html#luaO_chunkid">luaO_chunkid</a>(ar-&gt;short_src, ar-&gt;source, <a class="L" href="luaconf.h.html#LUA_IDSIZE">LUA_IDSIZE</a>);
+L0164    }
+L0165    
+L0166    
+L0167    <span class="keyword">static</span> <span class="keyword">void</span> <a name="info_tailcall"/a><a class="L" href="ldebug.c.ref.html#info_tailcall">info_tailcall</a> (<a class="L" href="lua.h.html#lua_Debug">lua_Debug</a> *ar) {
+L0168      ar-&gt;name = ar-&gt;namewhat = <span class="string">""</span>;
+L0169      ar-&gt;what = <span class="string">"tail"</span>;
+L0170      ar-&gt;lastlinedefined = ar-&gt;linedefined = ar-&gt;<a class="L" href="ldebug.c.html#currentline">currentline</a> = <span class="number">-1</span>;
+L0171      ar-&gt;source = <span class="string">"=(tail call)"</span>;
+L0172      <a class="L" href="lobject.c.html#luaO_chunkid">luaO_chunkid</a>(ar-&gt;short_src, ar-&gt;source, <a class="L" href="luaconf.h.html#LUA_IDSIZE">LUA_IDSIZE</a>);
+L0173      ar-&gt;nups = <span class="number">0</span>;
+L0174    }
+L0175    
+L0176    
+L0177    <span class="keyword">static</span> <span class="keyword">void</span> <a name="collectvalidlines"/a><a class="L" href="ldebug.c.ref.html#collectvalidlines">collectvalidlines</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lobject.h.html#Closure">Closure</a> *f) {
+L0178      <span class="keyword">if</span> (f == NULL || f-&gt;c.isC) {
+L0179        <a class="L" href="lobject.h.html#setnilvalue">setnilvalue</a>(L-&gt;top);
+L0180      }
+L0181      <span class="keyword">else</span> {
+L0182        <a class="L" href="lobject.h.html#Table">Table</a> *t = <a class="L" href="ltable.c.html#luaH_new">luaH_new</a>(L, <span class="number">0</span>, <span class="number">0</span>);
+L0183        <span class="keyword">int</span> *lineinfo = f-&gt;l.p-&gt;lineinfo;
+L0184        <span class="keyword">int</span> i;
+L0185        <span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;f-&gt;l.p-&gt;sizelineinfo; i++)
+L0186          <a class="L" href="lobject.h.html#setbvalue">setbvalue</a>(<a class="L" href="ltable.c.html#luaH_setnum">luaH_setnum</a>(L, t, lineinfo[i]), <span class="number">1</span>);
+L0187        <a class="L" href="lobject.h.html#sethvalue">sethvalue</a>(L, L-&gt;top, t); 
+L0188      }
+L0189      <a class="L" href="ldo.h.html#incr_top">incr_top</a>(L);
+L0190    }
+L0191    
+L0192    
+L0193    <span class="keyword">static</span> <span class="keyword">int</span> <a name="auxgetinfo"/a><a class="L" href="ldebug.c.ref.html#auxgetinfo">auxgetinfo</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <span class="keyword">char</span> *what, <a class="L" href="lua.h.html#lua_Debug">lua_Debug</a> *ar,
+L0194                        <a class="L" href="lobject.h.html#Closure">Closure</a> *f, <a class="L" href="lstate.h.html#CallInfo">CallInfo</a> *ci) {
+L0195      <span class="keyword">int</span> status = <span class="number">1</span>;
+L0196      <span class="keyword">if</span> (f == NULL) {
+L0197        <a class="L" href="ldebug.c.html#info_tailcall">info_tailcall</a>(ar);
+L0198        <span class="keyword">return</span> status;
+L0199      }
+L0200      <span class="keyword">for</span> (; *what; what++) {
+L0201        <span class="keyword">switch</span> (*what) {
+L0202          <span class="keyword">case</span> 'S': {
+L0203            <a class="L" href="ldebug.c.html#funcinfo">funcinfo</a>(ar, f);
+L0204            <span class="keyword">break</span>;
+L0205          }
+L0206          <span class="keyword">case</span> 'l': {
+L0207            ar-&gt;<a class="L" href="ldebug.c.html#currentline">currentline</a> = (ci) ? <a class="L" href="ldebug.c.html#currentline">currentline</a>(L, ci) : <span class="number">-1</span>;
+L0208            <span class="keyword">break</span>;
+L0209          }
+L0210          <span class="keyword">case</span> 'u': {
+L0211            ar-&gt;nups = f-&gt;c.nupvalues;
+L0212            <span class="keyword">break</span>;
+L0213          }
+L0214          <span class="keyword">case</span> 'n': {
+L0215            ar-&gt;namewhat = (ci) ? <a class="L" href="ldebug.c.html#getfuncname">getfuncname</a>(L, ci, &amp;ar-&gt;name) : NULL;
+L0216            <span class="keyword">if</span> (ar-&gt;namewhat == NULL) {
+L0217              ar-&gt;namewhat = <span class="string">""</span>;  <span class="comment">/* not found */</span>
+L0218              ar-&gt;name = NULL;
+L0219            }
+L0220            <span class="keyword">break</span>;
+L0221          }
+L0222          <span class="keyword">case</span> 'L':
+L0223          <span class="keyword">case</span> 'f':  <span class="comment">/* handled by lua_getinfo */</span>
+L0224            <span class="keyword">break</span>;
+L0225          <span class="keyword">default</span>: status = <span class="number">0</span>;  <span class="comment">/* invalid option */</span>
+L0226        }
+L0227      }
+L0228      <span class="keyword">return</span> status;
+L0229    }
+L0230    
+L0231    
+L0232    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">int</span> <a name="lua_getinfo"/a><a class="L" href="ldebug.c.ref.html#lua_getinfo">lua_getinfo</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <span class="keyword">char</span> *what, <a class="L" href="lua.h.html#lua_Debug">lua_Debug</a> *ar) {
+L0233      <span class="keyword">int</span> status;
+L0234      <a class="L" href="lobject.h.html#Closure">Closure</a> *f = NULL;
+L0235      <a class="L" href="lstate.h.html#CallInfo">CallInfo</a> *ci = NULL;
+L0236      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);
+L0237      <span class="keyword">if</span> (*what == '&gt;') {
+L0238        <a class="L" href="lobject.h.html#StkId">StkId</a> func = L-&gt;top - <span class="number">1</span>;
+L0239        <a class="L" href="luaconf.h.html#luai_apicheck">luai_apicheck</a>(L, <a class="L" href="lobject.h.html#ttisfunction">ttisfunction</a>(func));
+L0240        what++;  <span class="comment">/* skip the '&gt;' */</span>
+L0241        f = <a class="L" href="lobject.h.html#clvalue">clvalue</a>(func);
+L0242        L-&gt;top--;  <span class="comment">/* pop function */</span>
+L0243      }
+L0244      <span class="keyword">else</span> <span class="keyword">if</span> (ar-&gt;i_ci != <span class="number">0</span>) {  <span class="comment">/* no tail call? */</span>
+L0245        ci = L-&gt;base_ci + ar-&gt;i_ci;
+L0246        <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(<a class="L" href="lobject.h.html#ttisfunction">ttisfunction</a>(ci-&gt;func));
+L0247        f = <a class="L" href="lobject.h.html#clvalue">clvalue</a>(ci-&gt;func);
+L0248      }
+L0249      status = <a class="L" href="ldebug.c.html#auxgetinfo">auxgetinfo</a>(L, what, ar, f, ci);
+L0250      <span class="keyword">if</span> (strchr(what, 'f')) {
+L0251        <span class="keyword">if</span> (f == NULL) <a class="L" href="lobject.h.html#setnilvalue">setnilvalue</a>(L-&gt;top);
+L0252        <span class="keyword">else</span> <a class="L" href="lobject.h.html#setclvalue">setclvalue</a>(L, L-&gt;top, f);
+L0253        <a class="L" href="ldo.h.html#incr_top">incr_top</a>(L);
+L0254      }
+L0255      <span class="keyword">if</span> (strchr(what, 'L'))
+L0256        <a class="L" href="ldebug.c.html#collectvalidlines">collectvalidlines</a>(L, f);
+L0257      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L0258      <span class="keyword">return</span> status;
+L0259    }
+L0260    
+L0261    
+L0262    <span class="comment">/*
+L0263    ** {======================================================
+L0264    ** Symbolic Execution and code checker
+L0265    ** =======================================================
+L0266    */</span>
+L0267    
+L0268    <a name="check"/a><span class="prepro">#define check(x)		if (!(x)) return 0;
+</span>L0269    
+L0270    <a name="checkjump"/a><span class="prepro">#define checkjump(pt,pc)	check(0 &lt;= pc &amp;&amp; pc &lt; pt-&gt;sizecode)
+</span>L0271    
+L0272    <a name="checkreg"/a><span class="prepro">#define checkreg(pt,reg)	check((reg) &lt; (pt)-&gt;maxstacksize)
+</span>L0273    
+L0274    
+L0275    
+L0276    <span class="keyword">static</span> <span class="keyword">int</span> <a name="precheck"/a><a class="L" href="ldebug.c.ref.html#precheck">precheck</a> (<span class="keyword">const</span> <a class="L" href="lobject.h.html#Proto">Proto</a> *pt) {
+L0277      <a class="L" href="ldebug.c.html#check">check</a>(pt-&gt;maxstacksize &lt;= <a class="L" href="llimits.h.html#MAXSTACK">MAXSTACK</a>);
+L0278      <a class="L" href="ldebug.c.html#check">check</a>(pt-&gt;numparams+(pt-&gt;is_vararg &amp; <a class="L" href="lobject.h.html#VARARG_HASARG">VARARG_HASARG</a>) &lt;= pt-&gt;maxstacksize);
+L0279      <a class="L" href="ldebug.c.html#check">check</a>(!(pt-&gt;is_vararg &amp; <a class="L" href="lobject.h.html#VARARG_NEEDSARG">VARARG_NEEDSARG</a>) ||
+L0280                  (pt-&gt;is_vararg &amp; <a class="L" href="lobject.h.html#VARARG_HASARG">VARARG_HASARG</a>));
+L0281      <a class="L" href="ldebug.c.html#check">check</a>(pt-&gt;sizeupvalues &lt;= pt-&gt;nups);
+L0282      <a class="L" href="ldebug.c.html#check">check</a>(pt-&gt;sizelineinfo == pt-&gt;sizecode || pt-&gt;sizelineinfo == <span class="number">0</span>);
+L0283      <a class="L" href="ldebug.c.html#check">check</a>(pt-&gt;sizecode &gt; <span class="number">0</span> &amp;&amp; <a class="L" href="lopcodes.h.html#GET_OPCODE">GET_OPCODE</a>(pt-&gt;code[pt-&gt;sizecode<span class="number">-1</span>]) == <a class="L" href="lopcodes.h.html#OP_RETURN">OP_RETURN</a>);
+L0284      <span class="keyword">return</span> <span class="number">1</span>;
+L0285    }
+L0286    
+L0287    
+L0288    <a name="checkopenop"/a><span class="prepro">#define checkopenop(pt,pc)	luaG_checkopenop((pt)-&gt;code[(pc)+1])
+</span>L0289    
+L0290    <span class="keyword">int</span> <a name="luaG_checkopenop"/a><a class="L" href="ldebug.c.ref.html#luaG_checkopenop">luaG_checkopenop</a> (<a class="L" href="llimits.h.html#Instruction">Instruction</a> i) {
+L0291      <span class="keyword">switch</span> (<a class="L" href="lopcodes.h.html#GET_OPCODE">GET_OPCODE</a>(i)) {
+L0292        <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_CALL">OP_CALL</a>:
+L0293        <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_TAILCALL">OP_TAILCALL</a>:
+L0294        <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_RETURN">OP_RETURN</a>:
+L0295        <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_SETLIST">OP_SETLIST</a>: {
+L0296          <a class="L" href="ldebug.c.html#check">check</a>(<a class="L" href="lopcodes.h.html#GETARG_B">GETARG_B</a>(i) == <span class="number">0</span>);
+L0297          <span class="keyword">return</span> <span class="number">1</span>;
+L0298        }
+L0299        <span class="keyword">default</span>: <span class="keyword">return</span> <span class="number">0</span>;  <span class="comment">/* invalid instruction after an open call */</span>
+L0300      }
+L0301    }
+L0302    
+L0303    
+L0304    <span class="keyword">static</span> <span class="keyword">int</span> <a name="checkArgMode"/a><a class="L" href="ldebug.c.ref.html#checkArgMode">checkArgMode</a> (<span class="keyword">const</span> <a class="L" href="lobject.h.html#Proto">Proto</a> *pt, <span class="keyword">int</span> r, <span class="keyword">enum</span> <a class="L" href="lopcodes.h.html#OpArgMask">OpArgMask</a> mode) {
+L0305      <span class="keyword">switch</span> (mode) {
+L0306        <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OpArgN">OpArgN</a>: <a class="L" href="ldebug.c.html#check">check</a>(r == <span class="number">0</span>); <span class="keyword">break</span>;
+L0307        <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OpArgU">OpArgU</a>: <span class="keyword">break</span>;
+L0308        <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OpArgR">OpArgR</a>: <a class="L" href="ldebug.c.html#checkreg">checkreg</a>(pt, r); <span class="keyword">break</span>;
+L0309        <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OpArgK">OpArgK</a>:
+L0310          <a class="L" href="ldebug.c.html#check">check</a>(<a class="L" href="lopcodes.h.html#ISK">ISK</a>(r) ? <a class="L" href="lopcodes.h.html#INDEXK">INDEXK</a>(r) &lt; pt-&gt;sizek : r &lt; pt-&gt;maxstacksize);
+L0311          <span class="keyword">break</span>;
+L0312      }
+L0313      <span class="keyword">return</span> <span class="number">1</span>;
+L0314    }
+L0315    
+L0316    
+L0317    <span class="keyword">static</span> <a class="L" href="llimits.h.html#Instruction">Instruction</a> <a name="symbexec"/a><a class="L" href="ldebug.c.ref.html#symbexec">symbexec</a> (<span class="keyword">const</span> <a class="L" href="lobject.h.html#Proto">Proto</a> *pt, <span class="keyword">int</span> lastpc, <span class="keyword">int</span> reg) {
+L0318      <span class="keyword">int</span> pc;
+L0319      <span class="keyword">int</span> last;  <span class="comment">/* stores position of last instruction that changed `reg' */</span>
+L0320      last = pt-&gt;sizecode<span class="number">-1</span>;  <span class="comment">/* points to final return (a `neutral' instruction) */</span>
+L0321      <a class="L" href="ldebug.c.html#check">check</a>(<a class="L" href="ldebug.c.html#precheck">precheck</a>(pt));
+L0322      <span class="keyword">for</span> (pc = <span class="number">0</span>; pc &lt; lastpc; pc++) {
+L0323        <a class="L" href="llimits.h.html#Instruction">Instruction</a> i = pt-&gt;code[pc];
+L0324        <a class="L" href="lopcodes.h.html#OpCode">OpCode</a> op = <a class="L" href="lopcodes.h.html#GET_OPCODE">GET_OPCODE</a>(i);
+L0325        <span class="keyword">int</span> a = <a class="L" href="lopcodes.h.html#GETARG_A">GETARG_A</a>(i);
+L0326        <span class="keyword">int</span> b = <span class="number">0</span>;
+L0327        <span class="keyword">int</span> c = <span class="number">0</span>;
+L0328        <a class="L" href="ldebug.c.html#check">check</a>(op &lt; <a class="L" href="lopcodes.h.html#NUM_OPCODES">NUM_OPCODES</a>);
+L0329        <a class="L" href="ldebug.c.html#checkreg">checkreg</a>(pt, a);
+L0330        <span class="keyword">switch</span> (<a class="L" href="lopcodes.h.html#getOpMode">getOpMode</a>(op)) {
+L0331          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#iABC">iABC</a>: {
+L0332            b = <a class="L" href="lopcodes.h.html#GETARG_B">GETARG_B</a>(i);
+L0333            c = <a class="L" href="lopcodes.h.html#GETARG_C">GETARG_C</a>(i);
+L0334            <a class="L" href="ldebug.c.html#check">check</a>(<a class="L" href="ldebug.c.html#checkArgMode">checkArgMode</a>(pt, b, <a class="L" href="lopcodes.h.html#getBMode">getBMode</a>(op)));
+L0335            <a class="L" href="ldebug.c.html#check">check</a>(<a class="L" href="ldebug.c.html#checkArgMode">checkArgMode</a>(pt, c, <a class="L" href="lopcodes.h.html#getCMode">getCMode</a>(op)));
+L0336            <span class="keyword">break</span>;
+L0337          }
+L0338          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#iABx">iABx</a>: {
+L0339            b = <a class="L" href="lopcodes.h.html#GETARG_Bx">GETARG_Bx</a>(i);
+L0340            <span class="keyword">if</span> (<a class="L" href="lopcodes.h.html#getBMode">getBMode</a>(op) == <a class="L" href="lopcodes.h.html#OpArgK">OpArgK</a>) <a class="L" href="ldebug.c.html#check">check</a>(b &lt; pt-&gt;sizek);
+L0341            <span class="keyword">break</span>;
+L0342          }
+L0343          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#iAsBx">iAsBx</a>: {
+L0344            b = <a class="L" href="lopcodes.h.html#GETARG_sBx">GETARG_sBx</a>(i);
+L0345            <span class="keyword">if</span> (<a class="L" href="lopcodes.h.html#getBMode">getBMode</a>(op) == <a class="L" href="lopcodes.h.html#OpArgR">OpArgR</a>) {
+L0346              <span class="keyword">int</span> dest = pc<span class="number">+1</span>+b;
+L0347              <a class="L" href="ldebug.c.html#check">check</a>(<span class="number">0</span> &lt;= dest &amp;&amp; dest &lt; pt-&gt;sizecode);
+L0348              <span class="keyword">if</span> (dest &gt; <span class="number">0</span>) {
+L0349                <span class="keyword">int</span> j;
+L0350                <span class="comment">/* check that it does not jump to a setlist count; this
+L0351                   is tricky, because the count from a previous setlist may
+L0352                   have the same value of an invalid setlist; so, we must
+L0353                   go all the way back to the first of them (if any) */</span>
+L0354                <span class="keyword">for</span> (j = <span class="number">0</span>; j &lt; dest; j++) {
+L0355                  <a class="L" href="llimits.h.html#Instruction">Instruction</a> d = pt-&gt;code[dest<span class="number">-1</span>-j];
+L0356                  <span class="keyword">if</span> (!(<a class="L" href="lopcodes.h.html#GET_OPCODE">GET_OPCODE</a>(d) == <a class="L" href="lopcodes.h.html#OP_SETLIST">OP_SETLIST</a> &amp;&amp; <a class="L" href="lopcodes.h.html#GETARG_C">GETARG_C</a>(d) == <span class="number">0</span>)) <span class="keyword">break</span>;
+L0357                }
+L0358                <span class="comment">/* if 'j' is even, previous value is not a setlist (even if
+L0359                   it looks like one) */</span>
+L0360                <a class="L" href="ldebug.c.html#check">check</a>((j&amp;<span class="number">1</span>) == <span class="number">0</span>);
+L0361              }
+L0362            }
+L0363            <span class="keyword">break</span>;
+L0364          }
+L0365        }
+L0366        <span class="keyword">if</span> (<a class="L" href="lopcodes.h.html#testAMode">testAMode</a>(op)) {
+L0367          <span class="keyword">if</span> (a == reg) last = pc;  <span class="comment">/* change register `a' */</span>
+L0368        }
+L0369        <span class="keyword">if</span> (<a class="L" href="lopcodes.h.html#testTMode">testTMode</a>(op)) {
+L0370          <a class="L" href="ldebug.c.html#check">check</a>(pc<span class="number">+2</span> &lt; pt-&gt;sizecode);  <span class="comment">/* check skip */</span>
+L0371          <a class="L" href="ldebug.c.html#check">check</a>(<a class="L" href="lopcodes.h.html#GET_OPCODE">GET_OPCODE</a>(pt-&gt;code[pc<span class="number">+1</span>]) == <a class="L" href="lopcodes.h.html#OP_JMP">OP_JMP</a>);
+L0372        }
+L0373        <span class="keyword">switch</span> (op) {
+L0374          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_LOADBOOL">OP_LOADBOOL</a>: {
+L0375            <span class="keyword">if</span> (c == <span class="number">1</span>) {  <span class="comment">/* does it jump? */</span>
+L0376              <a class="L" href="ldebug.c.html#check">check</a>(pc<span class="number">+2</span> &lt; pt-&gt;sizecode);  <span class="comment">/* check its jump */</span>
+L0377              <a class="L" href="ldebug.c.html#check">check</a>(<a class="L" href="lopcodes.h.html#GET_OPCODE">GET_OPCODE</a>(pt-&gt;code[pc<span class="number">+1</span>]) != <a class="L" href="lopcodes.h.html#OP_SETLIST">OP_SETLIST</a> ||
+L0378                    <a class="L" href="lopcodes.h.html#GETARG_C">GETARG_C</a>(pt-&gt;code[pc<span class="number">+1</span>]) != <span class="number">0</span>);
+L0379            }
+L0380            <span class="keyword">break</span>;
+L0381          }
+L0382          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_LOADNIL">OP_LOADNIL</a>: {
+L0383            <span class="keyword">if</span> (a &lt;= reg &amp;&amp; reg &lt;= b)
+L0384              last = pc;  <span class="comment">/* set registers from `a' to `b' */</span>
+L0385            <span class="keyword">break</span>;
+L0386          }
+L0387          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_GETUPVAL">OP_GETUPVAL</a>:
+L0388          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_SETUPVAL">OP_SETUPVAL</a>: {
+L0389            <a class="L" href="ldebug.c.html#check">check</a>(b &lt; pt-&gt;nups);
+L0390            <span class="keyword">break</span>;
+L0391          }
+L0392          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_GETGLOBAL">OP_GETGLOBAL</a>:
+L0393          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_SETGLOBAL">OP_SETGLOBAL</a>: {
+L0394            <a class="L" href="ldebug.c.html#check">check</a>(<a class="L" href="lobject.h.html#ttisstring">ttisstring</a>(&amp;pt-&gt;k[b]));
+L0395            <span class="keyword">break</span>;
+L0396          }
+L0397          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_SELF">OP_SELF</a>: {
+L0398            <a class="L" href="ldebug.c.html#checkreg">checkreg</a>(pt, a<span class="number">+1</span>);
+L0399            <span class="keyword">if</span> (reg == a<span class="number">+1</span>) last = pc;
+L0400            <span class="keyword">break</span>;
+L0401          }
+L0402          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_CONCAT">OP_CONCAT</a>: {
+L0403            <a class="L" href="ldebug.c.html#check">check</a>(b &lt; c);  <span class="comment">/* at least two operands */</span>
+L0404            <span class="keyword">break</span>;
+L0405          }
+L0406          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_TFORLOOP">OP_TFORLOOP</a>: {
+L0407            <a class="L" href="ldebug.c.html#check">check</a>(c &gt;= <span class="number">1</span>);  <span class="comment">/* at least one result (control variable) */</span>
+L0408            <a class="L" href="ldebug.c.html#checkreg">checkreg</a>(pt, a<span class="number">+2</span>+c);  <span class="comment">/* space for results */</span>
+L0409            <span class="keyword">if</span> (reg &gt;= a<span class="number">+2</span>) last = pc;  <span class="comment">/* affect all regs above its base */</span>
+L0410            <span class="keyword">break</span>;
+L0411          }
+L0412          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_FORLOOP">OP_FORLOOP</a>:
+L0413          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_FORPREP">OP_FORPREP</a>:
+L0414            <a class="L" href="ldebug.c.html#checkreg">checkreg</a>(pt, a<span class="number">+3</span>);
+L0415            <span class="comment">/* go through */</span>
+L0416          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_JMP">OP_JMP</a>: {
+L0417            <span class="keyword">int</span> dest = pc<span class="number">+1</span>+b;
+L0418            <span class="comment">/* not full check and jump is forward and do not skip `lastpc'? */</span>
+L0419            <span class="keyword">if</span> (reg != <a class="L" href="lopcodes.h.html#NO_REG">NO_REG</a> &amp;&amp; pc &lt; dest &amp;&amp; dest &lt;= lastpc)
+L0420              pc += b;  <span class="comment">/* do the jump */</span>
+L0421            <span class="keyword">break</span>;
+L0422          }
+L0423          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_CALL">OP_CALL</a>:
+L0424          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_TAILCALL">OP_TAILCALL</a>: {
+L0425            <span class="keyword">if</span> (b != <span class="number">0</span>) {
+L0426              <a class="L" href="ldebug.c.html#checkreg">checkreg</a>(pt, a+b<span class="number">-1</span>);
+L0427            }
+L0428            c--;  <span class="comment">/* c = num. returns */</span>
+L0429            <span class="keyword">if</span> (c == <a class="L" href="lua.h.html#LUA_MULTRET">LUA_MULTRET</a>) {
+L0430              <a class="L" href="ldebug.c.html#check">check</a>(<a class="L" href="ldebug.c.html#checkopenop">checkopenop</a>(pt, pc));
+L0431            }
+L0432            <span class="keyword">else</span> <span class="keyword">if</span> (c != <span class="number">0</span>)
+L0433              <a class="L" href="ldebug.c.html#checkreg">checkreg</a>(pt, a+c<span class="number">-1</span>);
+L0434            <span class="keyword">if</span> (reg &gt;= a) last = pc;  <span class="comment">/* affect all registers above base */</span>
+L0435            <span class="keyword">break</span>;
+L0436          }
+L0437          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_RETURN">OP_RETURN</a>: {
+L0438            b--;  <span class="comment">/* b = num. returns */</span>
+L0439            <span class="keyword">if</span> (b &gt; <span class="number">0</span>) <a class="L" href="ldebug.c.html#checkreg">checkreg</a>(pt, a+b<span class="number">-1</span>);
+L0440            <span class="keyword">break</span>;
+L0441          }
+L0442          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_SETLIST">OP_SETLIST</a>: {
+L0443            <span class="keyword">if</span> (b &gt; <span class="number">0</span>) <a class="L" href="ldebug.c.html#checkreg">checkreg</a>(pt, a + b);
+L0444            <span class="keyword">if</span> (c == <span class="number">0</span>) {
+L0445              pc++;
+L0446              <a class="L" href="ldebug.c.html#check">check</a>(pc &lt; pt-&gt;sizecode - <span class="number">1</span>);
+L0447            }
+L0448            <span class="keyword">break</span>;
+L0449          }
+L0450          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_CLOSURE">OP_CLOSURE</a>: {
+L0451            <span class="keyword">int</span> nup, j;
+L0452            <a class="L" href="ldebug.c.html#check">check</a>(b &lt; pt-&gt;sizep);
+L0453            nup = pt-&gt;p[b]-&gt;nups;
+L0454            <a class="L" href="ldebug.c.html#check">check</a>(pc + nup &lt; pt-&gt;sizecode);
+L0455            <span class="keyword">for</span> (j = <span class="number">1</span>; j &lt;= nup; j++) {
+L0456              <a class="L" href="lopcodes.h.html#OpCode">OpCode</a> op1 = <a class="L" href="lopcodes.h.html#GET_OPCODE">GET_OPCODE</a>(pt-&gt;code[pc + j]);
+L0457              <a class="L" href="ldebug.c.html#check">check</a>(op1 == <a class="L" href="lopcodes.h.html#OP_GETUPVAL">OP_GETUPVAL</a> || op1 == <a class="L" href="lopcodes.h.html#OP_MOVE">OP_MOVE</a>);
+L0458            }
+L0459            <span class="keyword">if</span> (reg != <a class="L" href="lopcodes.h.html#NO_REG">NO_REG</a>)  <span class="comment">/* tracing? */</span>
+L0460              pc += nup;  <span class="comment">/* do not 'execute' these pseudo-instructions */</span>
+L0461            <span class="keyword">break</span>;
+L0462          }
+L0463          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_VARARG">OP_VARARG</a>: {
+L0464            <a class="L" href="ldebug.c.html#check">check</a>((pt-&gt;is_vararg &amp; <a class="L" href="lobject.h.html#VARARG_ISVARARG">VARARG_ISVARARG</a>) &amp;&amp;
+L0465                 !(pt-&gt;is_vararg &amp; <a class="L" href="lobject.h.html#VARARG_NEEDSARG">VARARG_NEEDSARG</a>));
+L0466            b--;
+L0467            <span class="keyword">if</span> (b == <a class="L" href="lua.h.html#LUA_MULTRET">LUA_MULTRET</a>) <a class="L" href="ldebug.c.html#check">check</a>(<a class="L" href="ldebug.c.html#checkopenop">checkopenop</a>(pt, pc));
+L0468            <a class="L" href="ldebug.c.html#checkreg">checkreg</a>(pt, a+b<span class="number">-1</span>);
+L0469            <span class="keyword">break</span>;
+L0470          }
+L0471          <span class="keyword">default</span>: <span class="keyword">break</span>;
+L0472        }
+L0473      }
+L0474      <span class="keyword">return</span> pt-&gt;code[last];
+L0475    }
+L0476    
+L0477    <span class="prepro">#undef check
+</span>L0478    <span class="prepro">#undef checkjump
+</span>L0479    <span class="prepro">#undef checkreg
+</span>L0480    
+L0481    <span class="comment">/* }====================================================== */</span>
+L0482    
+L0483    
+L0484    <span class="keyword">int</span> <a name="luaG_checkcode"/a><a class="L" href="ldebug.c.ref.html#luaG_checkcode">luaG_checkcode</a> (<span class="keyword">const</span> <a class="L" href="lobject.h.html#Proto">Proto</a> *pt) {
+L0485      <span class="keyword">return</span> (<a class="L" href="ldebug.c.html#symbexec">symbexec</a>(pt, pt-&gt;sizecode, <a class="L" href="lopcodes.h.html#NO_REG">NO_REG</a>) != <span class="number">0</span>);
+L0486    }
+L0487    
+L0488    
+L0489    <span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">char</span> *<a name="kname"/a><a class="L" href="ldebug.c.ref.html#kname">kname</a> (<a class="L" href="lobject.h.html#Proto">Proto</a> *p, <span class="keyword">int</span> c) {
+L0490      <span class="keyword">if</span> (<a class="L" href="lopcodes.h.html#ISK">ISK</a>(c) &amp;&amp; <a class="L" href="lobject.h.html#ttisstring">ttisstring</a>(&amp;p-&gt;k[<a class="L" href="lopcodes.h.html#INDEXK">INDEXK</a>(c)]))
+L0491        <span class="keyword">return</span> <a class="L" href="lobject.h.html#svalue">svalue</a>(&amp;p-&gt;k[<a class="L" href="lopcodes.h.html#INDEXK">INDEXK</a>(c)]);
+L0492      <span class="keyword">else</span>
+L0493        <span class="keyword">return</span> <span class="string">"?"</span>;
+L0494    }
+L0495    
+L0496    
+L0497    <span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">char</span> *<a name="getobjname"/a><a class="L" href="ldebug.c.ref.html#getobjname">getobjname</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lstate.h.html#CallInfo">CallInfo</a> *ci, <span class="keyword">int</span> stackpos,
+L0498                                   <span class="keyword">const</span> <span class="keyword">char</span> **name) {
+L0499      <span class="keyword">if</span> (<a class="L" href="lstate.h.html#isLua">isLua</a>(ci)) {  <span class="comment">/* a Lua function? */</span>
+L0500        <a class="L" href="lobject.h.html#Proto">Proto</a> *p = <a class="L" href="lstate.h.html#ci_func">ci_func</a>(ci)-&gt;l.p;
+L0501        <span class="keyword">int</span> pc = <a class="L" href="ldebug.c.html#currentpc">currentpc</a>(L, ci);
+L0502        <a class="L" href="llimits.h.html#Instruction">Instruction</a> i;
+L0503        *name = <a class="L" href="lfunc.c.html#luaF_getlocalname">luaF_getlocalname</a>(p, stackpos<span class="number">+1</span>, pc);
+L0504        <span class="keyword">if</span> (*name)  <span class="comment">/* is a local? */</span>
+L0505          <span class="keyword">return</span> <span class="string">"local"</span>;
+L0506        i = <a class="L" href="ldebug.c.html#symbexec">symbexec</a>(p, pc, stackpos);  <span class="comment">/* try symbolic execution */</span>
+L0507        <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(pc != <span class="number">-1</span>);
+L0508        <span class="keyword">switch</span> (<a class="L" href="lopcodes.h.html#GET_OPCODE">GET_OPCODE</a>(i)) {
+L0509          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_GETGLOBAL">OP_GETGLOBAL</a>: {
+L0510            <span class="keyword">int</span> g = <a class="L" href="lopcodes.h.html#GETARG_Bx">GETARG_Bx</a>(i);  <span class="comment">/* global index */</span>
+L0511            <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(<a class="L" href="lobject.h.html#ttisstring">ttisstring</a>(&amp;p-&gt;k[g]));
+L0512            *name = <a class="L" href="lobject.h.html#svalue">svalue</a>(&amp;p-&gt;k[g]);
+L0513            <span class="keyword">return</span> <span class="string">"global"</span>;
+L0514          }
+L0515          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_MOVE">OP_MOVE</a>: {
+L0516            <span class="keyword">int</span> a = <a class="L" href="lopcodes.h.html#GETARG_A">GETARG_A</a>(i);
+L0517            <span class="keyword">int</span> b = <a class="L" href="lopcodes.h.html#GETARG_B">GETARG_B</a>(i);  <span class="comment">/* move from `b' to `a' */</span>
+L0518            <span class="keyword">if</span> (b &lt; a)
+L0519              <span class="keyword">return</span> <a class="L" href="ldebug.c.html#getobjname">getobjname</a>(L, ci, b, name);  <span class="comment">/* get name for `b' */</span>
+L0520            <span class="keyword">break</span>;
+L0521          }
+L0522          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_GETTABLE">OP_GETTABLE</a>: {
+L0523            <span class="keyword">int</span> k = <a class="L" href="lopcodes.h.html#GETARG_C">GETARG_C</a>(i);  <span class="comment">/* key index */</span>
+L0524            *name = <a class="L" href="ldebug.c.html#kname">kname</a>(p, k);
+L0525            <span class="keyword">return</span> <span class="string">"field"</span>;
+L0526          }
+L0527          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_GETUPVAL">OP_GETUPVAL</a>: {
+L0528            <span class="keyword">int</span> u = <a class="L" href="lopcodes.h.html#GETARG_B">GETARG_B</a>(i);  <span class="comment">/* upvalue index */</span>
+L0529            *name = p-&gt;upvalues ? <a class="L" href="lobject.h.html#getstr">getstr</a>(p-&gt;upvalues[u]) : <span class="string">"?"</span>;
+L0530            <span class="keyword">return</span> <span class="string">"upvalue"</span>;
+L0531          }
+L0532          <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_SELF">OP_SELF</a>: {
+L0533            <span class="keyword">int</span> k = <a class="L" href="lopcodes.h.html#GETARG_C">GETARG_C</a>(i);  <span class="comment">/* key index */</span>
+L0534            *name = <a class="L" href="ldebug.c.html#kname">kname</a>(p, k);
+L0535            <span class="keyword">return</span> <span class="string">"method"</span>;
+L0536          }
+L0537          <span class="keyword">default</span>: <span class="keyword">break</span>;
+L0538        }
+L0539      }
+L0540      <span class="keyword">return</span> NULL;  <span class="comment">/* no useful name found */</span>
+L0541    }
+L0542    
+L0543    
+L0544    <span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">char</span> *<a name="getfuncname"/a><a class="L" href="ldebug.c.ref.html#getfuncname">getfuncname</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lstate.h.html#CallInfo">CallInfo</a> *ci, <span class="keyword">const</span> <span class="keyword">char</span> **name) {
+L0545      <a class="L" href="llimits.h.html#Instruction">Instruction</a> i;
+L0546      <span class="keyword">if</span> ((<a class="L" href="lstate.h.html#isLua">isLua</a>(ci) &amp;&amp; ci-&gt;tailcalls &gt; <span class="number">0</span>) || !<a class="L" href="lstate.h.html#isLua">isLua</a>(ci - <span class="number">1</span>))
+L0547        <span class="keyword">return</span> NULL;  <span class="comment">/* calling function is not Lua (or is unknown) */</span>
+L0548      ci--;  <span class="comment">/* calling function */</span>
+L0549      i = <a class="L" href="lstate.h.html#ci_func">ci_func</a>(ci)-&gt;l.p-&gt;code[<a class="L" href="ldebug.c.html#currentpc">currentpc</a>(L, ci)];
+L0550      <span class="keyword">if</span> (<a class="L" href="lopcodes.h.html#GET_OPCODE">GET_OPCODE</a>(i) == <a class="L" href="lopcodes.h.html#OP_CALL">OP_CALL</a> || <a class="L" href="lopcodes.h.html#GET_OPCODE">GET_OPCODE</a>(i) == <a class="L" href="lopcodes.h.html#OP_TAILCALL">OP_TAILCALL</a> ||
+L0551          <a class="L" href="lopcodes.h.html#GET_OPCODE">GET_OPCODE</a>(i) == <a class="L" href="lopcodes.h.html#OP_TFORLOOP">OP_TFORLOOP</a>)
+L0552        <span class="keyword">return</span> <a class="L" href="ldebug.c.html#getobjname">getobjname</a>(L, ci, <a class="L" href="lopcodes.h.html#GETARG_A">GETARG_A</a>(i), name);
+L0553      <span class="keyword">else</span>
+L0554        <span class="keyword">return</span> NULL;  <span class="comment">/* no useful name can be found */</span>
+L0555    }
+L0556    
+L0557    
+L0558    <span class="comment">/* only ANSI way to check whether a pointer points to an array */</span>
+L0559    <span class="keyword">static</span> <span class="keyword">int</span> <a name="isinstack"/a><a class="L" href="ldebug.c.ref.html#isinstack">isinstack</a> (<a class="L" href="lstate.h.html#CallInfo">CallInfo</a> *ci, <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *o) {
+L0560      <a class="L" href="lobject.h.html#StkId">StkId</a> p;
+L0561      <span class="keyword">for</span> (p = ci-&gt;base; p &lt; ci-&gt;top; p++)
+L0562        <span class="keyword">if</span> (o == p) <span class="keyword">return</span> <span class="number">1</span>;
+L0563      <span class="keyword">return</span> <span class="number">0</span>;
+L0564    }
+L0565    
+L0566    
+L0567    <span class="keyword">void</span> <a name="luaG_typeerror"/a><a class="L" href="ldebug.c.ref.html#luaG_typeerror">luaG_typeerror</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *o, <span class="keyword">const</span> <span class="keyword">char</span> *op) {
+L0568      <span class="keyword">const</span> <span class="keyword">char</span> *name = NULL;
+L0569      <span class="keyword">const</span> <span class="keyword">char</span> *t = <a class="L" href="ltm.c.html#luaT_typenames">luaT_typenames</a>[<a class="L" href="lobject.h.html#ttype">ttype</a>(o)];
+L0570      <span class="keyword">const</span> <span class="keyword">char</span> *kind = (<a class="L" href="ldebug.c.html#isinstack">isinstack</a>(L-&gt;ci, o)) ?
+L0571                             <a class="L" href="ldebug.c.html#getobjname">getobjname</a>(L, L-&gt;ci, <a class="L" href="llimits.h.html#cast_int">cast_int</a>(o - L-&gt;base), &amp;name) :
+L0572                             NULL;
+L0573      <span class="keyword">if</span> (kind)
+L0574        <a class="L" href="ldebug.c.html#luaG_runerror">luaG_runerror</a>(L, <span class="string">"attempt to %s %s "</span> <a class="L" href="luaconf.h.html#LUA_QS">LUA_QS</a> <span class="string">" (a %s value)"</span>,
+L0575                    op, kind, name, t);
+L0576      <span class="keyword">else</span>
+L0577        <a class="L" href="ldebug.c.html#luaG_runerror">luaG_runerror</a>(L, <span class="string">"attempt to %s a %s value"</span>, op, t);
+L0578    }
+L0579    
+L0580    
+L0581    <span class="keyword">void</span> <a name="luaG_concaterror"/a><a class="L" href="ldebug.c.ref.html#luaG_concaterror">luaG_concaterror</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lobject.h.html#StkId">StkId</a> p1, <a class="L" href="lobject.h.html#StkId">StkId</a> p2) {
+L0582      <span class="keyword">if</span> (<a class="L" href="lobject.h.html#ttisstring">ttisstring</a>(p1) || <a class="L" href="lobject.h.html#ttisnumber">ttisnumber</a>(p1)) p1 = p2;
+L0583      <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(!<a class="L" href="lobject.h.html#ttisstring">ttisstring</a>(p1) &amp;&amp; !<a class="L" href="lobject.h.html#ttisnumber">ttisnumber</a>(p1));
+L0584      <a class="L" href="ldebug.c.html#luaG_typeerror">luaG_typeerror</a>(L, p1, <span class="string">"concatenate"</span>);
+L0585    }
+L0586    
+L0587    
+L0588    <span class="keyword">void</span> <a name="luaG_aritherror"/a><a class="L" href="ldebug.c.ref.html#luaG_aritherror">luaG_aritherror</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *p1, <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *p2) {
+L0589      <a class="L" href="lobject.h.html#TValue">TValue</a> temp;
+L0590      <span class="keyword">if</span> (<a class="L" href="lvm.c.html#luaV_tonumber">luaV_tonumber</a>(p1, &amp;temp) == NULL)
+L0591        p2 = p1;  <span class="comment">/* first operand is wrong */</span>
+L0592      <a class="L" href="ldebug.c.html#luaG_typeerror">luaG_typeerror</a>(L, p2, <span class="string">"perform arithmetic on"</span>);
+L0593    }
+L0594    
+L0595    
+L0596    <span class="keyword">int</span> <a name="luaG_ordererror"/a><a class="L" href="ldebug.c.ref.html#luaG_ordererror">luaG_ordererror</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *p1, <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *p2) {
+L0597      <span class="keyword">const</span> <span class="keyword">char</span> *t1 = <a class="L" href="ltm.c.html#luaT_typenames">luaT_typenames</a>[<a class="L" href="lobject.h.html#ttype">ttype</a>(p1)];
+L0598      <span class="keyword">const</span> <span class="keyword">char</span> *t2 = <a class="L" href="ltm.c.html#luaT_typenames">luaT_typenames</a>[<a class="L" href="lobject.h.html#ttype">ttype</a>(p2)];
+L0599      <span class="keyword">if</span> (t1[<span class="number">2</span>] == t2[<span class="number">2</span>])
+L0600        <a class="L" href="ldebug.c.html#luaG_runerror">luaG_runerror</a>(L, <span class="string">"attempt to compare two %s values"</span>, t1);
+L0601      <span class="keyword">else</span>
+L0602        <a class="L" href="ldebug.c.html#luaG_runerror">luaG_runerror</a>(L, <span class="string">"attempt to compare %s with %s"</span>, t1, t2);
+L0603      <span class="keyword">return</span> <span class="number">0</span>;
+L0604    }
+L0605    
+L0606    
+L0607    <span class="keyword">static</span> <span class="keyword">void</span> <a name="addinfo"/a><a class="L" href="ldebug.c.ref.html#addinfo">addinfo</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <span class="keyword">char</span> *msg) {
+L0608      <a class="L" href="lstate.h.html#CallInfo">CallInfo</a> *ci = L-&gt;ci;
+L0609      <span class="keyword">if</span> (<a class="L" href="lstate.h.html#isLua">isLua</a>(ci)) {  <span class="comment">/* is Lua code? */</span>
+L0610        <span class="keyword">char</span> buff[<a class="L" href="luaconf.h.html#LUA_IDSIZE">LUA_IDSIZE</a>];  <span class="comment">/* add file:line information */</span>
+L0611        <span class="keyword">int</span> line = <a class="L" href="ldebug.c.html#currentline">currentline</a>(L, ci);
+L0612        <a class="L" href="lobject.c.html#luaO_chunkid">luaO_chunkid</a>(buff, <a class="L" href="lobject.h.html#getstr">getstr</a>(<a class="L" href="ldebug.c.html#getluaproto">getluaproto</a>(ci)-&gt;source), <a class="L" href="luaconf.h.html#LUA_IDSIZE">LUA_IDSIZE</a>);
+L0613        <a class="L" href="lobject.c.html#luaO_pushfstring">luaO_pushfstring</a>(L, <span class="string">"%s:%d: %s"</span>, buff, line, msg);
+L0614      }
+L0615    }
+L0616    
+L0617    
+L0618    <span class="keyword">void</span> <a name="luaG_errormsg"/a><a class="L" href="ldebug.c.ref.html#luaG_errormsg">luaG_errormsg</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0619      <span class="keyword">if</span> (L-&gt;errfunc != <span class="number">0</span>) {  <span class="comment">/* is there an error handling function? */</span>
+L0620        <a class="L" href="lobject.h.html#StkId">StkId</a> errfunc = <a class="L" href="ldo.h.html#restorestack">restorestack</a>(L, L-&gt;errfunc);
+L0621        <span class="keyword">if</span> (!<a class="L" href="lobject.h.html#ttisfunction">ttisfunction</a>(errfunc)) <a class="L" href="ldo.c.html#luaD_throw">luaD_throw</a>(L, <a class="L" href="lua.h.html#LUA_ERRERR">LUA_ERRERR</a>);
+L0622        <a class="L" href="lobject.h.html#setobjs2s">setobjs2s</a>(L, L-&gt;top, L-&gt;top - <span class="number">1</span>);  <span class="comment">/* move argument */</span>
+L0623        <a class="L" href="lobject.h.html#setobjs2s">setobjs2s</a>(L, L-&gt;top - <span class="number">1</span>, errfunc);  <span class="comment">/* push function */</span>
+L0624        <a class="L" href="ldo.h.html#incr_top">incr_top</a>(L);
+L0625        <a class="L" href="ldo.c.html#luaD_call">luaD_call</a>(L, L-&gt;top - <span class="number">2</span>, <span class="number">1</span>);  <span class="comment">/* call it */</span>
+L0626      }
+L0627      <a class="L" href="ldo.c.html#luaD_throw">luaD_throw</a>(L, <a class="L" href="lua.h.html#LUA_ERRRUN">LUA_ERRRUN</a>);
+L0628    }
+L0629    
+L0630    
+L0631    <span class="keyword">void</span> <a name="luaG_runerror"/a><a class="L" href="ldebug.c.ref.html#luaG_runerror">luaG_runerror</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <span class="keyword">char</span> *fmt, ...) {
+L0632      va_list argp;
+L0633      va_start(argp, fmt);
+L0634      <a class="L" href="ldebug.c.html#addinfo">addinfo</a>(L, <a class="L" href="lobject.c.html#luaO_pushvfstring">luaO_pushvfstring</a>(L, fmt, argp));
+L0635      va_end(argp);
+L0636      <a class="L" href="ldebug.c.html#luaG_errormsg">luaG_errormsg</a>(L);
+L0637    }
+L0638    
+</pre>
+<hr/>
+Generated by <a href="pretty.lua.html">pretty.lua</html>
+</body></html>

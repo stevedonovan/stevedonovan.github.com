@@ -1,0 +1,539 @@
+<html>
+<head>
+<style>
+a.L { text-decoration: none; }
+a.L:hover { color: #FFAAAA; }
+body { margin-top: 20px; margin-left: 30px; }
+.lno { font-weight: bold: color #000; }
+.keyword {font-weight: bold; color: #6666AA; }
+.number  { color: #AA6666; }
+.string  { color: #8888AA; }
+.comment { color: #666600; }
+.prepro { color: #006666; } 
+</style>
+<body>
+<h1>Lua 5.1.4: ldo.c</h1>
+<hr/>
+<pre>
+L0001    <span class="comment">/*
+L0002    ** $Id: ldo.c,v 2.38.1.3 2008/01/18 22:31:22 roberto Exp $
+L0003    ** Stack and Call structure of Lua
+L0004    ** See Copyright Notice in lua.h
+L0005    */</span>
+L0006    
+L0007    
+L0008    <span class="prepro">#include &lt;setjmp.h&gt;
+</span>L0009    <span class="prepro">#include &lt;stdlib.h&gt;
+</span>L0010    <span class="prepro">#include &lt;string.h&gt;
+</span>L0011    
+L0012    <a name="ldo_c"/a><span class="prepro">#define ldo_c
+</span>L0013    <a name="LUA_CORE"/a><span class="prepro">#define LUA_CORE
+</span>L0014    
+L0015    <span class="prepro"><a class="L" href="lua.h.html#">#include "lua.h"
+</a></span>L0016    
+L0017    <span class="prepro"><a class="L" href="ldebug.h.html#">#include "ldebug.h"
+</a></span>L0018    <span class="prepro"><a class="L" href="ldo.h.html#">#include "ldo.h"
+</a></span>L0019    <span class="prepro"><a class="L" href="lfunc.h.html#">#include "lfunc.h"
+</a></span>L0020    <span class="prepro"><a class="L" href="lgc.h.html#">#include "lgc.h"
+</a></span>L0021    <span class="prepro"><a class="L" href="lmem.h.html#">#include "lmem.h"
+</a></span>L0022    <span class="prepro"><a class="L" href="lobject.h.html#">#include "lobject.h"
+</a></span>L0023    <span class="prepro"><a class="L" href="lopcodes.h.html#">#include "lopcodes.h"
+</a></span>L0024    <span class="prepro"><a class="L" href="lparser.h.html#">#include "lparser.h"
+</a></span>L0025    <span class="prepro"><a class="L" href="lstate.h.html#">#include "lstate.h"
+</a></span>L0026    <span class="prepro"><a class="L" href="lstring.h.html#">#include "lstring.h"
+</a></span>L0027    <span class="prepro"><a class="L" href="ltable.h.html#">#include "ltable.h"
+</a></span>L0028    <span class="prepro"><a class="L" href="ltm.h.html#">#include "ltm.h"
+</a></span>L0029    <span class="prepro"><a class="L" href="lundump.h.html#">#include "lundump.h"
+</a></span>L0030    <span class="prepro"><a class="L" href="lvm.h.html#">#include "lvm.h"
+</a></span>L0031    <span class="prepro"><a class="L" href="lzio.h.html#">#include "lzio.h"
+</a></span>L0032    
+L0033    
+L0034    
+L0035    
+L0036    <span class="comment">/*
+L0037    ** {======================================================
+L0038    ** Error-recovery functions
+L0039    ** =======================================================
+L0040    */</span>
+L0041    
+L0042    
+L0043    <span class="comment">/* chain list of long jump buffers */</span>
+L0044    <span class="keyword">struct</span> <a name="lua_longjmp"/a><a class="L" href="ldo.c.ref.html#lua_longjmp">lua_longjmp</a> {
+L0045      <span class="keyword">struct</span> <a class="L" href="ldo.c.html#lua_longjmp">lua_longjmp</a> *<a name="previous"/a><a class="L" href="ldo.c.ref.html#previous">previous</a>;
+L0046      <a class="L" href="luaconf.h.html#luai_jmpbuf">luai_jmpbuf</a> <a name="b"/a><a class="L" href="ldo.c.ref.html#b">b</a>;
+L0047      volatile <span class="keyword">int</span> <a name="status"/a><a class="L" href="ldo.c.ref.html#status">status</a>;  <span class="comment">/* error code */</span>
+L0048    };
+L0049    
+L0050    
+L0051    <span class="keyword">void</span> <a name="luaD_seterrorobj"/a><a class="L" href="ldo.c.ref.html#luaD_seterrorobj">luaD_seterrorobj</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> errcode, <a class="L" href="lobject.h.html#StkId">StkId</a> oldtop) {
+L0052      <span class="keyword">switch</span> (errcode) {
+L0053        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_ERRMEM">LUA_ERRMEM</a>: {
+L0054          <a class="L" href="lobject.h.html#setsvalue2s">setsvalue2s</a>(L, oldtop, <a class="L" href="lstring.h.html#luaS_newliteral">luaS_newliteral</a>(L, <a class="L" href="lmem.h.html#MEMERRMSG">MEMERRMSG</a>));
+L0055          <span class="keyword">break</span>;
+L0056        }
+L0057        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_ERRERR">LUA_ERRERR</a>: {
+L0058          <a class="L" href="lobject.h.html#setsvalue2s">setsvalue2s</a>(L, oldtop, <a class="L" href="lstring.h.html#luaS_newliteral">luaS_newliteral</a>(L, <span class="string">"error in error handling"</span>));
+L0059          <span class="keyword">break</span>;
+L0060        }
+L0061        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_ERRSYNTAX">LUA_ERRSYNTAX</a>:
+L0062        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_ERRRUN">LUA_ERRRUN</a>: {
+L0063          <a class="L" href="lobject.h.html#setobjs2s">setobjs2s</a>(L, oldtop, L-&gt;top - <span class="number">1</span>);  <span class="comment">/* error message on current top */</span>
+L0064          <span class="keyword">break</span>;
+L0065        }
+L0066      }
+L0067      L-&gt;top = oldtop + <span class="number">1</span>;
+L0068    }
+L0069    
+L0070    
+L0071    <span class="keyword">static</span> <span class="keyword">void</span> <a name="restore_stack_limit"/a><a class="L" href="ldo.c.ref.html#restore_stack_limit">restore_stack_limit</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0072      <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(L-&gt;stack_last - L-&gt;stack == L-&gt;stacksize - <a class="L" href="lstate.h.html#EXTRA_STACK">EXTRA_STACK</a> - <span class="number">1</span>);
+L0073      <span class="keyword">if</span> (L-&gt;size_ci &gt; <a class="L" href="luaconf.h.html#LUAI_MAXCALLS">LUAI_MAXCALLS</a>) {  <span class="comment">/* there was an overflow? */</span>
+L0074        <span class="keyword">int</span> inuse = <a class="L" href="llimits.h.html#cast_int">cast_int</a>(L-&gt;ci - L-&gt;base_ci);
+L0075        <span class="keyword">if</span> (inuse + <span class="number">1</span> &lt; <a class="L" href="luaconf.h.html#LUAI_MAXCALLS">LUAI_MAXCALLS</a>)  <span class="comment">/* can `undo' overflow? */</span>
+L0076          <a class="L" href="ldo.c.html#luaD_reallocCI">luaD_reallocCI</a>(L, <a class="L" href="luaconf.h.html#LUAI_MAXCALLS">LUAI_MAXCALLS</a>);
+L0077      }
+L0078    }
+L0079    
+L0080    
+L0081    <span class="keyword">static</span> <span class="keyword">void</span> <a name="resetstack"/a><a class="L" href="ldo.c.ref.html#resetstack">resetstack</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> status) {
+L0082      L-&gt;ci = L-&gt;base_ci;
+L0083      L-&gt;base = L-&gt;ci-&gt;base;
+L0084      <a class="L" href="lfunc.c.html#luaF_close">luaF_close</a>(L, L-&gt;base);  <span class="comment">/* close eventual pending closures */</span>
+L0085      <a class="L" href="ldo.c.html#luaD_seterrorobj">luaD_seterrorobj</a>(L, status, L-&gt;base);
+L0086      L-&gt;nCcalls = L-&gt;baseCcalls;
+L0087      L-&gt;allowhook = <span class="number">1</span>;
+L0088      <a class="L" href="ldo.c.html#restore_stack_limit">restore_stack_limit</a>(L);
+L0089      L-&gt;errfunc = <span class="number">0</span>;
+L0090      L-&gt;errorJmp = NULL;
+L0091    }
+L0092    
+L0093    
+L0094    <span class="keyword">void</span> <a name="luaD_throw"/a><a class="L" href="ldo.c.ref.html#luaD_throw">luaD_throw</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> errcode) {
+L0095      <span class="keyword">if</span> (L-&gt;errorJmp) {
+L0096        L-&gt;errorJmp-&gt;status = errcode;
+L0097        <a class="L" href="luaconf.h.html#LUAI_THROW">LUAI_THROW</a>(L, L-&gt;errorJmp);
+L0098      }
+L0099      <span class="keyword">else</span> {
+L0100        L-&gt;status = <a class="L" href="llimits.h.html#cast_byte">cast_byte</a>(errcode);
+L0101        <span class="keyword">if</span> (<a class="L" href="lstate.h.html#G">G</a>(L)-&gt;<a class="L" href="lauxlib.c.html#panic">panic</a>) {
+L0102          <a class="L" href="ldo.c.html#resetstack">resetstack</a>(L, errcode);
+L0103          <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L0104          <a class="L" href="lstate.h.html#G">G</a>(L)-&gt;<a class="L" href="lauxlib.c.html#panic">panic</a>(L);
+L0105        }
+L0106        exit(EXIT_FAILURE);
+L0107      }
+L0108    }
+L0109    
+L0110    
+L0111    <span class="keyword">int</span> <a name="luaD_rawrunprotected"/a><a class="L" href="ldo.c.ref.html#luaD_rawrunprotected">luaD_rawrunprotected</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="ldo.h.html#Pfunc">Pfunc</a> f, <span class="keyword">void</span> *ud) {
+L0112      <span class="keyword">struct</span> <a class="L" href="ldo.c.html#lua_longjmp">lua_longjmp</a> lj;
+L0113      lj.status = <span class="number">0</span>;
+L0114      lj.previous = L-&gt;errorJmp;  <span class="comment">/* chain new error handler */</span>
+L0115      L-&gt;errorJmp = &amp;lj;
+L0116      <a class="L" href="luaconf.h.html#LUAI_TRY">LUAI_TRY</a>(L, &amp;lj,
+L0117        (*f)(L, ud);
+L0118      );
+L0119      L-&gt;errorJmp = lj.previous;  <span class="comment">/* restore old error handler */</span>
+L0120      <span class="keyword">return</span> lj.status;
+L0121    }
+L0122    
+L0123    <span class="comment">/* }====================================================== */</span>
+L0124    
+L0125    
+L0126    <span class="keyword">static</span> <span class="keyword">void</span> <a name="correctstack"/a><a class="L" href="ldo.c.ref.html#correctstack">correctstack</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lobject.h.html#TValue">TValue</a> *oldstack) {
+L0127      <a class="L" href="lstate.h.html#CallInfo">CallInfo</a> *ci;
+L0128      <a class="L" href="lobject.h.html#GCObject">GCObject</a> *up;
+L0129      L-&gt;top = (L-&gt;top - oldstack) + L-&gt;stack;
+L0130      <span class="keyword">for</span> (up = L-&gt;openupval; up != NULL; up = up-&gt;gch.<a class="L" href="llex.c.html#next">next</a>)
+L0131        <a class="L" href="lstate.h.html#gco2uv">gco2uv</a>(up)-&gt;v = (<a class="L" href="lstate.h.html#gco2uv">gco2uv</a>(up)-&gt;v - oldstack) + L-&gt;stack;
+L0132      <span class="keyword">for</span> (ci = L-&gt;base_ci; ci &lt;= L-&gt;ci; ci++) {
+L0133        ci-&gt;top = (ci-&gt;top - oldstack) + L-&gt;stack;
+L0134        ci-&gt;base = (ci-&gt;base - oldstack) + L-&gt;stack;
+L0135        ci-&gt;func = (ci-&gt;func - oldstack) + L-&gt;stack;
+L0136      }
+L0137      L-&gt;base = (L-&gt;base - oldstack) + L-&gt;stack;
+L0138    }
+L0139    
+L0140    
+L0141    <span class="keyword">void</span> <a name="luaD_reallocstack"/a><a class="L" href="ldo.c.ref.html#luaD_reallocstack">luaD_reallocstack</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> newsize) {
+L0142      <a class="L" href="lobject.h.html#TValue">TValue</a> *oldstack = L-&gt;stack;
+L0143      <span class="keyword">int</span> realsize = newsize + <span class="number">1</span> + <a class="L" href="lstate.h.html#EXTRA_STACK">EXTRA_STACK</a>;
+L0144      <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(L-&gt;stack_last - L-&gt;stack == L-&gt;stacksize - <a class="L" href="lstate.h.html#EXTRA_STACK">EXTRA_STACK</a> - <span class="number">1</span>);
+L0145      <a class="L" href="lmem.h.html#luaM_reallocvector">luaM_reallocvector</a>(L, L-&gt;stack, L-&gt;stacksize, realsize, <a class="L" href="lobject.h.html#TValue">TValue</a>);
+L0146      L-&gt;stacksize = realsize;
+L0147      L-&gt;stack_last = L-&gt;stack+newsize;
+L0148      <a class="L" href="ldo.c.html#correctstack">correctstack</a>(L, oldstack);
+L0149    }
+L0150    
+L0151    
+L0152    <span class="keyword">void</span> <a name="luaD_reallocCI"/a><a class="L" href="ldo.c.ref.html#luaD_reallocCI">luaD_reallocCI</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> newsize) {
+L0153      <a class="L" href="lstate.h.html#CallInfo">CallInfo</a> *oldci = L-&gt;base_ci;
+L0154      <a class="L" href="lmem.h.html#luaM_reallocvector">luaM_reallocvector</a>(L, L-&gt;base_ci, L-&gt;size_ci, newsize, <a class="L" href="lstate.h.html#CallInfo">CallInfo</a>);
+L0155      L-&gt;size_ci = newsize;
+L0156      L-&gt;ci = (L-&gt;ci - oldci) + L-&gt;base_ci;
+L0157      L-&gt;end_ci = L-&gt;base_ci + L-&gt;size_ci - <span class="number">1</span>;
+L0158    }
+L0159    
+L0160    
+L0161    <span class="keyword">void</span> <a name="luaD_growstack"/a><a class="L" href="ldo.c.ref.html#luaD_growstack">luaD_growstack</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> n) {
+L0162      <span class="keyword">if</span> (n &lt;= L-&gt;stacksize)  <span class="comment">/* double size is enough? */</span>
+L0163        <a class="L" href="ldo.c.html#luaD_reallocstack">luaD_reallocstack</a>(L, <span class="number">2</span>*L-&gt;stacksize);
+L0164      <span class="keyword">else</span>
+L0165        <a class="L" href="ldo.c.html#luaD_reallocstack">luaD_reallocstack</a>(L, L-&gt;stacksize + n);
+L0166    }
+L0167    
+L0168    
+L0169    <span class="keyword">static</span> <a class="L" href="lstate.h.html#CallInfo">CallInfo</a> *<a name="growCI"/a><a class="L" href="ldo.c.ref.html#growCI">growCI</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0170      <span class="keyword">if</span> (L-&gt;size_ci &gt; <a class="L" href="luaconf.h.html#LUAI_MAXCALLS">LUAI_MAXCALLS</a>)  <span class="comment">/* overflow while handling overflow? */</span>
+L0171        <a class="L" href="ldo.c.html#luaD_throw">luaD_throw</a>(L, <a class="L" href="lua.h.html#LUA_ERRERR">LUA_ERRERR</a>);
+L0172      <span class="keyword">else</span> {
+L0173        <a class="L" href="ldo.c.html#luaD_reallocCI">luaD_reallocCI</a>(L, <span class="number">2</span>*L-&gt;size_ci);
+L0174        <span class="keyword">if</span> (L-&gt;size_ci &gt; <a class="L" href="luaconf.h.html#LUAI_MAXCALLS">LUAI_MAXCALLS</a>)
+L0175          <a class="L" href="ldebug.c.html#luaG_runerror">luaG_runerror</a>(L, <span class="string">"stack overflow"</span>);
+L0176      }
+L0177      <span class="keyword">return</span> ++L-&gt;ci;
+L0178    }
+L0179    
+L0180    
+L0181    <span class="keyword">void</span> <a name="luaD_callhook"/a><a class="L" href="ldo.c.ref.html#luaD_callhook">luaD_callhook</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> event, <span class="keyword">int</span> line) {
+L0182      <a class="L" href="lua.h.html#lua_Hook">lua_Hook</a> hook = L-&gt;hook;
+L0183      <span class="keyword">if</span> (hook &amp;&amp; L-&gt;allowhook) {
+L0184        ptrdiff_t top = <a class="L" href="ldo.h.html#savestack">savestack</a>(L, L-&gt;top);
+L0185        ptrdiff_t ci_top = <a class="L" href="ldo.h.html#savestack">savestack</a>(L, L-&gt;ci-&gt;top);
+L0186        <a class="L" href="lua.h.html#lua_Debug">lua_Debug</a> ar;
+L0187        ar.event = event;
+L0188        ar.<a class="L" href="ldebug.c.html#currentline">currentline</a> = line;
+L0189        <span class="keyword">if</span> (event == <a class="L" href="lua.h.html#LUA_HOOKTAILRET">LUA_HOOKTAILRET</a>)
+L0190          ar.i_ci = <span class="number">0</span>;  <span class="comment">/* tail call; no debug information about it */</span>
+L0191        <span class="keyword">else</span>
+L0192          ar.i_ci = <a class="L" href="llimits.h.html#cast_int">cast_int</a>(L-&gt;ci - L-&gt;base_ci);
+L0193        <a class="L" href="ldo.h.html#luaD_checkstack">luaD_checkstack</a>(L, <a class="L" href="lua.h.html#LUA_MINSTACK">LUA_MINSTACK</a>);  <span class="comment">/* ensure minimum stack size */</span>
+L0194        L-&gt;ci-&gt;top = L-&gt;top + <a class="L" href="lua.h.html#LUA_MINSTACK">LUA_MINSTACK</a>;
+L0195        <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(L-&gt;ci-&gt;top &lt;= L-&gt;stack_last);
+L0196        L-&gt;allowhook = <span class="number">0</span>;  <span class="comment">/* cannot call hooks inside a hook */</span>
+L0197        <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L0198        (*hook)(L, &amp;ar);
+L0199        <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);
+L0200        <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(!L-&gt;allowhook);
+L0201        L-&gt;allowhook = <span class="number">1</span>;
+L0202        L-&gt;ci-&gt;top = <a class="L" href="ldo.h.html#restorestack">restorestack</a>(L, ci_top);
+L0203        L-&gt;top = <a class="L" href="ldo.h.html#restorestack">restorestack</a>(L, top);
+L0204      }
+L0205    }
+L0206    
+L0207    
+L0208    <span class="keyword">static</span> <a class="L" href="lobject.h.html#StkId">StkId</a> <a name="adjust_varargs"/a><a class="L" href="ldo.c.ref.html#adjust_varargs">adjust_varargs</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lobject.h.html#Proto">Proto</a> *p, <span class="keyword">int</span> actual) {
+L0209      <span class="keyword">int</span> i;
+L0210      <span class="keyword">int</span> nfixargs = p-&gt;numparams;
+L0211      <a class="L" href="lobject.h.html#Table">Table</a> *htab = NULL;
+L0212      <a class="L" href="lobject.h.html#StkId">StkId</a> base, fixed;
+L0213      <span class="keyword">for</span> (; actual &lt; nfixargs; ++actual)
+L0214        <a class="L" href="lobject.h.html#setnilvalue">setnilvalue</a>(L-&gt;top++);
+L0215    <span class="prepro">#if defined(LUA_COMPAT_VARARG)
+</span>L0216      <span class="keyword">if</span> (p-&gt;is_vararg &amp; <a class="L" href="lobject.h.html#VARARG_NEEDSARG">VARARG_NEEDSARG</a>) { <span class="comment">/* compat. with old-style vararg? */</span>
+L0217        <span class="keyword">int</span> nvar = actual - nfixargs;  <span class="comment">/* number of extra arguments */</span>
+L0218        <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(p-&gt;is_vararg &amp; <a class="L" href="lobject.h.html#VARARG_HASARG">VARARG_HASARG</a>);
+L0219        <a class="L" href="lgc.h.html#luaC_checkGC">luaC_checkGC</a>(L);
+L0220        htab = <a class="L" href="ltable.c.html#luaH_new">luaH_new</a>(L, nvar, <span class="number">1</span>);  <span class="comment">/* create `arg' table */</span>
+L0221        <span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;nvar; i++)  <span class="comment">/* put extra arguments into `arg' table */</span>
+L0222          <a class="L" href="lobject.h.html#setobj2n">setobj2n</a>(L, <a class="L" href="ltable.c.html#luaH_setnum">luaH_setnum</a>(L, htab, i<span class="number">+1</span>), L-&gt;top - nvar + i);
+L0223        <span class="comment">/* store counter in field `n' */</span>
+L0224        <a class="L" href="lobject.h.html#setnvalue">setnvalue</a>(<a class="L" href="ltable.c.html#luaH_setstr">luaH_setstr</a>(L, htab, <a class="L" href="lstring.h.html#luaS_newliteral">luaS_newliteral</a>(L, <span class="string">"n"</span>)), <a class="L" href="llimits.h.html#cast_num">cast_num</a>(nvar));
+L0225      }
+L0226    <span class="prepro">#endif
+</span>L0227      <span class="comment">/* move fixed parameters to final position */</span>
+L0228      fixed = L-&gt;top - actual;  <span class="comment">/* first fixed argument */</span>
+L0229      base = L-&gt;top;  <span class="comment">/* final position of first argument */</span>
+L0230      <span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;nfixargs; i++) {
+L0231        <a class="L" href="lobject.h.html#setobjs2s">setobjs2s</a>(L, L-&gt;top++, fixed+i);
+L0232        <a class="L" href="lobject.h.html#setnilvalue">setnilvalue</a>(fixed+i);
+L0233      }
+L0234      <span class="comment">/* add `arg' parameter */</span>
+L0235      <span class="keyword">if</span> (htab) {
+L0236        <a class="L" href="lobject.h.html#sethvalue">sethvalue</a>(L, L-&gt;top++, htab);
+L0237        <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(<a class="L" href="lgc.h.html#iswhite">iswhite</a>(<a class="L" href="lstate.h.html#obj2gco">obj2gco</a>(htab)));
+L0238      }
+L0239      <span class="keyword">return</span> base;
+L0240    }
+L0241    
+L0242    
+L0243    <span class="keyword">static</span> <a class="L" href="lobject.h.html#StkId">StkId</a> <a name="tryfuncTM"/a><a class="L" href="ldo.c.ref.html#tryfuncTM">tryfuncTM</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lobject.h.html#StkId">StkId</a> func) {
+L0244      <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *tm = <a class="L" href="ltm.c.html#luaT_gettmbyobj">luaT_gettmbyobj</a>(L, func, <a class="L" href="ltm.h.html#TM_CALL">TM_CALL</a>);
+L0245      <a class="L" href="lobject.h.html#StkId">StkId</a> p;
+L0246      ptrdiff_t funcr = <a class="L" href="ldo.h.html#savestack">savestack</a>(L, func);
+L0247      <span class="keyword">if</span> (!<a class="L" href="lobject.h.html#ttisfunction">ttisfunction</a>(tm))
+L0248        <a class="L" href="ldebug.c.html#luaG_typeerror">luaG_typeerror</a>(L, func, <span class="string">"call"</span>);
+L0249      <span class="comment">/* Open a hole inside the stack at `func' */</span>
+L0250      <span class="keyword">for</span> (p = L-&gt;top; p &gt; func; p--) <a class="L" href="lobject.h.html#setobjs2s">setobjs2s</a>(L, p, p<span class="number">-1</span>);
+L0251      <a class="L" href="ldo.h.html#incr_top">incr_top</a>(L);
+L0252      func = <a class="L" href="ldo.h.html#restorestack">restorestack</a>(L, funcr);  <span class="comment">/* previous call may change stack */</span>
+L0253      <a class="L" href="lobject.h.html#setobj2s">setobj2s</a>(L, func, tm);  <span class="comment">/* tag method is the new function to be called */</span>
+L0254      <span class="keyword">return</span> func;
+L0255    }
+L0256    
+L0257    
+L0258    
+L0259    <a name="inc_ci"/a><span class="prepro">#define inc_ci(L) \
+L0260      ((L-&gt;ci == L-&gt;end_ci) ? growCI(L) : \
+L0261       (condhardstacktests(luaD_reallocCI(L, L-&gt;size_ci)), ++L-&gt;ci))
+</span>L0262    
+L0263    
+L0264    <span class="keyword">int</span> <a name="luaD_precall"/a><a class="L" href="ldo.c.ref.html#luaD_precall">luaD_precall</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lobject.h.html#StkId">StkId</a> func, <span class="keyword">int</span> nresults) {
+L0265      <a class="L" href="lobject.h.html#LClosure">LClosure</a> *cl;
+L0266      ptrdiff_t funcr;
+L0267      <span class="keyword">if</span> (!<a class="L" href="lobject.h.html#ttisfunction">ttisfunction</a>(func)) <span class="comment">/* `func' is not a function? */</span>
+L0268        func = <a class="L" href="ldo.c.html#tryfuncTM">tryfuncTM</a>(L, func);  <span class="comment">/* check the `function' tag method */</span>
+L0269      funcr = <a class="L" href="ldo.h.html#savestack">savestack</a>(L, func);
+L0270      cl = &amp;<a class="L" href="lobject.h.html#clvalue">clvalue</a>(func)-&gt;l;
+L0271      L-&gt;ci-&gt;savedpc = L-&gt;savedpc;
+L0272      <span class="keyword">if</span> (!cl-&gt;isC) {  <span class="comment">/* Lua function? prepare its call */</span>
+L0273        <a class="L" href="lstate.h.html#CallInfo">CallInfo</a> *ci;
+L0274        <a class="L" href="lobject.h.html#StkId">StkId</a> st, base;
+L0275        <a class="L" href="lobject.h.html#Proto">Proto</a> *p = cl-&gt;p;
+L0276        <a class="L" href="ldo.h.html#luaD_checkstack">luaD_checkstack</a>(L, p-&gt;maxstacksize);
+L0277        func = <a class="L" href="ldo.h.html#restorestack">restorestack</a>(L, funcr);
+L0278        <span class="keyword">if</span> (!p-&gt;is_vararg) {  <span class="comment">/* no varargs? */</span>
+L0279          base = func + <span class="number">1</span>;
+L0280          <span class="keyword">if</span> (L-&gt;top &gt; base + p-&gt;numparams)
+L0281            L-&gt;top = base + p-&gt;numparams;
+L0282        }
+L0283        <span class="keyword">else</span> {  <span class="comment">/* vararg function */</span>
+L0284          <span class="keyword">int</span> nargs = <a class="L" href="llimits.h.html#cast_int">cast_int</a>(L-&gt;top - func) - <span class="number">1</span>;
+L0285          base = <a class="L" href="ldo.c.html#adjust_varargs">adjust_varargs</a>(L, p, nargs);
+L0286          func = <a class="L" href="ldo.h.html#restorestack">restorestack</a>(L, funcr);  <span class="comment">/* previous call may change the stack */</span>
+L0287        }
+L0288        ci = <a class="L" href="ldo.c.html#inc_ci">inc_ci</a>(L);  <span class="comment">/* now `enter' new function */</span>
+L0289        ci-&gt;func = func;
+L0290        L-&gt;base = ci-&gt;base = base;
+L0291        ci-&gt;top = L-&gt;base + p-&gt;maxstacksize;
+L0292        <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(ci-&gt;top &lt;= L-&gt;stack_last);
+L0293        L-&gt;savedpc = p-&gt;code;  <span class="comment">/* starting point */</span>
+L0294        ci-&gt;tailcalls = <span class="number">0</span>;
+L0295        ci-&gt;nresults = nresults;
+L0296        <span class="keyword">for</span> (st = L-&gt;top; st &lt; ci-&gt;top; st++)
+L0297          <a class="L" href="lobject.h.html#setnilvalue">setnilvalue</a>(st);
+L0298        L-&gt;top = ci-&gt;top;
+L0299        <span class="keyword">if</span> (L-&gt;hookmask &amp; <a class="L" href="lua.h.html#LUA_MASKCALL">LUA_MASKCALL</a>) {
+L0300          L-&gt;savedpc++;  <span class="comment">/* hooks assume 'pc' is already incremented */</span>
+L0301          <a class="L" href="ldo.c.html#luaD_callhook">luaD_callhook</a>(L, <a class="L" href="lua.h.html#LUA_HOOKCALL">LUA_HOOKCALL</a>, <span class="number">-1</span>);
+L0302          L-&gt;savedpc--;  <span class="comment">/* correct 'pc' */</span>
+L0303        }
+L0304        <span class="keyword">return</span> <a class="L" href="ldo.h.html#PCRLUA">PCRLUA</a>;
+L0305      }
+L0306      <span class="keyword">else</span> {  <span class="comment">/* if is a C function, call it */</span>
+L0307        <a class="L" href="lstate.h.html#CallInfo">CallInfo</a> *ci;
+L0308        <span class="keyword">int</span> n;
+L0309        <a class="L" href="ldo.h.html#luaD_checkstack">luaD_checkstack</a>(L, <a class="L" href="lua.h.html#LUA_MINSTACK">LUA_MINSTACK</a>);  <span class="comment">/* ensure minimum stack size */</span>
+L0310        ci = <a class="L" href="ldo.c.html#inc_ci">inc_ci</a>(L);  <span class="comment">/* now `enter' new function */</span>
+L0311        ci-&gt;func = <a class="L" href="ldo.h.html#restorestack">restorestack</a>(L, funcr);
+L0312        L-&gt;base = ci-&gt;base = ci-&gt;func + <span class="number">1</span>;
+L0313        ci-&gt;top = L-&gt;top + <a class="L" href="lua.h.html#LUA_MINSTACK">LUA_MINSTACK</a>;
+L0314        <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(ci-&gt;top &lt;= L-&gt;stack_last);
+L0315        ci-&gt;nresults = nresults;
+L0316        <span class="keyword">if</span> (L-&gt;hookmask &amp; <a class="L" href="lua.h.html#LUA_MASKCALL">LUA_MASKCALL</a>)
+L0317          <a class="L" href="ldo.c.html#luaD_callhook">luaD_callhook</a>(L, <a class="L" href="lua.h.html#LUA_HOOKCALL">LUA_HOOKCALL</a>, <span class="number">-1</span>);
+L0318        <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L0319        n = (*<a class="L" href="lstate.h.html#curr_func">curr_func</a>(L)-&gt;c.f)(L);  <span class="comment">/* do the actual call */</span>
+L0320        <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);
+L0321        <span class="keyword">if</span> (n &lt; <span class="number">0</span>)  <span class="comment">/* yielding? */</span>
+L0322          <span class="keyword">return</span> <a class="L" href="ldo.h.html#PCRYIELD">PCRYIELD</a>;
+L0323        <span class="keyword">else</span> {
+L0324          <a class="L" href="ldo.c.html#luaD_poscall">luaD_poscall</a>(L, L-&gt;top - n);
+L0325          <span class="keyword">return</span> <a class="L" href="ldo.h.html#PCRC">PCRC</a>;
+L0326        }
+L0327      }
+L0328    }
+L0329    
+L0330    
+L0331    <span class="keyword">static</span> <a class="L" href="lobject.h.html#StkId">StkId</a> <a name="callrethooks"/a><a class="L" href="ldo.c.ref.html#callrethooks">callrethooks</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lobject.h.html#StkId">StkId</a> firstResult) {
+L0332      ptrdiff_t fr = <a class="L" href="ldo.h.html#savestack">savestack</a>(L, firstResult);  <span class="comment">/* next call may change stack */</span>
+L0333      <a class="L" href="ldo.c.html#luaD_callhook">luaD_callhook</a>(L, <a class="L" href="lua.h.html#LUA_HOOKRET">LUA_HOOKRET</a>, <span class="number">-1</span>);
+L0334      <span class="keyword">if</span> (<a class="L" href="lstate.h.html#f_isLua">f_isLua</a>(L-&gt;ci)) {  <span class="comment">/* Lua function? */</span>
+L0335        <span class="keyword">while</span> ((L-&gt;hookmask &amp; <a class="L" href="lua.h.html#LUA_MASKRET">LUA_MASKRET</a>) &amp;&amp; L-&gt;ci-&gt;tailcalls--) <span class="comment">/* tail calls */</span>
+L0336          <a class="L" href="ldo.c.html#luaD_callhook">luaD_callhook</a>(L, <a class="L" href="lua.h.html#LUA_HOOKTAILRET">LUA_HOOKTAILRET</a>, <span class="number">-1</span>);
+L0337      }
+L0338      <span class="keyword">return</span> <a class="L" href="ldo.h.html#restorestack">restorestack</a>(L, fr);
+L0339    }
+L0340    
+L0341    
+L0342    <span class="keyword">int</span> <a name="luaD_poscall"/a><a class="L" href="ldo.c.ref.html#luaD_poscall">luaD_poscall</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lobject.h.html#StkId">StkId</a> firstResult) {
+L0343      <a class="L" href="lobject.h.html#StkId">StkId</a> res;
+L0344      <span class="keyword">int</span> wanted, i;
+L0345      <a class="L" href="lstate.h.html#CallInfo">CallInfo</a> *ci;
+L0346      <span class="keyword">if</span> (L-&gt;hookmask &amp; <a class="L" href="lua.h.html#LUA_MASKRET">LUA_MASKRET</a>)
+L0347        firstResult = <a class="L" href="ldo.c.html#callrethooks">callrethooks</a>(L, firstResult);
+L0348      ci = L-&gt;ci--;
+L0349      res = ci-&gt;func;  <span class="comment">/* res == final position of 1st result */</span>
+L0350      wanted = ci-&gt;nresults;
+L0351      L-&gt;base = (ci - <span class="number">1</span>)-&gt;base;  <span class="comment">/* restore base */</span>
+L0352      L-&gt;savedpc = (ci - <span class="number">1</span>)-&gt;savedpc;  <span class="comment">/* restore savedpc */</span>
+L0353      <span class="comment">/* move results to correct place */</span>
+L0354      <span class="keyword">for</span> (i = wanted; i != <span class="number">0</span> &amp;&amp; firstResult &lt; L-&gt;top; i--)
+L0355        <a class="L" href="lobject.h.html#setobjs2s">setobjs2s</a>(L, res++, firstResult++);
+L0356      <span class="keyword">while</span> (i-- &gt; <span class="number">0</span>)
+L0357        <a class="L" href="lobject.h.html#setnilvalue">setnilvalue</a>(res++);
+L0358      L-&gt;top = res;
+L0359      <span class="keyword">return</span> (wanted - <a class="L" href="lua.h.html#LUA_MULTRET">LUA_MULTRET</a>);  <span class="comment">/* 0 iff wanted == LUA_MULTRET */</span>
+L0360    }
+L0361    
+L0362    
+L0363    <span class="comment">/*
+L0364    ** Call a function (C or Lua). The function to be called is at *func.
+L0365    ** The arguments are on the stack, right after the function.
+L0366    ** When returns, all the results are on the stack, starting at the original
+L0367    ** function position.
+L0368    */</span> 
+L0369    <span class="keyword">void</span> <a name="luaD_call"/a><a class="L" href="ldo.c.ref.html#luaD_call">luaD_call</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lobject.h.html#StkId">StkId</a> func, <span class="keyword">int</span> nResults) {
+L0370      <span class="keyword">if</span> (++L-&gt;nCcalls &gt;= <a class="L" href="luaconf.h.html#LUAI_MAXCCALLS">LUAI_MAXCCALLS</a>) {
+L0371        <span class="keyword">if</span> (L-&gt;nCcalls == <a class="L" href="luaconf.h.html#LUAI_MAXCCALLS">LUAI_MAXCCALLS</a>)
+L0372          <a class="L" href="ldebug.c.html#luaG_runerror">luaG_runerror</a>(L, <span class="string">"C stack overflow"</span>);
+L0373        <span class="keyword">else</span> <span class="keyword">if</span> (L-&gt;nCcalls &gt;= (<a class="L" href="luaconf.h.html#LUAI_MAXCCALLS">LUAI_MAXCCALLS</a> + (<a class="L" href="luaconf.h.html#LUAI_MAXCCALLS">LUAI_MAXCCALLS</a>&gt;&gt;<span class="number">3</span>)))
+L0374          <a class="L" href="ldo.c.html#luaD_throw">luaD_throw</a>(L, <a class="L" href="lua.h.html#LUA_ERRERR">LUA_ERRERR</a>);  <span class="comment">/* error while handing stack error */</span>
+L0375      }
+L0376      <span class="keyword">if</span> (<a class="L" href="ldo.c.html#luaD_precall">luaD_precall</a>(L, func, nResults) == <a class="L" href="ldo.h.html#PCRLUA">PCRLUA</a>)  <span class="comment">/* is a Lua function? */</span>
+L0377        <a class="L" href="lvm.c.html#luaV_execute">luaV_execute</a>(L, <span class="number">1</span>);  <span class="comment">/* call it */</span>
+L0378      L-&gt;nCcalls--;
+L0379      <a class="L" href="lgc.h.html#luaC_checkGC">luaC_checkGC</a>(L);
+L0380    }
+L0381    
+L0382    
+L0383    <span class="keyword">static</span> <span class="keyword">void</span> <a name="resume"/a><a class="L" href="ldo.c.ref.html#resume">resume</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">void</span> *ud) {
+L0384      <a class="L" href="lobject.h.html#StkId">StkId</a> firstArg = <a class="L" href="llimits.h.html#cast">cast</a>(<a class="L" href="lobject.h.html#StkId">StkId</a>, ud);
+L0385      <a class="L" href="lstate.h.html#CallInfo">CallInfo</a> *ci = L-&gt;ci;
+L0386      <span class="keyword">if</span> (L-&gt;status == <span class="number">0</span>) {  <span class="comment">/* start coroutine? */</span>
+L0387        <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(ci == L-&gt;base_ci &amp;&amp; firstArg &gt; L-&gt;base);
+L0388        <span class="keyword">if</span> (<a class="L" href="ldo.c.html#luaD_precall">luaD_precall</a>(L, firstArg - <span class="number">1</span>, <a class="L" href="lua.h.html#LUA_MULTRET">LUA_MULTRET</a>) != <a class="L" href="ldo.h.html#PCRLUA">PCRLUA</a>)
+L0389          <span class="keyword">return</span>;
+L0390      }
+L0391      <span class="keyword">else</span> {  <span class="comment">/* resuming from previous yield */</span>
+L0392        <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(L-&gt;status == <a class="L" href="lua.h.html#LUA_YIELD">LUA_YIELD</a>);
+L0393        L-&gt;status = <span class="number">0</span>;
+L0394        <span class="keyword">if</span> (!<a class="L" href="lstate.h.html#f_isLua">f_isLua</a>(ci)) {  <span class="comment">/* `common' yield? */</span>
+L0395          <span class="comment">/* finish interrupted execution of `OP_CALL' */</span>
+L0396          <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(<a class="L" href="lopcodes.h.html#GET_OPCODE">GET_OPCODE</a>(*((ci<span class="number">-1</span>)-&gt;savedpc - <span class="number">1</span>)) == <a class="L" href="lopcodes.h.html#OP_CALL">OP_CALL</a> ||
+L0397                     <a class="L" href="lopcodes.h.html#GET_OPCODE">GET_OPCODE</a>(*((ci<span class="number">-1</span>)-&gt;savedpc - <span class="number">1</span>)) == <a class="L" href="lopcodes.h.html#OP_TAILCALL">OP_TAILCALL</a>);
+L0398          <span class="keyword">if</span> (<a class="L" href="ldo.c.html#luaD_poscall">luaD_poscall</a>(L, firstArg))  <span class="comment">/* complete it... */</span>
+L0399            L-&gt;top = L-&gt;ci-&gt;top;  <span class="comment">/* and correct top if not multiple results */</span>
+L0400        }
+L0401        <span class="keyword">else</span>  <span class="comment">/* yielded inside a hook: just continue its execution */</span>
+L0402          L-&gt;base = L-&gt;ci-&gt;base;
+L0403      }
+L0404      <a class="L" href="lvm.c.html#luaV_execute">luaV_execute</a>(L, <a class="L" href="llimits.h.html#cast_int">cast_int</a>(L-&gt;ci - L-&gt;base_ci));
+L0405    }
+L0406    
+L0407    
+L0408    <span class="keyword">static</span> <span class="keyword">int</span> <a name="resume_error"/a><a class="L" href="ldo.c.ref.html#resume_error">resume_error</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <span class="keyword">char</span> *msg) {
+L0409      L-&gt;top = L-&gt;ci-&gt;base;
+L0410      <a class="L" href="lobject.h.html#setsvalue2s">setsvalue2s</a>(L, L-&gt;top, <a class="L" href="lstring.h.html#luaS_new">luaS_new</a>(L, msg));
+L0411      <a class="L" href="ldo.h.html#incr_top">incr_top</a>(L);
+L0412      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L0413      <span class="keyword">return</span> <a class="L" href="lua.h.html#LUA_ERRRUN">LUA_ERRRUN</a>;
+L0414    }
+L0415    
+L0416    
+L0417    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">int</span> <a name="lua_resume"/a><a class="L" href="ldo.c.ref.html#lua_resume">lua_resume</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> nargs) {
+L0418      <span class="keyword">int</span> status;
+L0419      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);
+L0420      <span class="keyword">if</span> (L-&gt;status != <a class="L" href="lua.h.html#LUA_YIELD">LUA_YIELD</a> &amp;&amp; (L-&gt;status != <span class="number">0</span> || L-&gt;ci != L-&gt;base_ci))
+L0421          <span class="keyword">return</span> <a class="L" href="ldo.c.html#resume_error">resume_error</a>(L, <span class="string">"cannot resume non-suspended coroutine"</span>);
+L0422      <span class="keyword">if</span> (L-&gt;nCcalls &gt;= <a class="L" href="luaconf.h.html#LUAI_MAXCCALLS">LUAI_MAXCCALLS</a>)
+L0423        <span class="keyword">return</span> <a class="L" href="ldo.c.html#resume_error">resume_error</a>(L, <span class="string">"C stack overflow"</span>);
+L0424      <a class="L" href="luaconf.h.html#luai_userstateresume">luai_userstateresume</a>(L, nargs);
+L0425      <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(L-&gt;errfunc == <span class="number">0</span>);
+L0426      L-&gt;baseCcalls = ++L-&gt;nCcalls;
+L0427      status = <a class="L" href="ldo.c.html#luaD_rawrunprotected">luaD_rawrunprotected</a>(L, <a class="L" href="ldo.c.html#resume">resume</a>, L-&gt;top - nargs);
+L0428      <span class="keyword">if</span> (status != <span class="number">0</span>) {  <span class="comment">/* error? */</span>
+L0429        L-&gt;status = <a class="L" href="llimits.h.html#cast_byte">cast_byte</a>(status);  <span class="comment">/* mark thread as `dead' */</span>
+L0430        <a class="L" href="ldo.c.html#luaD_seterrorobj">luaD_seterrorobj</a>(L, status, L-&gt;top);
+L0431        L-&gt;ci-&gt;top = L-&gt;top;
+L0432      }
+L0433      <span class="keyword">else</span> {
+L0434        <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(L-&gt;nCcalls == L-&gt;baseCcalls);
+L0435        status = L-&gt;status;
+L0436      }
+L0437      --L-&gt;nCcalls;
+L0438      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L0439      <span class="keyword">return</span> status;
+L0440    }
+L0441    
+L0442    
+L0443    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">int</span> <a name="lua_yield"/a><a class="L" href="ldo.c.ref.html#lua_yield">lua_yield</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> nresults) {
+L0444      <a class="L" href="luaconf.h.html#luai_userstateyield">luai_userstateyield</a>(L, nresults);
+L0445      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);
+L0446      <span class="keyword">if</span> (L-&gt;nCcalls &gt; L-&gt;baseCcalls)
+L0447        <a class="L" href="ldebug.c.html#luaG_runerror">luaG_runerror</a>(L, <span class="string">"attempt to yield across metamethod/C-call boundary"</span>);
+L0448      L-&gt;base = L-&gt;top - nresults;  <span class="comment">/* protect stack slots below */</span>
+L0449      L-&gt;status = <a class="L" href="lua.h.html#LUA_YIELD">LUA_YIELD</a>;
+L0450      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L0451      <span class="keyword">return</span> <span class="number">-1</span>;
+L0452    }
+L0453    
+L0454    
+L0455    <span class="keyword">int</span> <a name="luaD_pcall"/a><a class="L" href="ldo.c.ref.html#luaD_pcall">luaD_pcall</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="ldo.h.html#Pfunc">Pfunc</a> func, <span class="keyword">void</span> *u,
+L0456                    ptrdiff_t old_top, ptrdiff_t ef) {
+L0457      <span class="keyword">int</span> status;
+L0458      unsigned short oldnCcalls = L-&gt;nCcalls;
+L0459      ptrdiff_t old_ci = <a class="L" href="ldo.h.html#saveci">saveci</a>(L, L-&gt;ci);
+L0460      <a class="L" href="llimits.h.html#lu_byte">lu_byte</a> old_allowhooks = L-&gt;allowhook;
+L0461      ptrdiff_t old_errfunc = L-&gt;errfunc;
+L0462      L-&gt;errfunc = ef;
+L0463      status = <a class="L" href="ldo.c.html#luaD_rawrunprotected">luaD_rawrunprotected</a>(L, func, u);
+L0464      <span class="keyword">if</span> (status != <span class="number">0</span>) {  <span class="comment">/* an error occurred? */</span>
+L0465        <a class="L" href="lobject.h.html#StkId">StkId</a> oldtop = <a class="L" href="ldo.h.html#restorestack">restorestack</a>(L, old_top);
+L0466        <a class="L" href="lfunc.c.html#luaF_close">luaF_close</a>(L, oldtop);  <span class="comment">/* close eventual pending closures */</span>
+L0467        <a class="L" href="ldo.c.html#luaD_seterrorobj">luaD_seterrorobj</a>(L, status, oldtop);
+L0468        L-&gt;nCcalls = oldnCcalls;
+L0469        L-&gt;ci = <a class="L" href="ldo.h.html#restoreci">restoreci</a>(L, old_ci);
+L0470        L-&gt;base = L-&gt;ci-&gt;base;
+L0471        L-&gt;savedpc = L-&gt;ci-&gt;savedpc;
+L0472        L-&gt;allowhook = old_allowhooks;
+L0473        <a class="L" href="ldo.c.html#restore_stack_limit">restore_stack_limit</a>(L);
+L0474      }
+L0475      L-&gt;errfunc = old_errfunc;
+L0476      <span class="keyword">return</span> status;
+L0477    }
+L0478    
+L0479    
+L0480    
+L0481    <span class="comment">/*
+L0482    ** Execute a protected parser.
+L0483    */</span>
+L0484    <span class="keyword">struct</span> <a name="SParser"/a><a class="L" href="ldo.c.ref.html#SParser">SParser</a> {  <span class="comment">/* data to `f_parser' */</span>
+L0485      <a class="L" href="lzio.h.html#ZIO">ZIO</a> *<a name="z"/a><a class="L" href="ldo.c.ref.html#z">z</a>;
+L0486      <a class="L" href="lzio.h.html#Mbuffer">Mbuffer</a> buff;  <span class="comment">/* buffer to be used by the scanner */</span>
+L0487      <span class="keyword">const</span> <span class="keyword">char</span> *name;
+L0488    };
+L0489    
+L0490    <span class="keyword">static</span> <span class="keyword">void</span> <a name="f_parser"/a><a class="L" href="ldo.c.ref.html#f_parser">f_parser</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">void</span> *ud) {
+L0491      <span class="keyword">int</span> i;
+L0492      <a class="L" href="lobject.h.html#Proto">Proto</a> *tf;
+L0493      <a class="L" href="lobject.h.html#Closure">Closure</a> *cl;
+L0494      <span class="keyword">struct</span> <a class="L" href="ldo.c.html#SParser">SParser</a> *p = <a class="L" href="llimits.h.html#cast">cast</a>(<span class="keyword">struct</span> <a class="L" href="ldo.c.html#SParser">SParser</a> *, ud);
+L0495      <span class="keyword">int</span> c = <a class="L" href="lzio.c.html#luaZ_lookahead">luaZ_lookahead</a>(p-&gt;z);
+L0496      <a class="L" href="lgc.h.html#luaC_checkGC">luaC_checkGC</a>(L);
+L0497      tf = ((c == <a class="L" href="lua.h.html#LUA_SIGNATURE">LUA_SIGNATURE</a>[<span class="number">0</span>]) ? <a class="L" href="lundump.c.html#luaU_undump">luaU_undump</a> : <a class="L" href="lparser.c.html#luaY_parser">luaY_parser</a>)(L, p-&gt;z,
+L0498                                                                 &amp;p-&gt;buff, p-&gt;name);
+L0499      cl = <a class="L" href="lfunc.c.html#luaF_newLclosure">luaF_newLclosure</a>(L, tf-&gt;nups, <a class="L" href="lobject.h.html#hvalue">hvalue</a>(<a class="L" href="lstate.h.html#gt">gt</a>(L)));
+L0500      cl-&gt;l.p = tf;
+L0501      <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; tf-&gt;nups; i++)  <span class="comment">/* initialize eventual upvalues */</span>
+L0502        cl-&gt;l.upvals[i] = <a class="L" href="lfunc.c.html#luaF_newupval">luaF_newupval</a>(L);
+L0503      <a class="L" href="lobject.h.html#setclvalue">setclvalue</a>(L, L-&gt;top, cl);
+L0504      <a class="L" href="ldo.h.html#incr_top">incr_top</a>(L);
+L0505    }
+L0506    
+L0507    
+L0508    <span class="keyword">int</span> <a name="luaD_protectedparser"/a><a class="L" href="ldo.c.ref.html#luaD_protectedparser">luaD_protectedparser</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lzio.h.html#ZIO">ZIO</a> *z, <span class="keyword">const</span> <span class="keyword">char</span> *name) {
+L0509      <span class="keyword">struct</span> <a class="L" href="ldo.c.html#SParser">SParser</a> p;
+L0510      <span class="keyword">int</span> status;
+L0511      p.z = z; p.name = name;
+L0512      <a class="L" href="lzio.h.html#luaZ_initbuffer">luaZ_initbuffer</a>(L, &amp;p.buff);
+L0513      status = <a class="L" href="ldo.c.html#luaD_pcall">luaD_pcall</a>(L, <a class="L" href="ldo.c.html#f_parser">f_parser</a>, &amp;p, <a class="L" href="ldo.h.html#savestack">savestack</a>(L, L-&gt;top), L-&gt;errfunc);
+L0514      <a class="L" href="lzio.h.html#luaZ_freebuffer">luaZ_freebuffer</a>(L, &amp;p.buff);
+L0515      <span class="keyword">return</span> status;
+L0516    }
+L0517    
+L0518    
+</pre>
+<hr/>
+Generated by <a href="pretty.lua.html">pretty.lua</html>
+</body></html>

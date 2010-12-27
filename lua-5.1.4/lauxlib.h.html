@@ -1,0 +1,195 @@
+<html>
+<head>
+<style>
+a.L { text-decoration: none; }
+a.L:hover { color: #FFAAAA; }
+body { margin-top: 20px; margin-left: 30px; }
+.lno { font-weight: bold: color #000; }
+.keyword {font-weight: bold; color: #6666AA; }
+.number  { color: #AA6666; }
+.string  { color: #8888AA; }
+.comment { color: #666600; }
+.prepro { color: #006666; } 
+</style>
+<body>
+<h1>Lua 5.1.4: lauxlib.h</h1>
+<hr/>
+<pre>
+L0001    <span class="comment">/*
+L0002    ** $Id: lauxlib.h,v 1.88.1.1 2007/12/27 13:02:25 roberto Exp $
+L0003    ** Auxiliary functions for building Lua libraries
+L0004    ** See Copyright Notice in lua.h
+L0005    */</span>
+L0006    
+L0007    
+L0008    <span class="prepro">#ifndef lauxlib_h
+</span>L0009    <a name="lauxlib_h"/a><span class="prepro">#define lauxlib_h
+</span>L0010    
+L0011    
+L0012    <span class="prepro">#include &lt;stddef.h&gt;
+</span>L0013    <span class="prepro">#include &lt;stdio.h&gt;
+</span>L0014    
+L0015    <span class="prepro"><a class="L" href="lua.h.html#">#include "lua.h"
+</a></span>L0016    
+L0017    
+L0018    <span class="prepro">#if defined(LUA_COMPAT_GETN)
+</span>L0019    <a class="L" href="luaconf.h.html#LUALIB_API">LUALIB_API</a> <span class="keyword">int</span> (<a class="L" href="lauxlib.c.html#luaL_getn">luaL_getn</a>) (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> t);
+L0020    <a class="L" href="luaconf.h.html#LUALIB_API">LUALIB_API</a> <span class="keyword">void</span> (<a class="L" href="lauxlib.c.html#luaL_setn">luaL_setn</a>) (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> t, <span class="keyword">int</span> n);
+L0021    <span class="prepro">#else
+</span>L0022    <a name="luaL_getn"/a><span class="prepro">#define luaL_getn(L,i)          ((int)lua_objlen(L, i))
+</span>L0023    <a name="luaL_setn"/a><span class="prepro">#define luaL_setn(L,i,j)        ((void)0)  /* no op! */
+</span>L0024    <span class="prepro">#endif
+</span>L0025    
+L0026    <span class="prepro">#if defined(LUA_COMPAT_OPENLIB)
+</span>L0027    <a name="luaI_openlib"/a><span class="prepro">#define luaI_openlib	luaL_openlib
+</span>L0028    <span class="prepro">#endif
+</span>L0029    
+L0030    
+L0031    <span class="comment">/* extra error code for `luaL_load' */</span>
+L0032    <a name="LUA_ERRFILE"/a><span class="prepro">#define LUA_ERRFILE     (LUA_ERRERR+1)
+</span>L0033    
+L0034    
+L0035    <span class="keyword">typedef</span> <span class="keyword">struct</span> <a name="luaL_Reg"/a><a class="L" href="lauxlib.h.ref.html#luaL_Reg">luaL_Reg</a> {
+L0036      <span class="keyword">const</span> <span class="keyword">char</span> *<a name="name"/a><a class="L" href="lauxlib.h.ref.html#name">name</a>;
+L0037      <a class="L" href="lua.h.html#lua_CFunction">lua_CFunction</a> func;
+L0038    } <a class="L" href="lauxlib.h.html#luaL_Reg">luaL_Reg</a>;
+L0039    
+L0040    
+L0041    
+L0042    <a class="L" href="luaconf.h.html#LUALIB_API">LUALIB_API</a> <span class="keyword">void</span> (<a class="L" href="lauxlib.c.html#luaI_openlib">luaI_openlib</a>) (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <span class="keyword">char</span> *libname,
+L0043                                    <span class="keyword">const</span> <a class="L" href="lauxlib.h.html#luaL_Reg">luaL_Reg</a> *l, <span class="keyword">int</span> nup);
+L0044    <a class="L" href="luaconf.h.html#LUALIB_API">LUALIB_API</a> <span class="keyword">void</span> (<a class="L" href="lauxlib.c.html#luaL_register">luaL_register</a>) (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <span class="keyword">char</span> *libname,
+L0045                                    <span class="keyword">const</span> <a class="L" href="lauxlib.h.html#luaL_Reg">luaL_Reg</a> *l);
+L0046    <a class="L" href="luaconf.h.html#LUALIB_API">LUALIB_API</a> <span class="keyword">int</span> (<a class="L" href="lauxlib.c.html#luaL_getmetafield">luaL_getmetafield</a>) (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> obj, <span class="keyword">const</span> <span class="keyword">char</span> *e);
+L0047    <a class="L" href="luaconf.h.html#LUALIB_API">LUALIB_API</a> <span class="keyword">int</span> (<a class="L" href="lauxlib.c.html#luaL_callmeta">luaL_callmeta</a>) (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> obj, <span class="keyword">const</span> <span class="keyword">char</span> *e);
+L0048    <a class="L" href="luaconf.h.html#LUALIB_API">LUALIB_API</a> <span class="keyword">int</span> (<a class="L" href="lauxlib.c.html#luaL_typerror">luaL_typerror</a>) (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> narg, <span class="keyword">const</span> <span class="keyword">char</span> *tname);
+L0049    <a class="L" href="luaconf.h.html#LUALIB_API">LUALIB_API</a> <span class="keyword">int</span> (<a class="L" href="lauxlib.c.html#luaL_argerror">luaL_argerror</a>) (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> numarg, <span class="keyword">const</span> <span class="keyword">char</span> *extramsg);
+L0050    <a class="L" href="luaconf.h.html#LUALIB_API">LUALIB_API</a> <span class="keyword">const</span> <span class="keyword">char</span> *(<a class="L" href="lauxlib.c.html#luaL_checklstring">luaL_checklstring</a>) (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> numArg,
+L0051                                                              size_t *l);
+L0052    <a class="L" href="luaconf.h.html#LUALIB_API">LUALIB_API</a> <span class="keyword">const</span> <span class="keyword">char</span> *(<a class="L" href="lauxlib.c.html#luaL_optlstring">luaL_optlstring</a>) (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> numArg,
+L0053                                              <span class="keyword">const</span> <span class="keyword">char</span> *def, size_t *l);
+L0054    <a class="L" href="luaconf.h.html#LUALIB_API">LUALIB_API</a> <a class="L" href="lua.h.html#lua_Number">lua_Number</a> (<a class="L" href="lauxlib.c.html#luaL_checknumber">luaL_checknumber</a>) (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> numArg);
+L0055    <a class="L" href="luaconf.h.html#LUALIB_API">LUALIB_API</a> <a class="L" href="lua.h.html#lua_Number">lua_Number</a> (<a class="L" href="lauxlib.c.html#luaL_optnumber">luaL_optnumber</a>) (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> nArg, <a class="L" href="lua.h.html#lua_Number">lua_Number</a> def);
+L0056    
+L0057    <a class="L" href="luaconf.h.html#LUALIB_API">LUALIB_API</a> <a class="L" href="lua.h.html#lua_Integer">lua_Integer</a> (<a class="L" href="lauxlib.c.html#luaL_checkinteger">luaL_checkinteger</a>) (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> numArg);
+L0058    <a class="L" href="luaconf.h.html#LUALIB_API">LUALIB_API</a> <a class="L" href="lua.h.html#lua_Integer">lua_Integer</a> (<a class="L" href="lauxlib.c.html#luaL_optinteger">luaL_optinteger</a>) (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> nArg,
+L0059                                              <a class="L" href="lua.h.html#lua_Integer">lua_Integer</a> def);
+L0060    
+L0061    <a class="L" href="luaconf.h.html#LUALIB_API">LUALIB_API</a> <span class="keyword">void</span> (<a class="L" href="lauxlib.c.html#luaL_checkstack">luaL_checkstack</a>) (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> sz, <span class="keyword">const</span> <span class="keyword">char</span> *msg);
+L0062    <a class="L" href="luaconf.h.html#LUALIB_API">LUALIB_API</a> <span class="keyword">void</span> (<a class="L" href="lauxlib.c.html#luaL_checktype">luaL_checktype</a>) (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> narg, <span class="keyword">int</span> t);
+L0063    <a class="L" href="luaconf.h.html#LUALIB_API">LUALIB_API</a> <span class="keyword">void</span> (<a class="L" href="lauxlib.c.html#luaL_checkany">luaL_checkany</a>) (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> narg);
+L0064    
+L0065    <a class="L" href="luaconf.h.html#LUALIB_API">LUALIB_API</a> <span class="keyword">int</span>   (<a class="L" href="lauxlib.c.html#luaL_newmetatable">luaL_newmetatable</a>) (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <span class="keyword">char</span> *tname);
+L0066    <a class="L" href="luaconf.h.html#LUALIB_API">LUALIB_API</a> <span class="keyword">void</span> *(<a class="L" href="lauxlib.c.html#luaL_checkudata">luaL_checkudata</a>) (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> ud, <span class="keyword">const</span> <span class="keyword">char</span> *tname);
+L0067    
+L0068    <a class="L" href="luaconf.h.html#LUALIB_API">LUALIB_API</a> <span class="keyword">void</span> (<a class="L" href="lauxlib.c.html#luaL_where">luaL_where</a>) (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> lvl);
+L0069    <a class="L" href="luaconf.h.html#LUALIB_API">LUALIB_API</a> <span class="keyword">int</span> (<a class="L" href="lauxlib.c.html#luaL_error">luaL_error</a>) (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <span class="keyword">char</span> *fmt, ...);
+L0070    
+L0071    <a class="L" href="luaconf.h.html#LUALIB_API">LUALIB_API</a> <span class="keyword">int</span> (<a class="L" href="lauxlib.c.html#luaL_checkoption">luaL_checkoption</a>) (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> narg, <span class="keyword">const</span> <span class="keyword">char</span> *def,
+L0072                                       <span class="keyword">const</span> <span class="keyword">char</span> *<span class="keyword">const</span> lst[]);
+L0073    
+L0074    <a class="L" href="luaconf.h.html#LUALIB_API">LUALIB_API</a> <span class="keyword">int</span> (<a class="L" href="lauxlib.c.html#luaL_ref">luaL_ref</a>) (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> t);
+L0075    <a class="L" href="luaconf.h.html#LUALIB_API">LUALIB_API</a> <span class="keyword">void</span> (<a class="L" href="lauxlib.c.html#luaL_unref">luaL_unref</a>) (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> t, <span class="keyword">int</span> ref);
+L0076    
+L0077    <a class="L" href="luaconf.h.html#LUALIB_API">LUALIB_API</a> <span class="keyword">int</span> (<a class="L" href="lauxlib.c.html#luaL_loadfile">luaL_loadfile</a>) (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <span class="keyword">char</span> *filename);
+L0078    <a class="L" href="luaconf.h.html#LUALIB_API">LUALIB_API</a> <span class="keyword">int</span> (<a class="L" href="lauxlib.c.html#luaL_loadbuffer">luaL_loadbuffer</a>) (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <span class="keyword">char</span> *buff, size_t sz,
+L0079                                      <span class="keyword">const</span> <span class="keyword">char</span> *name);
+L0080    <a class="L" href="luaconf.h.html#LUALIB_API">LUALIB_API</a> <span class="keyword">int</span> (<a class="L" href="lauxlib.c.html#luaL_loadstring">luaL_loadstring</a>) (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <span class="keyword">char</span> *s);
+L0081    
+L0082    <a class="L" href="luaconf.h.html#LUALIB_API">LUALIB_API</a> <a class="L" href="lstate.h.html#lua_State">lua_State</a> *(<a class="L" href="lauxlib.c.html#luaL_newstate">luaL_newstate</a>) (<span class="keyword">void</span>);
+L0083    
+L0084    
+L0085    <a class="L" href="luaconf.h.html#LUALIB_API">LUALIB_API</a> <span class="keyword">const</span> <span class="keyword">char</span> *(<a class="L" href="lauxlib.c.html#luaL_gsub">luaL_gsub</a>) (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <span class="keyword">char</span> *s, <span class="keyword">const</span> <span class="keyword">char</span> *p,
+L0086                                                      <span class="keyword">const</span> <span class="keyword">char</span> *r);
+L0087    
+L0088    <a class="L" href="luaconf.h.html#LUALIB_API">LUALIB_API</a> <span class="keyword">const</span> <span class="keyword">char</span> *(<a class="L" href="lauxlib.c.html#luaL_findtable">luaL_findtable</a>) (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> idx,
+L0089                                             <span class="keyword">const</span> <span class="keyword">char</span> *fname, <span class="keyword">int</span> szhint);
+L0090    
+L0091    
+L0092    
+L0093    
+L0094    <span class="comment">/*
+L0095    ** ===============================================================
+L0096    ** some useful macros
+L0097    ** ===============================================================
+L0098    */</span>
+L0099    
+L0100    <a name="luaL_argcheck"/a><span class="prepro">#define luaL_argcheck(L, cond,numarg,extramsg)	\
+L0101    		((void)((cond) || luaL_argerror(L, (numarg), (extramsg))))
+</span>L0102    <a name="luaL_checkstring"/a><span class="prepro">#define luaL_checkstring(L,n)	(luaL_checklstring(L, (n), NULL))
+</span>L0103    <a name="luaL_optstring"/a><span class="prepro">#define luaL_optstring(L,n,d)	(luaL_optlstring(L, (n), (d), NULL))
+</span>L0104    <a name="luaL_checkint"/a><span class="prepro">#define luaL_checkint(L,n)	((int)luaL_checkinteger(L, (n)))
+</span>L0105    <a name="luaL_optint"/a><span class="prepro">#define luaL_optint(L,n,d)	((int)luaL_optinteger(L, (n), (d)))
+</span>L0106    <a name="luaL_checklong"/a><span class="prepro">#define luaL_checklong(L,n)	((long)luaL_checkinteger(L, (n)))
+</span>L0107    <a name="luaL_optlong"/a><span class="prepro">#define luaL_optlong(L,n,d)	((long)luaL_optinteger(L, (n), (d)))
+</span>L0108    
+L0109    <a name="luaL_typename"/a><span class="prepro">#define luaL_typename(L,i)	lua_typename(L, lua_type(L,(i)))
+</span>L0110    
+L0111    <a name="luaL_dofile"/a><span class="prepro">#define luaL_dofile(L, fn) \
+L0112    	(luaL_loadfile(L, fn) || lua_pcall(L, 0, LUA_MULTRET, 0))
+</span>L0113    
+L0114    <a name="luaL_dostring"/a><span class="prepro">#define luaL_dostring(L, s) \
+L0115    	(luaL_loadstring(L, s) || lua_pcall(L, 0, LUA_MULTRET, 0))
+</span>L0116    
+L0117    <a name="luaL_getmetatable"/a><span class="prepro">#define luaL_getmetatable(L,n)	(lua_getfield(L, LUA_REGISTRYINDEX, (n)))
+</span>L0118    
+L0119    <a name="luaL_opt"/a><span class="prepro">#define luaL_opt(L,f,n,d)	(lua_isnoneornil(L,(n)) ? (d) : f(L,(n)))
+</span>L0120    
+L0121    <span class="comment">/*
+L0122    ** {======================================================
+L0123    ** Generic Buffer manipulation
+L0124    ** =======================================================
+L0125    */</span>
+L0126    
+L0127    
+L0128    
+L0129    <span class="keyword">typedef</span> <span class="keyword">struct</span> <a name="luaL_Buffer"/a><a class="L" href="lauxlib.h.ref.html#luaL_Buffer">luaL_Buffer</a> {
+L0130      <span class="keyword">char</span> *<a name="p"/a><a class="L" href="lauxlib.h.ref.html#p">p</a>;			<span class="comment">/* current position in buffer */</span>
+L0131      <span class="keyword">int</span> <a name="lvl"/a><a class="L" href="lauxlib.h.ref.html#lvl">lvl</a>;  <span class="comment">/* number of strings in the stack (level) */</span>
+L0132      <a class="L" href="lstate.h.html#lua_State">lua_State</a> *<a name="L"/a><a class="L" href="lauxlib.h.ref.html#L">L</a>;
+L0133      <span class="keyword">char</span> <a name="buffer"/a><a class="L" href="lauxlib.h.ref.html#buffer">buffer</a>[<a class="L" href="luaconf.h.html#LUAL_BUFFERSIZE">LUAL_BUFFERSIZE</a>];
+L0134    } <a class="L" href="lauxlib.h.html#luaL_Buffer">luaL_Buffer</a>;
+L0135    
+L0136    <a name="luaL_addchar"/a><span class="prepro">#define luaL_addchar(B,c) \
+L0137      ((void)((B)-&gt;p &lt; ((B)-&gt;buffer+LUAL_BUFFERSIZE) || luaL_prepbuffer(B)), \
+L0138       (*(B)-&gt;p++ = (char)(c)))
+</span>L0139    
+L0140    <span class="comment">/* compatibility only */</span>
+L0141    <a name="luaL_putchar"/a><span class="prepro">#define luaL_putchar(B,c)	luaL_addchar(B,c)
+</span>L0142    
+L0143    <a name="luaL_addsize"/a><span class="prepro">#define luaL_addsize(B,n)	((B)-&gt;p += (n))
+</span>L0144    
+L0145    <a class="L" href="luaconf.h.html#LUALIB_API">LUALIB_API</a> <span class="keyword">void</span> (<a class="L" href="lauxlib.c.html#luaL_buffinit">luaL_buffinit</a>) (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lauxlib.h.html#luaL_Buffer">luaL_Buffer</a> *B);
+L0146    <a class="L" href="luaconf.h.html#LUALIB_API">LUALIB_API</a> <span class="keyword">char</span> *(<a class="L" href="lauxlib.c.html#luaL_prepbuffer">luaL_prepbuffer</a>) (<a class="L" href="lauxlib.h.html#luaL_Buffer">luaL_Buffer</a> *B);
+L0147    <a class="L" href="luaconf.h.html#LUALIB_API">LUALIB_API</a> <span class="keyword">void</span> (<a class="L" href="lauxlib.c.html#luaL_addlstring">luaL_addlstring</a>) (<a class="L" href="lauxlib.h.html#luaL_Buffer">luaL_Buffer</a> *B, <span class="keyword">const</span> <span class="keyword">char</span> *s, size_t l);
+L0148    <a class="L" href="luaconf.h.html#LUALIB_API">LUALIB_API</a> <span class="keyword">void</span> (<a class="L" href="lauxlib.c.html#luaL_addstring">luaL_addstring</a>) (<a class="L" href="lauxlib.h.html#luaL_Buffer">luaL_Buffer</a> *B, <span class="keyword">const</span> <span class="keyword">char</span> *s);
+L0149    <a class="L" href="luaconf.h.html#LUALIB_API">LUALIB_API</a> <span class="keyword">void</span> (<a class="L" href="lauxlib.c.html#luaL_addvalue">luaL_addvalue</a>) (<a class="L" href="lauxlib.h.html#luaL_Buffer">luaL_Buffer</a> *B);
+L0150    <a class="L" href="luaconf.h.html#LUALIB_API">LUALIB_API</a> <span class="keyword">void</span> (<a class="L" href="lauxlib.c.html#luaL_pushresult">luaL_pushresult</a>) (<a class="L" href="lauxlib.h.html#luaL_Buffer">luaL_Buffer</a> *B);
+L0151    
+L0152    
+L0153    <span class="comment">/* }====================================================== */</span>
+L0154    
+L0155    
+L0156    <span class="comment">/* compatibility with ref system */</span>
+L0157    
+L0158    <span class="comment">/* pre-defined references */</span>
+L0159    <a name="LUA_NOREF"/a><span class="prepro">#define LUA_NOREF       (-2)
+</span>L0160    <a name="LUA_REFNIL"/a><span class="prepro">#define LUA_REFNIL      (-1)
+</span>L0161    
+L0162    <a name="lua_ref"/a><span class="prepro">#define lua_ref(L,lock) ((lock) ? luaL_ref(L, LUA_REGISTRYINDEX) : \
+L0163          (lua_pushstring(L, "unlocked references are obsolete"), lua_error(L), 0))
+</span>L0164    
+L0165    <a name="lua_unref"/a><span class="prepro">#define lua_unref(L,ref)        luaL_unref(L, LUA_REGISTRYINDEX, (ref))
+</span>L0166    
+L0167    <a name="lua_getref"/a><span class="prepro">#define lua_getref(L,ref)       lua_rawgeti(L, LUA_REGISTRYINDEX, (ref))
+</span>L0168    
+L0169    
+L0170    <a name="luaL_reg"/a><span class="prepro">#define luaL_reg	luaL_Reg
+</span>L0171    
+L0172    <span class="prepro">#endif
+</span>L0173    
+L0174    
+</pre>
+<hr/>
+Generated by <a href="pretty.lua.html">pretty.lua</html>
+</body></html>

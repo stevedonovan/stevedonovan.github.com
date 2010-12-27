@@ -1,0 +1,574 @@
+<html>
+<head>
+<style>
+a.L { text-decoration: none; }
+a.L:hover { color: #FFAAAA; }
+body { margin-top: 20px; margin-left: 30px; }
+.lno { font-weight: bold: color #000; }
+.keyword {font-weight: bold; color: #6666AA; }
+.number  { color: #AA6666; }
+.string  { color: #8888AA; }
+.comment { color: #666600; }
+.prepro { color: #006666; } 
+</style>
+<body>
+<h1>Lua 5.1.4: liolib.c</h1>
+<hr/>
+<pre>
+L0001    <span class="comment">/*
+L0002    ** $Id: liolib.c,v 2.73.1.3 2008/01/18 17:47:43 roberto Exp $
+L0003    ** Standard I/O (and system) library
+L0004    ** See Copyright Notice in lua.h
+L0005    */</span>
+L0006    
+L0007    
+L0008    <span class="prepro">#include &lt;errno.h&gt;
+</span>L0009    <span class="prepro">#include &lt;stdio.h&gt;
+</span>L0010    <span class="prepro">#include &lt;stdlib.h&gt;
+</span>L0011    <span class="prepro">#include &lt;string.h&gt;
+</span>L0012    
+L0013    <a name="liolib_c"/a><span class="prepro">#define liolib_c
+</span>L0014    <a name="LUA_LIB"/a><span class="prepro">#define LUA_LIB
+</span>L0015    
+L0016    <span class="prepro"><a class="L" href="lua.h.html#">#include "lua.h"
+</a></span>L0017    
+L0018    <span class="prepro"><a class="L" href="lauxlib.h.html#">#include "lauxlib.h"
+</a></span>L0019    <span class="prepro"><a class="L" href="lualib.h.html#">#include "lualib.h"
+</a></span>L0020    
+L0021    
+L0022    
+L0023    <a name="IO_INPUT"/a><span class="prepro">#define IO_INPUT	1
+</span>L0024    <a name="IO_OUTPUT"/a><span class="prepro">#define IO_OUTPUT	2
+</span>L0025    
+L0026    
+L0027    <span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">char</span> *<span class="keyword">const</span> <a name="fnames"/a><a class="L" href="liolib.c.ref.html#fnames">fnames</a>[] = {<span class="string">"input"</span>, <span class="string">"output"</span>};
+L0028    
+L0029    
+L0030    <span class="keyword">static</span> <span class="keyword">int</span> <a name="pushresult"/a><a class="L" href="liolib.c.ref.html#pushresult">pushresult</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> i, <span class="keyword">const</span> <span class="keyword">char</span> *filename) {
+L0031      <span class="keyword">int</span> en = errno;  <span class="comment">/* calls to Lua API may change this value */</span>
+L0032      <span class="keyword">if</span> (i) {
+L0033        <a class="L" href="lapi.c.html#lua_pushboolean">lua_pushboolean</a>(L, <span class="number">1</span>);
+L0034        <span class="keyword">return</span> <span class="number">1</span>;
+L0035      }
+L0036      <span class="keyword">else</span> {
+L0037        <a class="L" href="lapi.c.html#lua_pushnil">lua_pushnil</a>(L);
+L0038        <span class="keyword">if</span> (filename)
+L0039          <a class="L" href="lapi.c.html#lua_pushfstring">lua_pushfstring</a>(L, <span class="string">"%s: %s"</span>, filename, strerror(en));
+L0040        <span class="keyword">else</span>
+L0041          <a class="L" href="lapi.c.html#lua_pushfstring">lua_pushfstring</a>(L, <span class="string">"%s"</span>, strerror(en));
+L0042        <a class="L" href="lapi.c.html#lua_pushinteger">lua_pushinteger</a>(L, en);
+L0043        <span class="keyword">return</span> <span class="number">3</span>;
+L0044      }
+L0045    }
+L0046    
+L0047    
+L0048    <span class="keyword">static</span> <span class="keyword">void</span> <a name="fileerror"/a><a class="L" href="liolib.c.ref.html#fileerror">fileerror</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> arg, <span class="keyword">const</span> <span class="keyword">char</span> *filename) {
+L0049      <a class="L" href="lapi.c.html#lua_pushfstring">lua_pushfstring</a>(L, <span class="string">"%s: %s"</span>, filename, strerror(errno));
+L0050      <a class="L" href="lauxlib.c.html#luaL_argerror">luaL_argerror</a>(L, arg, <a class="L" href="lua.h.html#lua_tostring">lua_tostring</a>(L, <span class="number">-1</span>));
+L0051    }
+L0052    
+L0053    
+L0054    <a name="tofilep"/a><span class="prepro">#define tofilep(L)	((FILE **)luaL_checkudata(L, 1, LUA_FILEHANDLE))
+</span>L0055    
+L0056    
+L0057    <span class="keyword">static</span> <span class="keyword">int</span> <a name="io_type"/a><a class="L" href="liolib.c.ref.html#io_type">io_type</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0058      <span class="keyword">void</span> *ud;
+L0059      <a class="L" href="lauxlib.c.html#luaL_checkany">luaL_checkany</a>(L, <span class="number">1</span>);
+L0060      ud = <a class="L" href="lapi.c.html#lua_touserdata">lua_touserdata</a>(L, <span class="number">1</span>);
+L0061      <a class="L" href="lapi.c.html#lua_getfield">lua_getfield</a>(L, <a class="L" href="lua.h.html#LUA_REGISTRYINDEX">LUA_REGISTRYINDEX</a>, <a class="L" href="lualib.h.html#LUA_FILEHANDLE">LUA_FILEHANDLE</a>);
+L0062      <span class="keyword">if</span> (ud == NULL || !<a class="L" href="lapi.c.html#lua_getmetatable">lua_getmetatable</a>(L, <span class="number">1</span>) || !<a class="L" href="lapi.c.html#lua_rawequal">lua_rawequal</a>(L, <span class="number">-2</span>, <span class="number">-1</span>))
+L0063        <a class="L" href="lapi.c.html#lua_pushnil">lua_pushnil</a>(L);  <span class="comment">/* not a file */</span>
+L0064      <span class="keyword">else</span> <span class="keyword">if</span> (*((FILE **)ud) == NULL)
+L0065        <a class="L" href="lua.h.html#lua_pushliteral">lua_pushliteral</a>(L, <span class="string">"closed file"</span>);
+L0066      <span class="keyword">else</span>
+L0067        <a class="L" href="lua.h.html#lua_pushliteral">lua_pushliteral</a>(L, <span class="string">"file"</span>);
+L0068      <span class="keyword">return</span> <span class="number">1</span>;
+L0069    }
+L0070    
+L0071    
+L0072    <span class="keyword">static</span> FILE *<a name="tofile"/a><a class="L" href="liolib.c.ref.html#tofile">tofile</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0073      FILE **f = <a class="L" href="liolib.c.html#tofilep">tofilep</a>(L);
+L0074      <span class="keyword">if</span> (*f == NULL)
+L0075        <a class="L" href="lauxlib.c.html#luaL_error">luaL_error</a>(L, <span class="string">"attempt to use a closed file"</span>);
+L0076      <span class="keyword">return</span> *f;
+L0077    }
+L0078    
+L0079    
+L0080    
+L0081    <span class="comment">/*
+L0082    ** When creating file handles, always creates a `closed' file handle
+L0083    ** before opening the actual file; so, if there is a memory error, the
+L0084    ** file is not left opened.
+L0085    */</span>
+L0086    <span class="keyword">static</span> FILE **<a name="newfile"/a><a class="L" href="liolib.c.ref.html#newfile">newfile</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0087      FILE **pf = (FILE **)<a class="L" href="lapi.c.html#lua_newuserdata">lua_newuserdata</a>(L, <span class="keyword">sizeof</span>(FILE *));
+L0088      *pf = NULL;  <span class="comment">/* file handle is currently `closed' */</span>
+L0089      <a class="L" href="lauxlib.h.html#luaL_getmetatable">luaL_getmetatable</a>(L, <a class="L" href="lualib.h.html#LUA_FILEHANDLE">LUA_FILEHANDLE</a>);
+L0090      <a class="L" href="lapi.c.html#lua_setmetatable">lua_setmetatable</a>(L, <span class="number">-2</span>);
+L0091      <span class="keyword">return</span> pf;
+L0092    }
+L0093    
+L0094    
+L0095    <span class="comment">/*
+L0096    ** function to (not) close the standard files stdin, stdout, and stderr
+L0097    */</span>
+L0098    <span class="keyword">static</span> <span class="keyword">int</span> <a name="io_noclose"/a><a class="L" href="liolib.c.ref.html#io_noclose">io_noclose</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0099      <a class="L" href="lapi.c.html#lua_pushnil">lua_pushnil</a>(L);
+L0100      <a class="L" href="lua.h.html#lua_pushliteral">lua_pushliteral</a>(L, <span class="string">"cannot close standard file"</span>);
+L0101      <span class="keyword">return</span> <span class="number">2</span>;
+L0102    }
+L0103    
+L0104    
+L0105    <span class="comment">/*
+L0106    ** function to close 'popen' files
+L0107    */</span>
+L0108    <span class="keyword">static</span> <span class="keyword">int</span> <a name="io_pclose"/a><a class="L" href="liolib.c.ref.html#io_pclose">io_pclose</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0109      FILE **p = <a class="L" href="liolib.c.html#tofilep">tofilep</a>(L);
+L0110      <span class="keyword">int</span> ok = <a class="L" href="luaconf.h.html#lua_pclose">lua_pclose</a>(L, *p);
+L0111      *p = NULL;
+L0112      <span class="keyword">return</span> <a class="L" href="liolib.c.html#pushresult">pushresult</a>(L, ok, NULL);
+L0113    }
+L0114    
+L0115    
+L0116    <span class="comment">/*
+L0117    ** function to close regular files
+L0118    */</span>
+L0119    <span class="keyword">static</span> <span class="keyword">int</span> <a name="io_fclose"/a><a class="L" href="liolib.c.ref.html#io_fclose">io_fclose</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0120      FILE **p = <a class="L" href="liolib.c.html#tofilep">tofilep</a>(L);
+L0121      <span class="keyword">int</span> ok = (fclose(*p) == <span class="number">0</span>);
+L0122      *p = NULL;
+L0123      <span class="keyword">return</span> <a class="L" href="liolib.c.html#pushresult">pushresult</a>(L, ok, NULL);
+L0124    }
+L0125    
+L0126    
+L0127    <span class="keyword">static</span> <span class="keyword">int</span> <a name="aux_close"/a><a class="L" href="liolib.c.ref.html#aux_close">aux_close</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0128      <a class="L" href="lapi.c.html#lua_getfenv">lua_getfenv</a>(L, <span class="number">1</span>);
+L0129      <a class="L" href="lapi.c.html#lua_getfield">lua_getfield</a>(L, <span class="number">-1</span>, <span class="string">"__close"</span>);
+L0130      <span class="keyword">return</span> (<a class="L" href="lapi.c.html#lua_tocfunction">lua_tocfunction</a>(L, <span class="number">-1</span>))(L);
+L0131    }
+L0132    
+L0133    
+L0134    <span class="keyword">static</span> <span class="keyword">int</span> <a name="io_close"/a><a class="L" href="liolib.c.ref.html#io_close">io_close</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0135      <span class="keyword">if</span> (<a class="L" href="lua.h.html#lua_isnone">lua_isnone</a>(L, <span class="number">1</span>))
+L0136        <a class="L" href="lapi.c.html#lua_rawgeti">lua_rawgeti</a>(L, <a class="L" href="lua.h.html#LUA_ENVIRONINDEX">LUA_ENVIRONINDEX</a>, <a class="L" href="liolib.c.html#IO_OUTPUT">IO_OUTPUT</a>);
+L0137      <a class="L" href="liolib.c.html#tofile">tofile</a>(L);  <span class="comment">/* make sure argument is a file */</span>
+L0138      <span class="keyword">return</span> <a class="L" href="liolib.c.html#aux_close">aux_close</a>(L);
+L0139    }
+L0140    
+L0141    
+L0142    <span class="keyword">static</span> <span class="keyword">int</span> <a name="io_gc"/a><a class="L" href="liolib.c.ref.html#io_gc">io_gc</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0143      FILE *f = *<a class="L" href="liolib.c.html#tofilep">tofilep</a>(L);
+L0144      <span class="comment">/* ignore closed files */</span>
+L0145      <span class="keyword">if</span> (f != NULL)
+L0146        <a class="L" href="liolib.c.html#aux_close">aux_close</a>(L);
+L0147      <span class="keyword">return</span> <span class="number">0</span>;
+L0148    }
+L0149    
+L0150    
+L0151    <span class="keyword">static</span> <span class="keyword">int</span> <a name="io_tostring"/a><a class="L" href="liolib.c.ref.html#io_tostring">io_tostring</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0152      FILE *f = *<a class="L" href="liolib.c.html#tofilep">tofilep</a>(L);
+L0153      <span class="keyword">if</span> (f == NULL)
+L0154        <a class="L" href="lua.h.html#lua_pushliteral">lua_pushliteral</a>(L, <span class="string">"file (closed)"</span>);
+L0155      <span class="keyword">else</span>
+L0156        <a class="L" href="lapi.c.html#lua_pushfstring">lua_pushfstring</a>(L, <span class="string">"file (%p)"</span>, f);
+L0157      <span class="keyword">return</span> <span class="number">1</span>;
+L0158    }
+L0159    
+L0160    
+L0161    <span class="keyword">static</span> <span class="keyword">int</span> <a name="io_open"/a><a class="L" href="liolib.c.ref.html#io_open">io_open</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0162      <span class="keyword">const</span> <span class="keyword">char</span> *filename = <a class="L" href="lauxlib.h.html#luaL_checkstring">luaL_checkstring</a>(L, <span class="number">1</span>);
+L0163      <span class="keyword">const</span> <span class="keyword">char</span> *mode = <a class="L" href="lauxlib.h.html#luaL_optstring">luaL_optstring</a>(L, <span class="number">2</span>, <span class="string">"r"</span>);
+L0164      FILE **pf = <a class="L" href="liolib.c.html#newfile">newfile</a>(L);
+L0165      *pf = fopen(filename, mode);
+L0166      <span class="keyword">return</span> (*pf == NULL) ? <a class="L" href="liolib.c.html#pushresult">pushresult</a>(L, <span class="number">0</span>, filename) : <span class="number">1</span>;
+L0167    }
+L0168    
+L0169    
+L0170    <span class="comment">/*
+L0171    ** this function has a separated environment, which defines the
+L0172    ** correct __close for 'popen' files
+L0173    */</span>
+L0174    <span class="keyword">static</span> <span class="keyword">int</span> <a name="io_popen"/a><a class="L" href="liolib.c.ref.html#io_popen">io_popen</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0175      <span class="keyword">const</span> <span class="keyword">char</span> *filename = <a class="L" href="lauxlib.h.html#luaL_checkstring">luaL_checkstring</a>(L, <span class="number">1</span>);
+L0176      <span class="keyword">const</span> <span class="keyword">char</span> *mode = <a class="L" href="lauxlib.h.html#luaL_optstring">luaL_optstring</a>(L, <span class="number">2</span>, <span class="string">"r"</span>);
+L0177      FILE **pf = <a class="L" href="liolib.c.html#newfile">newfile</a>(L);
+L0178      *pf = <a class="L" href="luaconf.h.html#lua_popen">lua_popen</a>(L, filename, mode);
+L0179      <span class="keyword">return</span> (*pf == NULL) ? <a class="L" href="liolib.c.html#pushresult">pushresult</a>(L, <span class="number">0</span>, filename) : <span class="number">1</span>;
+L0180    }
+L0181    
+L0182    
+L0183    <span class="keyword">static</span> <span class="keyword">int</span> <a name="io_tmpfile"/a><a class="L" href="liolib.c.ref.html#io_tmpfile">io_tmpfile</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0184      FILE **pf = <a class="L" href="liolib.c.html#newfile">newfile</a>(L);
+L0185      *pf = tmpfile();
+L0186      <span class="keyword">return</span> (*pf == NULL) ? <a class="L" href="liolib.c.html#pushresult">pushresult</a>(L, <span class="number">0</span>, NULL) : <span class="number">1</span>;
+L0187    }
+L0188    
+L0189    
+L0190    <span class="keyword">static</span> FILE *<a name="getiofile"/a><a class="L" href="liolib.c.ref.html#getiofile">getiofile</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> findex) {
+L0191      FILE *f;
+L0192      <a class="L" href="lapi.c.html#lua_rawgeti">lua_rawgeti</a>(L, <a class="L" href="lua.h.html#LUA_ENVIRONINDEX">LUA_ENVIRONINDEX</a>, findex);
+L0193      f = *(FILE **)<a class="L" href="lapi.c.html#lua_touserdata">lua_touserdata</a>(L, <span class="number">-1</span>);
+L0194      <span class="keyword">if</span> (f == NULL)
+L0195        <a class="L" href="lauxlib.c.html#luaL_error">luaL_error</a>(L, <span class="string">"standard %s file is closed"</span>, <a class="L" href="liolib.c.html#fnames">fnames</a>[findex - <span class="number">1</span>]);
+L0196      <span class="keyword">return</span> f;
+L0197    }
+L0198    
+L0199    
+L0200    <span class="keyword">static</span> <span class="keyword">int</span> <a name="g_iofile"/a><a class="L" href="liolib.c.ref.html#g_iofile">g_iofile</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> f, <span class="keyword">const</span> <span class="keyword">char</span> *mode) {
+L0201      <span class="keyword">if</span> (!<a class="L" href="lua.h.html#lua_isnoneornil">lua_isnoneornil</a>(L, <span class="number">1</span>)) {
+L0202        <span class="keyword">const</span> <span class="keyword">char</span> *filename = <a class="L" href="lua.h.html#lua_tostring">lua_tostring</a>(L, <span class="number">1</span>);
+L0203        <span class="keyword">if</span> (filename) {
+L0204          FILE **pf = <a class="L" href="liolib.c.html#newfile">newfile</a>(L);
+L0205          *pf = fopen(filename, mode);
+L0206          <span class="keyword">if</span> (*pf == NULL)
+L0207            <a class="L" href="liolib.c.html#fileerror">fileerror</a>(L, <span class="number">1</span>, filename);
+L0208        }
+L0209        <span class="keyword">else</span> {
+L0210          <a class="L" href="liolib.c.html#tofile">tofile</a>(L);  <span class="comment">/* check that it's a valid file handle */</span>
+L0211          <a class="L" href="lapi.c.html#lua_pushvalue">lua_pushvalue</a>(L, <span class="number">1</span>);
+L0212        }
+L0213        <a class="L" href="lapi.c.html#lua_rawseti">lua_rawseti</a>(L, <a class="L" href="lua.h.html#LUA_ENVIRONINDEX">LUA_ENVIRONINDEX</a>, f);
+L0214      }
+L0215      <span class="comment">/* return current value */</span>
+L0216      <a class="L" href="lapi.c.html#lua_rawgeti">lua_rawgeti</a>(L, <a class="L" href="lua.h.html#LUA_ENVIRONINDEX">LUA_ENVIRONINDEX</a>, f);
+L0217      <span class="keyword">return</span> <span class="number">1</span>;
+L0218    }
+L0219    
+L0220    
+L0221    <span class="keyword">static</span> <span class="keyword">int</span> <a name="io_input"/a><a class="L" href="liolib.c.ref.html#io_input">io_input</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0222      <span class="keyword">return</span> <a class="L" href="liolib.c.html#g_iofile">g_iofile</a>(L, <a class="L" href="liolib.c.html#IO_INPUT">IO_INPUT</a>, <span class="string">"r"</span>);
+L0223    }
+L0224    
+L0225    
+L0226    <span class="keyword">static</span> <span class="keyword">int</span> <a name="io_output"/a><a class="L" href="liolib.c.ref.html#io_output">io_output</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0227      <span class="keyword">return</span> <a class="L" href="liolib.c.html#g_iofile">g_iofile</a>(L, <a class="L" href="liolib.c.html#IO_OUTPUT">IO_OUTPUT</a>, <span class="string">"w"</span>);
+L0228    }
+L0229    
+L0230    
+L0231    <span class="keyword">static</span> <span class="keyword">int</span> <a class="L" href="liolib.c.html#io_readline">io_readline</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L);
+L0232    
+L0233    
+L0234    <span class="keyword">static</span> <span class="keyword">void</span> <a name="aux_lines"/a><a class="L" href="liolib.c.ref.html#aux_lines">aux_lines</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> idx, <span class="keyword">int</span> toclose) {
+L0235      <a class="L" href="lapi.c.html#lua_pushvalue">lua_pushvalue</a>(L, idx);
+L0236      <a class="L" href="lapi.c.html#lua_pushboolean">lua_pushboolean</a>(L, toclose);  <span class="comment">/* close/not close file when finished */</span>
+L0237      <a class="L" href="lapi.c.html#lua_pushcclosure">lua_pushcclosure</a>(L, <a class="L" href="liolib.c.html#io_readline">io_readline</a>, <span class="number">2</span>);
+L0238    }
+L0239    
+L0240    
+L0241    <span class="keyword">static</span> <span class="keyword">int</span> <a name="f_lines"/a><a class="L" href="liolib.c.ref.html#f_lines">f_lines</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0242      <a class="L" href="liolib.c.html#tofile">tofile</a>(L);  <span class="comment">/* check that it's a valid file handle */</span>
+L0243      <a class="L" href="liolib.c.html#aux_lines">aux_lines</a>(L, <span class="number">1</span>, <span class="number">0</span>);
+L0244      <span class="keyword">return</span> <span class="number">1</span>;
+L0245    }
+L0246    
+L0247    
+L0248    <span class="keyword">static</span> <span class="keyword">int</span> <a name="io_lines"/a><a class="L" href="liolib.c.ref.html#io_lines">io_lines</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0249      <span class="keyword">if</span> (<a class="L" href="lua.h.html#lua_isnoneornil">lua_isnoneornil</a>(L, <span class="number">1</span>)) {  <span class="comment">/* no arguments? */</span>
+L0250        <span class="comment">/* will iterate over default input */</span>
+L0251        <a class="L" href="lapi.c.html#lua_rawgeti">lua_rawgeti</a>(L, <a class="L" href="lua.h.html#LUA_ENVIRONINDEX">LUA_ENVIRONINDEX</a>, <a class="L" href="liolib.c.html#IO_INPUT">IO_INPUT</a>);
+L0252        <span class="keyword">return</span> <a class="L" href="liolib.c.html#f_lines">f_lines</a>(L);
+L0253      }
+L0254      <span class="keyword">else</span> {
+L0255        <span class="keyword">const</span> <span class="keyword">char</span> *filename = <a class="L" href="lauxlib.h.html#luaL_checkstring">luaL_checkstring</a>(L, <span class="number">1</span>);
+L0256        FILE **pf = <a class="L" href="liolib.c.html#newfile">newfile</a>(L);
+L0257        *pf = fopen(filename, <span class="string">"r"</span>);
+L0258        <span class="keyword">if</span> (*pf == NULL)
+L0259          <a class="L" href="liolib.c.html#fileerror">fileerror</a>(L, <span class="number">1</span>, filename);
+L0260        <a class="L" href="liolib.c.html#aux_lines">aux_lines</a>(L, <a class="L" href="lapi.c.html#lua_gettop">lua_gettop</a>(L), <span class="number">1</span>);
+L0261        <span class="keyword">return</span> <span class="number">1</span>;
+L0262      }
+L0263    }
+L0264    
+L0265    
+L0266    <span class="comment">/*
+L0267    ** {======================================================
+L0268    ** READ
+L0269    ** =======================================================
+L0270    */</span>
+L0271    
+L0272    
+L0273    <span class="keyword">static</span> <span class="keyword">int</span> <a name="read_number"/a><a class="L" href="liolib.c.ref.html#read_number">read_number</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, FILE *f) {
+L0274      <a class="L" href="lua.h.html#lua_Number">lua_Number</a> d;
+L0275      <span class="keyword">if</span> (fscanf(f, <a class="L" href="luaconf.h.html#LUA_NUMBER_SCAN">LUA_NUMBER_SCAN</a>, &amp;d) == <span class="number">1</span>) {
+L0276        <a class="L" href="lapi.c.html#lua_pushnumber">lua_pushnumber</a>(L, d);
+L0277        <span class="keyword">return</span> <span class="number">1</span>;
+L0278      }
+L0279      <span class="keyword">else</span> <span class="keyword">return</span> <span class="number">0</span>;  <span class="comment">/* read fails */</span>
+L0280    }
+L0281    
+L0282    
+L0283    <span class="keyword">static</span> <span class="keyword">int</span> <a name="test_eof"/a><a class="L" href="liolib.c.ref.html#test_eof">test_eof</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, FILE *f) {
+L0284      <span class="keyword">int</span> c = getc(f);
+L0285      ungetc(c, f);
+L0286      <a class="L" href="lapi.c.html#lua_pushlstring">lua_pushlstring</a>(L, NULL, <span class="number">0</span>);
+L0287      <span class="keyword">return</span> (c != EOF);
+L0288    }
+L0289    
+L0290    
+L0291    <span class="keyword">static</span> <span class="keyword">int</span> <a name="read_line"/a><a class="L" href="liolib.c.ref.html#read_line">read_line</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, FILE *f) {
+L0292      <a class="L" href="lauxlib.h.html#luaL_Buffer">luaL_Buffer</a> b;
+L0293      <a class="L" href="lauxlib.c.html#luaL_buffinit">luaL_buffinit</a>(L, &amp;b);
+L0294      <span class="keyword">for</span> (;;) {
+L0295        size_t l;
+L0296        <span class="keyword">char</span> *p = <a class="L" href="lauxlib.c.html#luaL_prepbuffer">luaL_prepbuffer</a>(&amp;b);
+L0297        <span class="keyword">if</span> (fgets(p, <a class="L" href="luaconf.h.html#LUAL_BUFFERSIZE">LUAL_BUFFERSIZE</a>, f) == NULL) {  <span class="comment">/* eof? */</span>
+L0298          <a class="L" href="lauxlib.c.html#luaL_pushresult">luaL_pushresult</a>(&amp;b);  <span class="comment">/* close buffer */</span>
+L0299          <span class="keyword">return</span> (<a class="L" href="lapi.c.html#lua_objlen">lua_objlen</a>(L, <span class="number">-1</span>) &gt; <span class="number">0</span>);  <span class="comment">/* check whether read something */</span>
+L0300        }
+L0301        l = strlen(p);
+L0302        <span class="keyword">if</span> (l == <span class="number">0</span> || p[l<span class="number">-1</span>] != '\n')
+L0303          <a class="L" href="lauxlib.h.html#luaL_addsize">luaL_addsize</a>(&amp;b, l);
+L0304        <span class="keyword">else</span> {
+L0305          <a class="L" href="lauxlib.h.html#luaL_addsize">luaL_addsize</a>(&amp;b, l - <span class="number">1</span>);  <span class="comment">/* do not include `eol' */</span>
+L0306          <a class="L" href="lauxlib.c.html#luaL_pushresult">luaL_pushresult</a>(&amp;b);  <span class="comment">/* close buffer */</span>
+L0307          <span class="keyword">return</span> <span class="number">1</span>;  <span class="comment">/* read at least an `eol' */</span>
+L0308        }
+L0309      }
+L0310    }
+L0311    
+L0312    
+L0313    <span class="keyword">static</span> <span class="keyword">int</span> <a name="read_chars"/a><a class="L" href="liolib.c.ref.html#read_chars">read_chars</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, FILE *f, size_t n) {
+L0314      size_t rlen;  <span class="comment">/* how much to read */</span>
+L0315      size_t nr;  <span class="comment">/* number of chars actually read */</span>
+L0316      <a class="L" href="lauxlib.h.html#luaL_Buffer">luaL_Buffer</a> b;
+L0317      <a class="L" href="lauxlib.c.html#luaL_buffinit">luaL_buffinit</a>(L, &amp;b);
+L0318      rlen = <a class="L" href="luaconf.h.html#LUAL_BUFFERSIZE">LUAL_BUFFERSIZE</a>;  <span class="comment">/* try to read that much each time */</span>
+L0319      <span class="keyword">do</span> {
+L0320        <span class="keyword">char</span> *p = <a class="L" href="lauxlib.c.html#luaL_prepbuffer">luaL_prepbuffer</a>(&amp;b);
+L0321        <span class="keyword">if</span> (rlen &gt; n) rlen = n;  <span class="comment">/* cannot read more than asked */</span>
+L0322        nr = fread(p, <span class="keyword">sizeof</span>(<span class="keyword">char</span>), rlen, f);
+L0323        <a class="L" href="lauxlib.h.html#luaL_addsize">luaL_addsize</a>(&amp;b, nr);
+L0324        n -= nr;  <span class="comment">/* still have to read `n' chars */</span>
+L0325      } <span class="keyword">while</span> (n &gt; <span class="number">0</span> &amp;&amp; nr == rlen);  <span class="comment">/* until end of count or eof */</span>
+L0326      <a class="L" href="lauxlib.c.html#luaL_pushresult">luaL_pushresult</a>(&amp;b);  <span class="comment">/* close buffer */</span>
+L0327      <span class="keyword">return</span> (n == <span class="number">0</span> || <a class="L" href="lapi.c.html#lua_objlen">lua_objlen</a>(L, <span class="number">-1</span>) &gt; <span class="number">0</span>);
+L0328    }
+L0329    
+L0330    
+L0331    <span class="keyword">static</span> <span class="keyword">int</span> <a name="g_read"/a><a class="L" href="liolib.c.ref.html#g_read">g_read</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, FILE *f, <span class="keyword">int</span> first) {
+L0332      <span class="keyword">int</span> nargs = <a class="L" href="lapi.c.html#lua_gettop">lua_gettop</a>(L) - <span class="number">1</span>;
+L0333      <span class="keyword">int</span> success;
+L0334      <span class="keyword">int</span> n;
+L0335      clearerr(f);
+L0336      <span class="keyword">if</span> (nargs == <span class="number">0</span>) {  <span class="comment">/* no arguments? */</span>
+L0337        success = <a class="L" href="liolib.c.html#read_line">read_line</a>(L, f);
+L0338        n = first<span class="number">+1</span>;  <span class="comment">/* to return 1 result */</span>
+L0339      }
+L0340      <span class="keyword">else</span> {  <span class="comment">/* ensure stack space for all results and for auxlib's buffer */</span>
+L0341        <a class="L" href="lauxlib.c.html#luaL_checkstack">luaL_checkstack</a>(L, nargs+<a class="L" href="lua.h.html#LUA_MINSTACK">LUA_MINSTACK</a>, <span class="string">"too many arguments"</span>);
+L0342        success = <span class="number">1</span>;
+L0343        <span class="keyword">for</span> (n = first; nargs-- &amp;&amp; success; n++) {
+L0344          <span class="keyword">if</span> (<a class="L" href="lapi.c.html#lua_type">lua_type</a>(L, n) == <a class="L" href="lua.h.html#LUA_TNUMBER">LUA_TNUMBER</a>) {
+L0345            size_t l = (size_t)<a class="L" href="lapi.c.html#lua_tointeger">lua_tointeger</a>(L, n);
+L0346            success = (l == <span class="number">0</span>) ? <a class="L" href="liolib.c.html#test_eof">test_eof</a>(L, f) : <a class="L" href="liolib.c.html#read_chars">read_chars</a>(L, f, l);
+L0347          }
+L0348          <span class="keyword">else</span> {
+L0349            <span class="keyword">const</span> <span class="keyword">char</span> *p = <a class="L" href="lua.h.html#lua_tostring">lua_tostring</a>(L, n);
+L0350            <a class="L" href="lauxlib.h.html#luaL_argcheck">luaL_argcheck</a>(L, p &amp;&amp; p[<span class="number">0</span>] == '*', n, <span class="string">"invalid option"</span>);
+L0351            <span class="keyword">switch</span> (p[<span class="number">1</span>]) {
+L0352              <span class="keyword">case</span> 'n':  <span class="comment">/* number */</span>
+L0353                success = <a class="L" href="liolib.c.html#read_number">read_number</a>(L, f);
+L0354                <span class="keyword">break</span>;
+L0355              <span class="keyword">case</span> 'l':  <span class="comment">/* line */</span>
+L0356                success = <a class="L" href="liolib.c.html#read_line">read_line</a>(L, f);
+L0357                <span class="keyword">break</span>;
+L0358              <span class="keyword">case</span> 'a':  <span class="comment">/* file */</span>
+L0359                <a class="L" href="liolib.c.html#read_chars">read_chars</a>(L, f, ~((size_t)<span class="number">0</span>));  <span class="comment">/* read MAX_SIZE_T chars */</span>
+L0360                success = <span class="number">1</span>; <span class="comment">/* always success */</span>
+L0361                <span class="keyword">break</span>;
+L0362              <span class="keyword">default</span>:
+L0363                <span class="keyword">return</span> <a class="L" href="lauxlib.c.html#luaL_argerror">luaL_argerror</a>(L, n, <span class="string">"invalid format"</span>);
+L0364            }
+L0365          }
+L0366        }
+L0367      }
+L0368      <span class="keyword">if</span> (ferror(f))
+L0369        <span class="keyword">return</span> <a class="L" href="liolib.c.html#pushresult">pushresult</a>(L, <span class="number">0</span>, NULL);
+L0370      <span class="keyword">if</span> (!success) {
+L0371        <a class="L" href="lua.h.html#lua_pop">lua_pop</a>(L, <span class="number">1</span>);  <span class="comment">/* remove last result */</span>
+L0372        <a class="L" href="lapi.c.html#lua_pushnil">lua_pushnil</a>(L);  <span class="comment">/* push nil instead */</span>
+L0373      }
+L0374      <span class="keyword">return</span> n - first;
+L0375    }
+L0376    
+L0377    
+L0378    <span class="keyword">static</span> <span class="keyword">int</span> <a name="io_read"/a><a class="L" href="liolib.c.ref.html#io_read">io_read</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0379      <span class="keyword">return</span> <a class="L" href="liolib.c.html#g_read">g_read</a>(L, <a class="L" href="liolib.c.html#getiofile">getiofile</a>(L, <a class="L" href="liolib.c.html#IO_INPUT">IO_INPUT</a>), <span class="number">1</span>);
+L0380    }
+L0381    
+L0382    
+L0383    <span class="keyword">static</span> <span class="keyword">int</span> <a name="f_read"/a><a class="L" href="liolib.c.ref.html#f_read">f_read</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0384      <span class="keyword">return</span> <a class="L" href="liolib.c.html#g_read">g_read</a>(L, <a class="L" href="liolib.c.html#tofile">tofile</a>(L), <span class="number">2</span>);
+L0385    }
+L0386    
+L0387    
+L0388    <span class="keyword">static</span> <span class="keyword">int</span> <a name="io_readline"/a><a class="L" href="liolib.c.ref.html#io_readline">io_readline</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0389      FILE *f = *(FILE **)<a class="L" href="lapi.c.html#lua_touserdata">lua_touserdata</a>(L, <a class="L" href="lua.h.html#lua_upvalueindex">lua_upvalueindex</a>(<span class="number">1</span>));
+L0390      <span class="keyword">int</span> sucess;
+L0391      <span class="keyword">if</span> (f == NULL)  <span class="comment">/* file is already closed? */</span>
+L0392        <a class="L" href="lauxlib.c.html#luaL_error">luaL_error</a>(L, <span class="string">"file is already closed"</span>);
+L0393      sucess = <a class="L" href="liolib.c.html#read_line">read_line</a>(L, f);
+L0394      <span class="keyword">if</span> (ferror(f))
+L0395        <span class="keyword">return</span> <a class="L" href="lauxlib.c.html#luaL_error">luaL_error</a>(L, <span class="string">"%s"</span>, strerror(errno));
+L0396      <span class="keyword">if</span> (sucess) <span class="keyword">return</span> <span class="number">1</span>;
+L0397      <span class="keyword">else</span> {  <span class="comment">/* EOF */</span>
+L0398        <span class="keyword">if</span> (<a class="L" href="lapi.c.html#lua_toboolean">lua_toboolean</a>(L, <a class="L" href="lua.h.html#lua_upvalueindex">lua_upvalueindex</a>(<span class="number">2</span>))) {  <span class="comment">/* generator created file? */</span>
+L0399          <a class="L" href="lapi.c.html#lua_settop">lua_settop</a>(L, <span class="number">0</span>);
+L0400          <a class="L" href="lapi.c.html#lua_pushvalue">lua_pushvalue</a>(L, <a class="L" href="lua.h.html#lua_upvalueindex">lua_upvalueindex</a>(<span class="number">1</span>));
+L0401          <a class="L" href="liolib.c.html#aux_close">aux_close</a>(L);  <span class="comment">/* close it */</span>
+L0402        }
+L0403        <span class="keyword">return</span> <span class="number">0</span>;
+L0404      }
+L0405    }
+L0406    
+L0407    <span class="comment">/* }====================================================== */</span>
+L0408    
+L0409    
+L0410    <span class="keyword">static</span> <span class="keyword">int</span> <a name="g_write"/a><a class="L" href="liolib.c.ref.html#g_write">g_write</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, FILE *f, <span class="keyword">int</span> arg) {
+L0411      <span class="keyword">int</span> nargs = <a class="L" href="lapi.c.html#lua_gettop">lua_gettop</a>(L) - <span class="number">1</span>;
+L0412      <span class="keyword">int</span> status = <span class="number">1</span>;
+L0413      <span class="keyword">for</span> (; nargs--; arg++) {
+L0414        <span class="keyword">if</span> (<a class="L" href="lapi.c.html#lua_type">lua_type</a>(L, arg) == <a class="L" href="lua.h.html#LUA_TNUMBER">LUA_TNUMBER</a>) {
+L0415          <span class="comment">/* optimization: could be done exactly as for strings */</span>
+L0416          status = status &amp;&amp;
+L0417              fprintf(f, <a class="L" href="luaconf.h.html#LUA_NUMBER_FMT">LUA_NUMBER_FMT</a>, <a class="L" href="lapi.c.html#lua_tonumber">lua_tonumber</a>(L, arg)) &gt; <span class="number">0</span>;
+L0418        }
+L0419        <span class="keyword">else</span> {
+L0420          size_t l;
+L0421          <span class="keyword">const</span> <span class="keyword">char</span> *s = <a class="L" href="lauxlib.c.html#luaL_checklstring">luaL_checklstring</a>(L, arg, &amp;l);
+L0422          status = status &amp;&amp; (fwrite(s, <span class="keyword">sizeof</span>(<span class="keyword">char</span>), l, f) == l);
+L0423        }
+L0424      }
+L0425      <span class="keyword">return</span> <a class="L" href="liolib.c.html#pushresult">pushresult</a>(L, status, NULL);
+L0426    }
+L0427    
+L0428    
+L0429    <span class="keyword">static</span> <span class="keyword">int</span> <a name="io_write"/a><a class="L" href="liolib.c.ref.html#io_write">io_write</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0430      <span class="keyword">return</span> <a class="L" href="liolib.c.html#g_write">g_write</a>(L, <a class="L" href="liolib.c.html#getiofile">getiofile</a>(L, <a class="L" href="liolib.c.html#IO_OUTPUT">IO_OUTPUT</a>), <span class="number">1</span>);
+L0431    }
+L0432    
+L0433    
+L0434    <span class="keyword">static</span> <span class="keyword">int</span> <a name="f_write"/a><a class="L" href="liolib.c.ref.html#f_write">f_write</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0435      <span class="keyword">return</span> <a class="L" href="liolib.c.html#g_write">g_write</a>(L, <a class="L" href="liolib.c.html#tofile">tofile</a>(L), <span class="number">2</span>);
+L0436    }
+L0437    
+L0438    
+L0439    <span class="keyword">static</span> <span class="keyword">int</span> <a name="f_seek"/a><a class="L" href="liolib.c.ref.html#f_seek">f_seek</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0440      <span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">int</span> mode[] = {SEEK_SET, SEEK_CUR, SEEK_END};
+L0441      <span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">char</span> *<span class="keyword">const</span> modenames[] = {<span class="string">"set"</span>, <span class="string">"cur"</span>, <span class="string">"end"</span>, NULL};
+L0442      FILE *f = <a class="L" href="liolib.c.html#tofile">tofile</a>(L);
+L0443      <span class="keyword">int</span> op = <a class="L" href="lauxlib.c.html#luaL_checkoption">luaL_checkoption</a>(L, <span class="number">2</span>, <span class="string">"cur"</span>, modenames);
+L0444      <span class="keyword">long</span> offset = <a class="L" href="lauxlib.h.html#luaL_optlong">luaL_optlong</a>(L, <span class="number">3</span>, <span class="number">0</span>);
+L0445      op = fseek(f, offset, mode[op]);
+L0446      <span class="keyword">if</span> (op)
+L0447        <span class="keyword">return</span> <a class="L" href="liolib.c.html#pushresult">pushresult</a>(L, <span class="number">0</span>, NULL);  <span class="comment">/* error */</span>
+L0448      <span class="keyword">else</span> {
+L0449        <a class="L" href="lapi.c.html#lua_pushinteger">lua_pushinteger</a>(L, ftell(f));
+L0450        <span class="keyword">return</span> <span class="number">1</span>;
+L0451      }
+L0452    }
+L0453    
+L0454    
+L0455    <span class="keyword">static</span> <span class="keyword">int</span> <a name="f_setvbuf"/a><a class="L" href="liolib.c.ref.html#f_setvbuf">f_setvbuf</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0456      <span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">int</span> mode[] = {_IONBF, _IOFBF, _IOLBF};
+L0457      <span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">char</span> *<span class="keyword">const</span> modenames[] = {<span class="string">"no"</span>, <span class="string">"full"</span>, <span class="string">"line"</span>, NULL};
+L0458      FILE *f = <a class="L" href="liolib.c.html#tofile">tofile</a>(L);
+L0459      <span class="keyword">int</span> op = <a class="L" href="lauxlib.c.html#luaL_checkoption">luaL_checkoption</a>(L, <span class="number">2</span>, NULL, modenames);
+L0460      <a class="L" href="lua.h.html#lua_Integer">lua_Integer</a> sz = <a class="L" href="lauxlib.c.html#luaL_optinteger">luaL_optinteger</a>(L, <span class="number">3</span>, <a class="L" href="luaconf.h.html#LUAL_BUFFERSIZE">LUAL_BUFFERSIZE</a>);
+L0461      <span class="keyword">int</span> res = setvbuf(f, NULL, mode[op], sz);
+L0462      <span class="keyword">return</span> <a class="L" href="liolib.c.html#pushresult">pushresult</a>(L, res == <span class="number">0</span>, NULL);
+L0463    }
+L0464    
+L0465    
+L0466    
+L0467    <span class="keyword">static</span> <span class="keyword">int</span> <a name="io_flush"/a><a class="L" href="liolib.c.ref.html#io_flush">io_flush</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0468      <span class="keyword">return</span> <a class="L" href="liolib.c.html#pushresult">pushresult</a>(L, fflush(<a class="L" href="liolib.c.html#getiofile">getiofile</a>(L, <a class="L" href="liolib.c.html#IO_OUTPUT">IO_OUTPUT</a>)) == <span class="number">0</span>, NULL);
+L0469    }
+L0470    
+L0471    
+L0472    <span class="keyword">static</span> <span class="keyword">int</span> <a name="f_flush"/a><a class="L" href="liolib.c.ref.html#f_flush">f_flush</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0473      <span class="keyword">return</span> <a class="L" href="liolib.c.html#pushresult">pushresult</a>(L, fflush(<a class="L" href="liolib.c.html#tofile">tofile</a>(L)) == <span class="number">0</span>, NULL);
+L0474    }
+L0475    
+L0476    
+L0477    <span class="keyword">static</span> <span class="keyword">const</span> <a class="L" href="lauxlib.h.html#luaL_Reg">luaL_Reg</a> <a name="iolib"/a><a class="L" href="liolib.c.ref.html#iolib">iolib</a>[] = {
+L0478      {<span class="string">"close"</span>, <a class="L" href="liolib.c.html#io_close">io_close</a>},
+L0479      {<span class="string">"flush"</span>, <a class="L" href="liolib.c.html#io_flush">io_flush</a>},
+L0480      {<span class="string">"input"</span>, <a class="L" href="liolib.c.html#io_input">io_input</a>},
+L0481      {<span class="string">"lines"</span>, <a class="L" href="liolib.c.html#io_lines">io_lines</a>},
+L0482      {<span class="string">"open"</span>, <a class="L" href="liolib.c.html#io_open">io_open</a>},
+L0483      {<span class="string">"output"</span>, <a class="L" href="liolib.c.html#io_output">io_output</a>},
+L0484      {<span class="string">"popen"</span>, <a class="L" href="liolib.c.html#io_popen">io_popen</a>},
+L0485      {<span class="string">"read"</span>, <a class="L" href="liolib.c.html#io_read">io_read</a>},
+L0486      {<span class="string">"tmpfile"</span>, <a class="L" href="liolib.c.html#io_tmpfile">io_tmpfile</a>},
+L0487      {<span class="string">"type"</span>, <a class="L" href="liolib.c.html#io_type">io_type</a>},
+L0488      {<span class="string">"write"</span>, <a class="L" href="liolib.c.html#io_write">io_write</a>},
+L0489      {NULL, NULL}
+L0490    };
+L0491    
+L0492    
+L0493    <span class="keyword">static</span> <span class="keyword">const</span> <a class="L" href="lauxlib.h.html#luaL_Reg">luaL_Reg</a> <a name="flib"/a><a class="L" href="liolib.c.ref.html#flib">flib</a>[] = {
+L0494      {<span class="string">"close"</span>, <a class="L" href="liolib.c.html#io_close">io_close</a>},
+L0495      {<span class="string">"flush"</span>, <a class="L" href="liolib.c.html#f_flush">f_flush</a>},
+L0496      {<span class="string">"lines"</span>, <a class="L" href="liolib.c.html#f_lines">f_lines</a>},
+L0497      {<span class="string">"read"</span>, <a class="L" href="liolib.c.html#f_read">f_read</a>},
+L0498      {<span class="string">"seek"</span>, <a class="L" href="liolib.c.html#f_seek">f_seek</a>},
+L0499      {<span class="string">"setvbuf"</span>, <a class="L" href="liolib.c.html#f_setvbuf">f_setvbuf</a>},
+L0500      {<span class="string">"write"</span>, <a class="L" href="liolib.c.html#f_write">f_write</a>},
+L0501      {<span class="string">"__gc"</span>, <a class="L" href="liolib.c.html#io_gc">io_gc</a>},
+L0502      {<span class="string">"__tostring"</span>, <a class="L" href="liolib.c.html#io_tostring">io_tostring</a>},
+L0503      {NULL, NULL}
+L0504    };
+L0505    
+L0506    
+L0507    <span class="keyword">static</span> <span class="keyword">void</span> <a name="createmeta"/a><a class="L" href="liolib.c.ref.html#createmeta">createmeta</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0508      <a class="L" href="lauxlib.c.html#luaL_newmetatable">luaL_newmetatable</a>(L, <a class="L" href="lualib.h.html#LUA_FILEHANDLE">LUA_FILEHANDLE</a>);  <span class="comment">/* create metatable for file handles */</span>
+L0509      <a class="L" href="lapi.c.html#lua_pushvalue">lua_pushvalue</a>(L, <span class="number">-1</span>);  <span class="comment">/* push metatable */</span>
+L0510      <a class="L" href="lapi.c.html#lua_setfield">lua_setfield</a>(L, <span class="number">-2</span>, <span class="string">"__index"</span>);  <span class="comment">/* metatable.__index = metatable */</span>
+L0511      <a class="L" href="lauxlib.c.html#luaL_register">luaL_register</a>(L, NULL, <a class="L" href="liolib.c.html#flib">flib</a>);  <span class="comment">/* file methods */</span>
+L0512    }
+L0513    
+L0514    
+L0515    <span class="keyword">static</span> <span class="keyword">void</span> <a name="createstdfile"/a><a class="L" href="liolib.c.ref.html#createstdfile">createstdfile</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, FILE *f, <span class="keyword">int</span> k, <span class="keyword">const</span> <span class="keyword">char</span> *fname) {
+L0516      *<a class="L" href="liolib.c.html#newfile">newfile</a>(L) = f;
+L0517      <span class="keyword">if</span> (k &gt; <span class="number">0</span>) {
+L0518        <a class="L" href="lapi.c.html#lua_pushvalue">lua_pushvalue</a>(L, <span class="number">-1</span>);
+L0519        <a class="L" href="lapi.c.html#lua_rawseti">lua_rawseti</a>(L, <a class="L" href="lua.h.html#LUA_ENVIRONINDEX">LUA_ENVIRONINDEX</a>, k);
+L0520      }
+L0521      <a class="L" href="lapi.c.html#lua_pushvalue">lua_pushvalue</a>(L, <span class="number">-2</span>);  <span class="comment">/* copy environment */</span>
+L0522      <a class="L" href="lapi.c.html#lua_setfenv">lua_setfenv</a>(L, <span class="number">-2</span>);  <span class="comment">/* set it */</span>
+L0523      <a class="L" href="lapi.c.html#lua_setfield">lua_setfield</a>(L, <span class="number">-3</span>, fname);
+L0524    }
+L0525    
+L0526    
+L0527    <span class="keyword">static</span> <span class="keyword">void</span> <a name="newfenv"/a><a class="L" href="liolib.c.ref.html#newfenv">newfenv</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lua.h.html#lua_CFunction">lua_CFunction</a> cls) {
+L0528      <a class="L" href="lapi.c.html#lua_createtable">lua_createtable</a>(L, <span class="number">0</span>, <span class="number">1</span>);
+L0529      <a class="L" href="lua.h.html#lua_pushcfunction">lua_pushcfunction</a>(L, cls);
+L0530      <a class="L" href="lapi.c.html#lua_setfield">lua_setfield</a>(L, <span class="number">-2</span>, <span class="string">"__close"</span>);
+L0531    }
+L0532    
+L0533    
+L0534    <a class="L" href="luaconf.h.html#LUALIB_API">LUALIB_API</a> <span class="keyword">int</span> <a name="luaopen_io"/a><a class="L" href="liolib.c.ref.html#luaopen_io">luaopen_io</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0535      <a class="L" href="liolib.c.html#createmeta">createmeta</a>(L);
+L0536      <span class="comment">/* create (private) environment (with fields IO_INPUT, IO_OUTPUT, __close) */</span>
+L0537      <a class="L" href="liolib.c.html#newfenv">newfenv</a>(L, <a class="L" href="liolib.c.html#io_fclose">io_fclose</a>);
+L0538      <a class="L" href="lapi.c.html#lua_replace">lua_replace</a>(L, <a class="L" href="lua.h.html#LUA_ENVIRONINDEX">LUA_ENVIRONINDEX</a>);
+L0539      <span class="comment">/* open library */</span>
+L0540      <a class="L" href="lauxlib.c.html#luaL_register">luaL_register</a>(L, <a class="L" href="lualib.h.html#LUA_IOLIBNAME">LUA_IOLIBNAME</a>, <a class="L" href="liolib.c.html#iolib">iolib</a>);
+L0541      <span class="comment">/* create (and set) default files */</span>
+L0542      <a class="L" href="liolib.c.html#newfenv">newfenv</a>(L, <a class="L" href="liolib.c.html#io_noclose">io_noclose</a>);  <span class="comment">/* close function for default files */</span>
+L0543      <a class="L" href="liolib.c.html#createstdfile">createstdfile</a>(L, stdin, <a class="L" href="liolib.c.html#IO_INPUT">IO_INPUT</a>, <span class="string">"stdin"</span>);
+L0544      <a class="L" href="liolib.c.html#createstdfile">createstdfile</a>(L, stdout, <a class="L" href="liolib.c.html#IO_OUTPUT">IO_OUTPUT</a>, <span class="string">"stdout"</span>);
+L0545      <a class="L" href="liolib.c.html#createstdfile">createstdfile</a>(L, stderr, <span class="number">0</span>, <span class="string">"stderr"</span>);
+L0546      <a class="L" href="lua.h.html#lua_pop">lua_pop</a>(L, <span class="number">1</span>);  <span class="comment">/* pop environment for default files */</span>
+L0547      <a class="L" href="lapi.c.html#lua_getfield">lua_getfield</a>(L, <span class="number">-1</span>, <span class="string">"popen"</span>);
+L0548      <a class="L" href="liolib.c.html#newfenv">newfenv</a>(L, <a class="L" href="liolib.c.html#io_pclose">io_pclose</a>);  <span class="comment">/* create environment for 'popen' */</span>
+L0549      <a class="L" href="lapi.c.html#lua_setfenv">lua_setfenv</a>(L, <span class="number">-2</span>);  <span class="comment">/* set fenv for 'popen' */</span>
+L0550      <a class="L" href="lua.h.html#lua_pop">lua_pop</a>(L, <span class="number">1</span>);  <span class="comment">/* pop 'popen' */</span>
+L0551      <span class="keyword">return</span> <span class="number">1</span>;
+L0552    }
+L0553    
+</pre>
+<hr/>
+Generated by <a href="pretty.lua.html">pretty.lua</html>
+</body></html>

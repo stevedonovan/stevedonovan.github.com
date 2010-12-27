@@ -1,0 +1,784 @@
+<html>
+<head>
+<style>
+a.L { text-decoration: none; }
+a.L:hover { color: #FFAAAA; }
+body { margin-top: 20px; margin-left: 30px; }
+.lno { font-weight: bold: color #000; }
+.keyword {font-weight: bold; color: #6666AA; }
+.number  { color: #AA6666; }
+.string  { color: #8888AA; }
+.comment { color: #666600; }
+.prepro { color: #006666; } 
+</style>
+<body>
+<h1>Lua 5.1.4: luaconf.h</h1>
+<hr/>
+<pre>
+L0001    <span class="comment">/*
+L0002    ** $Id: luaconf.h,v 1.82.1.7 2008/02/11 16:25:08 roberto Exp $
+L0003    ** Configuration file for Lua
+L0004    ** See Copyright Notice in lua.h
+L0005    */</span>
+L0006    
+L0007    
+L0008    <span class="prepro">#ifndef lconfig_h
+</span>L0009    <a name="lconfig_h"/a><span class="prepro">#define lconfig_h
+</span>L0010    
+L0011    <span class="prepro">#include &lt;limits.h&gt;
+</span>L0012    <span class="prepro">#include &lt;stddef.h&gt;
+</span>L0013    
+L0014    
+L0015    <span class="comment">/*
+L0016    ** ==================================================================
+L0017    ** Search for "@@" to find all configurable definitions.
+L0018    ** ===================================================================
+L0019    */</span>
+L0020    
+L0021    
+L0022    <span class="comment">/*
+L0023    @@ LUA_ANSI controls the use of non-ansi features.
+L0024    ** CHANGE it (define it) if you want Lua to avoid the use of any
+L0025    ** non-ansi feature or library.
+L0026    */</span>
+L0027    <span class="prepro">#if defined(__STRICT_ANSI__)
+</span>L0028    <a name="LUA_ANSI"/a><span class="prepro">#define LUA_ANSI
+</span>L0029    <span class="prepro">#endif
+</span>L0030    
+L0031    
+L0032    <span class="prepro">#if !defined(LUA_ANSI) &amp;&amp; defined(_WIN32)
+</span>L0033    <a name="LUA_WIN"/a><span class="prepro">#define LUA_WIN
+</span>L0034    <span class="prepro">#endif
+</span>L0035    
+L0036    <span class="prepro">#if defined(LUA_USE_LINUX)
+</span>L0037    <a name="LUA_USE_POSIX"/a><span class="prepro">#define LUA_USE_POSIX
+</span>L0038    <a name="LUA_USE_DLOPEN"/a><span class="prepro">#define LUA_USE_DLOPEN		/* needs an extra library: -ldl */
+</span>L0039    <a name="LUA_USE_READLINE"/a><span class="prepro">#define LUA_USE_READLINE	/* needs some extra libraries */
+</span>L0040    <span class="prepro">#endif
+</span>L0041    
+L0042    <span class="prepro">#if defined(LUA_USE_MACOSX)
+</span>L0043    <a name="LUA_USE_POSIX"/a><span class="prepro">#define LUA_USE_POSIX
+</span>L0044    <a name="LUA_DL_DYLD"/a><span class="prepro">#define LUA_DL_DYLD		/* does not need extra library */
+</span>L0045    <span class="prepro">#endif
+</span>L0046    
+L0047    
+L0048    
+L0049    <span class="comment">/*
+L0050    @@ LUA_USE_POSIX includes all functionallity listed as X/Open System
+L0051    @* Interfaces Extension (XSI).
+L0052    ** CHANGE it (define it) if your system is XSI compatible.
+L0053    */</span>
+L0054    <span class="prepro">#if defined(LUA_USE_POSIX)
+</span>L0055    <a name="LUA_USE_MKSTEMP"/a><span class="prepro">#define LUA_USE_MKSTEMP
+</span>L0056    <a name="LUA_USE_ISATTY"/a><span class="prepro">#define LUA_USE_ISATTY
+</span>L0057    <a name="LUA_USE_POPEN"/a><span class="prepro">#define LUA_USE_POPEN
+</span>L0058    <a name="LUA_USE_ULONGJMP"/a><span class="prepro">#define LUA_USE_ULONGJMP
+</span>L0059    <span class="prepro">#endif
+</span>L0060    
+L0061    
+L0062    <span class="comment">/*
+L0063    @@ LUA_PATH and LUA_CPATH are the names of the environment variables that
+L0064    @* Lua check to set its paths.
+L0065    @@ LUA_INIT is the name of the environment variable that Lua
+L0066    @* checks for initialization code.
+L0067    ** CHANGE them if you want different names.
+L0068    */</span>
+L0069    <a name="LUA_PATH"/a><span class="prepro">#define LUA_PATH        "LUA_PATH"
+</span>L0070    <a name="LUA_CPATH"/a><span class="prepro">#define LUA_CPATH       "LUA_CPATH"
+</span>L0071    <a name="LUA_INIT"/a><span class="prepro">#define LUA_INIT	"LUA_INIT"
+</span>L0072    
+L0073    
+L0074    <span class="comment">/*
+L0075    @@ LUA_PATH_DEFAULT is the default path that Lua uses to look for
+L0076    @* Lua libraries.
+L0077    @@ LUA_CPATH_DEFAULT is the default path that Lua uses to look for
+L0078    @* C libraries.
+L0079    ** CHANGE them if your machine has a non-conventional directory
+L0080    ** hierarchy or if you want to install your libraries in
+L0081    ** non-conventional directories.
+L0082    */</span>
+L0083    <span class="prepro">#if defined(_WIN32)
+</span>L0084    <span class="comment">/*
+L0085    ** In Windows, any exclamation mark ('!') in the path is replaced by the
+L0086    ** path of the directory of the executable file of the current process.
+L0087    */</span>
+L0088    <a name="LUA_LDIR"/a><span class="prepro">#define LUA_LDIR	"!\\lua\\"
+</span>L0089    <a name="LUA_CDIR"/a><span class="prepro">#define LUA_CDIR	"!\\"
+</span>L0090    <a name="LUA_PATH_DEFAULT"/a><span class="prepro">#define LUA_PATH_DEFAULT  \
+L0091    		".\\?.lua;"  LUA_LDIR"?.lua;"  LUA_LDIR"?\\init.lua;" \
+L0092    		             LUA_CDIR"?.lua;"  LUA_CDIR"?\\init.lua"
+</span>L0093    <a name="LUA_CPATH_DEFAULT"/a><span class="prepro">#define LUA_CPATH_DEFAULT \
+L0094    	".\\?.dll;"  LUA_CDIR"?.dll;" LUA_CDIR"loadall.dll"
+</span>L0095    
+L0096    <span class="prepro">#else
+</span>L0097    <a name="LUA_ROOT"/a><span class="prepro">#define LUA_ROOT	"/usr/local/"
+</span>L0098    <a name="LUA_LDIR"/a><span class="prepro">#define LUA_LDIR	LUA_ROOT "share/lua/5.1/"
+</span>L0099    <a name="LUA_CDIR"/a><span class="prepro">#define LUA_CDIR	LUA_ROOT "lib/lua/5.1/"
+</span>L0100    <a name="LUA_PATH_DEFAULT"/a><span class="prepro">#define LUA_PATH_DEFAULT  \
+L0101    		"./?.lua;"  LUA_LDIR"?.lua;"  LUA_LDIR"?/init.lua;" \
+L0102    		            LUA_CDIR"?.lua;"  LUA_CDIR"?/init.lua"
+</span>L0103    <a name="LUA_CPATH_DEFAULT"/a><span class="prepro">#define LUA_CPATH_DEFAULT \
+L0104    	"./?.so;"  LUA_CDIR"?.so;" LUA_CDIR"loadall.so"
+</span>L0105    <span class="prepro">#endif
+</span>L0106    
+L0107    
+L0108    <span class="comment">/*
+L0109    @@ LUA_DIRSEP is the directory separator (for submodules).
+L0110    ** CHANGE it if your machine does not use "/" as the directory separator
+L0111    ** and is not Windows. (On Windows Lua automatically uses "\".)
+L0112    */</span>
+L0113    <span class="prepro">#if defined(_WIN32)
+</span>L0114    <a name="LUA_DIRSEP"/a><span class="prepro">#define LUA_DIRSEP	"\\"
+</span>L0115    <span class="prepro">#else
+</span>L0116    <a name="LUA_DIRSEP"/a><span class="prepro">#define LUA_DIRSEP	"/"
+</span>L0117    <span class="prepro">#endif
+</span>L0118    
+L0119    
+L0120    <span class="comment">/*
+L0121    @@ LUA_PATHSEP is the character that separates templates in a path.
+L0122    @@ LUA_PATH_MARK is the string that marks the substitution points in a
+L0123    @* template.
+L0124    @@ LUA_EXECDIR in a Windows path is replaced by the executable's
+L0125    @* directory.
+L0126    @@ LUA_IGMARK is a mark to ignore all before it when bulding the
+L0127    @* luaopen_ function name.
+L0128    ** CHANGE them if for some reason your system cannot use those
+L0129    ** characters. (E.g., if one of those characters is a common character
+L0130    ** in file/directory names.) Probably you do not need to change them.
+L0131    */</span>
+L0132    <a name="LUA_PATHSEP"/a><span class="prepro">#define LUA_PATHSEP	";"
+</span>L0133    <a name="LUA_PATH_MARK"/a><span class="prepro">#define LUA_PATH_MARK	"?"
+</span>L0134    <a name="LUA_EXECDIR"/a><span class="prepro">#define LUA_EXECDIR	"!"
+</span>L0135    <a name="LUA_IGMARK"/a><span class="prepro">#define LUA_IGMARK	"-"
+</span>L0136    
+L0137    
+L0138    <span class="comment">/*
+L0139    @@ LUA_INTEGER is the integral type used by lua_pushinteger/lua_tointeger.
+L0140    ** CHANGE that if ptrdiff_t is not adequate on your machine. (On most
+L0141    ** machines, ptrdiff_t gives a good choice between int or long.)
+L0142    */</span>
+L0143    <a name="LUA_INTEGER"/a><span class="prepro">#define LUA_INTEGER	ptrdiff_t
+</span>L0144    
+L0145    
+L0146    <span class="comment">/*
+L0147    @@ LUA_API is a mark for all core API functions.
+L0148    @@ LUALIB_API is a mark for all standard library functions.
+L0149    ** CHANGE them if you need to define those functions in some special way.
+L0150    ** For instance, if you want to create one Windows DLL with the core and
+L0151    ** the libraries, you may want to use the following definition (define
+L0152    ** LUA_BUILD_AS_DLL to get it).
+L0153    */</span>
+L0154    <span class="prepro">#if defined(LUA_BUILD_AS_DLL)
+</span>L0155    
+L0156    <span class="prepro">#if defined(LUA_CORE) || defined(LUA_LIB)
+</span>L0157    <a name="LUA_API"/a><span class="prepro">#define LUA_API __declspec(dllexport)
+</span>L0158    <span class="prepro">#else
+</span>L0159    <a name="LUA_API"/a><span class="prepro">#define LUA_API __declspec(dllimport)
+</span>L0160    <span class="prepro">#endif
+</span>L0161    
+L0162    <span class="prepro">#else
+</span>L0163    
+L0164    <a name="LUA_API"/a><span class="prepro">#define LUA_API		extern
+</span>L0165    
+L0166    <span class="prepro">#endif
+</span>L0167    
+L0168    <span class="comment">/* more often than not the libs go together with the core */</span>
+L0169    <a name="LUALIB_API"/a><span class="prepro">#define LUALIB_API	LUA_API
+</span>L0170    
+L0171    
+L0172    <span class="comment">/*
+L0173    @@ LUAI_FUNC is a mark for all extern functions that are not to be
+L0174    @* exported to outside modules.
+L0175    @@ LUAI_DATA is a mark for all extern (const) variables that are not to
+L0176    @* be exported to outside modules.
+L0177    ** CHANGE them if you need to mark them in some special way. Elf/gcc
+L0178    ** (versions 3.2 and later) mark them as "hidden" to optimize access
+L0179    ** when Lua is compiled as a shared library.
+L0180    */</span>
+L0181    <span class="prepro">#if defined(luaall_c)
+</span>L0182    <a name="LUAI_FUNC"/a><span class="prepro">#define LUAI_FUNC	static
+</span>L0183    <a name="LUAI_DATA"/a><span class="prepro">#define LUAI_DATA	/* empty */
+</span>L0184    
+L0185    <span class="prepro">#elif defined(__GNUC__) &amp;&amp; ((__GNUC__*100 + __GNUC_MINOR__) &gt;= 302) &amp;&amp; \
+L0186          defined(__ELF__)
+</span>L0187    <a name="LUAI_FUNC"/a><span class="prepro">#define LUAI_FUNC	__attribute__((visibility("hidden"))) extern
+</span>L0188    <a name="LUAI_DATA"/a><span class="prepro">#define LUAI_DATA	LUAI_FUNC
+</span>L0189    
+L0190    <span class="prepro">#else
+</span>L0191    <a name="LUAI_FUNC"/a><span class="prepro">#define LUAI_FUNC	extern
+</span>L0192    <a name="LUAI_DATA"/a><span class="prepro">#define LUAI_DATA	extern
+</span>L0193    <span class="prepro">#endif
+</span>L0194    
+L0195    
+L0196    
+L0197    <span class="comment">/*
+L0198    @@ LUA_QL describes how error messages quote program elements.
+L0199    ** CHANGE it if you want a different appearance.
+L0200    */</span>
+L0201    <a name="LUA_QL"/a><span class="prepro">#define LUA_QL(x)	"'" x "'"
+</span>L0202    <a name="LUA_QS"/a><span class="prepro">#define LUA_QS		LUA_QL("%s")
+</span>L0203    
+L0204    
+L0205    <span class="comment">/*
+L0206    @@ LUA_IDSIZE gives the maximum size for the description of the source
+L0207    @* of a function in debug information.
+L0208    ** CHANGE it if you want a different size.
+L0209    */</span>
+L0210    <a name="LUA_IDSIZE"/a><span class="prepro">#define LUA_IDSIZE	60
+</span>L0211    
+L0212    
+L0213    <span class="comment">/*
+L0214    ** {==================================================================
+L0215    ** Stand-alone configuration
+L0216    ** ===================================================================
+L0217    */</span>
+L0218    
+L0219    <span class="prepro">#if defined(lua_c) || defined(luaall_c)
+</span>L0220    
+L0221    <span class="comment">/*
+L0222    @@ lua_stdin_is_tty detects whether the standard input is a 'tty' (that
+L0223    @* is, whether we're running lua interactively).
+L0224    ** CHANGE it if you have a better definition for non-POSIX/non-Windows
+L0225    ** systems.
+L0226    */</span>
+L0227    <span class="prepro">#if defined(LUA_USE_ISATTY)
+</span>L0228    <span class="prepro">#include &lt;unistd.h&gt;
+</span>L0229    <a name="lua_stdin_is_tty"/a><span class="prepro">#define lua_stdin_is_tty()	isatty(0)
+</span>L0230    <span class="prepro">#elif defined(LUA_WIN)
+</span>L0231    <span class="prepro">#include &lt;io.h&gt;
+</span>L0232    <span class="prepro">#include &lt;stdio.h&gt;
+</span>L0233    <a name="lua_stdin_is_tty"/a><span class="prepro">#define lua_stdin_is_tty()	_isatty(_fileno(stdin))
+</span>L0234    <span class="prepro">#else
+</span>L0235    <a name="lua_stdin_is_tty"/a><span class="prepro">#define lua_stdin_is_tty()	1  /* assume stdin is a tty */
+</span>L0236    <span class="prepro">#endif
+</span>L0237    
+L0238    
+L0239    <span class="comment">/*
+L0240    @@ LUA_PROMPT is the default prompt used by stand-alone Lua.
+L0241    @@ LUA_PROMPT2 is the default continuation prompt used by stand-alone Lua.
+L0242    ** CHANGE them if you want different prompts. (You can also change the
+L0243    ** prompts dynamically, assigning to globals _PROMPT/_PROMPT2.)
+L0244    */</span>
+L0245    <a name="LUA_PROMPT"/a><span class="prepro">#define LUA_PROMPT		"&gt; "
+</span>L0246    <a name="LUA_PROMPT2"/a><span class="prepro">#define LUA_PROMPT2		"&gt;&gt; "
+</span>L0247    
+L0248    
+L0249    <span class="comment">/*
+L0250    @@ LUA_PROGNAME is the default name for the stand-alone Lua program.
+L0251    ** CHANGE it if your stand-alone interpreter has a different name and
+L0252    ** your system is not able to detect that name automatically.
+L0253    */</span>
+L0254    <a name="LUA_PROGNAME"/a><span class="prepro">#define LUA_PROGNAME		"lua"
+</span>L0255    
+L0256    
+L0257    <span class="comment">/*
+L0258    @@ LUA_MAXINPUT is the maximum length for an input line in the
+L0259    @* stand-alone interpreter.
+L0260    ** CHANGE it if you need longer lines.
+L0261    */</span>
+L0262    <a name="LUA_MAXINPUT"/a><span class="prepro">#define LUA_MAXINPUT	512
+</span>L0263    
+L0264    
+L0265    <span class="comment">/*
+L0266    @@ lua_readline defines how to show a prompt and then read a line from
+L0267    @* the standard input.
+L0268    @@ lua_saveline defines how to "save" a read line in a "history".
+L0269    @@ lua_freeline defines how to free a line read by lua_readline.
+L0270    ** CHANGE them if you want to improve this functionality (e.g., by using
+L0271    ** GNU readline and history facilities).
+L0272    */</span>
+L0273    <span class="prepro">#if defined(LUA_USE_READLINE)
+</span>L0274    <span class="prepro">#include &lt;stdio.h&gt;
+</span>L0275    <span class="prepro">#include &lt;readline/readline.h&gt;
+</span>L0276    <span class="prepro">#include &lt;readline/history.h&gt;
+</span>L0277    <a name="lua_readline"/a><span class="prepro">#define lua_readline(L,b,p)	((void)L, ((b)=readline(p)) != NULL)
+</span>L0278    <a name="lua_saveline"/a><span class="prepro">#define lua_saveline(L,idx) \
+L0279    	if (lua_strlen(L,idx) &gt; 0)  /* non-empty line? */ \
+L0280    	  add_history(lua_tostring(L, idx));  /* add it to history */
+</span>L0281    <a name="lua_freeline"/a><span class="prepro">#define lua_freeline(L,b)	((void)L, free(b))
+</span>L0282    <span class="prepro">#else
+</span>L0283    <a name="lua_readline"/a><span class="prepro">#define lua_readline(L,b,p)	\
+L0284    	((void)L, fputs(p, stdout), fflush(stdout),  /* show prompt */ \
+L0285    	fgets(b, LUA_MAXINPUT, stdin) != NULL)  /* get line */
+</span>L0286    <a name="lua_saveline"/a><span class="prepro">#define lua_saveline(L,idx)	{ (void)L; (void)idx; }
+</span>L0287    <a name="lua_freeline"/a><span class="prepro">#define lua_freeline(L,b)	{ (void)L; (void)b; }
+</span>L0288    <span class="prepro">#endif
+</span>L0289    
+L0290    <span class="prepro">#endif
+</span>L0291    
+L0292    <span class="comment">/* }================================================================== */</span>
+L0293    
+L0294    
+L0295    <span class="comment">/*
+L0296    @@ LUAI_GCPAUSE defines the default pause between garbage-collector cycles
+L0297    @* as a percentage.
+L0298    ** CHANGE it if you want the GC to run faster or slower (higher values
+L0299    ** mean larger pauses which mean slower collection.) You can also change
+L0300    ** this value dynamically.
+L0301    */</span>
+L0302    <a name="LUAI_GCPAUSE"/a><span class="prepro">#define LUAI_GCPAUSE	200  /* 200% (wait memory to double before next GC) */
+</span>L0303    
+L0304    
+L0305    <span class="comment">/*
+L0306    @@ LUAI_GCMUL defines the default speed of garbage collection relative to
+L0307    @* memory allocation as a percentage.
+L0308    ** CHANGE it if you want to change the granularity of the garbage
+L0309    ** collection. (Higher values mean coarser collections. 0 represents
+L0310    ** infinity, where each step performs a full collection.) You can also
+L0311    ** change this value dynamically.
+L0312    */</span>
+L0313    <a name="LUAI_GCMUL"/a><span class="prepro">#define LUAI_GCMUL	200 /* GC runs 'twice the speed' of memory allocation */
+</span>L0314    
+L0315    
+L0316    
+L0317    <span class="comment">/*
+L0318    @@ LUA_COMPAT_GETN controls compatibility with old getn behavior.
+L0319    ** CHANGE it (define it) if you want exact compatibility with the
+L0320    ** behavior of setn/getn in Lua 5.0.
+L0321    */</span>
+L0322    <span class="prepro">#undef LUA_COMPAT_GETN
+</span>L0323    
+L0324    <span class="comment">/*
+L0325    @@ LUA_COMPAT_LOADLIB controls compatibility about global loadlib.
+L0326    ** CHANGE it to undefined as soon as you do not need a global 'loadlib'
+L0327    ** function (the function is still available as 'package.loadlib').
+L0328    */</span>
+L0329    <span class="prepro">#undef LUA_COMPAT_LOADLIB
+</span>L0330    
+L0331    <span class="comment">/*
+L0332    @@ LUA_COMPAT_VARARG controls compatibility with old vararg feature.
+L0333    ** CHANGE it to undefined as soon as your programs use only '...' to
+L0334    ** access vararg parameters (instead of the old 'arg' table).
+L0335    */</span>
+L0336    <a name="LUA_COMPAT_VARARG"/a><span class="prepro">#define LUA_COMPAT_VARARG
+</span>L0337    
+L0338    <span class="comment">/*
+L0339    @@ LUA_COMPAT_MOD controls compatibility with old math.mod function.
+L0340    ** CHANGE it to undefined as soon as your programs use 'math.fmod' or
+L0341    ** the new '%' operator instead of 'math.mod'.
+L0342    */</span>
+L0343    <a name="LUA_COMPAT_MOD"/a><span class="prepro">#define LUA_COMPAT_MOD
+</span>L0344    
+L0345    <span class="comment">/*
+L0346    @@ LUA_COMPAT_LSTR controls compatibility with old long string nesting
+L0347    @* facility.
+L0348    ** CHANGE it to 2 if you want the old behaviour, or undefine it to turn
+L0349    ** off the advisory error when nesting [[...]].
+L0350    */</span>
+L0351    <a name="LUA_COMPAT_LSTR"/a><span class="prepro">#define LUA_COMPAT_LSTR		1
+</span>L0352    
+L0353    <span class="comment">/*
+L0354    @@ LUA_COMPAT_GFIND controls compatibility with old 'string.gfind' name.
+L0355    ** CHANGE it to undefined as soon as you rename 'string.gfind' to
+L0356    ** 'string.gmatch'.
+L0357    */</span>
+L0358    <a name="LUA_COMPAT_GFIND"/a><span class="prepro">#define LUA_COMPAT_GFIND
+</span>L0359    
+L0360    <span class="comment">/*
+L0361    @@ LUA_COMPAT_OPENLIB controls compatibility with old 'luaL_openlib'
+L0362    @* behavior.
+L0363    ** CHANGE it to undefined as soon as you replace to 'luaL_register'
+L0364    ** your uses of 'luaL_openlib'
+L0365    */</span>
+L0366    <a name="LUA_COMPAT_OPENLIB"/a><span class="prepro">#define LUA_COMPAT_OPENLIB
+</span>L0367    
+L0368    
+L0369    
+L0370    <span class="comment">/*
+L0371    @@ luai_apicheck is the assert macro used by the Lua-C API.
+L0372    ** CHANGE luai_apicheck if you want Lua to perform some checks in the
+L0373    ** parameters it gets from API calls. This may slow down the interpreter
+L0374    ** a bit, but may be quite useful when debugging C code that interfaces
+L0375    ** with Lua. A useful redefinition is to use assert.h.
+L0376    */</span>
+L0377    <span class="prepro">#if defined(LUA_USE_APICHECK)
+</span>L0378    <span class="prepro">#include &lt;assert.h&gt;
+</span>L0379    <a name="luai_apicheck"/a><span class="prepro">#define luai_apicheck(L,o)	{ (void)L; assert(o); }
+</span>L0380    <span class="prepro">#else
+</span>L0381    <a name="luai_apicheck"/a><span class="prepro">#define luai_apicheck(L,o)	{ (void)L; }
+</span>L0382    <span class="prepro">#endif
+</span>L0383    
+L0384    
+L0385    <span class="comment">/*
+L0386    @@ LUAI_BITSINT defines the number of bits in an int.
+L0387    ** CHANGE here if Lua cannot automatically detect the number of bits of
+L0388    ** your machine. Probably you do not need to change this.
+L0389    */</span>
+L0390    <span class="comment">/* avoid overflows in comparison */</span>
+L0391    <span class="prepro">#if INT_MAX-20 &lt; 32760
+</span>L0392    <a name="LUAI_BITSINT"/a><span class="prepro">#define LUAI_BITSINT	16
+</span>L0393    <span class="prepro">#elif INT_MAX &gt; 2147483640L
+</span>L0394    <span class="comment">/* int has at least 32 bits */</span>
+L0395    <a name="LUAI_BITSINT"/a><span class="prepro">#define LUAI_BITSINT	32
+</span>L0396    <span class="prepro">#else
+</span>L0397    <span class="prepro">#error "you must define LUA_BITSINT with number of bits in an integer"
+</span>L0398    <span class="prepro">#endif
+</span>L0399    
+L0400    
+L0401    <span class="comment">/*
+L0402    @@ LUAI_UINT32 is an unsigned integer with at least 32 bits.
+L0403    @@ LUAI_INT32 is an signed integer with at least 32 bits.
+L0404    @@ LUAI_UMEM is an unsigned integer big enough to count the total
+L0405    @* memory used by Lua.
+L0406    @@ LUAI_MEM is a signed integer big enough to count the total memory
+L0407    @* used by Lua.
+L0408    ** CHANGE here if for some weird reason the default definitions are not
+L0409    ** good enough for your machine. (The definitions in the 'else'
+L0410    ** part always works, but may waste space on machines with 64-bit
+L0411    ** longs.) Probably you do not need to change this.
+L0412    */</span>
+L0413    <span class="prepro">#if LUAI_BITSINT &gt;= 32
+</span>L0414    <a name="LUAI_UINT32"/a><span class="prepro">#define LUAI_UINT32	unsigned int
+</span>L0415    <a name="LUAI_INT32"/a><span class="prepro">#define LUAI_INT32	int
+</span>L0416    <a name="LUAI_MAXINT32"/a><span class="prepro">#define LUAI_MAXINT32	INT_MAX
+</span>L0417    <a name="LUAI_UMEM"/a><span class="prepro">#define LUAI_UMEM	size_t
+</span>L0418    <a name="LUAI_MEM"/a><span class="prepro">#define LUAI_MEM	ptrdiff_t
+</span>L0419    <span class="prepro">#else
+</span>L0420    <span class="comment">/* 16-bit ints */</span>
+L0421    <a name="LUAI_UINT32"/a><span class="prepro">#define LUAI_UINT32	unsigned long
+</span>L0422    <a name="LUAI_INT32"/a><span class="prepro">#define LUAI_INT32	long
+</span>L0423    <a name="LUAI_MAXINT32"/a><span class="prepro">#define LUAI_MAXINT32	LONG_MAX
+</span>L0424    <a name="LUAI_UMEM"/a><span class="prepro">#define LUAI_UMEM	unsigned long
+</span>L0425    <a name="LUAI_MEM"/a><span class="prepro">#define LUAI_MEM	long
+</span>L0426    <span class="prepro">#endif
+</span>L0427    
+L0428    
+L0429    <span class="comment">/*
+L0430    @@ LUAI_MAXCALLS limits the number of nested calls.
+L0431    ** CHANGE it if you need really deep recursive calls. This limit is
+L0432    ** arbitrary; its only purpose is to stop infinite recursion before
+L0433    ** exhausting memory.
+L0434    */</span>
+L0435    <a name="LUAI_MAXCALLS"/a><span class="prepro">#define LUAI_MAXCALLS	20000
+</span>L0436    
+L0437    
+L0438    <span class="comment">/*
+L0439    @@ LUAI_MAXCSTACK limits the number of Lua stack slots that a C function
+L0440    @* can use.
+L0441    ** CHANGE it if you need lots of (Lua) stack space for your C
+L0442    ** functions. This limit is arbitrary; its only purpose is to stop C
+L0443    ** functions to consume unlimited stack space. (must be smaller than
+L0444    ** -LUA_REGISTRYINDEX)
+L0445    */</span>
+L0446    <a name="LUAI_MAXCSTACK"/a><span class="prepro">#define LUAI_MAXCSTACK	8000
+</span>L0447    
+L0448    
+L0449    
+L0450    <span class="comment">/*
+L0451    ** {==================================================================
+L0452    ** CHANGE (to smaller values) the following definitions if your system
+L0453    ** has a small C stack. (Or you may want to change them to larger
+L0454    ** values if your system has a large C stack and these limits are
+L0455    ** too rigid for you.) Some of these constants control the size of
+L0456    ** stack-allocated arrays used by the compiler or the interpreter, while
+L0457    ** others limit the maximum number of recursive calls that the compiler
+L0458    ** or the interpreter can perform. Values too large may cause a C stack
+L0459    ** overflow for some forms of deep constructs.
+L0460    ** ===================================================================
+L0461    */</span>
+L0462    
+L0463    
+L0464    <span class="comment">/*
+L0465    @@ LUAI_MAXCCALLS is the maximum depth for nested C calls (short) and
+L0466    @* syntactical nested non-terminals in a program.
+L0467    */</span>
+L0468    <a name="LUAI_MAXCCALLS"/a><span class="prepro">#define LUAI_MAXCCALLS		200
+</span>L0469    
+L0470    
+L0471    <span class="comment">/*
+L0472    @@ LUAI_MAXVARS is the maximum number of local variables per function
+L0473    @* (must be smaller than 250).
+L0474    */</span>
+L0475    <a name="LUAI_MAXVARS"/a><span class="prepro">#define LUAI_MAXVARS		200
+</span>L0476    
+L0477    
+L0478    <span class="comment">/*
+L0479    @@ LUAI_MAXUPVALUES is the maximum number of upvalues per function
+L0480    @* (must be smaller than 250).
+L0481    */</span>
+L0482    <a name="LUAI_MAXUPVALUES"/a><span class="prepro">#define LUAI_MAXUPVALUES	60
+</span>L0483    
+L0484    
+L0485    <span class="comment">/*
+L0486    @@ LUAL_BUFFERSIZE is the buffer size used by the lauxlib buffer system.
+L0487    */</span>
+L0488    <a name="LUAL_BUFFERSIZE"/a><span class="prepro">#define LUAL_BUFFERSIZE		BUFSIZ
+</span>L0489    
+L0490    <span class="comment">/* }================================================================== */</span>
+L0491    
+L0492    
+L0493    
+L0494    
+L0495    <span class="comment">/*
+L0496    ** {==================================================================
+L0497    @@ LUA_NUMBER is the type of numbers in Lua.
+L0498    ** CHANGE the following definitions only if you want to build Lua
+L0499    ** with a number type different from double. You may also need to
+L0500    ** change lua_number2int &amp; lua_number2integer.
+L0501    ** ===================================================================
+L0502    */</span>
+L0503    
+L0504    <a name="LUA_NUMBER_DOUBLE"/a><span class="prepro">#define LUA_NUMBER_DOUBLE
+</span>L0505    <a name="LUA_NUMBER"/a><span class="prepro">#define LUA_NUMBER	double
+</span>L0506    
+L0507    <span class="comment">/*
+L0508    @@ LUAI_UACNUMBER is the result of an 'usual argument conversion'
+L0509    @* over a number.
+L0510    */</span>
+L0511    <a name="LUAI_UACNUMBER"/a><span class="prepro">#define LUAI_UACNUMBER	double
+</span>L0512    
+L0513    
+L0514    <span class="comment">/*
+L0515    @@ LUA_NUMBER_SCAN is the format for reading numbers.
+L0516    @@ LUA_NUMBER_FMT is the format for writing numbers.
+L0517    @@ lua_number2str converts a number to a string.
+L0518    @@ LUAI_MAXNUMBER2STR is maximum size of previous conversion.
+L0519    @@ lua_str2number converts a string to a number.
+L0520    */</span>
+L0521    <a name="LUA_NUMBER_SCAN"/a><span class="prepro">#define LUA_NUMBER_SCAN		"%lf"
+</span>L0522    <a name="LUA_NUMBER_FMT"/a><span class="prepro">#define LUA_NUMBER_FMT		"%.14g"
+</span>L0523    <a name="lua_number2str"/a><span class="prepro">#define lua_number2str(s,n)	sprintf((s), LUA_NUMBER_FMT, (n))
+</span>L0524    <a name="LUAI_MAXNUMBER2STR"/a><span class="prepro">#define LUAI_MAXNUMBER2STR	32 /* 16 digits, sign, point, and \0 */
+</span>L0525    <a name="lua_str2number"/a><span class="prepro">#define lua_str2number(s,p)	strtod((s), (p))
+</span>L0526    
+L0527    
+L0528    <span class="comment">/*
+L0529    @@ The luai_num* macros define the primitive operations over numbers.
+L0530    */</span>
+L0531    <span class="prepro">#if defined(LUA_CORE)
+</span>L0532    <span class="prepro">#include &lt;math.h&gt;
+</span>L0533    <a name="luai_numadd"/a><span class="prepro">#define luai_numadd(a,b)	((a)+(b))
+</span>L0534    <a name="luai_numsub"/a><span class="prepro">#define luai_numsub(a,b)	((a)-(b))
+</span>L0535    <a name="luai_nummul"/a><span class="prepro">#define luai_nummul(a,b)	((a)*(b))
+</span>L0536    <a name="luai_numdiv"/a><span class="prepro">#define luai_numdiv(a,b)	((a)/(b))
+</span>L0537    <a name="luai_nummod"/a><span class="prepro">#define luai_nummod(a,b)	((a) - floor((a)/(b))*(b))
+</span>L0538    <a name="luai_numpow"/a><span class="prepro">#define luai_numpow(a,b)	(pow(a,b))
+</span>L0539    <a name="luai_numunm"/a><span class="prepro">#define luai_numunm(a)		(-(a))
+</span>L0540    <a name="luai_numeq"/a><span class="prepro">#define luai_numeq(a,b)		((a)==(b))
+</span>L0541    <a name="luai_numlt"/a><span class="prepro">#define luai_numlt(a,b)		((a)&lt;(b))
+</span>L0542    <a name="luai_numle"/a><span class="prepro">#define luai_numle(a,b)		((a)&lt;=(b))
+</span>L0543    <a name="luai_numisnan"/a><span class="prepro">#define luai_numisnan(a)	(!luai_numeq((a), (a)))
+</span>L0544    <span class="prepro">#endif
+</span>L0545    
+L0546    
+L0547    <span class="comment">/*
+L0548    @@ lua_number2int is a macro to convert lua_Number to int.
+L0549    @@ lua_number2integer is a macro to convert lua_Number to lua_Integer.
+L0550    ** CHANGE them if you know a faster way to convert a lua_Number to
+L0551    ** int (with any rounding method and without throwing errors) in your
+L0552    ** system. In Pentium machines, a naive typecast from double to int
+L0553    ** in C is extremely slow, so any alternative is worth trying.
+L0554    */</span>
+L0555    
+L0556    <span class="comment">/* On a Pentium, resort to a trick */</span>
+L0557    <span class="prepro">#if defined(LUA_NUMBER_DOUBLE) &amp;&amp; !defined(LUA_ANSI) &amp;&amp; !defined(__SSE2__) &amp;&amp; \
+L0558        (defined(__i386) || defined (_M_IX86) || defined(__i386__))
+</span>L0559    
+L0560    <span class="comment">/* On a Microsoft compiler, use assembler */</span>
+L0561    <span class="prepro">#if defined(_MSC_VER)
+</span>L0562    
+L0563    <a name="lua_number2int"/a><span class="prepro">#define lua_number2int(i,d)   __asm fld d   __asm fistp i
+</span>L0564    <a name="lua_number2integer"/a><span class="prepro">#define lua_number2integer(i,n)		lua_number2int(i, n)
+</span>L0565    
+L0566    <span class="comment">/* the next trick should work on any Pentium, but sometimes clashes
+L0567       with a DirectX idiosyncrasy */</span>
+L0568    <span class="prepro">#else
+</span>L0569    
+L0570    union <a name="luai_Cast"/a><a class="L" href="luaconf.h.ref.html#luai_Cast">luai_Cast</a> { <span class="keyword">double</span> <a name="l_d"/a><a class="L" href="luaconf.h.ref.html#l_d">l_d</a>; <span class="keyword">long</span> <a name="l_l"/a><a class="L" href="luaconf.h.ref.html#l_l">l_l</a>; };
+L0571    <a name="lua_number2int"/a><span class="prepro">#define lua_number2int(i,d) \
+L0572      { volatile union luai_Cast u; u.l_d = (d) + 6755399441055744.0; (i) = u.l_l; }
+</span>L0573    <a name="lua_number2integer"/a><span class="prepro">#define lua_number2integer(i,n)		lua_number2int(i, n)
+</span>L0574    
+L0575    <span class="prepro">#endif
+</span>L0576    
+L0577    
+L0578    <span class="comment">/* this option always works, but may be slow */</span>
+L0579    <span class="prepro">#else
+</span>L0580    <a name="lua_number2int"/a><span class="prepro">#define lua_number2int(i,d)	((i)=(int)(d))
+</span>L0581    <a name="lua_number2integer"/a><span class="prepro">#define lua_number2integer(i,d)	((i)=(lua_Integer)(d))
+</span>L0582    
+L0583    <span class="prepro">#endif
+</span>L0584    
+L0585    <span class="comment">/* }================================================================== */</span>
+L0586    
+L0587    
+L0588    <span class="comment">/*
+L0589    @@ LUAI_USER_ALIGNMENT_T is a type that requires maximum alignment.
+L0590    ** CHANGE it if your system requires alignments larger than double. (For
+L0591    ** instance, if your system supports long doubles and they must be
+L0592    ** aligned in 16-byte boundaries, then you should add long double in the
+L0593    ** union.) Probably you do not need to change this.
+L0594    */</span>
+L0595    <a name="LUAI_USER_ALIGNMENT_T"/a><span class="prepro">#define LUAI_USER_ALIGNMENT_T	union { double u; void *s; long l; }
+</span>L0596    
+L0597    
+L0598    <span class="comment">/*
+L0599    @@ LUAI_THROW/LUAI_TRY define how Lua does exception handling.
+L0600    ** CHANGE them if you prefer to use longjmp/setjmp even with C++
+L0601    ** or if want/don't to use _longjmp/_setjmp instead of regular
+L0602    ** longjmp/setjmp. By default, Lua handles errors with exceptions when
+L0603    ** compiling as C++ code, with _longjmp/_setjmp when asked to use them,
+L0604    ** and with longjmp/setjmp otherwise.
+L0605    */</span>
+L0606    <span class="prepro">#if defined(__cplusplus)
+</span>L0607    <span class="comment">/* C++ exceptions */</span>
+L0608    <a name="LUAI_THROW"/a><span class="prepro">#define LUAI_THROW(L,c)	throw(c)
+</span>L0609    <a name="LUAI_TRY"/a><span class="prepro">#define LUAI_TRY(L,c,a)	try { a } catch(...) \
+L0610    	{ if ((c)-&gt;status == 0) (c)-&gt;status = -1; }
+</span>L0611    <a name="luai_jmpbuf"/a><span class="prepro">#define luai_jmpbuf	int  /* dummy variable */
+</span>L0612    
+L0613    <span class="prepro">#elif defined(LUA_USE_ULONGJMP)
+</span>L0614    <span class="comment">/* in Unix, try _longjmp/_setjmp (more efficient) */</span>
+L0615    <a name="LUAI_THROW"/a><span class="prepro">#define LUAI_THROW(L,c)	_longjmp((c)-&gt;b, 1)
+</span>L0616    <a name="LUAI_TRY"/a><span class="prepro">#define LUAI_TRY(L,c,a)	if (_setjmp((c)-&gt;b) == 0) { a }
+</span>L0617    <a name="luai_jmpbuf"/a><span class="prepro">#define luai_jmpbuf	jmp_buf
+</span>L0618    
+L0619    <span class="prepro">#else
+</span>L0620    <span class="comment">/* default handling with long jumps */</span>
+L0621    <a name="LUAI_THROW"/a><span class="prepro">#define LUAI_THROW(L,c)	longjmp((c)-&gt;b, 1)
+</span>L0622    <a name="LUAI_TRY"/a><span class="prepro">#define LUAI_TRY(L,c,a)	if (setjmp((c)-&gt;b) == 0) { a }
+</span>L0623    <a name="luai_jmpbuf"/a><span class="prepro">#define luai_jmpbuf	jmp_buf
+</span>L0624    
+L0625    <span class="prepro">#endif
+</span>L0626    
+L0627    
+L0628    <span class="comment">/*
+L0629    @@ LUA_MAXCAPTURES is the maximum number of captures that a pattern
+L0630    @* can do during pattern-matching.
+L0631    ** CHANGE it if you need more captures. This limit is arbitrary.
+L0632    */</span>
+L0633    <a name="LUA_MAXCAPTURES"/a><span class="prepro">#define LUA_MAXCAPTURES		32
+</span>L0634    
+L0635    
+L0636    <span class="comment">/*
+L0637    @@ lua_tmpnam is the function that the OS library uses to create a
+L0638    @* temporary name.
+L0639    @@ LUA_TMPNAMBUFSIZE is the maximum size of a name created by lua_tmpnam.
+L0640    ** CHANGE them if you have an alternative to tmpnam (which is considered
+L0641    ** insecure) or if you want the original tmpnam anyway.  By default, Lua
+L0642    ** uses tmpnam except when POSIX is available, where it uses mkstemp.
+L0643    */</span>
+L0644    <span class="prepro">#if defined(loslib_c) || defined(luaall_c)
+</span>L0645    
+L0646    <span class="prepro">#if defined(LUA_USE_MKSTEMP)
+</span>L0647    <span class="prepro">#include &lt;unistd.h&gt;
+</span>L0648    <a name="LUA_TMPNAMBUFSIZE"/a><span class="prepro">#define LUA_TMPNAMBUFSIZE	32
+</span>L0649    <a name="lua_tmpnam"/a><span class="prepro">#define lua_tmpnam(b,e)	{ \
+L0650    	strcpy(b, "/tmp/lua_XXXXXX"); \
+L0651    	e = mkstemp(b); \
+L0652    	if (e != -1) close(e); \
+L0653    	e = (e == -1); }
+</span>L0654    
+L0655    <span class="prepro">#else
+</span>L0656    <a name="LUA_TMPNAMBUFSIZE"/a><span class="prepro">#define LUA_TMPNAMBUFSIZE	L_tmpnam
+</span>L0657    <a name="lua_tmpnam"/a><span class="prepro">#define lua_tmpnam(b,e)		{ e = (tmpnam(b) == NULL); }
+</span>L0658    <span class="prepro">#endif
+</span>L0659    
+L0660    <span class="prepro">#endif
+</span>L0661    
+L0662    
+L0663    <span class="comment">/*
+L0664    @@ lua_popen spawns a new process connected to the current one through
+L0665    @* the file streams.
+L0666    ** CHANGE it if you have a way to implement it in your system.
+L0667    */</span>
+L0668    <span class="prepro">#if defined(LUA_USE_POPEN)
+</span>L0669    
+L0670    <a name="lua_popen"/a><span class="prepro">#define lua_popen(L,c,m)	((void)L, fflush(NULL), popen(c,m))
+</span>L0671    <a name="lua_pclose"/a><span class="prepro">#define lua_pclose(L,file)	((void)L, (pclose(file) != -1))
+</span>L0672    
+L0673    <span class="prepro">#elif defined(LUA_WIN)
+</span>L0674    
+L0675    <a name="lua_popen"/a><span class="prepro">#define lua_popen(L,c,m)	((void)L, _popen(c,m))
+</span>L0676    <a name="lua_pclose"/a><span class="prepro">#define lua_pclose(L,file)	((void)L, (_pclose(file) != -1))
+</span>L0677    
+L0678    <span class="prepro">#else
+</span>L0679    
+L0680    <a name="lua_popen"/a><span class="prepro">#define lua_popen(L,c,m)	((void)((void)c, m),  \
+L0681    		luaL_error(L, LUA_QL("popen") " not supported"), (FILE*)0)
+</span>L0682    <a name="lua_pclose"/a><span class="prepro">#define lua_pclose(L,file)		((void)((void)L, file), 0)
+</span>L0683    
+L0684    <span class="prepro">#endif
+</span>L0685    
+L0686    <span class="comment">/*
+L0687    @@ LUA_DL_* define which dynamic-library system Lua should use.
+L0688    ** CHANGE here if Lua has problems choosing the appropriate
+L0689    ** dynamic-library system for your platform (either Windows' DLL, Mac's
+L0690    ** dyld, or Unix's dlopen). If your system is some kind of Unix, there
+L0691    ** is a good chance that it has dlopen, so LUA_DL_DLOPEN will work for
+L0692    ** it.  To use dlopen you also need to adapt the src/Makefile (probably
+L0693    ** adding -ldl to the linker options), so Lua does not select it
+L0694    ** automatically.  (When you change the makefile to add -ldl, you must
+L0695    ** also add -DLUA_USE_DLOPEN.)
+L0696    ** If you do not want any kind of dynamic library, undefine all these
+L0697    ** options.
+L0698    ** By default, _WIN32 gets LUA_DL_DLL and MAC OS X gets LUA_DL_DYLD.
+L0699    */</span>
+L0700    <span class="prepro">#if defined(LUA_USE_DLOPEN)
+</span>L0701    <a name="LUA_DL_DLOPEN"/a><span class="prepro">#define LUA_DL_DLOPEN
+</span>L0702    <span class="prepro">#endif
+</span>L0703    
+L0704    <span class="prepro">#if defined(LUA_WIN)
+</span>L0705    <a name="LUA_DL_DLL"/a><span class="prepro">#define LUA_DL_DLL
+</span>L0706    <span class="prepro">#endif
+</span>L0707    
+L0708    
+L0709    <span class="comment">/*
+L0710    @@ LUAI_EXTRASPACE allows you to add user-specific data in a lua_State
+L0711    @* (the data goes just *before* the lua_State pointer).
+L0712    ** CHANGE (define) this if you really need that. This value must be
+L0713    ** a multiple of the maximum alignment required for your machine.
+L0714    */</span>
+L0715    <a name="LUAI_EXTRASPACE"/a><span class="prepro">#define LUAI_EXTRASPACE		0
+</span>L0716    
+L0717    
+L0718    <span class="comment">/*
+L0719    @@ luai_userstate* allow user-specific actions on threads.
+L0720    ** CHANGE them if you defined LUAI_EXTRASPACE and need to do something
+L0721    ** extra when a thread is created/deleted/resumed/yielded.
+L0722    */</span>
+L0723    <a name="luai_userstateopen"/a><span class="prepro">#define luai_userstateopen(L)		((void)L)
+</span>L0724    <a name="luai_userstateclose"/a><span class="prepro">#define luai_userstateclose(L)		((void)L)
+</span>L0725    <a name="luai_userstatethread"/a><span class="prepro">#define luai_userstatethread(L,L1)	((void)L)
+</span>L0726    <a name="luai_userstatefree"/a><span class="prepro">#define luai_userstatefree(L)		((void)L)
+</span>L0727    <a name="luai_userstateresume"/a><span class="prepro">#define luai_userstateresume(L,n)	((void)L)
+</span>L0728    <a name="luai_userstateyield"/a><span class="prepro">#define luai_userstateyield(L,n)	((void)L)
+</span>L0729    
+L0730    
+L0731    <span class="comment">/*
+L0732    @@ LUA_INTFRMLEN is the length modifier for integer conversions
+L0733    @* in 'string.format'.
+L0734    @@ LUA_INTFRM_T is the integer type correspoding to the previous length
+L0735    @* modifier.
+L0736    ** CHANGE them if your system supports long long or does not support long.
+L0737    */</span>
+L0738    
+L0739    <span class="prepro">#if defined(LUA_USELONGLONG)
+</span>L0740    
+L0741    <a name="LUA_INTFRMLEN"/a><span class="prepro">#define LUA_INTFRMLEN		"ll"
+</span>L0742    <a name="LUA_INTFRM_T"/a><span class="prepro">#define LUA_INTFRM_T		long long
+</span>L0743    
+L0744    <span class="prepro">#else
+</span>L0745    
+L0746    <a name="LUA_INTFRMLEN"/a><span class="prepro">#define LUA_INTFRMLEN		"l"
+</span>L0747    <a name="LUA_INTFRM_T"/a><span class="prepro">#define LUA_INTFRM_T		long
+</span>L0748    
+L0749    <span class="prepro">#endif
+</span>L0750    
+L0751    
+L0752    
+L0753    <span class="comment">/* =================================================================== */</span>
+L0754    
+L0755    <span class="comment">/*
+L0756    ** Local configuration. You can use this space to add your redefinitions
+L0757    ** without modifying the main part of the file.
+L0758    */</span>
+L0759    
+L0760    
+L0761    
+L0762    <span class="prepro">#endif
+</span>L0763    
+</pre>
+<hr/>
+Generated by <a href="pretty.lua.html">pretty.lua</html>
+</body></html>

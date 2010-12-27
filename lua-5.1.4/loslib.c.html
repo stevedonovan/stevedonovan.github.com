@@ -1,0 +1,264 @@
+<html>
+<head>
+<style>
+a.L { text-decoration: none; }
+a.L:hover { color: #FFAAAA; }
+body { margin-top: 20px; margin-left: 30px; }
+.lno { font-weight: bold: color #000; }
+.keyword {font-weight: bold; color: #6666AA; }
+.number  { color: #AA6666; }
+.string  { color: #8888AA; }
+.comment { color: #666600; }
+.prepro { color: #006666; } 
+</style>
+<body>
+<h1>Lua 5.1.4: loslib.c</h1>
+<hr/>
+<pre>
+L0001    <span class="comment">/*
+L0002    ** $Id: loslib.c,v 1.19.1.3 2008/01/18 16:38:18 roberto Exp $
+L0003    ** Standard Operating System library
+L0004    ** See Copyright Notice in lua.h
+L0005    */</span>
+L0006    
+L0007    
+L0008    <span class="prepro">#include &lt;errno.h&gt;
+</span>L0009    <span class="prepro">#include &lt;locale.h&gt;
+</span>L0010    <span class="prepro">#include &lt;stdlib.h&gt;
+</span>L0011    <span class="prepro">#include &lt;string.h&gt;
+</span>L0012    <span class="prepro">#include &lt;time.h&gt;
+</span>L0013    
+L0014    <a name="loslib_c"/a><span class="prepro">#define loslib_c
+</span>L0015    <a name="LUA_LIB"/a><span class="prepro">#define LUA_LIB
+</span>L0016    
+L0017    <span class="prepro"><a class="L" href="lua.h.html#">#include "lua.h"
+</a></span>L0018    
+L0019    <span class="prepro"><a class="L" href="lauxlib.h.html#">#include "lauxlib.h"
+</a></span>L0020    <span class="prepro"><a class="L" href="lualib.h.html#">#include "lualib.h"
+</a></span>L0021    
+L0022    
+L0023    <span class="keyword">static</span> <span class="keyword">int</span> <a name="os_pushresult"/a><a class="L" href="loslib.c.ref.html#os_pushresult">os_pushresult</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> i, <span class="keyword">const</span> <span class="keyword">char</span> *filename) {
+L0024      <span class="keyword">int</span> en = errno;  <span class="comment">/* calls to Lua API may change this value */</span>
+L0025      <span class="keyword">if</span> (i) {
+L0026        <a class="L" href="lapi.c.html#lua_pushboolean">lua_pushboolean</a>(L, <span class="number">1</span>);
+L0027        <span class="keyword">return</span> <span class="number">1</span>;
+L0028      }
+L0029      <span class="keyword">else</span> {
+L0030        <a class="L" href="lapi.c.html#lua_pushnil">lua_pushnil</a>(L);
+L0031        <a class="L" href="lapi.c.html#lua_pushfstring">lua_pushfstring</a>(L, <span class="string">"%s: %s"</span>, filename, strerror(en));
+L0032        <a class="L" href="lapi.c.html#lua_pushinteger">lua_pushinteger</a>(L, en);
+L0033        <span class="keyword">return</span> <span class="number">3</span>;
+L0034      }
+L0035    }
+L0036    
+L0037    
+L0038    <span class="keyword">static</span> <span class="keyword">int</span> <a name="os_execute"/a><a class="L" href="loslib.c.ref.html#os_execute">os_execute</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0039      <a class="L" href="lapi.c.html#lua_pushinteger">lua_pushinteger</a>(L, system(<a class="L" href="lauxlib.h.html#luaL_optstring">luaL_optstring</a>(L, <span class="number">1</span>, NULL)));
+L0040      <span class="keyword">return</span> <span class="number">1</span>;
+L0041    }
+L0042    
+L0043    
+L0044    <span class="keyword">static</span> <span class="keyword">int</span> <a name="os_remove"/a><a class="L" href="loslib.c.ref.html#os_remove">os_remove</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0045      <span class="keyword">const</span> <span class="keyword">char</span> *filename = <a class="L" href="lauxlib.h.html#luaL_checkstring">luaL_checkstring</a>(L, <span class="number">1</span>);
+L0046      <span class="keyword">return</span> <a class="L" href="loslib.c.html#os_pushresult">os_pushresult</a>(L, remove(filename) == <span class="number">0</span>, filename);
+L0047    }
+L0048    
+L0049    
+L0050    <span class="keyword">static</span> <span class="keyword">int</span> <a name="os_rename"/a><a class="L" href="loslib.c.ref.html#os_rename">os_rename</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0051      <span class="keyword">const</span> <span class="keyword">char</span> *fromname = <a class="L" href="lauxlib.h.html#luaL_checkstring">luaL_checkstring</a>(L, <span class="number">1</span>);
+L0052      <span class="keyword">const</span> <span class="keyword">char</span> *toname = <a class="L" href="lauxlib.h.html#luaL_checkstring">luaL_checkstring</a>(L, <span class="number">2</span>);
+L0053      <span class="keyword">return</span> <a class="L" href="loslib.c.html#os_pushresult">os_pushresult</a>(L, rename(fromname, toname) == <span class="number">0</span>, fromname);
+L0054    }
+L0055    
+L0056    
+L0057    <span class="keyword">static</span> <span class="keyword">int</span> <a name="os_tmpname"/a><a class="L" href="loslib.c.ref.html#os_tmpname">os_tmpname</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0058      <span class="keyword">char</span> buff[<a class="L" href="luaconf.h.html#LUA_TMPNAMBUFSIZE">LUA_TMPNAMBUFSIZE</a>];
+L0059      <span class="keyword">int</span> err;
+L0060      <a class="L" href="luaconf.h.html#lua_tmpnam">lua_tmpnam</a>(buff, err);
+L0061      <span class="keyword">if</span> (err)
+L0062        <span class="keyword">return</span> <a class="L" href="lauxlib.c.html#luaL_error">luaL_error</a>(L, <span class="string">"unable to generate a unique filename"</span>);
+L0063      <a class="L" href="lapi.c.html#lua_pushstring">lua_pushstring</a>(L, buff);
+L0064      <span class="keyword">return</span> <span class="number">1</span>;
+L0065    }
+L0066    
+L0067    
+L0068    <span class="keyword">static</span> <span class="keyword">int</span> <a name="os_getenv"/a><a class="L" href="loslib.c.ref.html#os_getenv">os_getenv</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0069      <a class="L" href="lapi.c.html#lua_pushstring">lua_pushstring</a>(L, getenv(<a class="L" href="lauxlib.h.html#luaL_checkstring">luaL_checkstring</a>(L, <span class="number">1</span>)));  <span class="comment">/* if NULL push nil */</span>
+L0070      <span class="keyword">return</span> <span class="number">1</span>;
+L0071    }
+L0072    
+L0073    
+L0074    <span class="keyword">static</span> <span class="keyword">int</span> <a name="os_clock"/a><a class="L" href="loslib.c.ref.html#os_clock">os_clock</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0075      <a class="L" href="lapi.c.html#lua_pushnumber">lua_pushnumber</a>(L, ((<a class="L" href="lua.h.html#lua_Number">lua_Number</a>)clock())/(<a class="L" href="lua.h.html#lua_Number">lua_Number</a>)CLOCKS_PER_SEC);
+L0076      <span class="keyword">return</span> <span class="number">1</span>;
+L0077    }
+L0078    
+L0079    
+L0080    <span class="comment">/*
+L0081    ** {======================================================
+L0082    ** Time/Date operations
+L0083    ** { year=%Y, month=%m, day=%d, hour=%H, min=%M, sec=%S,
+L0084    **   wday=%w+1, yday=%j, isdst=? }
+L0085    ** =======================================================
+L0086    */</span>
+L0087    
+L0088    <span class="keyword">static</span> <span class="keyword">void</span> <a name="setfield"/a><a class="L" href="loslib.c.ref.html#setfield">setfield</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <span class="keyword">char</span> *key, <span class="keyword">int</span> value) {
+L0089      <a class="L" href="lapi.c.html#lua_pushinteger">lua_pushinteger</a>(L, value);
+L0090      <a class="L" href="lapi.c.html#lua_setfield">lua_setfield</a>(L, <span class="number">-2</span>, key);
+L0091    }
+L0092    
+L0093    <span class="keyword">static</span> <span class="keyword">void</span> <a name="setboolfield"/a><a class="L" href="loslib.c.ref.html#setboolfield">setboolfield</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <span class="keyword">char</span> *key, <span class="keyword">int</span> value) {
+L0094      <span class="keyword">if</span> (value &lt; <span class="number">0</span>)  <span class="comment">/* undefined? */</span>
+L0095        <span class="keyword">return</span>;  <span class="comment">/* does not set field */</span>
+L0096      <a class="L" href="lapi.c.html#lua_pushboolean">lua_pushboolean</a>(L, value);
+L0097      <a class="L" href="lapi.c.html#lua_setfield">lua_setfield</a>(L, <span class="number">-2</span>, key);
+L0098    }
+L0099    
+L0100    <span class="keyword">static</span> <span class="keyword">int</span> <a name="getboolfield"/a><a class="L" href="loslib.c.ref.html#getboolfield">getboolfield</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <span class="keyword">char</span> *key) {
+L0101      <span class="keyword">int</span> res;
+L0102      <a class="L" href="lapi.c.html#lua_getfield">lua_getfield</a>(L, <span class="number">-1</span>, key);
+L0103      res = <a class="L" href="lua.h.html#lua_isnil">lua_isnil</a>(L, <span class="number">-1</span>) ? <span class="number">-1</span> : <a class="L" href="lapi.c.html#lua_toboolean">lua_toboolean</a>(L, <span class="number">-1</span>);
+L0104      <a class="L" href="lua.h.html#lua_pop">lua_pop</a>(L, <span class="number">1</span>);
+L0105      <span class="keyword">return</span> res;
+L0106    }
+L0107    
+L0108    
+L0109    <span class="keyword">static</span> <span class="keyword">int</span> <a name="getfield"/a><a class="L" href="loslib.c.ref.html#getfield">getfield</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <span class="keyword">char</span> *key, <span class="keyword">int</span> d) {
+L0110      <span class="keyword">int</span> res;
+L0111      <a class="L" href="lapi.c.html#lua_getfield">lua_getfield</a>(L, <span class="number">-1</span>, key);
+L0112      <span class="keyword">if</span> (<a class="L" href="lapi.c.html#lua_isnumber">lua_isnumber</a>(L, <span class="number">-1</span>))
+L0113        res = (<span class="keyword">int</span>)<a class="L" href="lapi.c.html#lua_tointeger">lua_tointeger</a>(L, <span class="number">-1</span>);
+L0114      <span class="keyword">else</span> {
+L0115        <span class="keyword">if</span> (d &lt; <span class="number">0</span>)
+L0116          <span class="keyword">return</span> <a class="L" href="lauxlib.c.html#luaL_error">luaL_error</a>(L, <span class="string">"field "</span> <a class="L" href="luaconf.h.html#LUA_QS">LUA_QS</a> <span class="string">" missing in date table"</span>, key);
+L0117        res = d;
+L0118      }
+L0119      <a class="L" href="lua.h.html#lua_pop">lua_pop</a>(L, <span class="number">1</span>);
+L0120      <span class="keyword">return</span> res;
+L0121    }
+L0122    
+L0123    
+L0124    <span class="keyword">static</span> <span class="keyword">int</span> <a name="os_date"/a><a class="L" href="loslib.c.ref.html#os_date">os_date</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0125      <span class="keyword">const</span> <span class="keyword">char</span> *s = <a class="L" href="lauxlib.h.html#luaL_optstring">luaL_optstring</a>(L, <span class="number">1</span>, <span class="string">"%c"</span>);
+L0126      time_t t = <a class="L" href="lauxlib.h.html#luaL_opt">luaL_opt</a>(L, (time_t)<a class="L" href="lauxlib.c.html#luaL_checknumber">luaL_checknumber</a>, <span class="number">2</span>, time(NULL));
+L0127      <span class="keyword">struct</span> tm *stm;
+L0128      <span class="keyword">if</span> (*s == '!') {  <span class="comment">/* UTC? */</span>
+L0129        stm = gmtime(&amp;t);
+L0130        s++;  <span class="comment">/* skip `!' */</span>
+L0131      }
+L0132      <span class="keyword">else</span>
+L0133        stm = localtime(&amp;t);
+L0134      <span class="keyword">if</span> (stm == NULL)  <span class="comment">/* invalid date? */</span>
+L0135        <a class="L" href="lapi.c.html#lua_pushnil">lua_pushnil</a>(L);
+L0136      <span class="keyword">else</span> <span class="keyword">if</span> (strcmp(s, <span class="string">"*t"</span>) == <span class="number">0</span>) {
+L0137        <a class="L" href="lapi.c.html#lua_createtable">lua_createtable</a>(L, <span class="number">0</span>, <span class="number">9</span>);  <span class="comment">/* 9 = number of fields */</span>
+L0138        <a class="L" href="loslib.c.html#setfield">setfield</a>(L, <span class="string">"sec"</span>, stm-&gt;tm_sec);
+L0139        <a class="L" href="loslib.c.html#setfield">setfield</a>(L, <span class="string">"min"</span>, stm-&gt;tm_min);
+L0140        <a class="L" href="loslib.c.html#setfield">setfield</a>(L, <span class="string">"hour"</span>, stm-&gt;tm_hour);
+L0141        <a class="L" href="loslib.c.html#setfield">setfield</a>(L, <span class="string">"day"</span>, stm-&gt;tm_mday);
+L0142        <a class="L" href="loslib.c.html#setfield">setfield</a>(L, <span class="string">"month"</span>, stm-&gt;tm_mon<span class="number">+1</span>);
+L0143        <a class="L" href="loslib.c.html#setfield">setfield</a>(L, <span class="string">"year"</span>, stm-&gt;tm_year<span class="number">+1900</span>);
+L0144        <a class="L" href="loslib.c.html#setfield">setfield</a>(L, <span class="string">"wday"</span>, stm-&gt;tm_wday<span class="number">+1</span>);
+L0145        <a class="L" href="loslib.c.html#setfield">setfield</a>(L, <span class="string">"yday"</span>, stm-&gt;tm_yday<span class="number">+1</span>);
+L0146        <a class="L" href="loslib.c.html#setboolfield">setboolfield</a>(L, <span class="string">"isdst"</span>, stm-&gt;tm_isdst);
+L0147      }
+L0148      <span class="keyword">else</span> {
+L0149        <span class="keyword">char</span> cc[<span class="number">3</span>];
+L0150        <a class="L" href="lauxlib.h.html#luaL_Buffer">luaL_Buffer</a> b;
+L0151        cc[<span class="number">0</span>] = '%'; cc[<span class="number">2</span>] = '\0';
+L0152        <a class="L" href="lauxlib.c.html#luaL_buffinit">luaL_buffinit</a>(L, &amp;b);
+L0153        <span class="keyword">for</span> (; *s; s++) {
+L0154          <span class="keyword">if</span> (*s != '%' || *(s + <span class="number">1</span>) == '\0')  <span class="comment">/* no conversion specifier? */</span>
+L0155            <a class="L" href="lauxlib.h.html#luaL_addchar">luaL_addchar</a>(&amp;b, *s);
+L0156          <span class="keyword">else</span> {
+L0157            size_t reslen;
+L0158            <span class="keyword">char</span> buff[<span class="number">200</span>];  <span class="comment">/* should be big enough for any conversion result */</span>
+L0159            cc[<span class="number">1</span>] = *(++s);
+L0160            reslen = strftime(buff, <span class="keyword">sizeof</span>(buff), cc, stm);
+L0161            <a class="L" href="lauxlib.c.html#luaL_addlstring">luaL_addlstring</a>(&amp;b, buff, reslen);
+L0162          }
+L0163        }
+L0164        <a class="L" href="lauxlib.c.html#luaL_pushresult">luaL_pushresult</a>(&amp;b);
+L0165      }
+L0166      <span class="keyword">return</span> <span class="number">1</span>;
+L0167    }
+L0168    
+L0169    
+L0170    <span class="keyword">static</span> <span class="keyword">int</span> <a name="os_time"/a><a class="L" href="loslib.c.ref.html#os_time">os_time</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0171      time_t t;
+L0172      <span class="keyword">if</span> (<a class="L" href="lua.h.html#lua_isnoneornil">lua_isnoneornil</a>(L, <span class="number">1</span>))  <span class="comment">/* called without args? */</span>
+L0173        t = time(NULL);  <span class="comment">/* get current time */</span>
+L0174      <span class="keyword">else</span> {
+L0175        <span class="keyword">struct</span> tm ts;
+L0176        <a class="L" href="lauxlib.c.html#luaL_checktype">luaL_checktype</a>(L, <span class="number">1</span>, <a class="L" href="lua.h.html#LUA_TTABLE">LUA_TTABLE</a>);
+L0177        <a class="L" href="lapi.c.html#lua_settop">lua_settop</a>(L, <span class="number">1</span>);  <span class="comment">/* make sure table is at the top */</span>
+L0178        ts.tm_sec = <a class="L" href="loslib.c.html#getfield">getfield</a>(L, <span class="string">"sec"</span>, <span class="number">0</span>);
+L0179        ts.tm_min = <a class="L" href="loslib.c.html#getfield">getfield</a>(L, <span class="string">"min"</span>, <span class="number">0</span>);
+L0180        ts.tm_hour = <a class="L" href="loslib.c.html#getfield">getfield</a>(L, <span class="string">"hour"</span>, <span class="number">12</span>);
+L0181        ts.tm_mday = <a class="L" href="loslib.c.html#getfield">getfield</a>(L, <span class="string">"day"</span>, <span class="number">-1</span>);
+L0182        ts.tm_mon = <a class="L" href="loslib.c.html#getfield">getfield</a>(L, <span class="string">"month"</span>, <span class="number">-1</span>) - <span class="number">1</span>;
+L0183        ts.tm_year = <a class="L" href="loslib.c.html#getfield">getfield</a>(L, <span class="string">"year"</span>, <span class="number">-1</span>) - <span class="number">1900</span>;
+L0184        ts.tm_isdst = <a class="L" href="loslib.c.html#getboolfield">getboolfield</a>(L, <span class="string">"isdst"</span>);
+L0185        t = mktime(&amp;ts);
+L0186      }
+L0187      <span class="keyword">if</span> (t == (time_t)(<span class="number">-1</span>))
+L0188        <a class="L" href="lapi.c.html#lua_pushnil">lua_pushnil</a>(L);
+L0189      <span class="keyword">else</span>
+L0190        <a class="L" href="lapi.c.html#lua_pushnumber">lua_pushnumber</a>(L, (<a class="L" href="lua.h.html#lua_Number">lua_Number</a>)t);
+L0191      <span class="keyword">return</span> <span class="number">1</span>;
+L0192    }
+L0193    
+L0194    
+L0195    <span class="keyword">static</span> <span class="keyword">int</span> <a name="os_difftime"/a><a class="L" href="loslib.c.ref.html#os_difftime">os_difftime</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0196      <a class="L" href="lapi.c.html#lua_pushnumber">lua_pushnumber</a>(L, difftime((time_t)(<a class="L" href="lauxlib.c.html#luaL_checknumber">luaL_checknumber</a>(L, <span class="number">1</span>)),
+L0197                                 (time_t)(<a class="L" href="lauxlib.c.html#luaL_optnumber">luaL_optnumber</a>(L, <span class="number">2</span>, <span class="number">0</span>))));
+L0198      <span class="keyword">return</span> <span class="number">1</span>;
+L0199    }
+L0200    
+L0201    <span class="comment">/* }====================================================== */</span>
+L0202    
+L0203    
+L0204    <span class="keyword">static</span> <span class="keyword">int</span> <a name="os_setlocale"/a><a class="L" href="loslib.c.ref.html#os_setlocale">os_setlocale</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0205      <span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">int</span> cat[] = {LC_ALL, LC_COLLATE, LC_CTYPE, LC_MONETARY,
+L0206                          LC_NUMERIC, LC_TIME};
+L0207      <span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">char</span> *<span class="keyword">const</span> catnames[] = {<span class="string">"all"</span>, <span class="string">"collate"</span>, <span class="string">"ctype"</span>, <span class="string">"monetary"</span>,
+L0208         <span class="string">"numeric"</span>, <span class="string">"time"</span>, NULL};
+L0209      <span class="keyword">const</span> <span class="keyword">char</span> *l = <a class="L" href="lauxlib.h.html#luaL_optstring">luaL_optstring</a>(L, <span class="number">1</span>, NULL);
+L0210      <span class="keyword">int</span> op = <a class="L" href="lauxlib.c.html#luaL_checkoption">luaL_checkoption</a>(L, <span class="number">2</span>, <span class="string">"all"</span>, catnames);
+L0211      <a class="L" href="lapi.c.html#lua_pushstring">lua_pushstring</a>(L, setlocale(cat[op], l));
+L0212      <span class="keyword">return</span> <span class="number">1</span>;
+L0213    }
+L0214    
+L0215    
+L0216    <span class="keyword">static</span> <span class="keyword">int</span> <a name="os_exit"/a><a class="L" href="loslib.c.ref.html#os_exit">os_exit</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0217      exit(<a class="L" href="lauxlib.h.html#luaL_optint">luaL_optint</a>(L, <span class="number">1</span>, EXIT_SUCCESS));
+L0218    }
+L0219    
+L0220    <span class="keyword">static</span> <span class="keyword">const</span> <a class="L" href="lauxlib.h.html#luaL_Reg">luaL_Reg</a> <a name="syslib"/a><a class="L" href="loslib.c.ref.html#syslib">syslib</a>[] = {
+L0221      {<span class="string">"clock"</span>,     <a class="L" href="loslib.c.html#os_clock">os_clock</a>},
+L0222      {<span class="string">"date"</span>,      <a class="L" href="loslib.c.html#os_date">os_date</a>},
+L0223      {<span class="string">"difftime"</span>,  <a class="L" href="loslib.c.html#os_difftime">os_difftime</a>},
+L0224      {<span class="string">"execute"</span>,   <a class="L" href="loslib.c.html#os_execute">os_execute</a>},
+L0225      {<span class="string">"exit"</span>,      <a class="L" href="loslib.c.html#os_exit">os_exit</a>},
+L0226      {<span class="string">"getenv"</span>,    <a class="L" href="loslib.c.html#os_getenv">os_getenv</a>},
+L0227      {<span class="string">"remove"</span>,    <a class="L" href="loslib.c.html#os_remove">os_remove</a>},
+L0228      {<span class="string">"rename"</span>,    <a class="L" href="loslib.c.html#os_rename">os_rename</a>},
+L0229      {<span class="string">"setlocale"</span>, <a class="L" href="loslib.c.html#os_setlocale">os_setlocale</a>},
+L0230      {<span class="string">"time"</span>,      <a class="L" href="loslib.c.html#os_time">os_time</a>},
+L0231      {<span class="string">"tmpname"</span>,   <a class="L" href="loslib.c.html#os_tmpname">os_tmpname</a>},
+L0232      {NULL, NULL}
+L0233    };
+L0234    
+L0235    <span class="comment">/* }====================================================== */</span>
+L0236    
+L0237    
+L0238    
+L0239    <a class="L" href="luaconf.h.html#LUALIB_API">LUALIB_API</a> <span class="keyword">int</span> <a name="luaopen_os"/a><a class="L" href="loslib.c.ref.html#luaopen_os">luaopen_os</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0240      <a class="L" href="lauxlib.c.html#luaL_register">luaL_register</a>(L, <a class="L" href="lualib.h.html#LUA_OSLIBNAME">LUA_OSLIBNAME</a>, <a class="L" href="loslib.c.html#syslib">syslib</a>);
+L0241      <span class="keyword">return</span> <span class="number">1</span>;
+L0242    }
+L0243    
+</pre>
+<hr/>
+Generated by <a href="pretty.lua.html">pretty.lua</html>
+</body></html>

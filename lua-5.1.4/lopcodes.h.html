@@ -1,0 +1,289 @@
+<html>
+<head>
+<style>
+a.L { text-decoration: none; }
+a.L:hover { color: #FFAAAA; }
+body { margin-top: 20px; margin-left: 30px; }
+.lno { font-weight: bold: color #000; }
+.keyword {font-weight: bold; color: #6666AA; }
+.number  { color: #AA6666; }
+.string  { color: #8888AA; }
+.comment { color: #666600; }
+.prepro { color: #006666; } 
+</style>
+<body>
+<h1>Lua 5.1.4: lopcodes.h</h1>
+<hr/>
+<pre>
+L0001    <span class="comment">/*
+L0002    ** $Id: lopcodes.h,v 1.125.1.1 2007/12/27 13:02:25 roberto Exp $
+L0003    ** Opcodes for Lua virtual machine
+L0004    ** See Copyright Notice in lua.h
+L0005    */</span>
+L0006    
+L0007    <span class="prepro">#ifndef lopcodes_h
+</span>L0008    <a name="lopcodes_h"/a><span class="prepro">#define lopcodes_h
+</span>L0009    
+L0010    <span class="prepro"><a class="L" href="llimits.h.html#">#include "llimits.h"
+</a></span>L0011    
+L0012    
+L0013    <span class="comment">/*===========================================================================
+L0014      We assume that instructions are unsigned numbers.
+L0015      All instructions have an opcode in the first 6 bits.
+L0016      Instructions can have the following fields:
+L0017    	`A' : 8 bits
+L0018    	`B' : 9 bits
+L0019    	`C' : 9 bits
+L0020    	`Bx' : 18 bits (`B' and `C' together)
+L0021    	`sBx' : signed Bx
+L0022    
+L0023      A signed argument is represented in excess K; that is, the number
+L0024      value is the unsigned value minus K. K is exactly the maximum value
+L0025      for that argument (so that -max is represented by 0, and +max is
+L0026      represented by 2*max), which is half the maximum for the corresponding
+L0027      unsigned argument.
+L0028    ===========================================================================*/</span>
+L0029    
+L0030    
+L0031    <span class="keyword">enum</span> <a name="OpMode"/a><a class="L" href="lopcodes.h.ref.html#OpMode">OpMode</a> {<a name="iABC"/a><a class="L" href="lopcodes.h.ref.html#iABC">iABC</a>, <a name="iABx"/a><a class="L" href="lopcodes.h.ref.html#iABx">iABx</a>, <a name="iAsBx"/a><a class="L" href="lopcodes.h.ref.html#iAsBx">iAsBx</a>};  <span class="comment">/* basic instruction format */</span>
+L0032    
+L0033    
+L0034    <span class="comment">/*
+L0035    ** size and position of opcode arguments.
+L0036    */</span>
+L0037    <a name="SIZE_C"/a><span class="prepro">#define SIZE_C		9
+</span>L0038    <a name="SIZE_B"/a><span class="prepro">#define SIZE_B		9
+</span>L0039    <a name="SIZE_Bx"/a><span class="prepro">#define SIZE_Bx		(SIZE_C + SIZE_B)
+</span>L0040    <a name="SIZE_A"/a><span class="prepro">#define SIZE_A		8
+</span>L0041    
+L0042    <a name="SIZE_OP"/a><span class="prepro">#define SIZE_OP		6
+</span>L0043    
+L0044    <a name="POS_OP"/a><span class="prepro">#define POS_OP		0
+</span>L0045    <a name="POS_A"/a><span class="prepro">#define POS_A		(POS_OP + SIZE_OP)
+</span>L0046    <a name="POS_C"/a><span class="prepro">#define POS_C		(POS_A + SIZE_A)
+</span>L0047    <a name="POS_B"/a><span class="prepro">#define POS_B		(POS_C + SIZE_C)
+</span>L0048    <a name="POS_Bx"/a><span class="prepro">#define POS_Bx		POS_C
+</span>L0049    
+L0050    
+L0051    <span class="comment">/*
+L0052    ** limits for opcode arguments.
+L0053    ** we use (signed) int to manipulate most arguments,
+L0054    ** so they must fit in LUAI_BITSINT-1 bits (-1 for sign)
+L0055    */</span>
+L0056    <span class="prepro">#if SIZE_Bx &lt; LUAI_BITSINT-1
+</span>L0057    <a name="MAXARG_Bx"/a><span class="prepro">#define MAXARG_Bx        ((1&lt;&lt;SIZE_Bx)-1)
+</span>L0058    <a name="MAXARG_sBx"/a><span class="prepro">#define MAXARG_sBx        (MAXARG_Bx&gt;&gt;1)         /* `sBx' is signed */
+</span>L0059    <span class="prepro">#else
+</span>L0060    <a name="MAXARG_Bx"/a><span class="prepro">#define MAXARG_Bx        MAX_INT
+</span>L0061    <a name="MAXARG_sBx"/a><span class="prepro">#define MAXARG_sBx        MAX_INT
+</span>L0062    <span class="prepro">#endif
+</span>L0063    
+L0064    
+L0065    <a name="MAXARG_A"/a><span class="prepro">#define MAXARG_A        ((1&lt;&lt;SIZE_A)-1)
+</span>L0066    <a name="MAXARG_B"/a><span class="prepro">#define MAXARG_B        ((1&lt;&lt;SIZE_B)-1)
+</span>L0067    <a name="MAXARG_C"/a><span class="prepro">#define MAXARG_C        ((1&lt;&lt;SIZE_C)-1)
+</span>L0068    
+L0069    
+L0070    <span class="comment">/* creates a mask with `n' 1 bits at position `p' */</span>
+L0071    <a name="MASK1"/a><span class="prepro">#define MASK1(n,p)	((~((~(Instruction)0)&lt;&lt;n))&lt;&lt;p)
+</span>L0072    
+L0073    <span class="comment">/* creates a mask with `n' 0 bits at position `p' */</span>
+L0074    <a name="MASK0"/a><span class="prepro">#define MASK0(n,p)	(~MASK1(n,p))
+</span>L0075    
+L0076    <span class="comment">/*
+L0077    ** the following macros help to manipulate instructions
+L0078    */</span>
+L0079    
+L0080    <a name="GET_OPCODE"/a><span class="prepro">#define GET_OPCODE(i)	(cast(OpCode, ((i)&gt;&gt;POS_OP) &amp; MASK1(SIZE_OP,0)))
+</span>L0081    <a name="SET_OPCODE"/a><span class="prepro">#define SET_OPCODE(i,o)	((i) = (((i)&amp;MASK0(SIZE_OP,POS_OP)) | \
+L0082    		((cast(Instruction, o)&lt;&lt;POS_OP)&amp;MASK1(SIZE_OP,POS_OP))))
+</span>L0083    
+L0084    <a name="GETARG_A"/a><span class="prepro">#define GETARG_A(i)	(cast(int, ((i)&gt;&gt;POS_A) &amp; MASK1(SIZE_A,0)))
+</span>L0085    <a name="SETARG_A"/a><span class="prepro">#define SETARG_A(i,u)	((i) = (((i)&amp;MASK0(SIZE_A,POS_A)) | \
+L0086    		((cast(Instruction, u)&lt;&lt;POS_A)&amp;MASK1(SIZE_A,POS_A))))
+</span>L0087    
+L0088    <a name="GETARG_B"/a><span class="prepro">#define GETARG_B(i)	(cast(int, ((i)&gt;&gt;POS_B) &amp; MASK1(SIZE_B,0)))
+</span>L0089    <a name="SETARG_B"/a><span class="prepro">#define SETARG_B(i,b)	((i) = (((i)&amp;MASK0(SIZE_B,POS_B)) | \
+L0090    		((cast(Instruction, b)&lt;&lt;POS_B)&amp;MASK1(SIZE_B,POS_B))))
+</span>L0091    
+L0092    <a name="GETARG_C"/a><span class="prepro">#define GETARG_C(i)	(cast(int, ((i)&gt;&gt;POS_C) &amp; MASK1(SIZE_C,0)))
+</span>L0093    <a name="SETARG_C"/a><span class="prepro">#define SETARG_C(i,b)	((i) = (((i)&amp;MASK0(SIZE_C,POS_C)) | \
+L0094    		((cast(Instruction, b)&lt;&lt;POS_C)&amp;MASK1(SIZE_C,POS_C))))
+</span>L0095    
+L0096    <a name="GETARG_Bx"/a><span class="prepro">#define GETARG_Bx(i)	(cast(int, ((i)&gt;&gt;POS_Bx) &amp; MASK1(SIZE_Bx,0)))
+</span>L0097    <a name="SETARG_Bx"/a><span class="prepro">#define SETARG_Bx(i,b)	((i) = (((i)&amp;MASK0(SIZE_Bx,POS_Bx)) | \
+L0098    		((cast(Instruction, b)&lt;&lt;POS_Bx)&amp;MASK1(SIZE_Bx,POS_Bx))))
+</span>L0099    
+L0100    <a name="GETARG_sBx"/a><span class="prepro">#define GETARG_sBx(i)	(GETARG_Bx(i)-MAXARG_sBx)
+</span>L0101    <a name="SETARG_sBx"/a><span class="prepro">#define SETARG_sBx(i,b)	SETARG_Bx((i),cast(unsigned int, (b)+MAXARG_sBx))
+</span>L0102    
+L0103    
+L0104    <a name="CREATE_ABC"/a><span class="prepro">#define CREATE_ABC(o,a,b,c)	((cast(Instruction, o)&lt;&lt;POS_OP) \
+L0105    			| (cast(Instruction, a)&lt;&lt;POS_A) \
+L0106    			| (cast(Instruction, b)&lt;&lt;POS_B) \
+L0107    			| (cast(Instruction, c)&lt;&lt;POS_C))
+</span>L0108    
+L0109    <a name="CREATE_ABx"/a><span class="prepro">#define CREATE_ABx(o,a,bc)	((cast(Instruction, o)&lt;&lt;POS_OP) \
+L0110    			| (cast(Instruction, a)&lt;&lt;POS_A) \
+L0111    			| (cast(Instruction, bc)&lt;&lt;POS_Bx))
+</span>L0112    
+L0113    
+L0114    <span class="comment">/*
+L0115    ** Macros to operate RK indices
+L0116    */</span>
+L0117    
+L0118    <span class="comment">/* this bit 1 means constant (0 means register) */</span>
+L0119    <a name="BITRK"/a><span class="prepro">#define BITRK		(1 &lt;&lt; (SIZE_B - 1))
+</span>L0120    
+L0121    <span class="comment">/* test whether value is a constant */</span>
+L0122    <a name="ISK"/a><span class="prepro">#define ISK(x)		((x) &amp; BITRK)
+</span>L0123    
+L0124    <span class="comment">/* gets the index of the constant */</span>
+L0125    <a name="INDEXK"/a><span class="prepro">#define INDEXK(r)	((int)(r) &amp; ~BITRK)
+</span>L0126    
+L0127    <a name="MAXINDEXRK"/a><span class="prepro">#define MAXINDEXRK	(BITRK - 1)
+</span>L0128    
+L0129    <span class="comment">/* code a constant index as a RK value */</span>
+L0130    <a name="RKASK"/a><span class="prepro">#define RKASK(x)	((x) | BITRK)
+</span>L0131    
+L0132    
+L0133    <span class="comment">/*
+L0134    ** invalid register that fits in 8 bits
+L0135    */</span>
+L0136    <a name="NO_REG"/a><span class="prepro">#define NO_REG		MAXARG_A
+</span>L0137    
+L0138    
+L0139    <span class="comment">/*
+L0140    ** R(x) - register
+L0141    ** Kst(x) - constant (in constant table)
+L0142    ** RK(x) == if ISK(x) then Kst(INDEXK(x)) else R(x)
+L0143    */</span>
+L0144    
+L0145    
+L0146    <span class="comment">/*
+L0147    ** grep "ORDER OP" if you change these enums
+L0148    */</span>
+L0149    
+L0150    <span class="keyword">typedef</span> <span class="keyword">enum</span> {
+L0151    <span class="comment">/*----------------------------------------------------------------------
+L0152    name		args	description
+L0153    ------------------------------------------------------------------------*/</span>
+L0154    <a name="OP_MOVE"/a><a class="L" href="lopcodes.h.ref.html#OP_MOVE">OP_MOVE</a>,<span class="comment">/*	A B	R(A) := R(B)					*/</span>
+L0155    <a name="OP_LOADK"/a><a class="L" href="lopcodes.h.ref.html#OP_LOADK">OP_LOADK</a>,<span class="comment">/*	A Bx	R(A) := Kst(Bx)					*/</span>
+L0156    <a name="OP_LOADBOOL"/a><a class="L" href="lopcodes.h.ref.html#OP_LOADBOOL">OP_LOADBOOL</a>,<span class="comment">/*	A B C	R(A) := (Bool)B; if (C) pc++			*/</span>
+L0157    <a name="OP_LOADNIL"/a><a class="L" href="lopcodes.h.ref.html#OP_LOADNIL">OP_LOADNIL</a>,<span class="comment">/*	A B	R(A) := ... := R(B) := nil			*/</span>
+L0158    <a name="OP_GETUPVAL"/a><a class="L" href="lopcodes.h.ref.html#OP_GETUPVAL">OP_GETUPVAL</a>,<span class="comment">/*	A B	R(A) := UpValue[B]				*/</span>
+L0159    
+L0160    <a name="OP_GETGLOBAL"/a><a class="L" href="lopcodes.h.ref.html#OP_GETGLOBAL">OP_GETGLOBAL</a>,<span class="comment">/*	A Bx	R(A) := Gbl[Kst(Bx)]				*/</span>
+L0161    <a name="OP_GETTABLE"/a><a class="L" href="lopcodes.h.ref.html#OP_GETTABLE">OP_GETTABLE</a>,<span class="comment">/*	A B C	R(A) := R(B)[RK(C)]				*/</span>
+L0162    
+L0163    <a name="OP_SETGLOBAL"/a><a class="L" href="lopcodes.h.ref.html#OP_SETGLOBAL">OP_SETGLOBAL</a>,<span class="comment">/*	A Bx	Gbl[Kst(Bx)] := R(A)				*/</span>
+L0164    <a name="OP_SETUPVAL"/a><a class="L" href="lopcodes.h.ref.html#OP_SETUPVAL">OP_SETUPVAL</a>,<span class="comment">/*	A B	UpValue[B] := R(A)				*/</span>
+L0165    <a name="OP_SETTABLE"/a><a class="L" href="lopcodes.h.ref.html#OP_SETTABLE">OP_SETTABLE</a>,<span class="comment">/*	A B C	R(A)[RK(B)] := RK(C)				*/</span>
+L0166    
+L0167    <a name="OP_NEWTABLE"/a><a class="L" href="lopcodes.h.ref.html#OP_NEWTABLE">OP_NEWTABLE</a>,<span class="comment">/*	A B C	R(A) := {} (size = B,C)				*/</span>
+L0168    
+L0169    <a name="OP_SELF"/a><a class="L" href="lopcodes.h.ref.html#OP_SELF">OP_SELF</a>,<span class="comment">/*	A B C	R(A+1) := R(B); R(A) := R(B)[RK(C)]		*/</span>
+L0170    
+L0171    <a name="OP_ADD"/a><a class="L" href="lopcodes.h.ref.html#OP_ADD">OP_ADD</a>,<span class="comment">/*	A B C	R(A) := RK(B) + RK(C)				*/</span>
+L0172    <a name="OP_SUB"/a><a class="L" href="lopcodes.h.ref.html#OP_SUB">OP_SUB</a>,<span class="comment">/*	A B C	R(A) := RK(B) - RK(C)				*/</span>
+L0173    <a name="OP_MUL"/a><a class="L" href="lopcodes.h.ref.html#OP_MUL">OP_MUL</a>,<span class="comment">/*	A B C	R(A) := RK(B) * RK(C)				*/</span>
+L0174    <a name="OP_DIV"/a><a class="L" href="lopcodes.h.ref.html#OP_DIV">OP_DIV</a>,<span class="comment">/*	A B C	R(A) := RK(B) / RK(C)				*/</span>
+L0175    <a name="OP_MOD"/a><a class="L" href="lopcodes.h.ref.html#OP_MOD">OP_MOD</a>,<span class="comment">/*	A B C	R(A) := RK(B) % RK(C)				*/</span>
+L0176    <a name="OP_POW"/a><a class="L" href="lopcodes.h.ref.html#OP_POW">OP_POW</a>,<span class="comment">/*	A B C	R(A) := RK(B) ^ RK(C)				*/</span>
+L0177    <a name="OP_UNM"/a><a class="L" href="lopcodes.h.ref.html#OP_UNM">OP_UNM</a>,<span class="comment">/*	A B	R(A) := -R(B)					*/</span>
+L0178    <a name="OP_NOT"/a><a class="L" href="lopcodes.h.ref.html#OP_NOT">OP_NOT</a>,<span class="comment">/*	A B	R(A) := not R(B)				*/</span>
+L0179    <a name="OP_LEN"/a><a class="L" href="lopcodes.h.ref.html#OP_LEN">OP_LEN</a>,<span class="comment">/*	A B	R(A) := length of R(B)				*/</span>
+L0180    
+L0181    <a name="OP_CONCAT"/a><a class="L" href="lopcodes.h.ref.html#OP_CONCAT">OP_CONCAT</a>,<span class="comment">/*	A B C	R(A) := R(B).. ... ..R(C)			*/</span>
+L0182    
+L0183    <a name="OP_JMP"/a><a class="L" href="lopcodes.h.ref.html#OP_JMP">OP_JMP</a>,<span class="comment">/*	sBx	pc+=sBx					*/</span>
+L0184    
+L0185    <a name="OP_EQ"/a><a class="L" href="lopcodes.h.ref.html#OP_EQ">OP_EQ</a>,<span class="comment">/*	A B C	if ((RK(B) == RK(C)) ~= A) then pc++		*/</span>
+L0186    <a name="OP_LT"/a><a class="L" href="lopcodes.h.ref.html#OP_LT">OP_LT</a>,<span class="comment">/*	A B C	if ((RK(B) &lt;  RK(C)) ~= A) then pc++  		*/</span>
+L0187    <a name="OP_LE"/a><a class="L" href="lopcodes.h.ref.html#OP_LE">OP_LE</a>,<span class="comment">/*	A B C	if ((RK(B) &lt;= RK(C)) ~= A) then pc++  		*/</span>
+L0188    
+L0189    <a name="OP_TEST"/a><a class="L" href="lopcodes.h.ref.html#OP_TEST">OP_TEST</a>,<span class="comment">/*	A C	if not (R(A) &lt;=&gt; C) then pc++			*/</span> 
+L0190    <a name="OP_TESTSET"/a><a class="L" href="lopcodes.h.ref.html#OP_TESTSET">OP_TESTSET</a>,<span class="comment">/*	A B C	if (R(B) &lt;=&gt; C) then R(A) := R(B) else pc++	*/</span> 
+L0191    
+L0192    <a name="OP_CALL"/a><a class="L" href="lopcodes.h.ref.html#OP_CALL">OP_CALL</a>,<span class="comment">/*	A B C	R(A), ... ,R(A+C-2) := R(A)(R(A+1), ... ,R(A+B-1)) */</span>
+L0193    <a name="OP_TAILCALL"/a><a class="L" href="lopcodes.h.ref.html#OP_TAILCALL">OP_TAILCALL</a>,<span class="comment">/*	A B C	return R(A)(R(A+1), ... ,R(A+B-1))		*/</span>
+L0194    <a name="OP_RETURN"/a><a class="L" href="lopcodes.h.ref.html#OP_RETURN">OP_RETURN</a>,<span class="comment">/*	A B	return R(A), ... ,R(A+B-2)	(see note)	*/</span>
+L0195    
+L0196    <a name="OP_FORLOOP"/a><a class="L" href="lopcodes.h.ref.html#OP_FORLOOP">OP_FORLOOP</a>,<span class="comment">/*	A sBx	R(A)+=R(A+2);
+L0197    			if R(A) &lt;?= R(A+1) then { pc+=sBx; R(A+3)=R(A) }*/</span>
+L0198    <a name="OP_FORPREP"/a><a class="L" href="lopcodes.h.ref.html#OP_FORPREP">OP_FORPREP</a>,<span class="comment">/*	A sBx	R(A)-=R(A+2); pc+=sBx				*/</span>
+L0199    
+L0200    <a name="OP_TFORLOOP"/a><a class="L" href="lopcodes.h.ref.html#OP_TFORLOOP">OP_TFORLOOP</a>,<span class="comment">/*	A C	R(A+3), ... ,R(A+2+C) := R(A)(R(A+1), R(A+2)); 
+L0201                            if R(A+3) ~= nil then R(A+2)=R(A+3) else pc++	*/</span> 
+L0202    <a name="OP_SETLIST"/a><a class="L" href="lopcodes.h.ref.html#OP_SETLIST">OP_SETLIST</a>,<span class="comment">/*	A B C	R(A)[(C-1)*FPF+i] := R(A+i), 1 &lt;= i &lt;= B	*/</span>
+L0203    
+L0204    <a name="OP_CLOSE"/a><a class="L" href="lopcodes.h.ref.html#OP_CLOSE">OP_CLOSE</a>,<span class="comment">/*	A 	close all variables in the stack up to (&gt;=) R(A)*/</span>
+L0205    <a name="OP_CLOSURE"/a><a class="L" href="lopcodes.h.ref.html#OP_CLOSURE">OP_CLOSURE</a>,<span class="comment">/*	A Bx	R(A) := closure(KPROTO[Bx], R(A), ... ,R(A+n))	*/</span>
+L0206    
+L0207    <a name="OP_VARARG"/a><a class="L" href="lopcodes.h.ref.html#OP_VARARG">OP_VARARG</a><span class="comment">/*	A B	R(A), R(A+1), ..., R(A+B-1) = vararg		*/</span>
+L0208    } <a name="OpCode"/a><a class="L" href="lopcodes.h.ref.html#OpCode">OpCode</a>;
+L0209    
+L0210    
+L0211    <a name="NUM_OPCODES"/a><span class="prepro">#define NUM_OPCODES	(cast(int, OP_VARARG) + 1)
+</span>L0212    
+L0213    
+L0214    
+L0215    <span class="comment">/*===========================================================================
+L0216      Notes:
+L0217      (*) In OP_CALL, if (B == 0) then B = top. C is the number of returns - 1,
+L0218          and can be 0: OP_CALL then sets `top' to last_result+1, so
+L0219          next open instruction (OP_CALL, OP_RETURN, OP_SETLIST) may use `top'.
+L0220    
+L0221      (*) In OP_VARARG, if (B == 0) then use actual number of varargs and
+L0222          set top (like in OP_CALL with C == 0).
+L0223    
+L0224      (*) In OP_RETURN, if (B == 0) then return up to `top'
+L0225    
+L0226      (*) In OP_SETLIST, if (B == 0) then B = `top';
+L0227          if (C == 0) then next `instruction' is real C
+L0228    
+L0229      (*) For comparisons, A specifies what condition the test should accept
+L0230          (true or false).
+L0231    
+L0232      (*) All `skips' (pc++) assume that next instruction is a jump
+L0233    ===========================================================================*/</span>
+L0234    
+L0235    
+L0236    <span class="comment">/*
+L0237    ** masks for instruction properties. The format is:
+L0238    ** bits 0-1: op mode
+L0239    ** bits 2-3: C arg mode
+L0240    ** bits 4-5: B arg mode
+L0241    ** bit 6: instruction set register A
+L0242    ** bit 7: operator is a test
+L0243    */</span>  
+L0244    
+L0245    <span class="keyword">enum</span> <a name="OpArgMask"/a><a class="L" href="lopcodes.h.ref.html#OpArgMask">OpArgMask</a> {
+L0246      <a name="OpArgN"/a><a class="L" href="lopcodes.h.ref.html#OpArgN">OpArgN</a>,  <span class="comment">/* argument is not used */</span>
+L0247      <a name="OpArgU"/a><a class="L" href="lopcodes.h.ref.html#OpArgU">OpArgU</a>,  <span class="comment">/* argument is used */</span>
+L0248      <a name="OpArgR"/a><a class="L" href="lopcodes.h.ref.html#OpArgR">OpArgR</a>,  <span class="comment">/* argument is a register or a jump offset */</span>
+L0249      <a name="OpArgK"/a><a class="L" href="lopcodes.h.ref.html#OpArgK">OpArgK</a>   <span class="comment">/* argument is a constant or register/constant */</span>
+L0250    };
+L0251    
+L0252    <a class="L" href="luaconf.h.html#LUAI_DATA">LUAI_DATA</a> <span class="keyword">const</span> <a class="L" href="llimits.h.html#lu_byte">lu_byte</a> <a class="L" href="lopcodes.c.html#luaP_opmodes">luaP_opmodes</a>[<a class="L" href="lopcodes.h.html#NUM_OPCODES">NUM_OPCODES</a>];
+L0253    
+L0254    <a name="getOpMode"/a><span class="prepro">#define getOpMode(m)	(cast(enum OpMode, luaP_opmodes[m] &amp; 3))
+</span>L0255    <a name="getBMode"/a><span class="prepro">#define getBMode(m)	(cast(enum OpArgMask, (luaP_opmodes[m] &gt;&gt; 4) &amp; 3))
+</span>L0256    <a name="getCMode"/a><span class="prepro">#define getCMode(m)	(cast(enum OpArgMask, (luaP_opmodes[m] &gt;&gt; 2) &amp; 3))
+</span>L0257    <a name="testAMode"/a><span class="prepro">#define testAMode(m)	(luaP_opmodes[m] &amp; (1 &lt;&lt; 6))
+</span>L0258    <a name="testTMode"/a><span class="prepro">#define testTMode(m)	(luaP_opmodes[m] &amp; (1 &lt;&lt; 7))
+</span>L0259    
+L0260    
+L0261    <a class="L" href="luaconf.h.html#LUAI_DATA">LUAI_DATA</a> <span class="keyword">const</span> <span class="keyword">char</span> *<span class="keyword">const</span> <a class="L" href="lopcodes.c.html#luaP_opnames">luaP_opnames</a>[<a class="L" href="lopcodes.h.html#NUM_OPCODES">NUM_OPCODES</a><span class="number">+1</span>];  <span class="comment">/* opcode names */</span>
+L0262    
+L0263    
+L0264    <span class="comment">/* number of list items to accumulate before a SETLIST instruction */</span>
+L0265    <a name="LFIELDS_PER_FLUSH"/a><span class="prepro">#define LFIELDS_PER_FLUSH	50
+</span>L0266    
+L0267    
+L0268    <span class="prepro">#endif
+</span></pre>
+<hr/>
+Generated by <a href="pretty.lua.html">pretty.lua</html>
+</body></html>

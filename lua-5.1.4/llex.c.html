@@ -1,0 +1,482 @@
+<html>
+<head>
+<style>
+a.L { text-decoration: none; }
+a.L:hover { color: #FFAAAA; }
+body { margin-top: 20px; margin-left: 30px; }
+.lno { font-weight: bold: color #000; }
+.keyword {font-weight: bold; color: #6666AA; }
+.number  { color: #AA6666; }
+.string  { color: #8888AA; }
+.comment { color: #666600; }
+.prepro { color: #006666; } 
+</style>
+<body>
+<h1>Lua 5.1.4: llex.c</h1>
+<hr/>
+<pre>
+L0001    <span class="comment">/*
+L0002    ** $Id: llex.c,v 2.20.1.1 2007/12/27 13:02:25 roberto Exp $
+L0003    ** Lexical Analyzer
+L0004    ** See Copyright Notice in lua.h
+L0005    */</span>
+L0006    
+L0007    
+L0008    <span class="prepro">#include &lt;ctype.h&gt;
+</span>L0009    <span class="prepro">#include &lt;locale.h&gt;
+</span>L0010    <span class="prepro">#include &lt;string.h&gt;
+</span>L0011    
+L0012    <a name="llex_c"/a><span class="prepro">#define llex_c
+</span>L0013    <a name="LUA_CORE"/a><span class="prepro">#define LUA_CORE
+</span>L0014    
+L0015    <span class="prepro"><a class="L" href="lua.h.html#">#include "lua.h"
+</a></span>L0016    
+L0017    <span class="prepro"><a class="L" href="ldo.h.html#">#include "ldo.h"
+</a></span>L0018    <span class="prepro"><a class="L" href="llex.h.html#">#include "llex.h"
+</a></span>L0019    <span class="prepro"><a class="L" href="lobject.h.html#">#include "lobject.h"
+</a></span>L0020    <span class="prepro"><a class="L" href="lparser.h.html#">#include "lparser.h"
+</a></span>L0021    <span class="prepro"><a class="L" href="lstate.h.html#">#include "lstate.h"
+</a></span>L0022    <span class="prepro"><a class="L" href="lstring.h.html#">#include "lstring.h"
+</a></span>L0023    <span class="prepro"><a class="L" href="ltable.h.html#">#include "ltable.h"
+</a></span>L0024    <span class="prepro"><a class="L" href="lzio.h.html#">#include "lzio.h"
+</a></span>L0025    
+L0026    
+L0027    
+L0028    <a name="next"/a><span class="prepro">#define next(ls) (ls-&gt;current = zgetc(ls-&gt;z))
+</span>L0029    
+L0030    
+L0031    
+L0032    
+L0033    <a name="currIsNewline"/a><span class="prepro">#define currIsNewline(ls)	(ls-&gt;current == '\n' || ls-&gt;current == '\r')
+</span>L0034    
+L0035    
+L0036    <span class="comment">/* ORDER RESERVED */</span>
+L0037    <span class="keyword">const</span> <span class="keyword">char</span> *<span class="keyword">const</span> <a name="luaX_tokens"/a><a class="L" href="llex.c.ref.html#luaX_tokens">luaX_tokens</a> [] = {
+L0038        <span class="string">"and"</span>, <span class="string">"break"</span>, <span class="string">"do"</span>, <span class="string">"else"</span>, <span class="string">"elseif"</span>,
+L0039        <span class="string">"end"</span>, <span class="string">"false"</span>, <span class="string">"for"</span>, <span class="string">"function"</span>, <span class="string">"if"</span>,
+L0040        <span class="string">"in"</span>, <span class="string">"local"</span>, <span class="string">"nil"</span>, <span class="string">"not"</span>, <span class="string">"or"</span>, <span class="string">"repeat"</span>,
+L0041        <span class="string">"return"</span>, <span class="string">"then"</span>, <span class="string">"true"</span>, <span class="string">"until"</span>, <span class="string">"while"</span>,
+L0042        <span class="string">".."</span>, <span class="string">"..."</span>, <span class="string">"=="</span>, <span class="string">"&gt;="</span>, <span class="string">"&lt;="</span>, <span class="string">"~="</span>,
+L0043        <span class="string">"&lt;number&gt;"</span>, <span class="string">"&lt;name&gt;"</span>, <span class="string">"&lt;string&gt;"</span>, <span class="string">"&lt;eof&gt;"</span>,
+L0044        NULL
+L0045    };
+L0046    
+L0047    
+L0048    <a name="save_and_next"/a><span class="prepro">#define save_and_next(ls) (save(ls, ls-&gt;current), next(ls))
+</span>L0049    
+L0050    
+L0051    <span class="keyword">static</span> <span class="keyword">void</span> <a name="save"/a><a class="L" href="llex.c.ref.html#save">save</a> (<a class="L" href="llex.h.html#LexState">LexState</a> *ls, <span class="keyword">int</span> c) {
+L0052      <a class="L" href="lzio.h.html#Mbuffer">Mbuffer</a> *b = ls-&gt;buff;
+L0053      <span class="keyword">if</span> (b-&gt;n + <span class="number">1</span> &gt; b-&gt;buffsize) {
+L0054        size_t newsize;
+L0055        <span class="keyword">if</span> (b-&gt;buffsize &gt;= <a class="L" href="llimits.h.html#MAX_SIZET">MAX_SIZET</a>/<span class="number">2</span>)
+L0056          <a class="L" href="llex.c.html#luaX_lexerror">luaX_lexerror</a>(ls, <span class="string">"lexical element too long"</span>, <span class="number">0</span>);
+L0057        newsize = b-&gt;buffsize * <span class="number">2</span>;
+L0058        <a class="L" href="lzio.h.html#luaZ_resizebuffer">luaZ_resizebuffer</a>(ls-&gt;L, b, newsize);
+L0059      }
+L0060      b-&gt;buffer[b-&gt;n++] = <a class="L" href="llimits.h.html#cast">cast</a>(<span class="keyword">char</span>, c);
+L0061    }
+L0062    
+L0063    
+L0064    <span class="keyword">void</span> <a name="luaX_init"/a><a class="L" href="llex.c.ref.html#luaX_init">luaX_init</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0065      <span class="keyword">int</span> i;
+L0066      <span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;<a class="L" href="llex.h.html#NUM_RESERVED">NUM_RESERVED</a>; i++) {
+L0067        <a class="L" href="lobject.h.html#TString">TString</a> *ts = <a class="L" href="lstring.h.html#luaS_new">luaS_new</a>(L, <a class="L" href="llex.c.html#luaX_tokens">luaX_tokens</a>[i]);
+L0068        <a class="L" href="lstring.h.html#luaS_fix">luaS_fix</a>(ts);  <span class="comment">/* reserved words are never collected */</span>
+L0069        <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(strlen(<a class="L" href="llex.c.html#luaX_tokens">luaX_tokens</a>[i])<span class="number">+1</span> &lt;= <a class="L" href="llex.h.html#TOKEN_LEN">TOKEN_LEN</a>);
+L0070        ts-&gt;tsv.reserved = <a class="L" href="llimits.h.html#cast_byte">cast_byte</a>(i<span class="number">+1</span>);  <span class="comment">/* reserved word */</span>
+L0071      }
+L0072    }
+L0073    
+L0074    
+L0075    <a name="MAXSRC"/a><span class="prepro">#define MAXSRC          80
+</span>L0076    
+L0077    
+L0078    <span class="keyword">const</span> <span class="keyword">char</span> *<a name="luaX_token2str"/a><a class="L" href="llex.c.ref.html#luaX_token2str">luaX_token2str</a> (<a class="L" href="llex.h.html#LexState">LexState</a> *ls, <span class="keyword">int</span> token) {
+L0079      <span class="keyword">if</span> (token &lt; <a class="L" href="llex.h.html#FIRST_RESERVED">FIRST_RESERVED</a>) {
+L0080        <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(token == <a class="L" href="llimits.h.html#cast">cast</a>(unsigned <span class="keyword">char</span>, token));
+L0081        <span class="keyword">return</span> (iscntrl(token)) ? <a class="L" href="lobject.c.html#luaO_pushfstring">luaO_pushfstring</a>(ls-&gt;L, <span class="string">"char(%d)"</span>, token) :
+L0082                                  <a class="L" href="lobject.c.html#luaO_pushfstring">luaO_pushfstring</a>(ls-&gt;L, <span class="string">"%c"</span>, token);
+L0083      }
+L0084      <span class="keyword">else</span>
+L0085        <span class="keyword">return</span> <a class="L" href="llex.c.html#luaX_tokens">luaX_tokens</a>[token-<a class="L" href="llex.h.html#FIRST_RESERVED">FIRST_RESERVED</a>];
+L0086    }
+L0087    
+L0088    
+L0089    <span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">char</span> *<a name="txtToken"/a><a class="L" href="llex.c.ref.html#txtToken">txtToken</a> (<a class="L" href="llex.h.html#LexState">LexState</a> *ls, <span class="keyword">int</span> token) {
+L0090      <span class="keyword">switch</span> (token) {
+L0091        <span class="keyword">case</span> <a class="L" href="llex.h.html#TK_NAME">TK_NAME</a>:
+L0092        <span class="keyword">case</span> <a class="L" href="llex.h.html#TK_STRING">TK_STRING</a>:
+L0093        <span class="keyword">case</span> <a class="L" href="llex.h.html#TK_NUMBER">TK_NUMBER</a>:
+L0094          <a class="L" href="llex.c.html#save">save</a>(ls, '\0');
+L0095          <span class="keyword">return</span> <a class="L" href="lzio.h.html#luaZ_buffer">luaZ_buffer</a>(ls-&gt;buff);
+L0096        <span class="keyword">default</span>:
+L0097          <span class="keyword">return</span> <a class="L" href="llex.c.html#luaX_token2str">luaX_token2str</a>(ls, token);
+L0098      }
+L0099    }
+L0100    
+L0101    
+L0102    <span class="keyword">void</span> <a name="luaX_lexerror"/a><a class="L" href="llex.c.ref.html#luaX_lexerror">luaX_lexerror</a> (<a class="L" href="llex.h.html#LexState">LexState</a> *ls, <span class="keyword">const</span> <span class="keyword">char</span> *msg, <span class="keyword">int</span> token) {
+L0103      <span class="keyword">char</span> buff[<a class="L" href="llex.c.html#MAXSRC">MAXSRC</a>];
+L0104      <a class="L" href="lobject.c.html#luaO_chunkid">luaO_chunkid</a>(buff, <a class="L" href="lobject.h.html#getstr">getstr</a>(ls-&gt;source), <a class="L" href="llex.c.html#MAXSRC">MAXSRC</a>);
+L0105      msg = <a class="L" href="lobject.c.html#luaO_pushfstring">luaO_pushfstring</a>(ls-&gt;L, <span class="string">"%s:%d: %s"</span>, buff, ls-&gt;linenumber, msg);
+L0106      <span class="keyword">if</span> (token)
+L0107        <a class="L" href="lobject.c.html#luaO_pushfstring">luaO_pushfstring</a>(ls-&gt;L, <span class="string">"%s near "</span> <a class="L" href="luaconf.h.html#LUA_QS">LUA_QS</a>, msg, <a class="L" href="llex.c.html#txtToken">txtToken</a>(ls, token));
+L0108      <a class="L" href="ldo.c.html#luaD_throw">luaD_throw</a>(ls-&gt;L, <a class="L" href="lua.h.html#LUA_ERRSYNTAX">LUA_ERRSYNTAX</a>);
+L0109    }
+L0110    
+L0111    
+L0112    <span class="keyword">void</span> <a name="luaX_syntaxerror"/a><a class="L" href="llex.c.ref.html#luaX_syntaxerror">luaX_syntaxerror</a> (<a class="L" href="llex.h.html#LexState">LexState</a> *ls, <span class="keyword">const</span> <span class="keyword">char</span> *msg) {
+L0113      <a class="L" href="llex.c.html#luaX_lexerror">luaX_lexerror</a>(ls, msg, ls-&gt;t.token);
+L0114    }
+L0115    
+L0116    
+L0117    <a class="L" href="lobject.h.html#TString">TString</a> *<a name="luaX_newstring"/a><a class="L" href="llex.c.ref.html#luaX_newstring">luaX_newstring</a> (<a class="L" href="llex.h.html#LexState">LexState</a> *ls, <span class="keyword">const</span> <span class="keyword">char</span> *str, size_t l) {
+L0118      <a class="L" href="lstate.h.html#lua_State">lua_State</a> *L = ls-&gt;L;
+L0119      <a class="L" href="lobject.h.html#TString">TString</a> *ts = <a class="L" href="lstring.c.html#luaS_newlstr">luaS_newlstr</a>(L, str, l);
+L0120      <a class="L" href="lobject.h.html#TValue">TValue</a> *o = <a class="L" href="ltable.c.html#luaH_setstr">luaH_setstr</a>(L, ls-&gt;fs-&gt;h, ts);  <span class="comment">/* entry for `str' */</span>
+L0121      <span class="keyword">if</span> (<a class="L" href="lobject.h.html#ttisnil">ttisnil</a>(o))
+L0122        <a class="L" href="lobject.h.html#setbvalue">setbvalue</a>(o, <span class="number">1</span>);  <span class="comment">/* make sure `str' will not be collected */</span>
+L0123      <span class="keyword">return</span> ts;
+L0124    }
+L0125    
+L0126    
+L0127    <span class="keyword">static</span> <span class="keyword">void</span> <a name="inclinenumber"/a><a class="L" href="llex.c.ref.html#inclinenumber">inclinenumber</a> (<a class="L" href="llex.h.html#LexState">LexState</a> *ls) {
+L0128      <span class="keyword">int</span> old = ls-&gt;current;
+L0129      <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(<a class="L" href="llex.c.html#currIsNewline">currIsNewline</a>(ls));
+L0130      <a class="L" href="llex.c.html#next">next</a>(ls);  <span class="comment">/* skip `\n' or `\r' */</span>
+L0131      <span class="keyword">if</span> (<a class="L" href="llex.c.html#currIsNewline">currIsNewline</a>(ls) &amp;&amp; ls-&gt;current != old)
+L0132        <a class="L" href="llex.c.html#next">next</a>(ls);  <span class="comment">/* skip `\n\r' or `\r\n' */</span>
+L0133      <span class="keyword">if</span> (++ls-&gt;linenumber &gt;= <a class="L" href="llimits.h.html#MAX_INT">MAX_INT</a>)
+L0134        <a class="L" href="llex.c.html#luaX_syntaxerror">luaX_syntaxerror</a>(ls, <span class="string">"chunk has too many lines"</span>);
+L0135    }
+L0136    
+L0137    
+L0138    <span class="keyword">void</span> <a name="luaX_setinput"/a><a class="L" href="llex.c.ref.html#luaX_setinput">luaX_setinput</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="llex.h.html#LexState">LexState</a> *ls, <a class="L" href="lzio.h.html#ZIO">ZIO</a> *z, <a class="L" href="lobject.h.html#TString">TString</a> *source) {
+L0139      ls-&gt;decpoint = '.';
+L0140      ls-&gt;L = L;
+L0141      ls-&gt;lookahead.token = <a class="L" href="llex.h.html#TK_EOS">TK_EOS</a>;  <span class="comment">/* no look-ahead token */</span>
+L0142      ls-&gt;z = z;
+L0143      ls-&gt;fs = NULL;
+L0144      ls-&gt;linenumber = <span class="number">1</span>;
+L0145      ls-&gt;lastline = <span class="number">1</span>;
+L0146      ls-&gt;source = source;
+L0147      <a class="L" href="lzio.h.html#luaZ_resizebuffer">luaZ_resizebuffer</a>(ls-&gt;L, ls-&gt;buff, <a class="L" href="llimits.h.html#LUA_MINBUFFER">LUA_MINBUFFER</a>);  <span class="comment">/* initialize buffer */</span>
+L0148      <a class="L" href="llex.c.html#next">next</a>(ls);  <span class="comment">/* read first char */</span>
+L0149    }
+L0150    
+L0151    
+L0152    
+L0153    <span class="comment">/*
+L0154    ** =======================================================
+L0155    ** LEXICAL ANALYZER
+L0156    ** =======================================================
+L0157    */</span>
+L0158    
+L0159    
+L0160    
+L0161    <span class="keyword">static</span> <span class="keyword">int</span> <a name="check_next"/a><a class="L" href="llex.c.ref.html#check_next">check_next</a> (<a class="L" href="llex.h.html#LexState">LexState</a> *ls, <span class="keyword">const</span> <span class="keyword">char</span> *set) {
+L0162      <span class="keyword">if</span> (!strchr(set, ls-&gt;current))
+L0163        <span class="keyword">return</span> <span class="number">0</span>;
+L0164      <a class="L" href="llex.c.html#save_and_next">save_and_next</a>(ls);
+L0165      <span class="keyword">return</span> <span class="number">1</span>;
+L0166    }
+L0167    
+L0168    
+L0169    <span class="keyword">static</span> <span class="keyword">void</span> <a name="buffreplace"/a><a class="L" href="llex.c.ref.html#buffreplace">buffreplace</a> (<a class="L" href="llex.h.html#LexState">LexState</a> *ls, <span class="keyword">char</span> from, <span class="keyword">char</span> to) {
+L0170      size_t n = <a class="L" href="lzio.h.html#luaZ_bufflen">luaZ_bufflen</a>(ls-&gt;buff);
+L0171      <span class="keyword">char</span> *p = <a class="L" href="lzio.h.html#luaZ_buffer">luaZ_buffer</a>(ls-&gt;buff);
+L0172      <span class="keyword">while</span> (n--)
+L0173        <span class="keyword">if</span> (p[n] == from) p[n] = to;
+L0174    }
+L0175    
+L0176    
+L0177    <span class="keyword">static</span> <span class="keyword">void</span> <a name="trydecpoint"/a><a class="L" href="llex.c.ref.html#trydecpoint">trydecpoint</a> (<a class="L" href="llex.h.html#LexState">LexState</a> *ls, <a class="L" href="llex.h.html#SemInfo">SemInfo</a> *seminfo) {
+L0178      <span class="comment">/* format error: try to update decimal point separator */</span>
+L0179      <span class="keyword">struct</span> lconv *cv = localeconv();
+L0180      <span class="keyword">char</span> old = ls-&gt;decpoint;
+L0181      ls-&gt;decpoint = (cv ? cv-&gt;decimal_point[<span class="number">0</span>] : '.');
+L0182      <a class="L" href="llex.c.html#buffreplace">buffreplace</a>(ls, old, ls-&gt;decpoint);  <span class="comment">/* try updated decimal separator */</span>
+L0183      <span class="keyword">if</span> (!<a class="L" href="lobject.c.html#luaO_str2d">luaO_str2d</a>(<a class="L" href="lzio.h.html#luaZ_buffer">luaZ_buffer</a>(ls-&gt;buff), &amp;seminfo-&gt;r)) {
+L0184        <span class="comment">/* format error with correct decimal point: no more options */</span>
+L0185        <a class="L" href="llex.c.html#buffreplace">buffreplace</a>(ls, ls-&gt;decpoint, '.');  <span class="comment">/* undo change (for error message) */</span>
+L0186        <a class="L" href="llex.c.html#luaX_lexerror">luaX_lexerror</a>(ls, <span class="string">"malformed number"</span>, <a class="L" href="llex.h.html#TK_NUMBER">TK_NUMBER</a>);
+L0187      }
+L0188    }
+L0189    
+L0190    
+L0191    <span class="comment">/* LUA_NUMBER */</span>
+L0192    <span class="keyword">static</span> <span class="keyword">void</span> <a name="read_numeral"/a><a class="L" href="llex.c.ref.html#read_numeral">read_numeral</a> (<a class="L" href="llex.h.html#LexState">LexState</a> *ls, <a class="L" href="llex.h.html#SemInfo">SemInfo</a> *seminfo) {
+L0193      <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(isdigit(ls-&gt;current));
+L0194      <span class="keyword">do</span> {
+L0195        <a class="L" href="llex.c.html#save_and_next">save_and_next</a>(ls);
+L0196      } <span class="keyword">while</span> (isdigit(ls-&gt;current) || ls-&gt;current == '.');
+L0197      <span class="keyword">if</span> (<a class="L" href="llex.c.html#check_next">check_next</a>(ls, <span class="string">"Ee"</span>))  <span class="comment">/* `E'? */</span>
+L0198        <a class="L" href="llex.c.html#check_next">check_next</a>(ls, <span class="string">"+-"</span>);  <span class="comment">/* optional exponent sign */</span>
+L0199      <span class="keyword">while</span> (isalnum(ls-&gt;current) || ls-&gt;current == '_')
+L0200        <a class="L" href="llex.c.html#save_and_next">save_and_next</a>(ls);
+L0201      <a class="L" href="llex.c.html#save">save</a>(ls, '\0');
+L0202      <a class="L" href="llex.c.html#buffreplace">buffreplace</a>(ls, '.', ls-&gt;decpoint);  <span class="comment">/* follow locale for decimal point */</span>
+L0203      <span class="keyword">if</span> (!<a class="L" href="lobject.c.html#luaO_str2d">luaO_str2d</a>(<a class="L" href="lzio.h.html#luaZ_buffer">luaZ_buffer</a>(ls-&gt;buff), &amp;seminfo-&gt;r))  <span class="comment">/* format error? */</span>
+L0204        <a class="L" href="llex.c.html#trydecpoint">trydecpoint</a>(ls, seminfo); <span class="comment">/* try to update decimal point separator */</span>
+L0205    }
+L0206    
+L0207    
+L0208    <span class="keyword">static</span> <span class="keyword">int</span> <a name="skip_sep"/a><a class="L" href="llex.c.ref.html#skip_sep">skip_sep</a> (<a class="L" href="llex.h.html#LexState">LexState</a> *ls) {
+L0209      <span class="keyword">int</span> count = <span class="number">0</span>;
+L0210      <span class="keyword">int</span> s = ls-&gt;current;
+L0211      <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(s == '[' || s == ']');
+L0212      <a class="L" href="llex.c.html#save_and_next">save_and_next</a>(ls);
+L0213      <span class="keyword">while</span> (ls-&gt;current == '=') {
+L0214        <a class="L" href="llex.c.html#save_and_next">save_and_next</a>(ls);
+L0215        count++;
+L0216      }
+L0217      <span class="keyword">return</span> (ls-&gt;current == s) ? count : (-count) - <span class="number">1</span>;
+L0218    }
+L0219    
+L0220    
+L0221    <span class="keyword">static</span> <span class="keyword">void</span> <a name="read_long_string"/a><a class="L" href="llex.c.ref.html#read_long_string">read_long_string</a> (<a class="L" href="llex.h.html#LexState">LexState</a> *ls, <a class="L" href="llex.h.html#SemInfo">SemInfo</a> *seminfo, <span class="keyword">int</span> sep) {
+L0222      <span class="keyword">int</span> cont = <span class="number">0</span>;
+L0223      (<span class="keyword">void</span>)(cont);  <span class="comment">/* avoid warnings when `cont' is not used */</span>
+L0224      <a class="L" href="llex.c.html#save_and_next">save_and_next</a>(ls);  <span class="comment">/* skip 2nd `[' */</span>
+L0225      <span class="keyword">if</span> (<a class="L" href="llex.c.html#currIsNewline">currIsNewline</a>(ls))  <span class="comment">/* string starts with a newline? */</span>
+L0226        <a class="L" href="llex.c.html#inclinenumber">inclinenumber</a>(ls);  <span class="comment">/* skip it */</span>
+L0227      <span class="keyword">for</span> (;;) {
+L0228        <span class="keyword">switch</span> (ls-&gt;current) {
+L0229          <span class="keyword">case</span> <a class="L" href="lzio.h.html#EOZ">EOZ</a>:
+L0230            <a class="L" href="llex.c.html#luaX_lexerror">luaX_lexerror</a>(ls, (seminfo) ? <span class="string">"unfinished long string"</span> :
+L0231                                       <span class="string">"unfinished long comment"</span>, <a class="L" href="llex.h.html#TK_EOS">TK_EOS</a>);
+L0232            <span class="keyword">break</span>;  <span class="comment">/* to avoid warnings */</span>
+L0233    <span class="prepro">#if defined(LUA_COMPAT_LSTR)
+</span>L0234          <span class="keyword">case</span> '[': {
+L0235            <span class="keyword">if</span> (<a class="L" href="llex.c.html#skip_sep">skip_sep</a>(ls) == sep) {
+L0236              <a class="L" href="llex.c.html#save_and_next">save_and_next</a>(ls);  <span class="comment">/* skip 2nd `[' */</span>
+L0237              cont++;
+L0238    <span class="prepro">#if LUA_COMPAT_LSTR == 1
+</span>L0239              <span class="keyword">if</span> (sep == <span class="number">0</span>)
+L0240                <a class="L" href="llex.c.html#luaX_lexerror">luaX_lexerror</a>(ls, <span class="string">"nesting of [[...]] is deprecated"</span>, '[');
+L0241    <span class="prepro">#endif
+</span>L0242            }
+L0243            <span class="keyword">break</span>;
+L0244          }
+L0245    <span class="prepro">#endif
+</span>L0246          <span class="keyword">case</span> ']': {
+L0247            <span class="keyword">if</span> (<a class="L" href="llex.c.html#skip_sep">skip_sep</a>(ls) == sep) {
+L0248              <a class="L" href="llex.c.html#save_and_next">save_and_next</a>(ls);  <span class="comment">/* skip 2nd `]' */</span>
+L0249    <span class="prepro">#if defined(LUA_COMPAT_LSTR) &amp;&amp; LUA_COMPAT_LSTR == 2
+</span>L0250              cont--;
+L0251              <span class="keyword">if</span> (sep == <span class="number">0</span> &amp;&amp; cont &gt;= <span class="number">0</span>) <span class="keyword">break</span>;
+L0252    <span class="prepro">#endif
+</span>L0253              <span class="keyword">goto</span> endloop;
+L0254            }
+L0255            <span class="keyword">break</span>;
+L0256          }
+L0257          <span class="keyword">case</span> '\n':
+L0258          <span class="keyword">case</span> '\r': {
+L0259            <a class="L" href="llex.c.html#save">save</a>(ls, '\n');
+L0260            <a class="L" href="llex.c.html#inclinenumber">inclinenumber</a>(ls);
+L0261            <span class="keyword">if</span> (!seminfo) <a class="L" href="lzio.h.html#luaZ_resetbuffer">luaZ_resetbuffer</a>(ls-&gt;buff);  <span class="comment">/* avoid wasting space */</span>
+L0262            <span class="keyword">break</span>;
+L0263          }
+L0264          <span class="keyword">default</span>: {
+L0265            <span class="keyword">if</span> (seminfo) <a class="L" href="llex.c.html#save_and_next">save_and_next</a>(ls);
+L0266            <span class="keyword">else</span> <a class="L" href="llex.c.html#next">next</a>(ls);
+L0267          }
+L0268        }
+L0269      } endloop:
+L0270      <span class="keyword">if</span> (seminfo)
+L0271        seminfo-&gt;ts = <a class="L" href="llex.c.html#luaX_newstring">luaX_newstring</a>(ls, <a class="L" href="lzio.h.html#luaZ_buffer">luaZ_buffer</a>(ls-&gt;buff) + (<span class="number">2</span> + sep),
+L0272                                         <a class="L" href="lzio.h.html#luaZ_bufflen">luaZ_bufflen</a>(ls-&gt;buff) - <span class="number">2</span>*(<span class="number">2</span> + sep));
+L0273    }
+L0274    
+L0275    
+L0276    <span class="keyword">static</span> <span class="keyword">void</span> <a name="read_string"/a><a class="L" href="llex.c.ref.html#read_string">read_string</a> (<a class="L" href="llex.h.html#LexState">LexState</a> *ls, <span class="keyword">int</span> del, <a class="L" href="llex.h.html#SemInfo">SemInfo</a> *seminfo) {
+L0277      <a class="L" href="llex.c.html#save_and_next">save_and_next</a>(ls);
+L0278      <span class="keyword">while</span> (ls-&gt;current != del) {
+L0279        <span class="keyword">switch</span> (ls-&gt;current) {
+L0280          <span class="keyword">case</span> <a class="L" href="lzio.h.html#EOZ">EOZ</a>:
+L0281            <a class="L" href="llex.c.html#luaX_lexerror">luaX_lexerror</a>(ls, <span class="string">"unfinished string"</span>, <a class="L" href="llex.h.html#TK_EOS">TK_EOS</a>);
+L0282            <span class="keyword">continue</span>;  <span class="comment">/* to avoid warnings */</span>
+L0283          <span class="keyword">case</span> '\n':
+L0284          <span class="keyword">case</span> '\r':
+L0285            <a class="L" href="llex.c.html#luaX_lexerror">luaX_lexerror</a>(ls, <span class="string">"unfinished string"</span>, <a class="L" href="llex.h.html#TK_STRING">TK_STRING</a>);
+L0286            <span class="keyword">continue</span>;  <span class="comment">/* to avoid warnings */</span>
+L0287          <span class="keyword">case</span> '\\': {
+L0288            int c;
+L0289            next(ls);  /* do not save the `\' */
+L0290            switch (ls-&gt;current) {
+L0291              case 'a': c = '\a'; break;
+L0292              case 'b': c = '\b'; break;
+L0293              case 'f': c = '\f'; break;
+L0294              case 'n': c = '\n'; break;
+L0295              case 'r': c = '\r'; break;
+L0296              case 't': c = '\t'; break;
+L0297              case 'v': c = '\v'; break;
+L0298              case '\n':  /* go through */
+L0299              case '\r': save(ls, '\n'); inclinenumber(ls); continue;
+L0300              case EOZ: continue;  /* will raise an error next loop */
+L0301              default: {
+L0302                if (!isdigit(ls-&gt;current))
+L0303                  save_and_next(ls);  /* handles \\, \", \', and \? */
+L0304                else {  /* \xxx */
+L0305                  int i = 0;
+L0306                  c = 0;
+L0307                  do {
+L0308                    c = 10*c + (ls-&gt;current-'<span class="number">0</span>');
+L0309                    next(ls);
+L0310                  } while (++i&lt;3 &amp;&amp; isdigit(ls-&gt;current));
+L0311                  if (c &gt; UCHAR_MAX)
+L0312                    luaX_lexerror(ls, "escape sequence too large", TK_STRING);
+L0313                  save(ls, c);
+L0314                }
+L0315                continue;
+L0316              }
+L0317            }
+L0318            save(ls, c);
+L0319            next(ls);
+L0320            continue;
+L0321          }
+L0322          default:
+L0323            save_and_next(ls);
+L0324        }
+L0325      }
+L0326      save_and_next(ls);  /* skip delimiter */
+L0327      seminfo-&gt;ts = luaX_newstring(ls, luaZ_buffer(ls-&gt;buff) + 1,
+L0328                                       luaZ_bufflen(ls-&gt;buff) - 2);
+L0329    }
+L0330    
+L0331    
+L0332    static int llex (LexState *ls, SemInfo *seminfo) {
+L0333      luaZ_resetbuffer(ls-&gt;buff);
+L0334      for (;;) {
+L0335        switch (ls-&gt;current) {
+L0336          case '\n':
+L0337          case '\r': {
+L0338            inclinenumber(ls);
+L0339            continue;
+L0340          }
+L0341          case '-': {
+L0342            next(ls);
+L0343            if (ls-&gt;current != '-') return '-';
+L0344            /* else is a comment */
+L0345            next(ls);
+L0346            if (ls-&gt;current == '[') {
+L0347              int sep = skip_sep(ls);
+L0348              luaZ_resetbuffer(ls-&gt;buff);  /* `skip_sep' may dirty the buffer */
+L0349              <span class="keyword">if</span> (sep &gt;= <span class="number">0</span>) {
+L0350                <a class="L" href="llex.c.html#read_long_string">read_long_string</a>(ls, NULL, sep);  <span class="comment">/* long comment */</span>
+L0351                <a class="L" href="lzio.h.html#luaZ_resetbuffer">luaZ_resetbuffer</a>(ls-&gt;buff);
+L0352                <span class="keyword">continue</span>;
+L0353              }
+L0354            }
+L0355            <span class="comment">/* else short comment */</span>
+L0356            <span class="keyword">while</span> (!<a class="L" href="llex.c.html#currIsNewline">currIsNewline</a>(ls) &amp;&amp; ls-&gt;current != <a class="L" href="lzio.h.html#EOZ">EOZ</a>)
+L0357              <a class="L" href="llex.c.html#next">next</a>(ls);
+L0358            <span class="keyword">continue</span>;
+L0359          }
+L0360          <span class="keyword">case</span> '[': {
+L0361            <span class="keyword">int</span> sep = <a class="L" href="llex.c.html#skip_sep">skip_sep</a>(ls);
+L0362            <span class="keyword">if</span> (sep &gt;= <span class="number">0</span>) {
+L0363              <a class="L" href="llex.c.html#read_long_string">read_long_string</a>(ls, seminfo, sep);
+L0364              <span class="keyword">return</span> <a class="L" href="llex.h.html#TK_STRING">TK_STRING</a>;
+L0365            }
+L0366            <span class="keyword">else</span> <span class="keyword">if</span> (sep == <span class="number">-1</span>) <span class="keyword">return</span> '[';
+L0367            <span class="keyword">else</span> <a class="L" href="llex.c.html#luaX_lexerror">luaX_lexerror</a>(ls, <span class="string">"invalid long string delimiter"</span>, <a class="L" href="llex.h.html#TK_STRING">TK_STRING</a>);
+L0368          }
+L0369          <span class="keyword">case</span> '=': {
+L0370            <a class="L" href="llex.c.html#next">next</a>(ls);
+L0371            <span class="keyword">if</span> (ls-&gt;current != '=') <span class="keyword">return</span> '=';
+L0372            <span class="keyword">else</span> { <a class="L" href="llex.c.html#next">next</a>(ls); <span class="keyword">return</span> <a class="L" href="llex.h.html#TK_EQ">TK_EQ</a>; }
+L0373          }
+L0374          <span class="keyword">case</span> '&lt;': {
+L0375            <a class="L" href="llex.c.html#next">next</a>(ls);
+L0376            <span class="keyword">if</span> (ls-&gt;current != '=') <span class="keyword">return</span> '&lt;';
+L0377            <span class="keyword">else</span> { <a class="L" href="llex.c.html#next">next</a>(ls); <span class="keyword">return</span> <a class="L" href="llex.h.html#TK_LE">TK_LE</a>; }
+L0378          }
+L0379          <span class="keyword">case</span> '&gt;': {
+L0380            <a class="L" href="llex.c.html#next">next</a>(ls);
+L0381            <span class="keyword">if</span> (ls-&gt;current != '=') <span class="keyword">return</span> '&gt;';
+L0382            <span class="keyword">else</span> { <a class="L" href="llex.c.html#next">next</a>(ls); <span class="keyword">return</span> <a class="L" href="llex.h.html#TK_GE">TK_GE</a>; }
+L0383          }
+L0384          <span class="keyword">case</span> '~': {
+L0385            <a class="L" href="llex.c.html#next">next</a>(ls);
+L0386            <span class="keyword">if</span> (ls-&gt;current != '=') <span class="keyword">return</span> '~';
+L0387            <span class="keyword">else</span> { <a class="L" href="llex.c.html#next">next</a>(ls); <span class="keyword">return</span> <a class="L" href="llex.h.html#TK_NE">TK_NE</a>; }
+L0388          }
+L0389          <span class="keyword">case</span> <span class="string">'"</span>':
+L0390          case '\<span class="string">''</span>: {
+L0391            <a class="L" href="llex.c.html#read_string">read_string</a>(ls, ls-&gt;current, seminfo);
+L0392            <span class="keyword">return</span> <a class="L" href="llex.h.html#TK_STRING">TK_STRING</a>;
+L0393          }
+L0394          <span class="keyword">case</span> '.': {
+L0395            <a class="L" href="llex.c.html#save_and_next">save_and_next</a>(ls);
+L0396            <span class="keyword">if</span> (<a class="L" href="llex.c.html#check_next">check_next</a>(ls, <span class="string">"."</span>)) {
+L0397              <span class="keyword">if</span> (<a class="L" href="llex.c.html#check_next">check_next</a>(ls, <span class="string">"."</span>))
+L0398                <span class="keyword">return</span> <a class="L" href="llex.h.html#TK_DOTS">TK_DOTS</a>;   <span class="comment">/* ... */</span>
+L0399              <span class="keyword">else</span> <span class="keyword">return</span> <a class="L" href="llex.h.html#TK_CONCAT">TK_CONCAT</a>;   <span class="comment">/* .. */</span>
+L0400            }
+L0401            <span class="keyword">else</span> <span class="keyword">if</span> (!isdigit(ls-&gt;current)) <span class="keyword">return</span> '.';
+L0402            <span class="keyword">else</span> {
+L0403              <a class="L" href="llex.c.html#read_numeral">read_numeral</a>(ls, seminfo);
+L0404              <span class="keyword">return</span> <a class="L" href="llex.h.html#TK_NUMBER">TK_NUMBER</a>;
+L0405            }
+L0406          }
+L0407          <span class="keyword">case</span> <a class="L" href="lzio.h.html#EOZ">EOZ</a>: {
+L0408            <span class="keyword">return</span> <a class="L" href="llex.h.html#TK_EOS">TK_EOS</a>;
+L0409          }
+L0410          <span class="keyword">default</span>: {
+L0411            <span class="keyword">if</span> (isspace(ls-&gt;current)) {
+L0412              <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(!<a class="L" href="llex.c.html#currIsNewline">currIsNewline</a>(ls));
+L0413              <a class="L" href="llex.c.html#next">next</a>(ls);
+L0414              <span class="keyword">continue</span>;
+L0415            }
+L0416            <span class="keyword">else</span> <span class="keyword">if</span> (isdigit(ls-&gt;current)) {
+L0417              <a class="L" href="llex.c.html#read_numeral">read_numeral</a>(ls, seminfo);
+L0418              <span class="keyword">return</span> <a class="L" href="llex.h.html#TK_NUMBER">TK_NUMBER</a>;
+L0419            }
+L0420            <span class="keyword">else</span> <span class="keyword">if</span> (isalpha(ls-&gt;current) || ls-&gt;current == '_') {
+L0421              <span class="comment">/* identifier or reserved word */</span>
+L0422              <a class="L" href="lobject.h.html#TString">TString</a> *ts;
+L0423              <span class="keyword">do</span> {
+L0424                <a class="L" href="llex.c.html#save_and_next">save_and_next</a>(ls);
+L0425              } <span class="keyword">while</span> (isalnum(ls-&gt;current) || ls-&gt;current == '_');
+L0426              ts = <a class="L" href="llex.c.html#luaX_newstring">luaX_newstring</a>(ls, <a class="L" href="lzio.h.html#luaZ_buffer">luaZ_buffer</a>(ls-&gt;buff),
+L0427                                      <a class="L" href="lzio.h.html#luaZ_bufflen">luaZ_bufflen</a>(ls-&gt;buff));
+L0428              <span class="keyword">if</span> (ts-&gt;tsv.reserved &gt; <span class="number">0</span>)  <span class="comment">/* reserved word? */</span>
+L0429                <span class="keyword">return</span> ts-&gt;tsv.reserved - <span class="number">1</span> + <a class="L" href="llex.h.html#FIRST_RESERVED">FIRST_RESERVED</a>;
+L0430              <span class="keyword">else</span> {
+L0431                seminfo-&gt;ts = ts;
+L0432                <span class="keyword">return</span> <a class="L" href="llex.h.html#TK_NAME">TK_NAME</a>;
+L0433              }
+L0434            }
+L0435            <span class="keyword">else</span> {
+L0436              <span class="keyword">int</span> c = ls-&gt;current;
+L0437              <a class="L" href="llex.c.html#next">next</a>(ls);
+L0438              <span class="keyword">return</span> c;  <span class="comment">/* single-char tokens (+ - / ...) */</span>
+L0439            }
+L0440          }
+L0441        }
+L0442      }
+L0443    }
+L0444    
+L0445    
+L0446    <span class="keyword">void</span> <a name="luaX_next"/a><a class="L" href="llex.c.ref.html#luaX_next">luaX_next</a> (<a class="L" href="llex.h.html#LexState">LexState</a> *ls) {
+L0447      ls-&gt;lastline = ls-&gt;linenumber;
+L0448      <span class="keyword">if</span> (ls-&gt;lookahead.token != <a class="L" href="llex.h.html#TK_EOS">TK_EOS</a>) {  <span class="comment">/* is there a look-ahead token? */</span>
+L0449        ls-&gt;t = ls-&gt;lookahead;  <span class="comment">/* use this one */</span>
+L0450        ls-&gt;lookahead.token = <a class="L" href="llex.h.html#TK_EOS">TK_EOS</a>;  <span class="comment">/* and discharge it */</span>
+L0451      }
+L0452      <span class="keyword">else</span>
+L0453        ls-&gt;t.token = <a class="L" href="llex.c.html#llex">llex</a>(ls, &amp;ls-&gt;t.seminfo);  <span class="comment">/* read next token */</span>
+L0454    }
+L0455    
+L0456    
+L0457    <span class="keyword">void</span> <a name="luaX_lookahead"/a><a class="L" href="llex.c.ref.html#luaX_lookahead">luaX_lookahead</a> (<a class="L" href="llex.h.html#LexState">LexState</a> *ls) {
+L0458      <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(ls-&gt;lookahead.token == <a class="L" href="llex.h.html#TK_EOS">TK_EOS</a>);
+L0459      ls-&gt;lookahead.token = <a class="L" href="llex.c.html#llex">llex</a>(ls, &amp;ls-&gt;lookahead.seminfo);
+L0460    }
+L0461    
+</pre>
+<hr/>
+Generated by <a href="pretty.lua.html">pretty.lua</html>
+</body></html>

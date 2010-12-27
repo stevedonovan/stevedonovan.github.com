@@ -1,0 +1,221 @@
+<html>
+<head>
+<style>
+a.L { text-decoration: none; }
+a.L:hover { color: #FFAAAA; }
+body { margin-top: 20px; margin-left: 30px; }
+.lno { font-weight: bold: color #000; }
+.keyword {font-weight: bold; color: #6666AA; }
+.number  { color: #AA6666; }
+.string  { color: #8888AA; }
+.comment { color: #666600; }
+.prepro { color: #006666; } 
+</style>
+<body>
+<h1>Lua 5.1.4: luac.c</h1>
+<hr/>
+<pre>
+L0001    <span class="comment">/*
+L0002    ** $Id: luac.c,v 1.54 2006/06/02 17:37:11 lhf Exp $
+L0003    ** Lua compiler (saves bytecodes to files; also list bytecodes)
+L0004    ** See Copyright Notice in lua.h
+L0005    */</span>
+L0006    
+L0007    <span class="prepro">#include &lt;errno.h&gt;
+</span>L0008    <span class="prepro">#include &lt;stdio.h&gt;
+</span>L0009    <span class="prepro">#include &lt;stdlib.h&gt;
+</span>L0010    <span class="prepro">#include &lt;string.h&gt;
+</span>L0011    
+L0012    <a name="luac_c"/a><span class="prepro">#define luac_c
+</span>L0013    <a name="LUA_CORE"/a><span class="prepro">#define LUA_CORE
+</span>L0014    
+L0015    <span class="prepro"><a class="L" href="lua.h.html#">#include "lua.h"
+</a></span>L0016    <span class="prepro"><a class="L" href="lauxlib.h.html#">#include "lauxlib.h"
+</a></span>L0017    
+L0018    <span class="prepro"><a class="L" href="ldo.h.html#">#include "ldo.h"
+</a></span>L0019    <span class="prepro"><a class="L" href="lfunc.h.html#">#include "lfunc.h"
+</a></span>L0020    <span class="prepro"><a class="L" href="lmem.h.html#">#include "lmem.h"
+</a></span>L0021    <span class="prepro"><a class="L" href="lobject.h.html#">#include "lobject.h"
+</a></span>L0022    <span class="prepro"><a class="L" href="lopcodes.h.html#">#include "lopcodes.h"
+</a></span>L0023    <span class="prepro"><a class="L" href="lstring.h.html#">#include "lstring.h"
+</a></span>L0024    <span class="prepro"><a class="L" href="lundump.h.html#">#include "lundump.h"
+</a></span>L0025    
+L0026    <a name="PROGNAME"/a><span class="prepro">#define PROGNAME	"luac"		/* default program name */
+</span>L0027    <a name="OUTPUT"/a><span class="prepro">#define	OUTPUT		PROGNAME ".out"	/* default output file */
+</span>L0028    
+L0029    <span class="keyword">static</span> <span class="keyword">int</span> <a name="listing"/a><a class="L" href="luac.c.ref.html#listing">listing</a>=<span class="number">0</span>;			<span class="comment">/* list bytecodes? */</span>
+L0030    <span class="keyword">static</span> <span class="keyword">int</span> <a name="dumping"/a><a class="L" href="luac.c.ref.html#dumping">dumping</a>=<span class="number">1</span>;			<span class="comment">/* dump bytecodes? */</span>
+L0031    <span class="keyword">static</span> <span class="keyword">int</span> <a name="stripping"/a><a class="L" href="luac.c.ref.html#stripping">stripping</a>=<span class="number">0</span>;			<span class="comment">/* strip debug information? */</span>
+L0032    <span class="keyword">static</span> <span class="keyword">char</span> <a name="Output"/a><a class="L" href="luac.c.ref.html#Output">Output</a>[]={ <a class="L" href="luac.c.html#OUTPUT">OUTPUT</a> };	<span class="comment">/* default output file name */</span>
+L0033    <span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">char</span>* <a name="output"/a><a class="L" href="luac.c.ref.html#output">output</a>=<a class="L" href="luac.c.html#Output">Output</a>;	<span class="comment">/* actual output file name */</span>
+L0034    <span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">char</span>* <a class="L" href="lua.c.html#progname">progname</a>=<a class="L" href="luac.c.html#PROGNAME">PROGNAME</a>;	<span class="comment">/* actual program name */</span>
+L0035    
+L0036    <span class="keyword">static</span> <span class="keyword">void</span> <a name="fatal"/a><a class="L" href="luac.c.ref.html#fatal">fatal</a>(<span class="keyword">const</span> <span class="keyword">char</span>* message)
+L0037    {
+L0038     fprintf(stderr,<span class="string">"%s: %s\n"</span>,<a class="L" href="lua.c.html#progname">progname</a>,message);
+L0039     exit(EXIT_FAILURE);
+L0040    }
+L0041    
+L0042    <span class="keyword">static</span> <span class="keyword">void</span> <a name="cannot"/a><a class="L" href="luac.c.ref.html#cannot">cannot</a>(<span class="keyword">const</span> <span class="keyword">char</span>* what)
+L0043    {
+L0044     fprintf(stderr,<span class="string">"%s: cannot %s %s: %s\n"</span>,<a class="L" href="lua.c.html#progname">progname</a>,what,<a class="L" href="luac.c.html#output">output</a>,strerror(errno));
+L0045     exit(EXIT_FAILURE);
+L0046    }
+L0047    
+L0048    <span class="keyword">static</span> <span class="keyword">void</span> <a name="usage"/a><a class="L" href="luac.c.ref.html#usage">usage</a>(<span class="keyword">const</span> <span class="keyword">char</span>* message)
+L0049    {
+L0050     <span class="keyword">if</span> (*message=='-')
+L0051      fprintf(stderr,<span class="string">"%s: unrecognized option "</span> <a class="L" href="luaconf.h.html#LUA_QS">LUA_QS</a> <span class="string">"\n"</span>,<a class="L" href="lua.c.html#progname">progname</a>,message);
+L0052     <span class="keyword">else</span>
+L0053      fprintf(stderr,<span class="string">"%s: %s\n"</span>,<a class="L" href="lua.c.html#progname">progname</a>,message);
+L0054     fprintf(stderr,
+L0055     <span class="string">"usage: %s [options] [filenames].\n"</span>
+L0056     <span class="string">"Available options are:\n"</span>
+L0057     <span class="string">"  -        process stdin\n"</span>
+L0058     <span class="string">"  -l       list\n"</span>
+L0059     <span class="string">"  -o name  output to file "</span> <a class="L" href="luaconf.h.html#LUA_QL">LUA_QL</a>(<span class="string">"name"</span>) <span class="string">" (default is \"%s\")\n"</span>
+L0060     <span class="string">"  -p       parse only\n"</span>
+L0061     <span class="string">"  -s       strip debug information\n"</span>
+L0062     <span class="string">"  -v       show version information\n"</span>
+L0063     <span class="string">"  --       stop handling options\n"</span>,
+L0064     <a class="L" href="lua.c.html#progname">progname</a>,<a class="L" href="luac.c.html#Output">Output</a>);
+L0065     exit(EXIT_FAILURE);
+L0066    }
+L0067    
+L0068    <a name="IS"/a><span class="prepro">#define	IS(s)	(strcmp(argv[i],s)==0)
+</span>L0069    
+L0070    <span class="keyword">static</span> <span class="keyword">int</span> <a name="doargs"/a><a class="L" href="luac.c.ref.html#doargs">doargs</a>(<span class="keyword">int</span> argc, <span class="keyword">char</span>* argv[])
+L0071    {
+L0072     <span class="keyword">int</span> i;
+L0073     <span class="keyword">int</span> version=<span class="number">0</span>;
+L0074     <span class="keyword">if</span> (argv[<span class="number">0</span>]!=NULL &amp;&amp; *argv[<span class="number">0</span>]!=<span class="number">0</span>) <a class="L" href="lua.c.html#progname">progname</a>=argv[<span class="number">0</span>];
+L0075     <span class="keyword">for</span> (i=<span class="number">1</span>; i&lt;argc; i++)
+L0076     {
+L0077      <span class="keyword">if</span> (*argv[i]!='-')			<span class="comment">/* end of options; keep it */</span>
+L0078       <span class="keyword">break</span>;
+L0079      <span class="keyword">else</span> <span class="keyword">if</span> (<a class="L" href="luac.c.html#IS">IS</a>(<span class="string">"--"</span>))			<span class="comment">/* end of options; skip it */</span>
+L0080      {
+L0081       ++i;
+L0082       <span class="keyword">if</span> (version) ++version;
+L0083       <span class="keyword">break</span>;
+L0084      }
+L0085      <span class="keyword">else</span> <span class="keyword">if</span> (<a class="L" href="luac.c.html#IS">IS</a>(<span class="string">"-"</span>))			<span class="comment">/* end of options; use stdin */</span>
+L0086       <span class="keyword">break</span>;
+L0087      <span class="keyword">else</span> <span class="keyword">if</span> (<a class="L" href="luac.c.html#IS">IS</a>(<span class="string">"-l"</span>))			<span class="comment">/* list */</span>
+L0088       ++<a class="L" href="luac.c.html#listing">listing</a>;
+L0089      <span class="keyword">else</span> <span class="keyword">if</span> (<a class="L" href="luac.c.html#IS">IS</a>(<span class="string">"-o"</span>))			<span class="comment">/* output file */</span>
+L0090      {
+L0091       <a class="L" href="luac.c.html#output">output</a>=argv[++i];
+L0092       <span class="keyword">if</span> (<a class="L" href="luac.c.html#output">output</a>==NULL || *<a class="L" href="luac.c.html#output">output</a>==<span class="number">0</span>) <a class="L" href="luac.c.html#usage">usage</a>(<a class="L" href="luaconf.h.html#LUA_QL">LUA_QL</a>(<span class="string">"-o"</span>) <span class="string">" needs argument"</span>);
+L0093       <span class="keyword">if</span> (<a class="L" href="luac.c.html#IS">IS</a>(<span class="string">"-"</span>)) <a class="L" href="luac.c.html#output">output</a>=NULL;
+L0094      }
+L0095      <span class="keyword">else</span> <span class="keyword">if</span> (<a class="L" href="luac.c.html#IS">IS</a>(<span class="string">"-p"</span>))			<span class="comment">/* parse only */</span>
+L0096       <a class="L" href="luac.c.html#dumping">dumping</a>=<span class="number">0</span>;
+L0097      <span class="keyword">else</span> <span class="keyword">if</span> (<a class="L" href="luac.c.html#IS">IS</a>(<span class="string">"-s"</span>))			<span class="comment">/* strip debug information */</span>
+L0098       <a class="L" href="luac.c.html#stripping">stripping</a>=<span class="number">1</span>;
+L0099      <span class="keyword">else</span> <span class="keyword">if</span> (<a class="L" href="luac.c.html#IS">IS</a>(<span class="string">"-v"</span>))			<span class="comment">/* show version */</span>
+L0100       ++version;
+L0101      <span class="keyword">else</span>					<span class="comment">/* unknown option */</span>
+L0102       <a class="L" href="luac.c.html#usage">usage</a>(argv[i]);
+L0103     }
+L0104     <span class="keyword">if</span> (i==argc &amp;&amp; (<a class="L" href="luac.c.html#listing">listing</a> || !<a class="L" href="luac.c.html#dumping">dumping</a>))
+L0105     {
+L0106      <a class="L" href="luac.c.html#dumping">dumping</a>=<span class="number">0</span>;
+L0107      argv[--i]=<a class="L" href="luac.c.html#Output">Output</a>;
+L0108     }
+L0109     <span class="keyword">if</span> (version)
+L0110     {
+L0111      printf(<span class="string">"%s  %s\n"</span>,<a class="L" href="lua.h.html#LUA_RELEASE">LUA_RELEASE</a>,<a class="L" href="lua.h.html#LUA_COPYRIGHT">LUA_COPYRIGHT</a>);
+L0112      <span class="keyword">if</span> (version==argc<span class="number">-1</span>) exit(EXIT_SUCCESS);
+L0113     }
+L0114     <span class="keyword">return</span> i;
+L0115    }
+L0116    
+L0117    <a name="toproto"/a><span class="prepro">#define toproto(L,i) (clvalue(L-&gt;top+(i))-&gt;l.p)
+</span>L0118    
+L0119    <span class="keyword">static</span> <span class="keyword">const</span> <a class="L" href="lobject.h.html#Proto">Proto</a>* <a name="combine"/a><a class="L" href="luac.c.ref.html#combine">combine</a>(<a class="L" href="lstate.h.html#lua_State">lua_State</a>* L, <span class="keyword">int</span> n)
+L0120    {
+L0121     <span class="keyword">if</span> (n==<span class="number">1</span>)
+L0122      <span class="keyword">return</span> <a class="L" href="luac.c.html#toproto">toproto</a>(L,<span class="number">-1</span>);
+L0123     <span class="keyword">else</span>
+L0124     {
+L0125      <span class="keyword">int</span> i,pc;
+L0126      <a class="L" href="lobject.h.html#Proto">Proto</a>* f=<a class="L" href="lfunc.c.html#luaF_newproto">luaF_newproto</a>(L);
+L0127      <a class="L" href="lobject.h.html#setptvalue2s">setptvalue2s</a>(L,L-&gt;top,f); <a class="L" href="ldo.h.html#incr_top">incr_top</a>(L);
+L0128      f-&gt;source=<a class="L" href="lstring.h.html#luaS_newliteral">luaS_newliteral</a>(L,<span class="string">"=("</span> <a class="L" href="luac.c.html#PROGNAME">PROGNAME</a> <span class="string">")"</span>);
+L0129      f-&gt;maxstacksize=<span class="number">1</span>;
+L0130      pc=<span class="number">2</span>*n<span class="number">+1</span>;
+L0131      f-&gt;code=<a class="L" href="lmem.h.html#luaM_newvector">luaM_newvector</a>(L,pc,<a class="L" href="llimits.h.html#Instruction">Instruction</a>);
+L0132      f-&gt;sizecode=pc;
+L0133      f-&gt;p=<a class="L" href="lmem.h.html#luaM_newvector">luaM_newvector</a>(L,n,<a class="L" href="lobject.h.html#Proto">Proto</a>*);
+L0134      f-&gt;sizep=n;
+L0135      pc=<span class="number">0</span>;
+L0136      <span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;n; i++)
+L0137      {
+L0138       f-&gt;p[i]=<a class="L" href="luac.c.html#toproto">toproto</a>(L,i-n<span class="number">-1</span>);
+L0139       f-&gt;code[pc++]=<a class="L" href="lopcodes.h.html#CREATE_ABx">CREATE_ABx</a>(<a class="L" href="lopcodes.h.html#OP_CLOSURE">OP_CLOSURE</a>,<span class="number">0</span>,i);
+L0140       f-&gt;code[pc++]=<a class="L" href="lopcodes.h.html#CREATE_ABC">CREATE_ABC</a>(<a class="L" href="lopcodes.h.html#OP_CALL">OP_CALL</a>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">1</span>);
+L0141      }
+L0142      f-&gt;code[pc++]=<a class="L" href="lopcodes.h.html#CREATE_ABC">CREATE_ABC</a>(<a class="L" href="lopcodes.h.html#OP_RETURN">OP_RETURN</a>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">0</span>);
+L0143      <span class="keyword">return</span> f;
+L0144     }
+L0145    }
+L0146    
+L0147    <span class="keyword">static</span> <span class="keyword">int</span> writer(<a class="L" href="lstate.h.html#lua_State">lua_State</a>* L, <span class="keyword">const</span> <span class="keyword">void</span>* p, size_t size, <span class="keyword">void</span>* u)
+L0148    {
+L0149     <a class="L" href="llimits.h.html#UNUSED">UNUSED</a>(L);
+L0150     <span class="keyword">return</span> (fwrite(p,size,<span class="number">1</span>,(FILE*)u)!=<span class="number">1</span>) &amp;&amp; (size!=<span class="number">0</span>);
+L0151    }
+L0152    
+L0153    <span class="keyword">struct</span> <a class="L" href="lua.c.html#Smain">Smain</a> {
+L0154     <span class="keyword">int</span> argc;
+L0155     <span class="keyword">char</span>** argv;
+L0156    };
+L0157    
+L0158    <span class="keyword">static</span> <span class="keyword">int</span> <a class="L" href="lua.c.html#pmain">pmain</a>(<a class="L" href="lstate.h.html#lua_State">lua_State</a>* L)
+L0159    {
+L0160     <span class="keyword">struct</span> <a class="L" href="lua.c.html#Smain">Smain</a>* s = (<span class="keyword">struct</span> <a class="L" href="lua.c.html#Smain">Smain</a>*)<a class="L" href="lapi.c.html#lua_touserdata">lua_touserdata</a>(L, <span class="number">1</span>);
+L0161     <span class="keyword">int</span> argc=s-&gt;argc;
+L0162     <span class="keyword">char</span>** argv=s-&gt;argv;
+L0163     <span class="keyword">const</span> <a class="L" href="lobject.h.html#Proto">Proto</a>* f;
+L0164     <span class="keyword">int</span> i;
+L0165     <span class="keyword">if</span> (!<a class="L" href="lapi.c.html#lua_checkstack">lua_checkstack</a>(L,argc)) <a class="L" href="luac.c.html#fatal">fatal</a>(<span class="string">"too many input files"</span>);
+L0166     <span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;argc; i++)
+L0167     {
+L0168      <span class="keyword">const</span> <span class="keyword">char</span>* filename=<a class="L" href="luac.c.html#IS">IS</a>(<span class="string">"-"</span>) ? NULL : argv[i];
+L0169      <span class="keyword">if</span> (<a class="L" href="lauxlib.c.html#luaL_loadfile">luaL_loadfile</a>(L,filename)!=<span class="number">0</span>) <a class="L" href="luac.c.html#fatal">fatal</a>(<a class="L" href="lua.h.html#lua_tostring">lua_tostring</a>(L,<span class="number">-1</span>));
+L0170     }
+L0171     f=<a class="L" href="luac.c.html#combine">combine</a>(L,argc);
+L0172     <span class="keyword">if</span> (<a class="L" href="luac.c.html#listing">listing</a>) luaU_print(f,<a class="L" href="luac.c.html#listing">listing</a>&gt;<span class="number">1</span>);
+L0173     <span class="keyword">if</span> (<a class="L" href="luac.c.html#dumping">dumping</a>)
+L0174     {
+L0175      FILE* D= (<a class="L" href="luac.c.html#output">output</a>==NULL) ? stdout : fopen(<a class="L" href="luac.c.html#output">output</a>,<span class="string">"wb"</span>);
+L0176      <span class="keyword">if</span> (D==NULL) <a class="L" href="luac.c.html#cannot">cannot</a>(<span class="string">"open"</span>);
+L0177      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);
+L0178      <a class="L" href="ldump.c.html#luaU_dump">luaU_dump</a>(L,f,writer,D,<a class="L" href="luac.c.html#stripping">stripping</a>);
+L0179      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(L);
+L0180      <span class="keyword">if</span> (ferror(D)) <a class="L" href="luac.c.html#cannot">cannot</a>(<span class="string">"write"</span>);
+L0181      <span class="keyword">if</span> (fclose(D)) <a class="L" href="luac.c.html#cannot">cannot</a>(<span class="string">"close"</span>);
+L0182     }
+L0183     <span class="keyword">return</span> <span class="number">0</span>;
+L0184    }
+L0185    
+L0186    <span class="keyword">int</span> <a class="L" href="lua.c.html#main">main</a>(<span class="keyword">int</span> argc, <span class="keyword">char</span>* argv[])
+L0187    {
+L0188     <a class="L" href="lstate.h.html#lua_State">lua_State</a>* L;
+L0189     <span class="keyword">struct</span> <a class="L" href="lua.c.html#Smain">Smain</a> s;
+L0190     <span class="keyword">int</span> i=<a class="L" href="luac.c.html#doargs">doargs</a>(argc,argv);
+L0191     argc-=i; argv+=i;
+L0192     <span class="keyword">if</span> (argc&lt;=<span class="number">0</span>) <a class="L" href="luac.c.html#usage">usage</a>(<span class="string">"no input files given"</span>);
+L0193     L=<a class="L" href="lua.h.html#lua_open">lua_open</a>();
+L0194     <span class="keyword">if</span> (L==NULL) <a class="L" href="luac.c.html#fatal">fatal</a>(<span class="string">"not enough memory for state"</span>);
+L0195     s.argc=argc;
+L0196     s.argv=argv;
+L0197     <span class="keyword">if</span> (<a class="L" href="lapi.c.html#lua_cpcall">lua_cpcall</a>(L,<a class="L" href="lua.c.html#pmain">pmain</a>,&amp;s)!=<span class="number">0</span>) <a class="L" href="luac.c.html#fatal">fatal</a>(<a class="L" href="lua.h.html#lua_tostring">lua_tostring</a>(L,<span class="number">-1</span>));
+L0198     <a class="L" href="lstate.c.html#lua_close">lua_close</a>(L);
+L0199     <span class="keyword">return</span> EXIT_SUCCESS;
+L0200    }
+</pre>
+<hr/>
+Generated by <a href="pretty.lua.html">pretty.lua</html>
+</body></html>

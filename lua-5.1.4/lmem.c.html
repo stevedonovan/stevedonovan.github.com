@@ -1,0 +1,107 @@
+<html>
+<head>
+<style>
+a.L { text-decoration: none; }
+a.L:hover { color: #FFAAAA; }
+body { margin-top: 20px; margin-left: 30px; }
+.lno { font-weight: bold: color #000; }
+.keyword {font-weight: bold; color: #6666AA; }
+.number  { color: #AA6666; }
+.string  { color: #8888AA; }
+.comment { color: #666600; }
+.prepro { color: #006666; } 
+</style>
+<body>
+<h1>Lua 5.1.4: lmem.c</h1>
+<hr/>
+<pre>
+L0001    <span class="comment">/*
+L0002    ** $Id: lmem.c,v 1.70.1.1 2007/12/27 13:02:25 roberto Exp $
+L0003    ** Interface to Memory Manager
+L0004    ** See Copyright Notice in lua.h
+L0005    */</span>
+L0006    
+L0007    
+L0008    <span class="prepro">#include &lt;stddef.h&gt;
+</span>L0009    
+L0010    <a name="lmem_c"/a><span class="prepro">#define lmem_c
+</span>L0011    <a name="LUA_CORE"/a><span class="prepro">#define LUA_CORE
+</span>L0012    
+L0013    <span class="prepro"><a class="L" href="lua.h.html#">#include "lua.h"
+</a></span>L0014    
+L0015    <span class="prepro"><a class="L" href="ldebug.h.html#">#include "ldebug.h"
+</a></span>L0016    <span class="prepro"><a class="L" href="ldo.h.html#">#include "ldo.h"
+</a></span>L0017    <span class="prepro"><a class="L" href="lmem.h.html#">#include "lmem.h"
+</a></span>L0018    <span class="prepro"><a class="L" href="lobject.h.html#">#include "lobject.h"
+</a></span>L0019    <span class="prepro"><a class="L" href="lstate.h.html#">#include "lstate.h"
+</a></span>L0020    
+L0021    
+L0022    
+L0023    <span class="comment">/*
+L0024    ** About the realloc function:
+L0025    ** void * frealloc (void *ud, void *ptr, size_t osize, size_t nsize);
+L0026    ** (`osize' is the old size, `nsize' is the new size)
+L0027    **
+L0028    ** Lua ensures that (ptr == NULL) iff (osize == 0).
+L0029    **
+L0030    ** * frealloc(ud, NULL, 0, x) creates a new block of size `x'
+L0031    **
+L0032    ** * frealloc(ud, p, x, 0) frees the block `p'
+L0033    ** (in this specific case, frealloc must return NULL).
+L0034    ** particularly, frealloc(ud, NULL, 0, 0) does nothing
+L0035    ** (which is equivalent to free(NULL) in ANSI C)
+L0036    **
+L0037    ** frealloc returns NULL if it cannot create or reallocate the area
+L0038    ** (any reallocation to an equal or smaller size cannot fail!)
+L0039    */</span>
+L0040    
+L0041    
+L0042    
+L0043    <a name="MINSIZEARRAY"/a><span class="prepro">#define MINSIZEARRAY	4
+</span>L0044    
+L0045    
+L0046    <span class="keyword">void</span> *<a name="luaM_growaux_"/a><a class="L" href="lmem.c.ref.html#luaM_growaux_">luaM_growaux_</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">void</span> *<a class="L" href="lparser.c.html#block">block</a>, <span class="keyword">int</span> *size, size_t size_elems,
+L0047                         <span class="keyword">int</span> limit, <span class="keyword">const</span> <span class="keyword">char</span> *errormsg) {
+L0048      <span class="keyword">void</span> *newblock;
+L0049      <span class="keyword">int</span> newsize;
+L0050      <span class="keyword">if</span> (*size &gt;= limit/<span class="number">2</span>) {  <span class="comment">/* cannot double it? */</span>
+L0051        <span class="keyword">if</span> (*size &gt;= limit)  <span class="comment">/* cannot grow even a little? */</span>
+L0052          <a class="L" href="ldebug.c.html#luaG_runerror">luaG_runerror</a>(L, errormsg);
+L0053        newsize = limit;  <span class="comment">/* still have at least one free place */</span>
+L0054      }
+L0055      <span class="keyword">else</span> {
+L0056        newsize = (*size)*<span class="number">2</span>;
+L0057        <span class="keyword">if</span> (newsize &lt; <a class="L" href="lmem.c.html#MINSIZEARRAY">MINSIZEARRAY</a>)
+L0058          newsize = <a class="L" href="lmem.c.html#MINSIZEARRAY">MINSIZEARRAY</a>;  <span class="comment">/* minimum size */</span>
+L0059      }
+L0060      newblock = <a class="L" href="lmem.h.html#luaM_reallocv">luaM_reallocv</a>(L, <a class="L" href="lparser.c.html#block">block</a>, *size, newsize, size_elems);
+L0061      *size = newsize;  <span class="comment">/* update only when everything else is OK */</span>
+L0062      <span class="keyword">return</span> newblock;
+L0063    }
+L0064    
+L0065    
+L0066    <span class="keyword">void</span> *<a name="luaM_toobig"/a><a class="L" href="lmem.c.ref.html#luaM_toobig">luaM_toobig</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0067      <a class="L" href="ldebug.c.html#luaG_runerror">luaG_runerror</a>(L, <span class="string">"memory allocation error: block too big"</span>);
+L0068      <span class="keyword">return</span> NULL;  <span class="comment">/* to avoid warnings */</span>
+L0069    }
+L0070    
+L0071    
+L0072    
+L0073    <span class="comment">/*
+L0074    ** generic allocation routine.
+L0075    */</span>
+L0076    <span class="keyword">void</span> *<a name="luaM_realloc_"/a><a class="L" href="lmem.c.ref.html#luaM_realloc_">luaM_realloc_</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">void</span> *<a class="L" href="lparser.c.html#block">block</a>, size_t osize, size_t nsize) {
+L0077      <a class="L" href="lstate.h.html#global_State">global_State</a> *g = <a class="L" href="lstate.h.html#G">G</a>(L);
+L0078      <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>((osize == <span class="number">0</span>) == (<a class="L" href="lparser.c.html#block">block</a> == NULL));
+L0079      <a class="L" href="lparser.c.html#block">block</a> = (*g-&gt;frealloc)(g-&gt;ud, <a class="L" href="lparser.c.html#block">block</a>, osize, nsize);
+L0080      <span class="keyword">if</span> (<a class="L" href="lparser.c.html#block">block</a> == NULL &amp;&amp; nsize &gt; <span class="number">0</span>)
+L0081        <a class="L" href="ldo.c.html#luaD_throw">luaD_throw</a>(L, <a class="L" href="lua.h.html#LUA_ERRMEM">LUA_ERRMEM</a>);
+L0082      <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>((nsize == <span class="number">0</span>) == (<a class="L" href="lparser.c.html#block">block</a> == NULL));
+L0083      g-&gt;totalbytes = (g-&gt;totalbytes - osize) + nsize;
+L0084      <span class="keyword">return</span> <a class="L" href="lparser.c.html#block">block</a>;
+L0085    }
+L0086    
+</pre>
+<hr/>
+Generated by <a href="pretty.lua.html">pretty.lua</html>
+</body></html>

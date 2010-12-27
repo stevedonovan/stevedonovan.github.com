@@ -1,0 +1,96 @@
+<html>
+<head>
+<style>
+a.L { text-decoration: none; }
+a.L:hover { color: #FFAAAA; }
+body { margin-top: 20px; margin-left: 30px; }
+.lno { font-weight: bold: color #000; }
+.keyword {font-weight: bold; color: #6666AA; }
+.number  { color: #AA6666; }
+.string  { color: #8888AA; }
+.comment { color: #666600; }
+.prepro { color: #006666; } 
+</style>
+<body>
+<h1>Lua 5.1.4: ltm.c</h1>
+<hr/>
+<pre>
+L0001    <span class="comment">/*
+L0002    ** $Id: ltm.c,v 2.8.1.1 2007/12/27 13:02:25 roberto Exp $
+L0003    ** Tag methods
+L0004    ** See Copyright Notice in lua.h
+L0005    */</span>
+L0006    
+L0007    
+L0008    <span class="prepro">#include &lt;string.h&gt;
+</span>L0009    
+L0010    <a name="ltm_c"/a><span class="prepro">#define ltm_c
+</span>L0011    <a name="LUA_CORE"/a><span class="prepro">#define LUA_CORE
+</span>L0012    
+L0013    <span class="prepro"><a class="L" href="lua.h.html#">#include "lua.h"
+</a></span>L0014    
+L0015    <span class="prepro"><a class="L" href="lobject.h.html#">#include "lobject.h"
+</a></span>L0016    <span class="prepro"><a class="L" href="lstate.h.html#">#include "lstate.h"
+</a></span>L0017    <span class="prepro"><a class="L" href="lstring.h.html#">#include "lstring.h"
+</a></span>L0018    <span class="prepro"><a class="L" href="ltable.h.html#">#include "ltable.h"
+</a></span>L0019    <span class="prepro"><a class="L" href="ltm.h.html#">#include "ltm.h"
+</a></span>L0020    
+L0021    
+L0022    
+L0023    <span class="keyword">const</span> <span class="keyword">char</span> *<span class="keyword">const</span> <a name="luaT_typenames"/a><a class="L" href="ltm.c.ref.html#luaT_typenames">luaT_typenames</a>[] = {
+L0024      <span class="string">"nil"</span>, <span class="string">"boolean"</span>, <span class="string">"userdata"</span>, <span class="string">"number"</span>,
+L0025      <span class="string">"string"</span>, <span class="string">"table"</span>, <span class="string">"function"</span>, <span class="string">"userdata"</span>, <span class="string">"thread"</span>,
+L0026      <span class="string">"proto"</span>, <span class="string">"upval"</span>
+L0027    };
+L0028    
+L0029    
+L0030    <span class="keyword">void</span> <a name="luaT_init"/a><a class="L" href="ltm.c.ref.html#luaT_init">luaT_init</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0031      <span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">char</span> *<span class="keyword">const</span> luaT_eventname[] = {  <span class="comment">/* ORDER TM */</span>
+L0032        <span class="string">"__index"</span>, <span class="string">"__newindex"</span>,
+L0033        <span class="string">"__gc"</span>, <span class="string">"__mode"</span>, <span class="string">"__eq"</span>,
+L0034        <span class="string">"__add"</span>, <span class="string">"__sub"</span>, <span class="string">"__mul"</span>, <span class="string">"__div"</span>, <span class="string">"__mod"</span>,
+L0035        <span class="string">"__pow"</span>, <span class="string">"__unm"</span>, <span class="string">"__len"</span>, <span class="string">"__lt"</span>, <span class="string">"__le"</span>,
+L0036        <span class="string">"__concat"</span>, <span class="string">"__call"</span>
+L0037      };
+L0038      <span class="keyword">int</span> i;
+L0039      <span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;<a class="L" href="ltm.h.html#TM_N">TM_N</a>; i++) {
+L0040        <a class="L" href="lstate.h.html#G">G</a>(L)-&gt;tmname[i] = <a class="L" href="lstring.h.html#luaS_new">luaS_new</a>(L, luaT_eventname[i]);
+L0041        <a class="L" href="lstring.h.html#luaS_fix">luaS_fix</a>(<a class="L" href="lstate.h.html#G">G</a>(L)-&gt;tmname[i]);  <span class="comment">/* never collect these names */</span>
+L0042      }
+L0043    }
+L0044    
+L0045    
+L0046    <span class="comment">/*
+L0047    ** function to be used with macro "fasttm": optimized for absence of
+L0048    ** tag methods
+L0049    */</span>
+L0050    <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *<a name="luaT_gettm"/a><a class="L" href="ltm.c.ref.html#luaT_gettm">luaT_gettm</a> (<a class="L" href="lobject.h.html#Table">Table</a> *events, <a class="L" href="ltm.h.html#TMS">TMS</a> event, <a class="L" href="lobject.h.html#TString">TString</a> *ename) {
+L0051      <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *tm = <a class="L" href="ltable.c.html#luaH_getstr">luaH_getstr</a>(events, ename);
+L0052      <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(event &lt;= <a class="L" href="ltm.h.html#TM_EQ">TM_EQ</a>);
+L0053      <span class="keyword">if</span> (<a class="L" href="lobject.h.html#ttisnil">ttisnil</a>(tm)) {  <span class="comment">/* no tag method? */</span>
+L0054        events-&gt;flags |= <a class="L" href="llimits.h.html#cast_byte">cast_byte</a>(<span class="number">1</span>u&lt;&lt;event);  <span class="comment">/* cache this fact */</span>
+L0055        <span class="keyword">return</span> NULL;
+L0056      }
+L0057      <span class="keyword">else</span> <span class="keyword">return</span> tm;
+L0058    }
+L0059    
+L0060    
+L0061    <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *<a name="luaT_gettmbyobj"/a><a class="L" href="ltm.c.ref.html#luaT_gettmbyobj">luaT_gettmbyobj</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *o, <a class="L" href="ltm.h.html#TMS">TMS</a> event) {
+L0062      <a class="L" href="lobject.h.html#Table">Table</a> *mt;
+L0063      <span class="keyword">switch</span> (<a class="L" href="lobject.h.html#ttype">ttype</a>(o)) {
+L0064        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TTABLE">LUA_TTABLE</a>:
+L0065          mt = <a class="L" href="lobject.h.html#hvalue">hvalue</a>(o)-&gt;metatable;
+L0066          <span class="keyword">break</span>;
+L0067        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TUSERDATA">LUA_TUSERDATA</a>:
+L0068          mt = <a class="L" href="lobject.h.html#uvalue">uvalue</a>(o)-&gt;metatable;
+L0069          <span class="keyword">break</span>;
+L0070        <span class="keyword">default</span>:
+L0071          mt = <a class="L" href="lstate.h.html#G">G</a>(L)-&gt;mt[<a class="L" href="lobject.h.html#ttype">ttype</a>(o)];
+L0072      }
+L0073      <span class="keyword">return</span> (mt ? <a class="L" href="ltable.c.html#luaH_getstr">luaH_getstr</a>(mt, <a class="L" href="lstate.h.html#G">G</a>(L)-&gt;tmname[event]) : <a class="L" href="lobject.h.html#luaO_nilobject">luaO_nilobject</a>);
+L0074    }
+L0075    
+</pre>
+<hr/>
+Generated by <a href="pretty.lua.html">pretty.lua</html>
+</body></html>

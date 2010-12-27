@@ -1,0 +1,732 @@
+<html>
+<head>
+<style>
+a.L { text-decoration: none; }
+a.L:hover { color: #FFAAAA; }
+body { margin-top: 20px; margin-left: 30px; }
+.lno { font-weight: bold: color #000; }
+.keyword {font-weight: bold; color: #6666AA; }
+.number  { color: #AA6666; }
+.string  { color: #8888AA; }
+.comment { color: #666600; }
+.prepro { color: #006666; } 
+</style>
+<body>
+<h1>Lua 5.1.4: lgc.c</h1>
+<hr/>
+<pre>
+L0001    <span class="comment">/*
+L0002    ** $Id: lgc.c,v 2.38.1.1 2007/12/27 13:02:25 roberto Exp $
+L0003    ** Garbage Collector
+L0004    ** See Copyright Notice in lua.h
+L0005    */</span>
+L0006    
+L0007    <span class="prepro">#include &lt;string.h&gt;
+</span>L0008    
+L0009    <a name="lgc_c"/a><span class="prepro">#define lgc_c
+</span>L0010    <a name="LUA_CORE"/a><span class="prepro">#define LUA_CORE
+</span>L0011    
+L0012    <span class="prepro"><a class="L" href="lua.h.html#">#include "lua.h"
+</a></span>L0013    
+L0014    <span class="prepro"><a class="L" href="ldebug.h.html#">#include "ldebug.h"
+</a></span>L0015    <span class="prepro"><a class="L" href="ldo.h.html#">#include "ldo.h"
+</a></span>L0016    <span class="prepro"><a class="L" href="lfunc.h.html#">#include "lfunc.h"
+</a></span>L0017    <span class="prepro"><a class="L" href="lgc.h.html#">#include "lgc.h"
+</a></span>L0018    <span class="prepro"><a class="L" href="lmem.h.html#">#include "lmem.h"
+</a></span>L0019    <span class="prepro"><a class="L" href="lobject.h.html#">#include "lobject.h"
+</a></span>L0020    <span class="prepro"><a class="L" href="lstate.h.html#">#include "lstate.h"
+</a></span>L0021    <span class="prepro"><a class="L" href="lstring.h.html#">#include "lstring.h"
+</a></span>L0022    <span class="prepro"><a class="L" href="ltable.h.html#">#include "ltable.h"
+</a></span>L0023    <span class="prepro"><a class="L" href="ltm.h.html#">#include "ltm.h"
+</a></span>L0024    
+L0025    
+L0026    <a name="GCSTEPSIZE"/a><span class="prepro">#define GCSTEPSIZE	1024u
+</span>L0027    <a name="GCSWEEPMAX"/a><span class="prepro">#define GCSWEEPMAX	40
+</span>L0028    <a name="GCSWEEPCOST"/a><span class="prepro">#define GCSWEEPCOST	10
+</span>L0029    <a name="GCFINALIZECOST"/a><span class="prepro">#define GCFINALIZECOST	100
+</span>L0030    
+L0031    
+L0032    <a name="maskmarks"/a><span class="prepro">#define maskmarks	cast_byte(~(bitmask(BLACKBIT)|WHITEBITS))
+</span>L0033    
+L0034    <a name="makewhite"/a><span class="prepro">#define makewhite(g,x)	\
+L0035       ((x)-&gt;gch.marked = cast_byte(((x)-&gt;gch.marked &amp; maskmarks) | luaC_white(g)))
+</span>L0036    
+L0037    <a name="white2gray"/a><span class="prepro">#define white2gray(x)	reset2bits((x)-&gt;gch.marked, WHITE0BIT, WHITE1BIT)
+</span>L0038    <a name="black2gray"/a><span class="prepro">#define black2gray(x)	resetbit((x)-&gt;gch.marked, BLACKBIT)
+</span>L0039    
+L0040    <a name="stringmark"/a><span class="prepro">#define stringmark(s)	reset2bits((s)-&gt;tsv.marked, WHITE0BIT, WHITE1BIT)
+</span>L0041    
+L0042    
+L0043    <a name="isfinalized"/a><span class="prepro">#define isfinalized(u)		testbit((u)-&gt;marked, FINALIZEDBIT)
+</span>L0044    <a name="markfinalized"/a><span class="prepro">#define markfinalized(u)	l_setbit((u)-&gt;marked, FINALIZEDBIT)
+</span>L0045    
+L0046    
+L0047    <a name="KEYWEAK"/a><span class="prepro">#define KEYWEAK         bitmask(KEYWEAKBIT)
+</span>L0048    <a name="VALUEWEAK"/a><span class="prepro">#define VALUEWEAK       bitmask(VALUEWEAKBIT)
+</span>L0049    
+L0050    
+L0051    
+L0052    <a name="markvalue"/a><span class="prepro">#define markvalue(g,o) { checkconsistency(o); \
+L0053      if (iscollectable(o) &amp;&amp; iswhite(gcvalue(o))) reallymarkobject(g,gcvalue(o)); }
+</span>L0054    
+L0055    <a name="markobject"/a><span class="prepro">#define markobject(g,t) { if (iswhite(obj2gco(t))) \
+L0056    		reallymarkobject(g, obj2gco(t)); }
+</span>L0057    
+L0058    
+L0059    <a name="setthreshold"/a><span class="prepro">#define setthreshold(g)  (g-&gt;GCthreshold = (g-&gt;estimate/100) * g-&gt;gcpause)
+</span>L0060    
+L0061    
+L0062    <span class="keyword">static</span> <span class="keyword">void</span> <a name="removeentry"/a><a class="L" href="lgc.c.ref.html#removeentry">removeentry</a> (<a class="L" href="lobject.h.html#Node">Node</a> *n) {
+L0063      <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(<a class="L" href="lobject.h.html#ttisnil">ttisnil</a>(<a class="L" href="ltable.h.html#gval">gval</a>(n)));
+L0064      <span class="keyword">if</span> (<a class="L" href="lobject.h.html#iscollectable">iscollectable</a>(<a class="L" href="ltable.h.html#gkey">gkey</a>(n)))
+L0065        <a class="L" href="lobject.h.html#setttype">setttype</a>(<a class="L" href="ltable.h.html#gkey">gkey</a>(n), <a class="L" href="lobject.h.html#LUA_TDEADKEY">LUA_TDEADKEY</a>);  <span class="comment">/* dead key; remove it */</span>
+L0066    }
+L0067    
+L0068    
+L0069    <span class="keyword">static</span> <span class="keyword">void</span> <a name="reallymarkobject"/a><a class="L" href="lgc.c.ref.html#reallymarkobject">reallymarkobject</a> (<a class="L" href="lstate.h.html#global_State">global_State</a> *g, <a class="L" href="lobject.h.html#GCObject">GCObject</a> *o) {
+L0070      <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(<a class="L" href="lgc.h.html#iswhite">iswhite</a>(o) &amp;&amp; !<a class="L" href="lgc.h.html#isdead">isdead</a>(g, o));
+L0071      <a class="L" href="lgc.c.html#white2gray">white2gray</a>(o);
+L0072      <span class="keyword">switch</span> (o-&gt;gch.tt) {
+L0073        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TSTRING">LUA_TSTRING</a>: {
+L0074          <span class="keyword">return</span>;
+L0075        }
+L0076        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TUSERDATA">LUA_TUSERDATA</a>: {
+L0077          <a class="L" href="lobject.h.html#Table">Table</a> *mt = <a class="L" href="lstate.h.html#gco2u">gco2u</a>(o)-&gt;metatable;
+L0078          <a class="L" href="lgc.h.html#gray2black">gray2black</a>(o);  <span class="comment">/* udata are never gray */</span>
+L0079          <span class="keyword">if</span> (mt) <a class="L" href="lgc.c.html#markobject">markobject</a>(g, mt);
+L0080          <a class="L" href="lgc.c.html#markobject">markobject</a>(g, <a class="L" href="lstate.h.html#gco2u">gco2u</a>(o)-&gt;env);
+L0081          <span class="keyword">return</span>;
+L0082        }
+L0083        <span class="keyword">case</span> <a class="L" href="lobject.h.html#LUA_TUPVAL">LUA_TUPVAL</a>: {
+L0084          <a class="L" href="lobject.h.html#UpVal">UpVal</a> *uv = <a class="L" href="lstate.h.html#gco2uv">gco2uv</a>(o);
+L0085          <a class="L" href="lgc.c.html#markvalue">markvalue</a>(g, uv-&gt;v);
+L0086          <span class="keyword">if</span> (uv-&gt;v == &amp;uv-&gt;u.value)  <span class="comment">/* closed? */</span>
+L0087            <a class="L" href="lgc.h.html#gray2black">gray2black</a>(o);  <span class="comment">/* open upvalues are never black */</span>
+L0088          <span class="keyword">return</span>;
+L0089        }
+L0090        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TFUNCTION">LUA_TFUNCTION</a>: {
+L0091          <a class="L" href="lstate.h.html#gco2cl">gco2cl</a>(o)-&gt;c.gclist = g-&gt;gray;
+L0092          g-&gt;gray = o;
+L0093          <span class="keyword">break</span>;
+L0094        }
+L0095        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TTABLE">LUA_TTABLE</a>: {
+L0096          <a class="L" href="lstate.h.html#gco2h">gco2h</a>(o)-&gt;gclist = g-&gt;gray;
+L0097          g-&gt;gray = o;
+L0098          <span class="keyword">break</span>;
+L0099        }
+L0100        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TTHREAD">LUA_TTHREAD</a>: {
+L0101          <a class="L" href="lstate.h.html#gco2th">gco2th</a>(o)-&gt;gclist = g-&gt;gray;
+L0102          g-&gt;gray = o;
+L0103          <span class="keyword">break</span>;
+L0104        }
+L0105        <span class="keyword">case</span> <a class="L" href="lobject.h.html#LUA_TPROTO">LUA_TPROTO</a>: {
+L0106          <a class="L" href="lstate.h.html#gco2p">gco2p</a>(o)-&gt;gclist = g-&gt;gray;
+L0107          g-&gt;gray = o;
+L0108          <span class="keyword">break</span>;
+L0109        }
+L0110        <span class="keyword">default</span>: <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(<span class="number">0</span>);
+L0111      }
+L0112    }
+L0113    
+L0114    
+L0115    <span class="keyword">static</span> <span class="keyword">void</span> <a name="marktmu"/a><a class="L" href="lgc.c.ref.html#marktmu">marktmu</a> (<a class="L" href="lstate.h.html#global_State">global_State</a> *g) {
+L0116      <a class="L" href="lobject.h.html#GCObject">GCObject</a> *u = g-&gt;tmudata;
+L0117      <span class="keyword">if</span> (u) {
+L0118        <span class="keyword">do</span> {
+L0119          u = u-&gt;gch.<a class="L" href="llex.c.html#next">next</a>;
+L0120          <a class="L" href="lgc.c.html#makewhite">makewhite</a>(g, u);  <span class="comment">/* may be marked, if left from previous GC */</span>
+L0121          <a class="L" href="lgc.c.html#reallymarkobject">reallymarkobject</a>(g, u);
+L0122        } <span class="keyword">while</span> (u != g-&gt;tmudata);
+L0123      }
+L0124    }
+L0125    
+L0126    
+L0127    <span class="comment">/* move `dead' udata that need finalization to list `tmudata' */</span>
+L0128    size_t <a name="luaC_separateudata"/a><a class="L" href="lgc.c.ref.html#luaC_separateudata">luaC_separateudata</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> all) {
+L0129      <a class="L" href="lstate.h.html#global_State">global_State</a> *g = <a class="L" href="lstate.h.html#G">G</a>(L);
+L0130      size_t deadmem = <span class="number">0</span>;
+L0131      <a class="L" href="lobject.h.html#GCObject">GCObject</a> **p = &amp;g-&gt;mainthread-&gt;<a class="L" href="llex.c.html#next">next</a>;
+L0132      <a class="L" href="lobject.h.html#GCObject">GCObject</a> *curr;
+L0133      <span class="keyword">while</span> ((curr = *p) != NULL) {
+L0134        <span class="keyword">if</span> (!(<a class="L" href="lgc.h.html#iswhite">iswhite</a>(curr) || all) || <a class="L" href="lgc.c.html#isfinalized">isfinalized</a>(<a class="L" href="lstate.h.html#gco2u">gco2u</a>(curr)))
+L0135          p = &amp;curr-&gt;gch.<a class="L" href="llex.c.html#next">next</a>;  <span class="comment">/* don't bother with them */</span>
+L0136        <span class="keyword">else</span> <span class="keyword">if</span> (<a class="L" href="ltm.h.html#fasttm">fasttm</a>(L, <a class="L" href="lstate.h.html#gco2u">gco2u</a>(curr)-&gt;metatable, <a class="L" href="ltm.h.html#TM_GC">TM_GC</a>) == NULL) {
+L0137          <a class="L" href="lgc.c.html#markfinalized">markfinalized</a>(<a class="L" href="lstate.h.html#gco2u">gco2u</a>(curr));  <span class="comment">/* don't need finalization */</span>
+L0138          p = &amp;curr-&gt;gch.<a class="L" href="llex.c.html#next">next</a>;
+L0139        }
+L0140        <span class="keyword">else</span> {  <span class="comment">/* must call its gc method */</span>
+L0141          deadmem += <a class="L" href="lstring.h.html#sizeudata">sizeudata</a>(<a class="L" href="lstate.h.html#gco2u">gco2u</a>(curr));
+L0142          <a class="L" href="lgc.c.html#markfinalized">markfinalized</a>(<a class="L" href="lstate.h.html#gco2u">gco2u</a>(curr));
+L0143          *p = curr-&gt;gch.<a class="L" href="llex.c.html#next">next</a>;
+L0144          <span class="comment">/* link `curr' at the end of `tmudata' list */</span>
+L0145          <span class="keyword">if</span> (g-&gt;tmudata == NULL)  <span class="comment">/* list is empty? */</span>
+L0146            g-&gt;tmudata = curr-&gt;gch.<a class="L" href="llex.c.html#next">next</a> = curr;  <span class="comment">/* creates a circular list */</span>
+L0147          <span class="keyword">else</span> {
+L0148            curr-&gt;gch.<a class="L" href="llex.c.html#next">next</a> = g-&gt;tmudata-&gt;gch.<a class="L" href="llex.c.html#next">next</a>;
+L0149            g-&gt;tmudata-&gt;gch.<a class="L" href="llex.c.html#next">next</a> = curr;
+L0150            g-&gt;tmudata = curr;
+L0151          }
+L0152        }
+L0153      }
+L0154      <span class="keyword">return</span> deadmem;
+L0155    }
+L0156    
+L0157    
+L0158    <span class="keyword">static</span> <span class="keyword">int</span> <a name="traversetable"/a><a class="L" href="lgc.c.ref.html#traversetable">traversetable</a> (<a class="L" href="lstate.h.html#global_State">global_State</a> *g, <a class="L" href="lobject.h.html#Table">Table</a> *h) {
+L0159      <span class="keyword">int</span> i;
+L0160      <span class="keyword">int</span> weakkey = <span class="number">0</span>;
+L0161      <span class="keyword">int</span> weakvalue = <span class="number">0</span>;
+L0162      <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *mode;
+L0163      <span class="keyword">if</span> (h-&gt;metatable)
+L0164        <a class="L" href="lgc.c.html#markobject">markobject</a>(g, h-&gt;metatable);
+L0165      mode = <a class="L" href="ltm.h.html#gfasttm">gfasttm</a>(g, h-&gt;metatable, <a class="L" href="ltm.h.html#TM_MODE">TM_MODE</a>);
+L0166      <span class="keyword">if</span> (mode &amp;&amp; <a class="L" href="lobject.h.html#ttisstring">ttisstring</a>(mode)) {  <span class="comment">/* is there a weak mode? */</span>
+L0167        weakkey = (strchr(<a class="L" href="lobject.h.html#svalue">svalue</a>(mode), 'k') != NULL);
+L0168        weakvalue = (strchr(<a class="L" href="lobject.h.html#svalue">svalue</a>(mode), 'v') != NULL);
+L0169        <span class="keyword">if</span> (weakkey || weakvalue) {  <span class="comment">/* is really weak? */</span>
+L0170          h-&gt;marked &amp;= ~(<a class="L" href="lgc.c.html#KEYWEAK">KEYWEAK</a> | <a class="L" href="lgc.c.html#VALUEWEAK">VALUEWEAK</a>);  <span class="comment">/* clear bits */</span>
+L0171          h-&gt;marked |= <a class="L" href="llimits.h.html#cast_byte">cast_byte</a>((weakkey &lt;&lt; <a class="L" href="lgc.h.html#KEYWEAKBIT">KEYWEAKBIT</a>) |
+L0172                                 (weakvalue &lt;&lt; <a class="L" href="lgc.h.html#VALUEWEAKBIT">VALUEWEAKBIT</a>));
+L0173          h-&gt;gclist = g-&gt;weak;  <span class="comment">/* must be cleared after GC, ... */</span>
+L0174          g-&gt;weak = <a class="L" href="lstate.h.html#obj2gco">obj2gco</a>(h);  <span class="comment">/* ... so put in the appropriate list */</span>
+L0175        }
+L0176      }
+L0177      <span class="keyword">if</span> (weakkey &amp;&amp; weakvalue) <span class="keyword">return</span> <span class="number">1</span>;
+L0178      <span class="keyword">if</span> (!weakvalue) {
+L0179        i = h-&gt;sizearray;
+L0180        <span class="keyword">while</span> (i--)
+L0181          <a class="L" href="lgc.c.html#markvalue">markvalue</a>(g, &amp;h-&gt;array[i]);
+L0182      }
+L0183      i = <a class="L" href="lobject.h.html#sizenode">sizenode</a>(h);
+L0184      <span class="keyword">while</span> (i--) {
+L0185        <a class="L" href="lobject.h.html#Node">Node</a> *n = <a class="L" href="ltable.h.html#gnode">gnode</a>(h, i);
+L0186        <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(<a class="L" href="lobject.h.html#ttype">ttype</a>(<a class="L" href="ltable.h.html#gkey">gkey</a>(n)) != <a class="L" href="lobject.h.html#LUA_TDEADKEY">LUA_TDEADKEY</a> || <a class="L" href="lobject.h.html#ttisnil">ttisnil</a>(<a class="L" href="ltable.h.html#gval">gval</a>(n)));
+L0187        <span class="keyword">if</span> (<a class="L" href="lobject.h.html#ttisnil">ttisnil</a>(<a class="L" href="ltable.h.html#gval">gval</a>(n)))
+L0188          <a class="L" href="lgc.c.html#removeentry">removeentry</a>(n);  <span class="comment">/* remove empty entries */</span>
+L0189        <span class="keyword">else</span> {
+L0190          <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(!<a class="L" href="lobject.h.html#ttisnil">ttisnil</a>(<a class="L" href="ltable.h.html#gkey">gkey</a>(n)));
+L0191          <span class="keyword">if</span> (!weakkey) <a class="L" href="lgc.c.html#markvalue">markvalue</a>(g, <a class="L" href="ltable.h.html#gkey">gkey</a>(n));
+L0192          <span class="keyword">if</span> (!weakvalue) <a class="L" href="lgc.c.html#markvalue">markvalue</a>(g, <a class="L" href="ltable.h.html#gval">gval</a>(n));
+L0193        }
+L0194      }
+L0195      <span class="keyword">return</span> weakkey || weakvalue;
+L0196    }
+L0197    
+L0198    
+L0199    <span class="comment">/*
+L0200    ** All marks are conditional because a GC may happen while the
+L0201    ** prototype is still being created
+L0202    */</span>
+L0203    <span class="keyword">static</span> <span class="keyword">void</span> <a name="traverseproto"/a><a class="L" href="lgc.c.ref.html#traverseproto">traverseproto</a> (<a class="L" href="lstate.h.html#global_State">global_State</a> *g, <a class="L" href="lobject.h.html#Proto">Proto</a> *f) {
+L0204      <span class="keyword">int</span> i;
+L0205      <span class="keyword">if</span> (f-&gt;source) <a class="L" href="lgc.c.html#stringmark">stringmark</a>(f-&gt;source);
+L0206      <span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;f-&gt;sizek; i++)  <span class="comment">/* mark literals */</span>
+L0207        <a class="L" href="lgc.c.html#markvalue">markvalue</a>(g, &amp;f-&gt;k[i]);
+L0208      <span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;f-&gt;sizeupvalues; i++) {  <span class="comment">/* mark upvalue names */</span>
+L0209        <span class="keyword">if</span> (f-&gt;upvalues[i])
+L0210          <a class="L" href="lgc.c.html#stringmark">stringmark</a>(f-&gt;upvalues[i]);
+L0211      }
+L0212      <span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;f-&gt;sizep; i++) {  <span class="comment">/* mark nested protos */</span>
+L0213        <span class="keyword">if</span> (f-&gt;p[i])
+L0214          <a class="L" href="lgc.c.html#markobject">markobject</a>(g, f-&gt;p[i]);
+L0215      }
+L0216      <span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;f-&gt;sizelocvars; i++) {  <span class="comment">/* mark local-variable names */</span>
+L0217        <span class="keyword">if</span> (f-&gt;locvars[i].varname)
+L0218          <a class="L" href="lgc.c.html#stringmark">stringmark</a>(f-&gt;locvars[i].varname);
+L0219      }
+L0220    }
+L0221    
+L0222    
+L0223    
+L0224    <span class="keyword">static</span> <span class="keyword">void</span> <a name="traverseclosure"/a><a class="L" href="lgc.c.ref.html#traverseclosure">traverseclosure</a> (<a class="L" href="lstate.h.html#global_State">global_State</a> *g, <a class="L" href="lobject.h.html#Closure">Closure</a> *cl) {
+L0225      <a class="L" href="lgc.c.html#markobject">markobject</a>(g, cl-&gt;c.env);
+L0226      <span class="keyword">if</span> (cl-&gt;c.isC) {
+L0227        <span class="keyword">int</span> i;
+L0228        <span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;cl-&gt;c.nupvalues; i++)  <span class="comment">/* mark its upvalues */</span>
+L0229          <a class="L" href="lgc.c.html#markvalue">markvalue</a>(g, &amp;cl-&gt;c.upvalue[i]);
+L0230      }
+L0231      <span class="keyword">else</span> {
+L0232        <span class="keyword">int</span> i;
+L0233        <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(cl-&gt;l.nupvalues == cl-&gt;l.p-&gt;nups);
+L0234        <a class="L" href="lgc.c.html#markobject">markobject</a>(g, cl-&gt;l.p);
+L0235        <span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;cl-&gt;l.nupvalues; i++)  <span class="comment">/* mark its upvalues */</span>
+L0236          <a class="L" href="lgc.c.html#markobject">markobject</a>(g, cl-&gt;l.upvals[i]);
+L0237      }
+L0238    }
+L0239    
+L0240    
+L0241    <span class="keyword">static</span> <span class="keyword">void</span> <a name="checkstacksizes"/a><a class="L" href="lgc.c.ref.html#checkstacksizes">checkstacksizes</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lobject.h.html#StkId">StkId</a> max) {
+L0242      <span class="keyword">int</span> ci_used = <a class="L" href="llimits.h.html#cast_int">cast_int</a>(L-&gt;ci - L-&gt;base_ci);  <span class="comment">/* number of `ci' in use */</span>
+L0243      <span class="keyword">int</span> s_used = <a class="L" href="llimits.h.html#cast_int">cast_int</a>(max - L-&gt;stack);  <span class="comment">/* part of stack in use */</span>
+L0244      <span class="keyword">if</span> (L-&gt;size_ci &gt; <a class="L" href="luaconf.h.html#LUAI_MAXCALLS">LUAI_MAXCALLS</a>)  <span class="comment">/* handling overflow? */</span>
+L0245        <span class="keyword">return</span>;  <span class="comment">/* do not touch the stacks */</span>
+L0246      <span class="keyword">if</span> (<span class="number">4</span>*ci_used &lt; L-&gt;size_ci &amp;&amp; <span class="number">2</span>*<a class="L" href="lstate.h.html#BASIC_CI_SIZE">BASIC_CI_SIZE</a> &lt; L-&gt;size_ci)
+L0247        <a class="L" href="ldo.c.html#luaD_reallocCI">luaD_reallocCI</a>(L, L-&gt;size_ci/<span class="number">2</span>);  <span class="comment">/* still big enough... */</span>
+L0248      <a class="L" href="llimits.h.html#condhardstacktests">condhardstacktests</a>(<a class="L" href="ldo.c.html#luaD_reallocCI">luaD_reallocCI</a>(L, ci_used + <span class="number">1</span>));
+L0249      <span class="keyword">if</span> (<span class="number">4</span>*s_used &lt; L-&gt;stacksize &amp;&amp;
+L0250          <span class="number">2</span>*(<a class="L" href="lstate.h.html#BASIC_STACK_SIZE">BASIC_STACK_SIZE</a>+<a class="L" href="lstate.h.html#EXTRA_STACK">EXTRA_STACK</a>) &lt; L-&gt;stacksize)
+L0251        <a class="L" href="ldo.c.html#luaD_reallocstack">luaD_reallocstack</a>(L, L-&gt;stacksize/<span class="number">2</span>);  <span class="comment">/* still big enough... */</span>
+L0252      <a class="L" href="llimits.h.html#condhardstacktests">condhardstacktests</a>(<a class="L" href="ldo.c.html#luaD_reallocstack">luaD_reallocstack</a>(L, s_used));
+L0253    }
+L0254    
+L0255    
+L0256    <span class="keyword">static</span> <span class="keyword">void</span> <a name="traversestack"/a><a class="L" href="lgc.c.ref.html#traversestack">traversestack</a> (<a class="L" href="lstate.h.html#global_State">global_State</a> *g, <a class="L" href="lstate.h.html#lua_State">lua_State</a> *l) {
+L0257      <a class="L" href="lobject.h.html#StkId">StkId</a> o, lim;
+L0258      <a class="L" href="lstate.h.html#CallInfo">CallInfo</a> *ci;
+L0259      <a class="L" href="lgc.c.html#markvalue">markvalue</a>(g, <a class="L" href="lstate.h.html#gt">gt</a>(l));
+L0260      lim = l-&gt;top;
+L0261      <span class="keyword">for</span> (ci = l-&gt;base_ci; ci &lt;= l-&gt;ci; ci++) {
+L0262        <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(ci-&gt;top &lt;= l-&gt;stack_last);
+L0263        <span class="keyword">if</span> (lim &lt; ci-&gt;top) lim = ci-&gt;top;
+L0264      }
+L0265      <span class="keyword">for</span> (o = l-&gt;stack; o &lt; l-&gt;top; o++)
+L0266        <a class="L" href="lgc.c.html#markvalue">markvalue</a>(g, o);
+L0267      <span class="keyword">for</span> (; o &lt;= lim; o++)
+L0268        <a class="L" href="lobject.h.html#setnilvalue">setnilvalue</a>(o);
+L0269      <a class="L" href="lgc.c.html#checkstacksizes">checkstacksizes</a>(l, lim);
+L0270    }
+L0271    
+L0272    
+L0273    <span class="comment">/*
+L0274    ** traverse one gray object, turning it to black.
+L0275    ** Returns `quantity' traversed.
+L0276    */</span>
+L0277    <span class="keyword">static</span> <a class="L" href="llimits.h.html#l_mem">l_mem</a> <a name="propagatemark"/a><a class="L" href="lgc.c.ref.html#propagatemark">propagatemark</a> (<a class="L" href="lstate.h.html#global_State">global_State</a> *g) {
+L0278      <a class="L" href="lobject.h.html#GCObject">GCObject</a> *o = g-&gt;gray;
+L0279      <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(<a class="L" href="lgc.h.html#isgray">isgray</a>(o));
+L0280      <a class="L" href="lgc.h.html#gray2black">gray2black</a>(o);
+L0281      <span class="keyword">switch</span> (o-&gt;gch.tt) {
+L0282        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TTABLE">LUA_TTABLE</a>: {
+L0283          <a class="L" href="lobject.h.html#Table">Table</a> *h = <a class="L" href="lstate.h.html#gco2h">gco2h</a>(o);
+L0284          g-&gt;gray = h-&gt;gclist;
+L0285          <span class="keyword">if</span> (<a class="L" href="lgc.c.html#traversetable">traversetable</a>(g, h))  <span class="comment">/* table is weak? */</span>
+L0286            <a class="L" href="lgc.c.html#black2gray">black2gray</a>(o);  <span class="comment">/* keep it gray */</span>
+L0287          <span class="keyword">return</span> <span class="keyword">sizeof</span>(<a class="L" href="lobject.h.html#Table">Table</a>) + <span class="keyword">sizeof</span>(<a class="L" href="lobject.h.html#TValue">TValue</a>) * h-&gt;sizearray +
+L0288                                 <span class="keyword">sizeof</span>(<a class="L" href="lobject.h.html#Node">Node</a>) * <a class="L" href="lobject.h.html#sizenode">sizenode</a>(h);
+L0289        }
+L0290        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TFUNCTION">LUA_TFUNCTION</a>: {
+L0291          <a class="L" href="lobject.h.html#Closure">Closure</a> *cl = <a class="L" href="lstate.h.html#gco2cl">gco2cl</a>(o);
+L0292          g-&gt;gray = cl-&gt;c.gclist;
+L0293          <a class="L" href="lgc.c.html#traverseclosure">traverseclosure</a>(g, cl);
+L0294          <span class="keyword">return</span> (cl-&gt;c.isC) ? <a class="L" href="lfunc.h.html#sizeCclosure">sizeCclosure</a>(cl-&gt;c.nupvalues) :
+L0295                               <a class="L" href="lfunc.h.html#sizeLclosure">sizeLclosure</a>(cl-&gt;l.nupvalues);
+L0296        }
+L0297        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TTHREAD">LUA_TTHREAD</a>: {
+L0298          <a class="L" href="lstate.h.html#lua_State">lua_State</a> *th = <a class="L" href="lstate.h.html#gco2th">gco2th</a>(o);
+L0299          g-&gt;gray = th-&gt;gclist;
+L0300          th-&gt;gclist = g-&gt;grayagain;
+L0301          g-&gt;grayagain = o;
+L0302          <a class="L" href="lgc.c.html#black2gray">black2gray</a>(o);
+L0303          <a class="L" href="lgc.c.html#traversestack">traversestack</a>(g, th);
+L0304          <span class="keyword">return</span> <span class="keyword">sizeof</span>(<a class="L" href="lstate.h.html#lua_State">lua_State</a>) + <span class="keyword">sizeof</span>(<a class="L" href="lobject.h.html#TValue">TValue</a>) * th-&gt;stacksize +
+L0305                                     <span class="keyword">sizeof</span>(<a class="L" href="lstate.h.html#CallInfo">CallInfo</a>) * th-&gt;size_ci;
+L0306        }
+L0307        <span class="keyword">case</span> <a class="L" href="lobject.h.html#LUA_TPROTO">LUA_TPROTO</a>: {
+L0308          <a class="L" href="lobject.h.html#Proto">Proto</a> *p = <a class="L" href="lstate.h.html#gco2p">gco2p</a>(o);
+L0309          g-&gt;gray = p-&gt;gclist;
+L0310          <a class="L" href="lgc.c.html#traverseproto">traverseproto</a>(g, p);
+L0311          <span class="keyword">return</span> <span class="keyword">sizeof</span>(<a class="L" href="lobject.h.html#Proto">Proto</a>) + <span class="keyword">sizeof</span>(<a class="L" href="llimits.h.html#Instruction">Instruction</a>) * p-&gt;sizecode +
+L0312                                 <span class="keyword">sizeof</span>(<a class="L" href="lobject.h.html#Proto">Proto</a> *) * p-&gt;sizep +
+L0313                                 <span class="keyword">sizeof</span>(<a class="L" href="lobject.h.html#TValue">TValue</a>) * p-&gt;sizek + 
+L0314                                 <span class="keyword">sizeof</span>(<span class="keyword">int</span>) * p-&gt;sizelineinfo +
+L0315                                 <span class="keyword">sizeof</span>(<a class="L" href="lobject.h.html#LocVar">LocVar</a>) * p-&gt;sizelocvars +
+L0316                                 <span class="keyword">sizeof</span>(<a class="L" href="lobject.h.html#TString">TString</a> *) * p-&gt;sizeupvalues;
+L0317        }
+L0318        <span class="keyword">default</span>: <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(<span class="number">0</span>); <span class="keyword">return</span> <span class="number">0</span>;
+L0319      }
+L0320    }
+L0321    
+L0322    
+L0323    <span class="keyword">static</span> size_t <a name="propagateall"/a><a class="L" href="lgc.c.ref.html#propagateall">propagateall</a> (<a class="L" href="lstate.h.html#global_State">global_State</a> *g) {
+L0324      size_t m = <span class="number">0</span>;
+L0325      <span class="keyword">while</span> (g-&gt;gray) m += <a class="L" href="lgc.c.html#propagatemark">propagatemark</a>(g);
+L0326      <span class="keyword">return</span> m;
+L0327    }
+L0328    
+L0329    
+L0330    <span class="comment">/*
+L0331    ** The next function tells whether a key or value can be cleared from
+L0332    ** a weak table. Non-collectable objects are never removed from weak
+L0333    ** tables. Strings behave as `values', so are never removed too. for
+L0334    ** other objects: if really collected, cannot keep them; for userdata
+L0335    ** being finalized, keep them in keys, but not in values
+L0336    */</span>
+L0337    <span class="keyword">static</span> <span class="keyword">int</span> <a name="iscleared"/a><a class="L" href="lgc.c.ref.html#iscleared">iscleared</a> (<span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *o, <span class="keyword">int</span> iskey) {
+L0338      <span class="keyword">if</span> (!<a class="L" href="lobject.h.html#iscollectable">iscollectable</a>(o)) <span class="keyword">return</span> <span class="number">0</span>;
+L0339      <span class="keyword">if</span> (<a class="L" href="lobject.h.html#ttisstring">ttisstring</a>(o)) {
+L0340        <a class="L" href="lgc.c.html#stringmark">stringmark</a>(<a class="L" href="lobject.h.html#rawtsvalue">rawtsvalue</a>(o));  <span class="comment">/* strings are `values', so are never weak */</span>
+L0341        <span class="keyword">return</span> <span class="number">0</span>;
+L0342      }
+L0343      <span class="keyword">return</span> <a class="L" href="lgc.h.html#iswhite">iswhite</a>(<a class="L" href="lobject.h.html#gcvalue">gcvalue</a>(o)) ||
+L0344        (<a class="L" href="lobject.h.html#ttisuserdata">ttisuserdata</a>(o) &amp;&amp; (!iskey &amp;&amp; <a class="L" href="lgc.c.html#isfinalized">isfinalized</a>(<a class="L" href="lobject.h.html#uvalue">uvalue</a>(o))));
+L0345    }
+L0346    
+L0347    
+L0348    <span class="comment">/*
+L0349    ** clear collected entries from weaktables
+L0350    */</span>
+L0351    <span class="keyword">static</span> <span class="keyword">void</span> <a name="cleartable"/a><a class="L" href="lgc.c.ref.html#cleartable">cleartable</a> (<a class="L" href="lobject.h.html#GCObject">GCObject</a> *l) {
+L0352      <span class="keyword">while</span> (l) {
+L0353        <a class="L" href="lobject.h.html#Table">Table</a> *h = <a class="L" href="lstate.h.html#gco2h">gco2h</a>(l);
+L0354        <span class="keyword">int</span> i = h-&gt;sizearray;
+L0355        <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(<a class="L" href="lgc.h.html#testbit">testbit</a>(h-&gt;marked, <a class="L" href="lgc.h.html#VALUEWEAKBIT">VALUEWEAKBIT</a>) ||
+L0356                   <a class="L" href="lgc.h.html#testbit">testbit</a>(h-&gt;marked, <a class="L" href="lgc.h.html#KEYWEAKBIT">KEYWEAKBIT</a>));
+L0357        <span class="keyword">if</span> (<a class="L" href="lgc.h.html#testbit">testbit</a>(h-&gt;marked, <a class="L" href="lgc.h.html#VALUEWEAKBIT">VALUEWEAKBIT</a>)) {
+L0358          <span class="keyword">while</span> (i--) {
+L0359            <a class="L" href="lobject.h.html#TValue">TValue</a> *o = &amp;h-&gt;array[i];
+L0360            <span class="keyword">if</span> (<a class="L" href="lgc.c.html#iscleared">iscleared</a>(o, <span class="number">0</span>))  <span class="comment">/* value was collected? */</span>
+L0361              <a class="L" href="lobject.h.html#setnilvalue">setnilvalue</a>(o);  <span class="comment">/* remove value */</span>
+L0362          }
+L0363        }
+L0364        i = <a class="L" href="lobject.h.html#sizenode">sizenode</a>(h);
+L0365        <span class="keyword">while</span> (i--) {
+L0366          <a class="L" href="lobject.h.html#Node">Node</a> *n = <a class="L" href="ltable.h.html#gnode">gnode</a>(h, i);
+L0367          <span class="keyword">if</span> (!<a class="L" href="lobject.h.html#ttisnil">ttisnil</a>(<a class="L" href="ltable.h.html#gval">gval</a>(n)) &amp;&amp;  <span class="comment">/* non-empty entry? */</span>
+L0368              (<a class="L" href="lgc.c.html#iscleared">iscleared</a>(<a class="L" href="ltable.h.html#key2tval">key2tval</a>(n), <span class="number">1</span>) || <a class="L" href="lgc.c.html#iscleared">iscleared</a>(<a class="L" href="ltable.h.html#gval">gval</a>(n), <span class="number">0</span>))) {
+L0369            <a class="L" href="lobject.h.html#setnilvalue">setnilvalue</a>(<a class="L" href="ltable.h.html#gval">gval</a>(n));  <span class="comment">/* remove value ... */</span>
+L0370            <a class="L" href="lgc.c.html#removeentry">removeentry</a>(n);  <span class="comment">/* remove entry from table */</span>
+L0371          }
+L0372        }
+L0373        l = h-&gt;gclist;
+L0374      }
+L0375    }
+L0376    
+L0377    
+L0378    <span class="keyword">static</span> <span class="keyword">void</span> <a name="freeobj"/a><a class="L" href="lgc.c.ref.html#freeobj">freeobj</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lobject.h.html#GCObject">GCObject</a> *o) {
+L0379      <span class="keyword">switch</span> (o-&gt;gch.tt) {
+L0380        <span class="keyword">case</span> <a class="L" href="lobject.h.html#LUA_TPROTO">LUA_TPROTO</a>: <a class="L" href="lfunc.c.html#luaF_freeproto">luaF_freeproto</a>(L, <a class="L" href="lstate.h.html#gco2p">gco2p</a>(o)); <span class="keyword">break</span>;
+L0381        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TFUNCTION">LUA_TFUNCTION</a>: <a class="L" href="lfunc.c.html#luaF_freeclosure">luaF_freeclosure</a>(L, <a class="L" href="lstate.h.html#gco2cl">gco2cl</a>(o)); <span class="keyword">break</span>;
+L0382        <span class="keyword">case</span> <a class="L" href="lobject.h.html#LUA_TUPVAL">LUA_TUPVAL</a>: <a class="L" href="lfunc.c.html#luaF_freeupval">luaF_freeupval</a>(L, <a class="L" href="lstate.h.html#gco2uv">gco2uv</a>(o)); <span class="keyword">break</span>;
+L0383        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TTABLE">LUA_TTABLE</a>: <a class="L" href="ltable.c.html#luaH_free">luaH_free</a>(L, <a class="L" href="lstate.h.html#gco2h">gco2h</a>(o)); <span class="keyword">break</span>;
+L0384        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TTHREAD">LUA_TTHREAD</a>: {
+L0385          <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(<a class="L" href="lstate.h.html#gco2th">gco2th</a>(o) != L &amp;&amp; <a class="L" href="lstate.h.html#gco2th">gco2th</a>(o) != <a class="L" href="lstate.h.html#G">G</a>(L)-&gt;mainthread);
+L0386          <a class="L" href="lstate.c.html#luaE_freethread">luaE_freethread</a>(L, <a class="L" href="lstate.h.html#gco2th">gco2th</a>(o));
+L0387          <span class="keyword">break</span>;
+L0388        }
+L0389        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TSTRING">LUA_TSTRING</a>: {
+L0390          <a class="L" href="lstate.h.html#G">G</a>(L)-&gt;strt.nuse--;
+L0391          <a class="L" href="lmem.h.html#luaM_freemem">luaM_freemem</a>(L, o, <a class="L" href="lstring.h.html#sizestring">sizestring</a>(<a class="L" href="lstate.h.html#gco2ts">gco2ts</a>(o)));
+L0392          <span class="keyword">break</span>;
+L0393        }
+L0394        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TUSERDATA">LUA_TUSERDATA</a>: {
+L0395          <a class="L" href="lmem.h.html#luaM_freemem">luaM_freemem</a>(L, o, <a class="L" href="lstring.h.html#sizeudata">sizeudata</a>(<a class="L" href="lstate.h.html#gco2u">gco2u</a>(o)));
+L0396          <span class="keyword">break</span>;
+L0397        }
+L0398        <span class="keyword">default</span>: <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(<span class="number">0</span>);
+L0399      }
+L0400    }
+L0401    
+L0402    
+L0403    
+L0404    <a name="sweepwholelist"/a><span class="prepro">#define sweepwholelist(L,p)	sweeplist(L,p,MAX_LUMEM)
+</span>L0405    
+L0406    
+L0407    <span class="keyword">static</span> <a class="L" href="lobject.h.html#GCObject">GCObject</a> **<a name="sweeplist"/a><a class="L" href="lgc.c.ref.html#sweeplist">sweeplist</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lobject.h.html#GCObject">GCObject</a> **p, <a class="L" href="llimits.h.html#lu_mem">lu_mem</a> count) {
+L0408      <a class="L" href="lobject.h.html#GCObject">GCObject</a> *curr;
+L0409      <a class="L" href="lstate.h.html#global_State">global_State</a> *g = <a class="L" href="lstate.h.html#G">G</a>(L);
+L0410      <span class="keyword">int</span> deadmask = <a class="L" href="lgc.h.html#otherwhite">otherwhite</a>(g);
+L0411      <span class="keyword">while</span> ((curr = *p) != NULL &amp;&amp; count-- &gt; <span class="number">0</span>) {
+L0412        <span class="keyword">if</span> (curr-&gt;gch.tt == <a class="L" href="lua.h.html#LUA_TTHREAD">LUA_TTHREAD</a>)  <span class="comment">/* sweep open upvalues of each thread */</span>
+L0413          <a class="L" href="lgc.c.html#sweepwholelist">sweepwholelist</a>(L, &amp;<a class="L" href="lstate.h.html#gco2th">gco2th</a>(curr)-&gt;openupval);
+L0414        <span class="keyword">if</span> ((curr-&gt;gch.marked ^ <a class="L" href="lgc.h.html#WHITEBITS">WHITEBITS</a>) &amp; deadmask) {  <span class="comment">/* not dead? */</span>
+L0415          <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(!<a class="L" href="lgc.h.html#isdead">isdead</a>(g, curr) || <a class="L" href="lgc.h.html#testbit">testbit</a>(curr-&gt;gch.marked, <a class="L" href="lgc.h.html#FIXEDBIT">FIXEDBIT</a>));
+L0416          <a class="L" href="lgc.c.html#makewhite">makewhite</a>(g, curr);  <span class="comment">/* make it white (for next cycle) */</span>
+L0417          p = &amp;curr-&gt;gch.<a class="L" href="llex.c.html#next">next</a>;
+L0418        }
+L0419        <span class="keyword">else</span> {  <span class="comment">/* must erase `curr' */</span>
+L0420          <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(<a class="L" href="lgc.h.html#isdead">isdead</a>(g, curr) || deadmask == <a class="L" href="lgc.h.html#bitmask">bitmask</a>(<a class="L" href="lgc.h.html#SFIXEDBIT">SFIXEDBIT</a>));
+L0421          *p = curr-&gt;gch.<a class="L" href="llex.c.html#next">next</a>;
+L0422          <span class="keyword">if</span> (curr == g-&gt;rootgc)  <span class="comment">/* is the first element of the list? */</span>
+L0423            g-&gt;rootgc = curr-&gt;gch.<a class="L" href="llex.c.html#next">next</a>;  <span class="comment">/* adjust first */</span>
+L0424          <a class="L" href="lgc.c.html#freeobj">freeobj</a>(L, curr);
+L0425        }
+L0426      }
+L0427      <span class="keyword">return</span> p;
+L0428    }
+L0429    
+L0430    
+L0431    <span class="keyword">static</span> <span class="keyword">void</span> <a name="checkSizes"/a><a class="L" href="lgc.c.ref.html#checkSizes">checkSizes</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0432      <a class="L" href="lstate.h.html#global_State">global_State</a> *g = <a class="L" href="lstate.h.html#G">G</a>(L);
+L0433      <span class="comment">/* check size of string hash */</span>
+L0434      <span class="keyword">if</span> (g-&gt;strt.nuse &lt; <a class="L" href="llimits.h.html#cast">cast</a>(<a class="L" href="llimits.h.html#lu_int32">lu_int32</a>, g-&gt;strt.size/<span class="number">4</span>) &amp;&amp;
+L0435          g-&gt;strt.size &gt; <a class="L" href="llimits.h.html#MINSTRTABSIZE">MINSTRTABSIZE</a>*<span class="number">2</span>)
+L0436        <a class="L" href="lstring.c.html#luaS_resize">luaS_resize</a>(L, g-&gt;strt.size/<span class="number">2</span>);  <span class="comment">/* table is too big */</span>
+L0437      <span class="comment">/* check size of buffer */</span>
+L0438      <span class="keyword">if</span> (<a class="L" href="lzio.h.html#luaZ_sizebuffer">luaZ_sizebuffer</a>(&amp;g-&gt;buff) &gt; <a class="L" href="llimits.h.html#LUA_MINBUFFER">LUA_MINBUFFER</a>*<span class="number">2</span>) {  <span class="comment">/* buffer too big? */</span>
+L0439        size_t newsize = <a class="L" href="lzio.h.html#luaZ_sizebuffer">luaZ_sizebuffer</a>(&amp;g-&gt;buff) / <span class="number">2</span>;
+L0440        <a class="L" href="lzio.h.html#luaZ_resizebuffer">luaZ_resizebuffer</a>(L, &amp;g-&gt;buff, newsize);
+L0441      }
+L0442    }
+L0443    
+L0444    
+L0445    <span class="keyword">static</span> <span class="keyword">void</span> <a name="GCTM"/a><a class="L" href="lgc.c.ref.html#GCTM">GCTM</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0446      <a class="L" href="lstate.h.html#global_State">global_State</a> *g = <a class="L" href="lstate.h.html#G">G</a>(L);
+L0447      <a class="L" href="lobject.h.html#GCObject">GCObject</a> *o = g-&gt;tmudata-&gt;gch.<a class="L" href="llex.c.html#next">next</a>;  <span class="comment">/* get first element */</span>
+L0448      <a class="L" href="lobject.h.html#Udata">Udata</a> *udata = <a class="L" href="lstate.h.html#rawgco2u">rawgco2u</a>(o);
+L0449      <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *tm;
+L0450      <span class="comment">/* remove udata from `tmudata' */</span>
+L0451      <span class="keyword">if</span> (o == g-&gt;tmudata)  <span class="comment">/* last element? */</span>
+L0452        g-&gt;tmudata = NULL;
+L0453      <span class="keyword">else</span>
+L0454        g-&gt;tmudata-&gt;gch.<a class="L" href="llex.c.html#next">next</a> = udata-&gt;uv.<a class="L" href="llex.c.html#next">next</a>;
+L0455      udata-&gt;uv.<a class="L" href="llex.c.html#next">next</a> = g-&gt;mainthread-&gt;<a class="L" href="llex.c.html#next">next</a>;  <span class="comment">/* return it to `root' list */</span>
+L0456      g-&gt;mainthread-&gt;<a class="L" href="llex.c.html#next">next</a> = o;
+L0457      <a class="L" href="lgc.c.html#makewhite">makewhite</a>(g, o);
+L0458      tm = <a class="L" href="ltm.h.html#fasttm">fasttm</a>(L, udata-&gt;uv.metatable, <a class="L" href="ltm.h.html#TM_GC">TM_GC</a>);
+L0459      <span class="keyword">if</span> (tm != NULL) {
+L0460        <a class="L" href="llimits.h.html#lu_byte">lu_byte</a> oldah = L-&gt;allowhook;
+L0461        <a class="L" href="llimits.h.html#lu_mem">lu_mem</a> oldt = g-&gt;GCthreshold;
+L0462        L-&gt;allowhook = <span class="number">0</span>;  <span class="comment">/* stop debug hooks during GC tag method */</span>
+L0463        g-&gt;GCthreshold = <span class="number">2</span>*g-&gt;totalbytes;  <span class="comment">/* avoid GC steps */</span>
+L0464        <a class="L" href="lobject.h.html#setobj2s">setobj2s</a>(L, L-&gt;top, tm);
+L0465        <a class="L" href="lobject.h.html#setuvalue">setuvalue</a>(L, L-&gt;top<span class="number">+1</span>, udata);
+L0466        L-&gt;top += <span class="number">2</span>;
+L0467        <a class="L" href="ldo.c.html#luaD_call">luaD_call</a>(L, L-&gt;top - <span class="number">2</span>, <span class="number">0</span>);
+L0468        L-&gt;allowhook = oldah;  <span class="comment">/* restore hooks */</span>
+L0469        g-&gt;GCthreshold = oldt;  <span class="comment">/* restore threshold */</span>
+L0470      }
+L0471    }
+L0472    
+L0473    
+L0474    <span class="comment">/*
+L0475    ** Call all GC tag methods
+L0476    */</span>
+L0477    <span class="keyword">void</span> <a name="luaC_callGCTM"/a><a class="L" href="lgc.c.ref.html#luaC_callGCTM">luaC_callGCTM</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0478      <span class="keyword">while</span> (<a class="L" href="lstate.h.html#G">G</a>(L)-&gt;tmudata)
+L0479        <a class="L" href="lgc.c.html#GCTM">GCTM</a>(L);
+L0480    }
+L0481    
+L0482    
+L0483    <span class="keyword">void</span> <a name="luaC_freeall"/a><a class="L" href="lgc.c.ref.html#luaC_freeall">luaC_freeall</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0484      <a class="L" href="lstate.h.html#global_State">global_State</a> *g = <a class="L" href="lstate.h.html#G">G</a>(L);
+L0485      <span class="keyword">int</span> i;
+L0486      g-&gt;currentwhite = <a class="L" href="lgc.h.html#WHITEBITS">WHITEBITS</a> | <a class="L" href="lgc.h.html#bitmask">bitmask</a>(<a class="L" href="lgc.h.html#SFIXEDBIT">SFIXEDBIT</a>);  <span class="comment">/* mask to collect all elements */</span>
+L0487      <a class="L" href="lgc.c.html#sweepwholelist">sweepwholelist</a>(L, &amp;g-&gt;rootgc);
+L0488      <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; g-&gt;strt.size; i++)  <span class="comment">/* free all string lists */</span>
+L0489        <a class="L" href="lgc.c.html#sweepwholelist">sweepwholelist</a>(L, &amp;g-&gt;strt.hash[i]);
+L0490    }
+L0491    
+L0492    
+L0493    <span class="keyword">static</span> <span class="keyword">void</span> <a name="markmt"/a><a class="L" href="lgc.c.ref.html#markmt">markmt</a> (<a class="L" href="lstate.h.html#global_State">global_State</a> *g) {
+L0494      <span class="keyword">int</span> i;
+L0495      <span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;<a class="L" href="lobject.h.html#NUM_TAGS">NUM_TAGS</a>; i++)
+L0496        <span class="keyword">if</span> (g-&gt;mt[i]) <a class="L" href="lgc.c.html#markobject">markobject</a>(g, g-&gt;mt[i]);
+L0497    }
+L0498    
+L0499    
+L0500    <span class="comment">/* mark root set */</span>
+L0501    <span class="keyword">static</span> <span class="keyword">void</span> <a name="markroot"/a><a class="L" href="lgc.c.ref.html#markroot">markroot</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0502      <a class="L" href="lstate.h.html#global_State">global_State</a> *g = <a class="L" href="lstate.h.html#G">G</a>(L);
+L0503      g-&gt;gray = NULL;
+L0504      g-&gt;grayagain = NULL;
+L0505      g-&gt;weak = NULL;
+L0506      <a class="L" href="lgc.c.html#markobject">markobject</a>(g, g-&gt;mainthread);
+L0507      <span class="comment">/* make global table be traversed before main stack */</span>
+L0508      <a class="L" href="lgc.c.html#markvalue">markvalue</a>(g, <a class="L" href="lstate.h.html#gt">gt</a>(g-&gt;mainthread));
+L0509      <a class="L" href="lgc.c.html#markvalue">markvalue</a>(g, <a class="L" href="lstate.h.html#registry">registry</a>(L));
+L0510      <a class="L" href="lgc.c.html#markmt">markmt</a>(g);
+L0511      g-&gt;gcstate = <a class="L" href="lgc.h.html#GCSpropagate">GCSpropagate</a>;
+L0512    }
+L0513    
+L0514    
+L0515    <span class="keyword">static</span> <span class="keyword">void</span> <a name="remarkupvals"/a><a class="L" href="lgc.c.ref.html#remarkupvals">remarkupvals</a> (<a class="L" href="lstate.h.html#global_State">global_State</a> *g) {
+L0516      <a class="L" href="lobject.h.html#UpVal">UpVal</a> *uv;
+L0517      <span class="keyword">for</span> (uv = g-&gt;uvhead.u.l.<a class="L" href="llex.c.html#next">next</a>; uv != &amp;g-&gt;uvhead; uv = uv-&gt;u.l.<a class="L" href="llex.c.html#next">next</a>) {
+L0518        <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(uv-&gt;u.l.<a class="L" href="llex.c.html#next">next</a>-&gt;u.l.prev == uv &amp;&amp; uv-&gt;u.l.prev-&gt;u.l.<a class="L" href="llex.c.html#next">next</a> == uv);
+L0519        <span class="keyword">if</span> (<a class="L" href="lgc.h.html#isgray">isgray</a>(<a class="L" href="lstate.h.html#obj2gco">obj2gco</a>(uv)))
+L0520          <a class="L" href="lgc.c.html#markvalue">markvalue</a>(g, uv-&gt;v);
+L0521      }
+L0522    }
+L0523    
+L0524    
+L0525    <span class="keyword">static</span> <span class="keyword">void</span> <a name="atomic"/a><a class="L" href="lgc.c.ref.html#atomic">atomic</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0526      <a class="L" href="lstate.h.html#global_State">global_State</a> *g = <a class="L" href="lstate.h.html#G">G</a>(L);
+L0527      size_t udsize;  <span class="comment">/* total size of userdata to be finalized */</span>
+L0528      <span class="comment">/* remark occasional upvalues of (maybe) dead threads */</span>
+L0529      <a class="L" href="lgc.c.html#remarkupvals">remarkupvals</a>(g);
+L0530      <span class="comment">/* traverse objects cautch by write barrier and by 'remarkupvals' */</span>
+L0531      <a class="L" href="lgc.c.html#propagateall">propagateall</a>(g);
+L0532      <span class="comment">/* remark weak tables */</span>
+L0533      g-&gt;gray = g-&gt;weak;
+L0534      g-&gt;weak = NULL;
+L0535      <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(!<a class="L" href="lgc.h.html#iswhite">iswhite</a>(<a class="L" href="lstate.h.html#obj2gco">obj2gco</a>(g-&gt;mainthread)));
+L0536      <a class="L" href="lgc.c.html#markobject">markobject</a>(g, L);  <span class="comment">/* mark running thread */</span>
+L0537      <a class="L" href="lgc.c.html#markmt">markmt</a>(g);  <span class="comment">/* mark basic metatables (again) */</span>
+L0538      <a class="L" href="lgc.c.html#propagateall">propagateall</a>(g);
+L0539      <span class="comment">/* remark gray again */</span>
+L0540      g-&gt;gray = g-&gt;grayagain;
+L0541      g-&gt;grayagain = NULL;
+L0542      <a class="L" href="lgc.c.html#propagateall">propagateall</a>(g);
+L0543      udsize = <a class="L" href="lgc.c.html#luaC_separateudata">luaC_separateudata</a>(L, <span class="number">0</span>);  <span class="comment">/* separate userdata to be finalized */</span>
+L0544      <a class="L" href="lgc.c.html#marktmu">marktmu</a>(g);  <span class="comment">/* mark `preserved' userdata */</span>
+L0545      udsize += <a class="L" href="lgc.c.html#propagateall">propagateall</a>(g);  <span class="comment">/* remark, to propagate `preserveness' */</span>
+L0546      <a class="L" href="lgc.c.html#cleartable">cleartable</a>(g-&gt;weak);  <span class="comment">/* remove collected objects from weak tables */</span>
+L0547      <span class="comment">/* flip current white */</span>
+L0548      g-&gt;currentwhite = <a class="L" href="llimits.h.html#cast_byte">cast_byte</a>(<a class="L" href="lgc.h.html#otherwhite">otherwhite</a>(g));
+L0549      g-&gt;sweepstrgc = <span class="number">0</span>;
+L0550      g-&gt;sweepgc = &amp;g-&gt;rootgc;
+L0551      g-&gt;gcstate = <a class="L" href="lgc.h.html#GCSsweepstring">GCSsweepstring</a>;
+L0552      g-&gt;estimate = g-&gt;totalbytes - udsize;  <span class="comment">/* first estimate */</span>
+L0553    }
+L0554    
+L0555    
+L0556    <span class="keyword">static</span> <a class="L" href="llimits.h.html#l_mem">l_mem</a> <a name="singlestep"/a><a class="L" href="lgc.c.ref.html#singlestep">singlestep</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0557      <a class="L" href="lstate.h.html#global_State">global_State</a> *g = <a class="L" href="lstate.h.html#G">G</a>(L);
+L0558      <span class="comment">/*lua_checkmemory(L);*/</span>
+L0559      <span class="keyword">switch</span> (g-&gt;gcstate) {
+L0560        <span class="keyword">case</span> <a class="L" href="lgc.h.html#GCSpause">GCSpause</a>: {
+L0561          <a class="L" href="lgc.c.html#markroot">markroot</a>(L);  <span class="comment">/* start a new collection */</span>
+L0562          <span class="keyword">return</span> <span class="number">0</span>;
+L0563        }
+L0564        <span class="keyword">case</span> <a class="L" href="lgc.h.html#GCSpropagate">GCSpropagate</a>: {
+L0565          <span class="keyword">if</span> (g-&gt;gray)
+L0566            <span class="keyword">return</span> <a class="L" href="lgc.c.html#propagatemark">propagatemark</a>(g);
+L0567          <span class="keyword">else</span> {  <span class="comment">/* no more `gray' objects */</span>
+L0568            <a class="L" href="lgc.c.html#atomic">atomic</a>(L);  <span class="comment">/* finish mark phase */</span>
+L0569            <span class="keyword">return</span> <span class="number">0</span>;
+L0570          }
+L0571        }
+L0572        <span class="keyword">case</span> <a class="L" href="lgc.h.html#GCSsweepstring">GCSsweepstring</a>: {
+L0573          <a class="L" href="llimits.h.html#lu_mem">lu_mem</a> old = g-&gt;totalbytes;
+L0574          <a class="L" href="lgc.c.html#sweepwholelist">sweepwholelist</a>(L, &amp;g-&gt;strt.hash[g-&gt;sweepstrgc++]);
+L0575          <span class="keyword">if</span> (g-&gt;sweepstrgc &gt;= g-&gt;strt.size)  <span class="comment">/* nothing more to sweep? */</span>
+L0576            g-&gt;gcstate = <a class="L" href="lgc.h.html#GCSsweep">GCSsweep</a>;  <span class="comment">/* end sweep-string phase */</span>
+L0577          <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(old &gt;= g-&gt;totalbytes);
+L0578          g-&gt;estimate -= old - g-&gt;totalbytes;
+L0579          <span class="keyword">return</span> <a class="L" href="lgc.c.html#GCSWEEPCOST">GCSWEEPCOST</a>;
+L0580        }
+L0581        <span class="keyword">case</span> <a class="L" href="lgc.h.html#GCSsweep">GCSsweep</a>: {
+L0582          <a class="L" href="llimits.h.html#lu_mem">lu_mem</a> old = g-&gt;totalbytes;
+L0583          g-&gt;sweepgc = <a class="L" href="lgc.c.html#sweeplist">sweeplist</a>(L, g-&gt;sweepgc, <a class="L" href="lgc.c.html#GCSWEEPMAX">GCSWEEPMAX</a>);
+L0584          <span class="keyword">if</span> (*g-&gt;sweepgc == NULL) {  <span class="comment">/* nothing more to sweep? */</span>
+L0585            <a class="L" href="lgc.c.html#checkSizes">checkSizes</a>(L);
+L0586            g-&gt;gcstate = <a class="L" href="lgc.h.html#GCSfinalize">GCSfinalize</a>;  <span class="comment">/* end sweep phase */</span>
+L0587          }
+L0588          <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(old &gt;= g-&gt;totalbytes);
+L0589          g-&gt;estimate -= old - g-&gt;totalbytes;
+L0590          <span class="keyword">return</span> <a class="L" href="lgc.c.html#GCSWEEPMAX">GCSWEEPMAX</a>*<a class="L" href="lgc.c.html#GCSWEEPCOST">GCSWEEPCOST</a>;
+L0591        }
+L0592        <span class="keyword">case</span> <a class="L" href="lgc.h.html#GCSfinalize">GCSfinalize</a>: {
+L0593          <span class="keyword">if</span> (g-&gt;tmudata) {
+L0594            <a class="L" href="lgc.c.html#GCTM">GCTM</a>(L);
+L0595            <span class="keyword">if</span> (g-&gt;estimate &gt; <a class="L" href="lgc.c.html#GCFINALIZECOST">GCFINALIZECOST</a>)
+L0596              g-&gt;estimate -= <a class="L" href="lgc.c.html#GCFINALIZECOST">GCFINALIZECOST</a>;
+L0597            <span class="keyword">return</span> <a class="L" href="lgc.c.html#GCFINALIZECOST">GCFINALIZECOST</a>;
+L0598          }
+L0599          <span class="keyword">else</span> {
+L0600            g-&gt;gcstate = <a class="L" href="lgc.h.html#GCSpause">GCSpause</a>;  <span class="comment">/* end collection */</span>
+L0601            g-&gt;gcdept = <span class="number">0</span>;
+L0602            <span class="keyword">return</span> <span class="number">0</span>;
+L0603          }
+L0604        }
+L0605        <span class="keyword">default</span>: <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(<span class="number">0</span>); <span class="keyword">return</span> <span class="number">0</span>;
+L0606      }
+L0607    }
+L0608    
+L0609    
+L0610    <span class="keyword">void</span> <a name="luaC_step"/a><a class="L" href="lgc.c.ref.html#luaC_step">luaC_step</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0611      <a class="L" href="lstate.h.html#global_State">global_State</a> *g = <a class="L" href="lstate.h.html#G">G</a>(L);
+L0612      <a class="L" href="llimits.h.html#l_mem">l_mem</a> lim = (<a class="L" href="lgc.c.html#GCSTEPSIZE">GCSTEPSIZE</a>/<span class="number">100</span>) * g-&gt;gcstepmul;
+L0613      <span class="keyword">if</span> (lim == <span class="number">0</span>)
+L0614        lim = (<a class="L" href="llimits.h.html#MAX_LUMEM">MAX_LUMEM</a><span class="number">-1</span>)/<span class="number">2</span>;  <span class="comment">/* no limit */</span>
+L0615      g-&gt;gcdept += g-&gt;totalbytes - g-&gt;GCthreshold;
+L0616      <span class="keyword">do</span> {
+L0617        lim -= <a class="L" href="lgc.c.html#singlestep">singlestep</a>(L);
+L0618        <span class="keyword">if</span> (g-&gt;gcstate == <a class="L" href="lgc.h.html#GCSpause">GCSpause</a>)
+L0619          <span class="keyword">break</span>;
+L0620      } <span class="keyword">while</span> (lim &gt; <span class="number">0</span>);
+L0621      <span class="keyword">if</span> (g-&gt;gcstate != <a class="L" href="lgc.h.html#GCSpause">GCSpause</a>) {
+L0622        <span class="keyword">if</span> (g-&gt;gcdept &lt; <a class="L" href="lgc.c.html#GCSTEPSIZE">GCSTEPSIZE</a>)
+L0623          g-&gt;GCthreshold = g-&gt;totalbytes + <a class="L" href="lgc.c.html#GCSTEPSIZE">GCSTEPSIZE</a>;  <span class="comment">/* - lim/g-&gt;gcstepmul;*/</span>
+L0624        <span class="keyword">else</span> {
+L0625          g-&gt;gcdept -= <a class="L" href="lgc.c.html#GCSTEPSIZE">GCSTEPSIZE</a>;
+L0626          g-&gt;GCthreshold = g-&gt;totalbytes;
+L0627        }
+L0628      }
+L0629      <span class="keyword">else</span> {
+L0630        <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(g-&gt;totalbytes &gt;= g-&gt;estimate);
+L0631        <a class="L" href="lgc.c.html#setthreshold">setthreshold</a>(g);
+L0632      }
+L0633    }
+L0634    
+L0635    
+L0636    <span class="keyword">void</span> <a name="luaC_fullgc"/a><a class="L" href="lgc.c.ref.html#luaC_fullgc">luaC_fullgc</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0637      <a class="L" href="lstate.h.html#global_State">global_State</a> *g = <a class="L" href="lstate.h.html#G">G</a>(L);
+L0638      <span class="keyword">if</span> (g-&gt;gcstate &lt;= <a class="L" href="lgc.h.html#GCSpropagate">GCSpropagate</a>) {
+L0639        <span class="comment">/* reset sweep marks to sweep all elements (returning them to white) */</span>
+L0640        g-&gt;sweepstrgc = <span class="number">0</span>;
+L0641        g-&gt;sweepgc = &amp;g-&gt;rootgc;
+L0642        <span class="comment">/* reset other collector lists */</span>
+L0643        g-&gt;gray = NULL;
+L0644        g-&gt;grayagain = NULL;
+L0645        g-&gt;weak = NULL;
+L0646        g-&gt;gcstate = <a class="L" href="lgc.h.html#GCSsweepstring">GCSsweepstring</a>;
+L0647      }
+L0648      <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(g-&gt;gcstate != <a class="L" href="lgc.h.html#GCSpause">GCSpause</a> &amp;&amp; g-&gt;gcstate != <a class="L" href="lgc.h.html#GCSpropagate">GCSpropagate</a>);
+L0649      <span class="comment">/* finish any pending sweep phase */</span>
+L0650      <span class="keyword">while</span> (g-&gt;gcstate != <a class="L" href="lgc.h.html#GCSfinalize">GCSfinalize</a>) {
+L0651        <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(g-&gt;gcstate == <a class="L" href="lgc.h.html#GCSsweepstring">GCSsweepstring</a> || g-&gt;gcstate == <a class="L" href="lgc.h.html#GCSsweep">GCSsweep</a>);
+L0652        <a class="L" href="lgc.c.html#singlestep">singlestep</a>(L);
+L0653      }
+L0654      <a class="L" href="lgc.c.html#markroot">markroot</a>(L);
+L0655      <span class="keyword">while</span> (g-&gt;gcstate != <a class="L" href="lgc.h.html#GCSpause">GCSpause</a>) {
+L0656        <a class="L" href="lgc.c.html#singlestep">singlestep</a>(L);
+L0657      }
+L0658      <a class="L" href="lgc.c.html#setthreshold">setthreshold</a>(g);
+L0659    }
+L0660    
+L0661    
+L0662    <span class="keyword">void</span> <a name="luaC_barrierf"/a><a class="L" href="lgc.c.ref.html#luaC_barrierf">luaC_barrierf</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lobject.h.html#GCObject">GCObject</a> *o, <a class="L" href="lobject.h.html#GCObject">GCObject</a> *v) {
+L0663      <a class="L" href="lstate.h.html#global_State">global_State</a> *g = <a class="L" href="lstate.h.html#G">G</a>(L);
+L0664      <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(<a class="L" href="lgc.h.html#isblack">isblack</a>(o) &amp;&amp; <a class="L" href="lgc.h.html#iswhite">iswhite</a>(v) &amp;&amp; !<a class="L" href="lgc.h.html#isdead">isdead</a>(g, v) &amp;&amp; !<a class="L" href="lgc.h.html#isdead">isdead</a>(g, o));
+L0665      <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(g-&gt;gcstate != <a class="L" href="lgc.h.html#GCSfinalize">GCSfinalize</a> &amp;&amp; g-&gt;gcstate != <a class="L" href="lgc.h.html#GCSpause">GCSpause</a>);
+L0666      <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(<a class="L" href="lobject.h.html#ttype">ttype</a>(&amp;o-&gt;gch) != <a class="L" href="lua.h.html#LUA_TTABLE">LUA_TTABLE</a>);
+L0667      <span class="comment">/* must keep invariant? */</span>
+L0668      <span class="keyword">if</span> (g-&gt;gcstate == <a class="L" href="lgc.h.html#GCSpropagate">GCSpropagate</a>)
+L0669        <a class="L" href="lgc.c.html#reallymarkobject">reallymarkobject</a>(g, v);  <span class="comment">/* restore invariant */</span>
+L0670      <span class="keyword">else</span>  <span class="comment">/* don't mind */</span>
+L0671        <a class="L" href="lgc.c.html#makewhite">makewhite</a>(g, o);  <span class="comment">/* mark as white just to avoid other barriers */</span>
+L0672    }
+L0673    
+L0674    
+L0675    <span class="keyword">void</span> <a name="luaC_barrierback"/a><a class="L" href="lgc.c.ref.html#luaC_barrierback">luaC_barrierback</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lobject.h.html#Table">Table</a> *t) {
+L0676      <a class="L" href="lstate.h.html#global_State">global_State</a> *g = <a class="L" href="lstate.h.html#G">G</a>(L);
+L0677      <a class="L" href="lobject.h.html#GCObject">GCObject</a> *o = <a class="L" href="lstate.h.html#obj2gco">obj2gco</a>(t);
+L0678      <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(<a class="L" href="lgc.h.html#isblack">isblack</a>(o) &amp;&amp; !<a class="L" href="lgc.h.html#isdead">isdead</a>(g, o));
+L0679      <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(g-&gt;gcstate != <a class="L" href="lgc.h.html#GCSfinalize">GCSfinalize</a> &amp;&amp; g-&gt;gcstate != <a class="L" href="lgc.h.html#GCSpause">GCSpause</a>);
+L0680      <a class="L" href="lgc.c.html#black2gray">black2gray</a>(o);  <span class="comment">/* make table gray (again) */</span>
+L0681      t-&gt;gclist = g-&gt;grayagain;
+L0682      g-&gt;grayagain = o;
+L0683    }
+L0684    
+L0685    
+L0686    <span class="keyword">void</span> <a name="luaC_link"/a><a class="L" href="lgc.c.ref.html#luaC_link">luaC_link</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lobject.h.html#GCObject">GCObject</a> *o, <a class="L" href="llimits.h.html#lu_byte">lu_byte</a> tt) {
+L0687      <a class="L" href="lstate.h.html#global_State">global_State</a> *g = <a class="L" href="lstate.h.html#G">G</a>(L);
+L0688      o-&gt;gch.<a class="L" href="llex.c.html#next">next</a> = g-&gt;rootgc;
+L0689      g-&gt;rootgc = o;
+L0690      o-&gt;gch.marked = <a class="L" href="lgc.h.html#luaC_white">luaC_white</a>(g);
+L0691      o-&gt;gch.tt = tt;
+L0692    }
+L0693    
+L0694    
+L0695    <span class="keyword">void</span> <a name="luaC_linkupval"/a><a class="L" href="lgc.c.ref.html#luaC_linkupval">luaC_linkupval</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lobject.h.html#UpVal">UpVal</a> *uv) {
+L0696      <a class="L" href="lstate.h.html#global_State">global_State</a> *g = <a class="L" href="lstate.h.html#G">G</a>(L);
+L0697      <a class="L" href="lobject.h.html#GCObject">GCObject</a> *o = <a class="L" href="lstate.h.html#obj2gco">obj2gco</a>(uv);
+L0698      o-&gt;gch.<a class="L" href="llex.c.html#next">next</a> = g-&gt;rootgc;  <span class="comment">/* link upvalue into `rootgc' list */</span>
+L0699      g-&gt;rootgc = o;
+L0700      <span class="keyword">if</span> (<a class="L" href="lgc.h.html#isgray">isgray</a>(o)) { 
+L0701        <span class="keyword">if</span> (g-&gt;gcstate == <a class="L" href="lgc.h.html#GCSpropagate">GCSpropagate</a>) {
+L0702          <a class="L" href="lgc.h.html#gray2black">gray2black</a>(o);  <span class="comment">/* closed upvalues need barrier */</span>
+L0703          <a class="L" href="lgc.h.html#luaC_barrier">luaC_barrier</a>(L, uv, uv-&gt;v);
+L0704        }
+L0705        <span class="keyword">else</span> {  <span class="comment">/* sweep phase: sweep it (turning it into white) */</span>
+L0706          <a class="L" href="lgc.c.html#makewhite">makewhite</a>(g, o);
+L0707          <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(g-&gt;gcstate != <a class="L" href="lgc.h.html#GCSfinalize">GCSfinalize</a> &amp;&amp; g-&gt;gcstate != <a class="L" href="lgc.h.html#GCSpause">GCSpause</a>);
+L0708        }
+L0709      }
+L0710    }
+L0711    
+</pre>
+<hr/>
+Generated by <a href="pretty.lua.html">pretty.lua</html>
+</body></html>

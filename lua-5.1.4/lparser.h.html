@@ -1,0 +1,103 @@
+<html>
+<head>
+<style>
+a.L { text-decoration: none; }
+a.L:hover { color: #FFAAAA; }
+body { margin-top: 20px; margin-left: 30px; }
+.lno { font-weight: bold: color #000; }
+.keyword {font-weight: bold; color: #6666AA; }
+.number  { color: #AA6666; }
+.string  { color: #8888AA; }
+.comment { color: #666600; }
+.prepro { color: #006666; } 
+</style>
+<body>
+<h1>Lua 5.1.4: lparser.h</h1>
+<hr/>
+<pre>
+L0001    <span class="comment">/*
+L0002    ** $Id: lparser.h,v 1.57.1.1 2007/12/27 13:02:25 roberto Exp $
+L0003    ** Lua Parser
+L0004    ** See Copyright Notice in lua.h
+L0005    */</span>
+L0006    
+L0007    <span class="prepro">#ifndef lparser_h
+</span>L0008    <a name="lparser_h"/a><span class="prepro">#define lparser_h
+</span>L0009    
+L0010    <span class="prepro"><a class="L" href="llimits.h.html#">#include "llimits.h"
+</a></span>L0011    <span class="prepro"><a class="L" href="lobject.h.html#">#include "lobject.h"
+</a></span>L0012    <span class="prepro"><a class="L" href="lzio.h.html#">#include "lzio.h"
+</a></span>L0013    
+L0014    
+L0015    <span class="comment">/*
+L0016    ** Expression descriptor
+L0017    */</span>
+L0018    
+L0019    <span class="keyword">typedef</span> <span class="keyword">enum</span> {
+L0020      <a name="VVOID"/a><a class="L" href="lparser.h.ref.html#VVOID">VVOID</a>,	<span class="comment">/* no value */</span>
+L0021      <a name="VNIL"/a><a class="L" href="lparser.h.ref.html#VNIL">VNIL</a>,
+L0022      <a name="VTRUE"/a><a class="L" href="lparser.h.ref.html#VTRUE">VTRUE</a>,
+L0023      <a name="VFALSE"/a><a class="L" href="lparser.h.ref.html#VFALSE">VFALSE</a>,
+L0024      <a name="VK"/a><a class="L" href="lparser.h.ref.html#VK">VK</a>,		<span class="comment">/* info = index of constant in `k' */</span>
+L0025      <a name="VKNUM"/a><a class="L" href="lparser.h.ref.html#VKNUM">VKNUM</a>,	<span class="comment">/* nval = numerical value */</span>
+L0026      <a name="VLOCAL"/a><a class="L" href="lparser.h.ref.html#VLOCAL">VLOCAL</a>,	<span class="comment">/* info = local register */</span>
+L0027      <a name="VUPVAL"/a><a class="L" href="lparser.h.ref.html#VUPVAL">VUPVAL</a>,       <span class="comment">/* info = index of upvalue in `upvalues' */</span>
+L0028      <a name="VGLOBAL"/a><a class="L" href="lparser.h.ref.html#VGLOBAL">VGLOBAL</a>,	<span class="comment">/* info = index of table; aux = index of global name in `k' */</span>
+L0029      <a name="VINDEXED"/a><a class="L" href="lparser.h.ref.html#VINDEXED">VINDEXED</a>,	<span class="comment">/* info = table register; aux = index register (or `k') */</span>
+L0030      <a name="VJMP"/a><a class="L" href="lparser.h.ref.html#VJMP">VJMP</a>,		<span class="comment">/* info = instruction pc */</span>
+L0031      <a name="VRELOCABLE"/a><a class="L" href="lparser.h.ref.html#VRELOCABLE">VRELOCABLE</a>,	<span class="comment">/* info = instruction pc */</span>
+L0032      <a name="VNONRELOC"/a><a class="L" href="lparser.h.ref.html#VNONRELOC">VNONRELOC</a>,	<span class="comment">/* info = result register */</span>
+L0033      <a name="VCALL"/a><a class="L" href="lparser.h.ref.html#VCALL">VCALL</a>,	<span class="comment">/* info = instruction pc */</span>
+L0034      <a name="VVARARG"/a><a class="L" href="lparser.h.ref.html#VVARARG">VVARARG</a>	<span class="comment">/* info = instruction pc */</span>
+L0035    } <a name="expkind"/a><a class="L" href="lparser.h.ref.html#expkind">expkind</a>;
+L0036    
+L0037    <span class="keyword">typedef</span> <span class="keyword">struct</span> <a name="expdesc"/a><a class="L" href="lparser.h.ref.html#expdesc">expdesc</a> {
+L0038      <a class="L" href="lparser.h.html#expkind">expkind</a> k;
+L0039      union {
+L0040        <span class="keyword">struct</span> { <span class="keyword">int</span> <a name="info"/a><a class="L" href="lparser.h.ref.html#info">info</a>, <a name="aux"/a><a class="L" href="lparser.h.ref.html#aux">aux</a>; } s;
+L0041        <a class="L" href="lua.h.html#lua_Number">lua_Number</a> <a name="nval"/a><a class="L" href="lparser.h.ref.html#nval">nval</a>;
+L0042      } u;
+L0043      <span class="keyword">int</span> t;  <span class="comment">/* patch list of `exit when true' */</span>
+L0044      <span class="keyword">int</span> f;  <span class="comment">/* patch list of `exit when false' */</span>
+L0045    } <a class="L" href="lparser.h.html#expdesc">expdesc</a>;
+L0046    
+L0047    
+L0048    <span class="keyword">typedef</span> <span class="keyword">struct</span> <a name="upvaldesc"/a><a class="L" href="lparser.h.ref.html#upvaldesc">upvaldesc</a> {
+L0049      <a class="L" href="llimits.h.html#lu_byte">lu_byte</a> k;
+L0050      <a class="L" href="llimits.h.html#lu_byte">lu_byte</a> info;
+L0051    } <a class="L" href="lparser.h.html#upvaldesc">upvaldesc</a>;
+L0052    
+L0053    
+L0054    <span class="keyword">struct</span> <a class="L" href="lparser.c.html#BlockCnt">BlockCnt</a>;  <span class="comment">/* defined in lparser.c */</span>
+L0055    
+L0056    
+L0057    <span class="comment">/* state needed to generate code for a given function */</span>
+L0058    <span class="keyword">typedef</span> <span class="keyword">struct</span> <a name="FuncState"/a><a class="L" href="lparser.h.ref.html#FuncState">FuncState</a> {
+L0059      <a class="L" href="lobject.h.html#Proto">Proto</a> *f;  <span class="comment">/* current function header */</span>
+L0060      <a class="L" href="lobject.h.html#Table">Table</a> *<a name="h"/a><a class="L" href="lparser.h.ref.html#h">h</a>;  <span class="comment">/* table to find (and reuse) elements in `k' */</span>
+L0061      <span class="keyword">struct</span> <a class="L" href="lparser.h.html#FuncState">FuncState</a> *prev;  <span class="comment">/* enclosing function */</span>
+L0062      <span class="keyword">struct</span> <a class="L" href="llex.h.html#LexState">LexState</a> *<a name="ls"/a><a class="L" href="lparser.h.ref.html#ls">ls</a>;  <span class="comment">/* lexical state */</span>
+L0063      <span class="keyword">struct</span> <a class="L" href="lstate.h.html#lua_State">lua_State</a> *L;  <span class="comment">/* copy of the Lua state */</span>
+L0064      <span class="keyword">struct</span> <a class="L" href="lparser.c.html#BlockCnt">BlockCnt</a> *<a name="bl"/a><a class="L" href="lparser.h.ref.html#bl">bl</a>;  <span class="comment">/* chain of current blocks */</span>
+L0065      <span class="keyword">int</span> <a name="pc"/a><a class="L" href="lparser.h.ref.html#pc">pc</a>;  <span class="comment">/* next position to code (equivalent to `ncode') */</span>
+L0066      <span class="keyword">int</span> <a name="lasttarget"/a><a class="L" href="lparser.h.ref.html#lasttarget">lasttarget</a>;   <span class="comment">/* `pc' of last `jump target' */</span>
+L0067      <span class="keyword">int</span> <a name="jpc"/a><a class="L" href="lparser.h.ref.html#jpc">jpc</a>;  <span class="comment">/* list of pending jumps to `pc' */</span>
+L0068      <span class="keyword">int</span> <a class="L" href="lcode.c.html#freereg">freereg</a>;  <span class="comment">/* first free register */</span>
+L0069      <span class="keyword">int</span> nk;  <span class="comment">/* number of elements in `k' */</span>
+L0070      <span class="keyword">int</span> <a name="np"/a><a class="L" href="lparser.h.ref.html#np">np</a>;  <span class="comment">/* number of elements in `p' */</span>
+L0071      short <a name="nlocvars"/a><a class="L" href="lparser.h.ref.html#nlocvars">nlocvars</a>;  <span class="comment">/* number of elements in `locvars' */</span>
+L0072      <a class="L" href="llimits.h.html#lu_byte">lu_byte</a> nactvar;  <span class="comment">/* number of active local variables */</span>
+L0073      <a class="L" href="lparser.h.html#upvaldesc">upvaldesc</a> upvalues[<a class="L" href="luaconf.h.html#LUAI_MAXUPVALUES">LUAI_MAXUPVALUES</a>];  <span class="comment">/* upvalues */</span>
+L0074      unsigned short <a name="actvar"/a><a class="L" href="lparser.h.ref.html#actvar">actvar</a>[<a class="L" href="luaconf.h.html#LUAI_MAXVARS">LUAI_MAXVARS</a>];  <span class="comment">/* declared-variable stack */</span>
+L0075    } <a class="L" href="lparser.h.html#FuncState">FuncState</a>;
+L0076    
+L0077    
+L0078    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <a class="L" href="lobject.h.html#Proto">Proto</a> *<a class="L" href="lparser.c.html#luaY_parser">luaY_parser</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lzio.h.html#ZIO">ZIO</a> *z, <a class="L" href="lzio.h.html#Mbuffer">Mbuffer</a> *buff,
+L0079                                                <span class="keyword">const</span> <span class="keyword">char</span> *name);
+L0080    
+L0081    
+L0082    <span class="prepro">#endif
+</span></pre>
+<hr/>
+Generated by <a href="pretty.lua.html">pretty.lua</html>
+</body></html>

@@ -1,0 +1,248 @@
+<html>
+<head>
+<style>
+a.L { text-decoration: none; }
+a.L:hover { color: #FFAAAA; }
+body { margin-top: 20px; margin-left: 30px; }
+.lno { font-weight: bold: color #000; }
+.keyword {font-weight: bold; color: #6666AA; }
+.number  { color: #AA6666; }
+.string  { color: #8888AA; }
+.comment { color: #666600; }
+.prepro { color: #006666; } 
+</style>
+<body>
+<h1>Lua 5.1.4: pretty.lua</h1>
+<hr/>
+<pre>
+L0001    <span class="comment">-- pretty.lua
+</span>L0002    <span class="comment">-- Formating C code using tags from exuberant ctags.
+</span>L0003    <span class="comment">-- You will first need to generate a tags file with line number info, e.g
+</span>L0004    <span class="comment">-- $ ctags -n *.c *.h
+</span>L0005    <span class="comment">-- Requires Penlight.
+</span>L0006    <span class="comment">--
+</span>L0007    <span class="comment">-- Steve Donovan, 2010, X11/MIT
+</span>L0008    
+L0009    require <span class="string">'pl'</span>
+L0010    
+L0011    <span class="keyword">local</span> append = table.insert
+L0012    
+L0013    <span class="keyword">function</span> readtags(file)
+L0014        file = file <span class="keyword">or</span> <span class="string">'tags'</span>
+L0015        <span class="keyword">local</span> f = io.open <span class="string">'tags'</span>
+L0016        <span class="keyword">local</span> symbols = {}    
+L0017    
+L0018        <span class="comment">-- skip the comment header
+</span>L0019        <span class="keyword">local</span> line = f:read()
+L0020        <span class="keyword">while</span> line:find <span class="string">'^!'</span> <span class="keyword">do</span>
+L0021            line = f:read()
+L0022        <span class="keyword">end</span>
+L0023    
+L0024        <span class="keyword">local</span> k = <span class="number">1</span>
+L0025        <span class="keyword">for</span> line <span class="keyword">in</span> f:lines() <span class="keyword">do</span>
+L0026            <span class="keyword">local</span> sym,file,lno,tp,rest = line:<a class="L" href="lstrlib.c.html#match">match</a>(<span class="string">'([%w_]+)\t(%S+)\t(%S+)\t(%a)(.*)'</span>)
+L0027            lno = lno:<a class="L" href="lstrlib.c.html#match">match</a> <span class="string">'(%d+);"'</span>
+L0028            <span class="keyword">if</span> lno <span class="keyword">then</span> lno = <a class="L" href="lvm.h.html#tonumber">tonumber</a>(lno) <span class="keyword">end</span>
+L0029            <span class="comment">-- generally more than one entry per symbol
+</span>L0030            <span class="keyword">if</span> <span class="keyword">not</span> symbols[sym] <span class="keyword">then</span> symbols[sym] = {} <span class="keyword">end</span>
+L0031            append(symbols[sym],{name=sym,file=file,lno=lno,tp=tp, ts=k })
+L0032            k = k + <span class="number">1</span>
+L0033        <span class="keyword">end</span>
+L0034    
+L0035        f:close()
+L0036    
+L0037        <span class="keyword">return</span> symbols
+L0038    <span class="keyword">end</span>
+L0039    
+L0040    <span class="keyword">function</span> get_file_refs(syms,file)
+L0041        <span class="comment">-- need all symbols contained within this file
+</span>L0042        <span class="keyword">local</span> file_refs = {}
+L0043        <span class="keyword">for</span> name,entries <span class="keyword">in</span> pairs(syms) <span class="keyword">do</span>
+L0044            <span class="keyword">for</span> _,entry <span class="keyword">in</span> ipairs(entries) <span class="keyword">do</span>
+L0045                <span class="keyword">if</span> entry.file == file <span class="keyword">then</span>
+L0046                    file_refs[name] = entry
+L0047                <span class="keyword">end</span>
+L0048            <span class="keyword">end</span>
+L0049        <span class="keyword">end</span>
+L0050        <span class="keyword">return</span> file_refs
+L0051    <span class="keyword">end</span>
+L0052    
+L0053    <span class="keyword">function</span> find_refs(syms,fname)
+L0054        <span class="keyword">local</span> res = List()
+L0055        <span class="keyword">for</span> name,entries <span class="keyword">in</span> pairs(syms) <span class="keyword">do</span> <span class="keyword">for</span> _,entry <span class="keyword">in</span> ipairs(entries) <span class="keyword">do</span>
+L0056            <span class="keyword">if</span> entry.refs <span class="keyword">then</span>
+L0057                <span class="keyword">for</span> rname,e <span class="keyword">in</span> pairs(entry.refs) <span class="keyword">do</span>
+L0058                    <span class="keyword">if</span> rname == fname <span class="keyword">then</span> res:append(entry) <span class="keyword">end</span>
+L0059                <span class="keyword">end</span>                
+L0060            <span class="keyword">end</span>
+L0061        <span class="keyword">end</span> <span class="keyword">end</span>
+L0062        <span class="keyword">return</span> res
+L0063    <span class="keyword">end</span>
+L0064    
+L0065    
+L0066    <span class="keyword">local</span> header = <span class="string">[[
+L0067    &lt;html&gt;
+L0068    &lt;head&gt;
+L0069    &lt;style&gt;
+L0070    a.L { text-decoration: none; }
+L0071    a.L:hover { color: #FFAAAA; }
+L0072    body { margin-top: 20px; margin-left: 30px; }
+L0073    .lno { font-weight: bold: color #000; }
+L0074    .keyword {font-weight: bold; color: #6666AA; }
+L0075    .number  { color: #AA6666; }
+L0076    .string  { color: #8888AA; }
+L0077    .comment { color: #666600; }
+L0078    .prepro { color: #006666; } 
+L0079    &lt;/style&gt;
+L0080    &lt;body&gt;
+L0081    ]]
+L0082    
+L0083    local footer = [[
+L0084    &lt;hr/&gt;
+L0085    Generated by &lt;a href="pretty.lua.html"&gt;pretty.lua&lt;/html&gt;
+L0086    &lt;/body&gt;&lt;/html&gt;
+L0087    ]]</span>
+L0088    
+L0089    <span class="keyword">local</span> dump = require <span class="string">'pl.pretty'</span>.dump
+L0090    
+L0091    <span class="keyword">local</span> syms = readtags()
+L0092    
+L0093    <span class="keyword">function</span> do_refs(file)
+L0094        <span class="keyword">local</span> file_refs = get_file_refs(syms,file)
+L0095        <span class="comment">--dump(file_refs)
+</span>L0096        <span class="keyword">local</span> res = List()
+L0097        res:append(header)
+L0098        res:append ((<span class="string">'&lt;h1&gt;Lua 5.1.4: %s references&lt;/h1&gt;\n&lt;hr/&gt;\n'</span>):format(file))    
+L0099        <span class="comment">-- for all the symbols referenced in this file.....
+</span>L0100        <span class="keyword">for</span> name,entry <span class="keyword">in</span> pairs(file_refs) <span class="keyword">do</span>
+L0101            <span class="keyword">local</span> refs = find_refs(syms,name)
+L0102            <span class="keyword">if</span> refs <span class="keyword">and</span> #refs &gt; <span class="number">0</span> <span class="keyword">then</span>
+L0103                res:append((<span class="string">'&lt;a name="%s"/&gt;&lt;h3&gt;%s&lt;/h3&gt;\n&lt;ul&gt;'</span>):format(name,name))
+L0104                <span class="keyword">for</span> _,ref <span class="keyword">in</span> ipairs(refs) <span class="keyword">do</span>
+L0105                    res:append((<span class="string">'&lt;li&gt;&lt;a href="%s.html#%s"&gt;%s&lt;/a&gt; in %s&lt;/li&gt;\n'</span>):format(
+L0106                                            ref.file,ref.name,ref.name,ref.file) )
+L0107                <span class="keyword">end</span>
+L0108                res:append <span class="string">'&lt;/ul&gt;\n'</span>
+L0109            <span class="keyword">end</span>
+L0110        <span class="keyword">end</span>
+L0111        res:append(footer)
+L0112        utils.writefile(file..<span class="string">'.ref.html'</span>,res:join <span class="string">''</span>)
+L0113    <span class="keyword">end</span>
+L0114    
+L0115    <span class="keyword">local</span> <span class="keyword">function</span> escape(str)
+L0116        <span class="keyword">return</span> (str:gsub(<span class="string">'&amp;'</span>,<span class="string">'&amp;amp;'</span>):gsub(<span class="string">'&lt;'</span>,<span class="string">'&amp;lt;'</span>):gsub(<span class="string">'&gt;'</span>,<span class="string">'&amp;gt;'</span>))
+L0117    <span class="keyword">end</span>
+L0118    
+L0119    <span class="keyword">local</span> <span class="keyword">function</span> span(t,val)
+L0120        <span class="keyword">return</span> (<span class="string">'&lt;span class="%s"&gt;%s&lt;/span&gt;'</span>):format(t,val)
+L0121    <span class="keyword">end</span>
+L0122    
+L0123    <span class="keyword">local</span> <span class="keyword">function</span> link(file,ref,text)
+L0124        text = text <span class="keyword">or</span> ref
+L0125        <span class="keyword">return</span> (<span class="string">'&lt;a class="L" href="%s.html#%s"&gt;%s&lt;/a&gt;'</span>):format(file,ref,text)           
+L0126    <span class="keyword">end</span>
+L0127    
+L0128    <span class="keyword">local</span> <span class="keyword">function</span> anchor(name)
+L0129        <span class="keyword">return</span> (<span class="string">'&lt;a name="%s"/a&gt;'</span>):format(name)
+L0130    <span class="keyword">end</span>
+L0131    
+L0132    <span class="keyword">local</span> <span class="keyword">function</span> add_ref(fun,sym)
+L0133        <span class="keyword">if</span> <span class="keyword">not</span> fun <span class="keyword">then</span> <span class="keyword">return</span> <span class="keyword">end</span>
+L0134        <span class="keyword">if</span> <span class="keyword">not</span> fun.refs <span class="keyword">then</span> fun.refs = {} <span class="keyword">end</span>    
+L0135        fun.refs[sym.name] = sym
+L0136    <span class="keyword">end</span>
+L0137    
+L0138    <span class="keyword">function</span> prettify_c (file)
+L0139        <span class="keyword">local</span> code = List()
+L0140        <span class="keyword">local</span> f,err = io.open(file)
+L0141        <span class="keyword">if</span> <span class="keyword">not</span> f <span class="keyword">then</span> <span class="keyword">return</span> <span class="keyword">nil</span>,err <span class="keyword">end</span>
+L0142        print(<span class="string">'reading'</span>,file)
+L0143        
+L0144        <span class="comment">-- serious hack; add line numbers to the orginal source
+</span>L0145        <span class="comment">-- (must do this because this lexical scanner is not line-driven.)
+</span>L0146        <span class="keyword">local</span> lno = <span class="number">1</span>
+L0147        <span class="keyword">for</span> line <span class="keyword">in</span> f:lines() <span class="keyword">do</span>
+L0148            code:append((<span class="string">'L%04d    %s\n'</span>):format(lno,line))
+L0149            lno = lno + <span class="number">1</span>
+L0150        <span class="keyword">end</span>
+L0151        code = code:join <span class="string">''</span>
+L0152    
+L0153        <span class="keyword">local</span> res = List()
+L0154        res:append(header)
+L0155        res:append ((<span class="string">'&lt;h1&gt;Lua 5.1.4: %s&lt;/h1&gt;\n&lt;hr/&gt;\n'</span>):format(file))    
+L0156        res:append <span class="string">'&lt;pre&gt;\n'</span>
+L0157    
+L0158        <span class="keyword">local</span> no_refs = path.extension(file) == <span class="string">'.lua'</span>
+L0159        <span class="keyword">local</span> scanner = lexer.cpp
+L0160        <span class="keyword">if</span> no_refs <span class="keyword">then</span>
+L0161            scanner = lexer.lua
+L0162            refs = {}
+L0163        <span class="keyword">end</span>
+L0164        
+L0165        <span class="keyword">local</span> spans = {keyword=<span class="keyword">true</span>,number=<span class="keyword">true</span>,string=<span class="keyword">true</span>,comment=<span class="keyword">true</span>,prepro=<span class="keyword">true</span>}
+L0166        <span class="keyword">local</span> curr_fun
+L0167        <span class="keyword">local</span> in_dcl
+L0168        
+L0169        <span class="keyword">for</span> t,val <span class="keyword">in</span> scanner(code,{},{}) <span class="keyword">do</span>
+L0170            val = escape(val)
+L0171            <span class="keyword">if</span> t == <span class="string">'iden'</span> <span class="keyword">then</span>
+L0172                <span class="comment">-- a bit of a hack
+</span>L0173                <span class="keyword">local</span> ll = val:<a class="L" href="lstrlib.c.html#match">match</a>(<span class="string">'^L(%d%d%d%d)'</span>)
+L0174                <span class="keyword">if</span> ll <span class="keyword">then</span>
+L0175                    lno = <a class="L" href="lvm.h.html#tonumber">tonumber</a>(ll)
+L0176                    <span class="comment">--val = span('lno',ll)
+</span>L0177                <span class="keyword">else</span>
+L0178                    <span class="keyword">local</span> sym = syms[val]
+L0179                    <span class="keyword">if</span> sym <span class="keyword">then</span>
+L0180                        <span class="keyword">local</span> e = sym[<span class="number">1</span>]
+L0181                        <span class="keyword">if</span> e.file == file <span class="keyword">and</span> e.lno == lno <span class="keyword">then</span>
+L0182                            <span class="comment">-- hit a symbol definition
+</span>L0183                            curr_fun = e
+L0184                            res:append (anchor(val))
+L0185                            val = link(file..<span class="string">'.ref'</span>,val)
+L0186                        <span class="keyword">elseif</span> e.tp ~= <span class="string">'m'</span> <span class="keyword">then</span> <span class="comment">-- ignore struct field refs
+</span>L0187                            val =  link(e.file,val)
+L0188                            add_ref(curr_fun,e)
+L0189                        <span class="keyword">end</span>
+L0190                    <span class="keyword">end</span>
+L0191                <span class="keyword">end</span>
+L0192                res:append(val)
+L0193            <span class="keyword">elseif</span> spans[t] <span class="keyword">then</span>
+L0194                <span class="keyword">if</span> t == <span class="string">'prepro'</span> <span class="keyword">then</span>
+L0195                    <span class="keyword">local</span> mname = val:<a class="L" href="lstrlib.c.html#match">match</a>(<span class="string">'#%s*define%s+([%w_]+)'</span>)
+L0196                    <span class="keyword">if</span> mname <span class="keyword">then</span>
+L0197                        res:append(anchor(mname))
+L0198                    <span class="keyword">end</span>
+L0199                <span class="keyword">end</span>
+L0200                res:append(span(t,val))
+L0201            <span class="keyword">else</span>
+L0202                res:append(val)
+L0203            <span class="keyword">end</span>
+L0204        <span class="keyword">end</span>
+L0205    
+L0206        res:append <span class="string">'&lt;/pre&gt;\n'</span>
+L0207        res:append(footer)    
+L0208        utils.writefile(file..<span class="string">'.html'</span>,res:join <span class="string">''</span>)
+L0209    <span class="keyword">end</span>
+L0210    
+L0211    <span class="keyword">if</span> arg[<span class="number">1</span>] <span class="keyword">then</span>
+L0212        prettify_c(arg[<span class="number">1</span>])
+L0213        <span class="keyword">if</span> path.extension(arg[<span class="number">1</span>]) == <span class="string">'.c'</span> <span class="keyword">then</span>
+L0214            do_refs(arg[<span class="number">1</span>])
+L0215        <span class="keyword">end</span>
+L0216    <span class="keyword">else</span>
+L0217        <span class="keyword">local</span> <span class="keyword">function</span> getfiles(mask)
+L0218            <span class="keyword">return</span> dir.getfiles(<span class="string">'.'</span>,mask):map(path.basename)        
+L0219        <span class="keyword">end</span>
+L0220        <span class="keyword">local</span> c_files = getfiles <span class="string">'*.c'</span>
+L0221        <span class="keyword">local</span> h_files = getfiles <span class="string">'*.h'</span>
+L0222        c_files:<a class="L" href="ltablib.c.html#foreach">foreach</a>(prettify_c)
+L0223        h_files:<a class="L" href="ltablib.c.html#foreach">foreach</a>(prettify_c)
+L0224        <span class="comment">-- once the main .html files are generated, can make .ref.html files
+</span>L0225        c_files:<a class="L" href="ltablib.c.html#foreach">foreach</a>(do_refs)
+L0226        h_files:<a class="L" href="ltablib.c.html#foreach">foreach</a>(do_refs)
+L0227    <span class="keyword">end</span>
+</pre>
+<hr/>
+Generated by <a href="pretty.lua.html">pretty.lua</html>
+</body></html>

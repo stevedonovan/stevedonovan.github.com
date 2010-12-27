@@ -1,0 +1,185 @@
+<html>
+<head>
+<style>
+a.L { text-decoration: none; }
+a.L:hover { color: #FFAAAA; }
+body { margin-top: 20px; margin-left: 30px; }
+.lno { font-weight: bold: color #000; }
+.keyword {font-weight: bold; color: #6666AA; }
+.number  { color: #AA6666; }
+.string  { color: #8888AA; }
+.comment { color: #666600; }
+.prepro { color: #006666; } 
+</style>
+<body>
+<h1>Lua 5.1.4: ldump.c</h1>
+<hr/>
+<pre>
+L0001    <span class="comment">/*
+L0002    ** $Id: ldump.c,v 2.8.1.1 2007/12/27 13:02:25 roberto Exp $
+L0003    ** save precompiled Lua chunks
+L0004    ** See Copyright Notice in lua.h
+L0005    */</span>
+L0006    
+L0007    <span class="prepro">#include &lt;stddef.h&gt;
+</span>L0008    
+L0009    <a name="ldump_c"/a><span class="prepro">#define ldump_c
+</span>L0010    <a name="LUA_CORE"/a><span class="prepro">#define LUA_CORE
+</span>L0011    
+L0012    <span class="prepro"><a class="L" href="lua.h.html#">#include "lua.h"
+</a></span>L0013    
+L0014    <span class="prepro"><a class="L" href="lobject.h.html#">#include "lobject.h"
+</a></span>L0015    <span class="prepro"><a class="L" href="lstate.h.html#">#include "lstate.h"
+</a></span>L0016    <span class="prepro"><a class="L" href="lundump.h.html#">#include "lundump.h"
+</a></span>L0017    
+L0018    <span class="keyword">typedef</span> <span class="keyword">struct</span> {
+L0019     <a class="L" href="lstate.h.html#lua_State">lua_State</a>* L;
+L0020     <a class="L" href="lua.h.html#lua_Writer">lua_Writer</a> <a name="writer"/a><a class="L" href="ldump.c.ref.html#writer">writer</a>;
+L0021     <span class="keyword">void</span>* <a name="data"/a><a class="L" href="ldump.c.ref.html#data">data</a>;
+L0022     <span class="keyword">int</span> <a name="strip"/a><a class="L" href="ldump.c.ref.html#strip">strip</a>;
+L0023     <span class="keyword">int</span> status;
+L0024    } <a name="DumpState"/a><a class="L" href="ldump.c.ref.html#DumpState">DumpState</a>;
+L0025    
+L0026    <a name="DumpMem"/a><span class="prepro">#define DumpMem(b,n,size,D)	DumpBlock(b,(n)*(size),D)
+</span>L0027    <a name="DumpVar"/a><span class="prepro">#define DumpVar(x,D)	 	DumpMem(&amp;x,1,sizeof(x),D)
+</span>L0028    
+L0029    <span class="keyword">static</span> <span class="keyword">void</span> <a name="DumpBlock"/a><a class="L" href="ldump.c.ref.html#DumpBlock">DumpBlock</a>(<span class="keyword">const</span> <span class="keyword">void</span>* b, size_t size, <a class="L" href="ldump.c.html#DumpState">DumpState</a>* D)
+L0030    {
+L0031     <span class="keyword">if</span> (D-&gt;status==<span class="number">0</span>)
+L0032     {
+L0033      <a class="L" href="llimits.h.html#lua_unlock">lua_unlock</a>(D-&gt;L);
+L0034      D-&gt;status=(*D-&gt;writer)(D-&gt;L,b,size,D-&gt;data);
+L0035      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(D-&gt;L);
+L0036     }
+L0037    }
+L0038    
+L0039    <span class="keyword">static</span> <span class="keyword">void</span> <a name="DumpChar"/a><a class="L" href="ldump.c.ref.html#DumpChar">DumpChar</a>(<span class="keyword">int</span> y, <a class="L" href="ldump.c.html#DumpState">DumpState</a>* D)
+L0040    {
+L0041     <span class="keyword">char</span> x=(<span class="keyword">char</span>)y;
+L0042     <a class="L" href="ldump.c.html#DumpVar">DumpVar</a>(x,D);
+L0043    }
+L0044    
+L0045    <span class="keyword">static</span> <span class="keyword">void</span> <a name="DumpInt"/a><a class="L" href="ldump.c.ref.html#DumpInt">DumpInt</a>(<span class="keyword">int</span> x, <a class="L" href="ldump.c.html#DumpState">DumpState</a>* D)
+L0046    {
+L0047     <a class="L" href="ldump.c.html#DumpVar">DumpVar</a>(x,D);
+L0048    }
+L0049    
+L0050    <span class="keyword">static</span> <span class="keyword">void</span> <a name="DumpNumber"/a><a class="L" href="ldump.c.ref.html#DumpNumber">DumpNumber</a>(<a class="L" href="lua.h.html#lua_Number">lua_Number</a> x, <a class="L" href="ldump.c.html#DumpState">DumpState</a>* D)
+L0051    {
+L0052     <a class="L" href="ldump.c.html#DumpVar">DumpVar</a>(x,D);
+L0053    }
+L0054    
+L0055    <span class="keyword">static</span> <span class="keyword">void</span> <a name="DumpVector"/a><a class="L" href="ldump.c.ref.html#DumpVector">DumpVector</a>(<span class="keyword">const</span> <span class="keyword">void</span>* b, <span class="keyword">int</span> n, size_t size, <a class="L" href="ldump.c.html#DumpState">DumpState</a>* D)
+L0056    {
+L0057     <a class="L" href="ldump.c.html#DumpInt">DumpInt</a>(n,D);
+L0058     <a class="L" href="ldump.c.html#DumpMem">DumpMem</a>(b,n,size,D);
+L0059    }
+L0060    
+L0061    <span class="keyword">static</span> <span class="keyword">void</span> <a name="DumpString"/a><a class="L" href="ldump.c.ref.html#DumpString">DumpString</a>(<span class="keyword">const</span> <a class="L" href="lobject.h.html#TString">TString</a>* s, <a class="L" href="ldump.c.html#DumpState">DumpState</a>* D)
+L0062    {
+L0063     <span class="keyword">if</span> (s==NULL || <a class="L" href="lobject.h.html#getstr">getstr</a>(s)==NULL)
+L0064     {
+L0065      size_t size=<span class="number">0</span>;
+L0066      <a class="L" href="ldump.c.html#DumpVar">DumpVar</a>(size,D);
+L0067     }
+L0068     <span class="keyword">else</span>
+L0069     {
+L0070      size_t size=s-&gt;tsv.len<span class="number">+1</span>;		<span class="comment">/* include trailing '\0' */</span>
+L0071      <a class="L" href="ldump.c.html#DumpVar">DumpVar</a>(size,D);
+L0072      <a class="L" href="ldump.c.html#DumpBlock">DumpBlock</a>(<a class="L" href="lobject.h.html#getstr">getstr</a>(s),size,D);
+L0073     }
+L0074    }
+L0075    
+L0076    <a name="DumpCode"/a><span class="prepro">#define DumpCode(f,D)	 DumpVector(f-&gt;code,f-&gt;sizecode,sizeof(Instruction),D)
+</span>L0077    
+L0078    <span class="keyword">static</span> <span class="keyword">void</span> <a class="L" href="ldump.c.html#DumpFunction">DumpFunction</a>(<span class="keyword">const</span> <a class="L" href="lobject.h.html#Proto">Proto</a>* f, <span class="keyword">const</span> <a class="L" href="lobject.h.html#TString">TString</a>* p, <a class="L" href="ldump.c.html#DumpState">DumpState</a>* D);
+L0079    
+L0080    <span class="keyword">static</span> <span class="keyword">void</span> <a name="DumpConstants"/a><a class="L" href="ldump.c.ref.html#DumpConstants">DumpConstants</a>(<span class="keyword">const</span> <a class="L" href="lobject.h.html#Proto">Proto</a>* f, <a class="L" href="ldump.c.html#DumpState">DumpState</a>* D)
+L0081    {
+L0082     <span class="keyword">int</span> i,n=f-&gt;sizek;
+L0083     <a class="L" href="ldump.c.html#DumpInt">DumpInt</a>(n,D);
+L0084     <span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;n; i++)
+L0085     {
+L0086      <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a>* o=&amp;f-&gt;k[i];
+L0087      <a class="L" href="ldump.c.html#DumpChar">DumpChar</a>(<a class="L" href="lobject.h.html#ttype">ttype</a>(o),D);
+L0088      <span class="keyword">switch</span> (<a class="L" href="lobject.h.html#ttype">ttype</a>(o))
+L0089      {
+L0090       <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TNIL">LUA_TNIL</a>:
+L0091    	<span class="keyword">break</span>;
+L0092       <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TBOOLEAN">LUA_TBOOLEAN</a>:
+L0093    	<a class="L" href="ldump.c.html#DumpChar">DumpChar</a>(<a class="L" href="lobject.h.html#bvalue">bvalue</a>(o),D);
+L0094    	<span class="keyword">break</span>;
+L0095       <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TNUMBER">LUA_TNUMBER</a>:
+L0096    	<a class="L" href="ldump.c.html#DumpNumber">DumpNumber</a>(<a class="L" href="lobject.h.html#nvalue">nvalue</a>(o),D);
+L0097    	<span class="keyword">break</span>;
+L0098       <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TSTRING">LUA_TSTRING</a>:
+L0099    	<a class="L" href="ldump.c.html#DumpString">DumpString</a>(<a class="L" href="lobject.h.html#rawtsvalue">rawtsvalue</a>(o),D);
+L0100    	<span class="keyword">break</span>;
+L0101       <span class="keyword">default</span>:
+L0102    	<a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(<span class="number">0</span>);			<span class="comment">/* cannot happen */</span>
+L0103    	<span class="keyword">break</span>;
+L0104      }
+L0105     }
+L0106     n=f-&gt;sizep;
+L0107     <a class="L" href="ldump.c.html#DumpInt">DumpInt</a>(n,D);
+L0108     <span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;n; i++) <a class="L" href="ldump.c.html#DumpFunction">DumpFunction</a>(f-&gt;p[i],f-&gt;source,D);
+L0109    }
+L0110    
+L0111    <span class="keyword">static</span> <span class="keyword">void</span> <a name="DumpDebug"/a><a class="L" href="ldump.c.ref.html#DumpDebug">DumpDebug</a>(<span class="keyword">const</span> <a class="L" href="lobject.h.html#Proto">Proto</a>* f, <a class="L" href="ldump.c.html#DumpState">DumpState</a>* D)
+L0112    {
+L0113     <span class="keyword">int</span> i,n;
+L0114     n= (D-&gt;strip) ? <span class="number">0</span> : f-&gt;sizelineinfo;
+L0115     <a class="L" href="ldump.c.html#DumpVector">DumpVector</a>(f-&gt;lineinfo,n,<span class="keyword">sizeof</span>(<span class="keyword">int</span>),D);
+L0116     n= (D-&gt;strip) ? <span class="number">0</span> : f-&gt;sizelocvars;
+L0117     <a class="L" href="ldump.c.html#DumpInt">DumpInt</a>(n,D);
+L0118     <span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;n; i++)
+L0119     {
+L0120      <a class="L" href="ldump.c.html#DumpString">DumpString</a>(f-&gt;locvars[i].varname,D);
+L0121      <a class="L" href="ldump.c.html#DumpInt">DumpInt</a>(f-&gt;locvars[i].startpc,D);
+L0122      <a class="L" href="ldump.c.html#DumpInt">DumpInt</a>(f-&gt;locvars[i].endpc,D);
+L0123     }
+L0124     n= (D-&gt;strip) ? <span class="number">0</span> : f-&gt;sizeupvalues;
+L0125     <a class="L" href="ldump.c.html#DumpInt">DumpInt</a>(n,D);
+L0126     <span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;n; i++) <a class="L" href="ldump.c.html#DumpString">DumpString</a>(f-&gt;upvalues[i],D);
+L0127    }
+L0128    
+L0129    <span class="keyword">static</span> <span class="keyword">void</span> <a name="DumpFunction"/a><a class="L" href="ldump.c.ref.html#DumpFunction">DumpFunction</a>(<span class="keyword">const</span> <a class="L" href="lobject.h.html#Proto">Proto</a>* f, <span class="keyword">const</span> <a class="L" href="lobject.h.html#TString">TString</a>* p, <a class="L" href="ldump.c.html#DumpState">DumpState</a>* D)
+L0130    {
+L0131     <a class="L" href="ldump.c.html#DumpString">DumpString</a>((f-&gt;source==p || D-&gt;strip) ? NULL : f-&gt;source,D);
+L0132     <a class="L" href="ldump.c.html#DumpInt">DumpInt</a>(f-&gt;linedefined,D);
+L0133     <a class="L" href="ldump.c.html#DumpInt">DumpInt</a>(f-&gt;lastlinedefined,D);
+L0134     <a class="L" href="ldump.c.html#DumpChar">DumpChar</a>(f-&gt;nups,D);
+L0135     <a class="L" href="ldump.c.html#DumpChar">DumpChar</a>(f-&gt;numparams,D);
+L0136     <a class="L" href="ldump.c.html#DumpChar">DumpChar</a>(f-&gt;is_vararg,D);
+L0137     <a class="L" href="ldump.c.html#DumpChar">DumpChar</a>(f-&gt;maxstacksize,D);
+L0138     <a class="L" href="ldump.c.html#DumpCode">DumpCode</a>(f,D);
+L0139     <a class="L" href="ldump.c.html#DumpConstants">DumpConstants</a>(f,D);
+L0140     <a class="L" href="ldump.c.html#DumpDebug">DumpDebug</a>(f,D);
+L0141    }
+L0142    
+L0143    <span class="keyword">static</span> <span class="keyword">void</span> <a name="DumpHeader"/a><a class="L" href="ldump.c.ref.html#DumpHeader">DumpHeader</a>(<a class="L" href="ldump.c.html#DumpState">DumpState</a>* D)
+L0144    {
+L0145     <span class="keyword">char</span> h[<a class="L" href="lundump.h.html#LUAC_HEADERSIZE">LUAC_HEADERSIZE</a>];
+L0146     <a class="L" href="lundump.c.html#luaU_header">luaU_header</a>(h);
+L0147     <a class="L" href="ldump.c.html#DumpBlock">DumpBlock</a>(h,<a class="L" href="lundump.h.html#LUAC_HEADERSIZE">LUAC_HEADERSIZE</a>,D);
+L0148    }
+L0149    
+L0150    <span class="comment">/*
+L0151    ** dump Lua function as precompiled chunk
+L0152    */</span>
+L0153    <span class="keyword">int</span> <a name="luaU_dump"/a><a class="L" href="ldump.c.ref.html#luaU_dump">luaU_dump</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a>* L, <span class="keyword">const</span> <a class="L" href="lobject.h.html#Proto">Proto</a>* f, <a class="L" href="lua.h.html#lua_Writer">lua_Writer</a> w, <span class="keyword">void</span>* data, <span class="keyword">int</span> strip)
+L0154    {
+L0155     <a class="L" href="ldump.c.html#DumpState">DumpState</a> D;
+L0156     D.L=L;
+L0157     D.writer=w;
+L0158     D.data=data;
+L0159     D.strip=strip;
+L0160     D.status=<span class="number">0</span>;
+L0161     <a class="L" href="ldump.c.html#DumpHeader">DumpHeader</a>(&amp;D);
+L0162     <a class="L" href="ldump.c.html#DumpFunction">DumpFunction</a>(f,NULL,&amp;D);
+L0163     <span class="keyword">return</span> D.status;
+L0164    }
+</pre>
+<hr/>
+Generated by <a href="pretty.lua.html">pretty.lua</html>
+</body></html>

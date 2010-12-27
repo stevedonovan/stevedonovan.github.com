@@ -1,0 +1,235 @@
+<html>
+<head>
+<style>
+a.L { text-decoration: none; }
+a.L:hover { color: #FFAAAA; }
+body { margin-top: 20px; margin-left: 30px; }
+.lno { font-weight: bold: color #000; }
+.keyword {font-weight: bold; color: #6666AA; }
+.number  { color: #AA6666; }
+.string  { color: #8888AA; }
+.comment { color: #666600; }
+.prepro { color: #006666; } 
+</style>
+<body>
+<h1>Lua 5.1.4: lstate.c</h1>
+<hr/>
+<pre>
+L0001    <span class="comment">/*
+L0002    ** $Id: lstate.c,v 2.36.1.2 2008/01/03 15:20:39 roberto Exp $
+L0003    ** Global State
+L0004    ** See Copyright Notice in lua.h
+L0005    */</span>
+L0006    
+L0007    
+L0008    <span class="prepro">#include &lt;stddef.h&gt;
+</span>L0009    
+L0010    <a name="lstate_c"/a><span class="prepro">#define lstate_c
+</span>L0011    <a name="LUA_CORE"/a><span class="prepro">#define LUA_CORE
+</span>L0012    
+L0013    <span class="prepro"><a class="L" href="lua.h.html#">#include "lua.h"
+</a></span>L0014    
+L0015    <span class="prepro"><a class="L" href="ldebug.h.html#">#include "ldebug.h"
+</a></span>L0016    <span class="prepro"><a class="L" href="ldo.h.html#">#include "ldo.h"
+</a></span>L0017    <span class="prepro"><a class="L" href="lfunc.h.html#">#include "lfunc.h"
+</a></span>L0018    <span class="prepro"><a class="L" href="lgc.h.html#">#include "lgc.h"
+</a></span>L0019    <span class="prepro"><a class="L" href="llex.h.html#">#include "llex.h"
+</a></span>L0020    <span class="prepro"><a class="L" href="lmem.h.html#">#include "lmem.h"
+</a></span>L0021    <span class="prepro"><a class="L" href="lstate.h.html#">#include "lstate.h"
+</a></span>L0022    <span class="prepro"><a class="L" href="lstring.h.html#">#include "lstring.h"
+</a></span>L0023    <span class="prepro"><a class="L" href="ltable.h.html#">#include "ltable.h"
+</a></span>L0024    <span class="prepro"><a class="L" href="ltm.h.html#">#include "ltm.h"
+</a></span>L0025    
+L0026    
+L0027    <a name="state_size"/a><span class="prepro">#define state_size(x)	(sizeof(x) + LUAI_EXTRASPACE)
+</span>L0028    <a name="fromstate"/a><span class="prepro">#define fromstate(l)	(cast(lu_byte *, (l)) - LUAI_EXTRASPACE)
+</span>L0029    <a name="tostate"/a><span class="prepro">#define tostate(l)   (cast(lua_State *, cast(lu_byte *, l) + LUAI_EXTRASPACE))
+</span>L0030    
+L0031    
+L0032    <span class="comment">/*
+L0033    ** Main thread combines a thread state and the global state
+L0034    */</span>
+L0035    <span class="keyword">typedef</span> <span class="keyword">struct</span> <a name="LG"/a><a class="L" href="lstate.c.ref.html#LG">LG</a> {
+L0036      <a class="L" href="lstate.h.html#lua_State">lua_State</a> l;
+L0037      <a class="L" href="lstate.h.html#global_State">global_State</a> <a name="g"/a><a class="L" href="lstate.c.ref.html#g">g</a>;
+L0038    } <a class="L" href="lstate.c.html#LG">LG</a>;
+L0039      
+L0040    
+L0041    
+L0042    <span class="keyword">static</span> <span class="keyword">void</span> <a name="stack_init"/a><a class="L" href="lstate.c.ref.html#stack_init">stack_init</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L1, <a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0043      <span class="comment">/* initialize CallInfo array */</span>
+L0044      L1-&gt;base_ci = <a class="L" href="lmem.h.html#luaM_newvector">luaM_newvector</a>(L, <a class="L" href="lstate.h.html#BASIC_CI_SIZE">BASIC_CI_SIZE</a>, <a class="L" href="lstate.h.html#CallInfo">CallInfo</a>);
+L0045      L1-&gt;ci = L1-&gt;base_ci;
+L0046      L1-&gt;size_ci = <a class="L" href="lstate.h.html#BASIC_CI_SIZE">BASIC_CI_SIZE</a>;
+L0047      L1-&gt;end_ci = L1-&gt;base_ci + L1-&gt;size_ci - <span class="number">1</span>;
+L0048      <span class="comment">/* initialize stack array */</span>
+L0049      L1-&gt;stack = <a class="L" href="lmem.h.html#luaM_newvector">luaM_newvector</a>(L, <a class="L" href="lstate.h.html#BASIC_STACK_SIZE">BASIC_STACK_SIZE</a> + <a class="L" href="lstate.h.html#EXTRA_STACK">EXTRA_STACK</a>, <a class="L" href="lobject.h.html#TValue">TValue</a>);
+L0050      L1-&gt;stacksize = <a class="L" href="lstate.h.html#BASIC_STACK_SIZE">BASIC_STACK_SIZE</a> + <a class="L" href="lstate.h.html#EXTRA_STACK">EXTRA_STACK</a>;
+L0051      L1-&gt;top = L1-&gt;stack;
+L0052      L1-&gt;stack_last = L1-&gt;stack+(L1-&gt;stacksize - <a class="L" href="lstate.h.html#EXTRA_STACK">EXTRA_STACK</a>)<span class="number">-1</span>;
+L0053      <span class="comment">/* initialize first ci */</span>
+L0054      L1-&gt;ci-&gt;func = L1-&gt;top;
+L0055      <a class="L" href="lobject.h.html#setnilvalue">setnilvalue</a>(L1-&gt;top++);  <span class="comment">/* `function' entry for this `ci' */</span>
+L0056      L1-&gt;base = L1-&gt;ci-&gt;base = L1-&gt;top;
+L0057      L1-&gt;ci-&gt;top = L1-&gt;top + <a class="L" href="lua.h.html#LUA_MINSTACK">LUA_MINSTACK</a>;
+L0058    }
+L0059    
+L0060    
+L0061    <span class="keyword">static</span> <span class="keyword">void</span> <a name="freestack"/a><a class="L" href="lstate.c.ref.html#freestack">freestack</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lstate.h.html#lua_State">lua_State</a> *L1) {
+L0062      <a class="L" href="lmem.h.html#luaM_freearray">luaM_freearray</a>(L, L1-&gt;base_ci, L1-&gt;size_ci, <a class="L" href="lstate.h.html#CallInfo">CallInfo</a>);
+L0063      <a class="L" href="lmem.h.html#luaM_freearray">luaM_freearray</a>(L, L1-&gt;stack, L1-&gt;stacksize, <a class="L" href="lobject.h.html#TValue">TValue</a>);
+L0064    }
+L0065    
+L0066    
+L0067    <span class="comment">/*
+L0068    ** open parts that may cause memory-allocation errors
+L0069    */</span>
+L0070    <span class="keyword">static</span> <span class="keyword">void</span> <a name="f_luaopen"/a><a class="L" href="lstate.c.ref.html#f_luaopen">f_luaopen</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">void</span> *ud) {
+L0071      <a class="L" href="lstate.h.html#global_State">global_State</a> *g = <a class="L" href="lstate.h.html#G">G</a>(L);
+L0072      <a class="L" href="llimits.h.html#UNUSED">UNUSED</a>(ud);
+L0073      <a class="L" href="lstate.c.html#stack_init">stack_init</a>(L, L);  <span class="comment">/* init stack */</span>
+L0074      <a class="L" href="lobject.h.html#sethvalue">sethvalue</a>(L, <a class="L" href="lstate.h.html#gt">gt</a>(L), <a class="L" href="ltable.c.html#luaH_new">luaH_new</a>(L, <span class="number">0</span>, <span class="number">2</span>));  <span class="comment">/* table of globals */</span>
+L0075      <a class="L" href="lobject.h.html#sethvalue">sethvalue</a>(L, <a class="L" href="lstate.h.html#registry">registry</a>(L), <a class="L" href="ltable.c.html#luaH_new">luaH_new</a>(L, <span class="number">0</span>, <span class="number">2</span>));  <span class="comment">/* registry */</span>
+L0076      <a class="L" href="lstring.c.html#luaS_resize">luaS_resize</a>(L, <a class="L" href="llimits.h.html#MINSTRTABSIZE">MINSTRTABSIZE</a>);  <span class="comment">/* initial size of string table */</span>
+L0077      <a class="L" href="ltm.c.html#luaT_init">luaT_init</a>(L);
+L0078      <a class="L" href="llex.c.html#luaX_init">luaX_init</a>(L);
+L0079      <a class="L" href="lstring.h.html#luaS_fix">luaS_fix</a>(<a class="L" href="lstring.h.html#luaS_newliteral">luaS_newliteral</a>(L, <a class="L" href="lmem.h.html#MEMERRMSG">MEMERRMSG</a>));
+L0080      g-&gt;GCthreshold = <span class="number">4</span>*g-&gt;totalbytes;
+L0081    }
+L0082    
+L0083    
+L0084    <span class="keyword">static</span> <span class="keyword">void</span> <a name="preinit_state"/a><a class="L" href="lstate.c.ref.html#preinit_state">preinit_state</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lstate.h.html#global_State">global_State</a> *g) {
+L0085      <a class="L" href="lstate.h.html#G">G</a>(L) = g;
+L0086      L-&gt;stack = NULL;
+L0087      L-&gt;stacksize = <span class="number">0</span>;
+L0088      L-&gt;errorJmp = NULL;
+L0089      L-&gt;hook = NULL;
+L0090      L-&gt;hookmask = <span class="number">0</span>;
+L0091      L-&gt;basehookcount = <span class="number">0</span>;
+L0092      L-&gt;allowhook = <span class="number">1</span>;
+L0093      <a class="L" href="ldebug.h.html#resethookcount">resethookcount</a>(L);
+L0094      L-&gt;openupval = NULL;
+L0095      L-&gt;size_ci = <span class="number">0</span>;
+L0096      L-&gt;nCcalls = L-&gt;baseCcalls = <span class="number">0</span>;
+L0097      L-&gt;status = <span class="number">0</span>;
+L0098      L-&gt;base_ci = L-&gt;ci = NULL;
+L0099      L-&gt;savedpc = NULL;
+L0100      L-&gt;errfunc = <span class="number">0</span>;
+L0101      <a class="L" href="lobject.h.html#setnilvalue">setnilvalue</a>(<a class="L" href="lstate.h.html#gt">gt</a>(L));
+L0102    }
+L0103    
+L0104    
+L0105    <span class="keyword">static</span> <span class="keyword">void</span> <a name="close_state"/a><a class="L" href="lstate.c.ref.html#close_state">close_state</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0106      <a class="L" href="lstate.h.html#global_State">global_State</a> *g = <a class="L" href="lstate.h.html#G">G</a>(L);
+L0107      <a class="L" href="lfunc.c.html#luaF_close">luaF_close</a>(L, L-&gt;stack);  <span class="comment">/* close all upvalues for this thread */</span>
+L0108      <a class="L" href="lgc.c.html#luaC_freeall">luaC_freeall</a>(L);  <span class="comment">/* collect all objects */</span>
+L0109      <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(g-&gt;rootgc == <a class="L" href="lstate.h.html#obj2gco">obj2gco</a>(L));
+L0110      <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(g-&gt;strt.nuse == <span class="number">0</span>);
+L0111      <a class="L" href="lmem.h.html#luaM_freearray">luaM_freearray</a>(L, <a class="L" href="lstate.h.html#G">G</a>(L)-&gt;strt.hash, <a class="L" href="lstate.h.html#G">G</a>(L)-&gt;strt.size, <a class="L" href="lobject.h.html#TString">TString</a> *);
+L0112      <a class="L" href="lzio.h.html#luaZ_freebuffer">luaZ_freebuffer</a>(L, &amp;g-&gt;buff);
+L0113      <a class="L" href="lstate.c.html#freestack">freestack</a>(L, L);
+L0114      <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(g-&gt;totalbytes == <span class="keyword">sizeof</span>(<a class="L" href="lstate.c.html#LG">LG</a>));
+L0115      (*g-&gt;frealloc)(g-&gt;ud, <a class="L" href="lstate.c.html#fromstate">fromstate</a>(L), <a class="L" href="lstate.c.html#state_size">state_size</a>(<a class="L" href="lstate.c.html#LG">LG</a>), <span class="number">0</span>);
+L0116    }
+L0117    
+L0118    
+L0119    <a class="L" href="lstate.h.html#lua_State">lua_State</a> *<a name="luaE_newthread"/a><a class="L" href="lstate.c.ref.html#luaE_newthread">luaE_newthread</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0120      <a class="L" href="lstate.h.html#lua_State">lua_State</a> *L1 = <a class="L" href="lstate.c.html#tostate">tostate</a>(<a class="L" href="lmem.h.html#luaM_malloc">luaM_malloc</a>(L, <a class="L" href="lstate.c.html#state_size">state_size</a>(<a class="L" href="lstate.h.html#lua_State">lua_State</a>)));
+L0121      <a class="L" href="lgc.c.html#luaC_link">luaC_link</a>(L, <a class="L" href="lstate.h.html#obj2gco">obj2gco</a>(L1), <a class="L" href="lua.h.html#LUA_TTHREAD">LUA_TTHREAD</a>);
+L0122      <a class="L" href="lstate.c.html#preinit_state">preinit_state</a>(L1, <a class="L" href="lstate.h.html#G">G</a>(L));
+L0123      <a class="L" href="lstate.c.html#stack_init">stack_init</a>(L1, L);  <span class="comment">/* init stack */</span>
+L0124      <a class="L" href="lobject.h.html#setobj2n">setobj2n</a>(L, <a class="L" href="lstate.h.html#gt">gt</a>(L1), <a class="L" href="lstate.h.html#gt">gt</a>(L));  <span class="comment">/* share table of globals */</span>
+L0125      L1-&gt;hookmask = L-&gt;hookmask;
+L0126      L1-&gt;basehookcount = L-&gt;basehookcount;
+L0127      L1-&gt;hook = L-&gt;hook;
+L0128      <a class="L" href="ldebug.h.html#resethookcount">resethookcount</a>(L1);
+L0129      <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(<a class="L" href="lgc.h.html#iswhite">iswhite</a>(<a class="L" href="lstate.h.html#obj2gco">obj2gco</a>(L1)));
+L0130      <span class="keyword">return</span> L1;
+L0131    }
+L0132    
+L0133    
+L0134    <span class="keyword">void</span> <a name="luaE_freethread"/a><a class="L" href="lstate.c.ref.html#luaE_freethread">luaE_freethread</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lstate.h.html#lua_State">lua_State</a> *L1) {
+L0135      <a class="L" href="lfunc.c.html#luaF_close">luaF_close</a>(L1, L1-&gt;stack);  <span class="comment">/* close all upvalues for this thread */</span>
+L0136      <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(L1-&gt;openupval == NULL);
+L0137      <a class="L" href="luaconf.h.html#luai_userstatefree">luai_userstatefree</a>(L1);
+L0138      <a class="L" href="lstate.c.html#freestack">freestack</a>(L, L1);
+L0139      <a class="L" href="lmem.h.html#luaM_freemem">luaM_freemem</a>(L, <a class="L" href="lstate.c.html#fromstate">fromstate</a>(L1), <a class="L" href="lstate.c.html#state_size">state_size</a>(<a class="L" href="lstate.h.html#lua_State">lua_State</a>));
+L0140    }
+L0141    
+L0142    
+L0143    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <a class="L" href="lstate.h.html#lua_State">lua_State</a> *<a name="lua_newstate"/a><a class="L" href="lstate.c.ref.html#lua_newstate">lua_newstate</a> (<a class="L" href="lua.h.html#lua_Alloc">lua_Alloc</a> f, <span class="keyword">void</span> *ud) {
+L0144      <span class="keyword">int</span> i;
+L0145      <a class="L" href="lstate.h.html#lua_State">lua_State</a> *L;
+L0146      <a class="L" href="lstate.h.html#global_State">global_State</a> *g;
+L0147      <span class="keyword">void</span> *l = (*f)(ud, NULL, <span class="number">0</span>, <a class="L" href="lstate.c.html#state_size">state_size</a>(<a class="L" href="lstate.c.html#LG">LG</a>));
+L0148      <span class="keyword">if</span> (l == NULL) <span class="keyword">return</span> NULL;
+L0149      L = <a class="L" href="lstate.c.html#tostate">tostate</a>(l);
+L0150      g = &amp;((<a class="L" href="lstate.c.html#LG">LG</a> *)L)-&gt;g;
+L0151      L-&gt;<a class="L" href="llex.c.html#next">next</a> = NULL;
+L0152      L-&gt;tt = <a class="L" href="lua.h.html#LUA_TTHREAD">LUA_TTHREAD</a>;
+L0153      g-&gt;currentwhite = <a class="L" href="lgc.h.html#bit2mask">bit2mask</a>(<a class="L" href="lgc.h.html#WHITE0BIT">WHITE0BIT</a>, <a class="L" href="lgc.h.html#FIXEDBIT">FIXEDBIT</a>);
+L0154      L-&gt;marked = <a class="L" href="lgc.h.html#luaC_white">luaC_white</a>(g);
+L0155      <a class="L" href="lgc.h.html#set2bits">set2bits</a>(L-&gt;marked, <a class="L" href="lgc.h.html#FIXEDBIT">FIXEDBIT</a>, <a class="L" href="lgc.h.html#SFIXEDBIT">SFIXEDBIT</a>);
+L0156      <a class="L" href="lstate.c.html#preinit_state">preinit_state</a>(L, g);
+L0157      g-&gt;frealloc = f;
+L0158      g-&gt;ud = ud;
+L0159      g-&gt;mainthread = L;
+L0160      g-&gt;uvhead.u.l.prev = &amp;g-&gt;uvhead;
+L0161      g-&gt;uvhead.u.l.<a class="L" href="llex.c.html#next">next</a> = &amp;g-&gt;uvhead;
+L0162      g-&gt;GCthreshold = <span class="number">0</span>;  <span class="comment">/* mark it as unfinished state */</span>
+L0163      g-&gt;strt.size = <span class="number">0</span>;
+L0164      g-&gt;strt.nuse = <span class="number">0</span>;
+L0165      g-&gt;strt.hash = NULL;
+L0166      <a class="L" href="lobject.h.html#setnilvalue">setnilvalue</a>(<a class="L" href="lstate.h.html#registry">registry</a>(L));
+L0167      <a class="L" href="lzio.h.html#luaZ_initbuffer">luaZ_initbuffer</a>(L, &amp;g-&gt;buff);
+L0168      g-&gt;<a class="L" href="lauxlib.c.html#panic">panic</a> = NULL;
+L0169      g-&gt;gcstate = <a class="L" href="lgc.h.html#GCSpause">GCSpause</a>;
+L0170      g-&gt;rootgc = <a class="L" href="lstate.h.html#obj2gco">obj2gco</a>(L);
+L0171      g-&gt;sweepstrgc = <span class="number">0</span>;
+L0172      g-&gt;sweepgc = &amp;g-&gt;rootgc;
+L0173      g-&gt;gray = NULL;
+L0174      g-&gt;grayagain = NULL;
+L0175      g-&gt;weak = NULL;
+L0176      g-&gt;tmudata = NULL;
+L0177      g-&gt;totalbytes = <span class="keyword">sizeof</span>(<a class="L" href="lstate.c.html#LG">LG</a>);
+L0178      g-&gt;gcpause = <a class="L" href="luaconf.h.html#LUAI_GCPAUSE">LUAI_GCPAUSE</a>;
+L0179      g-&gt;gcstepmul = <a class="L" href="luaconf.h.html#LUAI_GCMUL">LUAI_GCMUL</a>;
+L0180      g-&gt;gcdept = <span class="number">0</span>;
+L0181      <span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;<a class="L" href="lobject.h.html#NUM_TAGS">NUM_TAGS</a>; i++) g-&gt;mt[i] = NULL;
+L0182      <span class="keyword">if</span> (<a class="L" href="ldo.c.html#luaD_rawrunprotected">luaD_rawrunprotected</a>(L, <a class="L" href="lstate.c.html#f_luaopen">f_luaopen</a>, NULL) != <span class="number">0</span>) {
+L0183        <span class="comment">/* memory allocation error: free partial state */</span>
+L0184        <a class="L" href="lstate.c.html#close_state">close_state</a>(L);
+L0185        L = NULL;
+L0186      }
+L0187      <span class="keyword">else</span>
+L0188        <a class="L" href="luaconf.h.html#luai_userstateopen">luai_userstateopen</a>(L);
+L0189      <span class="keyword">return</span> L;
+L0190    }
+L0191    
+L0192    
+L0193    <span class="keyword">static</span> <span class="keyword">void</span> <a name="callallgcTM"/a><a class="L" href="lstate.c.ref.html#callallgcTM">callallgcTM</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">void</span> *ud) {
+L0194      <a class="L" href="llimits.h.html#UNUSED">UNUSED</a>(ud);
+L0195      <a class="L" href="lgc.c.html#luaC_callGCTM">luaC_callGCTM</a>(L);  <span class="comment">/* call GC metamethods for all udata */</span>
+L0196    }
+L0197    
+L0198    
+L0199    <a class="L" href="luaconf.h.html#LUA_API">LUA_API</a> <span class="keyword">void</span> <a name="lua_close"/a><a class="L" href="lstate.c.ref.html#lua_close">lua_close</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0200      L = <a class="L" href="lstate.h.html#G">G</a>(L)-&gt;mainthread;  <span class="comment">/* only the main thread can be closed */</span>
+L0201      <a class="L" href="llimits.h.html#lua_lock">lua_lock</a>(L);
+L0202      <a class="L" href="lfunc.c.html#luaF_close">luaF_close</a>(L, L-&gt;stack);  <span class="comment">/* close all upvalues for this thread */</span>
+L0203      <a class="L" href="lgc.c.html#luaC_separateudata">luaC_separateudata</a>(L, <span class="number">1</span>);  <span class="comment">/* separate udata that have GC metamethods */</span>
+L0204      L-&gt;errfunc = <span class="number">0</span>;  <span class="comment">/* no error function during GC metamethods */</span>
+L0205      <span class="keyword">do</span> {  <span class="comment">/* repeat until no more errors */</span>
+L0206        L-&gt;ci = L-&gt;base_ci;
+L0207        L-&gt;base = L-&gt;top = L-&gt;ci-&gt;base;
+L0208        L-&gt;nCcalls = L-&gt;baseCcalls = <span class="number">0</span>;
+L0209      } <span class="keyword">while</span> (<a class="L" href="ldo.c.html#luaD_rawrunprotected">luaD_rawrunprotected</a>(L, <a class="L" href="lstate.c.html#callallgcTM">callallgcTM</a>, NULL) != <span class="number">0</span>);
+L0210      <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(<a class="L" href="lstate.h.html#G">G</a>(L)-&gt;tmudata == NULL);
+L0211      <a class="L" href="luaconf.h.html#luai_userstateclose">luai_userstateclose</a>(L);
+L0212      <a class="L" href="lstate.c.html#close_state">close_state</a>(L);
+L0213    }
+L0214    
+</pre>
+<hr/>
+Generated by <a href="pretty.lua.html">pretty.lua</html>
+</body></html>

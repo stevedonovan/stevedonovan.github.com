@@ -1,0 +1,402 @@
+<html>
+<head>
+<style>
+a.L { text-decoration: none; }
+a.L:hover { color: #FFAAAA; }
+body { margin-top: 20px; margin-left: 30px; }
+.lno { font-weight: bold: color #000; }
+.keyword {font-weight: bold; color: #6666AA; }
+.number  { color: #AA6666; }
+.string  { color: #8888AA; }
+.comment { color: #666600; }
+.prepro { color: #006666; } 
+</style>
+<body>
+<h1>Lua 5.1.4: lobject.h</h1>
+<hr/>
+<pre>
+L0001    <span class="comment">/*
+L0002    ** $Id: lobject.h,v 2.20.1.2 2008/08/06 13:29:48 roberto Exp $
+L0003    ** Type definitions for Lua objects
+L0004    ** See Copyright Notice in lua.h
+L0005    */</span>
+L0006    
+L0007    
+L0008    <span class="prepro">#ifndef lobject_h
+</span>L0009    <a name="lobject_h"/a><span class="prepro">#define lobject_h
+</span>L0010    
+L0011    
+L0012    <span class="prepro">#include &lt;stdarg.h&gt;
+</span>L0013    
+L0014    
+L0015    <span class="prepro"><a class="L" href="llimits.h.html#">#include "llimits.h"
+</a></span>L0016    <span class="prepro"><a class="L" href="lua.h.html#">#include "lua.h"
+</a></span>L0017    
+L0018    
+L0019    <span class="comment">/* tags for values visible from Lua */</span>
+L0020    <a name="LAST_TAG"/a><span class="prepro">#define LAST_TAG	LUA_TTHREAD
+</span>L0021    
+L0022    <a name="NUM_TAGS"/a><span class="prepro">#define NUM_TAGS	(LAST_TAG+1)
+</span>L0023    
+L0024    
+L0025    <span class="comment">/*
+L0026    ** Extra tags for non-values
+L0027    */</span>
+L0028    <a name="LUA_TPROTO"/a><span class="prepro">#define LUA_TPROTO	(LAST_TAG+1)
+</span>L0029    <a name="LUA_TUPVAL"/a><span class="prepro">#define LUA_TUPVAL	(LAST_TAG+2)
+</span>L0030    <a name="LUA_TDEADKEY"/a><span class="prepro">#define LUA_TDEADKEY	(LAST_TAG+3)
+</span>L0031    
+L0032    
+L0033    <span class="comment">/*
+L0034    ** Union of all collectable objects
+L0035    */</span>
+L0036    <span class="keyword">typedef</span> union <a name="GCObject"/a><a class="L" href="lobject.h.ref.html#GCObject">GCObject</a> <a name="GCObject"/a><a class="L" href="lobject.h.ref.html#GCObject">GCObject</a>;
+L0037    
+L0038    
+L0039    <span class="comment">/*
+L0040    ** Common Header for all collectable objects (in macro form, to be
+L0041    ** included in other objects)
+L0042    */</span>
+L0043    <a name="CommonHeader"/a><span class="prepro">#define CommonHeader	GCObject *next; lu_byte tt; lu_byte marked
+</span>L0044    
+L0045    
+L0046    <span class="comment">/*
+L0047    ** Common header in struct form
+L0048    */</span>
+L0049    <span class="keyword">typedef</span> <span class="keyword">struct</span> <a name="GCheader"/a><a class="L" href="lobject.h.ref.html#GCheader">GCheader</a> {
+L0050      CommonHeader;
+L0051    } <a class="L" href="lobject.h.html#GCheader">GCheader</a>;
+L0052    
+L0053    
+L0054    
+L0055    
+L0056    <span class="comment">/*
+L0057    ** Union of all Lua values
+L0058    */</span>
+L0059    <span class="keyword">typedef</span> union {
+L0060      <a class="L" href="lobject.h.html#GCObject">GCObject</a> *<a name="gc"/a><a class="L" href="lobject.h.ref.html#gc">gc</a>;
+L0061      <span class="keyword">void</span> *p;
+L0062      <a class="L" href="lua.h.html#lua_Number">lua_Number</a> <a name="n"/a><a class="L" href="lobject.h.ref.html#n">n</a>;
+L0063      <span class="keyword">int</span> b;
+L0064    } <a name="Value"/a><a class="L" href="lobject.h.ref.html#Value">Value</a>;
+L0065    
+L0066    
+L0067    <span class="comment">/*
+L0068    ** Tagged Values
+L0069    */</span>
+L0070    
+L0071    <a name="TValuefields"/a><span class="prepro">#define TValuefields	Value value; int tt
+</span>L0072    
+L0073    <span class="keyword">typedef</span> <span class="keyword">struct</span> <a name="lua_TValue"/a><a class="L" href="lobject.h.ref.html#lua_TValue">lua_TValue</a> {
+L0074      TValuefields;
+L0075    } <a name="TValue"/a><a class="L" href="lobject.h.ref.html#TValue">TValue</a>;
+L0076    
+L0077    
+L0078    <span class="comment">/* Macros to test type */</span>
+L0079    <a name="ttisnil"/a><span class="prepro">#define ttisnil(o)	(ttype(o) == LUA_TNIL)
+</span>L0080    <a name="ttisnumber"/a><span class="prepro">#define ttisnumber(o)	(ttype(o) == LUA_TNUMBER)
+</span>L0081    <a name="ttisstring"/a><span class="prepro">#define ttisstring(o)	(ttype(o) == LUA_TSTRING)
+</span>L0082    <a name="ttistable"/a><span class="prepro">#define ttistable(o)	(ttype(o) == LUA_TTABLE)
+</span>L0083    <a name="ttisfunction"/a><span class="prepro">#define ttisfunction(o)	(ttype(o) == LUA_TFUNCTION)
+</span>L0084    <a name="ttisboolean"/a><span class="prepro">#define ttisboolean(o)	(ttype(o) == LUA_TBOOLEAN)
+</span>L0085    <a name="ttisuserdata"/a><span class="prepro">#define ttisuserdata(o)	(ttype(o) == LUA_TUSERDATA)
+</span>L0086    <a name="ttisthread"/a><span class="prepro">#define ttisthread(o)	(ttype(o) == LUA_TTHREAD)
+</span>L0087    <a name="ttislightuserdata"/a><span class="prepro">#define ttislightuserdata(o)	(ttype(o) == LUA_TLIGHTUSERDATA)
+</span>L0088    
+L0089    <span class="comment">/* Macros to access values */</span>
+L0090    <a name="ttype"/a><span class="prepro">#define ttype(o)	((o)-&gt;tt)
+</span>L0091    <a name="gcvalue"/a><span class="prepro">#define gcvalue(o)	check_exp(iscollectable(o), (o)-&gt;value.gc)
+</span>L0092    <a name="pvalue"/a><span class="prepro">#define pvalue(o)	check_exp(ttislightuserdata(o), (o)-&gt;value.p)
+</span>L0093    <a name="nvalue"/a><span class="prepro">#define nvalue(o)	check_exp(ttisnumber(o), (o)-&gt;value.n)
+</span>L0094    <a name="rawtsvalue"/a><span class="prepro">#define rawtsvalue(o)	check_exp(ttisstring(o), &amp;(o)-&gt;value.gc-&gt;ts)
+</span>L0095    <a name="tsvalue"/a><span class="prepro">#define tsvalue(o)	(&amp;rawtsvalue(o)-&gt;tsv)
+</span>L0096    <a name="rawuvalue"/a><span class="prepro">#define rawuvalue(o)	check_exp(ttisuserdata(o), &amp;(o)-&gt;value.gc-&gt;u)
+</span>L0097    <a name="uvalue"/a><span class="prepro">#define uvalue(o)	(&amp;rawuvalue(o)-&gt;uv)
+</span>L0098    <a name="clvalue"/a><span class="prepro">#define clvalue(o)	check_exp(ttisfunction(o), &amp;(o)-&gt;value.gc-&gt;cl)
+</span>L0099    <a name="hvalue"/a><span class="prepro">#define hvalue(o)	check_exp(ttistable(o), &amp;(o)-&gt;value.gc-&gt;h)
+</span>L0100    <a name="bvalue"/a><span class="prepro">#define bvalue(o)	check_exp(ttisboolean(o), (o)-&gt;value.b)
+</span>L0101    <a name="thvalue"/a><span class="prepro">#define thvalue(o)	check_exp(ttisthread(o), &amp;(o)-&gt;value.gc-&gt;th)
+</span>L0102    
+L0103    <a name="l_isfalse"/a><span class="prepro">#define l_isfalse(o)	(ttisnil(o) || (ttisboolean(o) &amp;&amp; bvalue(o) == 0))
+</span>L0104    
+L0105    <span class="comment">/*
+L0106    ** for internal debug only
+L0107    */</span>
+L0108    <a name="checkconsistency"/a><span class="prepro">#define checkconsistency(obj) \
+L0109      lua_assert(!iscollectable(obj) || (ttype(obj) == (obj)-&gt;value.gc-&gt;gch.tt))
+</span>L0110    
+L0111    <a name="checkliveness"/a><span class="prepro">#define checkliveness(g,obj) \
+L0112      lua_assert(!iscollectable(obj) || \
+L0113      ((ttype(obj) == (obj)-&gt;value.gc-&gt;gch.tt) &amp;&amp; !isdead(g, (obj)-&gt;value.gc)))
+</span>L0114    
+L0115    
+L0116    <span class="comment">/* Macros to set values */</span>
+L0117    <a name="setnilvalue"/a><span class="prepro">#define setnilvalue(obj) ((obj)-&gt;tt=LUA_TNIL)
+</span>L0118    
+L0119    <a name="setnvalue"/a><span class="prepro">#define setnvalue(obj,x) \
+L0120      { TValue *i_o=(obj); i_o-&gt;value.n=(x); i_o-&gt;tt=LUA_TNUMBER; }
+</span>L0121    
+L0122    <a name="setpvalue"/a><span class="prepro">#define setpvalue(obj,x) \
+L0123      { TValue *i_o=(obj); i_o-&gt;value.p=(x); i_o-&gt;tt=LUA_TLIGHTUSERDATA; }
+</span>L0124    
+L0125    <a name="setbvalue"/a><span class="prepro">#define setbvalue(obj,x) \
+L0126      { TValue *i_o=(obj); i_o-&gt;value.b=(x); i_o-&gt;tt=LUA_TBOOLEAN; }
+</span>L0127    
+L0128    <a name="setsvalue"/a><span class="prepro">#define setsvalue(L,obj,x) \
+L0129      { TValue *i_o=(obj); \
+L0130        i_o-&gt;value.gc=cast(GCObject *, (x)); i_o-&gt;tt=LUA_TSTRING; \
+L0131        checkliveness(G(L),i_o); }
+</span>L0132    
+L0133    <a name="setuvalue"/a><span class="prepro">#define setuvalue(L,obj,x) \
+L0134      { TValue *i_o=(obj); \
+L0135        i_o-&gt;value.gc=cast(GCObject *, (x)); i_o-&gt;tt=LUA_TUSERDATA; \
+L0136        checkliveness(G(L),i_o); }
+</span>L0137    
+L0138    <a name="setthvalue"/a><span class="prepro">#define setthvalue(L,obj,x) \
+L0139      { TValue *i_o=(obj); \
+L0140        i_o-&gt;value.gc=cast(GCObject *, (x)); i_o-&gt;tt=LUA_TTHREAD; \
+L0141        checkliveness(G(L),i_o); }
+</span>L0142    
+L0143    <a name="setclvalue"/a><span class="prepro">#define setclvalue(L,obj,x) \
+L0144      { TValue *i_o=(obj); \
+L0145        i_o-&gt;value.gc=cast(GCObject *, (x)); i_o-&gt;tt=LUA_TFUNCTION; \
+L0146        checkliveness(G(L),i_o); }
+</span>L0147    
+L0148    <a name="sethvalue"/a><span class="prepro">#define sethvalue(L,obj,x) \
+L0149      { TValue *i_o=(obj); \
+L0150        i_o-&gt;value.gc=cast(GCObject *, (x)); i_o-&gt;tt=LUA_TTABLE; \
+L0151        checkliveness(G(L),i_o); }
+</span>L0152    
+L0153    <a name="setptvalue"/a><span class="prepro">#define setptvalue(L,obj,x) \
+L0154      { TValue *i_o=(obj); \
+L0155        i_o-&gt;value.gc=cast(GCObject *, (x)); i_o-&gt;tt=LUA_TPROTO; \
+L0156        checkliveness(G(L),i_o); }
+</span>L0157    
+L0158    
+L0159    
+L0160    
+L0161    <a name="setobj"/a><span class="prepro">#define setobj(L,obj1,obj2) \
+L0162      { const TValue *o2=(obj2); TValue *o1=(obj1); \
+L0163        o1-&gt;value = o2-&gt;value; o1-&gt;tt=o2-&gt;tt; \
+L0164        checkliveness(G(L),o1); }
+</span>L0165    
+L0166    
+L0167    <span class="comment">/*
+L0168    ** different types of sets, according to destination
+L0169    */</span>
+L0170    
+L0171    <span class="comment">/* from stack to (same) stack */</span>
+L0172    <a name="setobjs2s"/a><span class="prepro">#define setobjs2s	setobj
+</span>L0173    <span class="comment">/* to stack (not from same stack) */</span>
+L0174    <a name="setobj2s"/a><span class="prepro">#define setobj2s	setobj
+</span>L0175    <a name="setsvalue2s"/a><span class="prepro">#define setsvalue2s	setsvalue
+</span>L0176    <a name="sethvalue2s"/a><span class="prepro">#define sethvalue2s	sethvalue
+</span>L0177    <a name="setptvalue2s"/a><span class="prepro">#define setptvalue2s	setptvalue
+</span>L0178    <span class="comment">/* from table to same table */</span>
+L0179    <a name="setobjt2t"/a><span class="prepro">#define setobjt2t	setobj
+</span>L0180    <span class="comment">/* to table */</span>
+L0181    <a name="setobj2t"/a><span class="prepro">#define setobj2t	setobj
+</span>L0182    <span class="comment">/* to new object */</span>
+L0183    <a name="setobj2n"/a><span class="prepro">#define setobj2n	setobj
+</span>L0184    <a name="setsvalue2n"/a><span class="prepro">#define setsvalue2n	setsvalue
+</span>L0185    
+L0186    <a name="setttype"/a><span class="prepro">#define setttype(obj, tt) (ttype(obj) = (tt))
+</span>L0187    
+L0188    
+L0189    <a name="iscollectable"/a><span class="prepro">#define iscollectable(o)	(ttype(o) &gt;= LUA_TSTRING)
+</span>L0190    
+L0191    
+L0192    
+L0193    <span class="keyword">typedef</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *<a name="StkId"/a><a class="L" href="lobject.h.ref.html#StkId">StkId</a>;  <span class="comment">/* index to stack elements */</span>
+L0194    
+L0195    
+L0196    <span class="comment">/*
+L0197    ** String headers for string table
+L0198    */</span>
+L0199    <span class="keyword">typedef</span> union <a name="TString"/a><a class="L" href="lobject.h.ref.html#TString">TString</a> {
+L0200      <a class="L" href="llimits.h.html#L_Umaxalign">L_Umaxalign</a> <a name="dummy"/a><a class="L" href="lobject.h.ref.html#dummy">dummy</a>;  <span class="comment">/* ensures maximum alignment for strings */</span>
+L0201      <span class="keyword">struct</span> {
+L0202        <a name="CommonHeader"/a><a class="L" href="lobject.h.ref.html#CommonHeader">CommonHeader</a>;
+L0203        <a class="L" href="llimits.h.html#lu_byte">lu_byte</a> <a name="reserved"/a><a class="L" href="lobject.h.ref.html#reserved">reserved</a>;
+L0204        unsigned <span class="keyword">int</span> <a name="hash"/a><a class="L" href="lobject.h.ref.html#hash">hash</a>;
+L0205        size_t <a name="len"/a><a class="L" href="lobject.h.ref.html#len">len</a>;
+L0206      } <a name="tsv"/a><a class="L" href="lobject.h.ref.html#tsv">tsv</a>;
+L0207    } <a class="L" href="lobject.h.html#TString">TString</a>;
+L0208    
+L0209    
+L0210    <a name="getstr"/a><span class="prepro">#define getstr(ts)	cast(const char *, (ts) + 1)
+</span>L0211    <a name="svalue"/a><span class="prepro">#define svalue(o)       getstr(rawtsvalue(o))
+</span>L0212    
+L0213    
+L0214    
+L0215    <span class="keyword">typedef</span> union <a name="Udata"/a><a class="L" href="lobject.h.ref.html#Udata">Udata</a> {
+L0216      <a class="L" href="llimits.h.html#L_Umaxalign">L_Umaxalign</a> dummy;  <span class="comment">/* ensures maximum alignment for `local' udata */</span>
+L0217      <span class="keyword">struct</span> {
+L0218        CommonHeader;
+L0219        <span class="keyword">struct</span> <a class="L" href="lobject.h.html#Table">Table</a> *<a name="metatable"/a><a class="L" href="lobject.h.ref.html#metatable">metatable</a>;
+L0220        <span class="keyword">struct</span> <a class="L" href="lobject.h.html#Table">Table</a> *<a name="env"/a><a class="L" href="lobject.h.ref.html#env">env</a>;
+L0221        size_t len;
+L0222      } <a name="uv"/a><a class="L" href="lobject.h.ref.html#uv">uv</a>;
+L0223    } <a class="L" href="lobject.h.html#Udata">Udata</a>;
+L0224    
+L0225    
+L0226    
+L0227    
+L0228    <span class="comment">/*
+L0229    ** Function Prototypes
+L0230    */</span>
+L0231    <span class="keyword">typedef</span> <span class="keyword">struct</span> <a name="Proto"/a><a class="L" href="lobject.h.ref.html#Proto">Proto</a> {
+L0232      CommonHeader;
+L0233      <a class="L" href="lobject.h.html#TValue">TValue</a> *<a name="k"/a><a class="L" href="lobject.h.ref.html#k">k</a>;  <span class="comment">/* constants used by the function */</span>
+L0234      <a class="L" href="llimits.h.html#Instruction">Instruction</a> *<a name="code"/a><a class="L" href="lobject.h.ref.html#code">code</a>;
+L0235      <span class="keyword">struct</span> <a class="L" href="lobject.h.html#Proto">Proto</a> **p;  <span class="comment">/* functions defined inside the function */</span>
+L0236      <span class="keyword">int</span> *<a name="lineinfo"/a><a class="L" href="lobject.h.ref.html#lineinfo">lineinfo</a>;  <span class="comment">/* map from opcodes to source lines */</span>
+L0237      <span class="keyword">struct</span> <a class="L" href="lobject.h.html#LocVar">LocVar</a> *<a name="locvars"/a><a class="L" href="lobject.h.ref.html#locvars">locvars</a>;  <span class="comment">/* information about local variables */</span>
+L0238      <a class="L" href="lobject.h.html#TString">TString</a> **<a name="upvalues"/a><a class="L" href="lobject.h.ref.html#upvalues">upvalues</a>;  <span class="comment">/* upvalue names */</span>
+L0239      <a class="L" href="lobject.h.html#TString">TString</a>  *source;
+L0240      <span class="keyword">int</span> <a name="sizeupvalues"/a><a class="L" href="lobject.h.ref.html#sizeupvalues">sizeupvalues</a>;
+L0241      <span class="keyword">int</span> <a name="sizek"/a><a class="L" href="lobject.h.ref.html#sizek">sizek</a>;  <span class="comment">/* size of `k' */</span>
+L0242      <span class="keyword">int</span> <a name="sizecode"/a><a class="L" href="lobject.h.ref.html#sizecode">sizecode</a>;
+L0243      <span class="keyword">int</span> <a name="sizelineinfo"/a><a class="L" href="lobject.h.ref.html#sizelineinfo">sizelineinfo</a>;
+L0244      <span class="keyword">int</span> <a name="sizep"/a><a class="L" href="lobject.h.ref.html#sizep">sizep</a>;  <span class="comment">/* size of `p' */</span>
+L0245      <span class="keyword">int</span> <a name="sizelocvars"/a><a class="L" href="lobject.h.ref.html#sizelocvars">sizelocvars</a>;
+L0246      <span class="keyword">int</span> <a name="linedefined"/a><a class="L" href="lobject.h.ref.html#linedefined">linedefined</a>;
+L0247      <span class="keyword">int</span> <a name="lastlinedefined"/a><a class="L" href="lobject.h.ref.html#lastlinedefined">lastlinedefined</a>;
+L0248      <a class="L" href="lobject.h.html#GCObject">GCObject</a> *<a name="gclist"/a><a class="L" href="lobject.h.ref.html#gclist">gclist</a>;
+L0249      <a class="L" href="llimits.h.html#lu_byte">lu_byte</a> <a name="nups"/a><a class="L" href="lobject.h.ref.html#nups">nups</a>;  <span class="comment">/* number of upvalues */</span>
+L0250      <a class="L" href="llimits.h.html#lu_byte">lu_byte</a> <a name="numparams"/a><a class="L" href="lobject.h.ref.html#numparams">numparams</a>;
+L0251      <a class="L" href="llimits.h.html#lu_byte">lu_byte</a> <a name="is_vararg"/a><a class="L" href="lobject.h.ref.html#is_vararg">is_vararg</a>;
+L0252      <a class="L" href="llimits.h.html#lu_byte">lu_byte</a> <a name="maxstacksize"/a><a class="L" href="lobject.h.ref.html#maxstacksize">maxstacksize</a>;
+L0253    } <a class="L" href="lobject.h.html#Proto">Proto</a>;
+L0254    
+L0255    
+L0256    <span class="comment">/* masks for new-style vararg */</span>
+L0257    <a name="VARARG_HASARG"/a><span class="prepro">#define VARARG_HASARG		1
+</span>L0258    <a name="VARARG_ISVARARG"/a><span class="prepro">#define VARARG_ISVARARG		2
+</span>L0259    <a name="VARARG_NEEDSARG"/a><span class="prepro">#define VARARG_NEEDSARG		4
+</span>L0260    
+L0261    
+L0262    <span class="keyword">typedef</span> <span class="keyword">struct</span> <a name="LocVar"/a><a class="L" href="lobject.h.ref.html#LocVar">LocVar</a> {
+L0263      <a class="L" href="lobject.h.html#TString">TString</a> *<a name="varname"/a><a class="L" href="lobject.h.ref.html#varname">varname</a>;
+L0264      <span class="keyword">int</span> <a name="startpc"/a><a class="L" href="lobject.h.ref.html#startpc">startpc</a>;  <span class="comment">/* first point where variable is active */</span>
+L0265      <span class="keyword">int</span> <a name="endpc"/a><a class="L" href="lobject.h.ref.html#endpc">endpc</a>;    <span class="comment">/* first point where variable is dead */</span>
+L0266    } <a class="L" href="lobject.h.html#LocVar">LocVar</a>;
+L0267    
+L0268    
+L0269    
+L0270    <span class="comment">/*
+L0271    ** Upvalues
+L0272    */</span>
+L0273    
+L0274    <span class="keyword">typedef</span> <span class="keyword">struct</span> <a name="UpVal"/a><a class="L" href="lobject.h.ref.html#UpVal">UpVal</a> {
+L0275      CommonHeader;
+L0276      <a class="L" href="lobject.h.html#TValue">TValue</a> *<a name="v"/a><a class="L" href="lobject.h.ref.html#v">v</a>;  <span class="comment">/* points to stack or to its own value */</span>
+L0277      union {
+L0278        <a class="L" href="lobject.h.html#TValue">TValue</a> <a name="value"/a><a class="L" href="lobject.h.ref.html#value">value</a>;  <span class="comment">/* the value (when closed) */</span>
+L0279        <span class="keyword">struct</span> {  <span class="comment">/* double linked list (when open) */</span>
+L0280          <span class="keyword">struct</span> <a class="L" href="lobject.h.html#UpVal">UpVal</a> *<a name="prev"/a><a class="L" href="lobject.h.ref.html#prev">prev</a>;
+L0281          <span class="keyword">struct</span> <a class="L" href="lobject.h.html#UpVal">UpVal</a> *<a class="L" href="llex.c.html#next">next</a>;
+L0282        } <a name="l"/a><a class="L" href="lobject.h.ref.html#l">l</a>;
+L0283      } <a name="u"/a><a class="L" href="lobject.h.ref.html#u">u</a>;
+L0284    } <a class="L" href="lobject.h.html#UpVal">UpVal</a>;
+L0285    
+L0286    
+L0287    <span class="comment">/*
+L0288    ** Closures
+L0289    */</span>
+L0290    
+L0291    <a name="ClosureHeader"/a><span class="prepro">#define ClosureHeader \
+L0292    	CommonHeader; lu_byte isC; lu_byte nupvalues; GCObject *gclist; \
+L0293    	struct Table *env
+</span>L0294    
+L0295    <span class="keyword">typedef</span> <span class="keyword">struct</span> <a name="CClosure"/a><a class="L" href="lobject.h.ref.html#CClosure">CClosure</a> {
+L0296      <a class="L" href="lobject.h.html#ClosureHeader">ClosureHeader</a>;
+L0297      <a class="L" href="lua.h.html#lua_CFunction">lua_CFunction</a> f;
+L0298      <a class="L" href="lobject.h.html#TValue">TValue</a> <a name="upvalue"/a><a class="L" href="lobject.h.ref.html#upvalue">upvalue</a>[<span class="number">1</span>];
+L0299    } <a class="L" href="lobject.h.html#CClosure">CClosure</a>;
+L0300    
+L0301    
+L0302    <span class="keyword">typedef</span> <span class="keyword">struct</span> <a name="LClosure"/a><a class="L" href="lobject.h.ref.html#LClosure">LClosure</a> {
+L0303      <a class="L" href="lobject.h.html#ClosureHeader">ClosureHeader</a>;
+L0304      <span class="keyword">struct</span> <a class="L" href="lobject.h.html#Proto">Proto</a> *p;
+L0305      <a class="L" href="lobject.h.html#UpVal">UpVal</a> *<a name="upvals"/a><a class="L" href="lobject.h.ref.html#upvals">upvals</a>[<span class="number">1</span>];
+L0306    } <a class="L" href="lobject.h.html#LClosure">LClosure</a>;
+L0307    
+L0308    
+L0309    <span class="keyword">typedef</span> union <a name="Closure"/a><a class="L" href="lobject.h.ref.html#Closure">Closure</a> {
+L0310      <a class="L" href="lobject.h.html#CClosure">CClosure</a> <a name="c"/a><a class="L" href="lobject.h.ref.html#c">c</a>;
+L0311      <a class="L" href="lobject.h.html#LClosure">LClosure</a> l;
+L0312    } <a class="L" href="lobject.h.html#Closure">Closure</a>;
+L0313    
+L0314    
+L0315    <a name="iscfunction"/a><span class="prepro">#define iscfunction(o)	(ttype(o) == LUA_TFUNCTION &amp;&amp; clvalue(o)-&gt;c.isC)
+</span>L0316    <a name="isLfunction"/a><span class="prepro">#define isLfunction(o)	(ttype(o) == LUA_TFUNCTION &amp;&amp; !clvalue(o)-&gt;c.isC)
+</span>L0317    
+L0318    
+L0319    <span class="comment">/*
+L0320    ** Tables
+L0321    */</span>
+L0322    
+L0323    <span class="keyword">typedef</span> union <a name="TKey"/a><a class="L" href="lobject.h.ref.html#TKey">TKey</a> {
+L0324      <span class="keyword">struct</span> {
+L0325        <a name="TValuefields"/a><a class="L" href="lobject.h.ref.html#TValuefields">TValuefields</a>;
+L0326        <span class="keyword">struct</span> <a class="L" href="lobject.h.html#Node">Node</a> *<a class="L" href="llex.c.html#next">next</a>;  <span class="comment">/* for chaining */</span>
+L0327      } <a name="nk"/a><a class="L" href="lobject.h.ref.html#nk">nk</a>;
+L0328      <a class="L" href="lobject.h.html#TValue">TValue</a> <a name="tvk"/a><a class="L" href="lobject.h.ref.html#tvk">tvk</a>;
+L0329    } <a class="L" href="lobject.h.html#TKey">TKey</a>;
+L0330    
+L0331    
+L0332    <span class="keyword">typedef</span> <span class="keyword">struct</span> <a name="Node"/a><a class="L" href="lobject.h.ref.html#Node">Node</a> {
+L0333      <a class="L" href="lobject.h.html#TValue">TValue</a> <a name="i_val"/a><a class="L" href="lobject.h.ref.html#i_val">i_val</a>;
+L0334      <a class="L" href="lobject.h.html#TKey">TKey</a> <a name="i_key"/a><a class="L" href="lobject.h.ref.html#i_key">i_key</a>;
+L0335    } <a class="L" href="lobject.h.html#Node">Node</a>;
+L0336    
+L0337    
+L0338    <span class="keyword">typedef</span> <span class="keyword">struct</span> <a name="Table"/a><a class="L" href="lobject.h.ref.html#Table">Table</a> {
+L0339      CommonHeader;
+L0340      <a class="L" href="llimits.h.html#lu_byte">lu_byte</a> <a name="flags"/a><a class="L" href="lobject.h.ref.html#flags">flags</a>;  <span class="comment">/* 1&lt;&lt;p means tagmethod(p) is not present */</span> 
+L0341      <a class="L" href="llimits.h.html#lu_byte">lu_byte</a> <a name="lsizenode"/a><a class="L" href="lobject.h.ref.html#lsizenode">lsizenode</a>;  <span class="comment">/* log2 of size of `node' array */</span>
+L0342      <span class="keyword">struct</span> <a class="L" href="lobject.h.html#Table">Table</a> *metatable;
+L0343      <a class="L" href="lobject.h.html#TValue">TValue</a> *<a name="array"/a><a class="L" href="lobject.h.ref.html#array">array</a>;  <span class="comment">/* array part */</span>
+L0344      <a class="L" href="lobject.h.html#Node">Node</a> *<a name="node"/a><a class="L" href="lobject.h.ref.html#node">node</a>;
+L0345      <a class="L" href="lobject.h.html#Node">Node</a> *<a name="lastfree"/a><a class="L" href="lobject.h.ref.html#lastfree">lastfree</a>;  <span class="comment">/* any free position is before this position */</span>
+L0346      <a class="L" href="lobject.h.html#GCObject">GCObject</a> *gclist;
+L0347      <span class="keyword">int</span> <a name="sizearray"/a><a class="L" href="lobject.h.ref.html#sizearray">sizearray</a>;  <span class="comment">/* size of `array' array */</span>
+L0348    } <a class="L" href="lobject.h.html#Table">Table</a>;
+L0349    
+L0350    
+L0351    
+L0352    <span class="comment">/*
+L0353    ** `module' operation for hashing (size is always a power of 2)
+L0354    */</span>
+L0355    <a name="lmod"/a><span class="prepro">#define lmod(s,size) \
+L0356    	(check_exp((size&amp;(size-1))==0, (cast(int, (s) &amp; ((size)-1)))))
+</span>L0357    
+L0358    
+L0359    <a name="twoto"/a><span class="prepro">#define twoto(x)	(1&lt;&lt;(x))
+</span>L0360    <a name="sizenode"/a><span class="prepro">#define sizenode(t)	(twoto((t)-&gt;lsizenode))
+</span>L0361    
+L0362    
+L0363    <a name="luaO_nilobject"/a><span class="prepro">#define luaO_nilobject		(&amp;luaO_nilobject_)
+</span>L0364    
+L0365    <a class="L" href="luaconf.h.html#LUAI_DATA">LUAI_DATA</a> <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> <a class="L" href="lobject.c.html#luaO_nilobject_">luaO_nilobject_</a>;
+L0366    
+L0367    <a name="ceillog2"/a><span class="prepro">#define ceillog2(x)	(luaO_log2((x)-1) + 1)
+</span>L0368    
+L0369    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <span class="keyword">int</span> <a class="L" href="lobject.c.html#luaO_log2">luaO_log2</a> (unsigned <span class="keyword">int</span> x);
+L0370    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <span class="keyword">int</span> <a class="L" href="lobject.c.html#luaO_int2fb">luaO_int2fb</a> (unsigned <span class="keyword">int</span> x);
+L0371    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <span class="keyword">int</span> <a class="L" href="lobject.c.html#luaO_fb2int">luaO_fb2int</a> (<span class="keyword">int</span> x);
+L0372    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <span class="keyword">int</span> <a class="L" href="lobject.c.html#luaO_rawequalObj">luaO_rawequalObj</a> (<span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *t1, <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *t2);
+L0373    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <span class="keyword">int</span> <a class="L" href="lobject.c.html#luaO_str2d">luaO_str2d</a> (<span class="keyword">const</span> <span class="keyword">char</span> *s, <a class="L" href="lua.h.html#lua_Number">lua_Number</a> *result);
+L0374    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <span class="keyword">const</span> <span class="keyword">char</span> *<a class="L" href="lobject.c.html#luaO_pushvfstring">luaO_pushvfstring</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <span class="keyword">char</span> *fmt,
+L0375                                                           va_list argp);
+L0376    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <span class="keyword">const</span> <span class="keyword">char</span> *<a class="L" href="lobject.c.html#luaO_pushfstring">luaO_pushfstring</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <span class="keyword">char</span> *fmt, ...);
+L0377    <a class="L" href="luaconf.h.html#LUAI_FUNC">LUAI_FUNC</a> <span class="keyword">void</span> <a class="L" href="lobject.c.html#luaO_chunkid">luaO_chunkid</a> (<span class="keyword">char</span> *out, <span class="keyword">const</span> <span class="keyword">char</span> *source, size_t len);
+L0378    
+L0379    
+L0380    <span class="prepro">#endif
+</span>L0381    
+</pre>
+<hr/>
+Generated by <a href="pretty.lua.html">pretty.lua</html>
+</body></html>

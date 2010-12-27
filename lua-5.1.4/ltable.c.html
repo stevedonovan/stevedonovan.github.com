@@ -1,0 +1,609 @@
+<html>
+<head>
+<style>
+a.L { text-decoration: none; }
+a.L:hover { color: #FFAAAA; }
+body { margin-top: 20px; margin-left: 30px; }
+.lno { font-weight: bold: color #000; }
+.keyword {font-weight: bold; color: #6666AA; }
+.number  { color: #AA6666; }
+.string  { color: #8888AA; }
+.comment { color: #666600; }
+.prepro { color: #006666; } 
+</style>
+<body>
+<h1>Lua 5.1.4: ltable.c</h1>
+<hr/>
+<pre>
+L0001    <span class="comment">/*
+L0002    ** $Id: ltable.c,v 2.32.1.2 2007/12/28 15:32:23 roberto Exp $
+L0003    ** Lua tables (hash)
+L0004    ** See Copyright Notice in lua.h
+L0005    */</span>
+L0006    
+L0007    
+L0008    <span class="comment">/*
+L0009    ** Implementation of tables (aka arrays, objects, or hash tables).
+L0010    ** Tables keep its elements in two parts: an array part and a hash part.
+L0011    ** Non-negative integer keys are all candidates to be kept in the array
+L0012    ** part. The actual size of the array is the largest `n' such that at
+L0013    ** least half the slots between 0 and n are in use.
+L0014    ** Hash uses a mix of chained scatter table with Brent's variation.
+L0015    ** A main invariant of these tables is that, if an element is not
+L0016    ** in its main position (i.e. the `original' position that its hash gives
+L0017    ** to it), then the colliding element is in its own main position.
+L0018    ** Hence even when the load factor reaches 100%, performance remains good.
+L0019    */</span>
+L0020    
+L0021    <span class="prepro">#include &lt;math.h&gt;
+</span>L0022    <span class="prepro">#include &lt;string.h&gt;
+</span>L0023    
+L0024    <a name="ltable_c"/a><span class="prepro">#define ltable_c
+</span>L0025    <a name="LUA_CORE"/a><span class="prepro">#define LUA_CORE
+</span>L0026    
+L0027    <span class="prepro"><a class="L" href="lua.h.html#">#include "lua.h"
+</a></span>L0028    
+L0029    <span class="prepro"><a class="L" href="ldebug.h.html#">#include "ldebug.h"
+</a></span>L0030    <span class="prepro"><a class="L" href="ldo.h.html#">#include "ldo.h"
+</a></span>L0031    <span class="prepro"><a class="L" href="lgc.h.html#">#include "lgc.h"
+</a></span>L0032    <span class="prepro"><a class="L" href="lmem.h.html#">#include "lmem.h"
+</a></span>L0033    <span class="prepro"><a class="L" href="lobject.h.html#">#include "lobject.h"
+</a></span>L0034    <span class="prepro"><a class="L" href="lstate.h.html#">#include "lstate.h"
+</a></span>L0035    <span class="prepro"><a class="L" href="ltable.h.html#">#include "ltable.h"
+</a></span>L0036    
+L0037    
+L0038    <span class="comment">/*
+L0039    ** max size of array part is 2^MAXBITS
+L0040    */</span>
+L0041    <span class="prepro">#if LUAI_BITSINT &gt; 26
+</span>L0042    <a name="MAXBITS"/a><span class="prepro">#define MAXBITS		26
+</span>L0043    <span class="prepro">#else
+</span>L0044    <a name="MAXBITS"/a><span class="prepro">#define MAXBITS		(LUAI_BITSINT-2)
+</span>L0045    <span class="prepro">#endif
+</span>L0046    
+L0047    <a name="MAXASIZE"/a><span class="prepro">#define MAXASIZE	(1 &lt;&lt; MAXBITS)
+</span>L0048    
+L0049    
+L0050    <a name="hashpow2"/a><span class="prepro">#define hashpow2(t,n)      (gnode(t, lmod((n), sizenode(t))))
+</span>L0051      
+L0052    <a name="hashstr"/a><span class="prepro">#define hashstr(t,str)  hashpow2(t, (str)-&gt;tsv.hash)
+</span>L0053    <a name="hashboolean"/a><span class="prepro">#define hashboolean(t,p)        hashpow2(t, p)
+</span>L0054    
+L0055    
+L0056    <span class="comment">/*
+L0057    ** for some types, it is better to avoid modulus by power of 2, as
+L0058    ** they tend to have many 2 factors.
+L0059    */</span>
+L0060    <a name="hashmod"/a><span class="prepro">#define hashmod(t,n)	(gnode(t, ((n) % ((sizenode(t)-1)|1))))
+</span>L0061    
+L0062    
+L0063    <a name="hashpointer"/a><span class="prepro">#define hashpointer(t,p)	hashmod(t, IntPoint(p))
+</span>L0064    
+L0065    
+L0066    <span class="comment">/*
+L0067    ** number of ints inside a lua_Number
+L0068    */</span>
+L0069    <a name="numints"/a><span class="prepro">#define numints		cast_int(sizeof(lua_Number)/sizeof(int))
+</span>L0070    
+L0071    
+L0072    
+L0073    <a name="dummynode"/a><span class="prepro">#define dummynode		(&amp;dummynode_)
+</span>L0074    
+L0075    <span class="keyword">static</span> <span class="keyword">const</span> <a class="L" href="lobject.h.html#Node">Node</a> <a name="dummynode_"/a><a class="L" href="ltable.c.ref.html#dummynode_">dummynode_</a> = {
+L0076      {{NULL}, <a class="L" href="lua.h.html#LUA_TNIL">LUA_TNIL</a>},  <span class="comment">/* value */</span>
+L0077      {{{NULL}, <a class="L" href="lua.h.html#LUA_TNIL">LUA_TNIL</a>, NULL}}  <span class="comment">/* key */</span>
+L0078    };
+L0079    
+L0080    
+L0081    <span class="comment">/*
+L0082    ** hash for lua_Numbers
+L0083    */</span>
+L0084    <span class="keyword">static</span> <a class="L" href="lobject.h.html#Node">Node</a> *<a name="hashnum"/a><a class="L" href="ltable.c.ref.html#hashnum">hashnum</a> (<span class="keyword">const</span> <a class="L" href="lobject.h.html#Table">Table</a> *t, <a class="L" href="lua.h.html#lua_Number">lua_Number</a> n) {
+L0085      unsigned <span class="keyword">int</span> a[<a class="L" href="ltable.c.html#numints">numints</a>];
+L0086      <span class="keyword">int</span> i;
+L0087      <span class="keyword">if</span> (<a class="L" href="luaconf.h.html#luai_numeq">luai_numeq</a>(n, <span class="number">0</span>))  <span class="comment">/* avoid problems with -0 */</span>
+L0088        <span class="keyword">return</span> <a class="L" href="ltable.h.html#gnode">gnode</a>(t, <span class="number">0</span>);
+L0089      memcpy(a, &amp;n, <span class="keyword">sizeof</span>(a));
+L0090      <span class="keyword">for</span> (i = <span class="number">1</span>; i &lt; <a class="L" href="ltable.c.html#numints">numints</a>; i++) a[<span class="number">0</span>] += a[i];
+L0091      <span class="keyword">return</span> <a class="L" href="ltable.c.html#hashmod">hashmod</a>(t, a[<span class="number">0</span>]);
+L0092    }
+L0093    
+L0094    
+L0095    
+L0096    <span class="comment">/*
+L0097    ** returns the `main' position of an element in a table (that is, the index
+L0098    ** of its hash value)
+L0099    */</span>
+L0100    <span class="keyword">static</span> <a class="L" href="lobject.h.html#Node">Node</a> *<a name="mainposition"/a><a class="L" href="ltable.c.ref.html#mainposition">mainposition</a> (<span class="keyword">const</span> <a class="L" href="lobject.h.html#Table">Table</a> *t, <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *key) {
+L0101      <span class="keyword">switch</span> (<a class="L" href="lobject.h.html#ttype">ttype</a>(key)) {
+L0102        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TNUMBER">LUA_TNUMBER</a>:
+L0103          <span class="keyword">return</span> <a class="L" href="ltable.c.html#hashnum">hashnum</a>(t, <a class="L" href="lobject.h.html#nvalue">nvalue</a>(key));
+L0104        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TSTRING">LUA_TSTRING</a>:
+L0105          <span class="keyword">return</span> <a class="L" href="ltable.c.html#hashstr">hashstr</a>(t, <a class="L" href="lobject.h.html#rawtsvalue">rawtsvalue</a>(key));
+L0106        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TBOOLEAN">LUA_TBOOLEAN</a>:
+L0107          <span class="keyword">return</span> <a class="L" href="ltable.c.html#hashboolean">hashboolean</a>(t, <a class="L" href="lobject.h.html#bvalue">bvalue</a>(key));
+L0108        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TLIGHTUSERDATA">LUA_TLIGHTUSERDATA</a>:
+L0109          <span class="keyword">return</span> <a class="L" href="ltable.c.html#hashpointer">hashpointer</a>(t, <a class="L" href="lobject.h.html#pvalue">pvalue</a>(key));
+L0110        <span class="keyword">default</span>:
+L0111          <span class="keyword">return</span> <a class="L" href="ltable.c.html#hashpointer">hashpointer</a>(t, <a class="L" href="lobject.h.html#gcvalue">gcvalue</a>(key));
+L0112      }
+L0113    }
+L0114    
+L0115    
+L0116    <span class="comment">/*
+L0117    ** returns the index for `key' if `key' is an appropriate key to live in
+L0118    ** the array part of the table, -1 otherwise.
+L0119    */</span>
+L0120    <span class="keyword">static</span> <span class="keyword">int</span> <a name="arrayindex"/a><a class="L" href="ltable.c.ref.html#arrayindex">arrayindex</a> (<span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *key) {
+L0121      <span class="keyword">if</span> (<a class="L" href="lobject.h.html#ttisnumber">ttisnumber</a>(key)) {
+L0122        <a class="L" href="lua.h.html#lua_Number">lua_Number</a> n = <a class="L" href="lobject.h.html#nvalue">nvalue</a>(key);
+L0123        <span class="keyword">int</span> k;
+L0124        <a class="L" href="luaconf.h.html#lua_number2int">lua_number2int</a>(k, n);
+L0125        <span class="keyword">if</span> (<a class="L" href="luaconf.h.html#luai_numeq">luai_numeq</a>(<a class="L" href="llimits.h.html#cast_num">cast_num</a>(k), n))
+L0126          <span class="keyword">return</span> k;
+L0127      }
+L0128      <span class="keyword">return</span> <span class="number">-1</span>;  <span class="comment">/* `key' did not match some condition */</span>
+L0129    }
+L0130    
+L0131    
+L0132    <span class="comment">/*
+L0133    ** returns the index of a `key' for table traversals. First goes all
+L0134    ** elements in the array part, then elements in the hash part. The
+L0135    ** beginning of a traversal is signalled by -1.
+L0136    */</span>
+L0137    <span class="keyword">static</span> <span class="keyword">int</span> <a name="findindex"/a><a class="L" href="ltable.c.ref.html#findindex">findindex</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lobject.h.html#Table">Table</a> *t, <a class="L" href="lobject.h.html#StkId">StkId</a> key) {
+L0138      <span class="keyword">int</span> i;
+L0139      <span class="keyword">if</span> (<a class="L" href="lobject.h.html#ttisnil">ttisnil</a>(key)) <span class="keyword">return</span> <span class="number">-1</span>;  <span class="comment">/* first iteration */</span>
+L0140      i = <a class="L" href="ltable.c.html#arrayindex">arrayindex</a>(key);
+L0141      <span class="keyword">if</span> (<span class="number">0</span> &lt; i &amp;&amp; i &lt;= t-&gt;sizearray)  <span class="comment">/* is `key' inside array part? */</span>
+L0142        <span class="keyword">return</span> i<span class="number">-1</span>;  <span class="comment">/* yes; that's the index (corrected to C) */</span>
+L0143      <span class="keyword">else</span> {
+L0144        <a class="L" href="lobject.h.html#Node">Node</a> *n = <a class="L" href="ltable.c.html#mainposition">mainposition</a>(t, key);
+L0145        <span class="keyword">do</span> {  <span class="comment">/* check whether `key' is somewhere in the chain */</span>
+L0146          <span class="comment">/* key may be dead already, but it is ok to use it in `next' */</span>
+L0147          <span class="keyword">if</span> (<a class="L" href="lobject.c.html#luaO_rawequalObj">luaO_rawequalObj</a>(<a class="L" href="ltable.h.html#key2tval">key2tval</a>(n), key) ||
+L0148                (<a class="L" href="lobject.h.html#ttype">ttype</a>(<a class="L" href="ltable.h.html#gkey">gkey</a>(n)) == <a class="L" href="lobject.h.html#LUA_TDEADKEY">LUA_TDEADKEY</a> &amp;&amp; <a class="L" href="lobject.h.html#iscollectable">iscollectable</a>(key) &amp;&amp;
+L0149                 <a class="L" href="lobject.h.html#gcvalue">gcvalue</a>(<a class="L" href="ltable.h.html#gkey">gkey</a>(n)) == <a class="L" href="lobject.h.html#gcvalue">gcvalue</a>(key))) {
+L0150            i = <a class="L" href="llimits.h.html#cast_int">cast_int</a>(n - <a class="L" href="ltable.h.html#gnode">gnode</a>(t, <span class="number">0</span>));  <span class="comment">/* key index in hash table */</span>
+L0151            <span class="comment">/* hash elements are numbered after array ones */</span>
+L0152            <span class="keyword">return</span> i + t-&gt;sizearray;
+L0153          }
+L0154          <span class="keyword">else</span> n = <a class="L" href="ltable.h.html#gnext">gnext</a>(n);
+L0155        } <span class="keyword">while</span> (n);
+L0156        <a class="L" href="ldebug.c.html#luaG_runerror">luaG_runerror</a>(L, <span class="string">"invalid key to "</span> <a class="L" href="luaconf.h.html#LUA_QL">LUA_QL</a>(<span class="string">"next"</span>));  <span class="comment">/* key not found */</span>
+L0157        <span class="keyword">return</span> <span class="number">0</span>;  <span class="comment">/* to avoid warnings */</span>
+L0158      }
+L0159    }
+L0160    
+L0161    
+L0162    <span class="keyword">int</span> <a name="luaH_next"/a><a class="L" href="ltable.c.ref.html#luaH_next">luaH_next</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lobject.h.html#Table">Table</a> *t, <a class="L" href="lobject.h.html#StkId">StkId</a> key) {
+L0163      <span class="keyword">int</span> i = <a class="L" href="ltable.c.html#findindex">findindex</a>(L, t, key);  <span class="comment">/* find original element */</span>
+L0164      <span class="keyword">for</span> (i++; i &lt; t-&gt;sizearray; i++) {  <span class="comment">/* try first array part */</span>
+L0165        <span class="keyword">if</span> (!<a class="L" href="lobject.h.html#ttisnil">ttisnil</a>(&amp;t-&gt;array[i])) {  <span class="comment">/* a non-nil value? */</span>
+L0166          <a class="L" href="lobject.h.html#setnvalue">setnvalue</a>(key, <a class="L" href="llimits.h.html#cast_num">cast_num</a>(i<span class="number">+1</span>));
+L0167          <a class="L" href="lobject.h.html#setobj2s">setobj2s</a>(L, key<span class="number">+1</span>, &amp;t-&gt;array[i]);
+L0168          <span class="keyword">return</span> <span class="number">1</span>;
+L0169        }
+L0170      }
+L0171      <span class="keyword">for</span> (i -= t-&gt;sizearray; i &lt; <a class="L" href="lobject.h.html#sizenode">sizenode</a>(t); i++) {  <span class="comment">/* then hash part */</span>
+L0172        <span class="keyword">if</span> (!<a class="L" href="lobject.h.html#ttisnil">ttisnil</a>(<a class="L" href="ltable.h.html#gval">gval</a>(<a class="L" href="ltable.h.html#gnode">gnode</a>(t, i)))) {  <span class="comment">/* a non-nil value? */</span>
+L0173          <a class="L" href="lobject.h.html#setobj2s">setobj2s</a>(L, key, <a class="L" href="ltable.h.html#key2tval">key2tval</a>(<a class="L" href="ltable.h.html#gnode">gnode</a>(t, i)));
+L0174          <a class="L" href="lobject.h.html#setobj2s">setobj2s</a>(L, key<span class="number">+1</span>, <a class="L" href="ltable.h.html#gval">gval</a>(<a class="L" href="ltable.h.html#gnode">gnode</a>(t, i)));
+L0175          <span class="keyword">return</span> <span class="number">1</span>;
+L0176        }
+L0177      }
+L0178      <span class="keyword">return</span> <span class="number">0</span>;  <span class="comment">/* no more elements */</span>
+L0179    }
+L0180    
+L0181    
+L0182    <span class="comment">/*
+L0183    ** {=============================================================
+L0184    ** Rehash
+L0185    ** ==============================================================
+L0186    */</span>
+L0187    
+L0188    
+L0189    <span class="keyword">static</span> <span class="keyword">int</span> <a name="computesizes"/a><a class="L" href="ltable.c.ref.html#computesizes">computesizes</a> (<span class="keyword">int</span> nums[], <span class="keyword">int</span> *narray) {
+L0190      <span class="keyword">int</span> i;
+L0191      <span class="keyword">int</span> twotoi;  <span class="comment">/* 2^i */</span>
+L0192      <span class="keyword">int</span> a = <span class="number">0</span>;  <span class="comment">/* number of elements smaller than 2^i */</span>
+L0193      <span class="keyword">int</span> na = <span class="number">0</span>;  <span class="comment">/* number of elements to go to array part */</span>
+L0194      <span class="keyword">int</span> n = <span class="number">0</span>;  <span class="comment">/* optimal size for array part */</span>
+L0195      <span class="keyword">for</span> (i = <span class="number">0</span>, twotoi = <span class="number">1</span>; twotoi/<span class="number">2</span> &lt; *narray; i++, twotoi *= <span class="number">2</span>) {
+L0196        <span class="keyword">if</span> (nums[i] &gt; <span class="number">0</span>) {
+L0197          a += nums[i];
+L0198          <span class="keyword">if</span> (a &gt; twotoi/<span class="number">2</span>) {  <span class="comment">/* more than half elements present? */</span>
+L0199            n = twotoi;  <span class="comment">/* optimal size (till now) */</span>
+L0200            na = a;  <span class="comment">/* all elements smaller than n will go to array part */</span>
+L0201          }
+L0202        }
+L0203        <span class="keyword">if</span> (a == *narray) <span class="keyword">break</span>;  <span class="comment">/* all elements already counted */</span>
+L0204      }
+L0205      *narray = n;
+L0206      <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(*narray/<span class="number">2</span> &lt;= na &amp;&amp; na &lt;= *narray);
+L0207      <span class="keyword">return</span> na;
+L0208    }
+L0209    
+L0210    
+L0211    <span class="keyword">static</span> <span class="keyword">int</span> <a name="countint"/a><a class="L" href="ltable.c.ref.html#countint">countint</a> (<span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *key, <span class="keyword">int</span> *nums) {
+L0212      <span class="keyword">int</span> k = <a class="L" href="ltable.c.html#arrayindex">arrayindex</a>(key);
+L0213      <span class="keyword">if</span> (<span class="number">0</span> &lt; k &amp;&amp; k &lt;= <a class="L" href="ltable.c.html#MAXASIZE">MAXASIZE</a>) {  <span class="comment">/* is `key' an appropriate array index? */</span>
+L0214        nums[<a class="L" href="lobject.h.html#ceillog2">ceillog2</a>(k)]++;  <span class="comment">/* count as such */</span>
+L0215        <span class="keyword">return</span> <span class="number">1</span>;
+L0216      }
+L0217      <span class="keyword">else</span>
+L0218        <span class="keyword">return</span> <span class="number">0</span>;
+L0219    }
+L0220    
+L0221    
+L0222    <span class="keyword">static</span> <span class="keyword">int</span> <a name="numusearray"/a><a class="L" href="ltable.c.ref.html#numusearray">numusearray</a> (<span class="keyword">const</span> <a class="L" href="lobject.h.html#Table">Table</a> *t, <span class="keyword">int</span> *nums) {
+L0223      <span class="keyword">int</span> lg;
+L0224      <span class="keyword">int</span> ttlg;  <span class="comment">/* 2^lg */</span>
+L0225      <span class="keyword">int</span> ause = <span class="number">0</span>;  <span class="comment">/* summation of `nums' */</span>
+L0226      <span class="keyword">int</span> i = <span class="number">1</span>;  <span class="comment">/* count to traverse all array keys */</span>
+L0227      <span class="keyword">for</span> (lg=<span class="number">0</span>, ttlg=<span class="number">1</span>; lg&lt;=<a class="L" href="ltable.c.html#MAXBITS">MAXBITS</a>; lg++, ttlg*=<span class="number">2</span>) {  <span class="comment">/* for each slice */</span>
+L0228        <span class="keyword">int</span> lc = <span class="number">0</span>;  <span class="comment">/* counter */</span>
+L0229        <span class="keyword">int</span> lim = ttlg;
+L0230        <span class="keyword">if</span> (lim &gt; t-&gt;sizearray) {
+L0231          lim = t-&gt;sizearray;  <span class="comment">/* adjust upper limit */</span>
+L0232          <span class="keyword">if</span> (i &gt; lim)
+L0233            <span class="keyword">break</span>;  <span class="comment">/* no more elements to count */</span>
+L0234        }
+L0235        <span class="comment">/* count elements in range (2^(lg-1), 2^lg] */</span>
+L0236        <span class="keyword">for</span> (; i &lt;= lim; i++) {
+L0237          <span class="keyword">if</span> (!<a class="L" href="lobject.h.html#ttisnil">ttisnil</a>(&amp;t-&gt;array[i<span class="number">-1</span>]))
+L0238            lc++;
+L0239        }
+L0240        nums[lg] += lc;
+L0241        ause += lc;
+L0242      }
+L0243      <span class="keyword">return</span> ause;
+L0244    }
+L0245    
+L0246    
+L0247    <span class="keyword">static</span> <span class="keyword">int</span> <a name="numusehash"/a><a class="L" href="ltable.c.ref.html#numusehash">numusehash</a> (<span class="keyword">const</span> <a class="L" href="lobject.h.html#Table">Table</a> *t, <span class="keyword">int</span> *nums, <span class="keyword">int</span> *pnasize) {
+L0248      <span class="keyword">int</span> totaluse = <span class="number">0</span>;  <span class="comment">/* total number of elements */</span>
+L0249      <span class="keyword">int</span> ause = <span class="number">0</span>;  <span class="comment">/* summation of `nums' */</span>
+L0250      <span class="keyword">int</span> i = <a class="L" href="lobject.h.html#sizenode">sizenode</a>(t);
+L0251      <span class="keyword">while</span> (i--) {
+L0252        <a class="L" href="lobject.h.html#Node">Node</a> *n = &amp;t-&gt;node[i];
+L0253        <span class="keyword">if</span> (!<a class="L" href="lobject.h.html#ttisnil">ttisnil</a>(<a class="L" href="ltable.h.html#gval">gval</a>(n))) {
+L0254          ause += <a class="L" href="ltable.c.html#countint">countint</a>(<a class="L" href="ltable.h.html#key2tval">key2tval</a>(n), nums);
+L0255          totaluse++;
+L0256        }
+L0257      }
+L0258      *pnasize += ause;
+L0259      <span class="keyword">return</span> totaluse;
+L0260    }
+L0261    
+L0262    
+L0263    <span class="keyword">static</span> <span class="keyword">void</span> <a name="setarrayvector"/a><a class="L" href="ltable.c.ref.html#setarrayvector">setarrayvector</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lobject.h.html#Table">Table</a> *t, <span class="keyword">int</span> size) {
+L0264      <span class="keyword">int</span> i;
+L0265      <a class="L" href="lmem.h.html#luaM_reallocvector">luaM_reallocvector</a>(L, t-&gt;array, t-&gt;sizearray, size, <a class="L" href="lobject.h.html#TValue">TValue</a>);
+L0266      <span class="keyword">for</span> (i=t-&gt;sizearray; i&lt;size; i++)
+L0267         <a class="L" href="lobject.h.html#setnilvalue">setnilvalue</a>(&amp;t-&gt;array[i]);
+L0268      t-&gt;sizearray = size;
+L0269    }
+L0270    
+L0271    
+L0272    <span class="keyword">static</span> <span class="keyword">void</span> <a name="setnodevector"/a><a class="L" href="ltable.c.ref.html#setnodevector">setnodevector</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lobject.h.html#Table">Table</a> *t, <span class="keyword">int</span> size) {
+L0273      <span class="keyword">int</span> lsize;
+L0274      <span class="keyword">if</span> (size == <span class="number">0</span>) {  <span class="comment">/* no elements to hash part? */</span>
+L0275        t-&gt;node = <a class="L" href="llimits.h.html#cast">cast</a>(<a class="L" href="lobject.h.html#Node">Node</a> *, <a class="L" href="ltable.c.html#dummynode">dummynode</a>);  <span class="comment">/* use common `dummynode' */</span>
+L0276        lsize = <span class="number">0</span>;
+L0277      }
+L0278      <span class="keyword">else</span> {
+L0279        <span class="keyword">int</span> i;
+L0280        lsize = <a class="L" href="lobject.h.html#ceillog2">ceillog2</a>(size);
+L0281        <span class="keyword">if</span> (lsize &gt; <a class="L" href="ltable.c.html#MAXBITS">MAXBITS</a>)
+L0282          <a class="L" href="ldebug.c.html#luaG_runerror">luaG_runerror</a>(L, <span class="string">"table overflow"</span>);
+L0283        size = <a class="L" href="lobject.h.html#twoto">twoto</a>(lsize);
+L0284        t-&gt;node = <a class="L" href="lmem.h.html#luaM_newvector">luaM_newvector</a>(L, size, <a class="L" href="lobject.h.html#Node">Node</a>);
+L0285        <span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;size; i++) {
+L0286          <a class="L" href="lobject.h.html#Node">Node</a> *n = <a class="L" href="ltable.h.html#gnode">gnode</a>(t, i);
+L0287          <a class="L" href="ltable.h.html#gnext">gnext</a>(n) = NULL;
+L0288          <a class="L" href="lobject.h.html#setnilvalue">setnilvalue</a>(<a class="L" href="ltable.h.html#gkey">gkey</a>(n));
+L0289          <a class="L" href="lobject.h.html#setnilvalue">setnilvalue</a>(<a class="L" href="ltable.h.html#gval">gval</a>(n));
+L0290        }
+L0291      }
+L0292      t-&gt;lsizenode = <a class="L" href="llimits.h.html#cast_byte">cast_byte</a>(lsize);
+L0293      t-&gt;lastfree = <a class="L" href="ltable.h.html#gnode">gnode</a>(t, size);  <span class="comment">/* all positions are free */</span>
+L0294    }
+L0295    
+L0296    
+L0297    <span class="keyword">static</span> <span class="keyword">void</span> <a name="resize"/a><a class="L" href="ltable.c.ref.html#resize">resize</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lobject.h.html#Table">Table</a> *t, <span class="keyword">int</span> nasize, <span class="keyword">int</span> nhsize) {
+L0298      <span class="keyword">int</span> i;
+L0299      <span class="keyword">int</span> oldasize = t-&gt;sizearray;
+L0300      <span class="keyword">int</span> oldhsize = t-&gt;lsizenode;
+L0301      <a class="L" href="lobject.h.html#Node">Node</a> *nold = t-&gt;node;  <span class="comment">/* save old hash ... */</span>
+L0302      <span class="keyword">if</span> (nasize &gt; oldasize)  <span class="comment">/* array part must grow? */</span>
+L0303        <a class="L" href="ltable.c.html#setarrayvector">setarrayvector</a>(L, t, nasize);
+L0304      <span class="comment">/* create new hash part with appropriate size */</span>
+L0305      <a class="L" href="ltable.c.html#setnodevector">setnodevector</a>(L, t, nhsize);  
+L0306      <span class="keyword">if</span> (nasize &lt; oldasize) {  <span class="comment">/* array part must shrink? */</span>
+L0307        t-&gt;sizearray = nasize;
+L0308        <span class="comment">/* re-insert elements from vanishing slice */</span>
+L0309        <span class="keyword">for</span> (i=nasize; i&lt;oldasize; i++) {
+L0310          <span class="keyword">if</span> (!<a class="L" href="lobject.h.html#ttisnil">ttisnil</a>(&amp;t-&gt;array[i]))
+L0311            <a class="L" href="lobject.h.html#setobjt2t">setobjt2t</a>(L, <a class="L" href="ltable.c.html#luaH_setnum">luaH_setnum</a>(L, t, i<span class="number">+1</span>), &amp;t-&gt;array[i]);
+L0312        }
+L0313        <span class="comment">/* shrink array */</span>
+L0314        <a class="L" href="lmem.h.html#luaM_reallocvector">luaM_reallocvector</a>(L, t-&gt;array, oldasize, nasize, <a class="L" href="lobject.h.html#TValue">TValue</a>);
+L0315      }
+L0316      <span class="comment">/* re-insert elements from hash part */</span>
+L0317      <span class="keyword">for</span> (i = <a class="L" href="lobject.h.html#twoto">twoto</a>(oldhsize) - <span class="number">1</span>; i &gt;= <span class="number">0</span>; i--) {
+L0318        <a class="L" href="lobject.h.html#Node">Node</a> *old = nold+i;
+L0319        <span class="keyword">if</span> (!<a class="L" href="lobject.h.html#ttisnil">ttisnil</a>(<a class="L" href="ltable.h.html#gval">gval</a>(old)))
+L0320          <a class="L" href="lobject.h.html#setobjt2t">setobjt2t</a>(L, <a class="L" href="ltable.c.html#luaH_set">luaH_set</a>(L, t, <a class="L" href="ltable.h.html#key2tval">key2tval</a>(old)), <a class="L" href="ltable.h.html#gval">gval</a>(old));
+L0321      }
+L0322      <span class="keyword">if</span> (nold != <a class="L" href="ltable.c.html#dummynode">dummynode</a>)
+L0323        <a class="L" href="lmem.h.html#luaM_freearray">luaM_freearray</a>(L, nold, <a class="L" href="lobject.h.html#twoto">twoto</a>(oldhsize), <a class="L" href="lobject.h.html#Node">Node</a>);  <span class="comment">/* free old array */</span>
+L0324    }
+L0325    
+L0326    
+L0327    <span class="keyword">void</span> <a name="luaH_resizearray"/a><a class="L" href="ltable.c.ref.html#luaH_resizearray">luaH_resizearray</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lobject.h.html#Table">Table</a> *t, <span class="keyword">int</span> nasize) {
+L0328      <span class="keyword">int</span> nsize = (t-&gt;node == <a class="L" href="ltable.c.html#dummynode">dummynode</a>) ? <span class="number">0</span> : <a class="L" href="lobject.h.html#sizenode">sizenode</a>(t);
+L0329      <a class="L" href="ltable.c.html#resize">resize</a>(L, t, nasize, nsize);
+L0330    }
+L0331    
+L0332    
+L0333    <span class="keyword">static</span> <span class="keyword">void</span> <a name="rehash"/a><a class="L" href="ltable.c.ref.html#rehash">rehash</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lobject.h.html#Table">Table</a> *t, <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *ek) {
+L0334      <span class="keyword">int</span> nasize, na;
+L0335      <span class="keyword">int</span> nums[<a class="L" href="ltable.c.html#MAXBITS">MAXBITS</a><span class="number">+1</span>];  <span class="comment">/* nums[i] = number of keys between 2^(i-1) and 2^i */</span>
+L0336      <span class="keyword">int</span> i;
+L0337      <span class="keyword">int</span> totaluse;
+L0338      <span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;=<a class="L" href="ltable.c.html#MAXBITS">MAXBITS</a>; i++) nums[i] = <span class="number">0</span>;  <span class="comment">/* reset counts */</span>
+L0339      nasize = <a class="L" href="ltable.c.html#numusearray">numusearray</a>(t, nums);  <span class="comment">/* count keys in array part */</span>
+L0340      totaluse = nasize;  <span class="comment">/* all those keys are integer keys */</span>
+L0341      totaluse += <a class="L" href="ltable.c.html#numusehash">numusehash</a>(t, nums, &amp;nasize);  <span class="comment">/* count keys in hash part */</span>
+L0342      <span class="comment">/* count extra key */</span>
+L0343      nasize += <a class="L" href="ltable.c.html#countint">countint</a>(ek, nums);
+L0344      totaluse++;
+L0345      <span class="comment">/* compute new size for array part */</span>
+L0346      na = <a class="L" href="ltable.c.html#computesizes">computesizes</a>(nums, &amp;nasize);
+L0347      <span class="comment">/* resize the table to new computed sizes */</span>
+L0348      <a class="L" href="ltable.c.html#resize">resize</a>(L, t, nasize, totaluse - na);
+L0349    }
+L0350    
+L0351    
+L0352    
+L0353    <span class="comment">/*
+L0354    ** }=============================================================
+L0355    */</span>
+L0356    
+L0357    
+L0358    <a class="L" href="lobject.h.html#Table">Table</a> *<a name="luaH_new"/a><a class="L" href="ltable.c.ref.html#luaH_new">luaH_new</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> narray, <span class="keyword">int</span> nhash) {
+L0359      <a class="L" href="lobject.h.html#Table">Table</a> *t = <a class="L" href="lmem.h.html#luaM_new">luaM_new</a>(L, <a class="L" href="lobject.h.html#Table">Table</a>);
+L0360      <a class="L" href="lgc.c.html#luaC_link">luaC_link</a>(L, <a class="L" href="lstate.h.html#obj2gco">obj2gco</a>(t), <a class="L" href="lua.h.html#LUA_TTABLE">LUA_TTABLE</a>);
+L0361      t-&gt;metatable = NULL;
+L0362      t-&gt;flags = <a class="L" href="llimits.h.html#cast_byte">cast_byte</a>(~<span class="number">0</span>);
+L0363      <span class="comment">/* temporary values (kept only if some malloc fails) */</span>
+L0364      t-&gt;array = NULL;
+L0365      t-&gt;sizearray = <span class="number">0</span>;
+L0366      t-&gt;lsizenode = <span class="number">0</span>;
+L0367      t-&gt;node = <a class="L" href="llimits.h.html#cast">cast</a>(<a class="L" href="lobject.h.html#Node">Node</a> *, <a class="L" href="ltable.c.html#dummynode">dummynode</a>);
+L0368      <a class="L" href="ltable.c.html#setarrayvector">setarrayvector</a>(L, t, narray);
+L0369      <a class="L" href="ltable.c.html#setnodevector">setnodevector</a>(L, t, nhash);
+L0370      <span class="keyword">return</span> t;
+L0371    }
+L0372    
+L0373    
+L0374    <span class="keyword">void</span> <a name="luaH_free"/a><a class="L" href="ltable.c.ref.html#luaH_free">luaH_free</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lobject.h.html#Table">Table</a> *t) {
+L0375      <span class="keyword">if</span> (t-&gt;node != <a class="L" href="ltable.c.html#dummynode">dummynode</a>)
+L0376        <a class="L" href="lmem.h.html#luaM_freearray">luaM_freearray</a>(L, t-&gt;node, <a class="L" href="lobject.h.html#sizenode">sizenode</a>(t), <a class="L" href="lobject.h.html#Node">Node</a>);
+L0377      <a class="L" href="lmem.h.html#luaM_freearray">luaM_freearray</a>(L, t-&gt;array, t-&gt;sizearray, <a class="L" href="lobject.h.html#TValue">TValue</a>);
+L0378      <a class="L" href="lmem.h.html#luaM_free">luaM_free</a>(L, t);
+L0379    }
+L0380    
+L0381    
+L0382    <span class="keyword">static</span> <a class="L" href="lobject.h.html#Node">Node</a> *<a name="getfreepos"/a><a class="L" href="ltable.c.ref.html#getfreepos">getfreepos</a> (<a class="L" href="lobject.h.html#Table">Table</a> *t) {
+L0383      <span class="keyword">while</span> (t-&gt;lastfree-- &gt; t-&gt;node) {
+L0384        <span class="keyword">if</span> (<a class="L" href="lobject.h.html#ttisnil">ttisnil</a>(<a class="L" href="ltable.h.html#gkey">gkey</a>(t-&gt;lastfree)))
+L0385          <span class="keyword">return</span> t-&gt;lastfree;
+L0386      }
+L0387      <span class="keyword">return</span> NULL;  <span class="comment">/* could not find a free place */</span>
+L0388    }
+L0389    
+L0390    
+L0391    
+L0392    <span class="comment">/*
+L0393    ** inserts a new key into a hash table; first, check whether key's main 
+L0394    ** position is free. If not, check whether colliding node is in its main 
+L0395    ** position or not: if it is not, move colliding node to an empty place and 
+L0396    ** put new key in its main position; otherwise (colliding node is in its main 
+L0397    ** position), new key goes to an empty position. 
+L0398    */</span>
+L0399    <span class="keyword">static</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *<a name="newkey"/a><a class="L" href="ltable.c.ref.html#newkey">newkey</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lobject.h.html#Table">Table</a> *t, <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *key) {
+L0400      <a class="L" href="lobject.h.html#Node">Node</a> *mp = <a class="L" href="ltable.c.html#mainposition">mainposition</a>(t, key);
+L0401      <span class="keyword">if</span> (!<a class="L" href="lobject.h.html#ttisnil">ttisnil</a>(<a class="L" href="ltable.h.html#gval">gval</a>(mp)) || mp == <a class="L" href="ltable.c.html#dummynode">dummynode</a>) {
+L0402        <a class="L" href="lobject.h.html#Node">Node</a> *othern;
+L0403        <a class="L" href="lobject.h.html#Node">Node</a> *n = <a class="L" href="ltable.c.html#getfreepos">getfreepos</a>(t);  <span class="comment">/* get a free place */</span>
+L0404        <span class="keyword">if</span> (n == NULL) {  <span class="comment">/* cannot find a free place? */</span>
+L0405          <a class="L" href="ltable.c.html#rehash">rehash</a>(L, t, key);  <span class="comment">/* grow table */</span>
+L0406          <span class="keyword">return</span> <a class="L" href="ltable.c.html#luaH_set">luaH_set</a>(L, t, key);  <span class="comment">/* re-insert key into grown table */</span>
+L0407        }
+L0408        <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(n != <a class="L" href="ltable.c.html#dummynode">dummynode</a>);
+L0409        othern = <a class="L" href="ltable.c.html#mainposition">mainposition</a>(t, <a class="L" href="ltable.h.html#key2tval">key2tval</a>(mp));
+L0410        <span class="keyword">if</span> (othern != mp) {  <span class="comment">/* is colliding node out of its main position? */</span>
+L0411          <span class="comment">/* yes; move colliding node into free position */</span>
+L0412          <span class="keyword">while</span> (<a class="L" href="ltable.h.html#gnext">gnext</a>(othern) != mp) othern = <a class="L" href="ltable.h.html#gnext">gnext</a>(othern);  <span class="comment">/* find previous */</span>
+L0413          <a class="L" href="ltable.h.html#gnext">gnext</a>(othern) = n;  <span class="comment">/* redo the chain with `n' in place of `mp' */</span>
+L0414          *n = *mp;  <span class="comment">/* copy colliding node into free pos. (mp-&gt;next also goes) */</span>
+L0415          <a class="L" href="ltable.h.html#gnext">gnext</a>(mp) = NULL;  <span class="comment">/* now `mp' is free */</span>
+L0416          <a class="L" href="lobject.h.html#setnilvalue">setnilvalue</a>(<a class="L" href="ltable.h.html#gval">gval</a>(mp));
+L0417        }
+L0418        <span class="keyword">else</span> {  <span class="comment">/* colliding node is in its own main position */</span>
+L0419          <span class="comment">/* new node will go into free position */</span>
+L0420          <a class="L" href="ltable.h.html#gnext">gnext</a>(n) = <a class="L" href="ltable.h.html#gnext">gnext</a>(mp);  <span class="comment">/* chain new position */</span>
+L0421          <a class="L" href="ltable.h.html#gnext">gnext</a>(mp) = n;
+L0422          mp = n;
+L0423        }
+L0424      }
+L0425      <a class="L" href="ltable.h.html#gkey">gkey</a>(mp)-&gt;value = key-&gt;value; <a class="L" href="ltable.h.html#gkey">gkey</a>(mp)-&gt;tt = key-&gt;tt;
+L0426      <a class="L" href="lgc.h.html#luaC_barriert">luaC_barriert</a>(L, t, key);
+L0427      <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(<a class="L" href="lobject.h.html#ttisnil">ttisnil</a>(<a class="L" href="ltable.h.html#gval">gval</a>(mp)));
+L0428      <span class="keyword">return</span> <a class="L" href="ltable.h.html#gval">gval</a>(mp);
+L0429    }
+L0430    
+L0431    
+L0432    <span class="comment">/*
+L0433    ** search function for integers
+L0434    */</span>
+L0435    <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *<a name="luaH_getnum"/a><a class="L" href="ltable.c.ref.html#luaH_getnum">luaH_getnum</a> (<a class="L" href="lobject.h.html#Table">Table</a> *t, <span class="keyword">int</span> key) {
+L0436      <span class="comment">/* (1 &lt;= key &amp;&amp; key &lt;= t-&gt;sizearray) */</span>
+L0437      <span class="keyword">if</span> (<a class="L" href="llimits.h.html#cast">cast</a>(unsigned <span class="keyword">int</span>, key<span class="number">-1</span>) &lt; <a class="L" href="llimits.h.html#cast">cast</a>(unsigned <span class="keyword">int</span>, t-&gt;sizearray))
+L0438        <span class="keyword">return</span> &amp;t-&gt;array[key<span class="number">-1</span>];
+L0439      <span class="keyword">else</span> {
+L0440        <a class="L" href="lua.h.html#lua_Number">lua_Number</a> nk = <a class="L" href="llimits.h.html#cast_num">cast_num</a>(key);
+L0441        <a class="L" href="lobject.h.html#Node">Node</a> *n = <a class="L" href="ltable.c.html#hashnum">hashnum</a>(t, nk);
+L0442        <span class="keyword">do</span> {  <span class="comment">/* check whether `key' is somewhere in the chain */</span>
+L0443          <span class="keyword">if</span> (<a class="L" href="lobject.h.html#ttisnumber">ttisnumber</a>(<a class="L" href="ltable.h.html#gkey">gkey</a>(n)) &amp;&amp; <a class="L" href="luaconf.h.html#luai_numeq">luai_numeq</a>(<a class="L" href="lobject.h.html#nvalue">nvalue</a>(<a class="L" href="ltable.h.html#gkey">gkey</a>(n)), nk))
+L0444            <span class="keyword">return</span> <a class="L" href="ltable.h.html#gval">gval</a>(n);  <span class="comment">/* that's it */</span>
+L0445          <span class="keyword">else</span> n = <a class="L" href="ltable.h.html#gnext">gnext</a>(n);
+L0446        } <span class="keyword">while</span> (n);
+L0447        <span class="keyword">return</span> <a class="L" href="lobject.h.html#luaO_nilobject">luaO_nilobject</a>;
+L0448      }
+L0449    }
+L0450    
+L0451    
+L0452    <span class="comment">/*
+L0453    ** search function for strings
+L0454    */</span>
+L0455    <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *<a name="luaH_getstr"/a><a class="L" href="ltable.c.ref.html#luaH_getstr">luaH_getstr</a> (<a class="L" href="lobject.h.html#Table">Table</a> *t, <a class="L" href="lobject.h.html#TString">TString</a> *key) {
+L0456      <a class="L" href="lobject.h.html#Node">Node</a> *n = <a class="L" href="ltable.c.html#hashstr">hashstr</a>(t, key);
+L0457      <span class="keyword">do</span> {  <span class="comment">/* check whether `key' is somewhere in the chain */</span>
+L0458        <span class="keyword">if</span> (<a class="L" href="lobject.h.html#ttisstring">ttisstring</a>(<a class="L" href="ltable.h.html#gkey">gkey</a>(n)) &amp;&amp; <a class="L" href="lobject.h.html#rawtsvalue">rawtsvalue</a>(<a class="L" href="ltable.h.html#gkey">gkey</a>(n)) == key)
+L0459          <span class="keyword">return</span> <a class="L" href="ltable.h.html#gval">gval</a>(n);  <span class="comment">/* that's it */</span>
+L0460        <span class="keyword">else</span> n = <a class="L" href="ltable.h.html#gnext">gnext</a>(n);
+L0461      } <span class="keyword">while</span> (n);
+L0462      <span class="keyword">return</span> <a class="L" href="lobject.h.html#luaO_nilobject">luaO_nilobject</a>;
+L0463    }
+L0464    
+L0465    
+L0466    <span class="comment">/*
+L0467    ** main search function
+L0468    */</span>
+L0469    <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *<a name="luaH_get"/a><a class="L" href="ltable.c.ref.html#luaH_get">luaH_get</a> (<a class="L" href="lobject.h.html#Table">Table</a> *t, <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *key) {
+L0470      <span class="keyword">switch</span> (<a class="L" href="lobject.h.html#ttype">ttype</a>(key)) {
+L0471        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TNIL">LUA_TNIL</a>: <span class="keyword">return</span> <a class="L" href="lobject.h.html#luaO_nilobject">luaO_nilobject</a>;
+L0472        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TSTRING">LUA_TSTRING</a>: <span class="keyword">return</span> <a class="L" href="ltable.c.html#luaH_getstr">luaH_getstr</a>(t, <a class="L" href="lobject.h.html#rawtsvalue">rawtsvalue</a>(key));
+L0473        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TNUMBER">LUA_TNUMBER</a>: {
+L0474          <span class="keyword">int</span> k;
+L0475          <a class="L" href="lua.h.html#lua_Number">lua_Number</a> n = <a class="L" href="lobject.h.html#nvalue">nvalue</a>(key);
+L0476          <a class="L" href="luaconf.h.html#lua_number2int">lua_number2int</a>(k, n);
+L0477          <span class="keyword">if</span> (<a class="L" href="luaconf.h.html#luai_numeq">luai_numeq</a>(<a class="L" href="llimits.h.html#cast_num">cast_num</a>(k), <a class="L" href="lobject.h.html#nvalue">nvalue</a>(key))) <span class="comment">/* index is int? */</span>
+L0478            <span class="keyword">return</span> <a class="L" href="ltable.c.html#luaH_getnum">luaH_getnum</a>(t, k);  <span class="comment">/* use specialized version */</span>
+L0479          <span class="comment">/* else go through */</span>
+L0480        }
+L0481        <span class="keyword">default</span>: {
+L0482          <a class="L" href="lobject.h.html#Node">Node</a> *n = <a class="L" href="ltable.c.html#mainposition">mainposition</a>(t, key);
+L0483          <span class="keyword">do</span> {  <span class="comment">/* check whether `key' is somewhere in the chain */</span>
+L0484            <span class="keyword">if</span> (<a class="L" href="lobject.c.html#luaO_rawequalObj">luaO_rawequalObj</a>(<a class="L" href="ltable.h.html#key2tval">key2tval</a>(n), key))
+L0485              <span class="keyword">return</span> <a class="L" href="ltable.h.html#gval">gval</a>(n);  <span class="comment">/* that's it */</span>
+L0486            <span class="keyword">else</span> n = <a class="L" href="ltable.h.html#gnext">gnext</a>(n);
+L0487          } <span class="keyword">while</span> (n);
+L0488          <span class="keyword">return</span> <a class="L" href="lobject.h.html#luaO_nilobject">luaO_nilobject</a>;
+L0489        }
+L0490      }
+L0491    }
+L0492    
+L0493    
+L0494    <a class="L" href="lobject.h.html#TValue">TValue</a> *<a name="luaH_set"/a><a class="L" href="ltable.c.ref.html#luaH_set">luaH_set</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lobject.h.html#Table">Table</a> *t, <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *key) {
+L0495      <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *p = <a class="L" href="ltable.c.html#luaH_get">luaH_get</a>(t, key);
+L0496      t-&gt;flags = <span class="number">0</span>;
+L0497      <span class="keyword">if</span> (p != <a class="L" href="lobject.h.html#luaO_nilobject">luaO_nilobject</a>)
+L0498        <span class="keyword">return</span> <a class="L" href="llimits.h.html#cast">cast</a>(<a class="L" href="lobject.h.html#TValue">TValue</a> *, p);
+L0499      <span class="keyword">else</span> {
+L0500        <span class="keyword">if</span> (<a class="L" href="lobject.h.html#ttisnil">ttisnil</a>(key)) <a class="L" href="ldebug.c.html#luaG_runerror">luaG_runerror</a>(L, <span class="string">"table index is nil"</span>);
+L0501        <span class="keyword">else</span> <span class="keyword">if</span> (<a class="L" href="lobject.h.html#ttisnumber">ttisnumber</a>(key) &amp;&amp; <a class="L" href="luaconf.h.html#luai_numisnan">luai_numisnan</a>(<a class="L" href="lobject.h.html#nvalue">nvalue</a>(key)))
+L0502          <a class="L" href="ldebug.c.html#luaG_runerror">luaG_runerror</a>(L, <span class="string">"table index is NaN"</span>);
+L0503        <span class="keyword">return</span> <a class="L" href="ltable.c.html#newkey">newkey</a>(L, t, key);
+L0504      }
+L0505    }
+L0506    
+L0507    
+L0508    <a class="L" href="lobject.h.html#TValue">TValue</a> *<a name="luaH_setnum"/a><a class="L" href="ltable.c.ref.html#luaH_setnum">luaH_setnum</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lobject.h.html#Table">Table</a> *t, <span class="keyword">int</span> key) {
+L0509      <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *p = <a class="L" href="ltable.c.html#luaH_getnum">luaH_getnum</a>(t, key);
+L0510      <span class="keyword">if</span> (p != <a class="L" href="lobject.h.html#luaO_nilobject">luaO_nilobject</a>)
+L0511        <span class="keyword">return</span> <a class="L" href="llimits.h.html#cast">cast</a>(<a class="L" href="lobject.h.html#TValue">TValue</a> *, p);
+L0512      <span class="keyword">else</span> {
+L0513        <a class="L" href="lobject.h.html#TValue">TValue</a> k;
+L0514        <a class="L" href="lobject.h.html#setnvalue">setnvalue</a>(&amp;k, <a class="L" href="llimits.h.html#cast_num">cast_num</a>(key));
+L0515        <span class="keyword">return</span> <a class="L" href="ltable.c.html#newkey">newkey</a>(L, t, &amp;k);
+L0516      }
+L0517    }
+L0518    
+L0519    
+L0520    <a class="L" href="lobject.h.html#TValue">TValue</a> *<a name="luaH_setstr"/a><a class="L" href="ltable.c.ref.html#luaH_setstr">luaH_setstr</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lobject.h.html#Table">Table</a> *t, <a class="L" href="lobject.h.html#TString">TString</a> *key) {
+L0521      <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *p = <a class="L" href="ltable.c.html#luaH_getstr">luaH_getstr</a>(t, key);
+L0522      <span class="keyword">if</span> (p != <a class="L" href="lobject.h.html#luaO_nilobject">luaO_nilobject</a>)
+L0523        <span class="keyword">return</span> <a class="L" href="llimits.h.html#cast">cast</a>(<a class="L" href="lobject.h.html#TValue">TValue</a> *, p);
+L0524      <span class="keyword">else</span> {
+L0525        <a class="L" href="lobject.h.html#TValue">TValue</a> k;
+L0526        <a class="L" href="lobject.h.html#setsvalue">setsvalue</a>(L, &amp;k, key);
+L0527        <span class="keyword">return</span> <a class="L" href="ltable.c.html#newkey">newkey</a>(L, t, &amp;k);
+L0528      }
+L0529    }
+L0530    
+L0531    
+L0532    <span class="keyword">static</span> <span class="keyword">int</span> <a name="unbound_search"/a><a class="L" href="ltable.c.ref.html#unbound_search">unbound_search</a> (<a class="L" href="lobject.h.html#Table">Table</a> *t, unsigned <span class="keyword">int</span> j) {
+L0533      unsigned <span class="keyword">int</span> i = j;  <span class="comment">/* i is zero or a present index */</span>
+L0534      j++;
+L0535      <span class="comment">/* find `i' and `j' such that i is present and j is not */</span>
+L0536      <span class="keyword">while</span> (!<a class="L" href="lobject.h.html#ttisnil">ttisnil</a>(<a class="L" href="ltable.c.html#luaH_getnum">luaH_getnum</a>(t, j))) {
+L0537        i = j;
+L0538        j *= <span class="number">2</span>;
+L0539        <span class="keyword">if</span> (j &gt; <a class="L" href="llimits.h.html#cast">cast</a>(unsigned <span class="keyword">int</span>, <a class="L" href="llimits.h.html#MAX_INT">MAX_INT</a>)) {  <span class="comment">/* overflow? */</span>
+L0540          <span class="comment">/* table was built with bad purposes: resort to linear search */</span>
+L0541          i = <span class="number">1</span>;
+L0542          <span class="keyword">while</span> (!<a class="L" href="lobject.h.html#ttisnil">ttisnil</a>(<a class="L" href="ltable.c.html#luaH_getnum">luaH_getnum</a>(t, i))) i++;
+L0543          <span class="keyword">return</span> i - <span class="number">1</span>;
+L0544        }
+L0545      }
+L0546      <span class="comment">/* now do a binary search between them */</span>
+L0547      <span class="keyword">while</span> (j - i &gt; <span class="number">1</span>) {
+L0548        unsigned <span class="keyword">int</span> m = (i+j)/<span class="number">2</span>;
+L0549        <span class="keyword">if</span> (<a class="L" href="lobject.h.html#ttisnil">ttisnil</a>(<a class="L" href="ltable.c.html#luaH_getnum">luaH_getnum</a>(t, m))) j = m;
+L0550        <span class="keyword">else</span> i = m;
+L0551      }
+L0552      <span class="keyword">return</span> i;
+L0553    }
+L0554    
+L0555    
+L0556    <span class="comment">/*
+L0557    ** Try to find a boundary in table `t'. A `boundary' is an integer index
+L0558    ** such that t[i] is non-nil and t[i+1] is nil (and 0 if t[1] is nil).
+L0559    */</span>
+L0560    <span class="keyword">int</span> <a name="luaH_getn"/a><a class="L" href="ltable.c.ref.html#luaH_getn">luaH_getn</a> (<a class="L" href="lobject.h.html#Table">Table</a> *t) {
+L0561      unsigned <span class="keyword">int</span> j = t-&gt;sizearray;
+L0562      <span class="keyword">if</span> (j &gt; <span class="number">0</span> &amp;&amp; <a class="L" href="lobject.h.html#ttisnil">ttisnil</a>(&amp;t-&gt;array[j - <span class="number">1</span>])) {
+L0563        <span class="comment">/* there is a boundary in the array part: (binary) search for it */</span>
+L0564        unsigned <span class="keyword">int</span> i = <span class="number">0</span>;
+L0565        <span class="keyword">while</span> (j - i &gt; <span class="number">1</span>) {
+L0566          unsigned <span class="keyword">int</span> m = (i+j)/<span class="number">2</span>;
+L0567          <span class="keyword">if</span> (<a class="L" href="lobject.h.html#ttisnil">ttisnil</a>(&amp;t-&gt;array[m - <span class="number">1</span>])) j = m;
+L0568          <span class="keyword">else</span> i = m;
+L0569        }
+L0570        <span class="keyword">return</span> i;
+L0571      }
+L0572      <span class="comment">/* else must find a boundary in hash part */</span>
+L0573      <span class="keyword">else</span> <span class="keyword">if</span> (t-&gt;node == <a class="L" href="ltable.c.html#dummynode">dummynode</a>)  <span class="comment">/* hash part is empty? */</span>
+L0574        <span class="keyword">return</span> j;  <span class="comment">/* that is easy... */</span>
+L0575      <span class="keyword">else</span> <span class="keyword">return</span> <a class="L" href="ltable.c.html#unbound_search">unbound_search</a>(t, j);
+L0576    }
+L0577    
+L0578    
+L0579    
+L0580    <span class="prepro">#if defined(LUA_DEBUG)
+</span>L0581    
+L0582    <a class="L" href="lobject.h.html#Node">Node</a> *<a name="luaH_mainposition"/a><a class="L" href="ltable.c.ref.html#luaH_mainposition">luaH_mainposition</a> (<span class="keyword">const</span> <a class="L" href="lobject.h.html#Table">Table</a> *t, <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *key) {
+L0583      <span class="keyword">return</span> <a class="L" href="ltable.c.html#mainposition">mainposition</a>(t, key);
+L0584    }
+L0585    
+L0586    <span class="keyword">int</span> <a name="luaH_isdummy"/a><a class="L" href="ltable.c.ref.html#luaH_isdummy">luaH_isdummy</a> (<a class="L" href="lobject.h.html#Node">Node</a> *n) { <span class="keyword">return</span> n == <a class="L" href="ltable.c.html#dummynode">dummynode</a>; }
+L0587    
+L0588    <span class="prepro">#endif
+</span></pre>
+<hr/>
+Generated by <a href="pretty.lua.html">pretty.lua</html>
+</body></html>

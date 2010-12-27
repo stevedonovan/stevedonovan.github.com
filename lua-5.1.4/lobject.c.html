@@ -1,0 +1,235 @@
+<html>
+<head>
+<style>
+a.L { text-decoration: none; }
+a.L:hover { color: #FFAAAA; }
+body { margin-top: 20px; margin-left: 30px; }
+.lno { font-weight: bold: color #000; }
+.keyword {font-weight: bold; color: #6666AA; }
+.number  { color: #AA6666; }
+.string  { color: #8888AA; }
+.comment { color: #666600; }
+.prepro { color: #006666; } 
+</style>
+<body>
+<h1>Lua 5.1.4: lobject.c</h1>
+<hr/>
+<pre>
+L0001    <span class="comment">/*
+L0002    ** $Id: lobject.c,v 2.22.1.1 2007/12/27 13:02:25 roberto Exp $
+L0003    ** Some generic functions over Lua objects
+L0004    ** See Copyright Notice in lua.h
+L0005    */</span>
+L0006    
+L0007    <span class="prepro">#include &lt;ctype.h&gt;
+</span>L0008    <span class="prepro">#include &lt;stdarg.h&gt;
+</span>L0009    <span class="prepro">#include &lt;stdio.h&gt;
+</span>L0010    <span class="prepro">#include &lt;stdlib.h&gt;
+</span>L0011    <span class="prepro">#include &lt;string.h&gt;
+</span>L0012    
+L0013    <a name="lobject_c"/a><span class="prepro">#define lobject_c
+</span>L0014    <a name="LUA_CORE"/a><span class="prepro">#define LUA_CORE
+</span>L0015    
+L0016    <span class="prepro"><a class="L" href="lua.h.html#">#include "lua.h"
+</a></span>L0017    
+L0018    <span class="prepro"><a class="L" href="ldo.h.html#">#include "ldo.h"
+</a></span>L0019    <span class="prepro"><a class="L" href="lmem.h.html#">#include "lmem.h"
+</a></span>L0020    <span class="prepro"><a class="L" href="lobject.h.html#">#include "lobject.h"
+</a></span>L0021    <span class="prepro"><a class="L" href="lstate.h.html#">#include "lstate.h"
+</a></span>L0022    <span class="prepro"><a class="L" href="lstring.h.html#">#include "lstring.h"
+</a></span>L0023    <span class="prepro"><a class="L" href="lvm.h.html#">#include "lvm.h"
+</a></span>L0024    
+L0025    
+L0026    
+L0027    <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> <a name="luaO_nilobject_"/a><a class="L" href="lobject.c.ref.html#luaO_nilobject_">luaO_nilobject_</a> = {{NULL}, <a class="L" href="lua.h.html#LUA_TNIL">LUA_TNIL</a>};
+L0028    
+L0029    
+L0030    <span class="comment">/*
+L0031    ** converts an integer to a "floating point byte", represented as
+L0032    ** (eeeeexxx), where the real value is (1xxx) * 2^(eeeee - 1) if
+L0033    ** eeeee != 0 and (xxx) otherwise.
+L0034    */</span>
+L0035    <span class="keyword">int</span> <a name="luaO_int2fb"/a><a class="L" href="lobject.c.ref.html#luaO_int2fb">luaO_int2fb</a> (unsigned <span class="keyword">int</span> x) {
+L0036      <span class="keyword">int</span> e = <span class="number">0</span>;  <span class="comment">/* expoent */</span>
+L0037      <span class="keyword">while</span> (x &gt;= <span class="number">16</span>) {
+L0038        x = (x<span class="number">+1</span>) &gt;&gt; <span class="number">1</span>;
+L0039        e++;
+L0040      }
+L0041      <span class="keyword">if</span> (x &lt; <span class="number">8</span>) <span class="keyword">return</span> x;
+L0042      <span class="keyword">else</span> <span class="keyword">return</span> ((e<span class="number">+1</span>) &lt;&lt; <span class="number">3</span>) | (<a class="L" href="llimits.h.html#cast_int">cast_int</a>(x) - <span class="number">8</span>);
+L0043    }
+L0044    
+L0045    
+L0046    <span class="comment">/* converts back */</span>
+L0047    <span class="keyword">int</span> <a name="luaO_fb2int"/a><a class="L" href="lobject.c.ref.html#luaO_fb2int">luaO_fb2int</a> (<span class="keyword">int</span> x) {
+L0048      <span class="keyword">int</span> e = (x &gt;&gt; <span class="number">3</span>) &amp; <span class="number">31</span>;
+L0049      <span class="keyword">if</span> (e == <span class="number">0</span>) <span class="keyword">return</span> x;
+L0050      <span class="keyword">else</span> <span class="keyword">return</span> ((x &amp; <span class="number">7</span>)<span class="number">+8</span>) &lt;&lt; (e - <span class="number">1</span>);
+L0051    }
+L0052    
+L0053    
+L0054    <span class="keyword">int</span> <a name="luaO_log2"/a><a class="L" href="lobject.c.ref.html#luaO_log2">luaO_log2</a> (unsigned <span class="keyword">int</span> x) {
+L0055      <span class="keyword">static</span> <span class="keyword">const</span> <a class="L" href="llimits.h.html#lu_byte">lu_byte</a> log_2[<span class="number">256</span>] = {
+L0056        <span class="number">0</span>,<span class="number">1</span>,<span class="number">2</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">3</span>,<span class="number">3</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">4</span>,<span class="number">4</span>,<span class="number">4</span>,<span class="number">4</span>,<span class="number">4</span>,<span class="number">4</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">5</span>,<span class="number">5</span>,<span class="number">5</span>,<span class="number">5</span>,<span class="number">5</span>,<span class="number">5</span>,<span class="number">5</span>,<span class="number">5</span>,<span class="number">5</span>,<span class="number">5</span>,<span class="number">5</span>,<span class="number">5</span>,<span class="number">5</span>,<span class="number">5</span>,<span class="number">5</span>,
+L0057        <span class="number">6</span>,<span class="number">6</span>,<span class="number">6</span>,<span class="number">6</span>,<span class="number">6</span>,<span class="number">6</span>,<span class="number">6</span>,<span class="number">6</span>,<span class="number">6</span>,<span class="number">6</span>,<span class="number">6</span>,<span class="number">6</span>,<span class="number">6</span>,<span class="number">6</span>,<span class="number">6</span>,<span class="number">6</span>,<span class="number">6</span>,<span class="number">6</span>,<span class="number">6</span>,<span class="number">6</span>,<span class="number">6</span>,<span class="number">6</span>,<span class="number">6</span>,<span class="number">6</span>,<span class="number">6</span>,<span class="number">6</span>,<span class="number">6</span>,<span class="number">6</span>,<span class="number">6</span>,<span class="number">6</span>,<span class="number">6</span>,<span class="number">6</span>,
+L0058        <span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,
+L0059        <span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>,
+L0060        <span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,
+L0061        <span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,
+L0062        <span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,
+L0063        <span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>,<span class="number">8</span>
+L0064      };
+L0065      <span class="keyword">int</span> l = <span class="number">-1</span>;
+L0066      <span class="keyword">while</span> (x &gt;= <span class="number">256</span>) { l += <span class="number">8</span>; x &gt;&gt;= <span class="number">8</span>; }
+L0067      <span class="keyword">return</span> l + log_2[x];
+L0068    
+L0069    }
+L0070    
+L0071    
+L0072    <span class="keyword">int</span> <a name="luaO_rawequalObj"/a><a class="L" href="lobject.c.ref.html#luaO_rawequalObj">luaO_rawequalObj</a> (<span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *t1, <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a> *t2) {
+L0073      <span class="keyword">if</span> (<a class="L" href="lobject.h.html#ttype">ttype</a>(t1) != <a class="L" href="lobject.h.html#ttype">ttype</a>(t2)) <span class="keyword">return</span> <span class="number">0</span>;
+L0074      <span class="keyword">else</span> <span class="keyword">switch</span> (<a class="L" href="lobject.h.html#ttype">ttype</a>(t1)) {
+L0075        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TNIL">LUA_TNIL</a>:
+L0076          <span class="keyword">return</span> <span class="number">1</span>;
+L0077        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TNUMBER">LUA_TNUMBER</a>:
+L0078          <span class="keyword">return</span> <a class="L" href="luaconf.h.html#luai_numeq">luai_numeq</a>(<a class="L" href="lobject.h.html#nvalue">nvalue</a>(t1), <a class="L" href="lobject.h.html#nvalue">nvalue</a>(t2));
+L0079        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TBOOLEAN">LUA_TBOOLEAN</a>:
+L0080          <span class="keyword">return</span> <a class="L" href="lobject.h.html#bvalue">bvalue</a>(t1) == <a class="L" href="lobject.h.html#bvalue">bvalue</a>(t2);  <span class="comment">/* boolean true must be 1 !! */</span>
+L0081        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TLIGHTUSERDATA">LUA_TLIGHTUSERDATA</a>:
+L0082          <span class="keyword">return</span> <a class="L" href="lobject.h.html#pvalue">pvalue</a>(t1) == <a class="L" href="lobject.h.html#pvalue">pvalue</a>(t2);
+L0083        <span class="keyword">default</span>:
+L0084          <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(<a class="L" href="lobject.h.html#iscollectable">iscollectable</a>(t1));
+L0085          <span class="keyword">return</span> <a class="L" href="lobject.h.html#gcvalue">gcvalue</a>(t1) == <a class="L" href="lobject.h.html#gcvalue">gcvalue</a>(t2);
+L0086      }
+L0087    }
+L0088    
+L0089    
+L0090    <span class="keyword">int</span> <a name="luaO_str2d"/a><a class="L" href="lobject.c.ref.html#luaO_str2d">luaO_str2d</a> (<span class="keyword">const</span> <span class="keyword">char</span> *s, <a class="L" href="lua.h.html#lua_Number">lua_Number</a> *result) {
+L0091      <span class="keyword">char</span> *endptr;
+L0092      *result = <a class="L" href="luaconf.h.html#lua_str2number">lua_str2number</a>(s, &amp;endptr);
+L0093      <span class="keyword">if</span> (endptr == s) <span class="keyword">return</span> <span class="number">0</span>;  <span class="comment">/* conversion failed */</span>
+L0094      <span class="keyword">if</span> (*endptr == 'x' || *endptr == 'X')  <span class="comment">/* maybe an hexadecimal constant? */</span>
+L0095        *result = <a class="L" href="llimits.h.html#cast_num">cast_num</a>(strtoul(s, &amp;endptr, <span class="number">16</span>));
+L0096      <span class="keyword">if</span> (*endptr == '\0') <span class="keyword">return</span> <span class="number">1</span>;  <span class="comment">/* most common case */</span>
+L0097      <span class="keyword">while</span> (isspace(<a class="L" href="llimits.h.html#cast">cast</a>(unsigned <span class="keyword">char</span>, *endptr))) endptr++;
+L0098      <span class="keyword">if</span> (*endptr != '\0') <span class="keyword">return</span> <span class="number">0</span>;  <span class="comment">/* invalid trailing characters? */</span>
+L0099      <span class="keyword">return</span> <span class="number">1</span>;
+L0100    }
+L0101    
+L0102    
+L0103    
+L0104    <span class="keyword">static</span> <span class="keyword">void</span> <a name="pushstr"/a><a class="L" href="lobject.c.ref.html#pushstr">pushstr</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <span class="keyword">char</span> *str) {
+L0105      <a class="L" href="lobject.h.html#setsvalue2s">setsvalue2s</a>(L, L-&gt;top, <a class="L" href="lstring.h.html#luaS_new">luaS_new</a>(L, str));
+L0106      <a class="L" href="ldo.h.html#incr_top">incr_top</a>(L);
+L0107    }
+L0108    
+L0109    
+L0110    <span class="comment">/* this function handles only `%d', `%c', %f, %p, and `%s' formats */</span>
+L0111    <span class="keyword">const</span> <span class="keyword">char</span> *<a name="luaO_pushvfstring"/a><a class="L" href="lobject.c.ref.html#luaO_pushvfstring">luaO_pushvfstring</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <span class="keyword">char</span> *fmt, va_list argp) {
+L0112      <span class="keyword">int</span> n = <span class="number">1</span>;
+L0113      <a class="L" href="lobject.c.html#pushstr">pushstr</a>(L, <span class="string">""</span>);
+L0114      <span class="keyword">for</span> (;;) {
+L0115        <span class="keyword">const</span> <span class="keyword">char</span> *e = strchr(fmt, '%');
+L0116        <span class="keyword">if</span> (e == NULL) <span class="keyword">break</span>;
+L0117        <a class="L" href="lobject.h.html#setsvalue2s">setsvalue2s</a>(L, L-&gt;top, <a class="L" href="lstring.c.html#luaS_newlstr">luaS_newlstr</a>(L, fmt, e-fmt));
+L0118        <a class="L" href="ldo.h.html#incr_top">incr_top</a>(L);
+L0119        <span class="keyword">switch</span> (*(e<span class="number">+1</span>)) {
+L0120          <span class="keyword">case</span> 's': {
+L0121            <span class="keyword">const</span> <span class="keyword">char</span> *s = va_arg(argp, <span class="keyword">char</span> *);
+L0122            <span class="keyword">if</span> (s == NULL) s = <span class="string">"(null)"</span>;
+L0123            <a class="L" href="lobject.c.html#pushstr">pushstr</a>(L, s);
+L0124            <span class="keyword">break</span>;
+L0125          }
+L0126          <span class="keyword">case</span> 'c': {
+L0127            <span class="keyword">char</span> buff[<span class="number">2</span>];
+L0128            buff[<span class="number">0</span>] = <a class="L" href="llimits.h.html#cast">cast</a>(<span class="keyword">char</span>, va_arg(argp, <span class="keyword">int</span>));
+L0129            buff[<span class="number">1</span>] = '\0';
+L0130            <a class="L" href="lobject.c.html#pushstr">pushstr</a>(L, buff);
+L0131            <span class="keyword">break</span>;
+L0132          }
+L0133          <span class="keyword">case</span> 'd': {
+L0134            <a class="L" href="lobject.h.html#setnvalue">setnvalue</a>(L-&gt;top, <a class="L" href="llimits.h.html#cast_num">cast_num</a>(va_arg(argp, <span class="keyword">int</span>)));
+L0135            <a class="L" href="ldo.h.html#incr_top">incr_top</a>(L);
+L0136            <span class="keyword">break</span>;
+L0137          }
+L0138          <span class="keyword">case</span> 'f': {
+L0139            <a class="L" href="lobject.h.html#setnvalue">setnvalue</a>(L-&gt;top, <a class="L" href="llimits.h.html#cast_num">cast_num</a>(va_arg(argp, <a class="L" href="llimits.h.html#l_uacNumber">l_uacNumber</a>)));
+L0140            <a class="L" href="ldo.h.html#incr_top">incr_top</a>(L);
+L0141            <span class="keyword">break</span>;
+L0142          }
+L0143          <span class="keyword">case</span> 'p': {
+L0144            <span class="keyword">char</span> buff[<span class="number">4</span>*<span class="keyword">sizeof</span>(<span class="keyword">void</span> *) + <span class="number">8</span>]; <span class="comment">/* should be enough space for a `%p' */</span>
+L0145            sprintf(buff, <span class="string">"%p"</span>, va_arg(argp, <span class="keyword">void</span> *));
+L0146            <a class="L" href="lobject.c.html#pushstr">pushstr</a>(L, buff);
+L0147            <span class="keyword">break</span>;
+L0148          }
+L0149          <span class="keyword">case</span> '%': {
+L0150            <a class="L" href="lobject.c.html#pushstr">pushstr</a>(L, <span class="string">"%"</span>);
+L0151            <span class="keyword">break</span>;
+L0152          }
+L0153          <span class="keyword">default</span>: {
+L0154            <span class="keyword">char</span> buff[<span class="number">3</span>];
+L0155            buff[<span class="number">0</span>] = '%';
+L0156            buff[<span class="number">1</span>] = *(e<span class="number">+1</span>);
+L0157            buff[<span class="number">2</span>] = '\0';
+L0158            <a class="L" href="lobject.c.html#pushstr">pushstr</a>(L, buff);
+L0159            <span class="keyword">break</span>;
+L0160          }
+L0161        }
+L0162        n += <span class="number">2</span>;
+L0163        fmt = e<span class="number">+2</span>;
+L0164      }
+L0165      <a class="L" href="lobject.c.html#pushstr">pushstr</a>(L, fmt);
+L0166      <a class="L" href="lvm.c.html#luaV_concat">luaV_concat</a>(L, n<span class="number">+1</span>, <a class="L" href="llimits.h.html#cast_int">cast_int</a>(L-&gt;top - L-&gt;base) - <span class="number">1</span>);
+L0167      L-&gt;top -= n;
+L0168      <span class="keyword">return</span> <a class="L" href="lobject.h.html#svalue">svalue</a>(L-&gt;top - <span class="number">1</span>);
+L0169    }
+L0170    
+L0171    
+L0172    <span class="keyword">const</span> <span class="keyword">char</span> *<a name="luaO_pushfstring"/a><a class="L" href="lobject.c.ref.html#luaO_pushfstring">luaO_pushfstring</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <span class="keyword">char</span> *fmt, ...) {
+L0173      <span class="keyword">const</span> <span class="keyword">char</span> *msg;
+L0174      va_list argp;
+L0175      va_start(argp, fmt);
+L0176      msg = <a class="L" href="lobject.c.html#luaO_pushvfstring">luaO_pushvfstring</a>(L, fmt, argp);
+L0177      va_end(argp);
+L0178      <span class="keyword">return</span> msg;
+L0179    }
+L0180    
+L0181    
+L0182    <span class="keyword">void</span> <a name="luaO_chunkid"/a><a class="L" href="lobject.c.ref.html#luaO_chunkid">luaO_chunkid</a> (<span class="keyword">char</span> *out, <span class="keyword">const</span> <span class="keyword">char</span> *source, size_t <a class="L" href="lauxlib.c.html#bufflen">bufflen</a>) {
+L0183      <span class="keyword">if</span> (*source == '=') {
+L0184        strncpy(out, source<span class="number">+1</span>, <a class="L" href="lauxlib.c.html#bufflen">bufflen</a>);  <span class="comment">/* remove first char */</span>
+L0185        out[<a class="L" href="lauxlib.c.html#bufflen">bufflen</a><span class="number">-1</span>] = '\0';  <span class="comment">/* ensures null termination */</span>
+L0186      }
+L0187      <span class="keyword">else</span> {  <span class="comment">/* out = "source", or "...source" */</span>
+L0188        <span class="keyword">if</span> (*source == '@') {
+L0189          size_t l;
+L0190          source++;  <span class="comment">/* skip the `@' */</span>
+L0191          <a class="L" href="lauxlib.c.html#bufflen">bufflen</a> -= <span class="keyword">sizeof</span>(<span class="string">" '...' "</span>);
+L0192          l = strlen(source);
+L0193          strcpy(out, <span class="string">""</span>);
+L0194          <span class="keyword">if</span> (l &gt; <a class="L" href="lauxlib.c.html#bufflen">bufflen</a>) {
+L0195            source += (l-<a class="L" href="lauxlib.c.html#bufflen">bufflen</a>);  <span class="comment">/* get last part of file name */</span>
+L0196            strcat(out, <span class="string">"..."</span>);
+L0197          }
+L0198          strcat(out, source);
+L0199        }
+L0200        <span class="keyword">else</span> {  <span class="comment">/* out = [string "string"] */</span>
+L0201          size_t len = strcspn(source, <span class="string">"\n\r"</span>);  <span class="comment">/* stop at first newline */</span>
+L0202          <a class="L" href="lauxlib.c.html#bufflen">bufflen</a> -= <span class="keyword">sizeof</span>(<span class="string">" [string \"...\"] "</span>);
+L0203          <span class="keyword">if</span> (len &gt; <a class="L" href="lauxlib.c.html#bufflen">bufflen</a>) len = <a class="L" href="lauxlib.c.html#bufflen">bufflen</a>;
+L0204          strcpy(out, <span class="string">"[string \""</span>);
+L0205          <span class="keyword">if</span> (source[len] != '\0') {  <span class="comment">/* must truncate? */</span>
+L0206            strncat(out, source, len);
+L0207            strcat(out, <span class="string">"..."</span>);
+L0208          }
+L0209          <span class="keyword">else</span>
+L0210            strcat(out, source);
+L0211          strcat(out, <span class="string">"\"]"</span>);
+L0212        }
+L0213      }
+L0214    }
+</pre>
+<hr/>
+Generated by <a href="pretty.lua.html">pretty.lua</html>
+</body></html>

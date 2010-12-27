@@ -1,0 +1,890 @@
+<html>
+<head>
+<style>
+a.L { text-decoration: none; }
+a.L:hover { color: #FFAAAA; }
+body { margin-top: 20px; margin-left: 30px; }
+.lno { font-weight: bold: color #000; }
+.keyword {font-weight: bold; color: #6666AA; }
+.number  { color: #AA6666; }
+.string  { color: #8888AA; }
+.comment { color: #666600; }
+.prepro { color: #006666; } 
+</style>
+<body>
+<h1>Lua 5.1.4: lstrlib.c</h1>
+<hr/>
+<pre>
+L0001    <span class="comment">/*
+L0002    ** $Id: lstrlib.c,v 1.132.1.4 2008/07/11 17:27:21 roberto Exp $
+L0003    ** Standard library for string operations and pattern-matching
+L0004    ** See Copyright Notice in lua.h
+L0005    */</span>
+L0006    
+L0007    
+L0008    <span class="prepro">#include &lt;ctype.h&gt;
+</span>L0009    <span class="prepro">#include &lt;stddef.h&gt;
+</span>L0010    <span class="prepro">#include &lt;stdio.h&gt;
+</span>L0011    <span class="prepro">#include &lt;stdlib.h&gt;
+</span>L0012    <span class="prepro">#include &lt;string.h&gt;
+</span>L0013    
+L0014    <a name="lstrlib_c"/a><span class="prepro">#define lstrlib_c
+</span>L0015    <a name="LUA_LIB"/a><span class="prepro">#define LUA_LIB
+</span>L0016    
+L0017    <span class="prepro"><a class="L" href="lua.h.html#">#include "lua.h"
+</a></span>L0018    
+L0019    <span class="prepro"><a class="L" href="lauxlib.h.html#">#include "lauxlib.h"
+</a></span>L0020    <span class="prepro"><a class="L" href="lualib.h.html#">#include "lualib.h"
+</a></span>L0021    
+L0022    
+L0023    <span class="comment">/* macro to `unsign' a character */</span>
+L0024    <a name="uchar"/a><span class="prepro">#define uchar(c)        ((unsigned char)(c))
+</span>L0025    
+L0026    
+L0027    
+L0028    <span class="keyword">static</span> <span class="keyword">int</span> <a name="str_len"/a><a class="L" href="lstrlib.c.ref.html#str_len">str_len</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0029      size_t l;
+L0030      <a class="L" href="lauxlib.c.html#luaL_checklstring">luaL_checklstring</a>(L, <span class="number">1</span>, &amp;l);
+L0031      <a class="L" href="lapi.c.html#lua_pushinteger">lua_pushinteger</a>(L, l);
+L0032      <span class="keyword">return</span> <span class="number">1</span>;
+L0033    }
+L0034    
+L0035    
+L0036    <span class="keyword">static</span> ptrdiff_t <a name="posrelat"/a><a class="L" href="lstrlib.c.ref.html#posrelat">posrelat</a> (ptrdiff_t pos, size_t len) {
+L0037      <span class="comment">/* relative string position: negative means back from end */</span>
+L0038      <span class="keyword">if</span> (pos &lt; <span class="number">0</span>) pos += (ptrdiff_t)len + <span class="number">1</span>;
+L0039      <span class="keyword">return</span> (pos &gt;= <span class="number">0</span>) ? pos : <span class="number">0</span>;
+L0040    }
+L0041    
+L0042    
+L0043    <span class="keyword">static</span> <span class="keyword">int</span> <a name="str_sub"/a><a class="L" href="lstrlib.c.ref.html#str_sub">str_sub</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0044      size_t l;
+L0045      <span class="keyword">const</span> <span class="keyword">char</span> *s = <a class="L" href="lauxlib.c.html#luaL_checklstring">luaL_checklstring</a>(L, <span class="number">1</span>, &amp;l);
+L0046      ptrdiff_t start = <a class="L" href="lstrlib.c.html#posrelat">posrelat</a>(<a class="L" href="lauxlib.c.html#luaL_checkinteger">luaL_checkinteger</a>(L, <span class="number">2</span>), l);
+L0047      ptrdiff_t end = <a class="L" href="lstrlib.c.html#posrelat">posrelat</a>(<a class="L" href="lauxlib.c.html#luaL_optinteger">luaL_optinteger</a>(L, <span class="number">3</span>, <span class="number">-1</span>), l);
+L0048      <span class="keyword">if</span> (start &lt; <span class="number">1</span>) start = <span class="number">1</span>;
+L0049      <span class="keyword">if</span> (end &gt; (ptrdiff_t)l) end = (ptrdiff_t)l;
+L0050      <span class="keyword">if</span> (start &lt;= end)
+L0051        <a class="L" href="lapi.c.html#lua_pushlstring">lua_pushlstring</a>(L, s+start<span class="number">-1</span>, end-start<span class="number">+1</span>);
+L0052      <span class="keyword">else</span> <a class="L" href="lua.h.html#lua_pushliteral">lua_pushliteral</a>(L, <span class="string">""</span>);
+L0053      <span class="keyword">return</span> <span class="number">1</span>;
+L0054    }
+L0055    
+L0056    
+L0057    <span class="keyword">static</span> <span class="keyword">int</span> <a name="str_reverse"/a><a class="L" href="lstrlib.c.ref.html#str_reverse">str_reverse</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0058      size_t l;
+L0059      <a class="L" href="lauxlib.h.html#luaL_Buffer">luaL_Buffer</a> b;
+L0060      <span class="keyword">const</span> <span class="keyword">char</span> *s = <a class="L" href="lauxlib.c.html#luaL_checklstring">luaL_checklstring</a>(L, <span class="number">1</span>, &amp;l);
+L0061      <a class="L" href="lauxlib.c.html#luaL_buffinit">luaL_buffinit</a>(L, &amp;b);
+L0062      <span class="keyword">while</span> (l--) <a class="L" href="lauxlib.h.html#luaL_addchar">luaL_addchar</a>(&amp;b, s[l]);
+L0063      <a class="L" href="lauxlib.c.html#luaL_pushresult">luaL_pushresult</a>(&amp;b);
+L0064      <span class="keyword">return</span> <span class="number">1</span>;
+L0065    }
+L0066    
+L0067    
+L0068    <span class="keyword">static</span> <span class="keyword">int</span> <a name="str_lower"/a><a class="L" href="lstrlib.c.ref.html#str_lower">str_lower</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0069      size_t l;
+L0070      size_t i;
+L0071      <a class="L" href="lauxlib.h.html#luaL_Buffer">luaL_Buffer</a> b;
+L0072      <span class="keyword">const</span> <span class="keyword">char</span> *s = <a class="L" href="lauxlib.c.html#luaL_checklstring">luaL_checklstring</a>(L, <span class="number">1</span>, &amp;l);
+L0073      <a class="L" href="lauxlib.c.html#luaL_buffinit">luaL_buffinit</a>(L, &amp;b);
+L0074      <span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;l; i++)
+L0075        <a class="L" href="lauxlib.h.html#luaL_addchar">luaL_addchar</a>(&amp;b, tolower(<a class="L" href="lstrlib.c.html#uchar">uchar</a>(s[i])));
+L0076      <a class="L" href="lauxlib.c.html#luaL_pushresult">luaL_pushresult</a>(&amp;b);
+L0077      <span class="keyword">return</span> <span class="number">1</span>;
+L0078    }
+L0079    
+L0080    
+L0081    <span class="keyword">static</span> <span class="keyword">int</span> <a name="str_upper"/a><a class="L" href="lstrlib.c.ref.html#str_upper">str_upper</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0082      size_t l;
+L0083      size_t i;
+L0084      <a class="L" href="lauxlib.h.html#luaL_Buffer">luaL_Buffer</a> b;
+L0085      <span class="keyword">const</span> <span class="keyword">char</span> *s = <a class="L" href="lauxlib.c.html#luaL_checklstring">luaL_checklstring</a>(L, <span class="number">1</span>, &amp;l);
+L0086      <a class="L" href="lauxlib.c.html#luaL_buffinit">luaL_buffinit</a>(L, &amp;b);
+L0087      <span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;l; i++)
+L0088        <a class="L" href="lauxlib.h.html#luaL_addchar">luaL_addchar</a>(&amp;b, toupper(<a class="L" href="lstrlib.c.html#uchar">uchar</a>(s[i])));
+L0089      <a class="L" href="lauxlib.c.html#luaL_pushresult">luaL_pushresult</a>(&amp;b);
+L0090      <span class="keyword">return</span> <span class="number">1</span>;
+L0091    }
+L0092    
+L0093    <span class="keyword">static</span> <span class="keyword">int</span> <a name="str_rep"/a><a class="L" href="lstrlib.c.ref.html#str_rep">str_rep</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0094      size_t l;
+L0095      <a class="L" href="lauxlib.h.html#luaL_Buffer">luaL_Buffer</a> b;
+L0096      <span class="keyword">const</span> <span class="keyword">char</span> *s = <a class="L" href="lauxlib.c.html#luaL_checklstring">luaL_checklstring</a>(L, <span class="number">1</span>, &amp;l);
+L0097      <span class="keyword">int</span> n = <a class="L" href="lauxlib.h.html#luaL_checkint">luaL_checkint</a>(L, <span class="number">2</span>);
+L0098      <a class="L" href="lauxlib.c.html#luaL_buffinit">luaL_buffinit</a>(L, &amp;b);
+L0099      <span class="keyword">while</span> (n-- &gt; <span class="number">0</span>)
+L0100        <a class="L" href="lauxlib.c.html#luaL_addlstring">luaL_addlstring</a>(&amp;b, s, l);
+L0101      <a class="L" href="lauxlib.c.html#luaL_pushresult">luaL_pushresult</a>(&amp;b);
+L0102      <span class="keyword">return</span> <span class="number">1</span>;
+L0103    }
+L0104    
+L0105    
+L0106    <span class="keyword">static</span> <span class="keyword">int</span> <a name="str_byte"/a><a class="L" href="lstrlib.c.ref.html#str_byte">str_byte</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0107      size_t l;
+L0108      <span class="keyword">const</span> <span class="keyword">char</span> *s = <a class="L" href="lauxlib.c.html#luaL_checklstring">luaL_checklstring</a>(L, <span class="number">1</span>, &amp;l);
+L0109      ptrdiff_t posi = <a class="L" href="lstrlib.c.html#posrelat">posrelat</a>(<a class="L" href="lauxlib.c.html#luaL_optinteger">luaL_optinteger</a>(L, <span class="number">2</span>, <span class="number">1</span>), l);
+L0110      ptrdiff_t pose = <a class="L" href="lstrlib.c.html#posrelat">posrelat</a>(<a class="L" href="lauxlib.c.html#luaL_optinteger">luaL_optinteger</a>(L, <span class="number">3</span>, posi), l);
+L0111      <span class="keyword">int</span> n, i;
+L0112      <span class="keyword">if</span> (posi &lt;= <span class="number">0</span>) posi = <span class="number">1</span>;
+L0113      <span class="keyword">if</span> ((size_t)pose &gt; l) pose = l;
+L0114      <span class="keyword">if</span> (posi &gt; pose) <span class="keyword">return</span> <span class="number">0</span>;  <span class="comment">/* empty interval; return no values */</span>
+L0115      n = (<span class="keyword">int</span>)(pose -  posi + <span class="number">1</span>);
+L0116      <span class="keyword">if</span> (posi + n &lt;= pose)  <span class="comment">/* overflow? */</span>
+L0117        <a class="L" href="lauxlib.c.html#luaL_error">luaL_error</a>(L, <span class="string">"string slice too long"</span>);
+L0118      <a class="L" href="lauxlib.c.html#luaL_checkstack">luaL_checkstack</a>(L, n, <span class="string">"string slice too long"</span>);
+L0119      <span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;n; i++)
+L0120        <a class="L" href="lapi.c.html#lua_pushinteger">lua_pushinteger</a>(L, <a class="L" href="lstrlib.c.html#uchar">uchar</a>(s[posi+i<span class="number">-1</span>]));
+L0121      <span class="keyword">return</span> n;
+L0122    }
+L0123    
+L0124    
+L0125    <span class="keyword">static</span> <span class="keyword">int</span> <a name="str_char"/a><a class="L" href="lstrlib.c.ref.html#str_char">str_char</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0126      <span class="keyword">int</span> n = <a class="L" href="lapi.c.html#lua_gettop">lua_gettop</a>(L);  <span class="comment">/* number of arguments */</span>
+L0127      <span class="keyword">int</span> i;
+L0128      <a class="L" href="lauxlib.h.html#luaL_Buffer">luaL_Buffer</a> b;
+L0129      <a class="L" href="lauxlib.c.html#luaL_buffinit">luaL_buffinit</a>(L, &amp;b);
+L0130      <span class="keyword">for</span> (i=<span class="number">1</span>; i&lt;=n; i++) {
+L0131        <span class="keyword">int</span> c = <a class="L" href="lauxlib.h.html#luaL_checkint">luaL_checkint</a>(L, i);
+L0132        <a class="L" href="lauxlib.h.html#luaL_argcheck">luaL_argcheck</a>(L, <a class="L" href="lstrlib.c.html#uchar">uchar</a>(c) == c, i, <span class="string">"invalid value"</span>);
+L0133        <a class="L" href="lauxlib.h.html#luaL_addchar">luaL_addchar</a>(&amp;b, <a class="L" href="lstrlib.c.html#uchar">uchar</a>(c));
+L0134      }
+L0135      <a class="L" href="lauxlib.c.html#luaL_pushresult">luaL_pushresult</a>(&amp;b);
+L0136      <span class="keyword">return</span> <span class="number">1</span>;
+L0137    }
+L0138    
+L0139    
+L0140    <span class="keyword">static</span> <span class="keyword">int</span> writer (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <span class="keyword">void</span>* b, size_t size, <span class="keyword">void</span>* B) {
+L0141      (<span class="keyword">void</span>)L;
+L0142      <a class="L" href="lauxlib.c.html#luaL_addlstring">luaL_addlstring</a>((<a class="L" href="lauxlib.h.html#luaL_Buffer">luaL_Buffer</a>*) B, (<span class="keyword">const</span> <span class="keyword">char</span> *)b, size);
+L0143      <span class="keyword">return</span> <span class="number">0</span>;
+L0144    }
+L0145    
+L0146    
+L0147    <span class="keyword">static</span> <span class="keyword">int</span> <a name="str_dump"/a><a class="L" href="lstrlib.c.ref.html#str_dump">str_dump</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0148      <a class="L" href="lauxlib.h.html#luaL_Buffer">luaL_Buffer</a> b;
+L0149      <a class="L" href="lauxlib.c.html#luaL_checktype">luaL_checktype</a>(L, <span class="number">1</span>, <a class="L" href="lua.h.html#LUA_TFUNCTION">LUA_TFUNCTION</a>);
+L0150      <a class="L" href="lapi.c.html#lua_settop">lua_settop</a>(L, <span class="number">1</span>);
+L0151      <a class="L" href="lauxlib.c.html#luaL_buffinit">luaL_buffinit</a>(L,&amp;b);
+L0152      <span class="keyword">if</span> (<a class="L" href="lapi.c.html#lua_dump">lua_dump</a>(L, writer, &amp;b) != <span class="number">0</span>)
+L0153        <a class="L" href="lauxlib.c.html#luaL_error">luaL_error</a>(L, <span class="string">"unable to dump given function"</span>);
+L0154      <a class="L" href="lauxlib.c.html#luaL_pushresult">luaL_pushresult</a>(&amp;b);
+L0155      <span class="keyword">return</span> <span class="number">1</span>;
+L0156    }
+L0157    
+L0158    
+L0159    
+L0160    <span class="comment">/*
+L0161    ** {======================================================
+L0162    ** PATTERN MATCHING
+L0163    ** =======================================================
+L0164    */</span>
+L0165    
+L0166    
+L0167    <a name="CAP_UNFINISHED"/a><span class="prepro">#define CAP_UNFINISHED	(-1)
+</span>L0168    <a name="CAP_POSITION"/a><span class="prepro">#define CAP_POSITION	(-2)
+</span>L0169    
+L0170    <span class="keyword">typedef</span> <span class="keyword">struct</span> <a name="MatchState"/a><a class="L" href="lstrlib.c.ref.html#MatchState">MatchState</a> {
+L0171      <span class="keyword">const</span> <span class="keyword">char</span> *<a name="src_init"/a><a class="L" href="lstrlib.c.ref.html#src_init">src_init</a>;  <span class="comment">/* init of source string */</span>
+L0172      <span class="keyword">const</span> <span class="keyword">char</span> *<a name="src_end"/a><a class="L" href="lstrlib.c.ref.html#src_end">src_end</a>;  <span class="comment">/* end (`\0') of source string */</span>
+L0173      <a class="L" href="lstate.h.html#lua_State">lua_State</a> *L;
+L0174      <span class="keyword">int</span> <a name="level"/a><a class="L" href="lstrlib.c.ref.html#level">level</a>;  <span class="comment">/* total number of captures (finished or unfinished) */</span>
+L0175      <span class="keyword">struct</span> {
+L0176        <span class="keyword">const</span> <span class="keyword">char</span> *<a name="init"/a><a class="L" href="lstrlib.c.ref.html#init">init</a>;
+L0177        ptrdiff_t len;
+L0178      } <a name="capture"/a><a class="L" href="lstrlib.c.ref.html#capture">capture</a>[<a class="L" href="luaconf.h.html#LUA_MAXCAPTURES">LUA_MAXCAPTURES</a>];
+L0179    } <a class="L" href="lstrlib.c.html#MatchState">MatchState</a>;
+L0180    
+L0181    
+L0182    <a name="L_ESC"/a><span class="prepro">#define L_ESC		'%'
+</span>L0183    <a name="SPECIALS"/a><span class="prepro">#define SPECIALS	"^$*+?.([%-"
+</span>L0184    
+L0185    
+L0186    <span class="keyword">static</span> <span class="keyword">int</span> <a name="check_capture"/a><a class="L" href="lstrlib.c.ref.html#check_capture">check_capture</a> (<a class="L" href="lstrlib.c.html#MatchState">MatchState</a> *ms, <span class="keyword">int</span> l) {
+L0187      l -= '1';
+L0188      <span class="keyword">if</span> (l &lt; <span class="number">0</span> || l &gt;= ms-&gt;level || ms-&gt;capture[l].len == <a class="L" href="lstrlib.c.html#CAP_UNFINISHED">CAP_UNFINISHED</a>)
+L0189        <span class="keyword">return</span> <a class="L" href="lauxlib.c.html#luaL_error">luaL_error</a>(ms-&gt;L, <span class="string">"invalid capture index"</span>);
+L0190      <span class="keyword">return</span> l;
+L0191    }
+L0192    
+L0193    
+L0194    <span class="keyword">static</span> <span class="keyword">int</span> <a name="capture_to_close"/a><a class="L" href="lstrlib.c.ref.html#capture_to_close">capture_to_close</a> (<a class="L" href="lstrlib.c.html#MatchState">MatchState</a> *ms) {
+L0195      <span class="keyword">int</span> level = ms-&gt;level;
+L0196      <span class="keyword">for</span> (level--; level&gt;=<span class="number">0</span>; level--)
+L0197        <span class="keyword">if</span> (ms-&gt;capture[level].len == <a class="L" href="lstrlib.c.html#CAP_UNFINISHED">CAP_UNFINISHED</a>) <span class="keyword">return</span> level;
+L0198      <span class="keyword">return</span> <a class="L" href="lauxlib.c.html#luaL_error">luaL_error</a>(ms-&gt;L, <span class="string">"invalid pattern capture"</span>);
+L0199    }
+L0200    
+L0201    
+L0202    <span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">char</span> *<a name="classend"/a><a class="L" href="lstrlib.c.ref.html#classend">classend</a> (<a class="L" href="lstrlib.c.html#MatchState">MatchState</a> *ms, <span class="keyword">const</span> <span class="keyword">char</span> *p) {
+L0203      <span class="keyword">switch</span> (*p++) {
+L0204        <span class="keyword">case</span> <a class="L" href="lstrlib.c.html#L_ESC">L_ESC</a>: {
+L0205          <span class="keyword">if</span> (*p == '\0')
+L0206            <a class="L" href="lauxlib.c.html#luaL_error">luaL_error</a>(ms-&gt;L, <span class="string">"malformed pattern (ends with "</span> <a class="L" href="luaconf.h.html#LUA_QL">LUA_QL</a>(<span class="string">"%%"</span>) <span class="string">")"</span>);
+L0207          <span class="keyword">return</span> p<span class="number">+1</span>;
+L0208        }
+L0209        <span class="keyword">case</span> '[': {
+L0210          <span class="keyword">if</span> (*p == '^') p++;
+L0211          <span class="keyword">do</span> {  <span class="comment">/* look for a `]' */</span>
+L0212            <span class="keyword">if</span> (*p == '\0')
+L0213              <a class="L" href="lauxlib.c.html#luaL_error">luaL_error</a>(ms-&gt;L, <span class="string">"malformed pattern (missing "</span> <a class="L" href="luaconf.h.html#LUA_QL">LUA_QL</a>(<span class="string">"]"</span>) <span class="string">")"</span>);
+L0214            <span class="keyword">if</span> (*(p++) == <a class="L" href="lstrlib.c.html#L_ESC">L_ESC</a> &amp;&amp; *p != '\0')
+L0215              p++;  <span class="comment">/* skip escapes (e.g. `%]') */</span>
+L0216          } <span class="keyword">while</span> (*p != ']');
+L0217          <span class="keyword">return</span> p<span class="number">+1</span>;
+L0218        }
+L0219        <span class="keyword">default</span>: {
+L0220          <span class="keyword">return</span> p;
+L0221        }
+L0222      }
+L0223    }
+L0224    
+L0225    
+L0226    <span class="keyword">static</span> <span class="keyword">int</span> <a name="match_class"/a><a class="L" href="lstrlib.c.ref.html#match_class">match_class</a> (<span class="keyword">int</span> c, <span class="keyword">int</span> cl) {
+L0227      <span class="keyword">int</span> res;
+L0228      <span class="keyword">switch</span> (tolower(cl)) {
+L0229        <span class="keyword">case</span> 'a' : res = isalpha(c); <span class="keyword">break</span>;
+L0230        <span class="keyword">case</span> 'c' : res = iscntrl(c); <span class="keyword">break</span>;
+L0231        <span class="keyword">case</span> 'd' : res = isdigit(c); <span class="keyword">break</span>;
+L0232        <span class="keyword">case</span> 'l' : res = islower(c); <span class="keyword">break</span>;
+L0233        <span class="keyword">case</span> 'p' : res = ispunct(c); <span class="keyword">break</span>;
+L0234        <span class="keyword">case</span> 's' : res = isspace(c); <span class="keyword">break</span>;
+L0235        <span class="keyword">case</span> 'u' : res = isupper(c); <span class="keyword">break</span>;
+L0236        <span class="keyword">case</span> 'w' : res = isalnum(c); <span class="keyword">break</span>;
+L0237        <span class="keyword">case</span> 'x' : res = isxdigit(c); <span class="keyword">break</span>;
+L0238        <span class="keyword">case</span> 'z' : res = (c == <span class="number">0</span>); <span class="keyword">break</span>;
+L0239        <span class="keyword">default</span>: <span class="keyword">return</span> (cl == c);
+L0240      }
+L0241      <span class="keyword">return</span> (islower(cl) ? res : !res);
+L0242    }
+L0243    
+L0244    
+L0245    <span class="keyword">static</span> <span class="keyword">int</span> <a name="matchbracketclass"/a><a class="L" href="lstrlib.c.ref.html#matchbracketclass">matchbracketclass</a> (<span class="keyword">int</span> c, <span class="keyword">const</span> <span class="keyword">char</span> *p, <span class="keyword">const</span> <span class="keyword">char</span> *ec) {
+L0246      <span class="keyword">int</span> sig = <span class="number">1</span>;
+L0247      <span class="keyword">if</span> (*(p<span class="number">+1</span>) == '^') {
+L0248        sig = <span class="number">0</span>;
+L0249        p++;  <span class="comment">/* skip the `^' */</span>
+L0250      }
+L0251      <span class="keyword">while</span> (++p &lt; ec) {
+L0252        <span class="keyword">if</span> (*p == <a class="L" href="lstrlib.c.html#L_ESC">L_ESC</a>) {
+L0253          p++;
+L0254          <span class="keyword">if</span> (<a class="L" href="lstrlib.c.html#match_class">match_class</a>(c, <a class="L" href="lstrlib.c.html#uchar">uchar</a>(*p)))
+L0255            <span class="keyword">return</span> sig;
+L0256        }
+L0257        <span class="keyword">else</span> <span class="keyword">if</span> ((*(p<span class="number">+1</span>) == '-') &amp;&amp; (p<span class="number">+2</span> &lt; ec)) {
+L0258          p+=<span class="number">2</span>;
+L0259          <span class="keyword">if</span> (<a class="L" href="lstrlib.c.html#uchar">uchar</a>(*(p<span class="number">-2</span>)) &lt;= c &amp;&amp; c &lt;= <a class="L" href="lstrlib.c.html#uchar">uchar</a>(*p))
+L0260            <span class="keyword">return</span> sig;
+L0261        }
+L0262        <span class="keyword">else</span> <span class="keyword">if</span> (<a class="L" href="lstrlib.c.html#uchar">uchar</a>(*p) == c) <span class="keyword">return</span> sig;
+L0263      }
+L0264      <span class="keyword">return</span> !sig;
+L0265    }
+L0266    
+L0267    
+L0268    <span class="keyword">static</span> <span class="keyword">int</span> <a name="singlematch"/a><a class="L" href="lstrlib.c.ref.html#singlematch">singlematch</a> (<span class="keyword">int</span> c, <span class="keyword">const</span> <span class="keyword">char</span> *p, <span class="keyword">const</span> <span class="keyword">char</span> *ep) {
+L0269      <span class="keyword">switch</span> (*p) {
+L0270        <span class="keyword">case</span> '.': <span class="keyword">return</span> <span class="number">1</span>;  <span class="comment">/* matches any char */</span>
+L0271        <span class="keyword">case</span> <a class="L" href="lstrlib.c.html#L_ESC">L_ESC</a>: <span class="keyword">return</span> <a class="L" href="lstrlib.c.html#match_class">match_class</a>(c, <a class="L" href="lstrlib.c.html#uchar">uchar</a>(*(p<span class="number">+1</span>)));
+L0272        <span class="keyword">case</span> '[': <span class="keyword">return</span> <a class="L" href="lstrlib.c.html#matchbracketclass">matchbracketclass</a>(c, p, ep<span class="number">-1</span>);
+L0273        <span class="keyword">default</span>:  <span class="keyword">return</span> (<a class="L" href="lstrlib.c.html#uchar">uchar</a>(*p) == c);
+L0274      }
+L0275    }
+L0276    
+L0277    
+L0278    <span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">char</span> *<a class="L" href="lstrlib.c.html#match">match</a> (<a class="L" href="lstrlib.c.html#MatchState">MatchState</a> *ms, <span class="keyword">const</span> <span class="keyword">char</span> *s, <span class="keyword">const</span> <span class="keyword">char</span> *p);
+L0279    
+L0280    
+L0281    <span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">char</span> *<a name="matchbalance"/a><a class="L" href="lstrlib.c.ref.html#matchbalance">matchbalance</a> (<a class="L" href="lstrlib.c.html#MatchState">MatchState</a> *ms, <span class="keyword">const</span> <span class="keyword">char</span> *s,
+L0282                                       <span class="keyword">const</span> <span class="keyword">char</span> *p) {
+L0283      <span class="keyword">if</span> (*p == <span class="number">0</span> || *(p<span class="number">+1</span>) == <span class="number">0</span>)
+L0284        <a class="L" href="lauxlib.c.html#luaL_error">luaL_error</a>(ms-&gt;L, <span class="string">"unbalanced pattern"</span>);
+L0285      <span class="keyword">if</span> (*s != *p) <span class="keyword">return</span> NULL;
+L0286      <span class="keyword">else</span> {
+L0287        <span class="keyword">int</span> b = *p;
+L0288        <span class="keyword">int</span> e = *(p<span class="number">+1</span>);
+L0289        <span class="keyword">int</span> cont = <span class="number">1</span>;
+L0290        <span class="keyword">while</span> (++s &lt; ms-&gt;src_end) {
+L0291          <span class="keyword">if</span> (*s == e) {
+L0292            <span class="keyword">if</span> (--cont == <span class="number">0</span>) <span class="keyword">return</span> s<span class="number">+1</span>;
+L0293          }
+L0294          <span class="keyword">else</span> <span class="keyword">if</span> (*s == b) cont++;
+L0295        }
+L0296      }
+L0297      <span class="keyword">return</span> NULL;  <span class="comment">/* string ends out of balance */</span>
+L0298    }
+L0299    
+L0300    
+L0301    <span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">char</span> *<a name="max_expand"/a><a class="L" href="lstrlib.c.ref.html#max_expand">max_expand</a> (<a class="L" href="lstrlib.c.html#MatchState">MatchState</a> *ms, <span class="keyword">const</span> <span class="keyword">char</span> *s,
+L0302                                     <span class="keyword">const</span> <span class="keyword">char</span> *p, <span class="keyword">const</span> <span class="keyword">char</span> *ep) {
+L0303      ptrdiff_t i = <span class="number">0</span>;  <span class="comment">/* counts maximum expand for item */</span>
+L0304      <span class="keyword">while</span> ((s+i)&lt;ms-&gt;src_end &amp;&amp; <a class="L" href="lstrlib.c.html#singlematch">singlematch</a>(<a class="L" href="lstrlib.c.html#uchar">uchar</a>(*(s+i)), p, ep))
+L0305        i++;
+L0306      <span class="comment">/* keeps trying to match with the maximum repetitions */</span>
+L0307      <span class="keyword">while</span> (i&gt;=<span class="number">0</span>) {
+L0308        <span class="keyword">const</span> <span class="keyword">char</span> *res = <a class="L" href="lstrlib.c.html#match">match</a>(ms, (s+i), ep<span class="number">+1</span>);
+L0309        <span class="keyword">if</span> (res) <span class="keyword">return</span> res;
+L0310        i--;  <span class="comment">/* else didn't match; reduce 1 repetition to try again */</span>
+L0311      }
+L0312      <span class="keyword">return</span> NULL;
+L0313    }
+L0314    
+L0315    
+L0316    <span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">char</span> *<a name="min_expand"/a><a class="L" href="lstrlib.c.ref.html#min_expand">min_expand</a> (<a class="L" href="lstrlib.c.html#MatchState">MatchState</a> *ms, <span class="keyword">const</span> <span class="keyword">char</span> *s,
+L0317                                     <span class="keyword">const</span> <span class="keyword">char</span> *p, <span class="keyword">const</span> <span class="keyword">char</span> *ep) {
+L0318      <span class="keyword">for</span> (;;) {
+L0319        <span class="keyword">const</span> <span class="keyword">char</span> *res = <a class="L" href="lstrlib.c.html#match">match</a>(ms, s, ep<span class="number">+1</span>);
+L0320        <span class="keyword">if</span> (res != NULL)
+L0321          <span class="keyword">return</span> res;
+L0322        <span class="keyword">else</span> <span class="keyword">if</span> (s&lt;ms-&gt;src_end &amp;&amp; <a class="L" href="lstrlib.c.html#singlematch">singlematch</a>(<a class="L" href="lstrlib.c.html#uchar">uchar</a>(*s), p, ep))
+L0323          s++;  <span class="comment">/* try with one more repetition */</span>
+L0324        <span class="keyword">else</span> <span class="keyword">return</span> NULL;
+L0325      }
+L0326    }
+L0327    
+L0328    
+L0329    <span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">char</span> *<a name="start_capture"/a><a class="L" href="lstrlib.c.ref.html#start_capture">start_capture</a> (<a class="L" href="lstrlib.c.html#MatchState">MatchState</a> *ms, <span class="keyword">const</span> <span class="keyword">char</span> *s,
+L0330                                        <span class="keyword">const</span> <span class="keyword">char</span> *p, <span class="keyword">int</span> what) {
+L0331      <span class="keyword">const</span> <span class="keyword">char</span> *res;
+L0332      <span class="keyword">int</span> level = ms-&gt;level;
+L0333      <span class="keyword">if</span> (level &gt;= <a class="L" href="luaconf.h.html#LUA_MAXCAPTURES">LUA_MAXCAPTURES</a>) <a class="L" href="lauxlib.c.html#luaL_error">luaL_error</a>(ms-&gt;L, <span class="string">"too many captures"</span>);
+L0334      ms-&gt;capture[level].init = s;
+L0335      ms-&gt;capture[level].len = what;
+L0336      ms-&gt;level = level<span class="number">+1</span>;
+L0337      <span class="keyword">if</span> ((res=<a class="L" href="lstrlib.c.html#match">match</a>(ms, s, p)) == NULL)  <span class="comment">/* match failed? */</span>
+L0338        ms-&gt;level--;  <span class="comment">/* undo capture */</span>
+L0339      <span class="keyword">return</span> res;
+L0340    }
+L0341    
+L0342    
+L0343    <span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">char</span> *<a name="end_capture"/a><a class="L" href="lstrlib.c.ref.html#end_capture">end_capture</a> (<a class="L" href="lstrlib.c.html#MatchState">MatchState</a> *ms, <span class="keyword">const</span> <span class="keyword">char</span> *s,
+L0344                                      <span class="keyword">const</span> <span class="keyword">char</span> *p) {
+L0345      <span class="keyword">int</span> l = <a class="L" href="lstrlib.c.html#capture_to_close">capture_to_close</a>(ms);
+L0346      <span class="keyword">const</span> <span class="keyword">char</span> *res;
+L0347      ms-&gt;capture[l].len = s - ms-&gt;capture[l].init;  <span class="comment">/* close capture */</span>
+L0348      <span class="keyword">if</span> ((res = <a class="L" href="lstrlib.c.html#match">match</a>(ms, s, p)) == NULL)  <span class="comment">/* match failed? */</span>
+L0349        ms-&gt;capture[l].len = <a class="L" href="lstrlib.c.html#CAP_UNFINISHED">CAP_UNFINISHED</a>;  <span class="comment">/* undo capture */</span>
+L0350      <span class="keyword">return</span> res;
+L0351    }
+L0352    
+L0353    
+L0354    <span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">char</span> *<a name="match_capture"/a><a class="L" href="lstrlib.c.ref.html#match_capture">match_capture</a> (<a class="L" href="lstrlib.c.html#MatchState">MatchState</a> *ms, <span class="keyword">const</span> <span class="keyword">char</span> *s, <span class="keyword">int</span> l) {
+L0355      size_t len;
+L0356      l = <a class="L" href="lstrlib.c.html#check_capture">check_capture</a>(ms, l);
+L0357      len = ms-&gt;capture[l].len;
+L0358      <span class="keyword">if</span> ((size_t)(ms-&gt;src_end-s) &gt;= len &amp;&amp;
+L0359          memcmp(ms-&gt;capture[l].init, s, len) == <span class="number">0</span>)
+L0360        <span class="keyword">return</span> s+len;
+L0361      <span class="keyword">else</span> <span class="keyword">return</span> NULL;
+L0362    }
+L0363    
+L0364    
+L0365    <span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">char</span> *<a name="match"/a><a class="L" href="lstrlib.c.ref.html#match">match</a> (<a class="L" href="lstrlib.c.html#MatchState">MatchState</a> *ms, <span class="keyword">const</span> <span class="keyword">char</span> *s, <span class="keyword">const</span> <span class="keyword">char</span> *p) {
+L0366      init: <span class="comment">/* using goto's to optimize tail recursion */</span>
+L0367      <span class="keyword">switch</span> (*p) {
+L0368        <span class="keyword">case</span> '(': {  <span class="comment">/* start capture */</span>
+L0369          <span class="keyword">if</span> (*(p<span class="number">+1</span>) == ')')  <span class="comment">/* position capture? */</span>
+L0370            <span class="keyword">return</span> <a class="L" href="lstrlib.c.html#start_capture">start_capture</a>(ms, s, p<span class="number">+2</span>, <a class="L" href="lstrlib.c.html#CAP_POSITION">CAP_POSITION</a>);
+L0371          <span class="keyword">else</span>
+L0372            <span class="keyword">return</span> <a class="L" href="lstrlib.c.html#start_capture">start_capture</a>(ms, s, p<span class="number">+1</span>, <a class="L" href="lstrlib.c.html#CAP_UNFINISHED">CAP_UNFINISHED</a>);
+L0373        }
+L0374        <span class="keyword">case</span> ')': {  <span class="comment">/* end capture */</span>
+L0375          <span class="keyword">return</span> <a class="L" href="lstrlib.c.html#end_capture">end_capture</a>(ms, s, p<span class="number">+1</span>);
+L0376        }
+L0377        <span class="keyword">case</span> <a class="L" href="lstrlib.c.html#L_ESC">L_ESC</a>: {
+L0378          <span class="keyword">switch</span> (*(p<span class="number">+1</span>)) {
+L0379            <span class="keyword">case</span> 'b': {  <span class="comment">/* balanced string? */</span>
+L0380              s = <a class="L" href="lstrlib.c.html#matchbalance">matchbalance</a>(ms, s, p<span class="number">+2</span>);
+L0381              <span class="keyword">if</span> (s == NULL) <span class="keyword">return</span> NULL;
+L0382              p+=<span class="number">4</span>; <span class="keyword">goto</span> init;  <span class="comment">/* else return match(ms, s, p+4); */</span>
+L0383            }
+L0384            <span class="keyword">case</span> 'f': {  <span class="comment">/* frontier? */</span>
+L0385              <span class="keyword">const</span> <span class="keyword">char</span> *ep; <span class="keyword">char</span> previous;
+L0386              p += <span class="number">2</span>;
+L0387              <span class="keyword">if</span> (*p != '[')
+L0388                <a class="L" href="lauxlib.c.html#luaL_error">luaL_error</a>(ms-&gt;L, <span class="string">"missing "</span> <a class="L" href="luaconf.h.html#LUA_QL">LUA_QL</a>(<span class="string">"["</span>) <span class="string">" after "</span>
+L0389                                   <a class="L" href="luaconf.h.html#LUA_QL">LUA_QL</a>(<span class="string">"%%f"</span>) <span class="string">" in pattern"</span>);
+L0390              ep = <a class="L" href="lstrlib.c.html#classend">classend</a>(ms, p);  <span class="comment">/* points to what is next */</span>
+L0391              previous = (s == ms-&gt;src_init) ? '\0' : *(s<span class="number">-1</span>);
+L0392              <span class="keyword">if</span> (<a class="L" href="lstrlib.c.html#matchbracketclass">matchbracketclass</a>(<a class="L" href="lstrlib.c.html#uchar">uchar</a>(previous), p, ep<span class="number">-1</span>) ||
+L0393                 !<a class="L" href="lstrlib.c.html#matchbracketclass">matchbracketclass</a>(<a class="L" href="lstrlib.c.html#uchar">uchar</a>(*s), p, ep<span class="number">-1</span>)) <span class="keyword">return</span> NULL;
+L0394              p=ep; <span class="keyword">goto</span> init;  <span class="comment">/* else return match(ms, s, ep); */</span>
+L0395            }
+L0396            <span class="keyword">default</span>: {
+L0397              <span class="keyword">if</span> (isdigit(<a class="L" href="lstrlib.c.html#uchar">uchar</a>(*(p<span class="number">+1</span>)))) {  <span class="comment">/* capture results (%0-%9)? */</span>
+L0398                s = <a class="L" href="lstrlib.c.html#match_capture">match_capture</a>(ms, s, <a class="L" href="lstrlib.c.html#uchar">uchar</a>(*(p<span class="number">+1</span>)));
+L0399                <span class="keyword">if</span> (s == NULL) <span class="keyword">return</span> NULL;
+L0400                p+=<span class="number">2</span>; <span class="keyword">goto</span> init;  <span class="comment">/* else return match(ms, s, p+2) */</span>
+L0401              }
+L0402              <span class="keyword">goto</span> dflt;  <span class="comment">/* case default */</span>
+L0403            }
+L0404          }
+L0405        }
+L0406        <span class="keyword">case</span> '\0': {  <span class="comment">/* end of pattern */</span>
+L0407          <span class="keyword">return</span> s;  <span class="comment">/* match succeeded */</span>
+L0408        }
+L0409        <span class="keyword">case</span> '$': {
+L0410          <span class="keyword">if</span> (*(p<span class="number">+1</span>) == '\0')  <span class="comment">/* is the `$' the last char in pattern? */</span>
+L0411            <span class="keyword">return</span> (s == ms-&gt;src_end) ? s : NULL;  <span class="comment">/* check end of string */</span>
+L0412          <span class="keyword">else</span> <span class="keyword">goto</span> dflt;
+L0413        }
+L0414        <span class="keyword">default</span>: dflt: {  <span class="comment">/* it is a pattern item */</span>
+L0415          <span class="keyword">const</span> <span class="keyword">char</span> *ep = <a class="L" href="lstrlib.c.html#classend">classend</a>(ms, p);  <span class="comment">/* points to what is next */</span>
+L0416          <span class="keyword">int</span> m = s&lt;ms-&gt;src_end &amp;&amp; <a class="L" href="lstrlib.c.html#singlematch">singlematch</a>(<a class="L" href="lstrlib.c.html#uchar">uchar</a>(*s), p, ep);
+L0417          <span class="keyword">switch</span> (*ep) {
+L0418            <span class="keyword">case</span> '?': {  <span class="comment">/* optional */</span>
+L0419              <span class="keyword">const</span> <span class="keyword">char</span> *res;
+L0420              <span class="keyword">if</span> (m &amp;&amp; ((res=<a class="L" href="lstrlib.c.html#match">match</a>(ms, s<span class="number">+1</span>, ep<span class="number">+1</span>)) != NULL))
+L0421                <span class="keyword">return</span> res;
+L0422              p=ep<span class="number">+1</span>; <span class="keyword">goto</span> init;  <span class="comment">/* else return match(ms, s, ep+1); */</span>
+L0423            }
+L0424            <span class="keyword">case</span> '*': {  <span class="comment">/* 0 or more repetitions */</span>
+L0425              <span class="keyword">return</span> <a class="L" href="lstrlib.c.html#max_expand">max_expand</a>(ms, s, p, ep);
+L0426            }
+L0427            <span class="keyword">case</span> '+': {  <span class="comment">/* 1 or more repetitions */</span>
+L0428              <span class="keyword">return</span> (m ? <a class="L" href="lstrlib.c.html#max_expand">max_expand</a>(ms, s<span class="number">+1</span>, p, ep) : NULL);
+L0429            }
+L0430            <span class="keyword">case</span> '-': {  <span class="comment">/* 0 or more repetitions (minimum) */</span>
+L0431              <span class="keyword">return</span> <a class="L" href="lstrlib.c.html#min_expand">min_expand</a>(ms, s, p, ep);
+L0432            }
+L0433            <span class="keyword">default</span>: {
+L0434              <span class="keyword">if</span> (!m) <span class="keyword">return</span> NULL;
+L0435              s++; p=ep; <span class="keyword">goto</span> init;  <span class="comment">/* else return match(ms, s+1, ep); */</span>
+L0436            }
+L0437          }
+L0438        }
+L0439      }
+L0440    }
+L0441    
+L0442    
+L0443    
+L0444    <span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">char</span> *<a name="lmemfind"/a><a class="L" href="lstrlib.c.ref.html#lmemfind">lmemfind</a> (<span class="keyword">const</span> <span class="keyword">char</span> *s1, size_t l1,
+L0445                                   <span class="keyword">const</span> <span class="keyword">char</span> *s2, size_t l2) {
+L0446      <span class="keyword">if</span> (l2 == <span class="number">0</span>) <span class="keyword">return</span> s1;  <span class="comment">/* empty strings are everywhere */</span>
+L0447      <span class="keyword">else</span> <span class="keyword">if</span> (l2 &gt; l1) <span class="keyword">return</span> NULL;  <span class="comment">/* avoids a negative `l1' */</span>
+L0448      <span class="keyword">else</span> {
+L0449        <span class="keyword">const</span> <span class="keyword">char</span> *init;  <span class="comment">/* to search for a `*s2' inside `s1' */</span>
+L0450        l2--;  <span class="comment">/* 1st char will be checked by `memchr' */</span>
+L0451        l1 = l1-l2;  <span class="comment">/* `s2' cannot be found after that */</span>
+L0452        <span class="keyword">while</span> (l1 &gt; <span class="number">0</span> &amp;&amp; (init = (<span class="keyword">const</span> <span class="keyword">char</span> *)memchr(s1, *s2, l1)) != NULL) {
+L0453          init++;   <span class="comment">/* 1st char is already checked */</span>
+L0454          <span class="keyword">if</span> (memcmp(init, s2<span class="number">+1</span>, l2) == <span class="number">0</span>)
+L0455            <span class="keyword">return</span> init<span class="number">-1</span>;
+L0456          <span class="keyword">else</span> {  <span class="comment">/* correct `l1' and `s1' to try again */</span>
+L0457            l1 -= init-s1;
+L0458            s1 = init;
+L0459          }
+L0460        }
+L0461        <span class="keyword">return</span> NULL;  <span class="comment">/* not found */</span>
+L0462      }
+L0463    }
+L0464    
+L0465    
+L0466    <span class="keyword">static</span> <span class="keyword">void</span> <a name="push_onecapture"/a><a class="L" href="lstrlib.c.ref.html#push_onecapture">push_onecapture</a> (<a class="L" href="lstrlib.c.html#MatchState">MatchState</a> *ms, <span class="keyword">int</span> i, <span class="keyword">const</span> <span class="keyword">char</span> *s,
+L0467                                                        <span class="keyword">const</span> <span class="keyword">char</span> *e) {
+L0468      <span class="keyword">if</span> (i &gt;= ms-&gt;level) {
+L0469        <span class="keyword">if</span> (i == <span class="number">0</span>)  <span class="comment">/* ms-&gt;level == 0, too */</span>
+L0470          <a class="L" href="lapi.c.html#lua_pushlstring">lua_pushlstring</a>(ms-&gt;L, s, e - s);  <span class="comment">/* add whole match */</span>
+L0471        <span class="keyword">else</span>
+L0472          <a class="L" href="lauxlib.c.html#luaL_error">luaL_error</a>(ms-&gt;L, <span class="string">"invalid capture index"</span>);
+L0473      }
+L0474      <span class="keyword">else</span> {
+L0475        ptrdiff_t l = ms-&gt;capture[i].len;
+L0476        <span class="keyword">if</span> (l == <a class="L" href="lstrlib.c.html#CAP_UNFINISHED">CAP_UNFINISHED</a>) <a class="L" href="lauxlib.c.html#luaL_error">luaL_error</a>(ms-&gt;L, <span class="string">"unfinished capture"</span>);
+L0477        <span class="keyword">if</span> (l == <a class="L" href="lstrlib.c.html#CAP_POSITION">CAP_POSITION</a>)
+L0478          <a class="L" href="lapi.c.html#lua_pushinteger">lua_pushinteger</a>(ms-&gt;L, ms-&gt;capture[i].init - ms-&gt;src_init + <span class="number">1</span>);
+L0479        <span class="keyword">else</span>
+L0480          <a class="L" href="lapi.c.html#lua_pushlstring">lua_pushlstring</a>(ms-&gt;L, ms-&gt;capture[i].init, l);
+L0481      }
+L0482    }
+L0483    
+L0484    
+L0485    <span class="keyword">static</span> <span class="keyword">int</span> <a name="push_captures"/a><a class="L" href="lstrlib.c.ref.html#push_captures">push_captures</a> (<a class="L" href="lstrlib.c.html#MatchState">MatchState</a> *ms, <span class="keyword">const</span> <span class="keyword">char</span> *s, <span class="keyword">const</span> <span class="keyword">char</span> *e) {
+L0486      <span class="keyword">int</span> i;
+L0487      <span class="keyword">int</span> nlevels = (ms-&gt;level == <span class="number">0</span> &amp;&amp; s) ? <span class="number">1</span> : ms-&gt;level;
+L0488      <a class="L" href="lauxlib.c.html#luaL_checkstack">luaL_checkstack</a>(ms-&gt;L, nlevels, <span class="string">"too many captures"</span>);
+L0489      <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; nlevels; i++)
+L0490        <a class="L" href="lstrlib.c.html#push_onecapture">push_onecapture</a>(ms, i, s, e);
+L0491      <span class="keyword">return</span> nlevels;  <span class="comment">/* number of strings pushed */</span>
+L0492    }
+L0493    
+L0494    
+L0495    <span class="keyword">static</span> <span class="keyword">int</span> <a name="str_find_aux"/a><a class="L" href="lstrlib.c.ref.html#str_find_aux">str_find_aux</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> find) {
+L0496      size_t l1, l2;
+L0497      <span class="keyword">const</span> <span class="keyword">char</span> *s = <a class="L" href="lauxlib.c.html#luaL_checklstring">luaL_checklstring</a>(L, <span class="number">1</span>, &amp;l1);
+L0498      <span class="keyword">const</span> <span class="keyword">char</span> *p = <a class="L" href="lauxlib.c.html#luaL_checklstring">luaL_checklstring</a>(L, <span class="number">2</span>, &amp;l2);
+L0499      ptrdiff_t init = <a class="L" href="lstrlib.c.html#posrelat">posrelat</a>(<a class="L" href="lauxlib.c.html#luaL_optinteger">luaL_optinteger</a>(L, <span class="number">3</span>, <span class="number">1</span>), l1) - <span class="number">1</span>;
+L0500      <span class="keyword">if</span> (init &lt; <span class="number">0</span>) init = <span class="number">0</span>;
+L0501      <span class="keyword">else</span> <span class="keyword">if</span> ((size_t)(init) &gt; l1) init = (ptrdiff_t)l1;
+L0502      <span class="keyword">if</span> (find &amp;&amp; (<a class="L" href="lapi.c.html#lua_toboolean">lua_toboolean</a>(L, <span class="number">4</span>) ||  <span class="comment">/* explicit request? */</span>
+L0503          strpbrk(p, <a class="L" href="lstrlib.c.html#SPECIALS">SPECIALS</a>) == NULL)) {  <span class="comment">/* or no special characters? */</span>
+L0504        <span class="comment">/* do a plain search */</span>
+L0505        <span class="keyword">const</span> <span class="keyword">char</span> *s2 = <a class="L" href="lstrlib.c.html#lmemfind">lmemfind</a>(s+init, l1-init, p, l2);
+L0506        <span class="keyword">if</span> (s2) {
+L0507          <a class="L" href="lapi.c.html#lua_pushinteger">lua_pushinteger</a>(L, s2-s<span class="number">+1</span>);
+L0508          <a class="L" href="lapi.c.html#lua_pushinteger">lua_pushinteger</a>(L, s2-s+l2);
+L0509          <span class="keyword">return</span> <span class="number">2</span>;
+L0510        }
+L0511      }
+L0512      <span class="keyword">else</span> {
+L0513        <a class="L" href="lstrlib.c.html#MatchState">MatchState</a> ms;
+L0514        <span class="keyword">int</span> anchor = (*p == '^') ? (p++, <span class="number">1</span>) : <span class="number">0</span>;
+L0515        <span class="keyword">const</span> <span class="keyword">char</span> *s1=s+init;
+L0516        ms.L = L;
+L0517        ms.src_init = s;
+L0518        ms.src_end = s+l1;
+L0519        <span class="keyword">do</span> {
+L0520          <span class="keyword">const</span> <span class="keyword">char</span> *res;
+L0521          ms.level = <span class="number">0</span>;
+L0522          <span class="keyword">if</span> ((res=<a class="L" href="lstrlib.c.html#match">match</a>(&amp;ms, s1, p)) != NULL) {
+L0523            <span class="keyword">if</span> (find) {
+L0524              <a class="L" href="lapi.c.html#lua_pushinteger">lua_pushinteger</a>(L, s1-s<span class="number">+1</span>);  <span class="comment">/* start */</span>
+L0525              <a class="L" href="lapi.c.html#lua_pushinteger">lua_pushinteger</a>(L, res-s);   <span class="comment">/* end */</span>
+L0526              <span class="keyword">return</span> <a class="L" href="lstrlib.c.html#push_captures">push_captures</a>(&amp;ms, NULL, <span class="number">0</span>) + <span class="number">2</span>;
+L0527            }
+L0528            <span class="keyword">else</span>
+L0529              <span class="keyword">return</span> <a class="L" href="lstrlib.c.html#push_captures">push_captures</a>(&amp;ms, s1, res);
+L0530          }
+L0531        } <span class="keyword">while</span> (s1++ &lt; ms.src_end &amp;&amp; !anchor);
+L0532      }
+L0533      <a class="L" href="lapi.c.html#lua_pushnil">lua_pushnil</a>(L);  <span class="comment">/* not found */</span>
+L0534      <span class="keyword">return</span> <span class="number">1</span>;
+L0535    }
+L0536    
+L0537    
+L0538    <span class="keyword">static</span> <span class="keyword">int</span> <a name="str_find"/a><a class="L" href="lstrlib.c.ref.html#str_find">str_find</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0539      <span class="keyword">return</span> <a class="L" href="lstrlib.c.html#str_find_aux">str_find_aux</a>(L, <span class="number">1</span>);
+L0540    }
+L0541    
+L0542    
+L0543    <span class="keyword">static</span> <span class="keyword">int</span> <a name="str_match"/a><a class="L" href="lstrlib.c.ref.html#str_match">str_match</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0544      <span class="keyword">return</span> <a class="L" href="lstrlib.c.html#str_find_aux">str_find_aux</a>(L, <span class="number">0</span>);
+L0545    }
+L0546    
+L0547    
+L0548    <span class="keyword">static</span> <span class="keyword">int</span> <a name="gmatch_aux"/a><a class="L" href="lstrlib.c.ref.html#gmatch_aux">gmatch_aux</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0549      <a class="L" href="lstrlib.c.html#MatchState">MatchState</a> ms;
+L0550      size_t ls;
+L0551      <span class="keyword">const</span> <span class="keyword">char</span> *s = <a class="L" href="lapi.c.html#lua_tolstring">lua_tolstring</a>(L, <a class="L" href="lua.h.html#lua_upvalueindex">lua_upvalueindex</a>(<span class="number">1</span>), &amp;ls);
+L0552      <span class="keyword">const</span> <span class="keyword">char</span> *p = <a class="L" href="lua.h.html#lua_tostring">lua_tostring</a>(L, <a class="L" href="lua.h.html#lua_upvalueindex">lua_upvalueindex</a>(<span class="number">2</span>));
+L0553      <span class="keyword">const</span> <span class="keyword">char</span> *src;
+L0554      ms.L = L;
+L0555      ms.src_init = s;
+L0556      ms.src_end = s+ls;
+L0557      <span class="keyword">for</span> (src = s + (size_t)<a class="L" href="lapi.c.html#lua_tointeger">lua_tointeger</a>(L, <a class="L" href="lua.h.html#lua_upvalueindex">lua_upvalueindex</a>(<span class="number">3</span>));
+L0558           src &lt;= ms.src_end;
+L0559           src++) {
+L0560        <span class="keyword">const</span> <span class="keyword">char</span> *e;
+L0561        ms.level = <span class="number">0</span>;
+L0562        <span class="keyword">if</span> ((e = <a class="L" href="lstrlib.c.html#match">match</a>(&amp;ms, src, p)) != NULL) {
+L0563          <a class="L" href="lua.h.html#lua_Integer">lua_Integer</a> newstart = e-s;
+L0564          <span class="keyword">if</span> (e == src) newstart++;  <span class="comment">/* empty match? go at least one position */</span>
+L0565          <a class="L" href="lapi.c.html#lua_pushinteger">lua_pushinteger</a>(L, newstart);
+L0566          <a class="L" href="lapi.c.html#lua_replace">lua_replace</a>(L, <a class="L" href="lua.h.html#lua_upvalueindex">lua_upvalueindex</a>(<span class="number">3</span>));
+L0567          <span class="keyword">return</span> <a class="L" href="lstrlib.c.html#push_captures">push_captures</a>(&amp;ms, src, e);
+L0568        }
+L0569      }
+L0570      <span class="keyword">return</span> <span class="number">0</span>;  <span class="comment">/* not found */</span>
+L0571    }
+L0572    
+L0573    
+L0574    <span class="keyword">static</span> <span class="keyword">int</span> <a name="gmatch"/a><a class="L" href="lstrlib.c.ref.html#gmatch">gmatch</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0575      <a class="L" href="lauxlib.h.html#luaL_checkstring">luaL_checkstring</a>(L, <span class="number">1</span>);
+L0576      <a class="L" href="lauxlib.h.html#luaL_checkstring">luaL_checkstring</a>(L, <span class="number">2</span>);
+L0577      <a class="L" href="lapi.c.html#lua_settop">lua_settop</a>(L, <span class="number">2</span>);
+L0578      <a class="L" href="lapi.c.html#lua_pushinteger">lua_pushinteger</a>(L, <span class="number">0</span>);
+L0579      <a class="L" href="lapi.c.html#lua_pushcclosure">lua_pushcclosure</a>(L, <a class="L" href="lstrlib.c.html#gmatch_aux">gmatch_aux</a>, <span class="number">3</span>);
+L0580      <span class="keyword">return</span> <span class="number">1</span>;
+L0581    }
+L0582    
+L0583    
+L0584    <span class="keyword">static</span> <span class="keyword">int</span> <a name="gfind_nodef"/a><a class="L" href="lstrlib.c.ref.html#gfind_nodef">gfind_nodef</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0585      <span class="keyword">return</span> <a class="L" href="lauxlib.c.html#luaL_error">luaL_error</a>(L, <a class="L" href="luaconf.h.html#LUA_QL">LUA_QL</a>(<span class="string">"string.gfind"</span>) <span class="string">" was renamed to "</span>
+L0586                           <a class="L" href="luaconf.h.html#LUA_QL">LUA_QL</a>(<span class="string">"string.gmatch"</span>));
+L0587    }
+L0588    
+L0589    
+L0590    <span class="keyword">static</span> <span class="keyword">void</span> <a name="add_s"/a><a class="L" href="lstrlib.c.ref.html#add_s">add_s</a> (<a class="L" href="lstrlib.c.html#MatchState">MatchState</a> *ms, <a class="L" href="lauxlib.h.html#luaL_Buffer">luaL_Buffer</a> *b, <span class="keyword">const</span> <span class="keyword">char</span> *s,
+L0591                                                       <span class="keyword">const</span> <span class="keyword">char</span> *e) {
+L0592      size_t l, i;
+L0593      <span class="keyword">const</span> <span class="keyword">char</span> *news = <a class="L" href="lapi.c.html#lua_tolstring">lua_tolstring</a>(ms-&gt;L, <span class="number">3</span>, &amp;l);
+L0594      <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; l; i++) {
+L0595        <span class="keyword">if</span> (news[i] != <a class="L" href="lstrlib.c.html#L_ESC">L_ESC</a>)
+L0596          <a class="L" href="lauxlib.h.html#luaL_addchar">luaL_addchar</a>(b, news[i]);
+L0597        <span class="keyword">else</span> {
+L0598          i++;  <span class="comment">/* skip ESC */</span>
+L0599          <span class="keyword">if</span> (!isdigit(<a class="L" href="lstrlib.c.html#uchar">uchar</a>(news[i])))
+L0600            <a class="L" href="lauxlib.h.html#luaL_addchar">luaL_addchar</a>(b, news[i]);
+L0601          <span class="keyword">else</span> <span class="keyword">if</span> (news[i] == '0')
+L0602              <a class="L" href="lauxlib.c.html#luaL_addlstring">luaL_addlstring</a>(b, s, e - s);
+L0603          <span class="keyword">else</span> {
+L0604            <a class="L" href="lstrlib.c.html#push_onecapture">push_onecapture</a>(ms, news[i] - '1', s, e);
+L0605            <a class="L" href="lauxlib.c.html#luaL_addvalue">luaL_addvalue</a>(b);  <span class="comment">/* add capture to accumulated result */</span>
+L0606          }
+L0607        }
+L0608      }
+L0609    }
+L0610    
+L0611    
+L0612    <span class="keyword">static</span> <span class="keyword">void</span> <a name="add_value"/a><a class="L" href="lstrlib.c.ref.html#add_value">add_value</a> (<a class="L" href="lstrlib.c.html#MatchState">MatchState</a> *ms, <a class="L" href="lauxlib.h.html#luaL_Buffer">luaL_Buffer</a> *b, <span class="keyword">const</span> <span class="keyword">char</span> *s,
+L0613                                                           <span class="keyword">const</span> <span class="keyword">char</span> *e) {
+L0614      <a class="L" href="lstate.h.html#lua_State">lua_State</a> *L = ms-&gt;L;
+L0615      <span class="keyword">switch</span> (<a class="L" href="lapi.c.html#lua_type">lua_type</a>(L, <span class="number">3</span>)) {
+L0616        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TNUMBER">LUA_TNUMBER</a>:
+L0617        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TSTRING">LUA_TSTRING</a>: {
+L0618          <a class="L" href="lstrlib.c.html#add_s">add_s</a>(ms, b, s, e);
+L0619          <span class="keyword">return</span>;
+L0620        }
+L0621        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TFUNCTION">LUA_TFUNCTION</a>: {
+L0622          <span class="keyword">int</span> n;
+L0623          <a class="L" href="lapi.c.html#lua_pushvalue">lua_pushvalue</a>(L, <span class="number">3</span>);
+L0624          n = <a class="L" href="lstrlib.c.html#push_captures">push_captures</a>(ms, s, e);
+L0625          <a class="L" href="lapi.c.html#lua_call">lua_call</a>(L, n, <span class="number">1</span>);
+L0626          <span class="keyword">break</span>;
+L0627        }
+L0628        <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TTABLE">LUA_TTABLE</a>: {
+L0629          <a class="L" href="lstrlib.c.html#push_onecapture">push_onecapture</a>(ms, <span class="number">0</span>, s, e);
+L0630          <a class="L" href="lapi.c.html#lua_gettable">lua_gettable</a>(L, <span class="number">3</span>);
+L0631          <span class="keyword">break</span>;
+L0632        }
+L0633      }
+L0634      <span class="keyword">if</span> (!<a class="L" href="lapi.c.html#lua_toboolean">lua_toboolean</a>(L, <span class="number">-1</span>)) {  <span class="comment">/* nil or false? */</span>
+L0635        <a class="L" href="lua.h.html#lua_pop">lua_pop</a>(L, <span class="number">1</span>);
+L0636        <a class="L" href="lapi.c.html#lua_pushlstring">lua_pushlstring</a>(L, s, e - s);  <span class="comment">/* keep original text */</span>
+L0637      }
+L0638      <span class="keyword">else</span> <span class="keyword">if</span> (!<a class="L" href="lapi.c.html#lua_isstring">lua_isstring</a>(L, <span class="number">-1</span>))
+L0639        <a class="L" href="lauxlib.c.html#luaL_error">luaL_error</a>(L, <span class="string">"invalid replacement value (a %s)"</span>, <a class="L" href="lauxlib.h.html#luaL_typename">luaL_typename</a>(L, <span class="number">-1</span>)); 
+L0640      <a class="L" href="lauxlib.c.html#luaL_addvalue">luaL_addvalue</a>(b);  <span class="comment">/* add result to accumulator */</span>
+L0641    }
+L0642    
+L0643    
+L0644    <span class="keyword">static</span> <span class="keyword">int</span> <a name="str_gsub"/a><a class="L" href="lstrlib.c.ref.html#str_gsub">str_gsub</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0645      size_t srcl;
+L0646      <span class="keyword">const</span> <span class="keyword">char</span> *src = <a class="L" href="lauxlib.c.html#luaL_checklstring">luaL_checklstring</a>(L, <span class="number">1</span>, &amp;srcl);
+L0647      <span class="keyword">const</span> <span class="keyword">char</span> *p = <a class="L" href="lauxlib.h.html#luaL_checkstring">luaL_checkstring</a>(L, <span class="number">2</span>);
+L0648      <span class="keyword">int</span>  tr = <a class="L" href="lapi.c.html#lua_type">lua_type</a>(L, <span class="number">3</span>);
+L0649      <span class="keyword">int</span> max_s = <a class="L" href="lauxlib.h.html#luaL_optint">luaL_optint</a>(L, <span class="number">4</span>, srcl<span class="number">+1</span>);
+L0650      <span class="keyword">int</span> anchor = (*p == '^') ? (p++, <span class="number">1</span>) : <span class="number">0</span>;
+L0651      <span class="keyword">int</span> n = <span class="number">0</span>;
+L0652      <a class="L" href="lstrlib.c.html#MatchState">MatchState</a> ms;
+L0653      <a class="L" href="lauxlib.h.html#luaL_Buffer">luaL_Buffer</a> b;
+L0654      <a class="L" href="lauxlib.h.html#luaL_argcheck">luaL_argcheck</a>(L, tr == <a class="L" href="lua.h.html#LUA_TNUMBER">LUA_TNUMBER</a> || tr == <a class="L" href="lua.h.html#LUA_TSTRING">LUA_TSTRING</a> ||
+L0655                       tr == <a class="L" href="lua.h.html#LUA_TFUNCTION">LUA_TFUNCTION</a> || tr == <a class="L" href="lua.h.html#LUA_TTABLE">LUA_TTABLE</a>, <span class="number">3</span>,
+L0656                          <span class="string">"string/function/table expected"</span>);
+L0657      <a class="L" href="lauxlib.c.html#luaL_buffinit">luaL_buffinit</a>(L, &amp;b);
+L0658      ms.L = L;
+L0659      ms.src_init = src;
+L0660      ms.src_end = src+srcl;
+L0661      <span class="keyword">while</span> (n &lt; max_s) {
+L0662        <span class="keyword">const</span> <span class="keyword">char</span> *e;
+L0663        ms.level = <span class="number">0</span>;
+L0664        e = <a class="L" href="lstrlib.c.html#match">match</a>(&amp;ms, src, p);
+L0665        <span class="keyword">if</span> (e) {
+L0666          n++;
+L0667          <a class="L" href="lstrlib.c.html#add_value">add_value</a>(&amp;ms, &amp;b, src, e);
+L0668        }
+L0669        <span class="keyword">if</span> (e &amp;&amp; e&gt;src) <span class="comment">/* non empty match? */</span>
+L0670          src = e;  <span class="comment">/* skip it */</span>
+L0671        <span class="keyword">else</span> <span class="keyword">if</span> (src &lt; ms.src_end)
+L0672          <a class="L" href="lauxlib.h.html#luaL_addchar">luaL_addchar</a>(&amp;b, *src++);
+L0673        <span class="keyword">else</span> <span class="keyword">break</span>;
+L0674        <span class="keyword">if</span> (anchor) <span class="keyword">break</span>;
+L0675      }
+L0676      <a class="L" href="lauxlib.c.html#luaL_addlstring">luaL_addlstring</a>(&amp;b, src, ms.src_end-src);
+L0677      <a class="L" href="lauxlib.c.html#luaL_pushresult">luaL_pushresult</a>(&amp;b);
+L0678      <a class="L" href="lapi.c.html#lua_pushinteger">lua_pushinteger</a>(L, n);  <span class="comment">/* number of substitutions */</span>
+L0679      <span class="keyword">return</span> <span class="number">2</span>;
+L0680    }
+L0681    
+L0682    <span class="comment">/* }====================================================== */</span>
+L0683    
+L0684    
+L0685    <span class="comment">/* maximum size of each formatted item (&gt; len(format('%99.99f', -1e308))) */</span>
+L0686    <a name="MAX_ITEM"/a><span class="prepro">#define MAX_ITEM	512
+</span>L0687    <span class="comment">/* valid flags in a format specification */</span>
+L0688    <a name="FLAGS"/a><span class="prepro">#define FLAGS	"-+ #0"
+</span>L0689    <span class="comment">/*
+L0690    ** maximum size of each format specification (such as '%-099.99d')
+L0691    ** (+10 accounts for %99.99x plus margin of error)
+L0692    */</span>
+L0693    <a name="MAX_FORMAT"/a><span class="prepro">#define MAX_FORMAT	(sizeof(FLAGS) + sizeof(LUA_INTFRMLEN) + 10)
+</span>L0694    
+L0695    
+L0696    <span class="keyword">static</span> <span class="keyword">void</span> <a name="addquoted"/a><a class="L" href="lstrlib.c.ref.html#addquoted">addquoted</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lauxlib.h.html#luaL_Buffer">luaL_Buffer</a> *b, <span class="keyword">int</span> arg) {
+L0697      size_t l;
+L0698      <span class="keyword">const</span> <span class="keyword">char</span> *s = <a class="L" href="lauxlib.c.html#luaL_checklstring">luaL_checklstring</a>(L, arg, &amp;l);
+L0699      <a class="L" href="lauxlib.h.html#luaL_addchar">luaL_addchar</a>(b, <span class="string">'"</span>');
+L0700      while (l--) {
+L0701        switch (*s) {
+L0702          case '<span class="string">"'</span>: <span class="keyword">case</span> '\\': case '\n': {
+L0703            luaL_addchar(b, '\\');
+L0704            luaL_addchar(b, *s);
+L0705            break;
+L0706          }
+L0707          case '\r': {
+L0708            luaL_addlstring(b, "\\r", 2);
+L0709            break;
+L0710          }
+L0711          case '\<span class="number">0</span>': {
+L0712            luaL_addlstring(b, "\\000", 4);
+L0713            break;
+L0714          }
+L0715          default: {
+L0716            luaL_addchar(b, *s);
+L0717            break;
+L0718          }
+L0719        }
+L0720        s++;
+L0721      }
+L0722      luaL_addchar(b, '<span class="string">"'</span>);
+L0723    }
+L0724    
+L0725    <span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">char</span> *<a name="scanformat"/a><a class="L" href="lstrlib.c.ref.html#scanformat">scanformat</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <span class="keyword">char</span> *strfrmt, <span class="keyword">char</span> *form) {
+L0726      <span class="keyword">const</span> <span class="keyword">char</span> *p = strfrmt;
+L0727      <span class="keyword">while</span> (*p != '\0' &amp;&amp; strchr(<a class="L" href="lstrlib.c.html#FLAGS">FLAGS</a>, *p) != NULL) p++;  <span class="comment">/* skip flags */</span>
+L0728      <span class="keyword">if</span> ((size_t)(p - strfrmt) &gt;= <span class="keyword">sizeof</span>(<a class="L" href="lstrlib.c.html#FLAGS">FLAGS</a>))
+L0729        <a class="L" href="lauxlib.c.html#luaL_error">luaL_error</a>(L, <span class="string">"invalid format (repeated flags)"</span>);
+L0730      <span class="keyword">if</span> (isdigit(<a class="L" href="lstrlib.c.html#uchar">uchar</a>(*p))) p++;  <span class="comment">/* skip width */</span>
+L0731      <span class="keyword">if</span> (isdigit(<a class="L" href="lstrlib.c.html#uchar">uchar</a>(*p))) p++;  <span class="comment">/* (2 digits at most) */</span>
+L0732      <span class="keyword">if</span> (*p == '.') {
+L0733        p++;
+L0734        <span class="keyword">if</span> (isdigit(<a class="L" href="lstrlib.c.html#uchar">uchar</a>(*p))) p++;  <span class="comment">/* skip precision */</span>
+L0735        <span class="keyword">if</span> (isdigit(<a class="L" href="lstrlib.c.html#uchar">uchar</a>(*p))) p++;  <span class="comment">/* (2 digits at most) */</span>
+L0736      }
+L0737      <span class="keyword">if</span> (isdigit(<a class="L" href="lstrlib.c.html#uchar">uchar</a>(*p)))
+L0738        <a class="L" href="lauxlib.c.html#luaL_error">luaL_error</a>(L, <span class="string">"invalid format (width or precision too long)"</span>);
+L0739      *(form++) = '%';
+L0740      strncpy(form, strfrmt, p - strfrmt + <span class="number">1</span>);
+L0741      form += p - strfrmt + <span class="number">1</span>;
+L0742      *form = '\0';
+L0743      <span class="keyword">return</span> p;
+L0744    }
+L0745    
+L0746    
+L0747    <span class="keyword">static</span> <span class="keyword">void</span> <a name="addintlen"/a><a class="L" href="lstrlib.c.ref.html#addintlen">addintlen</a> (<span class="keyword">char</span> *form) {
+L0748      size_t l = strlen(form);
+L0749      <span class="keyword">char</span> spec = form[l - <span class="number">1</span>];
+L0750      strcpy(form + l - <span class="number">1</span>, <a class="L" href="luaconf.h.html#LUA_INTFRMLEN">LUA_INTFRMLEN</a>);
+L0751      form[l + <span class="keyword">sizeof</span>(<a class="L" href="luaconf.h.html#LUA_INTFRMLEN">LUA_INTFRMLEN</a>) - <span class="number">2</span>] = spec;
+L0752      form[l + <span class="keyword">sizeof</span>(<a class="L" href="luaconf.h.html#LUA_INTFRMLEN">LUA_INTFRMLEN</a>) - <span class="number">1</span>] = '\0';
+L0753    }
+L0754    
+L0755    
+L0756    <span class="keyword">static</span> <span class="keyword">int</span> <a name="str_format"/a><a class="L" href="lstrlib.c.ref.html#str_format">str_format</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0757      <span class="keyword">int</span> arg = <span class="number">1</span>;
+L0758      size_t sfl;
+L0759      <span class="keyword">const</span> <span class="keyword">char</span> *strfrmt = <a class="L" href="lauxlib.c.html#luaL_checklstring">luaL_checklstring</a>(L, arg, &amp;sfl);
+L0760      <span class="keyword">const</span> <span class="keyword">char</span> *strfrmt_end = strfrmt+sfl;
+L0761      <a class="L" href="lauxlib.h.html#luaL_Buffer">luaL_Buffer</a> b;
+L0762      <a class="L" href="lauxlib.c.html#luaL_buffinit">luaL_buffinit</a>(L, &amp;b);
+L0763      <span class="keyword">while</span> (strfrmt &lt; strfrmt_end) {
+L0764        <span class="keyword">if</span> (*strfrmt != <a class="L" href="lstrlib.c.html#L_ESC">L_ESC</a>)
+L0765          <a class="L" href="lauxlib.h.html#luaL_addchar">luaL_addchar</a>(&amp;b, *strfrmt++);
+L0766        <span class="keyword">else</span> <span class="keyword">if</span> (*++strfrmt == <a class="L" href="lstrlib.c.html#L_ESC">L_ESC</a>)
+L0767          <a class="L" href="lauxlib.h.html#luaL_addchar">luaL_addchar</a>(&amp;b, *strfrmt++);  <span class="comment">/* %% */</span>
+L0768        <span class="keyword">else</span> { <span class="comment">/* format item */</span>
+L0769          <span class="keyword">char</span> form[<a class="L" href="lstrlib.c.html#MAX_FORMAT">MAX_FORMAT</a>];  <span class="comment">/* to store the format (`%...') */</span>
+L0770          <span class="keyword">char</span> buff[<a class="L" href="lstrlib.c.html#MAX_ITEM">MAX_ITEM</a>];  <span class="comment">/* to store the formatted item */</span>
+L0771          arg++;
+L0772          strfrmt = <a class="L" href="lstrlib.c.html#scanformat">scanformat</a>(L, strfrmt, form);
+L0773          <span class="keyword">switch</span> (*strfrmt++) {
+L0774            <span class="keyword">case</span> 'c': {
+L0775              sprintf(buff, form, (<span class="keyword">int</span>)<a class="L" href="lauxlib.c.html#luaL_checknumber">luaL_checknumber</a>(L, arg));
+L0776              <span class="keyword">break</span>;
+L0777            }
+L0778            <span class="keyword">case</span> 'd':  <span class="keyword">case</span> 'i': {
+L0779              <a class="L" href="lstrlib.c.html#addintlen">addintlen</a>(form);
+L0780              sprintf(buff, form, (<a class="L" href="luaconf.h.html#LUA_INTFRM_T">LUA_INTFRM_T</a>)<a class="L" href="lauxlib.c.html#luaL_checknumber">luaL_checknumber</a>(L, arg));
+L0781              <span class="keyword">break</span>;
+L0782            }
+L0783            <span class="keyword">case</span> 'o':  <span class="keyword">case</span> 'u':  <span class="keyword">case</span> 'x':  <span class="keyword">case</span> 'X': {
+L0784              <a class="L" href="lstrlib.c.html#addintlen">addintlen</a>(form);
+L0785              sprintf(buff, form, (unsigned <a class="L" href="luaconf.h.html#LUA_INTFRM_T">LUA_INTFRM_T</a>)<a class="L" href="lauxlib.c.html#luaL_checknumber">luaL_checknumber</a>(L, arg));
+L0786              <span class="keyword">break</span>;
+L0787            }
+L0788            <span class="keyword">case</span> 'e':  <span class="keyword">case</span> 'E': <span class="keyword">case</span> 'f':
+L0789            <span class="keyword">case</span> 'g': <span class="keyword">case</span> 'G': {
+L0790              sprintf(buff, form, (<span class="keyword">double</span>)<a class="L" href="lauxlib.c.html#luaL_checknumber">luaL_checknumber</a>(L, arg));
+L0791              <span class="keyword">break</span>;
+L0792            }
+L0793            <span class="keyword">case</span> 'q': {
+L0794              <a class="L" href="lstrlib.c.html#addquoted">addquoted</a>(L, &amp;b, arg);
+L0795              <span class="keyword">continue</span>;  <span class="comment">/* skip the 'addsize' at the end */</span>
+L0796            }
+L0797            <span class="keyword">case</span> 's': {
+L0798              size_t l;
+L0799              <span class="keyword">const</span> <span class="keyword">char</span> *s = <a class="L" href="lauxlib.c.html#luaL_checklstring">luaL_checklstring</a>(L, arg, &amp;l);
+L0800              <span class="keyword">if</span> (!strchr(form, '.') &amp;&amp; l &gt;= <span class="number">100</span>) {
+L0801                <span class="comment">/* no precision and string is too long to be formatted;
+L0802                   keep original string */</span>
+L0803                <a class="L" href="lapi.c.html#lua_pushvalue">lua_pushvalue</a>(L, arg);
+L0804                <a class="L" href="lauxlib.c.html#luaL_addvalue">luaL_addvalue</a>(&amp;b);
+L0805                <span class="keyword">continue</span>;  <span class="comment">/* skip the `addsize' at the end */</span>
+L0806              }
+L0807              <span class="keyword">else</span> {
+L0808                sprintf(buff, form, s);
+L0809                <span class="keyword">break</span>;
+L0810              }
+L0811            }
+L0812            <span class="keyword">default</span>: {  <span class="comment">/* also treat cases `pnLlh' */</span>
+L0813              <span class="keyword">return</span> <a class="L" href="lauxlib.c.html#luaL_error">luaL_error</a>(L, <span class="string">"invalid option "</span> <a class="L" href="luaconf.h.html#LUA_QL">LUA_QL</a>(<span class="string">"%%%c"</span>) <span class="string">" to "</span>
+L0814                                   <a class="L" href="luaconf.h.html#LUA_QL">LUA_QL</a>(<span class="string">"format"</span>), *(strfrmt - <span class="number">1</span>));
+L0815            }
+L0816          }
+L0817          <a class="L" href="lauxlib.c.html#luaL_addlstring">luaL_addlstring</a>(&amp;b, buff, strlen(buff));
+L0818        }
+L0819      }
+L0820      <a class="L" href="lauxlib.c.html#luaL_pushresult">luaL_pushresult</a>(&amp;b);
+L0821      <span class="keyword">return</span> <span class="number">1</span>;
+L0822    }
+L0823    
+L0824    
+L0825    <span class="keyword">static</span> <span class="keyword">const</span> <a class="L" href="lauxlib.h.html#luaL_Reg">luaL_Reg</a> <a name="strlib"/a><a class="L" href="lstrlib.c.ref.html#strlib">strlib</a>[] = {
+L0826      {<span class="string">"byte"</span>, <a class="L" href="lstrlib.c.html#str_byte">str_byte</a>},
+L0827      {<span class="string">"char"</span>, <a class="L" href="lstrlib.c.html#str_char">str_char</a>},
+L0828      {<span class="string">"dump"</span>, <a class="L" href="lstrlib.c.html#str_dump">str_dump</a>},
+L0829      {<span class="string">"find"</span>, <a class="L" href="lstrlib.c.html#str_find">str_find</a>},
+L0830      {<span class="string">"format"</span>, <a class="L" href="lstrlib.c.html#str_format">str_format</a>},
+L0831      {<span class="string">"gfind"</span>, <a class="L" href="lstrlib.c.html#gfind_nodef">gfind_nodef</a>},
+L0832      {<span class="string">"gmatch"</span>, <a class="L" href="lstrlib.c.html#gmatch">gmatch</a>},
+L0833      {<span class="string">"gsub"</span>, <a class="L" href="lstrlib.c.html#str_gsub">str_gsub</a>},
+L0834      {<span class="string">"len"</span>, <a class="L" href="lstrlib.c.html#str_len">str_len</a>},
+L0835      {<span class="string">"lower"</span>, <a class="L" href="lstrlib.c.html#str_lower">str_lower</a>},
+L0836      {<span class="string">"match"</span>, <a class="L" href="lstrlib.c.html#str_match">str_match</a>},
+L0837      {<span class="string">"rep"</span>, <a class="L" href="lstrlib.c.html#str_rep">str_rep</a>},
+L0838      {<span class="string">"reverse"</span>, <a class="L" href="lstrlib.c.html#str_reverse">str_reverse</a>},
+L0839      {<span class="string">"sub"</span>, <a class="L" href="lstrlib.c.html#str_sub">str_sub</a>},
+L0840      {<span class="string">"upper"</span>, <a class="L" href="lstrlib.c.html#str_upper">str_upper</a>},
+L0841      {NULL, NULL}
+L0842    };
+L0843    
+L0844    
+L0845    <span class="keyword">static</span> <span class="keyword">void</span> <a name="createmetatable"/a><a class="L" href="lstrlib.c.ref.html#createmetatable">createmetatable</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0846      <a class="L" href="lapi.c.html#lua_createtable">lua_createtable</a>(L, <span class="number">0</span>, <span class="number">1</span>);  <span class="comment">/* create metatable for strings */</span>
+L0847      <a class="L" href="lua.h.html#lua_pushliteral">lua_pushliteral</a>(L, <span class="string">""</span>);  <span class="comment">/* dummy string */</span>
+L0848      <a class="L" href="lapi.c.html#lua_pushvalue">lua_pushvalue</a>(L, <span class="number">-2</span>);
+L0849      <a class="L" href="lapi.c.html#lua_setmetatable">lua_setmetatable</a>(L, <span class="number">-2</span>);  <span class="comment">/* set string metatable */</span>
+L0850      <a class="L" href="lua.h.html#lua_pop">lua_pop</a>(L, <span class="number">1</span>);  <span class="comment">/* pop dummy string */</span>
+L0851      <a class="L" href="lapi.c.html#lua_pushvalue">lua_pushvalue</a>(L, <span class="number">-2</span>);  <span class="comment">/* string library... */</span>
+L0852      <a class="L" href="lapi.c.html#lua_setfield">lua_setfield</a>(L, <span class="number">-2</span>, <span class="string">"__index"</span>);  <span class="comment">/* ...is the __index metamethod */</span>
+L0853      <a class="L" href="lua.h.html#lua_pop">lua_pop</a>(L, <span class="number">1</span>);  <span class="comment">/* pop metatable */</span>
+L0854    }
+L0855    
+L0856    
+L0857    <span class="comment">/*
+L0858    ** Open string library
+L0859    */</span>
+L0860    <a class="L" href="luaconf.h.html#LUALIB_API">LUALIB_API</a> <span class="keyword">int</span> <a name="luaopen_string"/a><a class="L" href="lstrlib.c.ref.html#luaopen_string">luaopen_string</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0861      <a class="L" href="lauxlib.c.html#luaL_register">luaL_register</a>(L, <a class="L" href="lualib.h.html#LUA_STRLIBNAME">LUA_STRLIBNAME</a>, <a class="L" href="lstrlib.c.html#strlib">strlib</a>);
+L0862    <span class="prepro">#if defined(LUA_COMPAT_GFIND)
+</span>L0863      <a class="L" href="lapi.c.html#lua_getfield">lua_getfield</a>(L, <span class="number">-1</span>, <span class="string">"gmatch"</span>);
+L0864      <a class="L" href="lapi.c.html#lua_setfield">lua_setfield</a>(L, <span class="number">-2</span>, <span class="string">"gfind"</span>);
+L0865    <span class="prepro">#endif
+</span>L0866      <a class="L" href="lstrlib.c.html#createmetatable">createmetatable</a>(L);
+L0867      <span class="keyword">return</span> <span class="number">1</span>;
+L0868    }
+L0869    
+</pre>
+<hr/>
+Generated by <a href="pretty.lua.html">pretty.lua</html>
+</body></html>

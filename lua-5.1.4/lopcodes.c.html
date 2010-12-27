@@ -1,0 +1,123 @@
+<html>
+<head>
+<style>
+a.L { text-decoration: none; }
+a.L:hover { color: #FFAAAA; }
+body { margin-top: 20px; margin-left: 30px; }
+.lno { font-weight: bold: color #000; }
+.keyword {font-weight: bold; color: #6666AA; }
+.number  { color: #AA6666; }
+.string  { color: #8888AA; }
+.comment { color: #666600; }
+.prepro { color: #006666; } 
+</style>
+<body>
+<h1>Lua 5.1.4: lopcodes.c</h1>
+<hr/>
+<pre>
+L0001    <span class="comment">/*
+L0002    ** $Id: lopcodes.c,v 1.37.1.1 2007/12/27 13:02:25 roberto Exp $
+L0003    ** See Copyright Notice in lua.h
+L0004    */</span>
+L0005    
+L0006    
+L0007    <a name="lopcodes_c"/a><span class="prepro">#define lopcodes_c
+</span>L0008    <a name="LUA_CORE"/a><span class="prepro">#define LUA_CORE
+</span>L0009    
+L0010    
+L0011    <span class="prepro"><a class="L" href="lopcodes.h.html#">#include "lopcodes.h"
+</a></span>L0012    
+L0013    
+L0014    <span class="comment">/* ORDER OP */</span>
+L0015    
+L0016    <span class="keyword">const</span> <span class="keyword">char</span> *<span class="keyword">const</span> <a name="luaP_opnames"/a><a class="L" href="lopcodes.c.ref.html#luaP_opnames">luaP_opnames</a>[<a class="L" href="lopcodes.h.html#NUM_OPCODES">NUM_OPCODES</a><span class="number">+1</span>] = {
+L0017      <span class="string">"MOVE"</span>,
+L0018      <span class="string">"LOADK"</span>,
+L0019      <span class="string">"LOADBOOL"</span>,
+L0020      <span class="string">"LOADNIL"</span>,
+L0021      <span class="string">"GETUPVAL"</span>,
+L0022      <span class="string">"GETGLOBAL"</span>,
+L0023      <span class="string">"GETTABLE"</span>,
+L0024      <span class="string">"SETGLOBAL"</span>,
+L0025      <span class="string">"SETUPVAL"</span>,
+L0026      <span class="string">"SETTABLE"</span>,
+L0027      <span class="string">"NEWTABLE"</span>,
+L0028      <span class="string">"SELF"</span>,
+L0029      <span class="string">"ADD"</span>,
+L0030      <span class="string">"SUB"</span>,
+L0031      <span class="string">"MUL"</span>,
+L0032      <span class="string">"DIV"</span>,
+L0033      <span class="string">"MOD"</span>,
+L0034      <span class="string">"POW"</span>,
+L0035      <span class="string">"UNM"</span>,
+L0036      <span class="string">"NOT"</span>,
+L0037      <span class="string">"LEN"</span>,
+L0038      <span class="string">"CONCAT"</span>,
+L0039      <span class="string">"JMP"</span>,
+L0040      <span class="string">"EQ"</span>,
+L0041      <span class="string">"LT"</span>,
+L0042      <span class="string">"LE"</span>,
+L0043      <span class="string">"TEST"</span>,
+L0044      <span class="string">"TESTSET"</span>,
+L0045      <span class="string">"CALL"</span>,
+L0046      <span class="string">"TAILCALL"</span>,
+L0047      <span class="string">"RETURN"</span>,
+L0048      <span class="string">"FORLOOP"</span>,
+L0049      <span class="string">"FORPREP"</span>,
+L0050      <span class="string">"TFORLOOP"</span>,
+L0051      <span class="string">"SETLIST"</span>,
+L0052      <span class="string">"CLOSE"</span>,
+L0053      <span class="string">"CLOSURE"</span>,
+L0054      <span class="string">"VARARG"</span>,
+L0055      NULL
+L0056    };
+L0057    
+L0058    
+L0059    <a name="opmode"/a><span class="prepro">#define opmode(t,a,b,c,m) (((t)&lt;&lt;7) | ((a)&lt;&lt;6) | ((b)&lt;&lt;4) | ((c)&lt;&lt;2) | (m))
+</span>L0060    
+L0061    <span class="keyword">const</span> <a class="L" href="llimits.h.html#lu_byte">lu_byte</a> <a name="luaP_opmodes"/a><a class="L" href="lopcodes.c.ref.html#luaP_opmodes">luaP_opmodes</a>[<a class="L" href="lopcodes.h.html#NUM_OPCODES">NUM_OPCODES</a>] = {
+L0062    <span class="comment">/*       T  A    B       C     mode		   opcode	*/</span>
+L0063      <a class="L" href="lopcodes.c.html#opmode">opmode</a>(<span class="number">0</span>, <span class="number">1</span>, <a class="L" href="lopcodes.h.html#OpArgR">OpArgR</a>, <a class="L" href="lopcodes.h.html#OpArgN">OpArgN</a>, <a class="L" href="lopcodes.h.html#iABC">iABC</a>) 		<span class="comment">/* OP_MOVE */</span>
+L0064     ,<a class="L" href="lopcodes.c.html#opmode">opmode</a>(<span class="number">0</span>, <span class="number">1</span>, <a class="L" href="lopcodes.h.html#OpArgK">OpArgK</a>, <a class="L" href="lopcodes.h.html#OpArgN">OpArgN</a>, <a class="L" href="lopcodes.h.html#iABx">iABx</a>)		<span class="comment">/* OP_LOADK */</span>
+L0065     ,<a class="L" href="lopcodes.c.html#opmode">opmode</a>(<span class="number">0</span>, <span class="number">1</span>, <a class="L" href="lopcodes.h.html#OpArgU">OpArgU</a>, <a class="L" href="lopcodes.h.html#OpArgU">OpArgU</a>, <a class="L" href="lopcodes.h.html#iABC">iABC</a>)		<span class="comment">/* OP_LOADBOOL */</span>
+L0066     ,<a class="L" href="lopcodes.c.html#opmode">opmode</a>(<span class="number">0</span>, <span class="number">1</span>, <a class="L" href="lopcodes.h.html#OpArgR">OpArgR</a>, <a class="L" href="lopcodes.h.html#OpArgN">OpArgN</a>, <a class="L" href="lopcodes.h.html#iABC">iABC</a>)		<span class="comment">/* OP_LOADNIL */</span>
+L0067     ,<a class="L" href="lopcodes.c.html#opmode">opmode</a>(<span class="number">0</span>, <span class="number">1</span>, <a class="L" href="lopcodes.h.html#OpArgU">OpArgU</a>, <a class="L" href="lopcodes.h.html#OpArgN">OpArgN</a>, <a class="L" href="lopcodes.h.html#iABC">iABC</a>)		<span class="comment">/* OP_GETUPVAL */</span>
+L0068     ,<a class="L" href="lopcodes.c.html#opmode">opmode</a>(<span class="number">0</span>, <span class="number">1</span>, <a class="L" href="lopcodes.h.html#OpArgK">OpArgK</a>, <a class="L" href="lopcodes.h.html#OpArgN">OpArgN</a>, <a class="L" href="lopcodes.h.html#iABx">iABx</a>)		<span class="comment">/* OP_GETGLOBAL */</span>
+L0069     ,<a class="L" href="lopcodes.c.html#opmode">opmode</a>(<span class="number">0</span>, <span class="number">1</span>, <a class="L" href="lopcodes.h.html#OpArgR">OpArgR</a>, <a class="L" href="lopcodes.h.html#OpArgK">OpArgK</a>, <a class="L" href="lopcodes.h.html#iABC">iABC</a>)		<span class="comment">/* OP_GETTABLE */</span>
+L0070     ,<a class="L" href="lopcodes.c.html#opmode">opmode</a>(<span class="number">0</span>, <span class="number">0</span>, <a class="L" href="lopcodes.h.html#OpArgK">OpArgK</a>, <a class="L" href="lopcodes.h.html#OpArgN">OpArgN</a>, <a class="L" href="lopcodes.h.html#iABx">iABx</a>)		<span class="comment">/* OP_SETGLOBAL */</span>
+L0071     ,<a class="L" href="lopcodes.c.html#opmode">opmode</a>(<span class="number">0</span>, <span class="number">0</span>, <a class="L" href="lopcodes.h.html#OpArgU">OpArgU</a>, <a class="L" href="lopcodes.h.html#OpArgN">OpArgN</a>, <a class="L" href="lopcodes.h.html#iABC">iABC</a>)		<span class="comment">/* OP_SETUPVAL */</span>
+L0072     ,<a class="L" href="lopcodes.c.html#opmode">opmode</a>(<span class="number">0</span>, <span class="number">0</span>, <a class="L" href="lopcodes.h.html#OpArgK">OpArgK</a>, <a class="L" href="lopcodes.h.html#OpArgK">OpArgK</a>, <a class="L" href="lopcodes.h.html#iABC">iABC</a>)		<span class="comment">/* OP_SETTABLE */</span>
+L0073     ,<a class="L" href="lopcodes.c.html#opmode">opmode</a>(<span class="number">0</span>, <span class="number">1</span>, <a class="L" href="lopcodes.h.html#OpArgU">OpArgU</a>, <a class="L" href="lopcodes.h.html#OpArgU">OpArgU</a>, <a class="L" href="lopcodes.h.html#iABC">iABC</a>)		<span class="comment">/* OP_NEWTABLE */</span>
+L0074     ,<a class="L" href="lopcodes.c.html#opmode">opmode</a>(<span class="number">0</span>, <span class="number">1</span>, <a class="L" href="lopcodes.h.html#OpArgR">OpArgR</a>, <a class="L" href="lopcodes.h.html#OpArgK">OpArgK</a>, <a class="L" href="lopcodes.h.html#iABC">iABC</a>)		<span class="comment">/* OP_SELF */</span>
+L0075     ,<a class="L" href="lopcodes.c.html#opmode">opmode</a>(<span class="number">0</span>, <span class="number">1</span>, <a class="L" href="lopcodes.h.html#OpArgK">OpArgK</a>, <a class="L" href="lopcodes.h.html#OpArgK">OpArgK</a>, <a class="L" href="lopcodes.h.html#iABC">iABC</a>)		<span class="comment">/* OP_ADD */</span>
+L0076     ,<a class="L" href="lopcodes.c.html#opmode">opmode</a>(<span class="number">0</span>, <span class="number">1</span>, <a class="L" href="lopcodes.h.html#OpArgK">OpArgK</a>, <a class="L" href="lopcodes.h.html#OpArgK">OpArgK</a>, <a class="L" href="lopcodes.h.html#iABC">iABC</a>)		<span class="comment">/* OP_SUB */</span>
+L0077     ,<a class="L" href="lopcodes.c.html#opmode">opmode</a>(<span class="number">0</span>, <span class="number">1</span>, <a class="L" href="lopcodes.h.html#OpArgK">OpArgK</a>, <a class="L" href="lopcodes.h.html#OpArgK">OpArgK</a>, <a class="L" href="lopcodes.h.html#iABC">iABC</a>)		<span class="comment">/* OP_MUL */</span>
+L0078     ,<a class="L" href="lopcodes.c.html#opmode">opmode</a>(<span class="number">0</span>, <span class="number">1</span>, <a class="L" href="lopcodes.h.html#OpArgK">OpArgK</a>, <a class="L" href="lopcodes.h.html#OpArgK">OpArgK</a>, <a class="L" href="lopcodes.h.html#iABC">iABC</a>)		<span class="comment">/* OP_DIV */</span>
+L0079     ,<a class="L" href="lopcodes.c.html#opmode">opmode</a>(<span class="number">0</span>, <span class="number">1</span>, <a class="L" href="lopcodes.h.html#OpArgK">OpArgK</a>, <a class="L" href="lopcodes.h.html#OpArgK">OpArgK</a>, <a class="L" href="lopcodes.h.html#iABC">iABC</a>)		<span class="comment">/* OP_MOD */</span>
+L0080     ,<a class="L" href="lopcodes.c.html#opmode">opmode</a>(<span class="number">0</span>, <span class="number">1</span>, <a class="L" href="lopcodes.h.html#OpArgK">OpArgK</a>, <a class="L" href="lopcodes.h.html#OpArgK">OpArgK</a>, <a class="L" href="lopcodes.h.html#iABC">iABC</a>)		<span class="comment">/* OP_POW */</span>
+L0081     ,<a class="L" href="lopcodes.c.html#opmode">opmode</a>(<span class="number">0</span>, <span class="number">1</span>, <a class="L" href="lopcodes.h.html#OpArgR">OpArgR</a>, <a class="L" href="lopcodes.h.html#OpArgN">OpArgN</a>, <a class="L" href="lopcodes.h.html#iABC">iABC</a>)		<span class="comment">/* OP_UNM */</span>
+L0082     ,<a class="L" href="lopcodes.c.html#opmode">opmode</a>(<span class="number">0</span>, <span class="number">1</span>, <a class="L" href="lopcodes.h.html#OpArgR">OpArgR</a>, <a class="L" href="lopcodes.h.html#OpArgN">OpArgN</a>, <a class="L" href="lopcodes.h.html#iABC">iABC</a>)		<span class="comment">/* OP_NOT */</span>
+L0083     ,<a class="L" href="lopcodes.c.html#opmode">opmode</a>(<span class="number">0</span>, <span class="number">1</span>, <a class="L" href="lopcodes.h.html#OpArgR">OpArgR</a>, <a class="L" href="lopcodes.h.html#OpArgN">OpArgN</a>, <a class="L" href="lopcodes.h.html#iABC">iABC</a>)		<span class="comment">/* OP_LEN */</span>
+L0084     ,<a class="L" href="lopcodes.c.html#opmode">opmode</a>(<span class="number">0</span>, <span class="number">1</span>, <a class="L" href="lopcodes.h.html#OpArgR">OpArgR</a>, <a class="L" href="lopcodes.h.html#OpArgR">OpArgR</a>, <a class="L" href="lopcodes.h.html#iABC">iABC</a>)		<span class="comment">/* OP_CONCAT */</span>
+L0085     ,<a class="L" href="lopcodes.c.html#opmode">opmode</a>(<span class="number">0</span>, <span class="number">0</span>, <a class="L" href="lopcodes.h.html#OpArgR">OpArgR</a>, <a class="L" href="lopcodes.h.html#OpArgN">OpArgN</a>, <a class="L" href="lopcodes.h.html#iAsBx">iAsBx</a>)		<span class="comment">/* OP_JMP */</span>
+L0086     ,<a class="L" href="lopcodes.c.html#opmode">opmode</a>(<span class="number">1</span>, <span class="number">0</span>, <a class="L" href="lopcodes.h.html#OpArgK">OpArgK</a>, <a class="L" href="lopcodes.h.html#OpArgK">OpArgK</a>, <a class="L" href="lopcodes.h.html#iABC">iABC</a>)		<span class="comment">/* OP_EQ */</span>
+L0087     ,<a class="L" href="lopcodes.c.html#opmode">opmode</a>(<span class="number">1</span>, <span class="number">0</span>, <a class="L" href="lopcodes.h.html#OpArgK">OpArgK</a>, <a class="L" href="lopcodes.h.html#OpArgK">OpArgK</a>, <a class="L" href="lopcodes.h.html#iABC">iABC</a>)		<span class="comment">/* OP_LT */</span>
+L0088     ,<a class="L" href="lopcodes.c.html#opmode">opmode</a>(<span class="number">1</span>, <span class="number">0</span>, <a class="L" href="lopcodes.h.html#OpArgK">OpArgK</a>, <a class="L" href="lopcodes.h.html#OpArgK">OpArgK</a>, <a class="L" href="lopcodes.h.html#iABC">iABC</a>)		<span class="comment">/* OP_LE */</span>
+L0089     ,<a class="L" href="lopcodes.c.html#opmode">opmode</a>(<span class="number">1</span>, <span class="number">1</span>, <a class="L" href="lopcodes.h.html#OpArgR">OpArgR</a>, <a class="L" href="lopcodes.h.html#OpArgU">OpArgU</a>, <a class="L" href="lopcodes.h.html#iABC">iABC</a>)		<span class="comment">/* OP_TEST */</span>
+L0090     ,<a class="L" href="lopcodes.c.html#opmode">opmode</a>(<span class="number">1</span>, <span class="number">1</span>, <a class="L" href="lopcodes.h.html#OpArgR">OpArgR</a>, <a class="L" href="lopcodes.h.html#OpArgU">OpArgU</a>, <a class="L" href="lopcodes.h.html#iABC">iABC</a>)		<span class="comment">/* OP_TESTSET */</span>
+L0091     ,<a class="L" href="lopcodes.c.html#opmode">opmode</a>(<span class="number">0</span>, <span class="number">1</span>, <a class="L" href="lopcodes.h.html#OpArgU">OpArgU</a>, <a class="L" href="lopcodes.h.html#OpArgU">OpArgU</a>, <a class="L" href="lopcodes.h.html#iABC">iABC</a>)		<span class="comment">/* OP_CALL */</span>
+L0092     ,<a class="L" href="lopcodes.c.html#opmode">opmode</a>(<span class="number">0</span>, <span class="number">1</span>, <a class="L" href="lopcodes.h.html#OpArgU">OpArgU</a>, <a class="L" href="lopcodes.h.html#OpArgU">OpArgU</a>, <a class="L" href="lopcodes.h.html#iABC">iABC</a>)		<span class="comment">/* OP_TAILCALL */</span>
+L0093     ,<a class="L" href="lopcodes.c.html#opmode">opmode</a>(<span class="number">0</span>, <span class="number">0</span>, <a class="L" href="lopcodes.h.html#OpArgU">OpArgU</a>, <a class="L" href="lopcodes.h.html#OpArgN">OpArgN</a>, <a class="L" href="lopcodes.h.html#iABC">iABC</a>)		<span class="comment">/* OP_RETURN */</span>
+L0094     ,<a class="L" href="lopcodes.c.html#opmode">opmode</a>(<span class="number">0</span>, <span class="number">1</span>, <a class="L" href="lopcodes.h.html#OpArgR">OpArgR</a>, <a class="L" href="lopcodes.h.html#OpArgN">OpArgN</a>, <a class="L" href="lopcodes.h.html#iAsBx">iAsBx</a>)		<span class="comment">/* OP_FORLOOP */</span>
+L0095     ,<a class="L" href="lopcodes.c.html#opmode">opmode</a>(<span class="number">0</span>, <span class="number">1</span>, <a class="L" href="lopcodes.h.html#OpArgR">OpArgR</a>, <a class="L" href="lopcodes.h.html#OpArgN">OpArgN</a>, <a class="L" href="lopcodes.h.html#iAsBx">iAsBx</a>)		<span class="comment">/* OP_FORPREP */</span>
+L0096     ,<a class="L" href="lopcodes.c.html#opmode">opmode</a>(<span class="number">1</span>, <span class="number">0</span>, <a class="L" href="lopcodes.h.html#OpArgN">OpArgN</a>, <a class="L" href="lopcodes.h.html#OpArgU">OpArgU</a>, <a class="L" href="lopcodes.h.html#iABC">iABC</a>)		<span class="comment">/* OP_TFORLOOP */</span>
+L0097     ,<a class="L" href="lopcodes.c.html#opmode">opmode</a>(<span class="number">0</span>, <span class="number">0</span>, <a class="L" href="lopcodes.h.html#OpArgU">OpArgU</a>, <a class="L" href="lopcodes.h.html#OpArgU">OpArgU</a>, <a class="L" href="lopcodes.h.html#iABC">iABC</a>)		<span class="comment">/* OP_SETLIST */</span>
+L0098     ,<a class="L" href="lopcodes.c.html#opmode">opmode</a>(<span class="number">0</span>, <span class="number">0</span>, <a class="L" href="lopcodes.h.html#OpArgN">OpArgN</a>, <a class="L" href="lopcodes.h.html#OpArgN">OpArgN</a>, <a class="L" href="lopcodes.h.html#iABC">iABC</a>)		<span class="comment">/* OP_CLOSE */</span>
+L0099     ,<a class="L" href="lopcodes.c.html#opmode">opmode</a>(<span class="number">0</span>, <span class="number">1</span>, <a class="L" href="lopcodes.h.html#OpArgU">OpArgU</a>, <a class="L" href="lopcodes.h.html#OpArgN">OpArgN</a>, <a class="L" href="lopcodes.h.html#iABx">iABx</a>)		<span class="comment">/* OP_CLOSURE */</span>
+L0100     ,<a class="L" href="lopcodes.c.html#opmode">opmode</a>(<span class="number">0</span>, <span class="number">1</span>, <a class="L" href="lopcodes.h.html#OpArgU">OpArgU</a>, <a class="L" href="lopcodes.h.html#OpArgN">OpArgN</a>, <a class="L" href="lopcodes.h.html#iABC">iABC</a>)		<span class="comment">/* OP_VARARG */</span>
+L0101    };
+L0102    
+</pre>
+<hr/>
+Generated by <a href="pretty.lua.html">pretty.lua</html>
+</body></html>

@@ -1,0 +1,418 @@
+<html>
+<head>
+<style>
+a.L { text-decoration: none; }
+a.L:hover { color: #FFAAAA; }
+body { margin-top: 20px; margin-left: 30px; }
+.lno { font-weight: bold: color #000; }
+.keyword {font-weight: bold; color: #6666AA; }
+.number  { color: #AA6666; }
+.string  { color: #8888AA; }
+.comment { color: #666600; }
+.prepro { color: #006666; } 
+</style>
+<body>
+<h1>Lua 5.1.4: ldblib.c</h1>
+<hr/>
+<pre>
+L0001    <span class="comment">/*
+L0002    ** $Id: ldblib.c,v 1.104.1.3 2008/01/21 13:11:21 roberto Exp $
+L0003    ** Interface from Lua to its debug API
+L0004    ** See Copyright Notice in lua.h
+L0005    */</span>
+L0006    
+L0007    
+L0008    <span class="prepro">#include &lt;stdio.h&gt;
+</span>L0009    <span class="prepro">#include &lt;stdlib.h&gt;
+</span>L0010    <span class="prepro">#include &lt;string.h&gt;
+</span>L0011    
+L0012    <a name="ldblib_c"/a><span class="prepro">#define ldblib_c
+</span>L0013    <a name="LUA_LIB"/a><span class="prepro">#define LUA_LIB
+</span>L0014    
+L0015    <span class="prepro"><a class="L" href="lua.h.html#">#include "lua.h"
+</a></span>L0016    
+L0017    <span class="prepro"><a class="L" href="lauxlib.h.html#">#include "lauxlib.h"
+</a></span>L0018    <span class="prepro"><a class="L" href="lualib.h.html#">#include "lualib.h"
+</a></span>L0019    
+L0020    
+L0021    
+L0022    <span class="keyword">static</span> <span class="keyword">int</span> <a name="db_getregistry"/a><a class="L" href="ldblib.c.ref.html#db_getregistry">db_getregistry</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0023      <a class="L" href="lapi.c.html#lua_pushvalue">lua_pushvalue</a>(L, <a class="L" href="lua.h.html#LUA_REGISTRYINDEX">LUA_REGISTRYINDEX</a>);
+L0024      <span class="keyword">return</span> <span class="number">1</span>;
+L0025    }
+L0026    
+L0027    
+L0028    <span class="keyword">static</span> <span class="keyword">int</span> <a name="db_getmetatable"/a><a class="L" href="ldblib.c.ref.html#db_getmetatable">db_getmetatable</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0029      <a class="L" href="lauxlib.c.html#luaL_checkany">luaL_checkany</a>(L, <span class="number">1</span>);
+L0030      <span class="keyword">if</span> (!<a class="L" href="lapi.c.html#lua_getmetatable">lua_getmetatable</a>(L, <span class="number">1</span>)) {
+L0031        <a class="L" href="lapi.c.html#lua_pushnil">lua_pushnil</a>(L);  <span class="comment">/* no metatable */</span>
+L0032      }
+L0033      <span class="keyword">return</span> <span class="number">1</span>;
+L0034    }
+L0035    
+L0036    
+L0037    <span class="keyword">static</span> <span class="keyword">int</span> <a name="db_setmetatable"/a><a class="L" href="ldblib.c.ref.html#db_setmetatable">db_setmetatable</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0038      <span class="keyword">int</span> t = <a class="L" href="lapi.c.html#lua_type">lua_type</a>(L, <span class="number">2</span>);
+L0039      <a class="L" href="lauxlib.h.html#luaL_argcheck">luaL_argcheck</a>(L, t == <a class="L" href="lua.h.html#LUA_TNIL">LUA_TNIL</a> || t == <a class="L" href="lua.h.html#LUA_TTABLE">LUA_TTABLE</a>, <span class="number">2</span>,
+L0040                        <span class="string">"nil or table expected"</span>);
+L0041      <a class="L" href="lapi.c.html#lua_settop">lua_settop</a>(L, <span class="number">2</span>);
+L0042      <a class="L" href="lapi.c.html#lua_pushboolean">lua_pushboolean</a>(L, <a class="L" href="lapi.c.html#lua_setmetatable">lua_setmetatable</a>(L, <span class="number">1</span>));
+L0043      <span class="keyword">return</span> <span class="number">1</span>;
+L0044    }
+L0045    
+L0046    
+L0047    <span class="keyword">static</span> <span class="keyword">int</span> <a name="db_getfenv"/a><a class="L" href="ldblib.c.ref.html#db_getfenv">db_getfenv</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0048      <a class="L" href="lapi.c.html#lua_getfenv">lua_getfenv</a>(L, <span class="number">1</span>);
+L0049      <span class="keyword">return</span> <span class="number">1</span>;
+L0050    }
+L0051    
+L0052    
+L0053    <span class="keyword">static</span> <span class="keyword">int</span> <a name="db_setfenv"/a><a class="L" href="ldblib.c.ref.html#db_setfenv">db_setfenv</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0054      <a class="L" href="lauxlib.c.html#luaL_checktype">luaL_checktype</a>(L, <span class="number">2</span>, <a class="L" href="lua.h.html#LUA_TTABLE">LUA_TTABLE</a>);
+L0055      <a class="L" href="lapi.c.html#lua_settop">lua_settop</a>(L, <span class="number">2</span>);
+L0056      <span class="keyword">if</span> (<a class="L" href="lapi.c.html#lua_setfenv">lua_setfenv</a>(L, <span class="number">1</span>) == <span class="number">0</span>)
+L0057        <a class="L" href="lauxlib.c.html#luaL_error">luaL_error</a>(L, <a class="L" href="luaconf.h.html#LUA_QL">LUA_QL</a>(<span class="string">"setfenv"</span>)
+L0058                      <span class="string">" cannot change environment of given object"</span>);
+L0059      <span class="keyword">return</span> <span class="number">1</span>;
+L0060    }
+L0061    
+L0062    
+L0063    <span class="keyword">static</span> <span class="keyword">void</span> <a name="settabss"/a><a class="L" href="ldblib.c.ref.html#settabss">settabss</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <span class="keyword">char</span> *i, <span class="keyword">const</span> <span class="keyword">char</span> *v) {
+L0064      <a class="L" href="lapi.c.html#lua_pushstring">lua_pushstring</a>(L, v);
+L0065      <a class="L" href="lapi.c.html#lua_setfield">lua_setfield</a>(L, <span class="number">-2</span>, i);
+L0066    }
+L0067    
+L0068    
+L0069    <span class="keyword">static</span> <span class="keyword">void</span> <a name="settabsi"/a><a class="L" href="ldblib.c.ref.html#settabsi">settabsi</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">const</span> <span class="keyword">char</span> *i, <span class="keyword">int</span> v) {
+L0070      <a class="L" href="lapi.c.html#lua_pushinteger">lua_pushinteger</a>(L, v);
+L0071      <a class="L" href="lapi.c.html#lua_setfield">lua_setfield</a>(L, <span class="number">-2</span>, i);
+L0072    }
+L0073    
+L0074    
+L0075    <span class="keyword">static</span> <a class="L" href="lstate.h.html#lua_State">lua_State</a> *<a name="getthread"/a><a class="L" href="ldblib.c.ref.html#getthread">getthread</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> *arg) {
+L0076      <span class="keyword">if</span> (<a class="L" href="lua.h.html#lua_isthread">lua_isthread</a>(L, <span class="number">1</span>)) {
+L0077        *arg = <span class="number">1</span>;
+L0078        <span class="keyword">return</span> <a class="L" href="lapi.c.html#lua_tothread">lua_tothread</a>(L, <span class="number">1</span>);
+L0079      }
+L0080      <span class="keyword">else</span> {
+L0081        *arg = <span class="number">0</span>;
+L0082        <span class="keyword">return</span> L;
+L0083      }
+L0084    }
+L0085    
+L0086    
+L0087    <span class="keyword">static</span> <span class="keyword">void</span> <a name="treatstackoption"/a><a class="L" href="ldblib.c.ref.html#treatstackoption">treatstackoption</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lstate.h.html#lua_State">lua_State</a> *L1, <span class="keyword">const</span> <span class="keyword">char</span> *fname) {
+L0088      <span class="keyword">if</span> (L == L1) {
+L0089        <a class="L" href="lapi.c.html#lua_pushvalue">lua_pushvalue</a>(L, <span class="number">-2</span>);
+L0090        <a class="L" href="lapi.c.html#lua_remove">lua_remove</a>(L, <span class="number">-3</span>);
+L0091      }
+L0092      <span class="keyword">else</span>
+L0093        <a class="L" href="lapi.c.html#lua_xmove">lua_xmove</a>(L1, L, <span class="number">1</span>);
+L0094      <a class="L" href="lapi.c.html#lua_setfield">lua_setfield</a>(L, <span class="number">-2</span>, fname);
+L0095    }
+L0096    
+L0097    
+L0098    <span class="keyword">static</span> <span class="keyword">int</span> <a name="db_getinfo"/a><a class="L" href="ldblib.c.ref.html#db_getinfo">db_getinfo</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0099      <a class="L" href="lua.h.html#lua_Debug">lua_Debug</a> ar;
+L0100      <span class="keyword">int</span> arg;
+L0101      <a class="L" href="lstate.h.html#lua_State">lua_State</a> *L1 = <a class="L" href="ldblib.c.html#getthread">getthread</a>(L, &amp;arg);
+L0102      <span class="keyword">const</span> <span class="keyword">char</span> *options = <a class="L" href="lauxlib.h.html#luaL_optstring">luaL_optstring</a>(L, arg<span class="number">+2</span>, <span class="string">"flnSu"</span>);
+L0103      <span class="keyword">if</span> (<a class="L" href="lapi.c.html#lua_isnumber">lua_isnumber</a>(L, arg<span class="number">+1</span>)) {
+L0104        <span class="keyword">if</span> (!<a class="L" href="ldebug.c.html#lua_getstack">lua_getstack</a>(L1, (<span class="keyword">int</span>)<a class="L" href="lapi.c.html#lua_tointeger">lua_tointeger</a>(L, arg<span class="number">+1</span>), &amp;ar)) {
+L0105          <a class="L" href="lapi.c.html#lua_pushnil">lua_pushnil</a>(L);  <span class="comment">/* level out of range */</span>
+L0106          <span class="keyword">return</span> <span class="number">1</span>;
+L0107        }
+L0108      }
+L0109      <span class="keyword">else</span> <span class="keyword">if</span> (<a class="L" href="lua.h.html#lua_isfunction">lua_isfunction</a>(L, arg<span class="number">+1</span>)) {
+L0110        <a class="L" href="lapi.c.html#lua_pushfstring">lua_pushfstring</a>(L, <span class="string">"&gt;%s"</span>, options);
+L0111        options = <a class="L" href="lua.h.html#lua_tostring">lua_tostring</a>(L, <span class="number">-1</span>);
+L0112        <a class="L" href="lapi.c.html#lua_pushvalue">lua_pushvalue</a>(L, arg<span class="number">+1</span>);
+L0113        <a class="L" href="lapi.c.html#lua_xmove">lua_xmove</a>(L, L1, <span class="number">1</span>);
+L0114      }
+L0115      <span class="keyword">else</span>
+L0116        <span class="keyword">return</span> <a class="L" href="lauxlib.c.html#luaL_argerror">luaL_argerror</a>(L, arg<span class="number">+1</span>, <span class="string">"function or level expected"</span>);
+L0117      <span class="keyword">if</span> (!<a class="L" href="ldebug.c.html#lua_getinfo">lua_getinfo</a>(L1, options, &amp;ar))
+L0118        <span class="keyword">return</span> <a class="L" href="lauxlib.c.html#luaL_argerror">luaL_argerror</a>(L, arg<span class="number">+2</span>, <span class="string">"invalid option"</span>);
+L0119      <a class="L" href="lapi.c.html#lua_createtable">lua_createtable</a>(L, <span class="number">0</span>, <span class="number">2</span>);
+L0120      <span class="keyword">if</span> (strchr(options, 'S')) {
+L0121        <a class="L" href="ldblib.c.html#settabss">settabss</a>(L, <span class="string">"source"</span>, ar.source);
+L0122        <a class="L" href="ldblib.c.html#settabss">settabss</a>(L, <span class="string">"short_src"</span>, ar.short_src);
+L0123        <a class="L" href="ldblib.c.html#settabsi">settabsi</a>(L, <span class="string">"linedefined"</span>, ar.linedefined);
+L0124        <a class="L" href="ldblib.c.html#settabsi">settabsi</a>(L, <span class="string">"lastlinedefined"</span>, ar.lastlinedefined);
+L0125        <a class="L" href="ldblib.c.html#settabss">settabss</a>(L, <span class="string">"what"</span>, ar.what);
+L0126      }
+L0127      <span class="keyword">if</span> (strchr(options, 'l'))
+L0128        <a class="L" href="ldblib.c.html#settabsi">settabsi</a>(L, <span class="string">"currentline"</span>, ar.<a class="L" href="ldebug.c.html#currentline">currentline</a>);
+L0129      <span class="keyword">if</span> (strchr(options, 'u'))
+L0130        <a class="L" href="ldblib.c.html#settabsi">settabsi</a>(L, <span class="string">"nups"</span>, ar.nups);
+L0131      <span class="keyword">if</span> (strchr(options, 'n')) {
+L0132        <a class="L" href="ldblib.c.html#settabss">settabss</a>(L, <span class="string">"name"</span>, ar.name);
+L0133        <a class="L" href="ldblib.c.html#settabss">settabss</a>(L, <span class="string">"namewhat"</span>, ar.namewhat);
+L0134      }
+L0135      <span class="keyword">if</span> (strchr(options, 'L'))
+L0136        <a class="L" href="ldblib.c.html#treatstackoption">treatstackoption</a>(L, L1, <span class="string">"activelines"</span>);
+L0137      <span class="keyword">if</span> (strchr(options, 'f'))
+L0138        <a class="L" href="ldblib.c.html#treatstackoption">treatstackoption</a>(L, L1, <span class="string">"func"</span>);
+L0139      <span class="keyword">return</span> <span class="number">1</span>;  <span class="comment">/* return table */</span>
+L0140    }
+L0141        
+L0142    
+L0143    <span class="keyword">static</span> <span class="keyword">int</span> <a name="db_getlocal"/a><a class="L" href="ldblib.c.ref.html#db_getlocal">db_getlocal</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0144      <span class="keyword">int</span> arg;
+L0145      <a class="L" href="lstate.h.html#lua_State">lua_State</a> *L1 = <a class="L" href="ldblib.c.html#getthread">getthread</a>(L, &amp;arg);
+L0146      <a class="L" href="lua.h.html#lua_Debug">lua_Debug</a> ar;
+L0147      <span class="keyword">const</span> <span class="keyword">char</span> *name;
+L0148      <span class="keyword">if</span> (!<a class="L" href="ldebug.c.html#lua_getstack">lua_getstack</a>(L1, <a class="L" href="lauxlib.h.html#luaL_checkint">luaL_checkint</a>(L, arg<span class="number">+1</span>), &amp;ar))  <span class="comment">/* out of range? */</span>
+L0149        <span class="keyword">return</span> <a class="L" href="lauxlib.c.html#luaL_argerror">luaL_argerror</a>(L, arg<span class="number">+1</span>, <span class="string">"level out of range"</span>);
+L0150      name = <a class="L" href="ldebug.c.html#lua_getlocal">lua_getlocal</a>(L1, &amp;ar, <a class="L" href="lauxlib.h.html#luaL_checkint">luaL_checkint</a>(L, arg<span class="number">+2</span>));
+L0151      <span class="keyword">if</span> (name) {
+L0152        <a class="L" href="lapi.c.html#lua_xmove">lua_xmove</a>(L1, L, <span class="number">1</span>);
+L0153        <a class="L" href="lapi.c.html#lua_pushstring">lua_pushstring</a>(L, name);
+L0154        <a class="L" href="lapi.c.html#lua_pushvalue">lua_pushvalue</a>(L, <span class="number">-2</span>);
+L0155        <span class="keyword">return</span> <span class="number">2</span>;
+L0156      }
+L0157      <span class="keyword">else</span> {
+L0158        <a class="L" href="lapi.c.html#lua_pushnil">lua_pushnil</a>(L);
+L0159        <span class="keyword">return</span> <span class="number">1</span>;
+L0160      }
+L0161    }
+L0162    
+L0163    
+L0164    <span class="keyword">static</span> <span class="keyword">int</span> <a name="db_setlocal"/a><a class="L" href="ldblib.c.ref.html#db_setlocal">db_setlocal</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0165      <span class="keyword">int</span> arg;
+L0166      <a class="L" href="lstate.h.html#lua_State">lua_State</a> *L1 = <a class="L" href="ldblib.c.html#getthread">getthread</a>(L, &amp;arg);
+L0167      <a class="L" href="lua.h.html#lua_Debug">lua_Debug</a> ar;
+L0168      <span class="keyword">if</span> (!<a class="L" href="ldebug.c.html#lua_getstack">lua_getstack</a>(L1, <a class="L" href="lauxlib.h.html#luaL_checkint">luaL_checkint</a>(L, arg<span class="number">+1</span>), &amp;ar))  <span class="comment">/* out of range? */</span>
+L0169        <span class="keyword">return</span> <a class="L" href="lauxlib.c.html#luaL_argerror">luaL_argerror</a>(L, arg<span class="number">+1</span>, <span class="string">"level out of range"</span>);
+L0170      <a class="L" href="lauxlib.c.html#luaL_checkany">luaL_checkany</a>(L, arg<span class="number">+3</span>);
+L0171      <a class="L" href="lapi.c.html#lua_settop">lua_settop</a>(L, arg<span class="number">+3</span>);
+L0172      <a class="L" href="lapi.c.html#lua_xmove">lua_xmove</a>(L, L1, <span class="number">1</span>);
+L0173      <a class="L" href="lapi.c.html#lua_pushstring">lua_pushstring</a>(L, <a class="L" href="ldebug.c.html#lua_setlocal">lua_setlocal</a>(L1, &amp;ar, <a class="L" href="lauxlib.h.html#luaL_checkint">luaL_checkint</a>(L, arg<span class="number">+2</span>)));
+L0174      <span class="keyword">return</span> <span class="number">1</span>;
+L0175    }
+L0176    
+L0177    
+L0178    <span class="keyword">static</span> <span class="keyword">int</span> <a name="auxupvalue"/a><a class="L" href="ldblib.c.ref.html#auxupvalue">auxupvalue</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <span class="keyword">int</span> get) {
+L0179      <span class="keyword">const</span> <span class="keyword">char</span> *name;
+L0180      <span class="keyword">int</span> n = <a class="L" href="lauxlib.h.html#luaL_checkint">luaL_checkint</a>(L, <span class="number">2</span>);
+L0181      <a class="L" href="lauxlib.c.html#luaL_checktype">luaL_checktype</a>(L, <span class="number">1</span>, <a class="L" href="lua.h.html#LUA_TFUNCTION">LUA_TFUNCTION</a>);
+L0182      <span class="keyword">if</span> (<a class="L" href="lapi.c.html#lua_iscfunction">lua_iscfunction</a>(L, <span class="number">1</span>)) <span class="keyword">return</span> <span class="number">0</span>;  <span class="comment">/* cannot touch C upvalues from Lua */</span>
+L0183      name = get ? <a class="L" href="lapi.c.html#lua_getupvalue">lua_getupvalue</a>(L, <span class="number">1</span>, n) : <a class="L" href="lapi.c.html#lua_setupvalue">lua_setupvalue</a>(L, <span class="number">1</span>, n);
+L0184      <span class="keyword">if</span> (name == NULL) <span class="keyword">return</span> <span class="number">0</span>;
+L0185      <a class="L" href="lapi.c.html#lua_pushstring">lua_pushstring</a>(L, name);
+L0186      <a class="L" href="lapi.c.html#lua_insert">lua_insert</a>(L, -(get<span class="number">+1</span>));
+L0187      <span class="keyword">return</span> get + <span class="number">1</span>;
+L0188    }
+L0189    
+L0190    
+L0191    <span class="keyword">static</span> <span class="keyword">int</span> <a name="db_getupvalue"/a><a class="L" href="ldblib.c.ref.html#db_getupvalue">db_getupvalue</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0192      <span class="keyword">return</span> <a class="L" href="ldblib.c.html#auxupvalue">auxupvalue</a>(L, <span class="number">1</span>);
+L0193    }
+L0194    
+L0195    
+L0196    <span class="keyword">static</span> <span class="keyword">int</span> <a name="db_setupvalue"/a><a class="L" href="ldblib.c.ref.html#db_setupvalue">db_setupvalue</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0197      <a class="L" href="lauxlib.c.html#luaL_checkany">luaL_checkany</a>(L, <span class="number">3</span>);
+L0198      <span class="keyword">return</span> <a class="L" href="ldblib.c.html#auxupvalue">auxupvalue</a>(L, <span class="number">0</span>);
+L0199    }
+L0200    
+L0201    
+L0202    
+L0203    <span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">char</span> <a name="KEY_HOOK"/a><a class="L" href="ldblib.c.ref.html#KEY_HOOK">KEY_HOOK</a> = 'h';
+L0204    
+L0205    
+L0206    <span class="keyword">static</span> <span class="keyword">void</span> <a name="hookf"/a><a class="L" href="ldblib.c.ref.html#hookf">hookf</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L, <a class="L" href="lua.h.html#lua_Debug">lua_Debug</a> *ar) {
+L0207      <span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">char</span> *<span class="keyword">const</span> hooknames[] =
+L0208        {<span class="string">"call"</span>, <span class="string">"return"</span>, <span class="string">"line"</span>, <span class="string">"count"</span>, <span class="string">"tail return"</span>};
+L0209      <a class="L" href="lapi.c.html#lua_pushlightuserdata">lua_pushlightuserdata</a>(L, (<span class="keyword">void</span> *)&amp;<a class="L" href="ldblib.c.html#KEY_HOOK">KEY_HOOK</a>);
+L0210      <a class="L" href="lapi.c.html#lua_rawget">lua_rawget</a>(L, <a class="L" href="lua.h.html#LUA_REGISTRYINDEX">LUA_REGISTRYINDEX</a>);
+L0211      <a class="L" href="lapi.c.html#lua_pushlightuserdata">lua_pushlightuserdata</a>(L, L);
+L0212      <a class="L" href="lapi.c.html#lua_rawget">lua_rawget</a>(L, <span class="number">-2</span>);
+L0213      <span class="keyword">if</span> (<a class="L" href="lua.h.html#lua_isfunction">lua_isfunction</a>(L, <span class="number">-1</span>)) {
+L0214        <a class="L" href="lapi.c.html#lua_pushstring">lua_pushstring</a>(L, hooknames[(<span class="keyword">int</span>)ar-&gt;event]);
+L0215        <span class="keyword">if</span> (ar-&gt;<a class="L" href="ldebug.c.html#currentline">currentline</a> &gt;= <span class="number">0</span>)
+L0216          <a class="L" href="lapi.c.html#lua_pushinteger">lua_pushinteger</a>(L, ar-&gt;<a class="L" href="ldebug.c.html#currentline">currentline</a>);
+L0217        <span class="keyword">else</span> <a class="L" href="lapi.c.html#lua_pushnil">lua_pushnil</a>(L);
+L0218        <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(<a class="L" href="ldebug.c.html#lua_getinfo">lua_getinfo</a>(L, <span class="string">"lS"</span>, ar));
+L0219        <a class="L" href="lapi.c.html#lua_call">lua_call</a>(L, <span class="number">2</span>, <span class="number">0</span>);
+L0220      }
+L0221    }
+L0222    
+L0223    
+L0224    <span class="keyword">static</span> <span class="keyword">int</span> <a name="makemask"/a><a class="L" href="ldblib.c.ref.html#makemask">makemask</a> (<span class="keyword">const</span> <span class="keyword">char</span> *smask, <span class="keyword">int</span> count) {
+L0225      <span class="keyword">int</span> mask = <span class="number">0</span>;
+L0226      <span class="keyword">if</span> (strchr(smask, 'c')) mask |= <a class="L" href="lua.h.html#LUA_MASKCALL">LUA_MASKCALL</a>;
+L0227      <span class="keyword">if</span> (strchr(smask, 'r')) mask |= <a class="L" href="lua.h.html#LUA_MASKRET">LUA_MASKRET</a>;
+L0228      <span class="keyword">if</span> (strchr(smask, 'l')) mask |= <a class="L" href="lua.h.html#LUA_MASKLINE">LUA_MASKLINE</a>;
+L0229      <span class="keyword">if</span> (count &gt; <span class="number">0</span>) mask |= <a class="L" href="lua.h.html#LUA_MASKCOUNT">LUA_MASKCOUNT</a>;
+L0230      <span class="keyword">return</span> mask;
+L0231    }
+L0232    
+L0233    
+L0234    <span class="keyword">static</span> <span class="keyword">char</span> *<a name="unmakemask"/a><a class="L" href="ldblib.c.ref.html#unmakemask">unmakemask</a> (<span class="keyword">int</span> mask, <span class="keyword">char</span> *smask) {
+L0235      <span class="keyword">int</span> i = <span class="number">0</span>;
+L0236      <span class="keyword">if</span> (mask &amp; <a class="L" href="lua.h.html#LUA_MASKCALL">LUA_MASKCALL</a>) smask[i++] = 'c';
+L0237      <span class="keyword">if</span> (mask &amp; <a class="L" href="lua.h.html#LUA_MASKRET">LUA_MASKRET</a>) smask[i++] = 'r';
+L0238      <span class="keyword">if</span> (mask &amp; <a class="L" href="lua.h.html#LUA_MASKLINE">LUA_MASKLINE</a>) smask[i++] = 'l';
+L0239      smask[i] = '\0';
+L0240      <span class="keyword">return</span> smask;
+L0241    }
+L0242    
+L0243    
+L0244    <span class="keyword">static</span> <span class="keyword">void</span> <a name="gethooktable"/a><a class="L" href="ldblib.c.ref.html#gethooktable">gethooktable</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0245      <a class="L" href="lapi.c.html#lua_pushlightuserdata">lua_pushlightuserdata</a>(L, (<span class="keyword">void</span> *)&amp;<a class="L" href="ldblib.c.html#KEY_HOOK">KEY_HOOK</a>);
+L0246      <a class="L" href="lapi.c.html#lua_rawget">lua_rawget</a>(L, <a class="L" href="lua.h.html#LUA_REGISTRYINDEX">LUA_REGISTRYINDEX</a>);
+L0247      <span class="keyword">if</span> (!<a class="L" href="lua.h.html#lua_istable">lua_istable</a>(L, <span class="number">-1</span>)) {
+L0248        <a class="L" href="lua.h.html#lua_pop">lua_pop</a>(L, <span class="number">1</span>);
+L0249        <a class="L" href="lapi.c.html#lua_createtable">lua_createtable</a>(L, <span class="number">0</span>, <span class="number">1</span>);
+L0250        <a class="L" href="lapi.c.html#lua_pushlightuserdata">lua_pushlightuserdata</a>(L, (<span class="keyword">void</span> *)&amp;<a class="L" href="ldblib.c.html#KEY_HOOK">KEY_HOOK</a>);
+L0251        <a class="L" href="lapi.c.html#lua_pushvalue">lua_pushvalue</a>(L, <span class="number">-2</span>);
+L0252        <a class="L" href="lapi.c.html#lua_rawset">lua_rawset</a>(L, <a class="L" href="lua.h.html#LUA_REGISTRYINDEX">LUA_REGISTRYINDEX</a>);
+L0253      }
+L0254    }
+L0255    
+L0256    
+L0257    <span class="keyword">static</span> <span class="keyword">int</span> <a name="db_sethook"/a><a class="L" href="ldblib.c.ref.html#db_sethook">db_sethook</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0258      <span class="keyword">int</span> arg, mask, count;
+L0259      <a class="L" href="lua.h.html#lua_Hook">lua_Hook</a> func;
+L0260      <a class="L" href="lstate.h.html#lua_State">lua_State</a> *L1 = <a class="L" href="ldblib.c.html#getthread">getthread</a>(L, &amp;arg);
+L0261      <span class="keyword">if</span> (<a class="L" href="lua.h.html#lua_isnoneornil">lua_isnoneornil</a>(L, arg<span class="number">+1</span>)) {
+L0262        <a class="L" href="lapi.c.html#lua_settop">lua_settop</a>(L, arg<span class="number">+1</span>);
+L0263        func = NULL; mask = <span class="number">0</span>; count = <span class="number">0</span>;  <span class="comment">/* turn off hooks */</span>
+L0264      }
+L0265      <span class="keyword">else</span> {
+L0266        <span class="keyword">const</span> <span class="keyword">char</span> *smask = <a class="L" href="lauxlib.h.html#luaL_checkstring">luaL_checkstring</a>(L, arg<span class="number">+2</span>);
+L0267        <a class="L" href="lauxlib.c.html#luaL_checktype">luaL_checktype</a>(L, arg<span class="number">+1</span>, <a class="L" href="lua.h.html#LUA_TFUNCTION">LUA_TFUNCTION</a>);
+L0268        count = <a class="L" href="lauxlib.h.html#luaL_optint">luaL_optint</a>(L, arg<span class="number">+3</span>, <span class="number">0</span>);
+L0269        func = <a class="L" href="ldblib.c.html#hookf">hookf</a>; mask = <a class="L" href="ldblib.c.html#makemask">makemask</a>(smask, count);
+L0270      }
+L0271      <a class="L" href="ldblib.c.html#gethooktable">gethooktable</a>(L);
+L0272      <a class="L" href="lapi.c.html#lua_pushlightuserdata">lua_pushlightuserdata</a>(L, L1);
+L0273      <a class="L" href="lapi.c.html#lua_pushvalue">lua_pushvalue</a>(L, arg<span class="number">+1</span>);
+L0274      <a class="L" href="lapi.c.html#lua_rawset">lua_rawset</a>(L, <span class="number">-3</span>);  <span class="comment">/* set new hook */</span>
+L0275      <a class="L" href="lua.h.html#lua_pop">lua_pop</a>(L, <span class="number">1</span>);  <span class="comment">/* remove hook table */</span>
+L0276      <a class="L" href="ldebug.c.html#lua_sethook">lua_sethook</a>(L1, func, mask, count);  <span class="comment">/* set hooks */</span>
+L0277      <span class="keyword">return</span> <span class="number">0</span>;
+L0278    }
+L0279    
+L0280    
+L0281    <span class="keyword">static</span> <span class="keyword">int</span> <a name="db_gethook"/a><a class="L" href="ldblib.c.ref.html#db_gethook">db_gethook</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0282      <span class="keyword">int</span> arg;
+L0283      <a class="L" href="lstate.h.html#lua_State">lua_State</a> *L1 = <a class="L" href="ldblib.c.html#getthread">getthread</a>(L, &amp;arg);
+L0284      <span class="keyword">char</span> buff[<span class="number">5</span>];
+L0285      <span class="keyword">int</span> mask = <a class="L" href="ldebug.c.html#lua_gethookmask">lua_gethookmask</a>(L1);
+L0286      <a class="L" href="lua.h.html#lua_Hook">lua_Hook</a> hook = <a class="L" href="ldebug.c.html#lua_gethook">lua_gethook</a>(L1);
+L0287      <span class="keyword">if</span> (hook != NULL &amp;&amp; hook != <a class="L" href="ldblib.c.html#hookf">hookf</a>)  <span class="comment">/* external hook? */</span>
+L0288        <a class="L" href="lua.h.html#lua_pushliteral">lua_pushliteral</a>(L, <span class="string">"external hook"</span>);
+L0289      <span class="keyword">else</span> {
+L0290        <a class="L" href="ldblib.c.html#gethooktable">gethooktable</a>(L);
+L0291        <a class="L" href="lapi.c.html#lua_pushlightuserdata">lua_pushlightuserdata</a>(L, L1);
+L0292        <a class="L" href="lapi.c.html#lua_rawget">lua_rawget</a>(L, <span class="number">-2</span>);   <span class="comment">/* get hook */</span>
+L0293        <a class="L" href="lapi.c.html#lua_remove">lua_remove</a>(L, <span class="number">-2</span>);  <span class="comment">/* remove hook table */</span>
+L0294      }
+L0295      <a class="L" href="lapi.c.html#lua_pushstring">lua_pushstring</a>(L, <a class="L" href="ldblib.c.html#unmakemask">unmakemask</a>(mask, buff));
+L0296      <a class="L" href="lapi.c.html#lua_pushinteger">lua_pushinteger</a>(L, <a class="L" href="ldebug.c.html#lua_gethookcount">lua_gethookcount</a>(L1));
+L0297      <span class="keyword">return</span> <span class="number">3</span>;
+L0298    }
+L0299    
+L0300    
+L0301    <span class="keyword">static</span> <span class="keyword">int</span> <a name="db_debug"/a><a class="L" href="ldblib.c.ref.html#db_debug">db_debug</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0302      <span class="keyword">for</span> (;;) {
+L0303        <span class="keyword">char</span> buffer[<span class="number">250</span>];
+L0304        fputs(<span class="string">"lua_debug&gt; "</span>, stderr);
+L0305        <span class="keyword">if</span> (fgets(buffer, <span class="keyword">sizeof</span>(buffer), stdin) == <span class="number">0</span> ||
+L0306            strcmp(buffer, <span class="string">"cont\n"</span>) == <span class="number">0</span>)
+L0307          <span class="keyword">return</span> <span class="number">0</span>;
+L0308        <span class="keyword">if</span> (<a class="L" href="lauxlib.c.html#luaL_loadbuffer">luaL_loadbuffer</a>(L, buffer, strlen(buffer), <span class="string">"=(debug command)"</span>) ||
+L0309            <a class="L" href="lapi.c.html#lua_pcall">lua_pcall</a>(L, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>)) {
+L0310          fputs(<a class="L" href="lua.h.html#lua_tostring">lua_tostring</a>(L, <span class="number">-1</span>), stderr);
+L0311          fputs(<span class="string">"\n"</span>, stderr);
+L0312        }
+L0313        <a class="L" href="lapi.c.html#lua_settop">lua_settop</a>(L, <span class="number">0</span>);  <span class="comment">/* remove eventual returns */</span>
+L0314      }
+L0315    }
+L0316    
+L0317    
+L0318    <a name="LEVELS1"/a><span class="prepro">#define LEVELS1	12	/* size of the first part of the stack */
+</span>L0319    <a name="LEVELS2"/a><span class="prepro">#define LEVELS2	10	/* size of the second part of the stack */
+</span>L0320    
+L0321    <span class="keyword">static</span> <span class="keyword">int</span> <a name="db_errorfb"/a><a class="L" href="ldblib.c.ref.html#db_errorfb">db_errorfb</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0322      <span class="keyword">int</span> level;
+L0323      <span class="keyword">int</span> firstpart = <span class="number">1</span>;  <span class="comment">/* still before eventual `...' */</span>
+L0324      <span class="keyword">int</span> arg;
+L0325      <a class="L" href="lstate.h.html#lua_State">lua_State</a> *L1 = <a class="L" href="ldblib.c.html#getthread">getthread</a>(L, &amp;arg);
+L0326      <a class="L" href="lua.h.html#lua_Debug">lua_Debug</a> ar;
+L0327      <span class="keyword">if</span> (<a class="L" href="lapi.c.html#lua_isnumber">lua_isnumber</a>(L, arg<span class="number">+2</span>)) {
+L0328        level = (<span class="keyword">int</span>)<a class="L" href="lapi.c.html#lua_tointeger">lua_tointeger</a>(L, arg<span class="number">+2</span>);
+L0329        <a class="L" href="lua.h.html#lua_pop">lua_pop</a>(L, <span class="number">1</span>);
+L0330      }
+L0331      <span class="keyword">else</span>
+L0332        level = (L == L1) ? <span class="number">1</span> : <span class="number">0</span>;  <span class="comment">/* level 0 may be this own function */</span>
+L0333      <span class="keyword">if</span> (<a class="L" href="lapi.c.html#lua_gettop">lua_gettop</a>(L) == arg)
+L0334        <a class="L" href="lua.h.html#lua_pushliteral">lua_pushliteral</a>(L, <span class="string">""</span>);
+L0335      <span class="keyword">else</span> <span class="keyword">if</span> (!<a class="L" href="lapi.c.html#lua_isstring">lua_isstring</a>(L, arg<span class="number">+1</span>)) <span class="keyword">return</span> <span class="number">1</span>;  <span class="comment">/* message is not a string */</span>
+L0336      <span class="keyword">else</span> <a class="L" href="lua.h.html#lua_pushliteral">lua_pushliteral</a>(L, <span class="string">"\n"</span>);
+L0337      <a class="L" href="lua.h.html#lua_pushliteral">lua_pushliteral</a>(L, <span class="string">"stack traceback:"</span>);
+L0338      <span class="keyword">while</span> (<a class="L" href="ldebug.c.html#lua_getstack">lua_getstack</a>(L1, level++, &amp;ar)) {
+L0339        <span class="keyword">if</span> (level &gt; <a class="L" href="ldblib.c.html#LEVELS1">LEVELS1</a> &amp;&amp; firstpart) {
+L0340          <span class="comment">/* no more than `LEVELS2' more levels? */</span>
+L0341          <span class="keyword">if</span> (!<a class="L" href="ldebug.c.html#lua_getstack">lua_getstack</a>(L1, level+<a class="L" href="ldblib.c.html#LEVELS2">LEVELS2</a>, &amp;ar))
+L0342            level--;  <span class="comment">/* keep going */</span>
+L0343          <span class="keyword">else</span> {
+L0344            <a class="L" href="lua.h.html#lua_pushliteral">lua_pushliteral</a>(L, <span class="string">"\n\t..."</span>);  <span class="comment">/* too many levels */</span>
+L0345            <span class="keyword">while</span> (<a class="L" href="ldebug.c.html#lua_getstack">lua_getstack</a>(L1, level+<a class="L" href="ldblib.c.html#LEVELS2">LEVELS2</a>, &amp;ar))  <span class="comment">/* find last levels */</span>
+L0346              level++;
+L0347          }
+L0348          firstpart = <span class="number">0</span>;
+L0349          <span class="keyword">continue</span>;
+L0350        }
+L0351        <a class="L" href="lua.h.html#lua_pushliteral">lua_pushliteral</a>(L, <span class="string">"\n\t"</span>);
+L0352        <a class="L" href="ldebug.c.html#lua_getinfo">lua_getinfo</a>(L1, <span class="string">"Snl"</span>, &amp;ar);
+L0353        <a class="L" href="lapi.c.html#lua_pushfstring">lua_pushfstring</a>(L, <span class="string">"%s:"</span>, ar.short_src);
+L0354        <span class="keyword">if</span> (ar.<a class="L" href="ldebug.c.html#currentline">currentline</a> &gt; <span class="number">0</span>)
+L0355          <a class="L" href="lapi.c.html#lua_pushfstring">lua_pushfstring</a>(L, <span class="string">"%d:"</span>, ar.<a class="L" href="ldebug.c.html#currentline">currentline</a>);
+L0356        <span class="keyword">if</span> (*ar.namewhat != '\0')  <span class="comment">/* is there a name? */</span>
+L0357            <a class="L" href="lapi.c.html#lua_pushfstring">lua_pushfstring</a>(L, <span class="string">" in function "</span> <a class="L" href="luaconf.h.html#LUA_QS">LUA_QS</a>, ar.name);
+L0358        <span class="keyword">else</span> {
+L0359          <span class="keyword">if</span> (*ar.what == 'm')  <span class="comment">/* main? */</span>
+L0360            <a class="L" href="lapi.c.html#lua_pushfstring">lua_pushfstring</a>(L, <span class="string">" in main chunk"</span>);
+L0361          <span class="keyword">else</span> <span class="keyword">if</span> (*ar.what == 'C' || *ar.what == 't')
+L0362            <a class="L" href="lua.h.html#lua_pushliteral">lua_pushliteral</a>(L, <span class="string">" ?"</span>);  <span class="comment">/* C function or tail call */</span>
+L0363          <span class="keyword">else</span>
+L0364            <a class="L" href="lapi.c.html#lua_pushfstring">lua_pushfstring</a>(L, <span class="string">" in function &lt;%s:%d&gt;"</span>,
+L0365                               ar.short_src, ar.linedefined);
+L0366        }
+L0367        <a class="L" href="lapi.c.html#lua_concat">lua_concat</a>(L, <a class="L" href="lapi.c.html#lua_gettop">lua_gettop</a>(L) - arg);
+L0368      }
+L0369      <a class="L" href="lapi.c.html#lua_concat">lua_concat</a>(L, <a class="L" href="lapi.c.html#lua_gettop">lua_gettop</a>(L) - arg);
+L0370      <span class="keyword">return</span> <span class="number">1</span>;
+L0371    }
+L0372    
+L0373    
+L0374    <span class="keyword">static</span> <span class="keyword">const</span> <a class="L" href="lauxlib.h.html#luaL_Reg">luaL_Reg</a> <a name="dblib"/a><a class="L" href="ldblib.c.ref.html#dblib">dblib</a>[] = {
+L0375      {<span class="string">"debug"</span>, <a class="L" href="ldblib.c.html#db_debug">db_debug</a>},
+L0376      {<span class="string">"getfenv"</span>, <a class="L" href="ldblib.c.html#db_getfenv">db_getfenv</a>},
+L0377      {<span class="string">"gethook"</span>, <a class="L" href="ldblib.c.html#db_gethook">db_gethook</a>},
+L0378      {<span class="string">"getinfo"</span>, <a class="L" href="ldblib.c.html#db_getinfo">db_getinfo</a>},
+L0379      {<span class="string">"getlocal"</span>, <a class="L" href="ldblib.c.html#db_getlocal">db_getlocal</a>},
+L0380      {<span class="string">"getregistry"</span>, <a class="L" href="ldblib.c.html#db_getregistry">db_getregistry</a>},
+L0381      {<span class="string">"getmetatable"</span>, <a class="L" href="ldblib.c.html#db_getmetatable">db_getmetatable</a>},
+L0382      {<span class="string">"getupvalue"</span>, <a class="L" href="ldblib.c.html#db_getupvalue">db_getupvalue</a>},
+L0383      {<span class="string">"setfenv"</span>, <a class="L" href="ldblib.c.html#db_setfenv">db_setfenv</a>},
+L0384      {<span class="string">"sethook"</span>, <a class="L" href="ldblib.c.html#db_sethook">db_sethook</a>},
+L0385      {<span class="string">"setlocal"</span>, <a class="L" href="ldblib.c.html#db_setlocal">db_setlocal</a>},
+L0386      {<span class="string">"setmetatable"</span>, <a class="L" href="ldblib.c.html#db_setmetatable">db_setmetatable</a>},
+L0387      {<span class="string">"setupvalue"</span>, <a class="L" href="ldblib.c.html#db_setupvalue">db_setupvalue</a>},
+L0388      {<span class="string">"traceback"</span>, <a class="L" href="ldblib.c.html#db_errorfb">db_errorfb</a>},
+L0389      {NULL, NULL}
+L0390    };
+L0391    
+L0392    
+L0393    <a class="L" href="luaconf.h.html#LUALIB_API">LUALIB_API</a> <span class="keyword">int</span> <a name="luaopen_debug"/a><a class="L" href="ldblib.c.ref.html#luaopen_debug">luaopen_debug</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
+L0394      <a class="L" href="lauxlib.c.html#luaL_register">luaL_register</a>(L, <a class="L" href="lualib.h.html#LUA_DBLIBNAME">LUA_DBLIBNAME</a>, <a class="L" href="ldblib.c.html#dblib">dblib</a>);
+L0395      <span class="keyword">return</span> <span class="number">1</span>;
+L0396    }
+L0397    
+</pre>
+<hr/>
+Generated by <a href="pretty.lua.html">pretty.lua</html>
+</body></html>

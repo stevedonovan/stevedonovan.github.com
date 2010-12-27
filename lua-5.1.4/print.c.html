@@ -1,0 +1,248 @@
+<html>
+<head>
+<style>
+a.L { text-decoration: none; }
+a.L:hover { color: #FFAAAA; }
+body { margin-top: 20px; margin-left: 30px; }
+.lno { font-weight: bold: color #000; }
+.keyword {font-weight: bold; color: #6666AA; }
+.number  { color: #AA6666; }
+.string  { color: #8888AA; }
+.comment { color: #666600; }
+.prepro { color: #006666; } 
+</style>
+<body>
+<h1>Lua 5.1.4: print.c</h1>
+<hr/>
+<pre>
+L0001    <span class="comment">/*
+L0002    ** $Id: print.c,v 1.55a 2006/05/31 13:30:05 lhf Exp $
+L0003    ** print bytecodes
+L0004    ** See Copyright Notice in lua.h
+L0005    */</span>
+L0006    
+L0007    <span class="prepro">#include &lt;ctype.h&gt;
+</span>L0008    <span class="prepro">#include &lt;stdio.h&gt;
+</span>L0009    
+L0010    <a name="luac_c"/a><span class="prepro">#define luac_c
+</span>L0011    <a name="LUA_CORE"/a><span class="prepro">#define LUA_CORE
+</span>L0012    
+L0013    <span class="prepro"><a class="L" href="ldebug.h.html#">#include "ldebug.h"
+</a></span>L0014    <span class="prepro"><a class="L" href="lobject.h.html#">#include "lobject.h"
+</a></span>L0015    <span class="prepro"><a class="L" href="lopcodes.h.html#">#include "lopcodes.h"
+</a></span>L0016    <span class="prepro"><a class="L" href="lundump.h.html#">#include "lundump.h"
+</a></span>L0017    
+L0018    <a name="PrintFunction"/a><span class="prepro">#define PrintFunction	luaU_print
+</span>L0019    
+L0020    <a name="Sizeof"/a><span class="prepro">#define Sizeof(x)	((int)sizeof(x))
+</span>L0021    <a name="VOID"/a><span class="prepro">#define VOID(p)		((const void*)(p))
+</span>L0022    
+L0023    <span class="keyword">static</span> <span class="keyword">void</span> <a name="PrintString"/a><a class="L" href="print.c.ref.html#PrintString">PrintString</a>(<span class="keyword">const</span> <a class="L" href="lobject.h.html#TString">TString</a>* ts)
+L0024    {
+L0025     <span class="keyword">const</span> <span class="keyword">char</span>* s=<a class="L" href="lobject.h.html#getstr">getstr</a>(ts);
+L0026     size_t i,n=ts-&gt;tsv.len;
+L0027     putchar(<span class="string">'"</span>');
+L0028     for (i=0; i&lt;n; i++)
+L0029     {
+L0030      int c=s[i];
+L0031      switch (c)
+L0032      {
+L0033       case '<span class="string">"'</span>: printf(<span class="string">"\\\""</span>); <span class="keyword">break</span>;
+L0034       <span class="keyword">case</span> '\\': printf("\\\\"); break;
+L0035       case '\a': printf("\\a"); break;
+L0036       case '\b': printf("\\b"); break;
+L0037       case '\f': printf("\\f"); break;
+L0038       case '\n': printf("\\n"); break;
+L0039       case '\r': printf("\\r"); break;
+L0040       case '\t': printf("\\t"); break;
+L0041       case '\v': printf("\\v"); break;
+L0042       default:	if (isprint((unsigned char)c))
+L0043       			putchar(c);
+L0044    		else
+L0045    			printf("\\%03u",(unsigned char)c);
+L0046      }
+L0047     }
+L0048     putchar('<span class="string">"'</span>);
+L0049    }
+L0050    
+L0051    <span class="keyword">static</span> <span class="keyword">void</span> <a name="PrintConstant"/a><a class="L" href="print.c.ref.html#PrintConstant">PrintConstant</a>(<span class="keyword">const</span> <a class="L" href="lobject.h.html#Proto">Proto</a>* f, <span class="keyword">int</span> i)
+L0052    {
+L0053     <span class="keyword">const</span> <a class="L" href="lobject.h.html#TValue">TValue</a>* o=&amp;f-&gt;k[i];
+L0054     <span class="keyword">switch</span> (<a class="L" href="lobject.h.html#ttype">ttype</a>(o))
+L0055     {
+L0056      <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TNIL">LUA_TNIL</a>:
+L0057    	printf(<span class="string">"nil"</span>);
+L0058    	<span class="keyword">break</span>;
+L0059      <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TBOOLEAN">LUA_TBOOLEAN</a>:
+L0060    	printf(<a class="L" href="lobject.h.html#bvalue">bvalue</a>(o) ? <span class="string">"true"</span> : <span class="string">"false"</span>);
+L0061    	<span class="keyword">break</span>;
+L0062      <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TNUMBER">LUA_TNUMBER</a>:
+L0063    	printf(<a class="L" href="luaconf.h.html#LUA_NUMBER_FMT">LUA_NUMBER_FMT</a>,<a class="L" href="lobject.h.html#nvalue">nvalue</a>(o));
+L0064    	<span class="keyword">break</span>;
+L0065      <span class="keyword">case</span> <a class="L" href="lua.h.html#LUA_TSTRING">LUA_TSTRING</a>:
+L0066    	<a class="L" href="print.c.html#PrintString">PrintString</a>(<a class="L" href="lobject.h.html#rawtsvalue">rawtsvalue</a>(o));
+L0067    	<span class="keyword">break</span>;
+L0068      <span class="keyword">default</span>:				<span class="comment">/* cannot happen */</span>
+L0069    	printf(<span class="string">"? type=%d"</span>,<a class="L" href="lobject.h.html#ttype">ttype</a>(o));
+L0070    	<span class="keyword">break</span>;
+L0071     }
+L0072    }
+L0073    
+L0074    <span class="keyword">static</span> <span class="keyword">void</span> <a name="PrintCode"/a><a class="L" href="print.c.ref.html#PrintCode">PrintCode</a>(<span class="keyword">const</span> <a class="L" href="lobject.h.html#Proto">Proto</a>* f)
+L0075    {
+L0076     <span class="keyword">const</span> <a class="L" href="llimits.h.html#Instruction">Instruction</a>* code=f-&gt;code;
+L0077     <span class="keyword">int</span> pc,n=f-&gt;sizecode;
+L0078     <span class="keyword">for</span> (pc=<span class="number">0</span>; pc&lt;n; pc++)
+L0079     {
+L0080      <a class="L" href="llimits.h.html#Instruction">Instruction</a> i=code[pc];
+L0081      <a class="L" href="lopcodes.h.html#OpCode">OpCode</a> o=<a class="L" href="lopcodes.h.html#GET_OPCODE">GET_OPCODE</a>(i);
+L0082      <span class="keyword">int</span> a=<a class="L" href="lopcodes.h.html#GETARG_A">GETARG_A</a>(i);
+L0083      <span class="keyword">int</span> b=<a class="L" href="lopcodes.h.html#GETARG_B">GETARG_B</a>(i);
+L0084      <span class="keyword">int</span> c=<a class="L" href="lopcodes.h.html#GETARG_C">GETARG_C</a>(i);
+L0085      <span class="keyword">int</span> bx=<a class="L" href="lopcodes.h.html#GETARG_Bx">GETARG_Bx</a>(i);
+L0086      <span class="keyword">int</span> sbx=<a class="L" href="lopcodes.h.html#GETARG_sBx">GETARG_sBx</a>(i);
+L0087      <span class="keyword">int</span> line=<a class="L" href="ldebug.h.html#getline">getline</a>(f,pc);
+L0088      printf(<span class="string">"\t%d\t"</span>,pc<span class="number">+1</span>);
+L0089      <span class="keyword">if</span> (line&gt;<span class="number">0</span>) printf(<span class="string">"[%d]\t"</span>,line); <span class="keyword">else</span> printf(<span class="string">"[-]\t"</span>);
+L0090      printf(<span class="string">"%-9s\t"</span>,<a class="L" href="lopcodes.c.html#luaP_opnames">luaP_opnames</a>[o]);
+L0091      <span class="keyword">switch</span> (<a class="L" href="lopcodes.h.html#getOpMode">getOpMode</a>(o))
+L0092      {
+L0093       <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#iABC">iABC</a>:
+L0094        printf(<span class="string">"%d"</span>,a);
+L0095        <span class="keyword">if</span> (<a class="L" href="lopcodes.h.html#getBMode">getBMode</a>(o)!=<a class="L" href="lopcodes.h.html#OpArgN">OpArgN</a>) printf(<span class="string">" %d"</span>,<a class="L" href="lopcodes.h.html#ISK">ISK</a>(b) ? (<span class="number">-1</span>-<a class="L" href="lopcodes.h.html#INDEXK">INDEXK</a>(b)) : b);
+L0096        <span class="keyword">if</span> (<a class="L" href="lopcodes.h.html#getCMode">getCMode</a>(o)!=<a class="L" href="lopcodes.h.html#OpArgN">OpArgN</a>) printf(<span class="string">" %d"</span>,<a class="L" href="lopcodes.h.html#ISK">ISK</a>(c) ? (<span class="number">-1</span>-<a class="L" href="lopcodes.h.html#INDEXK">INDEXK</a>(c)) : c);
+L0097        <span class="keyword">break</span>;
+L0098       <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#iABx">iABx</a>:
+L0099        <span class="keyword">if</span> (<a class="L" href="lopcodes.h.html#getBMode">getBMode</a>(o)==<a class="L" href="lopcodes.h.html#OpArgK">OpArgK</a>) printf(<span class="string">"%d %d"</span>,a,<span class="number">-1</span>-bx); <span class="keyword">else</span> printf(<span class="string">"%d %d"</span>,a,bx);
+L0100        <span class="keyword">break</span>;
+L0101       <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#iAsBx">iAsBx</a>:
+L0102        <span class="keyword">if</span> (o==<a class="L" href="lopcodes.h.html#OP_JMP">OP_JMP</a>) printf(<span class="string">"%d"</span>,sbx); <span class="keyword">else</span> printf(<span class="string">"%d %d"</span>,a,sbx);
+L0103        <span class="keyword">break</span>;
+L0104      }
+L0105      <span class="keyword">switch</span> (o)
+L0106      {
+L0107       <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_LOADK">OP_LOADK</a>:
+L0108        printf(<span class="string">"\t; "</span>); <a class="L" href="print.c.html#PrintConstant">PrintConstant</a>(f,bx);
+L0109        <span class="keyword">break</span>;
+L0110       <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_GETUPVAL">OP_GETUPVAL</a>:
+L0111       <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_SETUPVAL">OP_SETUPVAL</a>:
+L0112        printf(<span class="string">"\t; %s"</span>, (f-&gt;sizeupvalues&gt;<span class="number">0</span>) ? <a class="L" href="lobject.h.html#getstr">getstr</a>(f-&gt;upvalues[b]) : <span class="string">"-"</span>);
+L0113        <span class="keyword">break</span>;
+L0114       <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_GETGLOBAL">OP_GETGLOBAL</a>:
+L0115       <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_SETGLOBAL">OP_SETGLOBAL</a>:
+L0116        printf(<span class="string">"\t; %s"</span>,<a class="L" href="lobject.h.html#svalue">svalue</a>(&amp;f-&gt;k[bx]));
+L0117        <span class="keyword">break</span>;
+L0118       <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_GETTABLE">OP_GETTABLE</a>:
+L0119       <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_SELF">OP_SELF</a>:
+L0120        <span class="keyword">if</span> (<a class="L" href="lopcodes.h.html#ISK">ISK</a>(c)) { printf(<span class="string">"\t; "</span>); <a class="L" href="print.c.html#PrintConstant">PrintConstant</a>(f,<a class="L" href="lopcodes.h.html#INDEXK">INDEXK</a>(c)); }
+L0121        <span class="keyword">break</span>;
+L0122       <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_SETTABLE">OP_SETTABLE</a>:
+L0123       <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_ADD">OP_ADD</a>:
+L0124       <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_SUB">OP_SUB</a>:
+L0125       <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_MUL">OP_MUL</a>:
+L0126       <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_DIV">OP_DIV</a>:
+L0127       <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_POW">OP_POW</a>:
+L0128       <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_EQ">OP_EQ</a>:
+L0129       <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_LT">OP_LT</a>:
+L0130       <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_LE">OP_LE</a>:
+L0131        <span class="keyword">if</span> (<a class="L" href="lopcodes.h.html#ISK">ISK</a>(b) || <a class="L" href="lopcodes.h.html#ISK">ISK</a>(c))
+L0132        {
+L0133         printf(<span class="string">"\t; "</span>);
+L0134         <span class="keyword">if</span> (<a class="L" href="lopcodes.h.html#ISK">ISK</a>(b)) <a class="L" href="print.c.html#PrintConstant">PrintConstant</a>(f,<a class="L" href="lopcodes.h.html#INDEXK">INDEXK</a>(b)); <span class="keyword">else</span> printf(<span class="string">"-"</span>);
+L0135         printf(<span class="string">" "</span>);
+L0136         <span class="keyword">if</span> (<a class="L" href="lopcodes.h.html#ISK">ISK</a>(c)) <a class="L" href="print.c.html#PrintConstant">PrintConstant</a>(f,<a class="L" href="lopcodes.h.html#INDEXK">INDEXK</a>(c)); <span class="keyword">else</span> printf(<span class="string">"-"</span>);
+L0137        }
+L0138        <span class="keyword">break</span>;
+L0139       <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_JMP">OP_JMP</a>:
+L0140       <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_FORLOOP">OP_FORLOOP</a>:
+L0141       <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_FORPREP">OP_FORPREP</a>:
+L0142        printf(<span class="string">"\t; to %d"</span>,sbx+pc<span class="number">+2</span>);
+L0143        <span class="keyword">break</span>;
+L0144       <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_CLOSURE">OP_CLOSURE</a>:
+L0145        printf(<span class="string">"\t; %p"</span>,<a class="L" href="print.c.html#VOID">VOID</a>(f-&gt;p[bx]));
+L0146        <span class="keyword">break</span>;
+L0147       <span class="keyword">case</span> <a class="L" href="lopcodes.h.html#OP_SETLIST">OP_SETLIST</a>:
+L0148        <span class="keyword">if</span> (c==<span class="number">0</span>) printf(<span class="string">"\t; %d"</span>,(<span class="keyword">int</span>)code[++pc]);
+L0149        <span class="keyword">else</span> printf(<span class="string">"\t; %d"</span>,c);
+L0150        <span class="keyword">break</span>;
+L0151       <span class="keyword">default</span>:
+L0152        <span class="keyword">break</span>;
+L0153      }
+L0154      printf(<span class="string">"\n"</span>);
+L0155     }
+L0156    }
+L0157    
+L0158    <a name="SS"/a><span class="prepro">#define SS(x)	(x==1)?"":"s"
+</span>L0159    <a name="S"/a><span class="prepro">#define S(x)	x,SS(x)
+</span>L0160    
+L0161    <span class="keyword">static</span> <span class="keyword">void</span> <a name="PrintHeader"/a><a class="L" href="print.c.ref.html#PrintHeader">PrintHeader</a>(<span class="keyword">const</span> <a class="L" href="lobject.h.html#Proto">Proto</a>* f)
+L0162    {
+L0163     <span class="keyword">const</span> <span class="keyword">char</span>* s=<a class="L" href="lobject.h.html#getstr">getstr</a>(f-&gt;source);
+L0164     <span class="keyword">if</span> (*s=='@' || *s=='=')
+L0165      s++;
+L0166     <span class="keyword">else</span> <span class="keyword">if</span> (*s==<a class="L" href="lua.h.html#LUA_SIGNATURE">LUA_SIGNATURE</a>[<span class="number">0</span>])
+L0167      s=<span class="string">"(bstring)"</span>;
+L0168     <span class="keyword">else</span>
+L0169      s=<span class="string">"(string)"</span>;
+L0170     printf(<span class="string">"\n%s &lt;%s:%d,%d&gt; (%d instruction%s, %d bytes at %p)\n"</span>,
+L0171     	(f-&gt;linedefined==<span class="number">0</span>)?<span class="string">"main"</span>:<span class="string">"function"</span>,s,
+L0172    	f-&gt;linedefined,f-&gt;lastlinedefined,
+L0173    	<a class="L" href="print.c.html#S">S</a>(f-&gt;sizecode),f-&gt;sizecode*<a class="L" href="print.c.html#Sizeof">Sizeof</a>(<a class="L" href="llimits.h.html#Instruction">Instruction</a>),<a class="L" href="print.c.html#VOID">VOID</a>(f));
+L0174     printf(<span class="string">"%d%s param%s, %d slot%s, %d upvalue%s, "</span>,
+L0175    	f-&gt;numparams,f-&gt;is_vararg?<span class="string">"+"</span>:<span class="string">""</span>,<a class="L" href="print.c.html#SS">SS</a>(f-&gt;numparams),
+L0176    	<a class="L" href="print.c.html#S">S</a>(f-&gt;maxstacksize),<a class="L" href="print.c.html#S">S</a>(f-&gt;nups));
+L0177     printf(<span class="string">"%d local%s, %d constant%s, %d function%s\n"</span>,
+L0178    	<a class="L" href="print.c.html#S">S</a>(f-&gt;sizelocvars),<a class="L" href="print.c.html#S">S</a>(f-&gt;sizek),<a class="L" href="print.c.html#S">S</a>(f-&gt;sizep));
+L0179    }
+L0180    
+L0181    <span class="keyword">static</span> <span class="keyword">void</span> <a name="PrintConstants"/a><a class="L" href="print.c.ref.html#PrintConstants">PrintConstants</a>(<span class="keyword">const</span> <a class="L" href="lobject.h.html#Proto">Proto</a>* f)
+L0182    {
+L0183     <span class="keyword">int</span> i,n=f-&gt;sizek;
+L0184     printf(<span class="string">"constants (%d) for %p:\n"</span>,n,<a class="L" href="print.c.html#VOID">VOID</a>(f));
+L0185     <span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;n; i++)
+L0186     {
+L0187      printf(<span class="string">"\t%d\t"</span>,i<span class="number">+1</span>);
+L0188      <a class="L" href="print.c.html#PrintConstant">PrintConstant</a>(f,i);
+L0189      printf(<span class="string">"\n"</span>);
+L0190     }
+L0191    }
+L0192    
+L0193    <span class="keyword">static</span> <span class="keyword">void</span> <a name="PrintLocals"/a><a class="L" href="print.c.ref.html#PrintLocals">PrintLocals</a>(<span class="keyword">const</span> <a class="L" href="lobject.h.html#Proto">Proto</a>* f)
+L0194    {
+L0195     <span class="keyword">int</span> i,n=f-&gt;sizelocvars;
+L0196     printf(<span class="string">"locals (%d) for %p:\n"</span>,n,<a class="L" href="print.c.html#VOID">VOID</a>(f));
+L0197     <span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;n; i++)
+L0198     {
+L0199      printf(<span class="string">"\t%d\t%s\t%d\t%d\n"</span>,
+L0200      i,<a class="L" href="lobject.h.html#getstr">getstr</a>(f-&gt;locvars[i].varname),f-&gt;locvars[i].startpc<span class="number">+1</span>,f-&gt;locvars[i].endpc<span class="number">+1</span>);
+L0201     }
+L0202    }
+L0203    
+L0204    <span class="keyword">static</span> <span class="keyword">void</span> <a name="PrintUpvalues"/a><a class="L" href="print.c.ref.html#PrintUpvalues">PrintUpvalues</a>(<span class="keyword">const</span> <a class="L" href="lobject.h.html#Proto">Proto</a>* f)
+L0205    {
+L0206     <span class="keyword">int</span> i,n=f-&gt;sizeupvalues;
+L0207     printf(<span class="string">"upvalues (%d) for %p:\n"</span>,n,<a class="L" href="print.c.html#VOID">VOID</a>(f));
+L0208     <span class="keyword">if</span> (f-&gt;upvalues==NULL) <span class="keyword">return</span>;
+L0209     <span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;n; i++)
+L0210     {
+L0211      printf(<span class="string">"\t%d\t%s\n"</span>,i,<a class="L" href="lobject.h.html#getstr">getstr</a>(f-&gt;upvalues[i]));
+L0212     }
+L0213    }
+L0214    
+L0215    <span class="keyword">void</span> <a class="L" href="print.c.html#PrintFunction">PrintFunction</a>(<span class="keyword">const</span> <a class="L" href="lobject.h.html#Proto">Proto</a>* f, <span class="keyword">int</span> full)
+L0216    {
+L0217     <span class="keyword">int</span> i,n=f-&gt;sizep;
+L0218     <a class="L" href="print.c.html#PrintHeader">PrintHeader</a>(f);
+L0219     <a class="L" href="print.c.html#PrintCode">PrintCode</a>(f);
+L0220     <span class="keyword">if</span> (full)
+L0221     {
+L0222      <a class="L" href="print.c.html#PrintConstants">PrintConstants</a>(f);
+L0223      <a class="L" href="print.c.html#PrintLocals">PrintLocals</a>(f);
+L0224      <a class="L" href="print.c.html#PrintUpvalues">PrintUpvalues</a>(f);
+L0225     }
+L0226     <span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;n; i++) <a class="L" href="print.c.html#PrintFunction">PrintFunction</a>(f-&gt;p[i],full);
+L0227    }
+</pre>
+<hr/>
+Generated by <a href="pretty.lua.html">pretty.lua</html>
+</body></html>

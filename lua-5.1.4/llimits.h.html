@@ -1,0 +1,149 @@
+<html>
+<head>
+<style>
+a.L { text-decoration: none; }
+a.L:hover { color: #FFAAAA; }
+body { margin-top: 20px; margin-left: 30px; }
+.lno { font-weight: bold: color #000; }
+.keyword {font-weight: bold; color: #6666AA; }
+.number  { color: #AA6666; }
+.string  { color: #8888AA; }
+.comment { color: #666600; }
+.prepro { color: #006666; } 
+</style>
+<body>
+<h1>Lua 5.1.4: llimits.h</h1>
+<hr/>
+<pre>
+L0001    <span class="comment">/*
+L0002    ** $Id: llimits.h,v 1.69.1.1 2007/12/27 13:02:25 roberto Exp $
+L0003    ** Limits, basic types, and some other `installation-dependent' definitions
+L0004    ** See Copyright Notice in lua.h
+L0005    */</span>
+L0006    
+L0007    <span class="prepro">#ifndef llimits_h
+</span>L0008    <a name="llimits_h"/a><span class="prepro">#define llimits_h
+</span>L0009    
+L0010    
+L0011    <span class="prepro">#include &lt;limits.h&gt;
+</span>L0012    <span class="prepro">#include &lt;stddef.h&gt;
+</span>L0013    
+L0014    
+L0015    <span class="prepro"><a class="L" href="lua.h.html#">#include "lua.h"
+</a></span>L0016    
+L0017    
+L0018    <span class="keyword">typedef</span> <a class="L" href="luaconf.h.html#LUAI_UINT32">LUAI_UINT32</a> <a name="lu_int32"/a><a class="L" href="llimits.h.ref.html#lu_int32">lu_int32</a>;
+L0019    
+L0020    <span class="keyword">typedef</span> <a class="L" href="luaconf.h.html#LUAI_UMEM">LUAI_UMEM</a> <a name="lu_mem"/a><a class="L" href="llimits.h.ref.html#lu_mem">lu_mem</a>;
+L0021    
+L0022    <span class="keyword">typedef</span> <a class="L" href="luaconf.h.html#LUAI_MEM">LUAI_MEM</a> <a name="l_mem"/a><a class="L" href="llimits.h.ref.html#l_mem">l_mem</a>;
+L0023    
+L0024    
+L0025    
+L0026    <span class="comment">/* chars used as small naturals (so that `char' is reserved for characters) */</span>
+L0027    <span class="keyword">typedef</span> unsigned <span class="keyword">char</span> <a name="lu_byte"/a><a class="L" href="llimits.h.ref.html#lu_byte">lu_byte</a>;
+L0028    
+L0029    
+L0030    <a name="MAX_SIZET"/a><span class="prepro">#define MAX_SIZET	((size_t)(~(size_t)0)-2)
+</span>L0031    
+L0032    <a name="MAX_LUMEM"/a><span class="prepro">#define MAX_LUMEM	((lu_mem)(~(lu_mem)0)-2)
+</span>L0033    
+L0034    
+L0035    <a name="MAX_INT"/a><span class="prepro">#define MAX_INT (INT_MAX-2)  /* maximum value of an int (-2 for safety) */
+</span>L0036    
+L0037    <span class="comment">/*
+L0038    ** conversion of pointer to integer
+L0039    ** this is for hashing only; there is no problem if the integer
+L0040    ** cannot hold the whole pointer value
+L0041    */</span>
+L0042    <a name="IntPoint"/a><span class="prepro">#define IntPoint(p)  ((unsigned int)(lu_mem)(p))
+</span>L0043    
+L0044    
+L0045    
+L0046    <span class="comment">/* type to ensure maximum alignment */</span>
+L0047    <span class="keyword">typedef</span> <a class="L" href="luaconf.h.html#LUAI_USER_ALIGNMENT_T">LUAI_USER_ALIGNMENT_T</a> <a name="L_Umaxalign"/a><a class="L" href="llimits.h.ref.html#L_Umaxalign">L_Umaxalign</a>;
+L0048    
+L0049    
+L0050    <span class="comment">/* result of a `usual argument conversion' over lua_Number */</span>
+L0051    <span class="keyword">typedef</span> <a class="L" href="luaconf.h.html#LUAI_UACNUMBER">LUAI_UACNUMBER</a> <a name="l_uacNumber"/a><a class="L" href="llimits.h.ref.html#l_uacNumber">l_uacNumber</a>;
+L0052    
+L0053    
+L0054    <span class="comment">/* internal assertions for in-house debugging */</span>
+L0055    <span class="prepro">#ifdef lua_assert
+</span>L0056    
+L0057    <a name="check_exp"/a><span class="prepro">#define check_exp(c,e)		(lua_assert(c), (e))
+</span>L0058    <a name="api_check"/a><span class="prepro">#define api_check(l,e)		lua_assert(e)
+</span>L0059    
+L0060    <span class="prepro">#else
+</span>L0061    
+L0062    <a name="lua_assert"/a><span class="prepro">#define lua_assert(c)		((void)0)
+</span>L0063    <a name="check_exp"/a><span class="prepro">#define check_exp(c,e)		(e)
+</span>L0064    <a name="api_check"/a><span class="prepro">#define api_check		luai_apicheck
+</span>L0065    
+L0066    <span class="prepro">#endif
+</span>L0067    
+L0068    
+L0069    <span class="prepro">#ifndef UNUSED
+</span>L0070    <a name="UNUSED"/a><span class="prepro">#define UNUSED(x)	((void)(x))	/* to avoid warnings */
+</span>L0071    <span class="prepro">#endif
+</span>L0072    
+L0073    
+L0074    <span class="prepro">#ifndef cast
+</span>L0075    <a name="cast"/a><span class="prepro">#define cast(t, exp)	((t)(exp))
+</span>L0076    <span class="prepro">#endif
+</span>L0077    
+L0078    <a name="cast_byte"/a><span class="prepro">#define cast_byte(i)	cast(lu_byte, (i))
+</span>L0079    <a name="cast_num"/a><span class="prepro">#define cast_num(i)	cast(lua_Number, (i))
+</span>L0080    <a name="cast_int"/a><span class="prepro">#define cast_int(i)	cast(int, (i))
+</span>L0081    
+L0082    
+L0083    
+L0084    <span class="comment">/*
+L0085    ** type for virtual-machine instructions
+L0086    ** must be an unsigned with (at least) 4 bytes (see details in lopcodes.h)
+L0087    */</span>
+L0088    <span class="keyword">typedef</span> <a class="L" href="llimits.h.html#lu_int32">lu_int32</a> <a name="Instruction"/a><a class="L" href="llimits.h.ref.html#Instruction">Instruction</a>;
+L0089    
+L0090    
+L0091    
+L0092    <span class="comment">/* maximum stack for a Lua function */</span>
+L0093    <a name="MAXSTACK"/a><span class="prepro">#define MAXSTACK	250
+</span>L0094    
+L0095    
+L0096    
+L0097    <span class="comment">/* minimum size for the string table (must be power of 2) */</span>
+L0098    <span class="prepro">#ifndef MINSTRTABSIZE
+</span>L0099    <a name="MINSTRTABSIZE"/a><span class="prepro">#define MINSTRTABSIZE	32
+</span>L0100    <span class="prepro">#endif
+</span>L0101    
+L0102    
+L0103    <span class="comment">/* minimum size for string buffer */</span>
+L0104    <span class="prepro">#ifndef LUA_MINBUFFER
+</span>L0105    <a name="LUA_MINBUFFER"/a><span class="prepro">#define LUA_MINBUFFER	32
+</span>L0106    <span class="prepro">#endif
+</span>L0107    
+L0108    
+L0109    <span class="prepro">#ifndef lua_lock
+</span>L0110    <a name="lua_lock"/a><span class="prepro">#define lua_lock(L)     ((void) 0) 
+</span>L0111    <a name="lua_unlock"/a><span class="prepro">#define lua_unlock(L)   ((void) 0)
+</span>L0112    <span class="prepro">#endif
+</span>L0113    
+L0114    <span class="prepro">#ifndef luai_threadyield
+</span>L0115    <a name="luai_threadyield"/a><span class="prepro">#define luai_threadyield(L)     {lua_unlock(L); lua_lock(L);}
+</span>L0116    <span class="prepro">#endif
+</span>L0117    
+L0118    
+L0119    <span class="comment">/*
+L0120    ** macro to control inclusion of some hard tests on stack reallocation
+L0121    */</span> 
+L0122    <span class="prepro">#ifndef HARDSTACKTESTS
+</span>L0123    <a name="condhardstacktests"/a><span class="prepro">#define condhardstacktests(x)	((void)0)
+</span>L0124    <span class="prepro">#else
+</span>L0125    <a name="condhardstacktests"/a><span class="prepro">#define condhardstacktests(x)	x
+</span>L0126    <span class="prepro">#endif
+</span>L0127    
+L0128    <span class="prepro">#endif
+</span></pre>
+<hr/>
+Generated by <a href="pretty.lua.html">pretty.lua</html>
+</body></html>
