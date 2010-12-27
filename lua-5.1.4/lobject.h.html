@@ -1,20 +1,12 @@
 <html>
 <head>
-<style>
-a.L { text-decoration: none; }
-a.L:hover { color: #FFAAAA; }
-body { margin-top: 20px; margin-left: 30px; }
-.lno { font-weight: bold: color #000; }
-.keyword {font-weight: bold; color: #6666AA; }
-.number  { color: #AA6666; }
-.string  { color: #8888AA; }
-.comment { color: #666600; }
-.prepro { color: #006666; } 
-</style>
+<link rel='stylesheet' type='text/css' href='style.css'></link>
 <body>
 <h1>Lua 5.1.4: lobject.h</h1>
 <hr/>
-<pre>
+<div class="block">This files provides the types an operations on for handling
+values (TValue objects) in Lua.
+</div><pre>
 L0001    <span class="comment">/*
 L0002    ** $Id: lobject.h,v 2.20.1.2 2008/08/06 13:29:48 roberto Exp $
 L0003    ** Type definitions for Lua objects
@@ -94,8 +86,10 @@ L0076
 L0077    
 L0078    <span class="comment">/* Macros to test type */</span>
 L0079    <a name="ttisnil"/a><span class="prepro">#define ttisnil(o)	(ttype(o) == LUA_TNIL)
-</span>L0080    <a name="ttisnumber"/a><span class="prepro">#define ttisnumber(o)	(ttype(o) == LUA_TNUMBER)
-</span>L0081    <a name="ttisstring"/a><span class="prepro">#define ttisstring(o)	(ttype(o) == LUA_TSTRING)
+</span><div class="block">Checks whether TValue o is nil.
+</div>L0080    <a name="ttisnumber"/a><span class="prepro">#define ttisnumber(o)	(ttype(o) == LUA_TNUMBER)
+</span><div class="block">Checks whether TValue o is of type number.
+</div>L0081    <a name="ttisstring"/a><span class="prepro">#define ttisstring(o)	(ttype(o) == LUA_TSTRING)
 </span>L0082    <a name="ttistable"/a><span class="prepro">#define ttistable(o)	(ttype(o) == LUA_TTABLE)
 </span>L0083    <a name="ttisfunction"/a><span class="prepro">#define ttisfunction(o)	(ttype(o) == LUA_TFUNCTION)
 </span>L0084    <a name="ttisboolean"/a><span class="prepro">#define ttisboolean(o)	(ttype(o) == LUA_TBOOLEAN)
@@ -107,18 +101,28 @@ L0089    <span class="comment">/* Macros to access values */</span>
 L0090    <a name="ttype"/a><span class="prepro">#define ttype(o)	((o)-&gt;tt)
 </span>L0091    <a name="gcvalue"/a><span class="prepro">#define gcvalue(o)	check_exp(iscollectable(o), (o)-&gt;value.gc)
 </span>L0092    <a name="pvalue"/a><span class="prepro">#define pvalue(o)	check_exp(ttislightuserdata(o), (o)-&gt;value.p)
-</span>L0093    <a name="nvalue"/a><span class="prepro">#define nvalue(o)	check_exp(ttisnumber(o), (o)-&gt;value.n)
-</span>L0094    <a name="rawtsvalue"/a><span class="prepro">#define rawtsvalue(o)	check_exp(ttisstring(o), &amp;(o)-&gt;value.gc-&gt;ts)
-</span>L0095    <a name="tsvalue"/a><span class="prepro">#define tsvalue(o)	(&amp;rawtsvalue(o)-&gt;tsv)
-</span>L0096    <a name="rawuvalue"/a><span class="prepro">#define rawuvalue(o)	check_exp(ttisuserdata(o), &amp;(o)-&gt;value.gc-&gt;u)
+</span><div class="block">Gets void pointer in TValue o.
+</div>L0093    <a name="nvalue"/a><span class="prepro">#define nvalue(o)	check_exp(ttisnumber(o), (o)-&gt;value.n)
+</span><div class="block">Gets number (lua_Number) in TValue o (or asserts if not number).
+</div>L0094    <a name="rawtsvalue"/a><span class="prepro">#define rawtsvalue(o)	check_exp(ttisstring(o), &amp;(o)-&gt;value.gc-&gt;ts)
+</span><div class="block">Gets string (TString) in TValue o.
+</div>L0095    <a name="tsvalue"/a><span class="prepro">#define tsvalue(o)	(&amp;rawtsvalue(o)-&gt;tsv)
+</span><div class="block">Gets string header (TString.tsv) in TValue o.
+</div>L0096    <a name="rawuvalue"/a><span class="prepro">#define rawuvalue(o)	check_exp(ttisuserdata(o), &amp;(o)-&gt;value.gc-&gt;u)
 </span>L0097    <a name="uvalue"/a><span class="prepro">#define uvalue(o)	(&amp;rawuvalue(o)-&gt;uv)
-</span>L0098    <a name="clvalue"/a><span class="prepro">#define clvalue(o)	check_exp(ttisfunction(o), &amp;(o)-&gt;value.gc-&gt;cl)
-</span>L0099    <a name="hvalue"/a><span class="prepro">#define hvalue(o)	check_exp(ttistable(o), &amp;(o)-&gt;value.gc-&gt;h)
-</span>L0100    <a name="bvalue"/a><span class="prepro">#define bvalue(o)	check_exp(ttisboolean(o), (o)-&gt;value.b)
-</span>L0101    <a name="thvalue"/a><span class="prepro">#define thvalue(o)	check_exp(ttisthread(o), &amp;(o)-&gt;value.gc-&gt;th)
-</span>L0102    
+</span><div class="block">Gets userdata header (Udata.uv) in TValue o.
+</div>L0098    <a name="clvalue"/a><span class="prepro">#define clvalue(o)	check_exp(ttisfunction(o), &amp;(o)-&gt;value.gc-&gt;cl)
+</span><div class="block">Gets closure (Closure - GCObject.cl) in TValue o.
+</div>L0099    <a name="hvalue"/a><span class="prepro">#define hvalue(o)	check_exp(ttistable(o), &amp;(o)-&gt;value.gc-&gt;h)
+</span><div class="block">Gets table (Table - GCobject.h) in TValue o.
+</div>L0100    <a name="bvalue"/a><span class="prepro">#define bvalue(o)	check_exp(ttisboolean(o), (o)-&gt;value.b)
+</span><div class="block">Gets boolean (int) value in TValue o.
+</div>L0101    <a name="thvalue"/a><span class="prepro">#define thvalue(o)	check_exp(ttisthread(o), &amp;(o)-&gt;value.gc-&gt;th)
+</span><div class="block">Gets thread lua_State (GCObject.th) value in Tvalue o.
+</div>L0102    
 L0103    <a name="l_isfalse"/a><span class="prepro">#define l_isfalse(o)	(ttisnil(o) || (ttisboolean(o) &amp;&amp; bvalue(o) == 0))
-</span>L0104    
+</span><div class="block">Gets whether TValue o evaluates to false (i.e. is nil or false).
+</div>L0104    
 L0105    <span class="comment">/*
 L0106    ** for internal debug only
 L0107    */</span>
@@ -135,13 +139,15 @@ L0117    <a name="setnilvalue"/a><span class="prepro">#define setnilvalue(obj) (
 </span>L0118    
 L0119    <a name="setnvalue"/a><span class="prepro">#define setnvalue(obj,x) \
 L0120      { TValue *i_o=(obj); i_o-&gt;value.n=(x); i_o-&gt;tt=LUA_TNUMBER; }
-</span>L0121    
+</span><div class="block">Sets value of TValue obj to number (lua_Number) x.
+</div>L0121    
 L0122    <a name="setpvalue"/a><span class="prepro">#define setpvalue(obj,x) \
 L0123      { TValue *i_o=(obj); i_o-&gt;value.p=(x); i_o-&gt;tt=LUA_TLIGHTUSERDATA; }
 </span>L0124    
 L0125    <a name="setbvalue"/a><span class="prepro">#define setbvalue(obj,x) \
 L0126      { TValue *i_o=(obj); i_o-&gt;value.b=(x); i_o-&gt;tt=LUA_TBOOLEAN; }
-</span>L0127    
+</span><div class="block">Sets value of TValue obj to boolean (int 0..1) x.
+</div>L0127    
 L0128    <a name="setsvalue"/a><span class="prepro">#define setsvalue(L,obj,x) \
 L0129      { TValue *i_o=(obj); \
 L0130        i_o-&gt;value.gc=cast(GCObject *, (x)); i_o-&gt;tt=LUA_TSTRING; \
@@ -226,11 +232,17 @@ L0208
 L0209    
 L0210    <a name="getstr"/a><span class="prepro">#define getstr(ts)	cast(const char *, (ts) + 1)
 </span>L0211    <a name="svalue"/a><span class="prepro">#define svalue(o)       getstr(rawtsvalue(o))
-</span>L0212    
+</span><div class="block">Note: TValue o -&gt; const char *.
+</div>L0212    
 L0213    
 L0214    
 L0215    <span class="keyword">typedef</span> union <a name="Udata"/a><a class="L" href="lobject.h.ref.html#Udata">Udata</a> {
-L0216      <a class="L" href="llimits.h.html#L_Umaxalign">L_Umaxalign</a> dummy;  <span class="comment">/* ensures maximum alignment for `local' udata */</span>
+<div class="block">Note: each (heavyweight) userdata can be associated with a metatable
+and a user value (previously called a "userdata environment table") set
+via lua_setuservalue.
+A userdata is garbage collectable CommonHeader) and is allocated
+as a series of `len` bytes in Lua's own memory.
+</div>L0216      <a class="L" href="llimits.h.html#L_Umaxalign">L_Umaxalign</a> dummy;  <span class="comment">/* ensures maximum alignment for `local' udata */</span>
 L0217      <span class="keyword">struct</span> {
 L0218        CommonHeader;
 L0219        <span class="keyword">struct</span> <a class="L" href="lobject.h.html#Table">Table</a> *<a name="metatable"/a><a class="L" href="lobject.h.ref.html#metatable">metatable</a>;
@@ -246,7 +258,24 @@ L0228    <span class="comment">/*
 L0229    ** Function Prototypes
 L0230    */</span>
 L0231    <span class="keyword">typedef</span> <span class="keyword">struct</span> <a name="Proto"/a><a class="L" href="lobject.h.ref.html#Proto">Proto</a> {
-L0232      CommonHeader;
+<div class="block">Every definition of a Lua function (or C function exposed as a Lua function)
+is represented with a function prototype object.
+This contains things like a list of bytecode instructions (code),
+links to other constant data used by the functions
+(constants, nested functions, and upvalue descriptions), and other
+metadata (e.g. debugging info).
+
+For each function prototype, any number of values may be
+instantiated (allocated) based on that prototype.  For example, this:
+
+  local t = {}
+  for i=1,10 do
+    t[i] = function() return i end
+  end
+	
+creates 10 function objects that all link to the same prototype of
+"function() return i end".
+</div>L0232      CommonHeader;
 L0233      <a class="L" href="lobject.h.html#TValue">TValue</a> *<a name="k"/a><a class="L" href="lobject.h.ref.html#k">k</a>;  <span class="comment">/* constants used by the function */</span>
 L0234      <a class="L" href="llimits.h.html#Instruction">Instruction</a> *<a name="code"/a><a class="L" href="lobject.h.ref.html#code">code</a>;
 L0235      <span class="keyword">struct</span> <a class="L" href="lobject.h.html#Proto">Proto</a> **p;  <span class="comment">/* functions defined inside the function */</span>
@@ -289,7 +318,9 @@ L0271    ** Upvalues
 L0272    */</span>
 L0273    
 L0274    <span class="keyword">typedef</span> <span class="keyword">struct</span> <a name="UpVal"/a><a class="L" href="lobject.h.ref.html#UpVal">UpVal</a> {
-L0275      CommonHeader;
+<div class="block">This represents upvalues.  They are stored in a closure value (LClosure).
+Compare to Upvaldesc.
+</div>L0275      CommonHeader;
 L0276      <a class="L" href="lobject.h.html#TValue">TValue</a> *<a name="v"/a><a class="L" href="lobject.h.ref.html#v">v</a>;  <span class="comment">/* points to stack or to its own value */</span>
 L0277      union {
 L0278        <a class="L" href="lobject.h.html#TValue">TValue</a> <a name="value"/a><a class="L" href="lobject.h.ref.html#value">value</a>;  <span class="comment">/* the value (when closed) */</span>
@@ -324,7 +355,9 @@ L0306    } <a class="L" href="lobject.h.html#LClosure">LClosure</a>;
 L0307    
 L0308    
 L0309    <span class="keyword">typedef</span> union <a name="Closure"/a><a class="L" href="lobject.h.ref.html#Closure">Closure</a> {
-L0310      <a class="L" href="lobject.h.html#CClosure">CClosure</a> <a name="c"/a><a class="L" href="lobject.h.ref.html#c">c</a>;
+<div class="block">Represents a closure (implemented via C Function or Lua function).
+These are linked to TValue's, among other places.
+</div>L0310      <a class="L" href="lobject.h.html#CClosure">CClosure</a> <a name="c"/a><a class="L" href="lobject.h.ref.html#c">c</a>;
 L0311      <a class="L" href="lobject.h.html#LClosure">LClosure</a> l;
 L0312    } <a class="L" href="lobject.h.html#Closure">Closure</a>;
 L0313    
@@ -353,7 +386,16 @@ L0335    } <a class="L" href="lobject.h.html#Node">Node</a>;
 L0336    
 L0337    
 L0338    <span class="keyword">typedef</span> <span class="keyword">struct</span> <a name="Table"/a><a class="L" href="lobject.h.ref.html#Table">Table</a> {
-L0339      CommonHeader;
+<div class="block">Represents a Lua table ({}).
+These are linked to TValues.
+
+Note: each table can have an optional metatable and can have
+an array part (stored in array `array` of length `sizearray` and
+a hash part (stored in array `node` of length encoded in `lsizenode`).
+
+You can quickly check for certain metamethods via the `flags` field
+rather than looking in the metatable.
+</div>L0339      CommonHeader;
 L0340      <a class="L" href="llimits.h.html#lu_byte">lu_byte</a> <a name="flags"/a><a class="L" href="lobject.h.ref.html#flags">flags</a>;  <span class="comment">/* 1&lt;&lt;p means tagmethod(p) is not present */</span> 
 L0341      <a class="L" href="llimits.h.html#lu_byte">lu_byte</a> <a name="lsizenode"/a><a class="L" href="lobject.h.ref.html#lsizenode">lsizenode</a>;  <span class="comment">/* log2 of size of `node' array */</span>
 L0342      <span class="keyword">struct</span> <a class="L" href="lobject.h.html#Table">Table</a> *metatable;
@@ -374,7 +416,8 @@ L0356    	(check_exp((size&amp;(size-1))==0, (cast(int, (s) &amp; ((size)-1)))))
 </span>L0357    
 L0358    
 L0359    <a name="twoto"/a><span class="prepro">#define twoto(x)	(1&lt;&lt;(x))
-</span>L0360    <a name="sizenode"/a><span class="prepro">#define sizenode(t)	(twoto((t)-&gt;lsizenode))
+</span><div class="block">Efficiently raises 2 to the integer x power.
+</div>L0360    <a name="sizenode"/a><span class="prepro">#define sizenode(t)	(twoto((t)-&gt;lsizenode))
 </span>L0361    
 L0362    
 L0363    <a name="luaO_nilobject"/a><span class="prepro">#define luaO_nilobject		(&amp;luaO_nilobject_)

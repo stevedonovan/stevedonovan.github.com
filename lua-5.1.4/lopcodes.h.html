@@ -1,16 +1,6 @@
 <html>
 <head>
-<style>
-a.L { text-decoration: none; }
-a.L:hover { color: #FFAAAA; }
-body { margin-top: 20px; margin-left: 30px; }
-.lno { font-weight: bold: color #000; }
-.keyword {font-weight: bold; color: #6666AA; }
-.number  { color: #AA6666; }
-.string  { color: #8888AA; }
-.comment { color: #666600; }
-.prepro { color: #006666; } 
-</style>
+<link rel='stylesheet' type='text/css' href='style.css'></link>
 <body>
 <h1>Lua 5.1.4: lopcodes.h</h1>
 <hr/>
@@ -99,9 +89,11 @@ L0080    <a name="GET_OPCODE"/a><span class="prepro">#define GET_OPCODE(i)	(cast
 L0082    		((cast(Instruction, o)&lt;&lt;POS_OP)&amp;MASK1(SIZE_OP,POS_OP))))
 </span>L0083    
 L0084    <a name="GETARG_A"/a><span class="prepro">#define GETARG_A(i)	(cast(int, ((i)&gt;&gt;POS_A) &amp; MASK1(SIZE_A,0)))
-</span>L0085    <a name="SETARG_A"/a><span class="prepro">#define SETARG_A(i,u)	((i) = (((i)&amp;MASK0(SIZE_A,POS_A)) | \
+</span><div class="block">Gets integer A fields bits of Instruction i.
+</div>L0085    <a name="SETARG_A"/a><span class="prepro">#define SETARG_A(i,u)	((i) = (((i)&amp;MASK0(SIZE_A,POS_A)) | \
 L0086    		((cast(Instruction, u)&lt;&lt;POS_A)&amp;MASK1(SIZE_A,POS_A))))
-</span>L0087    
+</span><div class="block">Sets (in-place) A field bits of Instruction i to integer v.
+</div>L0087    
 L0088    <a name="GETARG_B"/a><span class="prepro">#define GETARG_B(i)	(cast(int, ((i)&gt;&gt;POS_B) &amp; MASK1(SIZE_B,0)))
 </span>L0089    <a name="SETARG_B"/a><span class="prepro">#define SETARG_B(i,b)	((i) = (((i)&amp;MASK0(SIZE_B,POS_B)) | \
 L0090    		((cast(Instruction, b)&lt;&lt;POS_B)&amp;MASK1(SIZE_B,POS_B))))
@@ -122,7 +114,8 @@ L0104    <a name="CREATE_ABC"/a><span class="prepro">#define CREATE_ABC(o,a,b,c)
 L0105    			| (cast(Instruction, a)&lt;&lt;POS_A) \
 L0106    			| (cast(Instruction, b)&lt;&lt;POS_B) \
 L0107    			| (cast(Instruction, c)&lt;&lt;POS_C))
-</span>L0108    
+</span><div class="block">Returns Instruction formed from opcode (OpCode) o and given integer A, B, C fields.
+</div>L0108    
 L0109    <a name="CREATE_ABx"/a><span class="prepro">#define CREATE_ABx(o,a,bc)	((cast(Instruction, o)&lt;&lt;POS_OP) \
 L0110    			| (cast(Instruction, a)&lt;&lt;POS_A) \
 L0111    			| (cast(Instruction, bc)&lt;&lt;POS_Bx))

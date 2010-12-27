@@ -1,20 +1,13 @@
 <html>
 <head>
-<style>
-a.L { text-decoration: none; }
-a.L:hover { color: #FFAAAA; }
-body { margin-top: 20px; margin-left: 30px; }
-.lno { font-weight: bold: color #000; }
-.keyword {font-weight: bold; color: #6666AA; }
-.number  { color: #AA6666; }
-.string  { color: #8888AA; }
-.comment { color: #666600; }
-.prepro { color: #006666; } 
-</style>
+<link rel='stylesheet' type='text/css' href='style.css'></link>
 <body>
 <h1>Lua 5.1.4: luac.c</h1>
 <hr/>
-<pre>
+<div class="block">This is the Lua compiler front-end (luac).
+
+Note: Comments based on Lua 5.2.0-alpha.
+</div><pre>
 L0001    <span class="comment">/*
 L0002    ** $Id: luac.c,v 1.54 2006/06/02 17:37:11 lhf Exp $
 L0003    ** Lua compiler (saves bytecodes to files; also list bytecodes)
@@ -51,19 +44,25 @@ L0033    <span class="keyword">static</span> <span class="keyword">const</span> 
 L0034    <span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">char</span>* <a class="L" href="lua.c.html#progname">progname</a>=<a class="L" href="luac.c.html#PROGNAME">PROGNAME</a>;	<span class="comment">/* actual program name */</span>
 L0035    
 L0036    <span class="keyword">static</span> <span class="keyword">void</span> <a name="fatal"/a><a class="L" href="luac.c.ref.html#fatal">fatal</a>(<span class="keyword">const</span> <span class="keyword">char</span>* message)
-L0037    {
+<div class="block">Utility function to display fatal error message
+and exit (without cleanup).
+</div>L0037    {
 L0038     fprintf(stderr,<span class="string">"%s: %s\n"</span>,<a class="L" href="lua.c.html#progname">progname</a>,message);
 L0039     exit(EXIT_FAILURE);
 L0040    }
 L0041    
 L0042    <span class="keyword">static</span> <span class="keyword">void</span> <a name="cannot"/a><a class="L" href="luac.c.ref.html#cannot">cannot</a>(<span class="keyword">const</span> <span class="keyword">char</span>* what)
-L0043    {
+<div class="block">Utility function display fatal I/O error
+and exit (without cleanup).
+</div>L0043    {
 L0044     fprintf(stderr,<span class="string">"%s: cannot %s %s: %s\n"</span>,<a class="L" href="lua.c.html#progname">progname</a>,what,<a class="L" href="luac.c.html#output">output</a>,strerror(errno));
 L0045     exit(EXIT_FAILURE);
 L0046    }
 L0047    
 L0048    <span class="keyword">static</span> <span class="keyword">void</span> <a name="usage"/a><a class="L" href="luac.c.ref.html#usage">usage</a>(<span class="keyword">const</span> <span class="keyword">char</span>* message)
-L0049    {
+<div class="block">Writes command-line help to standard error
+and exit (without cleanup)
+</div>L0049    {
 L0050     <span class="keyword">if</span> (*message=='-')
 L0051      fprintf(stderr,<span class="string">"%s: unrecognized option "</span> <a class="L" href="luaconf.h.html#LUA_QS">LUA_QS</a> <span class="string">"\n"</span>,<a class="L" href="lua.c.html#progname">progname</a>,message);
 L0052     <span class="keyword">else</span>
@@ -85,7 +84,9 @@ L0067
 L0068    <a name="IS"/a><span class="prepro">#define	IS(s)	(strcmp(argv[i],s)==0)
 </span>L0069    
 L0070    <span class="keyword">static</span> <span class="keyword">int</span> <a name="doargs"/a><a class="L" href="luac.c.ref.html#doargs">doargs</a>(<span class="keyword">int</span> argc, <span class="keyword">char</span>* argv[])
-L0071    {
+<div class="block">Parse main's command line arguments.
+May exit without cleanup.
+</div>L0071    {
 L0072     <span class="keyword">int</span> i;
 L0073     <span class="keyword">int</span> version=<span class="number">0</span>;
 L0074     <span class="keyword">if</span> (argv[<span class="number">0</span>]!=NULL &amp;&amp; *argv[<span class="number">0</span>]!=<span class="number">0</span>) <a class="L" href="lua.c.html#progname">progname</a>=argv[<span class="number">0</span>];
@@ -134,7 +135,12 @@ L0116
 L0117    <a name="toproto"/a><span class="prepro">#define toproto(L,i) (clvalue(L-&gt;top+(i))-&gt;l.p)
 </span>L0118    
 L0119    <span class="keyword">static</span> <span class="keyword">const</span> <a class="L" href="lobject.h.html#Proto">Proto</a>* <a name="combine"/a><a class="L" href="luac.c.ref.html#combine">combine</a>(<a class="L" href="lstate.h.html#lua_State">lua_State</a>* L, <span class="keyword">int</span> n)
-L0120    {
+<div class="block">On exit, the top of the stack will contain a function that calls
+the previous top-most n values (functions) on the stack.
+
+This is used to generate the initial bytecode needed by
+luac when compiling multiple files (chunks) together.
+</div>L0120    {
 L0121     <span class="keyword">if</span> (n==<span class="number">1</span>)
 L0122      <span class="keyword">return</span> <a class="L" href="luac.c.html#toproto">toproto</a>(L,<span class="number">-1</span>);
 L0123     <span class="keyword">else</span>

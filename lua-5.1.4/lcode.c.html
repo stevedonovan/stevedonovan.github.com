@@ -1,16 +1,6 @@
 <html>
 <head>
-<style>
-a.L { text-decoration: none; }
-a.L:hover { color: #FFAAAA; }
-body { margin-top: 20px; margin-left: 30px; }
-.lno { font-weight: bold: color #000; }
-.keyword {font-weight: bold; color: #6666AA; }
-.number  { color: #AA6666; }
-.string  { color: #8888AA; }
-.comment { color: #666600; }
-.prepro { color: #006666; } 
-</style>
+<link rel='stylesheet' type='text/css' href='style.css'></link>
 <body>
 <h1>Lua 5.1.4: lcode.c</h1>
 <hr/>
@@ -84,7 +74,10 @@ L0066    }
 L0067    
 L0068    
 L0069    <span class="keyword">void</span> <a name="luaK_ret"/a><a class="L" href="lcode.c.ref.html#luaK_ret">luaK_ret</a> (<a class="L" href="lparser.h.html#FuncState">FuncState</a> *fs, <span class="keyword">int</span> first, <span class="keyword">int</span> nret) {
-L0070      <a class="L" href="lcode.c.html#luaK_codeABC">luaK_codeABC</a>(fs, <a class="L" href="lopcodes.h.html#OP_RETURN">OP_RETURN</a>, first, nret<span class="number">+1</span>, <span class="number">0</span>);
+<div class="block">Encode opcode for "return" (OP_RETURN).
+Note: (first,nret)=(0,0) means return no values.  nret == LUA_MULTRET means return all
+values starting at first (useful for vararg expressions).
+</div>L0070      <a class="L" href="lcode.c.html#luaK_codeABC">luaK_codeABC</a>(fs, <a class="L" href="lopcodes.h.html#OP_RETURN">OP_RETURN</a>, first, nret<span class="number">+1</span>, <span class="number">0</span>);
 L0071    }
 L0072    
 L0073    
@@ -214,7 +207,9 @@ L0196    }
 L0197    
 L0198    
 L0199    <span class="keyword">void</span> <a name="luaK_checkstack"/a><a class="L" href="lcode.c.ref.html#luaK_checkstack">luaK_checkstack</a> (<a class="L" href="lparser.h.html#FuncState">FuncState</a> *fs, <span class="keyword">int</span> n) {
-L0200      <span class="keyword">int</span> newstack = fs-&gt;<a class="L" href="lcode.c.html#freereg">freereg</a> + n;
+<div class="block">Updates function state's maximum needed stack size (maxstacksize) given that
+n additional registers will be needed.  Raises syntax error if above limit (MAXSTACK).
+</div>L0200      <span class="keyword">int</span> newstack = fs-&gt;<a class="L" href="lcode.c.html#freereg">freereg</a> + n;
 L0201      <span class="keyword">if</span> (newstack &gt; fs-&gt;f-&gt;maxstacksize) {
 L0202        <span class="keyword">if</span> (newstack &gt;= <a class="L" href="llimits.h.html#MAXSTACK">MAXSTACK</a>)
 L0203          <a class="L" href="llex.c.html#luaX_syntaxerror">luaX_syntaxerror</a>(fs-&gt;ls, <span class="string">"function or expression too complex"</span>);
@@ -224,13 +219,17 @@ L0206    }
 L0207    
 L0208    
 L0209    <span class="keyword">void</span> <a name="luaK_reserveregs"/a><a class="L" href="lcode.c.ref.html#luaK_reserveregs">luaK_reserveregs</a> (<a class="L" href="lparser.h.html#FuncState">FuncState</a> *fs, <span class="keyword">int</span> n) {
-L0210      <a class="L" href="lcode.c.html#luaK_checkstack">luaK_checkstack</a>(fs, n);
+<div class="block">Like luaK_checkstack but also reserves those n additional registers.
+</div>L0210      <a class="L" href="lcode.c.html#luaK_checkstack">luaK_checkstack</a>(fs, n);
 L0211      fs-&gt;<a class="L" href="lcode.c.html#freereg">freereg</a> += n;
 L0212    }
 L0213    
 L0214    
 L0215    <span class="keyword">static</span> <span class="keyword">void</span> <a name="freereg"/a><a class="L" href="lcode.c.ref.html#freereg">freereg</a> (<a class="L" href="lparser.h.html#FuncState">FuncState</a> *fs, <span class="keyword">int</span> reg) {
-L0216      <span class="keyword">if</span> (!<a class="L" href="lopcodes.h.html#ISK">ISK</a>(reg) &amp;&amp; reg &gt;= fs-&gt;nactvar) {
+<div class="block">This complements luaK_reserveregs.  It frees the top-most reserved register.
+But it only does this if reg is actually a register (not an index in the constant table)
+and it's not used for storage of a local variable (the lowest nactvar values on the stack).
+</div>L0216      <span class="keyword">if</span> (!<a class="L" href="lopcodes.h.html#ISK">ISK</a>(reg) &amp;&amp; reg &gt;= fs-&gt;nactvar) {
 L0217        fs-&gt;<a class="L" href="lcode.c.html#freereg">freereg</a>--;
 L0218        <a class="L" href="llimits.h.html#lua_assert">lua_assert</a>(reg == fs-&gt;<a class="L" href="lcode.c.html#freereg">freereg</a>);
 L0219      }
@@ -244,7 +243,14 @@ L0226    }
 L0227    
 L0228    
 L0229    <span class="keyword">static</span> <span class="keyword">int</span> <a name="addk"/a><a class="L" href="lcode.c.ref.html#addk">addk</a> (<a class="L" href="lparser.h.html#FuncState">FuncState</a> *fs, <a class="L" href="lobject.h.html#TValue">TValue</a> *k, <a class="L" href="lobject.h.html#TValue">TValue</a> *v) {
-L0230      <a class="L" href="lstate.h.html#lua_State">lua_State</a> *L = fs-&gt;L;
+<div class="block">Adds a constant with name `key` and value v to the function state's constant table
+(i.e. array k of size sizek where first nk values are used).
+Duplicates are detected and avoided via the helper table 'h', which maps each existing
+value in the constant table to an integer index in the constant table.  The constant
+table allocated size may need to be grown (and new empty space filled
+with nil's) prior to inserting the constant.  (TODO-comment on luaC_barrier?)
+Returns 0-based index of the new constant in the constant table.
+</div>L0230      <a class="L" href="lstate.h.html#lua_State">lua_State</a> *L = fs-&gt;L;
 L0231      <a class="L" href="lobject.h.html#TValue">TValue</a> *idx = <a class="L" href="ltable.c.html#luaH_set">luaH_set</a>(L, fs-&gt;h, k);
 L0232      <a class="L" href="lobject.h.html#Proto">Proto</a> *f = fs-&gt;f;
 L0233      <span class="keyword">int</span> oldsize = f-&gt;sizek;
@@ -265,28 +271,41 @@ L0247    }
 L0248    
 L0249    
 L0250    <span class="keyword">int</span> <a name="luaK_stringK"/a><a class="L" href="lcode.c.ref.html#luaK_stringK">luaK_stringK</a> (<a class="L" href="lparser.h.html#FuncState">FuncState</a> *fs, <a class="L" href="lobject.h.html#TString">TString</a> *s) {
-L0251      <a class="L" href="lobject.h.html#TValue">TValue</a> o;
+<div class="block">Adds a string to the constant table (addk).
+Note: stores in TValue first.
+</div>L0251      <a class="L" href="lobject.h.html#TValue">TValue</a> o;
 L0252      <a class="L" href="lobject.h.html#setsvalue">setsvalue</a>(fs-&gt;L, &amp;o, s);
 L0253      <span class="keyword">return</span> <a class="L" href="lcode.c.html#addk">addk</a>(fs, &amp;o, &amp;o);
 L0254    }
 L0255    
 L0256    
 L0257    <span class="keyword">int</span> <a name="luaK_numberK"/a><a class="L" href="lcode.c.ref.html#luaK_numberK">luaK_numberK</a> (<a class="L" href="lparser.h.html#FuncState">FuncState</a> *fs, <a class="L" href="lua.h.html#lua_Number">lua_Number</a> r) {
-L0258      <a class="L" href="lobject.h.html#TValue">TValue</a> o;
+<div class="block">Adds a number to the constant table (addk).
+(TODO: comment on "numeric problems")
+</div>L0258      <a class="L" href="lobject.h.html#TValue">TValue</a> o;
 L0259      <a class="L" href="lobject.h.html#setnvalue">setnvalue</a>(&amp;o, r);
 L0260      <span class="keyword">return</span> <a class="L" href="lcode.c.html#addk">addk</a>(fs, &amp;o, &amp;o);
 L0261    }
 L0262    
 L0263    
 L0264    <span class="keyword">static</span> <span class="keyword">int</span> <a name="boolK"/a><a class="L" href="lcode.c.ref.html#boolK">boolK</a> (<a class="L" href="lparser.h.html#FuncState">FuncState</a> *fs, <span class="keyword">int</span> b) {
-L0265      <a class="L" href="lobject.h.html#TValue">TValue</a> o;
+<div class="block">Adds a boolean (0 or 1) to the constant table (addk).
+</div>L0265      <a class="L" href="lobject.h.html#TValue">TValue</a> o;
 L0266      <a class="L" href="lobject.h.html#setbvalue">setbvalue</a>(&amp;o, b);
 L0267      <span class="keyword">return</span> <a class="L" href="lcode.c.html#addk">addk</a>(fs, &amp;o, &amp;o);
 L0268    }
 L0269    
 L0270    
 L0271    <span class="keyword">static</span> <span class="keyword">int</span> <a name="nilK"/a><a class="L" href="lcode.c.ref.html#nilK">nilK</a> (<a class="L" href="lparser.h.html#FuncState">FuncState</a> *fs) {
-L0272      <a class="L" href="lobject.h.html#TValue">TValue</a> k, v;
+<div class="block">Adds a nil to the constant table (addk).
+Note: the helper table 'h' (see addk) normally maps constant values to indicies in the
+constant table, but the constant value is nil here, which Lua tables don't allow.
+So, following a design pattern in &lt;http://lua-users.org/wiki/StoringNilsInTables&gt;,
+we use another unique value instead as its placeholder, which here is
+convenient to use the h table itself, which is never used outside of the compiler
+internal and therefore has no chance of misinterpretation.
+h is a Table, which we wrap in a TValue before doing addk.
+</div>L0272      <a class="L" href="lobject.h.html#TValue">TValue</a> k, v;
 L0273      <a class="L" href="lobject.h.html#setnilvalue">setnilvalue</a>(&amp;v);
 L0274      <span class="comment">/* cannot use nil as key; instead use table itself to represent nil */</span>
 L0275      <a class="L" href="lobject.h.html#sethvalue">sethvalue</a>(fs-&gt;L, &amp;k, fs-&gt;h);
@@ -650,7 +669,15 @@ L0632    }
 L0633    
 L0634    
 L0635    <span class="keyword">static</span> <span class="keyword">int</span> <a name="constfolding"/a><a class="L" href="lcode.c.ref.html#constfolding">constfolding</a> (<a class="L" href="lopcodes.h.html#OpCode">OpCode</a> op, <a class="L" href="lparser.h.html#expdesc">expdesc</a> *e1, <a class="L" href="lparser.h.html#expdesc">expdesc</a> *e2) {
-L0636      <a class="L" href="lua.h.html#lua_Number">lua_Number</a> v1, v2, r;
+<div class="block">Attempts to constant fold (i.e. evaluate at compile time as an optimization) the given
+operation on the two expressions.
+Folding is attempted only on operations on numbers that are known constants
+(e.g. `local x = 1+1` -&gt; `local x = 2`).  Moreover, constant folding is skipped on
+division (or modulo) by zero (resulting in not-a-number, NaN), which Lua 5.1 folded
+but it caused problems so this folding was eliminated in Lua 5.2.
+Returns 1 (not 0) if folding was possible.
+--see &lt;http://lua-users.org/lists/lua-l/2007-02/msg00207.html&gt;.
+</div>L0636      <a class="L" href="lua.h.html#lua_Number">lua_Number</a> v1, v2, r;
 L0637      <span class="keyword">if</span> (!<a class="L" href="lcode.c.html#isnumeral">isnumeral</a>(e1) || !<a class="L" href="lcode.c.html#isnumeral">isnumeral</a>(e2)) <span class="keyword">return</span> <span class="number">0</span>;
 L0638      v1 = e1-&gt;u.nval;
 L0639      v2 = e2-&gt;u.nval;

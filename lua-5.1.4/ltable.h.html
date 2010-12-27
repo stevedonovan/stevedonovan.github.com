@@ -1,16 +1,6 @@
 <html>
 <head>
-<style>
-a.L { text-decoration: none; }
-a.L:hover { color: #FFAAAA; }
-body { margin-top: 20px; margin-left: 30px; }
-.lno { font-weight: bold: color #000; }
-.keyword {font-weight: bold; color: #6666AA; }
-.number  { color: #AA6666; }
-.string  { color: #8888AA; }
-.comment { color: #666600; }
-.prepro { color: #006666; } 
-</style>
+<link rel='stylesheet' type='text/css' href='style.css'></link>
 <body>
 <h1>Lua 5.1.4: ltable.h</h1>
 <hr/>
@@ -28,10 +18,21 @@ L0010    <span class="prepro"><a class="L" href="lobject.h.html#">#include "lobj
 </a></span>L0011    
 L0012    
 L0013    <a name="gnode"/a><span class="prepro">#define gnode(t,i)	(&amp;(t)-&gt;node[i])
-</span>L0014    <a name="gkey"/a><span class="prepro">#define gkey(n)		(&amp;(n)-&gt;i_key.nk)
-</span>L0015    <a name="gval"/a><span class="prepro">#define gval(n)		(&amp;(n)-&gt;i_val)
-</span>L0016    <a name="gnext"/a><span class="prepro">#define gnext(n)	((n)-&gt;i_key.nk.next)
-</span>L0017    
+</span><div class="block">Table*, int -&gt; Node*
+Gets i-th node in table's hashpart array.
+(Question: why isn't there a corresponding function
+to get the i-th node in table's arraypart array? or why
+have this macro at all?)
+</div>L0014    <a name="gkey"/a><span class="prepro">#define gkey(n)		(&amp;(n)-&gt;i_key.nk)
+</span><div class="block">Node* -&gt; TValue*
+Gets node key's TValue.
+</div>L0015    <a name="gval"/a><span class="prepro">#define gval(n)		(&amp;(n)-&gt;i_val)
+</span><div class="block">Node* -&gt; TValue*
+Gets node value's TValue.
+</div>L0016    <a name="gnext"/a><span class="prepro">#define gnext(n)	((n)-&gt;i_key.nk.next)
+</span><div class="block">Node* -&gt; Node*
+Gets node following given node in chain of nodes.
+</div>L0017    
 L0018    <a name="key2tval"/a><span class="prepro">#define key2tval(n)	(&amp;(n)-&gt;i_key.tvk)
 </span>L0019    
 L0020    

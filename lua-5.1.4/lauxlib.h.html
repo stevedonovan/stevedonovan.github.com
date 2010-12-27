@@ -1,20 +1,11 @@
 <html>
 <head>
-<style>
-a.L { text-decoration: none; }
-a.L:hover { color: #FFAAAA; }
-body { margin-top: 20px; margin-left: 30px; }
-.lno { font-weight: bold: color #000; }
-.keyword {font-weight: bold; color: #6666AA; }
-.number  { color: #AA6666; }
-.string  { color: #8888AA; }
-.comment { color: #666600; }
-.prepro { color: #006666; } 
-</style>
+<link rel='stylesheet' type='text/css' href='style.css'></link>
 <body>
 <h1>Lua 5.1.4: lauxlib.h</h1>
 <hr/>
-<pre>
+<div class="block">This is the public interface of the "Auxiliary Library".
+</div><pre>
 L0001    <span class="comment">/*
 L0002    ** $Id: lauxlib.h,v 1.88.1.1 2007/12/27 13:02:25 roberto Exp $
 L0003    ** Auxiliary functions for building Lua libraries
@@ -116,7 +107,9 @@ L0098    */</span>
 L0099    
 L0100    <a name="luaL_argcheck"/a><span class="prepro">#define luaL_argcheck(L, cond,numarg,extramsg)	\
 L0101    		((void)((cond) || luaL_argerror(L, (numarg), (extramsg))))
-</span>L0102    <a name="luaL_checkstring"/a><span class="prepro">#define luaL_checkstring(L,n)	(luaL_checklstring(L, (n), NULL))
+</span><div class="block">void luaL_argcheck (lua_State *L, int cond, int narg, const char *extramsg);
+[-0, +0, v]
+</div>L0102    <a name="luaL_checkstring"/a><span class="prepro">#define luaL_checkstring(L,n)	(luaL_checklstring(L, (n), NULL))
 </span>L0103    <a name="luaL_optstring"/a><span class="prepro">#define luaL_optstring(L,n,d)	(luaL_optlstring(L, (n), (d), NULL))
 </span>L0104    <a name="luaL_checkint"/a><span class="prepro">#define luaL_checkint(L,n)	((int)luaL_checkinteger(L, (n)))
 </span>L0105    <a name="luaL_optint"/a><span class="prepro">#define luaL_optint(L,n,d)	((int)luaL_optinteger(L, (n), (d)))

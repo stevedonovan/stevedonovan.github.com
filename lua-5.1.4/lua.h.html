@@ -1,20 +1,11 @@
 <html>
 <head>
-<style>
-a.L { text-decoration: none; }
-a.L:hover { color: #FFAAAA; }
-body { margin-top: 20px; margin-left: 30px; }
-.lno { font-weight: bold: color #000; }
-.keyword {font-weight: bold; color: #6666AA; }
-.number  { color: #AA6666; }
-.string  { color: #8888AA; }
-.comment { color: #666600; }
-.prepro { color: #006666; } 
-</style>
+<link rel='stylesheet' type='text/css' href='style.css'></link>
 <body>
 <h1>Lua 5.1.4: lua.h</h1>
 <hr/>
-<pre>
+<div class="block">This is the public interface to the core Lua library.
+</div><pre>
 L0001    <span class="comment">/*
 L0002    ** $Id: lua.h,v 1.218.1.5 2008/08/06 13:30:12 roberto Exp $
 L0003    ** Lua - An Extensible Extension Language
@@ -36,13 +27,21 @@ L0018
 L0019    <a name="LUA_VERSION"/a><span class="prepro">#define LUA_VERSION	"Lua 5.1"
 </span>L0020    <a name="LUA_RELEASE"/a><span class="prepro">#define LUA_RELEASE	"Lua 5.1.4"
 </span>L0021    <a name="LUA_VERSION_NUM"/a><span class="prepro">#define LUA_VERSION_NUM	501
-</span>L0022    <a name="LUA_COPYRIGHT"/a><span class="prepro">#define LUA_COPYRIGHT	"Copyright (C) 1994-2008 Lua.org, PUC-Rio"
+</span><div class="block">This is the number exposed by lua_version().
+Note: 502 mean "5.2".  501 means "5.1"
+</div>L0022    <a name="LUA_COPYRIGHT"/a><span class="prepro">#define LUA_COPYRIGHT	"Copyright (C) 1994-2008 Lua.org, PUC-Rio"
 </span>L0023    <a name="LUA_AUTHORS"/a><span class="prepro">#define LUA_AUTHORS 	"R. Ierusalimschy, L. H. de Figueiredo &amp; W. Celes"
 </span>L0024    
 L0025    
 L0026    <span class="comment">/* mark for precompiled code (`&lt;esc&gt;Lua') */</span>
 L0027    <a name="LUA_SIGNATURE"/a><span class="prepro">#define	LUA_SIGNATURE	"\033Lua"
-</span>L0028    
+</span><div class="block">Lua bytecode always starts with a signature consisting
+of these bytes.  Both Lua 5.1 and 5.2 start with this
+signature.  Some functions like load() determine whether
+a file is Lua source code or Lua byte code by looking
+for this signature.  The \033 (escape) character is not
+a valid first character in Lua source code.
+</div>L0028    
 L0029    <span class="comment">/* option for multiple returns in `lua_pcall' and `lua_call' */</span>
 L0030    <a name="LUA_MULTRET"/a><span class="prepro">#define LUA_MULTRET	(-1)
 </span>L0031    
@@ -62,7 +61,8 @@ L0043    <a name="LUA_YIELD"/a><span class="prepro">#define LUA_YIELD	1
 </span>L0045    <a name="LUA_ERRSYNTAX"/a><span class="prepro">#define LUA_ERRSYNTAX	3
 </span>L0046    <a name="LUA_ERRMEM"/a><span class="prepro">#define LUA_ERRMEM	4
 </span>L0047    <a name="LUA_ERRERR"/a><span class="prepro">#define LUA_ERRERR	5
-</span>L0048    
+</span><div class="block">Note: see also LUA_ERRFILE in lauxlib.h.
+</div>L0048    
 L0049    
 L0050    <span class="keyword">typedef</span> <span class="keyword">struct</span> <a class="L" href="lstate.h.html#lua_State">lua_State</a> <a class="L" href="lstate.h.html#lua_State">lua_State</a>;
 L0051    
@@ -102,7 +102,14 @@ L0084
 L0085    
 L0086    <span class="comment">/* minimum Lua stack available to a C function */</span>
 L0087    <a name="LUA_MINSTACK"/a><span class="prepro">#define LUA_MINSTACK	20
-</span>L0088    
+</span><div class="block">From the reference manual:
+Whenever Lua calls C, it ensures that at least
+LUA_MINSTACK stack positions are available.
+LUA_MINSTACK is defined as 20, so that usually
+you do not have to worry about stack space
+unless your code has loops pushing elements
+onto the stack.
+</div>L0088    
 L0089    
 L0090    <span class="comment">/*
 L0091    ** generic extra include file
@@ -114,11 +121,13 @@ L0093    <span class="prepro">#if defined(LUA_USER_H)
 L0097    
 L0098    <span class="comment">/* type of numbers in Lua */</span>
 L0099    <span class="keyword">typedef</span> <a class="L" href="luaconf.h.html#LUA_NUMBER">LUA_NUMBER</a> <a name="lua_Number"/a><a class="L" href="lua.h.ref.html#lua_Number">lua_Number</a>;
-L0100    
+<div class="block">Typically set to double on PCs.
+</div>L0100    
 L0101    
 L0102    <span class="comment">/* type for integer functions */</span>
 L0103    <span class="keyword">typedef</span> <a class="L" href="luaconf.h.html#LUA_INTEGER">LUA_INTEGER</a> <a name="lua_Integer"/a><a class="L" href="lua.h.ref.html#lua_Integer">lua_Integer</a>;
-L0104    
+<div class="block">Typically set to int (32-bit) on PCs.
+</div>L0104    
 L0105    
 L0106    
 L0107    <span class="comment">/*
