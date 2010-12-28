@@ -36,7 +36,8 @@ L0028    ** model but changing `fputs' to put the strings at a proper place
 L0029    ** (a console window or a log file, for instance).
 L0030    */</span>
 L0031    <span class="keyword">static</span> <span class="keyword">int</span> <a name="luaB_print"/a><a class="L" href="lbaselib.c.ref.html#luaB_print">luaB_print</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
-L0032      <span class="keyword">int</span> n = <a class="L" href="lapi.c.html#lua_gettop">lua_gettop</a>(L);  <span class="comment">/* number of arguments */</span>
+<div class="block"><a href="doc/manual.html#pdf-print">manl:print</a>
+</div>L0032      <span class="keyword">int</span> n = <a class="L" href="lapi.c.html#lua_gettop">lua_gettop</a>(L);  <span class="comment">/* number of arguments */</span>
 L0033      <span class="keyword">int</span> i;
 L0034      <a class="L" href="lua.h.html#lua_getglobal">lua_getglobal</a>(L, <span class="string">"tostring"</span>);
 L0035      <span class="keyword">for</span> (i=<span class="number">1</span>; i&lt;=n; i++) {
@@ -58,7 +59,8 @@ L0050    }
 L0051    
 L0052    
 L0053    <span class="keyword">static</span> <span class="keyword">int</span> <a name="luaB_tonumber"/a><a class="L" href="lbaselib.c.ref.html#luaB_tonumber">luaB_tonumber</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
-L0054      <span class="keyword">int</span> base = <a class="L" href="lauxlib.h.html#luaL_optint">luaL_optint</a>(L, <span class="number">2</span>, <span class="number">10</span>);
+<div class="block"><a href="doc/manual.html#pdf-tonumber">manl:tonumber</a>
+</div>L0054      <span class="keyword">int</span> base = <a class="L" href="lauxlib.h.html#luaL_optint">luaL_optint</a>(L, <span class="number">2</span>, <span class="number">10</span>);
 L0055      <span class="keyword">if</span> (base == <span class="number">10</span>) {  <span class="comment">/* standard conversion */</span>
 L0056        <a class="L" href="lauxlib.c.html#luaL_checkany">luaL_checkany</a>(L, <span class="number">1</span>);
 L0057        <span class="keyword">if</span> (<a class="L" href="lapi.c.html#lua_isnumber">lua_isnumber</a>(L, <span class="number">1</span>)) {
@@ -86,7 +88,8 @@ L0078    }
 L0079    
 L0080    
 L0081    <span class="keyword">static</span> <span class="keyword">int</span> <a name="luaB_error"/a><a class="L" href="lbaselib.c.ref.html#luaB_error">luaB_error</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
-L0082      <span class="keyword">int</span> level = <a class="L" href="lauxlib.h.html#luaL_optint">luaL_optint</a>(L, <span class="number">2</span>, <span class="number">1</span>);
+<div class="block"><a href="doc/manual.html#pdf-error">manl:error</a>
+</div>L0082      <span class="keyword">int</span> level = <a class="L" href="lauxlib.h.html#luaL_optint">luaL_optint</a>(L, <span class="number">2</span>, <span class="number">1</span>);
 L0083      <a class="L" href="lapi.c.html#lua_settop">lua_settop</a>(L, <span class="number">1</span>);
 L0084      <span class="keyword">if</span> (<a class="L" href="lapi.c.html#lua_isstring">lua_isstring</a>(L, <span class="number">1</span>) &amp;&amp; level &gt; <span class="number">0</span>) {  <span class="comment">/* add extra information? */</span>
 L0085        <a class="L" href="lauxlib.c.html#luaL_where">luaL_where</a>(L, level);
@@ -98,7 +101,8 @@ L0090    }
 L0091    
 L0092    
 L0093    <span class="keyword">static</span> <span class="keyword">int</span> <a name="luaB_getmetatable"/a><a class="L" href="lbaselib.c.ref.html#luaB_getmetatable">luaB_getmetatable</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
-L0094      <a class="L" href="lauxlib.c.html#luaL_checkany">luaL_checkany</a>(L, <span class="number">1</span>);
+<div class="block"><a href="doc/manual.html#pdf-getmetatable">manl:getmetatable</a>
+</div>L0094      <a class="L" href="lauxlib.c.html#luaL_checkany">luaL_checkany</a>(L, <span class="number">1</span>);
 L0095      <span class="keyword">if</span> (!<a class="L" href="lapi.c.html#lua_getmetatable">lua_getmetatable</a>(L, <span class="number">1</span>)) {
 L0096        <a class="L" href="lapi.c.html#lua_pushnil">lua_pushnil</a>(L);
 L0097        <span class="keyword">return</span> <span class="number">1</span>;  <span class="comment">/* no metatable */</span>
@@ -109,7 +113,8 @@ L0101    }
 L0102    
 L0103    
 L0104    <span class="keyword">static</span> <span class="keyword">int</span> <a name="luaB_setmetatable"/a><a class="L" href="lbaselib.c.ref.html#luaB_setmetatable">luaB_setmetatable</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
-L0105      <span class="keyword">int</span> t = <a class="L" href="lapi.c.html#lua_type">lua_type</a>(L, <span class="number">2</span>);
+<div class="block"><a href="doc/manual.html#pdf-setmetatable">manl:setmetatable</a>
+</div>L0105      <span class="keyword">int</span> t = <a class="L" href="lapi.c.html#lua_type">lua_type</a>(L, <span class="number">2</span>);
 L0106      <a class="L" href="lauxlib.c.html#luaL_checktype">luaL_checktype</a>(L, <span class="number">1</span>, <a class="L" href="lua.h.html#LUA_TTABLE">LUA_TTABLE</a>);
 L0107      <a class="L" href="lauxlib.h.html#luaL_argcheck">luaL_argcheck</a>(L, t == <a class="L" href="lua.h.html#LUA_TNIL">LUA_TNIL</a> || t == <a class="L" href="lua.h.html#LUA_TTABLE">LUA_TTABLE</a>, <span class="number">2</span>,
 L0108                        <span class="string">"nil or table expected"</span>);
@@ -138,7 +143,8 @@ L0130    }
 L0131    
 L0132    
 L0133    <span class="keyword">static</span> <span class="keyword">int</span> <a name="luaB_getfenv"/a><a class="L" href="lbaselib.c.ref.html#luaB_getfenv">luaB_getfenv</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
-L0134      <a class="L" href="lbaselib.c.html#getfunc">getfunc</a>(L, <span class="number">1</span>);
+<div class="block"><a href="doc/manual.html#pdf-getfenv">manl:getfenv</a>
+</div>L0134      <a class="L" href="lbaselib.c.html#getfunc">getfunc</a>(L, <span class="number">1</span>);
 L0135      <span class="keyword">if</span> (<a class="L" href="lapi.c.html#lua_iscfunction">lua_iscfunction</a>(L, <span class="number">-1</span>))  <span class="comment">/* is a C function? */</span>
 L0136        <a class="L" href="lapi.c.html#lua_pushvalue">lua_pushvalue</a>(L, <a class="L" href="lua.h.html#LUA_GLOBALSINDEX">LUA_GLOBALSINDEX</a>);  <span class="comment">/* return the thread's global env. */</span>
 L0137      <span class="keyword">else</span>
@@ -148,7 +154,8 @@ L0140    }
 L0141    
 L0142    
 L0143    <span class="keyword">static</span> <span class="keyword">int</span> <a name="luaB_setfenv"/a><a class="L" href="lbaselib.c.ref.html#luaB_setfenv">luaB_setfenv</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
-L0144      <a class="L" href="lauxlib.c.html#luaL_checktype">luaL_checktype</a>(L, <span class="number">2</span>, <a class="L" href="lua.h.html#LUA_TTABLE">LUA_TTABLE</a>);
+<div class="block"><a href="doc/manual.html#pdf-setfenv">manl:setfenv</a>
+</div>L0144      <a class="L" href="lauxlib.c.html#luaL_checktype">luaL_checktype</a>(L, <span class="number">2</span>, <a class="L" href="lua.h.html#LUA_TTABLE">LUA_TTABLE</a>);
 L0145      <a class="L" href="lbaselib.c.html#getfunc">getfunc</a>(L, <span class="number">0</span>);
 L0146      <a class="L" href="lapi.c.html#lua_pushvalue">lua_pushvalue</a>(L, <span class="number">2</span>);
 L0147      <span class="keyword">if</span> (<a class="L" href="lapi.c.html#lua_isnumber">lua_isnumber</a>(L, <span class="number">1</span>) &amp;&amp; <a class="L" href="lapi.c.html#lua_tonumber">lua_tonumber</a>(L, <span class="number">1</span>) == <span class="number">0</span>) {
@@ -166,7 +173,8 @@ L0158    }
 L0159    
 L0160    
 L0161    <span class="keyword">static</span> <span class="keyword">int</span> <a name="luaB_rawequal"/a><a class="L" href="lbaselib.c.ref.html#luaB_rawequal">luaB_rawequal</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
-L0162      <a class="L" href="lauxlib.c.html#luaL_checkany">luaL_checkany</a>(L, <span class="number">1</span>);
+<div class="block"><a href="doc/manual.html#pdf-rawequal">manl:rawequal</a>
+</div>L0162      <a class="L" href="lauxlib.c.html#luaL_checkany">luaL_checkany</a>(L, <span class="number">1</span>);
 L0163      <a class="L" href="lauxlib.c.html#luaL_checkany">luaL_checkany</a>(L, <span class="number">2</span>);
 L0164      <a class="L" href="lapi.c.html#lua_pushboolean">lua_pushboolean</a>(L, <a class="L" href="lapi.c.html#lua_rawequal">lua_rawequal</a>(L, <span class="number">1</span>, <span class="number">2</span>));
 L0165      <span class="keyword">return</span> <span class="number">1</span>;
@@ -174,7 +182,8 @@ L0166    }
 L0167    
 L0168    
 L0169    <span class="keyword">static</span> <span class="keyword">int</span> <a name="luaB_rawget"/a><a class="L" href="lbaselib.c.ref.html#luaB_rawget">luaB_rawget</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
-L0170      <a class="L" href="lauxlib.c.html#luaL_checktype">luaL_checktype</a>(L, <span class="number">1</span>, <a class="L" href="lua.h.html#LUA_TTABLE">LUA_TTABLE</a>);
+<div class="block"><a href="doc/manual.html#pdf-rawget">manl:rawget</a>
+</div>L0170      <a class="L" href="lauxlib.c.html#luaL_checktype">luaL_checktype</a>(L, <span class="number">1</span>, <a class="L" href="lua.h.html#LUA_TTABLE">LUA_TTABLE</a>);
 L0171      <a class="L" href="lauxlib.c.html#luaL_checkany">luaL_checkany</a>(L, <span class="number">2</span>);
 L0172      <a class="L" href="lapi.c.html#lua_settop">lua_settop</a>(L, <span class="number">2</span>);
 L0173      <a class="L" href="lapi.c.html#lua_rawget">lua_rawget</a>(L, <span class="number">1</span>);
@@ -182,7 +191,8 @@ L0174      <span class="keyword">return</span> <span class="number">1</span>;
 L0175    }
 L0176    
 L0177    <span class="keyword">static</span> <span class="keyword">int</span> <a name="luaB_rawset"/a><a class="L" href="lbaselib.c.ref.html#luaB_rawset">luaB_rawset</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
-L0178      <a class="L" href="lauxlib.c.html#luaL_checktype">luaL_checktype</a>(L, <span class="number">1</span>, <a class="L" href="lua.h.html#LUA_TTABLE">LUA_TTABLE</a>);
+<div class="block"><a href="doc/manual.html#pdf-rawset">manl:rawset</a>
+</div>L0178      <a class="L" href="lauxlib.c.html#luaL_checktype">luaL_checktype</a>(L, <span class="number">1</span>, <a class="L" href="lua.h.html#LUA_TTABLE">LUA_TTABLE</a>);
 L0179      <a class="L" href="lauxlib.c.html#luaL_checkany">luaL_checkany</a>(L, <span class="number">2</span>);
 L0180      <a class="L" href="lauxlib.c.html#luaL_checkany">luaL_checkany</a>(L, <span class="number">3</span>);
 L0181      <a class="L" href="lapi.c.html#lua_settop">lua_settop</a>(L, <span class="number">3</span>);
@@ -192,13 +202,15 @@ L0184    }
 L0185    
 L0186    
 L0187    <span class="keyword">static</span> <span class="keyword">int</span> <a name="luaB_gcinfo"/a><a class="L" href="lbaselib.c.ref.html#luaB_gcinfo">luaB_gcinfo</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
-L0188      <a class="L" href="lapi.c.html#lua_pushinteger">lua_pushinteger</a>(L, <a class="L" href="lua.h.html#lua_getgccount">lua_getgccount</a>(L));
+<div class="block"><a href="doc/manual.html#pdf-gcinfo">manl:gcinfo</a>
+</div>L0188      <a class="L" href="lapi.c.html#lua_pushinteger">lua_pushinteger</a>(L, <a class="L" href="lua.h.html#lua_getgccount">lua_getgccount</a>(L));
 L0189      <span class="keyword">return</span> <span class="number">1</span>;
 L0190    }
 L0191    
 L0192    
 L0193    <span class="keyword">static</span> <span class="keyword">int</span> <a name="luaB_collectgarbage"/a><a class="L" href="lbaselib.c.ref.html#luaB_collectgarbage">luaB_collectgarbage</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
-L0194      <span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">char</span> *<span class="keyword">const</span> opts[] = {<span class="string">"stop"</span>, <span class="string">"restart"</span>, <span class="string">"collect"</span>,
+<div class="block"><a href="doc/manual.html#pdf-collectgarbage">manl:collectgarbage</a>
+</div>L0194      <span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">char</span> *<span class="keyword">const</span> opts[] = {<span class="string">"stop"</span>, <span class="string">"restart"</span>, <span class="string">"collect"</span>,
 L0195        <span class="string">"count"</span>, <span class="string">"step"</span>, <span class="string">"setpause"</span>, <span class="string">"setstepmul"</span>, NULL};
 L0196      <span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">int</span> optsnum[] = {<a class="L" href="lua.h.html#LUA_GCSTOP">LUA_GCSTOP</a>, <a class="L" href="lua.h.html#LUA_GCRESTART">LUA_GCRESTART</a>, <a class="L" href="lua.h.html#LUA_GCCOLLECT">LUA_GCCOLLECT</a>,
 L0197        <a class="L" href="lua.h.html#LUA_GCCOUNT">LUA_GCCOUNT</a>, <a class="L" href="lua.h.html#LUA_GCSTEP">LUA_GCSTEP</a>, <a class="L" href="lua.h.html#LUA_GCSETPAUSE">LUA_GCSETPAUSE</a>, <a class="L" href="lua.h.html#LUA_GCSETSTEPMUL">LUA_GCSETSTEPMUL</a>};
@@ -224,14 +236,16 @@ L0216    }
 L0217    
 L0218    
 L0219    <span class="keyword">static</span> <span class="keyword">int</span> <a name="luaB_type"/a><a class="L" href="lbaselib.c.ref.html#luaB_type">luaB_type</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
-L0220      <a class="L" href="lauxlib.c.html#luaL_checkany">luaL_checkany</a>(L, <span class="number">1</span>);
+<div class="block"><a href="doc/manual.html#pdf-type">manl:type</a>
+</div>L0220      <a class="L" href="lauxlib.c.html#luaL_checkany">luaL_checkany</a>(L, <span class="number">1</span>);
 L0221      <a class="L" href="lapi.c.html#lua_pushstring">lua_pushstring</a>(L, <a class="L" href="lauxlib.h.html#luaL_typename">luaL_typename</a>(L, <span class="number">1</span>));
 L0222      <span class="keyword">return</span> <span class="number">1</span>;
 L0223    }
 L0224    
 L0225    
 L0226    <span class="keyword">static</span> <span class="keyword">int</span> <a name="luaB_next"/a><a class="L" href="lbaselib.c.ref.html#luaB_next">luaB_next</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
-L0227      <a class="L" href="lauxlib.c.html#luaL_checktype">luaL_checktype</a>(L, <span class="number">1</span>, <a class="L" href="lua.h.html#LUA_TTABLE">LUA_TTABLE</a>);
+<div class="block"><a href="doc/manual.html#pdf-next">manl:next</a>
+</div>L0227      <a class="L" href="lauxlib.c.html#luaL_checktype">luaL_checktype</a>(L, <span class="number">1</span>, <a class="L" href="lua.h.html#LUA_TTABLE">LUA_TTABLE</a>);
 L0228      <a class="L" href="lapi.c.html#lua_settop">lua_settop</a>(L, <span class="number">2</span>);  <span class="comment">/* create a 2nd argument if there isn't one */</span>
 L0229      <span class="keyword">if</span> (<a class="L" href="lapi.c.html#lua_next">lua_next</a>(L, <span class="number">1</span>))
 L0230        <span class="keyword">return</span> <span class="number">2</span>;
@@ -282,7 +296,8 @@ L0274    }
 L0275    
 L0276    
 L0277    <span class="keyword">static</span> <span class="keyword">int</span> <a name="luaB_loadstring"/a><a class="L" href="lbaselib.c.ref.html#luaB_loadstring">luaB_loadstring</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
-L0278      size_t l;
+<div class="block"><a href="doc/manual.html#pdf-loadstring">manl:loadstring</a>
+</div>L0278      size_t l;
 L0279      <span class="keyword">const</span> <span class="keyword">char</span> *s = <a class="L" href="lauxlib.c.html#luaL_checklstring">luaL_checklstring</a>(L, <span class="number">1</span>, &amp;l);
 L0280      <span class="keyword">const</span> <span class="keyword">char</span> *chunkname = <a class="L" href="lauxlib.h.html#luaL_optstring">luaL_optstring</a>(L, <span class="number">2</span>, s);
 L0281      <span class="keyword">return</span> <a class="L" href="lbaselib.c.html#load_aux">load_aux</a>(L, <a class="L" href="lauxlib.c.html#luaL_loadbuffer">luaL_loadbuffer</a>(L, s, l, chunkname));
@@ -290,7 +305,8 @@ L0282    }
 L0283    
 L0284    
 L0285    <span class="keyword">static</span> <span class="keyword">int</span> <a name="luaB_loadfile"/a><a class="L" href="lbaselib.c.ref.html#luaB_loadfile">luaB_loadfile</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
-L0286      <span class="keyword">const</span> <span class="keyword">char</span> *fname = <a class="L" href="lauxlib.h.html#luaL_optstring">luaL_optstring</a>(L, <span class="number">1</span>, NULL);
+<div class="block"><a href="doc/manual.html#pdf-loadfile">manl:loadfile</a>
+</div>L0286      <span class="keyword">const</span> <span class="keyword">char</span> *fname = <a class="L" href="lauxlib.h.html#luaL_optstring">luaL_optstring</a>(L, <span class="number">1</span>, NULL);
 L0287      <span class="keyword">return</span> <a class="L" href="lbaselib.c.html#load_aux">load_aux</a>(L, <a class="L" href="lauxlib.c.html#luaL_loadfile">luaL_loadfile</a>(L, fname));
 L0288    }
 L0289    
@@ -320,7 +336,8 @@ L0312    }
 L0313    
 L0314    
 L0315    <span class="keyword">static</span> <span class="keyword">int</span> <a name="luaB_load"/a><a class="L" href="lbaselib.c.ref.html#luaB_load">luaB_load</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
-L0316      <span class="keyword">int</span> status;
+<div class="block"><a href="doc/manual.html#pdf-load">manl:load</a>
+</div>L0316      <span class="keyword">int</span> status;
 L0317      <span class="keyword">const</span> <span class="keyword">char</span> *cname = <a class="L" href="lauxlib.h.html#luaL_optstring">luaL_optstring</a>(L, <span class="number">2</span>, <span class="string">"=(load)"</span>);
 L0318      <a class="L" href="lauxlib.c.html#luaL_checktype">luaL_checktype</a>(L, <span class="number">1</span>, <a class="L" href="lua.h.html#LUA_TFUNCTION">LUA_TFUNCTION</a>);
 L0319      <a class="L" href="lapi.c.html#lua_settop">lua_settop</a>(L, <span class="number">3</span>);  <span class="comment">/* function, eventual name, plus one reserved slot */</span>
@@ -330,7 +347,8 @@ L0322    }
 L0323    
 L0324    
 L0325    <span class="keyword">static</span> <span class="keyword">int</span> <a name="luaB_dofile"/a><a class="L" href="lbaselib.c.ref.html#luaB_dofile">luaB_dofile</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
-L0326      <span class="keyword">const</span> <span class="keyword">char</span> *fname = <a class="L" href="lauxlib.h.html#luaL_optstring">luaL_optstring</a>(L, <span class="number">1</span>, NULL);
+<div class="block"><a href="doc/manual.html#pdf-dofile">manl:dofile</a>
+</div>L0326      <span class="keyword">const</span> <span class="keyword">char</span> *fname = <a class="L" href="lauxlib.h.html#luaL_optstring">luaL_optstring</a>(L, <span class="number">1</span>, NULL);
 L0327      <span class="keyword">int</span> n = <a class="L" href="lapi.c.html#lua_gettop">lua_gettop</a>(L);
 L0328      <span class="keyword">if</span> (<a class="L" href="lauxlib.c.html#luaL_loadfile">luaL_loadfile</a>(L, fname) != <span class="number">0</span>) <a class="L" href="lapi.c.html#lua_error">lua_error</a>(L);
 L0329      <a class="L" href="lapi.c.html#lua_call">lua_call</a>(L, <span class="number">0</span>, <a class="L" href="lua.h.html#LUA_MULTRET">LUA_MULTRET</a>);
@@ -339,7 +357,8 @@ L0331    }
 L0332    
 L0333    
 L0334    <span class="keyword">static</span> <span class="keyword">int</span> <a name="luaB_assert"/a><a class="L" href="lbaselib.c.ref.html#luaB_assert">luaB_assert</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
-L0335      <a class="L" href="lauxlib.c.html#luaL_checkany">luaL_checkany</a>(L, <span class="number">1</span>);
+<div class="block"><a href="doc/manual.html#pdf-assert">manl:assert</a>
+</div>L0335      <a class="L" href="lauxlib.c.html#luaL_checkany">luaL_checkany</a>(L, <span class="number">1</span>);
 L0336      <span class="keyword">if</span> (!<a class="L" href="lapi.c.html#lua_toboolean">lua_toboolean</a>(L, <span class="number">1</span>))
 L0337        <span class="keyword">return</span> <a class="L" href="lauxlib.c.html#luaL_error">luaL_error</a>(L, <span class="string">"%s"</span>, <a class="L" href="lauxlib.h.html#luaL_optstring">luaL_optstring</a>(L, <span class="number">2</span>, <span class="string">"assertion failed!"</span>));
 L0338      <span class="keyword">return</span> <a class="L" href="lapi.c.html#lua_gettop">lua_gettop</a>(L);
@@ -347,7 +366,8 @@ L0339    }
 L0340    
 L0341    
 L0342    <span class="keyword">static</span> <span class="keyword">int</span> <a name="luaB_unpack"/a><a class="L" href="lbaselib.c.ref.html#luaB_unpack">luaB_unpack</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
-L0343      <span class="keyword">int</span> i, e, n;
+<div class="block"><a href="doc/manual.html#pdf-unpack">manl:unpack</a>
+</div>L0343      <span class="keyword">int</span> i, e, n;
 L0344      <a class="L" href="lauxlib.c.html#luaL_checktype">luaL_checktype</a>(L, <span class="number">1</span>, <a class="L" href="lua.h.html#LUA_TTABLE">LUA_TTABLE</a>);
 L0345      i = <a class="L" href="lauxlib.h.html#luaL_optint">luaL_optint</a>(L, <span class="number">2</span>, <span class="number">1</span>);
 L0346      e = <a class="L" href="lauxlib.h.html#luaL_opt">luaL_opt</a>(L, <a class="L" href="lauxlib.h.html#luaL_checkint">luaL_checkint</a>, <span class="number">3</span>, <a class="L" href="lauxlib.c.html#luaL_getn">luaL_getn</a>(L, <span class="number">1</span>));
@@ -363,7 +383,8 @@ L0355    }
 L0356    
 L0357    
 L0358    <span class="keyword">static</span> <span class="keyword">int</span> <a name="luaB_select"/a><a class="L" href="lbaselib.c.ref.html#luaB_select">luaB_select</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
-L0359      <span class="keyword">int</span> n = <a class="L" href="lapi.c.html#lua_gettop">lua_gettop</a>(L);
+<div class="block"><a href="doc/manual.html#pdf-select">manl:select</a>
+</div>L0359      <span class="keyword">int</span> n = <a class="L" href="lapi.c.html#lua_gettop">lua_gettop</a>(L);
 L0360      <span class="keyword">if</span> (<a class="L" href="lapi.c.html#lua_type">lua_type</a>(L, <span class="number">1</span>) == <a class="L" href="lua.h.html#LUA_TSTRING">LUA_TSTRING</a> &amp;&amp; *<a class="L" href="lua.h.html#lua_tostring">lua_tostring</a>(L, <span class="number">1</span>) == '#') {
 L0361        <a class="L" href="lapi.c.html#lua_pushinteger">lua_pushinteger</a>(L, n<span class="number">-1</span>);
 L0362        <span class="keyword">return</span> <span class="number">1</span>;
@@ -379,7 +400,8 @@ L0371    }
 L0372    
 L0373    
 L0374    <span class="keyword">static</span> <span class="keyword">int</span> <a name="luaB_pcall"/a><a class="L" href="lbaselib.c.ref.html#luaB_pcall">luaB_pcall</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
-L0375      <span class="keyword">int</span> status;
+<div class="block"><a href="doc/manual.html#pdf-pcall">manl:pcall</a>
+</div>L0375      <span class="keyword">int</span> status;
 L0376      <a class="L" href="lauxlib.c.html#luaL_checkany">luaL_checkany</a>(L, <span class="number">1</span>);
 L0377      status = <a class="L" href="lapi.c.html#lua_pcall">lua_pcall</a>(L, <a class="L" href="lapi.c.html#lua_gettop">lua_gettop</a>(L) - <span class="number">1</span>, <a class="L" href="lua.h.html#LUA_MULTRET">LUA_MULTRET</a>, <span class="number">0</span>);
 L0378      <a class="L" href="lapi.c.html#lua_pushboolean">lua_pushboolean</a>(L, (status == <span class="number">0</span>));
@@ -389,7 +411,8 @@ L0381    }
 L0382    
 L0383    
 L0384    <span class="keyword">static</span> <span class="keyword">int</span> <a name="luaB_xpcall"/a><a class="L" href="lbaselib.c.ref.html#luaB_xpcall">luaB_xpcall</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
-L0385      <span class="keyword">int</span> status;
+<div class="block"><a href="doc/manual.html#pdf-xpcall">manl:xpcall</a>
+</div>L0385      <span class="keyword">int</span> status;
 L0386      <a class="L" href="lauxlib.c.html#luaL_checkany">luaL_checkany</a>(L, <span class="number">2</span>);
 L0387      <a class="L" href="lapi.c.html#lua_settop">lua_settop</a>(L, <span class="number">2</span>);
 L0388      <a class="L" href="lapi.c.html#lua_insert">lua_insert</a>(L, <span class="number">1</span>);  <span class="comment">/* put error function under function to be called */</span>
@@ -401,7 +424,8 @@ L0393    }
 L0394    
 L0395    
 L0396    <span class="keyword">static</span> <span class="keyword">int</span> <a name="luaB_tostring"/a><a class="L" href="lbaselib.c.ref.html#luaB_tostring">luaB_tostring</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
-L0397      <a class="L" href="lauxlib.c.html#luaL_checkany">luaL_checkany</a>(L, <span class="number">1</span>);
+<div class="block"><a href="doc/manual.html#pdf-tostring">manl:tostring</a>
+</div>L0397      <a class="L" href="lauxlib.c.html#luaL_checkany">luaL_checkany</a>(L, <span class="number">1</span>);
 L0398      <span class="keyword">if</span> (<a class="L" href="lauxlib.c.html#luaL_callmeta">luaL_callmeta</a>(L, <span class="number">1</span>, <span class="string">"__tostring"</span>))  <span class="comment">/* is there a metafield? */</span>
 L0399        <span class="keyword">return</span> <span class="number">1</span>;  <span class="comment">/* use its value */</span>
 L0400      <span class="keyword">switch</span> (<a class="L" href="lapi.c.html#lua_type">lua_type</a>(L, <span class="number">1</span>)) {
@@ -598,7 +622,8 @@ L0590    }
 L0591    
 L0592    
 L0593    <span class="keyword">static</span> <span class="keyword">int</span> <a name="luaB_yield"/a><a class="L" href="lbaselib.c.ref.html#luaB_yield">luaB_yield</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
-L0594      <span class="keyword">return</span> <a class="L" href="ldo.c.html#lua_yield">lua_yield</a>(L, <a class="L" href="lapi.c.html#lua_gettop">lua_gettop</a>(L));
+<div class="block"><a href="doc/manual.html#pdf-coroutine.yield">manl:coroutine.yield</a>
+</div>L0594      <span class="keyword">return</span> <a class="L" href="ldo.c.html#lua_yield">lua_yield</a>(L, <a class="L" href="lapi.c.html#lua_gettop">lua_gettop</a>(L));
 L0595    }
 L0596    
 L0597    

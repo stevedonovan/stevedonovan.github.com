@@ -1,0 +1,411 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<title>Lua 5.1.4 Annotated Source</title>
+	<link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+<body>
+
+<h1>Lua 5.1.4 Annotated Source</h1>
+
+<h2>Interpreter/Compiler</h2>
+
+<ul>
+    <li><a href="lua.c.html">lua.c</a> <em>interpreter</em></li>
+    <li><a href="luac.c.html">luac.c</a> <em>compiler front-end</em></li>
+    <li><a href="print.c.html">print.c</a> <em>dissembler</em></li>
+    <li><a href="ldump.c.html">ldump.c</a> <em>saving compiled code</em></li>
+</ul>
+
+<h2>Public API</h2>
+
+<p>Well-behaved Lua extensions should only need these.</p>
+
+<ul>
+    <li><a href="lua.h.html">lua.h</a></li>
+    <li><a href="lauxlib.h.html">lauxlib.h</a></li>
+    <li><a href="luaconf.h.html">luaconf.h</a></li>
+</ul>
+
+<h2>Libraries</h2>
+
+<p>Referenced from <a href="linit.c.html">linit.c</a> and <a href="lualib.h.html">lualib.h</a>. </p>
+
+<ul>
+    <li><a href="lbaselib.c.html">lbaselib.c</a> <strong>globals and coroutine</strong></li>
+    <li><a href="loadlib.c.html">loadlib.c</a> <strong>package</strong></li>
+    <li><a href="loslib.c.html">loslib.c</a>  <strong>os</strong></li>
+    <li><a href="liolib.c.html">liolib.c</a>  <strong>io</strong></li>
+    <li><a href="lstrlib.c.html">lstrlib.c</a> <strong>string</strong></li>
+    <li><a href="lmathlib.c.html">lmathlib.c</a> <strong>math</strong></li>
+    <li><a href="ltablib.c.html">ltablib.c</a> <strong>table</strong></li>
+</ul>
+
+<p>These only depend on the public API. The debug library needs more intimate 
+knowledge of Lua internals:</p>
+
+<ul>
+    <li><a href="ldebug.c.html">ldebug.c</a> <strong>debug</strong></li>
+</ul>
+
+<h2>Core</h2>
+
+<h3>API Implementation</h3>
+
+<ul>
+    <li><a href="lapi.c.html">lapi.c</a> <em>main API</em></li>
+    <li><a href="lauxlib.c.html">lauxlib.c</a> <em>auxililary API</em></li>
+</ul>
+
+<h3>Lexer/Parser</h3>
+
+<ul>
+    <li><a href="llex.c.html">llex.c</a> <em>lexer</em></li>
+    <li><a href="lparser.c.html">lparser.c</a> <em>parser</em></li>
+    <li><a href="lzio.c.html">lzio.c</a> <em>generic input stream</em></li>
+    <li><a href="lundump.c.html">lundump.c</a> <em>loading precompiled code</em>  </li>
+    <li><a href="lcode.c.html">lcode.c</a> <em>code generator</em></li>
+    <li><a href="lfunc.c.html">lfunc.c</a> <em>manipulating prototypes and closures</em></li>
+    <li><a href="lopcodes.c.html">lopcodes.c</a> <em>opcodes</em></li>
+</ul>
+
+<h3>Virtual Machine</h3>
+
+<ul>
+    <li><a href="ltable.c.html">ltable.c</a> <em>table implementation</em></li>
+    <li><a href="lstring.c.html">lstring.c</a> <em>string implementation</em></li>
+    <li><a href="lstate.c.html">lstate.c</a> <em>Lua State</em></li>
+    <li><a href="lobject.c.html">lobject.c</a> <em>Lua object management</em></li>
+    <li><a href="lmem.c.html">lmem.c</a> <em>memory management</em>  </li>
+    <li><a href="lgc.c.html">lgc.c</a> <em>garbage collection</em></li>
+    <li><a href="ltm.c.html">ltm.c</a> <em>metamethod dispatch ('tags')</em></li>
+    <li><a href="ldo.c.html">ldo.c</a> <em>stack and call structure</em></li>
+    <li><a href="lvm.c.html">lvm.c</a> <em>virtual machine core</em></li>
+</ul>
+
+<h2>Index of Annotations</h2>
+
+<ul>
+    <li><a href="lua.c.html">lua.c:</a></li>
+    <li><a href="lauxlib.h.html">lauxlib.h:</a></li>
+    <li><a href="lauxlib.h.html#luaL_newlib">lauxlib.h:luaL_newlib</a></li>
+    <li><a href="lauxlib.h.html#luaL_argcheck">lauxlib.h:luaL_argcheck</a></li>
+    <li><a href="lcode.h.html#getcode">lcode.h:getcode</a></li>
+    <li><a href="llimits.h.html#MAXSTACK">llimits.h:MAXSTACK</a></li>
+    <li><a href="lua.h.html">lua.h:</a></li>
+    <li><a href="lua.h.html#LUA_VERSION_NUM">lua.h:LUA<em>VERSION</em>NUM</a></li>
+    <li><a href="lua.h.html#LUA_SIGNATURE">lua.h:LUA_SIGNATURE</a></li>
+    <li><a href="lua.h.html#LUA_ERRERR">lua.h:LUA_ERRERR</a></li>
+    <li><a href="lua.h.html#LUA_NUMTAGS">lua.h:LUA_NUMTAGS</a></li>
+    <li><a href="lua.h.html#LUA_MINSTACK">lua.h:LUA_MINSTACK</a></li>
+    <li><a href="lua.h.html#LUA_RIDX_MAINTHREAD">lua.h:LUA<em>RIDX</em>MAINTHREAD</a></li>
+    <li><a href="lua.h.html#LUA_RIDX_GLOBALS">lua.h:LUA<em>RIDX</em>GLOBALS</a></li>
+    <li><a href="lua.h.html#LUA_RIDX_LAST">lua.h:LUA<em>RIDX</em>LAST</a></li>
+    <li><a href="lua.h.html#lua_Number">lua.h:lua_Number</a></li>
+    <li><a href="lua.h.html#lua_Integer">lua.h:lua_Integer</a></li>
+    <li><a href="lua.h.html#lua_Unsigned">lua.h:lua_Unsigned</a></li>
+    <li><a href="luac.c.html">luac.c:</a></li>
+    <li><a href="luac.c.html#fatal">luac.c:fatal</a></li>
+    <li><a href="luac.c.html#cannot">luac.c:cannot</a></li>
+    <li><a href="luac.c.html#usage">luac.c:usage</a></li>
+    <li><a href="luac.c.html#doargs">luac.c:doargs</a></li>
+    <li><a href="luac.c.html#FUNCTION">luac.c:FUNCTION</a></li>
+    <li><a href="luac.c.html#reader">luac.c:reader</a></li>
+    <li><a href="luac.c.html#combine">luac.c:combine</a></li>
+    <li><a href="luac.c.html#writer">luac.c:writer</a></li>
+    <li><a href="luac.c.html#pmain">luac.c:pmain</a></li>
+    <li><a href="luac.c.html#main">luac.c:main</a></li>
+    <li><a href="luac.c.html#PrintString">luac.c:PrintString</a></li>
+    <li><a href="luac.c.html#PrintConstant">luac.c:PrintConstant</a></li>
+    <li><a href="luac.c.html#PrintCode">luac.c:PrintCode</a></li>
+    <li><a href="luac.c.html#PrintHeader">luac.c:PrintHeader</a></li>
+    <li><a href="luac.c.html#PrintDebug">luac.c:PrintDebug</a></li>
+    <li><a href="luac.c.html#PrintFunction">luac.c:PrintFunction</a></li>
+    <li><a href="lparser.c.html#hasmultret">lparser.c:hasmultret</a></li>
+    <li><a href="lparser.c.html#NILCONSTANT">lparser.c:NILCONSTANT</a></li>
+    <li><a href="lparser.c.html#ttype">lparser.c:ttype</a></li>
+    <li><a href="lobject.h.html">lobject.h:</a></li>
+    <li><a href="lobject.h.html#ttisnil">lobject.h:ttisnil</a></li>
+    <li><a href="lobject.h.html#ttisnumber">lobject.h:ttisnumber</a></li>
+    <li><a href="lobject.h.html#ttislcf">lobject.h:ttislcf</a></li>
+    <li><a href="lobject.h.html#ttislcf">lobject.h:ttislcf</a></li>
+    <li><a href="lobject.h.html#pvalue">lobject.h:pvalue</a></li>
+    <li><a href="lobject.h.html#nvalue">lobject.h:nvalue</a></li>
+    <li><a href="lobject.h.html#rawtsvalue">lobject.h:rawtsvalue</a></li>
+    <li><a href="lobject.h.html#tsvalue">lobject.h:tsvalue</a></li>
+    <li><a href="lobject.h.html#uvalue">lobject.h:uvalue</a></li>
+    <li><a href="lobject.h.html#clvalue">lobject.h:clvalue</a></li>
+    <li><a href="lobject.h.html#fvalue">lobject.h:fvalue</a></li>
+    <li><a href="lobject.h.html#hvalue">lobject.h:hvalue</a></li>
+    <li><a href="lobject.h.html#bvalue">lobject.h:bvalue</a></li>
+    <li><a href="lobject.h.html#thvalue">lobject.h:thvalue</a></li>
+    <li><a href="lobject.h.html#l_isfalse">lobject.h:l_isfalse</a></li>
+    <li><a href="lobject.h.html#setnvalue">lobject.h:setnvalue</a></li>
+    <li><a href="lobject.h.html#setfvalue">lobject.h:setfvalue</a></li>
+    <li><a href="lobject.h.html#setfvalue">lobject.h:setfvalue</a></li>
+    <li><a href="lobject.h.html#setbvalue">lobject.h:setbvalue</a></li>
+    <li><a href="lobject.h.html#svalue">lobject.h:svalue</a></li>
+    <li><a href="lobject.h.html#Udata">lobject.h:Udata</a></li>
+    <li><a href="lobject.h.html#Upvaldesc">lobject.h:Upvaldesc</a></li>
+    <li><a href="lobject.h.html#Proto">lobject.h:Proto</a></li>
+    <li><a href="lobject.h.html#Upvaluedesc.">lobject.h:Upvaluedesc.</a></li>
+    <li><a href="lobject.h.html#UpVal">lobject.h:UpVal</a></li>
+    <li><a href="lobject.h.html#Closure">lobject.h:Closure</a></li>
+    <li><a href="lobject.h.html#getproto">lobject.h:getproto</a></li>
+    <li><a href="lobject.h.html#Table">lobject.h:Table</a></li>
+    <li><a href="lobject.h.html#twoto">lobject.h:twoto</a></li>
+    <li><a href="lopcodes.h.html#getarg">lopcodes.h:getarg</a></li>
+    <li><a href="lopcodes.h.html#setarg">lopcodes.h:setarg</a></li>
+    <li><a href="lopcodes.h.html#GETARG_A">lopcodes.h:GETARG_A</a></li>
+    <li><a href="lopcodes.h.html#SETARG_A">lopcodes.h:SETARG_A</a></li>
+    <li><a href="lopcodes.h.html#CREATE_ABC">lopcodes.h:CREATE_ABC</a></li>
+    <li><a href="lcode.html#isnumeral">lcode:isnumeral</a></li>
+    <li><a href="lcode.c.html#luaK_ret">lcode.c:luaK_ret</a></li>
+    <li><a href="lcode.c.html#luaK_checkstack">lcode.c:luaK_checkstack</a></li>
+    <li><a href="lcode.c.html#luaK_reserveregs">lcode.c:luaK_reserveregs</a></li>
+    <li><a href="lcode.c.html#freereg">lcode.c:freereg</a></li>
+    <li><a href="lcode.c.html#addk">lcode.c:addk</a></li>
+    <li><a href="lcode.c.html#luaK_stringK">lcode.c:luaK_stringK</a></li>
+    <li><a href="lcode.c.html#luaK_numberK">lcode.c:luaK_numberK</a></li>
+    <li><a href="lcode.c.html#boolK">lcode.c:boolK</a></li>
+    <li><a href="lcode.c.html#nilK">lcode.c:nilK</a></li>
+    <li><a href="lcode.c.html#constfolding">lcode.c:constfolding</a></li>
+    <li><a href="ltable.h.html#gnode">ltable.h:gnode</a></li>
+    <li><a href="ltable.h.html#gkey">ltable.h:gkey</a></li>
+    <li><a href="ltable.h.html#gval">ltable.h:gval</a></li>
+    <li><a href="ltable.h.html#gnext">ltable.h:gnext</a></li>
+    <li><a href="lbaselib.c.html#luaB_assert">lbaselib.c:luaB_assert</a></li>
+    <li><a href="lbaselib.c.html#luaB_collectgarbage">lbaselib.c:luaB_collectgarbage</a></li>
+    <li><a href="lbaselib.c.html#luaB_dofile">lbaselib.c:luaB_dofile</a></li>
+    <li><a href="lbaselib.c.html#luaB_error">lbaselib.c:luaB_error</a></li>
+    <li><a href="lbaselib.c.html#luaB_gcinfo">lbaselib.c:luaB_gcinfo</a></li>
+    <li><a href="lbaselib.c.html#luaB_getfenv">lbaselib.c:luaB_getfenv</a></li>
+    <li><a href="lbaselib.c.html#luaB_getmetatable">lbaselib.c:luaB_getmetatable</a></li>
+    <li><a href="lbaselib.c.html#luaB_loadfile">lbaselib.c:luaB_loadfile</a></li>
+    <li><a href="lbaselib.c.html#luaB_load">lbaselib.c:luaB_load</a></li>
+    <li><a href="lbaselib.c.html#luaB_loadstring">lbaselib.c:luaB_loadstring</a></li>
+    <li><a href="lbaselib.c.html#luaB_next">lbaselib.c:luaB_next</a></li>
+    <li><a href="lbaselib.c.html#luaB_pcall">lbaselib.c:luaB_pcall</a></li>
+    <li><a href="lbaselib.c.html#luaB_print">lbaselib.c:luaB_print</a></li>
+    <li><a href="lbaselib.c.html#luaB_rawequal">lbaselib.c:luaB_rawequal</a></li>
+    <li><a href="lbaselib.c.html#luaB_rawget">lbaselib.c:luaB_rawget</a></li>
+    <li><a href="lbaselib.c.html#luaB_rawset">lbaselib.c:luaB_rawset</a></li>
+    <li><a href="lbaselib.c.html#luaB_select">lbaselib.c:luaB_select</a></li>
+    <li><a href="lbaselib.c.html#luaB_setfenv">lbaselib.c:luaB_setfenv</a></li>
+    <li><a href="lbaselib.c.html#luaB_setmetatable">lbaselib.c:luaB_setmetatable</a></li>
+    <li><a href="lbaselib.c.html#luaB_tonumber">lbaselib.c:luaB_tonumber</a></li>
+    <li><a href="lbaselib.c.html#luaB_tostring">lbaselib.c:luaB_tostring</a></li>
+    <li><a href="lbaselib.c.html#luaB_type">lbaselib.c:luaB_type</a></li>
+    <li><a href="lbaselib.c.html#luaB_unpack">lbaselib.c:luaB_unpack</a></li>
+    <li><a href="lbaselib.c.html#luaB_xpcall">lbaselib.c:luaB_xpcall</a></li>
+    <li><a href="lbaselib.c.html#luaB_create">lbaselib.c:luaB_create</a></li>
+    <li><a href="lbaselib.c.html#luaB_resume">lbaselib.c:luaB_resume</a></li>
+    <li><a href="lbaselib.c.html#luaB_running">lbaselib.c:luaB_running</a></li>
+    <li><a href="lbaselib.c.html#luaB_status">lbaselib.c:luaB_status</a></li>
+    <li><a href="lbaselib.c.html#luaB_wrap">lbaselib.c:luaB_wrap</a></li>
+    <li><a href="lbaselib.c.html#luaB_yield">lbaselib.c:luaB_yield</a></li>
+    <li><a href="loslib.c.html#os_clock">loslib.c:os_clock</a></li>
+    <li><a href="loslib.c.html#os_date">loslib.c:os_date</a></li>
+    <li><a href="loslib.c.html#os_difftime">loslib.c:os_difftime</a></li>
+    <li><a href="loslib.c.html#os_execute">loslib.c:os_execute</a></li>
+    <li><a href="loslib.c.html#os_exit">loslib.c:os_exit</a></li>
+    <li><a href="loslib.c.html#os_getenv">loslib.c:os_getenv</a></li>
+    <li><a href="loslib.c.html#os_remove">loslib.c:os_remove</a></li>
+    <li><a href="loslib.c.html#os_rename">loslib.c:os_rename</a></li>
+    <li><a href="loslib.c.html#os_setlocale">loslib.c:os_setlocale</a></li>
+    <li><a href="loslib.c.html#os_time">loslib.c:os_time</a></li>
+    <li><a href="loslib.c.html#os_tmpname">loslib.c:os_tmpname</a></li>
+    <li><a href="liolib.c.html#io_close">liolib.c:io_close</a></li>
+    <li><a href="liolib.c.html#io_flush">liolib.c:io_flush</a></li>
+    <li><a href="liolib.c.html#io_input">liolib.c:io_input</a></li>
+    <li><a href="liolib.c.html#io_lines">liolib.c:io_lines</a></li>
+    <li><a href="liolib.c.html#io_open">liolib.c:io_open</a></li>
+    <li><a href="liolib.c.html#io_output">liolib.c:io_output</a></li>
+    <li><a href="liolib.c.html#io_popen">liolib.c:io_popen</a></li>
+    <li><a href="liolib.c.html#io_read">liolib.c:io_read</a></li>
+    <li><a href="liolib.c.html#io_tmpfile">liolib.c:io_tmpfile</a></li>
+    <li><a href="liolib.c.html#io_type">liolib.c:io_type</a></li>
+    <li><a href="liolib.c.html#io_write">liolib.c:io_write</a></li>
+    <li><a href="lstrlib.c.html#str_byte">lstrlib.c:str_byte</a></li>
+    <li><a href="lstrlib.c.html#str_char">lstrlib.c:str_char</a></li>
+    <li><a href="lstrlib.c.html#str_dump">lstrlib.c:str_dump</a></li>
+    <li><a href="lstrlib.c.html#str_find">lstrlib.c:str_find</a></li>
+    <li><a href="lstrlib.c.html#str_format">lstrlib.c:str_format</a></li>
+    <li><a href="lstrlib.c.html#str_gfind">lstrlib.c:str_gfind</a></li>
+    <li><a href="lstrlib.c.html#str_gmatch">lstrlib.c:str_gmatch</a></li>
+    <li><a href="lstrlib.c.html#str_gsub">lstrlib.c:str_gsub</a></li>
+    <li><a href="lstrlib.c.html#str_len">lstrlib.c:str_len</a></li>
+    <li><a href="lstrlib.c.html#str_lower">lstrlib.c:str_lower</a></li>
+    <li><a href="lstrlib.c.html#str_match">lstrlib.c:str_match</a></li>
+    <li><a href="lstrlib.c.html#str_rep">lstrlib.c:str_rep</a></li>
+    <li><a href="lstrlib.c.html#str_reverse">lstrlib.c:str_reverse</a></li>
+    <li><a href="lstrlib.c.html#str_sub">lstrlib.c:str_sub</a></li>
+    <li><a href="lstrlib.c.html#str_upper">lstrlib.c:str_upper</a></li>
+    <li><a href="lmathlib.c.html#math_abs">lmathlib.c:math_abs</a></li>
+    <li><a href="lmathlib.c.html#math_acos">lmathlib.c:math_acos</a></li>
+    <li><a href="lmathlib.c.html#math_asin">lmathlib.c:math_asin</a></li>
+    <li><a href="lmathlib.c.html#math_atan">lmathlib.c:math_atan</a></li>
+    <li><a href="lmathlib.c.html#math_atan">lmathlib.c:math_atan</a></li>
+    <li><a href="lmathlib.c.html#math_ceil">lmathlib.c:math_ceil</a></li>
+    <li><a href="lmathlib.c.html#math_cosh">lmathlib.c:math_cosh</a></li>
+    <li><a href="lmathlib.c.html#math_cos">lmathlib.c:math_cos</a></li>
+    <li><a href="lmathlib.c.html#math_deg">lmathlib.c:math_deg</a></li>
+    <li><a href="lmathlib.c.html#math_exp">lmathlib.c:math_exp</a></li>
+    <li><a href="lmathlib.c.html#math_floor">lmathlib.c:math_floor</a></li>
+    <li><a href="lmathlib.c.html#math_fmod">lmathlib.c:math_fmod</a></li>
+    <li><a href="lmathlib.c.html#math_frexp">lmathlib.c:math_frexp</a></li>
+    <li><a href="lmathlib.c.html#math_ldexp">lmathlib.c:math_ldexp</a></li>
+    <li><a href="lmathlib.c.html#math_log">lmathlib.c:math_log</a></li>
+    <li><a href="lmathlib.c.html#math_log">lmathlib.c:math_log</a></li>
+    <li><a href="lmathlib.c.html#math_max">lmathlib.c:math_max</a></li>
+    <li><a href="lmathlib.c.html#math_min">lmathlib.c:math_min</a></li>
+    <li><a href="lmathlib.c.html#math_modf">lmathlib.c:math_modf</a></li>
+    <li><a href="lmathlib.c.html#math_pow">lmathlib.c:math_pow</a></li>
+    <li><a href="lmathlib.c.html#math_rad">lmathlib.c:math_rad</a></li>
+    <li><a href="lmathlib.c.html#math_random">lmathlib.c:math_random</a></li>
+    <li><a href="lmathlib.c.html#math_randomseed">lmathlib.c:math_randomseed</a></li>
+    <li><a href="lmathlib.c.html#math_sinh">lmathlib.c:math_sinh</a></li>
+    <li><a href="lmathlib.c.html#math_sin">lmathlib.c:math_sin</a></li>
+    <li><a href="lmathlib.c.html#math_sqrt">lmathlib.c:math_sqrt</a></li>
+    <li><a href="lmathlib.c.html#math_tanh">lmathlib.c:math_tanh</a></li>
+    <li><a href="lmathlib.c.html#math_tan">lmathlib.c:math_tan</a></li>
+    <li><a href="lmathlib.c.html#math_abs">lmathlib.c:math_abs</a></li>
+    <li><a href="lmathlib.c.html#math_acos">lmathlib.c:math_acos</a></li>
+    <li><a href="lmathlib.c.html#math_asin">lmathlib.c:math_asin</a></li>
+    <li><a href="lmathlib.c.html#math_atan">lmathlib.c:math_atan</a></li>
+    <li><a href="lmathlib.c.html#math_atan">lmathlib.c:math_atan</a></li>
+    <li><a href="lmathlib.c.html#math_ceil">lmathlib.c:math_ceil</a></li>
+    <li><a href="lmathlib.c.html#math_cosh">lmathlib.c:math_cosh</a></li>
+    <li><a href="lmathlib.c.html#math_cos">lmathlib.c:math_cos</a></li>
+    <li><a href="lmathlib.c.html#math_deg">lmathlib.c:math_deg</a></li>
+    <li><a href="lmathlib.c.html#math_exp">lmathlib.c:math_exp</a></li>
+    <li><a href="lmathlib.c.html#math_floor">lmathlib.c:math_floor</a></li>
+    <li><a href="lmathlib.c.html#math_fmod">lmathlib.c:math_fmod</a></li>
+    <li><a href="lmathlib.c.html#math_frexp">lmathlib.c:math_frexp</a></li>
+    <li><a href="lmathlib.c.html#math_ldexp">lmathlib.c:math_ldexp</a></li>
+    <li><a href="lmathlib.c.html#math_log">lmathlib.c:math_log</a></li>
+    <li><a href="lmathlib.c.html#math_log">lmathlib.c:math_log</a></li>
+    <li><a href="lmathlib.c.html#math_max">lmathlib.c:math_max</a></li>
+    <li><a href="lmathlib.c.html#math_min">lmathlib.c:math_min</a></li>
+    <li><a href="lmathlib.c.html#math_modf">lmathlib.c:math_modf</a></li>
+    <li><a href="lmathlib.c.html#math_pow">lmathlib.c:math_pow</a></li>
+    <li><a href="lmathlib.c.html#math_rad">lmathlib.c:math_rad</a></li>
+    <li><a href="lmathlib.c.html#math_random">lmathlib.c:math_random</a></li>
+    <li><a href="lmathlib.c.html#math_randomseed">lmathlib.c:math_randomseed</a></li>
+    <li><a href="lmathlib.c.html#math_sinh">lmathlib.c:math_sinh</a></li>
+    <li><a href="lmathlib.c.html#math_sin">lmathlib.c:math_sin</a></li>
+    <li><a href="lmathlib.c.html#math_sqrt">lmathlib.c:math_sqrt</a></li>
+    <li><a href="lmathlib.c.html#math_tanh">lmathlib.c:math_tanh</a></li>
+    <li><a href="lmathlib.c.html#math_tan">lmathlib.c:math_tan</a></li>
+    <li><a href="ltablib.c.html#tconcat">ltablib.c:tconcat</a></li>
+    <li><a href="ltablib.c.html#foreach">ltablib.c:foreach</a></li>
+    <li><a href="ltablib.c.html#foreachi">ltablib.c:foreachi</a></li>
+    <li><a href="ltablib.c.html#getn">ltablib.c:getn</a></li>
+    <li><a href="ltablib.c.html#maxn">ltablib.c:maxn</a></li>
+    <li><a href="ltablib.c.html#tinsert">ltablib.c:tinsert</a></li>
+    <li><a href="ltablib.c.html#tremove">ltablib.c:tremove</a></li>
+    <li><a href="ltablib.c.html#setn">ltablib.c:setn</a></li>
+    <li><a href="ltablib.c.html#sort">ltablib.c:sort</a></li>
+    <li><a href="lapi.c.html#lua_checkstack">lapi.c:lua_checkstack</a></li>
+    <li><a href="lapi.c.html#lua_xmove">lapi.c:lua_xmove</a></li>
+    <li><a href="lapi.c.html#lua_setlevel">lapi.c:lua_setlevel</a></li>
+    <li><a href="lapi.c.html#lua_CFunction">lapi.c:lua_CFunction</a></li>
+    <li><a href="lapi.c.html#lua_State">lapi.c:lua_State</a></li>
+    <li><a href="lapi.c.html#lua_gettop">lapi.c:lua_gettop</a></li>
+    <li><a href="lapi.c.html#lua_settop">lapi.c:lua_settop</a></li>
+    <li><a href="lapi.c.html#lua_remove">lapi.c:lua_remove</a></li>
+    <li><a href="lapi.c.html#lua_insert">lapi.c:lua_insert</a></li>
+    <li><a href="lapi.c.html#lua_replace">lapi.c:lua_replace</a></li>
+    <li><a href="lapi.c.html#lua_pushvalue">lapi.c:lua_pushvalue</a></li>
+    <li><a href="lapi.c.html#lua_type">lapi.c:lua_type</a></li>
+    <li><a href="lapi.c.html#lua_typename">lapi.c:lua_typename</a></li>
+    <li><a href="lapi.c.html#lua_iscfunction">lapi.c:lua_iscfunction</a></li>
+    <li><a href="lapi.c.html#lua_isnumber">lapi.c:lua_isnumber</a></li>
+    <li><a href="lapi.c.html#lua_isstring">lapi.c:lua_isstring</a></li>
+    <li><a href="lapi.c.html#lua_isuserdata">lapi.c:lua_isuserdata</a></li>
+    <li><a href="lapi.c.html#lua_rawequal">lapi.c:lua_rawequal</a></li>
+    <li><a href="lapi.c.html#lua_equal">lapi.c:lua_equal</a></li>
+    <li><a href="lapi.c.html#lua_lessthan">lapi.c:lua_lessthan</a></li>
+    <li><a href="lapi.c.html#lua_Number">lapi.c:lua_Number</a></li>
+    <li><a href="lapi.c.html#lua_Integer">lapi.c:lua_Integer</a></li>
+    <li><a href="lapi.c.html#lua_toboolean">lapi.c:lua_toboolean</a></li>
+    <li><a href="lapi.c.html#lua_tolstring">lapi.c:lua_tolstring</a></li>
+    <li><a href="lapi.c.html#lua_objlen">lapi.c:lua_objlen</a></li>
+    <li><a href="lapi.c.html#lua_CFunction">lapi.c:lua_CFunction</a></li>
+    <li><a href="lapi.c.html#lua_touserdata">lapi.c:lua_touserdata</a></li>
+    <li><a href="lapi.c.html#lua_State">lapi.c:lua_State</a></li>
+    <li><a href="lapi.c.html#lua_topointer">lapi.c:lua_topointer</a></li>
+    <li><a href="lapi.c.html#lua_pushnil">lapi.c:lua_pushnil</a></li>
+    <li><a href="lapi.c.html#lua_pushnumber">lapi.c:lua_pushnumber</a></li>
+    <li><a href="lapi.c.html#lua_pushinteger">lapi.c:lua_pushinteger</a></li>
+    <li><a href="lapi.c.html#lua_pushlstring">lapi.c:lua_pushlstring</a></li>
+    <li><a href="lapi.c.html#lua_pushstring">lapi.c:lua_pushstring</a></li>
+    <li><a href="lapi.c.html#lua_pushvfstring">lapi.c:lua_pushvfstring</a></li>
+    <li><a href="lapi.c.html#lua_pushfstring">lapi.c:lua_pushfstring</a></li>
+    <li><a href="lapi.c.html#lua_pushcclosure">lapi.c:lua_pushcclosure</a></li>
+    <li><a href="lapi.c.html#lua_pushboolean">lapi.c:lua_pushboolean</a></li>
+    <li><a href="lapi.c.html#lua_pushlightuserdata">lapi.c:lua_pushlightuserdata</a></li>
+    <li><a href="lapi.c.html#lua_pushthread">lapi.c:lua_pushthread</a></li>
+    <li><a href="lapi.c.html#lua_gettable">lapi.c:lua_gettable</a></li>
+    <li><a href="lapi.c.html#lua_getfield">lapi.c:lua_getfield</a></li>
+    <li><a href="lapi.c.html#lua_rawget">lapi.c:lua_rawget</a></li>
+    <li><a href="lapi.c.html#lua_rawgeti">lapi.c:lua_rawgeti</a></li>
+    <li><a href="lapi.c.html#lua_createtable">lapi.c:lua_createtable</a></li>
+    <li><a href="lapi.c.html#lua_getmetatable">lapi.c:lua_getmetatable</a></li>
+    <li><a href="lapi.c.html#lua_getfenv">lapi.c:lua_getfenv</a></li>
+    <li><a href="lapi.c.html#lua_settable">lapi.c:lua_settable</a></li>
+    <li><a href="lapi.c.html#lua_setfield">lapi.c:lua_setfield</a></li>
+    <li><a href="lapi.c.html#lua_rawset">lapi.c:lua_rawset</a></li>
+    <li><a href="lapi.c.html#lua_rawseti">lapi.c:lua_rawseti</a></li>
+    <li><a href="lapi.c.html#lua_setmetatable">lapi.c:lua_setmetatable</a></li>
+    <li><a href="lapi.c.html#lua_setfenv">lapi.c:lua_setfenv</a></li>
+    <li><a href="lapi.c.html#lua_call">lapi.c:lua_call</a></li>
+    <li><a href="lapi.c.html#lua_pcall">lapi.c:lua_pcall</a></li>
+    <li><a href="lapi.c.html#lua_cpcall">lapi.c:lua_cpcall</a></li>
+    <li><a href="lapi.c.html#lua_load">lapi.c:lua_load</a></li>
+    <li><a href="lapi.c.html#lua_dump">lapi.c:lua_dump</a></li>
+    <li><a href="lapi.c.html#lua_status">lapi.c:lua_status</a></li>
+    <li><a href="lapi.c.html#lua_gc">lapi.c:lua_gc</a></li>
+    <li><a href="lapi.c.html#lua_error">lapi.c:lua_error</a></li>
+    <li><a href="lapi.c.html#lua_next">lapi.c:lua_next</a></li>
+    <li><a href="lapi.c.html#lua_concat">lapi.c:lua_concat</a></li>
+    <li><a href="lapi.c.html#lua_Alloc">lapi.c:lua_Alloc</a></li>
+    <li><a href="lapi.c.html#lua_setallocf">lapi.c:lua_setallocf</a></li>
+    <li><a href="lapi.c.html#lua_newuserdata">lapi.c:lua_newuserdata</a></li>
+    <li><a href="lapi.c.html#lua_getupvalue">lapi.c:lua_getupvalue</a></li>
+    <li><a href="lapi.c.html#lua_setupvalue">lapi.c:lua_setupvalue</a></li>
+    <li><a href="lauxlib.c.html#luaL_argerror">lauxlib.c:luaL_argerror</a></li>
+    <li><a href="lauxlib.c.html#luaL_typerror">lauxlib.c:luaL_typerror</a></li>
+    <li><a href="lauxlib.c.html#luaL_where">lauxlib.c:luaL_where</a></li>
+    <li><a href="lauxlib.c.html#luaL_error">lauxlib.c:luaL_error</a></li>
+    <li><a href="lauxlib.c.html#luaL_checkoption">lauxlib.c:luaL_checkoption</a></li>
+    <li><a href="lauxlib.c.html#luaL_newmetatable">lauxlib.c:luaL_newmetatable</a></li>
+    <li><a href="lauxlib.c.html#luaL_checkudata">lauxlib.c:luaL_checkudata</a></li>
+    <li><a href="lauxlib.c.html#luaL_checkstack">lauxlib.c:luaL_checkstack</a></li>
+    <li><a href="lauxlib.c.html#luaL_checktype">lauxlib.c:luaL_checktype</a></li>
+    <li><a href="lauxlib.c.html#luaL_checkany">lauxlib.c:luaL_checkany</a></li>
+    <li><a href="lauxlib.c.html#luaL_checklstring">lauxlib.c:luaL_checklstring</a></li>
+    <li><a href="lauxlib.c.html#luaL_optlstring">lauxlib.c:luaL_optlstring</a></li>
+    <li><a href="lauxlib.c.html#luaL_checknumber">lauxlib.c:luaL_checknumber</a></li>
+    <li><a href="lauxlib.c.html#luaL_optnumber">lauxlib.c:luaL_optnumber</a></li>
+    <li><a href="lauxlib.c.html#luaL_checkinteger">lauxlib.c:luaL_checkinteger</a></li>
+    <li><a href="lauxlib.c.html#luaL_optinteger">lauxlib.c:luaL_optinteger</a></li>
+    <li><a href="lauxlib.c.html#luaL_getmetafield">lauxlib.c:luaL_getmetafield</a></li>
+    <li><a href="lauxlib.c.html#luaL_callmeta">lauxlib.c:luaL_callmeta</a></li>
+    <li><a href="lauxlib.c.html#luaL_register">lauxlib.c:luaL_register</a></li>
+    <li><a href="lauxlib.c.html#luaL_setn">lauxlib.c:luaL_setn</a></li>
+    <li><a href="lauxlib.c.html#luaL_getn">lauxlib.c:luaL_getn</a></li>
+    <li><a href="lauxlib.c.html#luaL_gsub">lauxlib.c:luaL_gsub</a></li>
+    <li><a href="lauxlib.c.html#luaL_findtable">lauxlib.c:luaL_findtable</a></li>
+    <li><a href="lauxlib.c.html#luaL_buffinit">lauxlib.c:luaL_buffinit</a></li>
+    <li><a href="lauxlib.c.html#luaL_ref">lauxlib.c:luaL_ref</a></li>
+    <li><a href="lauxlib.c.html#luaL_unref">lauxlib.c:luaL_unref</a></li>
+    <li><a href="lauxlib.c.html#luaL_loadfile">lauxlib.c:luaL_loadfile</a></li>
+    <li><a href="lauxlib.c.html#luaL_loadbuffer">lauxlib.c:luaL_loadbuffer</a></li>
+    <li><a href="lauxlib.c.html#luaL_loadstring">lauxlib.c:luaL_loadstring</a></li>
+    <li><a href="lauxlib.c.html#luaL_newstate">lauxlib.c:luaL_newstate</a></li>
+    <li><a href="linit.c.html#luaL_openlibs">linit.c:luaL_openlibs</a></li>
+</ul>
+
+</body></html>

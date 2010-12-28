@@ -62,7 +62,8 @@ L0054    <a name="tofilep"/a><span class="prepro">#define tofilep(L)	((FILE **)l
 </span>L0055    
 L0056    
 L0057    <span class="keyword">static</span> <span class="keyword">int</span> <a name="io_type"/a><a class="L" href="liolib.c.ref.html#io_type">io_type</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
-L0058      <span class="keyword">void</span> *ud;
+<div class="block"><a href="doc/manual.html#pdf-io.type">manl:io.type</a>
+</div>L0058      <span class="keyword">void</span> *ud;
 L0059      <a class="L" href="lauxlib.c.html#luaL_checkany">luaL_checkany</a>(L, <span class="number">1</span>);
 L0060      ud = <a class="L" href="lapi.c.html#lua_touserdata">lua_touserdata</a>(L, <span class="number">1</span>);
 L0061      <a class="L" href="lapi.c.html#lua_getfield">lua_getfield</a>(L, <a class="L" href="lua.h.html#LUA_REGISTRYINDEX">LUA_REGISTRYINDEX</a>, <a class="L" href="lualib.h.html#LUA_FILEHANDLE">LUA_FILEHANDLE</a>);
@@ -139,7 +140,8 @@ L0131    }
 L0132    
 L0133    
 L0134    <span class="keyword">static</span> <span class="keyword">int</span> <a name="io_close"/a><a class="L" href="liolib.c.ref.html#io_close">io_close</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
-L0135      <span class="keyword">if</span> (<a class="L" href="lua.h.html#lua_isnone">lua_isnone</a>(L, <span class="number">1</span>))
+<div class="block"><a href="doc/manual.html#pdf-io.close">manl:io.close</a>
+</div>L0135      <span class="keyword">if</span> (<a class="L" href="lua.h.html#lua_isnone">lua_isnone</a>(L, <span class="number">1</span>))
 L0136        <a class="L" href="lapi.c.html#lua_rawgeti">lua_rawgeti</a>(L, <a class="L" href="lua.h.html#LUA_ENVIRONINDEX">LUA_ENVIRONINDEX</a>, <a class="L" href="liolib.c.html#IO_OUTPUT">IO_OUTPUT</a>);
 L0137      <a class="L" href="liolib.c.html#tofile">tofile</a>(L);  <span class="comment">/* make sure argument is a file */</span>
 L0138      <span class="keyword">return</span> <a class="L" href="liolib.c.html#aux_close">aux_close</a>(L);
@@ -166,7 +168,8 @@ L0158    }
 L0159    
 L0160    
 L0161    <span class="keyword">static</span> <span class="keyword">int</span> <a name="io_open"/a><a class="L" href="liolib.c.ref.html#io_open">io_open</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
-L0162      <span class="keyword">const</span> <span class="keyword">char</span> *filename = <a class="L" href="lauxlib.h.html#luaL_checkstring">luaL_checkstring</a>(L, <span class="number">1</span>);
+<div class="block"><a href="doc/manual.html#pdf-io.open">manl:io.open</a>
+</div>L0162      <span class="keyword">const</span> <span class="keyword">char</span> *filename = <a class="L" href="lauxlib.h.html#luaL_checkstring">luaL_checkstring</a>(L, <span class="number">1</span>);
 L0163      <span class="keyword">const</span> <span class="keyword">char</span> *mode = <a class="L" href="lauxlib.h.html#luaL_optstring">luaL_optstring</a>(L, <span class="number">2</span>, <span class="string">"r"</span>);
 L0164      FILE **pf = <a class="L" href="liolib.c.html#newfile">newfile</a>(L);
 L0165      *pf = fopen(filename, mode);
@@ -179,7 +182,8 @@ L0171    ** this function has a separated environment, which defines the
 L0172    ** correct __close for 'popen' files
 L0173    */</span>
 L0174    <span class="keyword">static</span> <span class="keyword">int</span> <a name="io_popen"/a><a class="L" href="liolib.c.ref.html#io_popen">io_popen</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
-L0175      <span class="keyword">const</span> <span class="keyword">char</span> *filename = <a class="L" href="lauxlib.h.html#luaL_checkstring">luaL_checkstring</a>(L, <span class="number">1</span>);
+<div class="block"><a href="doc/manual.html#pdf-io.popen">manl:io.popen</a>
+</div>L0175      <span class="keyword">const</span> <span class="keyword">char</span> *filename = <a class="L" href="lauxlib.h.html#luaL_checkstring">luaL_checkstring</a>(L, <span class="number">1</span>);
 L0176      <span class="keyword">const</span> <span class="keyword">char</span> *mode = <a class="L" href="lauxlib.h.html#luaL_optstring">luaL_optstring</a>(L, <span class="number">2</span>, <span class="string">"r"</span>);
 L0177      FILE **pf = <a class="L" href="liolib.c.html#newfile">newfile</a>(L);
 L0178      *pf = <a class="L" href="luaconf.h.html#lua_popen">lua_popen</a>(L, filename, mode);
@@ -188,7 +192,8 @@ L0180    }
 L0181    
 L0182    
 L0183    <span class="keyword">static</span> <span class="keyword">int</span> <a name="io_tmpfile"/a><a class="L" href="liolib.c.ref.html#io_tmpfile">io_tmpfile</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
-L0184      FILE **pf = <a class="L" href="liolib.c.html#newfile">newfile</a>(L);
+<div class="block"><a href="doc/manual.html#pdf-io.tmpfile">manl:io.tmpfile</a>
+</div>L0184      FILE **pf = <a class="L" href="liolib.c.html#newfile">newfile</a>(L);
 L0185      *pf = tmpfile();
 L0186      <span class="keyword">return</span> (*pf == NULL) ? <a class="L" href="liolib.c.html#pushresult">pushresult</a>(L, <span class="number">0</span>, NULL) : <span class="number">1</span>;
 L0187    }
@@ -226,12 +231,14 @@ L0218    }
 L0219    
 L0220    
 L0221    <span class="keyword">static</span> <span class="keyword">int</span> <a name="io_input"/a><a class="L" href="liolib.c.ref.html#io_input">io_input</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
-L0222      <span class="keyword">return</span> <a class="L" href="liolib.c.html#g_iofile">g_iofile</a>(L, <a class="L" href="liolib.c.html#IO_INPUT">IO_INPUT</a>, <span class="string">"r"</span>);
+<div class="block"><a href="doc/manual.html#pdf-io.input">manl:io.input</a>
+</div>L0222      <span class="keyword">return</span> <a class="L" href="liolib.c.html#g_iofile">g_iofile</a>(L, <a class="L" href="liolib.c.html#IO_INPUT">IO_INPUT</a>, <span class="string">"r"</span>);
 L0223    }
 L0224    
 L0225    
 L0226    <span class="keyword">static</span> <span class="keyword">int</span> <a name="io_output"/a><a class="L" href="liolib.c.ref.html#io_output">io_output</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
-L0227      <span class="keyword">return</span> <a class="L" href="liolib.c.html#g_iofile">g_iofile</a>(L, <a class="L" href="liolib.c.html#IO_OUTPUT">IO_OUTPUT</a>, <span class="string">"w"</span>);
+<div class="block"><a href="doc/manual.html#pdf-io.output">manl:io.output</a>
+</div>L0227      <span class="keyword">return</span> <a class="L" href="liolib.c.html#g_iofile">g_iofile</a>(L, <a class="L" href="liolib.c.html#IO_OUTPUT">IO_OUTPUT</a>, <span class="string">"w"</span>);
 L0228    }
 L0229    
 L0230    
@@ -253,7 +260,8 @@ L0245    }
 L0246    
 L0247    
 L0248    <span class="keyword">static</span> <span class="keyword">int</span> <a name="io_lines"/a><a class="L" href="liolib.c.ref.html#io_lines">io_lines</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
-L0249      <span class="keyword">if</span> (<a class="L" href="lua.h.html#lua_isnoneornil">lua_isnoneornil</a>(L, <span class="number">1</span>)) {  <span class="comment">/* no arguments? */</span>
+<div class="block"><a href="doc/manual.html#pdf-io.lines">manl:io.lines</a>
+</div>L0249      <span class="keyword">if</span> (<a class="L" href="lua.h.html#lua_isnoneornil">lua_isnoneornil</a>(L, <span class="number">1</span>)) {  <span class="comment">/* no arguments? */</span>
 L0250        <span class="comment">/* will iterate over default input */</span>
 L0251        <a class="L" href="lapi.c.html#lua_rawgeti">lua_rawgeti</a>(L, <a class="L" href="lua.h.html#LUA_ENVIRONINDEX">LUA_ENVIRONINDEX</a>, <a class="L" href="liolib.c.html#IO_INPUT">IO_INPUT</a>);
 L0252        <span class="keyword">return</span> <a class="L" href="liolib.c.html#f_lines">f_lines</a>(L);
@@ -383,7 +391,8 @@ L0375    }
 L0376    
 L0377    
 L0378    <span class="keyword">static</span> <span class="keyword">int</span> <a name="io_read"/a><a class="L" href="liolib.c.ref.html#io_read">io_read</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
-L0379      <span class="keyword">return</span> <a class="L" href="liolib.c.html#g_read">g_read</a>(L, <a class="L" href="liolib.c.html#getiofile">getiofile</a>(L, <a class="L" href="liolib.c.html#IO_INPUT">IO_INPUT</a>), <span class="number">1</span>);
+<div class="block"><a href="doc/manual.html#pdf-io.read">manl:io.read</a>
+</div>L0379      <span class="keyword">return</span> <a class="L" href="liolib.c.html#g_read">g_read</a>(L, <a class="L" href="liolib.c.html#getiofile">getiofile</a>(L, <a class="L" href="liolib.c.html#IO_INPUT">IO_INPUT</a>), <span class="number">1</span>);
 L0380    }
 L0381    
 L0382    
@@ -434,7 +443,8 @@ L0426    }
 L0427    
 L0428    
 L0429    <span class="keyword">static</span> <span class="keyword">int</span> <a name="io_write"/a><a class="L" href="liolib.c.ref.html#io_write">io_write</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
-L0430      <span class="keyword">return</span> <a class="L" href="liolib.c.html#g_write">g_write</a>(L, <a class="L" href="liolib.c.html#getiofile">getiofile</a>(L, <a class="L" href="liolib.c.html#IO_OUTPUT">IO_OUTPUT</a>), <span class="number">1</span>);
+<div class="block"><a href="doc/manual.html#pdf-io.write">manl:io.write</a>
+</div>L0430      <span class="keyword">return</span> <a class="L" href="liolib.c.html#g_write">g_write</a>(L, <a class="L" href="liolib.c.html#getiofile">getiofile</a>(L, <a class="L" href="liolib.c.html#IO_OUTPUT">IO_OUTPUT</a>), <span class="number">1</span>);
 L0431    }
 L0432    
 L0433    
@@ -472,7 +482,8 @@ L0464
 L0465    
 L0466    
 L0467    <span class="keyword">static</span> <span class="keyword">int</span> <a name="io_flush"/a><a class="L" href="liolib.c.ref.html#io_flush">io_flush</a> (<a class="L" href="lstate.h.html#lua_State">lua_State</a> *L) {
-L0468      <span class="keyword">return</span> <a class="L" href="liolib.c.html#pushresult">pushresult</a>(L, fflush(<a class="L" href="liolib.c.html#getiofile">getiofile</a>(L, <a class="L" href="liolib.c.html#IO_OUTPUT">IO_OUTPUT</a>)) == <span class="number">0</span>, NULL);
+<div class="block"><a href="doc/manual.html#pdf-io.flush">manl:io.flush</a>
+</div>L0468      <span class="keyword">return</span> <a class="L" href="liolib.c.html#pushresult">pushresult</a>(L, fflush(<a class="L" href="liolib.c.html#getiofile">getiofile</a>(L, <a class="L" href="liolib.c.html#IO_OUTPUT">IO_OUTPUT</a>)) == <span class="number">0</span>, NULL);
 L0469    }
 L0470    
 L0471    
