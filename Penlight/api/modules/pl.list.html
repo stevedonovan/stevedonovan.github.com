@@ -2,7 +2,7 @@
    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
 <head>
-    <title>pl.list: Module Index</title>
+    <title>pl.List: Module Index</title>
     <link rel="stylesheet" href="../luadoc.css" type="text/css" />
 	<!--meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/-->
 </head>
@@ -35,6 +35,14 @@
 <ul>
 
 	<li>
+		<a href="../modules/pl.Map.html">pl.Map</a>
+	</li>
+
+	<li>
+		<a href="../modules/pl.OrderedMap.html">pl.OrderedMap</a>
+	</li>
+
+	<li>
 		<a href="../modules/pl.app.html">pl.app</a>
 	</li>
 
@@ -48,6 +56,10 @@
 
 	<li>
 		<a href="../modules/pl.classx.html">pl.classx</a>
+	</li>
+
+	<li>
+		<a href="../modules/pl.comprehension.html">pl.comprehension</a>
 	</li>
 
 	<li>
@@ -82,8 +94,10 @@
 		<a href="../modules/pl.lexer.html">pl.lexer</a>
 	</li>
 
-	<li><strong>pl.list</strong></li>
-	
+	<li>
+		<a href="../modules/pl.list.html">pl.list</a>
+	</li>
+
 	<li>
 		<a href="../modules/pl.operator.html">pl.operator</a>
 	</li>
@@ -106,10 +120,6 @@
 
 	<li>
 		<a href="../modules/pl.sip.html">pl.sip</a>
-	</li>
-
-	<li>
-		<a href="../modules/pl.stringio.html">pl.stringio</a>
 	</li>
 
 	<li>
@@ -147,7 +157,7 @@
 
 <div id="content">
 
-<h1>Module "pl.list"</h1>
+<h1>Module "pl.List"</h1>
 
 <p>Python-style list class. <p>
 Based on original code by Nick Trout.
@@ -173,6 +183,11 @@ Redone for Lua 5.1, Steve Donovan.</p>
 
 <h2>Functions</h2>
 <table class="function_list">
+
+	<tr>
+	<td class="name" nowrap><a href="#List.iterate">List.iterate</a>&nbsp;(seq)</td>
+	<td class="summary">Create an iterator over a seqence.</td>
+	</tr>
 
 	<tr>
 	<td class="name" nowrap><a href="#List.range">List.range</a>&nbsp;(start, finish)</td>
@@ -356,11 +371,6 @@ equivalent to 's[idx:idx] = list' in Python </td>
 	<td class="summary">apply a function to all elements, in-place.</td>
 	</tr>
 
-	<tr>
-	<td class="name" nowrap><a href="#iter">iter</a>&nbsp;(seq)</td>
-	<td class="summary">Create an iterator over a seqence.</td>
-	</tr>
-
 </table>
 
 
@@ -375,6 +385,45 @@ equivalent to 's[idx:idx] = list' in Python </td>
 
 <h2><a name="functions"></a>Functions</h2>
 <dl class="function">
+
+
+
+<dt><a name="List.iterate"></a><strong>List.iterate</strong>&nbsp;(seq)</dt>
+<dd>
+Create an iterator over a seqence.
+This captures the Python concept of 'sequence'.
+For tables, iterates over all values with integer indices.
+
+
+<h3>Parameters:</h3>
+<ul>
+	
+	<li>
+	  seq: a sequence; a string (over characters), a table, a file object (over lines) or an iterator function
+	</li>
+	
+</ul>
+
+
+
+
+<h3>Usage:</h3>
+<ul>
+	
+	<li>for x in iterate {1,10,22,55} do io.write(x,',') end ==> 1,10,22,55
+	
+	<li>for ch in iterate 'help' do do io.write(ch,' ') end ==> h e l p
+	
+</ul>
+
+
+
+
+
+
+
+</dd>
+
 
 
 
@@ -1149,7 +1198,7 @@ a new list of the results
 <dd>
 Create a new list. Can optionally pass a table;
 passing another instance of List will cause a copy to be created
-we pass anything which isn't a simple table to iter() to work out
+we pass anything which isn't a simple table to iterate() to work out
 
 
 <h3>Parameters:</h3>
@@ -1179,8 +1228,8 @@ a new List
 <h3>See also:</h3>
 <ul>
 	
-	<li><a href="../modules/pl.list.html#iter">
-		iter
+	<li><a href="">
+		iterate
 	</a>
 	
 </ul>
@@ -1600,45 +1649,6 @@ Any extra arguments are passed to the function.
 
 
 
-
-
-
-
-
-
-
-</dd>
-
-
-
-
-<dt><a name="iter"></a><strong>iter</strong>&nbsp;(seq)</dt>
-<dd>
-Create an iterator over a seqence.
-This captures the Python concept of 'sequence'.
-For tables, iterates over all values with integer indices.
-
-
-<h3>Parameters:</h3>
-<ul>
-	
-	<li>
-	  seq: a sequence; a string (over characters), a table, a file object (over lines) or an iterator function
-	</li>
-	
-</ul>
-
-
-
-
-<h3>Usage:</h3>
-<ul>
-	
-	<li>for x in iter {1,10,22,55} do io.write(x,',') end ==> 1,10,22,55
-	
-	<li>for ch in iter 'help' do do io.write(ch,' ') end ==> h e l p
-	
-</ul>
 
 
 
