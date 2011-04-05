@@ -3,7 +3,7 @@
 <html>
 <head>
     <title>Reference</title>
-    <link rel="stylesheet" href="ldoc.css" type="text/css" />
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
 
@@ -28,11 +28,13 @@
 
 <h1>Modules</h1>
 <ul>
+  <li><a href="pl.html">pl</a></li>
   <li><a href="pl.Date.html">pl.Date</a></li>
   <li><a href="pl.List.html">pl.List</a></li>
   <li><a href="pl.Map.html">pl.Map</a></li>
   <li><a href="pl.MultiMap.html">pl.MultiMap</a></li>
   <li><a href="pl.OrderedMap.html">pl.OrderedMap</a></li>
+  <li><a href="pl.Set.html">pl.Set</a></li>
   <li><a href="pl.app.html">pl.app</a></li>
   <li><a href="pl.array2d.html">pl.array2d</a></li>
   <li><a href="pl.class.html">pl.class</a></li>
@@ -45,6 +47,7 @@
   <li><a href="pl.input.html">pl.input</a></li>
   <li><a href="pl.lapp.html">pl.lapp</a></li>
   <li><a href="pl.lexer.html">pl.lexer</a></li>
+  <li><a href="pl.luabalanced.html">pl.luabalanced</a></li>
   <li><a href="pl.operator.html">pl.operator</a></li>
   <li><a href="pl.path.html">pl.path</a></li>
   <li><a href="pl.permute.html">pl.permute</a></li>
@@ -69,112 +72,111 @@
 <h1>Module <code>pl.utils</code></h1>
 
 
-<p> Generally useful routines.</p>
+<p>Generally useful routines</p>
 <p></p>
-
 
 <h2>Functions</h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#quit">quit&nbsp;(code, msg, extra, ...)</a></td>
-	<td class="summary"> end this program gracefully.</td>
+	<td class="name" nowrap><a href="#quit">quit&nbsp;(code, msg, ...)</a></td>
+	<td class="summary">end this program gracefully</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#printf">printf&nbsp;(fmt, ...)</a></td>
-	<td class="summary"> print an arbitrary number of arguments using a format.</td>
+	<td class="summary">print an arbitrary number of arguments using a format</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#fprintf">fprintf&nbsp;(fmt, f, ...)</a></td>
-	<td class="summary"> write an arbitrary number of arguments to a file using a format.</td>
+	<td class="name" nowrap><a href="#fprintf">fprintf&nbsp;(f, fmt, ...)</a></td>
+	<td class="summary">write an arbitrary number of arguments to a file using a format</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#import">import&nbsp;(t, T)</a></td>
-	<td class="summary"> take a table and 'inject' it into the local namespace.</td>
+	<td class="summary">take a table and 'inject' it into the local namespace</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#escape">escape&nbsp;(s)</a></td>
-	<td class="summary"> escape any 'magic' characters in a string</td>
+	<td class="summary">escape any 'magic' characters in a string</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#choose">choose&nbsp;(cond, value1, value2)</a></td>
-	<td class="summary"> return either of two values, depending on a condition.</td>
+	<td class="summary">return either of two values, depending on a condition</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#readfile">readfile&nbsp;(filename, is_bin)</a></td>
-	<td class="summary"> return the contents of a file as a string</td>
+	<td class="summary">return the contents of a file as a string</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#writefile">writefile&nbsp;(filename, str)</a></td>
-	<td class="summary"> write a string to a file</td>
+	<td class="summary">write a string to a file</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#readlines">readlines&nbsp;(filename)</a></td>
-	<td class="summary"> return the contents of a file as a list of lines</td>
+	<td class="summary">return the contents of a file as a list of lines</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#split">split&nbsp;(s, re)</a></td>
-	<td class="summary"> split a string into a list of strings separated by a delimiter.</td>
+	<td class="summary">split a string into a list of strings separated by a delimiter</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#splitv">splitv&nbsp;(s, re)</a></td>
-	<td class="summary"> split a string into a number of values.</td>
+	<td class="summary">split a string into a number of values</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#memoize">memoize&nbsp;(func)</a></td>
-	<td class="summary"> 'memoize' a function (cache returned value for next call).</td>
+	<td class="summary">'memoize' a function (cache returned value for next call)</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#is_callable">is_callable&nbsp;(obj)</a></td>
-	<td class="summary"> is the object either a function or a callable object?.</td>
+	<td class="summary">is the object either a function or a callable object?</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#is_type">is_type&nbsp;(obj, tp)</a></td>
-	<td class="summary"> is the object of the specified type?.</td>
+	<td class="summary">is the object of the specified type?</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#function_arg">function_arg&nbsp;(idx, f, msg)</a></td>
-	<td class="summary"> process a function argument. </td>
+	<td class="summary">process a function argument</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#bind1">bind1&nbsp;(fn, p)</a></td>
-	<td class="summary"> bind the first argument of the function to a value.</td>
+	<td class="summary">bind the first argument of the function to a value</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#assert_arg">assert_arg&nbsp;(n, val, tp, verify, msg, lev)</a></td>
-	<td class="summary"> assert that the given argument is in fact of the correct type.</td>
+	<td class="summary">assert that the given argument is in fact of the correct type</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#assert_string">assert_string&nbsp;(n, val)</a></td>
-	<td class="summary"> assert the common case that the argument is a string.</td>
+	<td class="summary">assert the common case that the argument is a string</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#on_error">on_error&nbsp;(mode)</a></td>
-	<td class="summary"> control the error strategy used by Penlight. </td>
+	<td class="summary">control the error strategy used by Penlight</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#raise">raise&nbsp;(err)</a></td>
-	<td class="summary"> used by Penlight functions to return errors. </td>
+	<td class="summary">used by Penlight functions to return errors</td>
 	</tr>
 </table>
 
 <br/>
 <br/>
 
-    <h2><a name="functions"></a>Functions</h2>
+    <h2><a name="Functions"></a>Functions</h2>
     <dl class="function">
     <dt>
     <a name = "quit"></a>
-    <strong>quit&nbsp;(code, msg, extra, ...)</strong>
+    <strong>quit&nbsp;(code, msg, ...)</strong>
     </dt>
     <dd>
-     end this program gracefully.
+    end this program gracefully
     
+
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>code</em></code>:  The exit code</li>
        <li><code><em>msg</em></code>:  A message to be printed</li>
-       <li><code><em>extra</em></code>:  arguments for fprintf</li>
-       <li><code><em>...</em></code>: </li>
+       <li><code><em>...</em></code>:  extra arguments for message's format'</li>
     </ul>
 
 
@@ -189,12 +191,13 @@
     <strong>printf&nbsp;(fmt, ...)</strong>
     </dt>
     <dd>
-     print an arbitrary number of arguments using a format.
+    print an arbitrary number of arguments using a format
     
+
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>fmt</em></code>:  The format (see string.format)</li>
-       <li><code><em>...</em></code>: </li>
+       <li><code><em>...</em></code>:  Extra arguments for format</li>
     </ul>
 
 
@@ -202,16 +205,17 @@
 </dd>
     <dt>
     <a name = "fprintf"></a>
-    <strong>fprintf&nbsp;(fmt, f, ...)</strong>
+    <strong>fprintf&nbsp;(f, fmt, ...)</strong>
     </dt>
     <dd>
-     write an arbitrary number of arguments to a file using a format.
+    write an arbitrary number of arguments to a file using a format
     
+
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>fmt</em></code>:  The format (see string.format)</li>
-       <li><code><em>f</em></code>: </li>
-       <li><code><em>...</em></code>: </li>
+       <li><code><em>f</em></code>:  File handle to write to.</li>
+       <li><code><em>fmt</em></code>:  The format (see string.format).</li>
+       <li><code><em>...</em></code>:  Extra arguments for format</li>
     </ul>
 
 
@@ -222,8 +226,9 @@
     <strong>import&nbsp;(t, T)</strong>
     </dt>
     <dd>
-     take a table and 'inject' it into the local namespace.
+    take a table and 'inject' it into the local namespace
     
+
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>t</em></code>:  The Table</li>
@@ -238,8 +243,9 @@
     <strong>escape&nbsp;(s)</strong>
     </dt>
     <dd>
-     escape any 'magic' characters in a string
+    escape any 'magic' characters in a string
     
+
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>s</em></code>:  The input string</li>
@@ -253,8 +259,9 @@
     <strong>choose&nbsp;(cond, value1, value2)</strong>
     </dt>
     <dd>
-     return either of two values, depending on a condition.
+    return either of two values, depending on a condition
     
+
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>cond</em></code>:  A condition</li>
@@ -270,8 +277,9 @@
     <strong>readfile&nbsp;(filename, is_bin)</strong>
     </dt>
     <dd>
-     return the contents of a file as a string
+    return the contents of a file as a string
     
+
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>filename</em></code>:  The file path</li>
@@ -279,6 +287,10 @@
     </ul>
 
 
+    <h3>Returns:</h3>
+    <ol>
+        file contents
+    </ol>
 
 </dd>
     <dt>
@@ -286,8 +298,9 @@
     <strong>writefile&nbsp;(filename, str)</strong>
     </dt>
     <dd>
-     write a string to a file
+    write a string to a file
     
+
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>filename</em></code>:  The file path</li>
@@ -302,14 +315,19 @@
     <strong>readlines&nbsp;(filename)</strong>
     </dt>
     <dd>
-     return the contents of a file as a list of lines
+    return the contents of a file as a list of lines
     
+
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>filename</em></code>:  The file path</li>
     </ul>
 
 
+    <h3>Returns:</h3>
+    <ol>
+        file contents as a table
+    </ol>
 
 </dd>
     <dt>
@@ -317,8 +335,9 @@
     <strong>split&nbsp;(s, re)</strong>
     </dt>
     <dd>
-     split a string into a list of strings separated by a delimiter.
+    split a string into a list of strings separated by a delimiter
     
+
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>s</em></code>:  The input string</li>
@@ -326,6 +345,10 @@
     </ul>
 
 
+    <h3>Returns:</h3>
+    <ol>
+        a list-like table
+    </ol>
 
 </dd>
     <dt>
@@ -333,8 +356,9 @@
     <strong>splitv&nbsp;(s, re)</strong>
     </dt>
     <dd>
-     split a string into a number of values.
+    split a string into a number of values
     
+
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>s</em></code>:  the string</li>
@@ -342,6 +366,10 @@
     </ul>
 
 
+    <h3>Returns:</h3>
+    <ol>
+        n values
+    </ol>
 
     <h3>see also:</h3>
     <ul>
@@ -353,16 +381,21 @@
     <strong>memoize&nbsp;(func)</strong>
     </dt>
     <dd>
-     'memoize' a function (cache returned value for next call).
-     This is useful if you have a function which is relatively expensive,
+    'memoize' a function (cache returned value for next call)
+    This is useful if you have a function which is relatively expensive,
  but you don't know in advance what values will be required, so
  building a table upfront is wasteful/impossible.
+
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>func</em></code>:  a function of at least one argument</li>
     </ul>
 
 
+    <h3>Returns:</h3>
+    <ol>
+        a function with at least one argument, which is used as the key.
+    </ol>
 
 </dd>
     <dt>
@@ -370,11 +403,12 @@
     <strong>is_callable&nbsp;(obj)</strong>
     </dt>
     <dd>
-     is the object either a function or a callable object?.
+    is the object either a function or a callable object?
     
+
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>obj</em></code>: </li>
+       <li><code><em>obj</em></code>:  Object to check.</li>
     </ul>
 
 
@@ -385,12 +419,13 @@
     <strong>is_type&nbsp;(obj, tp)</strong>
     </dt>
     <dd>
-     is the object of the specified type?.
-     If the type is a string, then use type, otherwise compare with metatable
+    is the object of the specified type?
+    If the type is a string, then use type, otherwise compare with metatable
+
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>obj</em></code>:  an object</li>
-       <li><code><em>tp</em></code>:  a type</li>
+       <li><code><em>obj</em></code>:  An object to check</li>
+       <li><code><em>tp</em></code>:  String of what type it should be</li>
     </ul>
 
 
@@ -401,10 +436,11 @@
     <strong>function_arg&nbsp;(idx, f, msg)</strong>
     </dt>
     <dd>
-     process a function argument. 
-     This is used throughout Penlight and defines what is meant by a function: 
- Something that is callable, or an operator string as defined by <code>pl.operator</code>, 
+    process a function argument
+    This is used throughout Penlight and defines what is meant by a function:
+ Something that is callable, or an operator string as defined by <code>pl.operator</code>,
  such as '>' or '#'.
+
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>idx</em></code>:  argument index</li>
@@ -413,6 +449,10 @@
     </ul>
 
 
+    <h3>Returns:</h3>
+    <ol>
+        a callable
+    </ol>
 
     <h3>see also:</h3>
     <ul>
@@ -424,8 +464,9 @@
     <strong>bind1&nbsp;(fn, p)</strong>
     </dt>
     <dd>
-     bind the first argument of the function to a value.
+    bind the first argument of the function to a value
     
+
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>fn</em></code>:  a function of at least two values (may be an operator string)</li>
@@ -433,6 +474,10 @@
     </ul>
 
 
+    <h3>Returns:</h3>
+    <ol>
+        a function such that f(x) is fn(p,x)
+    </ol>
 
     <h3>see also:</h3>
     <ul>
@@ -444,8 +489,9 @@
     <strong>assert_arg&nbsp;(n, val, tp, verify, msg, lev)</strong>
     </dt>
     <dd>
-     assert that the given argument is in fact of the correct type.
+    assert that the given argument is in fact of the correct type
     
+
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>n</em></code>:  argument index</li>
@@ -464,8 +510,9 @@
     <strong>assert_string&nbsp;(n, val)</strong>
     </dt>
     <dd>
-     assert the common case that the argument is a string.
+    assert the common case that the argument is a string
     
+
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>n</em></code>:  argument index</li>
@@ -480,11 +527,12 @@
     <strong>on_error&nbsp;(mode)</strong>
     </dt>
     <dd>
-     control the error strategy used by Penlight. 
-     Controls how <code>utils.raise</code> works; the default is for it
+    control the error strategy used by Penlight
+    Controls how <code>utils.raise</code> works; the default is for it
  to return nil and the error string, but if the mode is 'error' then
  it will throw an error. If mode is 'quit' it will immediately terminate
  the program.
+
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>mode</em></code>:  - either 'default', 'quit'  or 'error'</li>
@@ -502,8 +550,10 @@
     <strong>raise&nbsp;(err)</strong>
     </dt>
     <dd>
-     used by Penlight functions to return errors. 
-     by <code>utils.on_error</code>
+    used by Penlight functions to return errors
+    Its global behaviour is controlled
+ by <code>utils.on_error</code>
+
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>err</em></code>:  the error string.</li>
@@ -516,21 +566,16 @@
          <a href="pl.utils.html#on_error">utils.on_error</a>
     </ul>
 </dd>
-
 </dl>
 
-</div> <!-- id="content" -->
-
+</div> <!-- id="content" ->
 </div> <!-- id="main" -->
-
 <div id="about">
 	<!--
     <p><a href="http://validator.w3.org/check?uri=referer"><img src="http://www.w3.org/Icons/valid-xhtml10" alt="Valid XHTML 1.0!" height="31" width="88" /></a></p>
     -->
 </div> <!-- id="about" -->
-
 </div> <!-- id="container" -->
-
 </body>
 </html>
 

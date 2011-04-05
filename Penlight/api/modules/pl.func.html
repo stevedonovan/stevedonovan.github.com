@@ -3,7 +3,7 @@
 <html>
 <head>
     <title>Reference</title>
-    <link rel="stylesheet" href="ldoc.css" type="text/css" />
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
 
@@ -28,11 +28,13 @@
 
 <h1>Modules</h1>
 <ul>
+  <li><a href="pl.html">pl</a></li>
   <li><a href="pl.Date.html">pl.Date</a></li>
   <li><a href="pl.List.html">pl.List</a></li>
   <li><a href="pl.Map.html">pl.Map</a></li>
   <li><a href="pl.MultiMap.html">pl.MultiMap</a></li>
   <li><a href="pl.OrderedMap.html">pl.OrderedMap</a></li>
+  <li><a href="pl.Set.html">pl.Set</a></li>
   <li><a href="pl.app.html">pl.app</a></li>
   <li><a href="pl.array2d.html">pl.array2d</a></li>
   <li><a href="pl.class.html">pl.class</a></li>
@@ -45,6 +47,7 @@
   <li><a href="pl.input.html">pl.input</a></li>
   <li><a href="pl.lapp.html">pl.lapp</a></li>
   <li><a href="pl.lexer.html">pl.lexer</a></li>
+  <li><a href="pl.luabalanced.html">pl.luabalanced</a></li>
   <li><a href="pl.operator.html">pl.operator</a></li>
   <li><a href="pl.path.html">pl.path</a></li>
   <li><a href="pl.permute.html">pl.permute</a></li>
@@ -69,62 +72,64 @@
 <h1>Module <code>pl.func</code></h1>
 
 
-<p> Functional helpers like composition,binding and placeholder expressions. </p>
-<p> See <a href="../../index.html#func">the Guide</a></p>
-
+<p>Functional helpers like composition,binding and placeholder expressions</p>
+<p><br>
+ See <a href="../../index.html#func">the Guide</a></p>
 
 <h2>Functions</h2>
 <table class="function_list">
 	<tr>
 	<td class="name" nowrap><a href="#import">import&nbsp;(tname, context)</a></td>
-	<td class="summary"> wrap a table of functions. </td>
+	<td class="summary">wrap a table of functions</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#register">register&nbsp;(fun, an, name)</a></td>
-	<td class="summary"> register a function for use in placeholder expressions.</td>
+	<td class="summary">register a function for use in placeholder expressions</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#tail">tail&nbsp;(ls)</a></td>
-	<td class="summary"> all elements of a table except the first.</td>
+	<td class="summary">all elements of a table except the first</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#repr">repr&nbsp;(e, lastpred)</a></td>
-	<td class="summary"> create a string representation of a placeholder expression.</td>
+	<td class="summary">create a string representation of a placeholder expression</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#instantiate">instantiate&nbsp;(e)</a></td>
-	<td class="summary"> instantiate a PE into an actual function. </td>
+	<td class="summary">instantiate a PE into an actual function</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#I">I&nbsp;(e)</a></td>
-	<td class="summary"> instantiate a PE unless it has already been done.</td>
+	<td class="summary">instantiate a PE unless it has already been done</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#curry">curry&nbsp;(fn, p)</a></td>
-	<td class="summary"> bind the first parameter of the function to a value.</td>
+	<td class="summary">bind the first parameter of the function to a value</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#compose">compose&nbsp;(f, g)</a></td>
-	<td class="summary"> create a function which chains two functions.</td>
+	<td class="summary">create a function which chains two functions</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#bind">bind&nbsp;(fn, values, ...)</a></td>
-	<td class="summary"> bind the arguments of a function to given values.</td>
+	<td class="name" nowrap><a href="#bind">bind&nbsp;(fn, ...)</a></td>
+	<td class="summary">bind the arguments of a function to given values</td>
 	</tr>
 </table>
 
 <br/>
 <br/>
 
-    <h2><a name="functions"></a>Functions</h2>
+    <h2><a name="Functions"></a>Functions</h2>
     <dl class="function">
     <dt>
     <a name = "import"></a>
     <strong>import&nbsp;(tname, context)</strong>
     </dt>
     <dd>
-     wrap a table of functions. 
-     placeholder expressions.
+    wrap a table of functions
+    This makes them available for use in
+ placeholder expressions.
+
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>tname</em></code>:  a table name</li>
@@ -139,8 +144,9 @@
     <strong>register&nbsp;(fun, an, name)</strong>
     </dt>
     <dd>
-     register a function for use in placeholder expressions.
+    register a function for use in placeholder expressions
     
+
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>fun</em></code>:  a function</li>
@@ -149,6 +155,10 @@
     </ul>
 
 
+    <h3>Returns:</h3>
+    <ol>
+        a placeholder functiond
+    </ol>
 
 </dd>
     <dt>
@@ -156,8 +166,9 @@
     <strong>tail&nbsp;(ls)</strong>
     </dt>
     <dd>
-     all elements of a table except the first.
+    all elements of a table except the first
     
+
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>ls</em></code>:  a list-like table.</li>
@@ -171,8 +182,9 @@
     <strong>repr&nbsp;(e, lastpred)</strong>
     </dt>
     <dd>
-     create a string representation of a placeholder expression.
+    create a string representation of a placeholder expression
     
+
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>e</em></code>:  a placeholder expression</li>
@@ -187,16 +199,22 @@
     <strong>instantiate&nbsp;(e)</strong>
     </dt>
     <dd>
-     instantiate a PE into an actual function. 
-     e.g. _2; from this a list of the formal parameters can be build. Then we collect and replace
+    instantiate a PE into an actual function
+    First we find the largest placeholder used,
+ e.g. _2; from this a list of the formal parameters can be build. Then we collect and replace
  any non-PE values from the PE, and build up a constant binding list.
  Finally, the expression can be compiled, and e.__PE_function is set.
+
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>e</em></code>:  a placeholder expression</li>
     </ul>
 
 
+    <h3>Returns:</h3>
+    <ol>
+        a function
+    </ol>
 
 </dd>
     <dt>
@@ -204,14 +222,19 @@
     <strong>I&nbsp;(e)</strong>
     </dt>
     <dd>
-     instantiate a PE unless it has already been done.
+    instantiate a PE unless it has already been done
     
+
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>e</em></code>:  a placeholder expression</li>
     </ul>
 
 
+    <h3>Returns:</h3>
+    <ol>
+        the function
+    </ol>
 
 </dd>
     <dt>
@@ -219,8 +242,9 @@
     <strong>curry&nbsp;(fn, p)</strong>
     </dt>
     <dd>
-     bind the first parameter of the function to a value.
+    bind the first parameter of the function to a value
     
+
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>fn</em></code>:  a function of one or more arguments</li>
@@ -228,6 +252,10 @@
     </ul>
 
 
+    <h3>Returns:</h3>
+    <ol>
+        a function of one less argument
+    </ol>
 
 </dd>
     <dt>
@@ -235,8 +263,9 @@
     <strong>compose&nbsp;(f, g)</strong>
     </dt>
     <dd>
-     create a function which chains two functions.
+    create a function which chains two functions
     
+
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>f</em></code>:  a function of at least one argument</li>
@@ -244,40 +273,43 @@
     </ul>
 
 
+    <h3>Returns:</h3>
+    <ol>
+        a function
+    </ol>
 
 </dd>
     <dt>
     <a name = "bind"></a>
-    <strong>bind&nbsp;(fn, values, ...)</strong>
+    <strong>bind&nbsp;(fn, ...)</strong>
     </dt>
     <dd>
-     bind the arguments of a function to given values.
-     bind(fn,v,_2) is equivalent to curry(fn,v).
+    bind the arguments of a function to given values
+    bind(fn,v,_2) is equivalent to curry(fn,v).
+
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>fn</em></code>:  a function of at least one argument</li>
-       <li><code><em>values</em></code>:  or placeholder variables</li>
-       <li><code><em>...</em></code>: </li>
+       <li><code><em>...</em></code>:  values or placeholder variables</li>
     </ul>
 
 
+    <h3>Returns:</h3>
+    <ol>
+        a function
+    </ol>
 
 </dd>
-
 </dl>
 
-</div> <!-- id="content" -->
-
+</div> <!-- id="content" ->
 </div> <!-- id="main" -->
-
 <div id="about">
 	<!--
     <p><a href="http://validator.w3.org/check?uri=referer"><img src="http://www.w3.org/Icons/valid-xhtml10" alt="Valid XHTML 1.0!" height="31" width="88" /></a></p>
     -->
 </div> <!-- id="about" -->
-
 </div> <!-- id="container" -->
-
 </body>
 </html>
 

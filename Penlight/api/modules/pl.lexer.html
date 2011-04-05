@@ -3,7 +3,7 @@
 <html>
 <head>
     <title>Reference</title>
-    <link rel="stylesheet" href="ldoc.css" type="text/css" />
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
 
@@ -28,11 +28,13 @@
 
 <h1>Modules</h1>
 <ul>
+  <li><a href="pl.html">pl</a></li>
   <li><a href="pl.Date.html">pl.Date</a></li>
   <li><a href="pl.List.html">pl.List</a></li>
   <li><a href="pl.Map.html">pl.Map</a></li>
   <li><a href="pl.MultiMap.html">pl.MultiMap</a></li>
   <li><a href="pl.OrderedMap.html">pl.OrderedMap</a></li>
+  <li><a href="pl.Set.html">pl.Set</a></li>
   <li><a href="pl.app.html">pl.app</a></li>
   <li><a href="pl.array2d.html">pl.array2d</a></li>
   <li><a href="pl.class.html">pl.class</a></li>
@@ -45,6 +47,7 @@
   <li><a href="pl.input.html">pl.input</a></li>
   <li><a href="pl.lapp.html">pl.lapp</a></li>
   <li><strong>pl.lexer</strong></li>
+  <li><a href="pl.luabalanced.html">pl.luabalanced</a></li>
   <li><a href="pl.operator.html">pl.operator</a></li>
   <li><a href="pl.path.html">pl.path</a></li>
   <li><a href="pl.permute.html">pl.permute</a></li>
@@ -69,88 +72,89 @@
 <h1>Module <code>pl.lexer</code></h1>
 
 
-<p> Lexical scanner for creating a sequence of tokens from text. </p>
-<p> <p><code>lexer.scan(s)</code> returns an iterator over all tokens found in the 
- string <code>s</code>. This iterator returns two values, a token type string 
- (such as 'string' for quoted string, 'iden' for identifier) and the value of the 
+<p>Lexical scanner for creating a sequence of tokens from text</p>
+<p><br>
+ <p><code>lexer.scan(s)</code> returns an iterator over all tokens found in the
+ string <code>s</code>. This iterator returns two values, a token type string
+ (such as 'string' for quoted string, 'iden' for identifier) and the value of the
  token.
  <p>
  Versions specialized for Lua and C are available; these also handle block comments
- and classify keywords as 'keyword' tokens. For example: 
+ and classify keywords as 'keyword' tokens. For example:
  <pre class=example>
  > s = 'for i=1,n do'
  > for t,v in lexer.lua(s)  do print(t,v) end
  keyword for
- iden    i 
- =       = 
+ iden    i
+ =       =
  number  1
- ,       , 
+ ,       ,
  iden    n
- keyword do 
+ keyword do
  </pre>
  See the Guide for further <a href="../../index.html#lexer">discussion</a> <br></p>
-
 
 <h2>Functions</h2>
 <table class="function_list">
 	<tr>
 	<td class="name" nowrap><a href="#scan">scan&nbsp;(s, matches, filter, options)</a></td>
-	<td class="summary"> create a plain token iterator from a string or file-like object.</td>
+	<td class="summary">create a plain token iterator from a string or file-like object</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#insert">insert&nbsp;(tok, a1, a2)</a></td>
-	<td class="summary"> insert tokens into a stream.</td>
+	<td class="summary">insert tokens into a stream</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#getline">getline&nbsp;(tok)</a></td>
-	<td class="summary"> get everything in a stream upto a newline.</td>
+	<td class="summary">get everything in a stream upto a newline</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#lineno">lineno&nbsp;(tok)</a></td>
-	<td class="summary"> get current line number. </td>
+	<td class="summary">get current line number</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#getrest">getrest&nbsp;(tok)</a></td>
-	<td class="summary"> get the rest of the stream.</td>
+	<td class="summary">get the rest of the stream</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#get_keywords">get_keywords&nbsp;()</a></td>
-	<td class="summary"> get the Lua keywords as a set-like table.</td>
+	<td class="summary">get the Lua keywords as a set-like table</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#lua">lua&nbsp;(s, filter, options)</a></td>
-	<td class="summary"> create a Lua token iterator from a string or file-like object.</td>
+	<td class="summary">create a Lua token iterator from a string or file-like object</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#cpp">cpp&nbsp;(s, filter, options)</a></td>
-	<td class="summary"> create a C/C++ token iterator from a string or file-like object.</td>
+	<td class="summary">create a C/C++ token iterator from a string or file-like object</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#get_separated_list">get_separated_list&nbsp;(tok, endtoken, delim)</a></td>
-	<td class="summary"> get a list of parameters separated by a delimiter from a stream.</td>
+	<td class="summary">get a list of parameters separated by a delimiter from a stream</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#skipws">skipws&nbsp;(tok)</a></td>
-	<td class="summary"> get the next non-space token from the stream.</td>
+	<td class="summary">get the next non-space token from the stream</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#expecting">expecting&nbsp;(tok, expected_type, no_skip_ws)</a></td>
-	<td class="summary"> get the next token, which must be of the expected type.</td>
+	<td class="summary">get the next token, which must be of the expected type</td>
 	</tr>
 </table>
 
 <br/>
 <br/>
 
-    <h2><a name="functions"></a>Functions</h2>
+    <h2><a name="Functions"></a>Functions</h2>
     <dl class="function">
     <dt>
     <a name = "scan"></a>
     <strong>scan&nbsp;(s, matches, filter, options)</strong>
     </dt>
     <dd>
-     create a plain token iterator from a string or file-like object.
+    create a plain token iterator from a string or file-like object
     
+
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>s</em></code>:  the string</li>
@@ -168,8 +172,9 @@
     <strong>insert&nbsp;(tok, a1, a2)</strong>
     </dt>
     <dd>
-     insert tokens into a stream.
+    insert tokens into a stream
     
+
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>tok</em></code>:  a token stream</li>
@@ -186,14 +191,19 @@
     <strong>getline&nbsp;(tok)</strong>
     </dt>
     <dd>
-     get everything in a stream upto a newline.
+    get everything in a stream upto a newline
     
+
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>tok</em></code>:  a token stream</li>
     </ul>
 
 
+    <h3>Returns:</h3>
+    <ol>
+        a string
+    </ol>
 
 </dd>
     <dt>
@@ -201,14 +211,20 @@
     <strong>lineno&nbsp;(tok)</strong>
     </dt>
     <dd>
-     get current line number. 
-     Only available if the input source is a file-like object.
+    get current line number
+    <br>
+ Only available if the input source is a file-like object.
+
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>tok</em></code>:  a token stream</li>
     </ul>
 
 
+    <h3>Returns:</h3>
+    <ol>
+        the line number and current column
+    </ol>
 
 </dd>
     <dt>
@@ -216,14 +232,19 @@
     <strong>getrest&nbsp;(tok)</strong>
     </dt>
     <dd>
-     get the rest of the stream.
+    get the rest of the stream
     
+
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>tok</em></code>:  a token stream</li>
     </ul>
 
 
+    <h3>Returns:</h3>
+    <ol>
+        a string
+    </ol>
 
 </dd>
     <dt>
@@ -231,16 +252,25 @@
     <strong>get_keywords&nbsp;()</strong>
     </dt>
     <dd>
-     get the Lua keywords as a set-like table.
-     So <code>res["and"]</code> etc would be <code>true</code>.
+    get the Lua keywords as a set-like table
+    So <code>res["and"]</code> etc would be <code>true</code>.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+        a table
+    </ol>
+
 </dd>
     <dt>
     <a name = "lua"></a>
     <strong>lua&nbsp;(s, filter, options)</strong>
     </dt>
     <dd>
-     create a Lua token iterator from a string or file-like object.
-     Will return the token type and value.
+    create a Lua token iterator from a string or file-like object
+    Will return the token type and value.
+
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>s</em></code>:  the string</li>
@@ -257,8 +287,9 @@
     <strong>cpp&nbsp;(s, filter, options)</strong>
     </dt>
     <dd>
-     create a C/C++ token iterator from a string or file-like object.
-     Will return the token type type and value.
+    create a C/C++ token iterator from a string or file-like object
+    Will return the token type type and value.
+
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>s</em></code>:  the string</li>
@@ -275,8 +306,9 @@
     <strong>get_separated_list&nbsp;(tok, endtoken, delim)</strong>
     </dt>
     <dd>
-     get a list of parameters separated by a delimiter from a stream.
+    get a list of parameters separated by a delimiter from a stream
     
+
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>tok</em></code>:  the token stream</li>
@@ -285,6 +317,10 @@
     </ul>
 
 
+    <h3>Returns:</h3>
+    <ol>
+        a list of token lists.
+    </ol>
 
 </dd>
     <dt>
@@ -292,8 +328,9 @@
     <strong>skipws&nbsp;(tok)</strong>
     </dt>
     <dd>
-     get the next non-space token from the stream.
+    get the next non-space token from the stream
     
+
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>tok</em></code>:  the token stream.</li>
@@ -307,8 +344,9 @@
     <strong>expecting&nbsp;(tok, expected_type, no_skip_ws)</strong>
     </dt>
     <dd>
-     get the next token, which must be of the expected type.
-     Throws an error if this type does not match!
+    get the next token, which must be of the expected type
+    Throws an error if this type does not match!
+
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>tok</em></code>:  the token stream</li>
@@ -319,21 +357,16 @@
 
 
 </dd>
-
 </dl>
 
-</div> <!-- id="content" -->
-
+</div> <!-- id="content" ->
 </div> <!-- id="main" -->
-
 <div id="about">
 	<!--
     <p><a href="http://validator.w3.org/check?uri=referer"><img src="http://www.w3.org/Icons/valid-xhtml10" alt="Valid XHTML 1.0!" height="31" width="88" /></a></p>
     -->
 </div> <!-- id="about" -->
-
 </div> <!-- id="container" -->
-
 </body>
 </html>
 

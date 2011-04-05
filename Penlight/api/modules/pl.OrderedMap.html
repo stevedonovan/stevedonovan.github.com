@@ -3,7 +3,7 @@
 <html>
 <head>
     <title>Reference</title>
-    <link rel="stylesheet" href="ldoc.css" type="text/css" />
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
 
@@ -28,11 +28,13 @@
 
 <h1>Modules</h1>
 <ul>
+  <li><a href="pl.html">pl</a></li>
   <li><a href="pl.Date.html">pl.Date</a></li>
   <li><a href="pl.List.html">pl.List</a></li>
   <li><a href="pl.Map.html">pl.Map</a></li>
   <li><a href="pl.MultiMap.html">pl.MultiMap</a></li>
   <li><strong>pl.OrderedMap</strong></li>
+  <li><a href="pl.Set.html">pl.Set</a></li>
   <li><a href="pl.app.html">pl.app</a></li>
   <li><a href="pl.array2d.html">pl.array2d</a></li>
   <li><a href="pl.class.html">pl.class</a></li>
@@ -45,6 +47,7 @@
   <li><a href="pl.input.html">pl.input</a></li>
   <li><a href="pl.lapp.html">pl.lapp</a></li>
   <li><a href="pl.lexer.html">pl.lexer</a></li>
+  <li><a href="pl.luabalanced.html">pl.luabalanced</a></li>
   <li><a href="pl.operator.html">pl.operator</a></li>
   <li><a href="pl.path.html">pl.path</a></li>
   <li><a href="pl.permute.html">pl.permute</a></li>
@@ -69,52 +72,52 @@
 <h1>Module <code>pl.OrderedMap</code></h1>
 
 
-<p> OrderedMap.</p>
+<p>OrderedMap</p>
 <p></p>
-
 
 <h2>Functions</h2>
 <table class="function_list">
 	<tr>
 	<td class="name" nowrap><a href="#OrderedMap:update">OrderedMap:update&nbsp;(t)</a></td>
-	<td class="summary"> update an OrderedMap using a table.</td>
+	<td class="summary">update an OrderedMap using a table</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#OrderedMap:set">OrderedMap:set&nbsp;(key, val)</a></td>
-	<td class="summary"> set the key's value. </td>
+	<td class="summary">set the key's value</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#OrderedMap:keys">OrderedMap:keys&nbsp;()</a></td>
-	<td class="summary"> return the keys in order.</td>
+	<td class="summary">return the keys in order</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#OrderedMap:values">OrderedMap:values&nbsp;()</a></td>
-	<td class="summary"> return the values in order.</td>
+	<td class="summary">return the values in order</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#OrderedMap:sort">OrderedMap:sort&nbsp;(cmp)</a></td>
-	<td class="summary"> sort the keys.</td>
+	<td class="summary">sort the keys.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#OrderedMap:iter">OrderedMap:iter&nbsp;()</a></td>
-	<td class="summary"> iterate over key-value pairs in order.</td>
+	<td class="summary">iterate over key-value pairs in order.</td>
 	</tr>
 </table>
 
 <br/>
 <br/>
 
-    <h2><a name="functions"></a>Functions</h2>
+    <h2><a name="Functions"></a>Functions</h2>
     <dl class="function">
     <dt>
     <a name = "OrderedMap:update"></a>
     <strong>OrderedMap:update&nbsp;(t)</strong>
     </dt>
     <dd>
-     update an OrderedMap using a table.
-     If the table is itself an OrderedMap, then its entries will be appended. <br>
+    update an OrderedMap using a table
+    If the table is itself an OrderedMap, then its entries will be appended. <br>
  if it s a table of the form {{key1=val1},{key2=val2},...} these will be appended. <br>
  Otherwise, it is assumed to be a map-like table, and order of extra entries is arbitrary.
+
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>t</em></code>:  a table.</li>
@@ -128,8 +131,10 @@
     <strong>OrderedMap:set&nbsp;(key, val)</strong>
     </dt>
     <dd>
-     set the key's value. 
-     If the value is nil, then the key is removed.
+    set the key's value
+    This key will be appended at the end of the map. <br>
+ If the value is nil, then the key is removed.
+
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>key</em></code>:  the key</li>
@@ -144,24 +149,33 @@
     <strong>OrderedMap:keys&nbsp;()</strong>
     </dt>
     <dd>
-     return the keys in order.
-     (Not a copy!)
+    return the keys in order
+    (Not a copy!)
+
+
+
+
 </dd>
     <dt>
     <a name = "OrderedMap:values"></a>
     <strong>OrderedMap:values&nbsp;()</strong>
     </dt>
     <dd>
-     return the values in order.
-     this is relatively expensive.
+    return the values in order
+    this is relatively expensive.
+
+
+
+
 </dd>
     <dt>
     <a name = "OrderedMap:sort"></a>
     <strong>OrderedMap:sort&nbsp;(cmp)</strong>
     </dt>
     <dd>
-     sort the keys.
+    sort the keys.
     
+
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>cmp</em></code>: </li>
@@ -175,24 +189,23 @@
     <strong>OrderedMap:iter&nbsp;()</strong>
     </dt>
     <dd>
-     iterate over key-value pairs in order.
+    iterate over key-value pairs in order.
     
-</dd>
 
+
+
+
+</dd>
 </dl>
 
-</div> <!-- id="content" -->
-
+</div> <!-- id="content" ->
 </div> <!-- id="main" -->
-
 <div id="about">
 	<!--
     <p><a href="http://validator.w3.org/check?uri=referer"><img src="http://www.w3.org/Icons/valid-xhtml10" alt="Valid XHTML 1.0!" height="31" width="88" /></a></p>
     -->
 </div> <!-- id="about" -->
-
 </div> <!-- id="container" -->
-
 </body>
 </html>
 

@@ -38,7 +38,7 @@
   <li><a href="pl.app.html">pl.app</a></li>
   <li><a href="pl.array2d.html">pl.array2d</a></li>
   <li><a href="pl.class.html">pl.class</a></li>
-  <li><strong>pl.comprehension</strong></li>
+  <li><a href="pl.comprehension.html">pl.comprehension</a></li>
   <li><a href="pl.config.html">pl.config</a></li>
   <li><a href="pl.data.html">pl.data</a></li>
   <li><a href="pl.dir.html">pl.dir</a></li>
@@ -47,7 +47,7 @@
   <li><a href="pl.input.html">pl.input</a></li>
   <li><a href="pl.lapp.html">pl.lapp</a></li>
   <li><a href="pl.lexer.html">pl.lexer</a></li>
-  <li><a href="pl.luabalanced.html">pl.luabalanced</a></li>
+  <li><strong>pl.luabalanced</strong></li>
   <li><a href="pl.operator.html">pl.operator</a></li>
   <li><a href="pl.path.html">pl.path</a></li>
   <li><a href="pl.permute.html">pl.permute</a></li>
@@ -69,38 +69,15 @@
 <div id="content">
 
 
-<h1>Module <code>pl.comprehension</code></h1>
+<h1>Module <code>pl.luabalanced</code></h1>
 
 
-<p>List comprehensions implemented in Lua</p>
-<p><p>
+<p>[1]
+ Inspired by Damian Conway's Text::Balanced[2] in Perl</p>
+<p>[1] http://lua-users.org/wiki/LuaBalanced
+   [2] http://search.cpan.org/dist/Text-Balanced/lib/Text/Balanced.pm
 
- See the <a href="http://lua-users.org/wiki/ListComprehensions">wiki page</a>
- <pre class=example>
-   local C= require 'pl.comprehension' . new()
-
-    C ('x for x=1,10') ()
-    ==> {1,2,3,4,5,6,7,8,9,10}
-    C 'x^2 for x=1,4' ()
-    ==> {1,4,9,16}
-    C '{x,x^2} for x=1,4' ()
-    ==> {{1,1},{2,4},{3,9},{4,16}}
-    C '2*x for x' {1,2,3}
-    ==> {2,4,6}
-    dbl = C '2*x for x'
-    dbl {10,20,30}
-    ==> {20,40,60}
-    C 'x for x if x % 2 == 0' {1,2,3,4,5}
-    ==> {2,4}
-    C '{x,y} for x = 1,2 for y = 1,2' ()
-    ==> {{1,1},{1,2},{2,1},{2,2}}
-    C '{x,y} for x for y' ({1,2},{10,20})
-    ==> {{1,10},{1,20},{2,10},{2,20}}
-   assert(C 'sum(x^2 for x)' {2,3,4} == 2^2+3^2+4^2)
- </pre>
-
- <p> (c) 2008 David Manura. Licensed under the same terms as Lua (MIT license).
- <p> -- See <a href="../../index.html#T31">the Guide</a></p>
+ (c) 2008, David Manura, Licensed under the same terms as Lua (MIT license).</p>
 
 
 <br/>

@@ -5,12 +5,11 @@
 	<title>Penlight - A Portable Lua Library</title>
 	<style type="text/css"><!--
 body {
-    padding-left: 2em;
-    width: 600px;
-}
+	padding-left: 2em;
+	}
 pre {
-    background-color: #eeeeff
-}
+	background-color: #eeeeff
+	}
 a:link { font-weight:bold; color: #004080; text-decoration: none; }
 a:visited { font-weight:bold; color: #006699; text-decoration: none; }
 a:link:hover { text-decoration:underline; }
@@ -136,7 +135,7 @@ utils.printf("%s\n","That feels better")
 
 <p>With Penlight after 0.9, please note that <code>require 'pl.utils'</code> no longer implies that a global table <code>pl.tuils</code> exists, since these new modules are no longer created with <code>module()</code>.</p>
 
-<p>Penlight will not bring in functions into the global table, or clobber standard tables like 'io'.  require('pl') will bring tables like 'utils','tablex',etc into the global table <em>if they are used</em>. This 'load-on-demand' strategy ensures that the whole kitchen sink is not loaded up front,  so this method is as efficient as explicitly loading required modules. </p>
+<p>Penlight will not bring in functions into the global table, or clobber standard tables like 'io'.  require('pl') will bring tables like 'utils','tablex',etc into the global table <em>if they are used</em>. This 'load-on-demand' strategy ensures that the whole kitchen sink is not loaded up front,  so this method is as efficient as explicitly loading required modules.</p>
 
 <p>You have an option to bring the <code>pl.stringx</code> methods into the standard string table. All strings have a metatable that allows for automatic lookup in <code>string</code>, so we can say <code>s:upper()</code>. Importing <code>stringx</code> allows for its functions to also be called as methods: <code>s:strip()</code>,etc:</p>
 
@@ -260,9 +259,9 @@ s = sum(1e8) --returned saved value!
 {o='fred',n='10'}
 </code></pre>
 
-<p><code>parse_args</code> is not intelligent or psychic; it will not convert any flag values or arguments for you, or raise errors. For that, have a look at <a href="pl.lapp">#lapp</a>.</p>
+<p><code>parse_args</code> is not intelligent or psychic; it will not convert any flag values or arguments for you, or raise errors. For that, have a look at <a href="#lapp">lapp</a>.</p>
 
-<p>An application which consists of several files cannot use <code>require</code> to load files in the same directory as the main script.  <code>app.require_here()</code> ensures that the Lua module path is modified so that files found locally are found first. In the <code>examples</code> directory, <code>test-symbols.lua</code> uses this function to ensure that it can find <code>symbols.lua</code> even if it is not run from this directory.</p>
+<p>An application which consists of several files usually cannot use <code>require</code> to load files in the same directory as the main script.  <code>app.require_here()</code> ensures that the Lua module path is modified so that files found locally are found first. In the <code>examples</code> directory, <code>test-symbols.lua</code> uses this function to ensure that it can find <code>symbols.lua</code> even if it is not run from this directory.</p>
 
 <p><code>app.appfile</code> will create a filename that your application can use to store its private data, based on the script name. For example, <code>app.appfile "test.txt"</code> from a script called <code>testapp.lua</code> produces the following file on my Windows machine:</p>
 
@@ -273,6 +272,8 @@ s = sum(1e8) --returned saved value!
 
 <pre><code>/home/sdonovan/.testapp/test.txt
 </code></pre>
+
+<p>If <code>.testapp</code> does not exist, it will be created.</p>
 
 <p>Penlight makes it convenient to save application data in Lua format. You can use <code>pretty.dump(t,file)</code> to write a Lua table in a human-readable form to a file, and <code>pretty.read(file.read(file))</code> to generate the table again.</p>
 
@@ -367,7 +368,7 @@ Alice: 00459AE8
 
 <h3  id="T11">Python-style Lists</h3>
 
-<p>One of the elegant things about Lua is that tables do the job of both lists and dicts (as called in Python) or vectors and maps, (as called in C++), and they do it efficiently.  However, if we are dealing with 'tables with numerical indices' we may as well call them lists and look for operations which particularly make sense for lists. The Penlight <code>List</code> class was originally written by Nick Trout for Lua 5.0, and translated to 5.1 and extended by myself.  It seemed that borrowing from Python was a good idea, and this eventually grew into Penlight. (<a href="api/modules/pl.list.html">see list</a>)</p>
+<p>One of the elegant things about Lua is that tables do the job of both lists and dicts (as called in Python) or vectors and maps, (as called in C++), and they do it efficiently.  However, if we are dealing with 'tables with numerical indices' we may as well call them lists and look for operations which particularly make sense for lists. The Penlight <code>List</code> class was originally written by Nick Trout for Lua 5.0, and translated to 5.1 and extended by myself.  It seemed that borrowing from Python was a good idea, and this eventually grew into Penlight. (<a href="api/modules/pl.List.html">see List</a>)</p>
 
 <p>Here is an example showing <code>List</code> in action; it redefines <code>__tostring</code>, so that it can print itself out more sensibly:</p>
 
@@ -460,7 +461,7 @@ h e l p &gt;
 
 <p>The <code>Map</code> class exposes what Python would call a 'dict' interface, and accesses the hash part of the table. The name 'Map' is used to emphasize the interface, not the implementation; it is an object which maps keys onto values; <code>m['alice']</code> or the equivalent <code>m.alice</code> is the access operation.  This class also provides explicit <code>set</code> and <code>get</code> methods, which are trivial for regular maps but get interesting when <code>Map</code> is subclassed. The other operation is <code>update</code>, which extends a map by copying the keys and values from another table, perhaps overwriting existing keys:</p>
 
-<pre><code>&gt; Map = require 'pl.Map' 
+<pre><code>&gt; Map = require 'pl.Map'
 &gt; m = Map{one=1,two=2}
 &gt; m:update {three=3,four=4,two=20}
 &gt; = m == M{one=1,two=20,three=3,four=4}
@@ -676,7 +677,7 @@ true
 
 <p>(Note the special string '==' above; instead of saying <code>ops.gt</code> or <code>ops.eq</code> we can use the strings '>' or '==' respectively.)</p>
 
-<p>There are several ways to merge tables in PL. If they are list-like, then see the operations defined by <code>pl.list.List</code>, like concatenation. If they are map-like, then <code>merge</code> provides two basic operations. If the third arg is false, then the result only contains the keys that are in common between the two tables, and if true, then the result contains all the keys of both tables. These are in fact generalized set union and intersection operations:</p>
+<p>There are several ways to merge tables in PL. If they are list-like, then see the operations defined by <code>pl.List</code>, like concatenation. If they are map-like, then <code>merge</code> provides two basic operations. If the third arg is false, then the result only contains the keys that are in common between the two tables, and if true, then the result contains all the keys of both tables. These are in fact generalized set union and intersection operations:</p>
 
 <pre><code>&gt; S1 = {john=27,jane=31,mary=24}
 &gt; S2 = {jane=31,jones=50}
@@ -828,7 +829,7 @@ lines = map2(string.rjust,2,1,lines,maxlens)
 3       3       9
 </code></pre>
 
-<p>(<a href="api/modules/pl.array2d.html">see array2d</a>)</p>
+<p>(<a href="api/modules/pl.array.html">see array</a>2d)</p>
 
 <h2  id="T15">Strings. Higher-level operations on strings.</h2>
 
@@ -989,7 +990,7 @@ int luaopen_$(mod.name) {
 print(subst(templ,{
     _escape = '&gt;',
     ipairs = ipairs,
-    mod = {        
+    mod = {
         name = 'baggins';
         {name='frodo'},
         {name='bilbo'}
@@ -1153,7 +1154,7 @@ end)
 
 <p>The <code>Date</code> class provides a simplified way to work with <a href="http://www.lua.org/pil/22.1.html">date and time</a> in Lua; it leans heavily on the functions <code>os.date</code> and <code>os.time</code>.</p>
 
-<p>A <code>Date</code> object can be constructed from a table, just like with <code>os.time</code>. Methods are provided to get and set the various parts of the date.  </p>
+<p>A <code>Date</code> object can be constructed from a table, just like with <code>os.time</code>. Methods are provided to get and set the various parts of the date.</p>
 
 <pre><code>&gt; d = Date {year = 2011, month = 3, day = 2 }
 &gt; = d
@@ -1168,7 +1169,7 @@ end)
 2011-04-03 12:00
 </code></pre>
 
-<p><code>add</code> takes a table containing one of the date table fields. </p>
+<p><code>add</code> takes a table containing one of the date table fields.</p>
 
 <pre><code>&gt; = d:weekday_name()
 Sun
@@ -2421,7 +2422,7 @@ true
 <p>This script shows the relation between the specified parameter names and the fields in the output table.</p>
 
 <pre><code>  -- simple.lua
-  local args = require ('lapp') [[
+  local args = require ('pl.lapp') [[
   Various flags and option types
     -p          A simple optional flag, defaults to false
     -q,--quiet  A simple flag with long name
@@ -2463,8 +2464,8 @@ true
 
 <p>The type specifier can also be of the form '(' MIN '..' MAX ')'.</p>
 
-<pre><code>require 'pl.lapp'
-local args = pl.lapp [[
+<pre><code>local lapp = require 'pl.lapp'
+local args = lapp [[
     Setting ranges
     &lt;x&gt; (1..10)  A number from 1 to 10
     &lt;y&gt; (-5..1e6) Bigger range
@@ -2496,7 +2497,7 @@ print(args.ival)
 
 <h4  id="T41">'varargs' Parameter Arrays</h4>
 
-<pre><code>require 'lapp'
+<pre><code>lapp = require 'pl.lapp'
 local args = lapp [[
 Summing numbers
     &lt;numbers...&gt; (number) A list of numbers to be summed
@@ -2516,7 +2517,7 @@ print ('sum is '..sum)
 <pre><code>    -- implements a BSD-style head
     -- (see http://www.manpagez.com/man/1/head/osx-10.3.php)
 
-    require ('lapp')
+    lapp = require ('pl.lapp')
 
     local args = lapp [[
     Print the first few lines of specified files
@@ -2621,7 +2622,7 @@ n       2
 <p>In an ideal world, a program should only load the libraries it needs. Penlight is intended to work in situations where an extra 100Kb of bytecode could be a problem. It is straightforward but tedious to load exactly what you need:</p>
 
 <pre><code>local data = require 'pl.data'
-local List = require 'pl.List' 
+local List = require 'pl.List'
 local array2d = require 'pl.array2d'
 local seq = require 'pl.seq'
 local utils = require 'pl.utils'
