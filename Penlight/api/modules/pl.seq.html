@@ -78,7 +78,7 @@
 <h2>Functions</h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#matching">matching&nbsp;(a, s)</a></td>
+	<td class="name" nowrap><a href="#matching">matching&nbsp;(s)</a></td>
 	<td class="summary">given a string, return a function(y) which matches y against the string</td>
 	</tr>
 	<tr>
@@ -155,7 +155,7 @@
 	<td class="summary">a sequence with a sequence count and the original value</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#mapmethod">mapmethod&nbsp;(iter, name, arg1, arg1, arg2)</a></td>
+	<td class="name" nowrap><a href="#mapmethod">mapmethod&nbsp;(iter, name, arg1, arg2)</a></td>
 	<td class="summary">map using a named method over a sequence</td>
 	</tr>
 	<tr>
@@ -179,7 +179,7 @@
     <dl class="function">
     <dt>
     <a name = "matching"></a>
-    <strong>matching&nbsp;(a, s)</strong>
+    <strong>matching&nbsp;(s)</strong>
     </dt>
     <dd>
     given a string, return a function(y) which matches y against the string
@@ -187,8 +187,7 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>a</em></code>:  string</li>
-       <li><code><em>s</em></code>: </li>
+       <li><code><em>s</em></code>:  a string</li>
     </ul>
 
 
@@ -208,6 +207,11 @@
        <li><code><em>t</em></code>:  a list-like table</li>
     </ul>
 
+    <h3>Usage:</h3>
+    <ul>
+        <li><pre class="example">sum(list(t)) is the sum of all elements of t</pre></li>
+        <li><pre class="example">for x in list(t) do...end</pre></li>
+    </ul>
 
 
 </dd>
@@ -294,6 +298,11 @@
        <li><code><em>iter</em></code>:  a sequence</li>
     </ul>
 
+    <h3>Usage:</h3>
+    <ul>
+        <li><pre class="example">copy(list(ls)) is equal to ls</pre></li>
+        <li><pre class="example">copy(list {1,2,3}) == List{1,2,3}</pre></li>
+    </ul>
 
     <h3>Returns:</h3>
     <ol>
@@ -396,6 +405,10 @@
        <li><code><em>iter2</em></code>:  a sequence</li>
     </ul>
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">for x,y in seq.zip(ls1,ls2) do....end</pre>
+    </ul>
 
 
 </dd>
@@ -410,7 +423,7 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>iter</em></code>: </li>
+       <li><code><em>iter</em></code>:  a sequence</li>
     </ul>
 
 
@@ -479,6 +492,10 @@
        <li><code><em>oldval</em></code>: </li>
     </ul>
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">seq.reduce(operator.add,seq.list{1,2,3,4}) == 10</pre>
+    </ul>
 
 
 </dd>
@@ -543,7 +560,7 @@
 </dd>
     <dt>
     <a name = "mapmethod"></a>
-    <strong>mapmethod&nbsp;(iter, name, arg1, arg1, arg2)</strong>
+    <strong>mapmethod&nbsp;(iter, name, arg1, arg2)</strong>
     </dt>
     <dd>
     map using a named method over a sequence
@@ -553,9 +570,8 @@
     <ul>
        <li><code><em>iter</em></code>:  a sequence</li>
        <li><code><em>name</em></code>:  the method name</li>
-       <li><code><em>arg1</em></code>:  optional second extra argument</li>
-       <li><code><em>arg1</em></code>:  optional second extra argument</li>
-       <li><code><em>arg2</em></code>: </li>
+       <li><code><em>arg1</em></code>:  optional first extra argument</li>
+       <li><code><em>arg2</em></code>:  optional second extra argument</li>
     </ul>
 
 

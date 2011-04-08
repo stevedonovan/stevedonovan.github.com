@@ -3,18 +3,7 @@
 <head>
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 	<title>Penlight - A Portable Lua Library</title>
-	<style type="text/css"><!--
-body {
-	padding-left: 2em;
-	}
-pre {
-	background-color: #eeeeff
-	}
-a:link { font-weight:bold; color: #004080; text-decoration: none; }
-a:visited { font-weight:bold; color: #006699; text-decoration: none; }
-a:link:hover { text-decoration:underline; }
-
---></style>
+	<link rel="stylesheet" type="text/css" href="doc.css" />
 </head>
 <body>
 <h1  id="T1">Penlight - A Portable Lua Library</h1>
@@ -189,6 +178,12 @@ nil
 {11,21,31}
 </code></pre>
 
+<p>Another option for short anonymous functions is provided by <code>utils.string_lambda</code>; since 0.9 you have to explicitly ask for this feature:</p>
+
+<pre><code>&gt; L = require 'pl.utils'.string_lambda
+&gt; = List{10,20,30}:map (L'|x| x + 1')
+{11,21,31}
+</code></pre>
 
 <h3  id="T6">Pros and Cons of Loopless Programming</h3>
 
@@ -206,6 +201,7 @@ end
 
 <p>Writing loops is 'error-prone and tedious', as Stroustrup says. But any half-decent editor can be taught to do much of that typing for you. The question should actually be: is it tedious to <em>read</em> loops?  As with natural language, programmers tend to read chunks at a time. A for-loop causes no surprise, and probably little brain activity. One argument for loopless programming is the loops that you <em>do</em> write stand out more, and signal 'something different happening here'.  It should not be an all-or-nothing thing, since most programs require a mixture of idioms that suit the problem.  Some languages (like APL) do nearly everything with map and reduce operations on arrays, and so solutions can sometimes seem forced. Wisdom is knowing when a particular idiom makes a particular problem easy to <em>solve</em> and the solution easy to <em>explain</em> afterwards.</p>
 
+<p><a id="utils"></a></p>
 
 <h3  id="T7">Utilities. Generally useful functions.</h3>
 
@@ -738,12 +734,11 @@ true
 
 <h3  id="T14">Operations on two-dimensional tables</h3>
 
-<p>two-dimensional tables are of course easy to represent in Lua, for instance <code>{{1,2},{3,4}}</code> where we store rows as subtables and index like so <code>A[col][row]</code>. This is the common representation used by matrix libraries like <a href="http://lua-users.org/wiki/LuaMatrix">LuaMatrix</a>. <code>pl.array2d</code> does not provide matrix operations, since that is the job for a specialized library, but rather provides generalizations of the higher-level operations provided by <code>pl.tablex</code> for one-dimensional arrays.</p>
+<p>Two-dimensional tables are of course easy to represent in Lua, for instance <code>{{1,2},{3,4}}</code> where we store rows as subtables and index like so <code>A[col][row]</code>. This is the common representation used by matrix libraries like <a href="http://lua-users.org/wiki/LuaMatrix">LuaMatrix</a>. <code>pl.array2d</code> does not provide matrix operations, since that is the job for a specialized library, but rather provides generalizations of the higher-level operations provided by <code>pl.tablex</code> for one-dimensional arrays.</p>
 
 <p><code>iter</code> is a useful generalization of <code>ipairs</code>. (The extra parameter determines whether you want the indices as well.)</p>
 
-<pre><code>&gt; array = require 'pl.array2d'
-&gt; a = {{1,2},{3,4}}
+<pre><code>&gt; a = {{1,2},{3,4}}
 &gt; for i,j,v in array2d.iter(a,true) do print(i,j,v) end
 1       1       1
 1       2       2
@@ -751,9 +746,9 @@ true
 2       2       4
 </code></pre>
 
-<p>Bear in mind that you can always convert an arbitrary 2D array into a 'list of lists' with <code>List(tablex.map(List,a))</code></p>
+<p>Note that you can always convert an arbitrary 2D array into a 'list of lists' with <code>List(tablex.map(List,a))</code></p>
 
-<p><code>map</code> will apply a function over all elements (notice that extra arguments can be provided, so the operation is in effect <code>function(x) return x-1 end</code>)</p>
+<p><code>map</code> will apply a function over all elements (notice that extra arguments can be provided, so this operation is in effect <code>function(x) return x-1 end</code>)</p>
 
 <pre><code>&gt; array2d.map('-',a,1)
 {{0,1},{2,3}}
@@ -862,6 +857,8 @@ three
 
 <p>(<a href="api/modules/pl.stringx.html">see stringx</a>)</p>
 
+<p><a id="templates"></a></p>
+
 <h3  id="T17">String Templates</h3>
 
 <p>Another borrowing from Python, string templates allow you to substitute values looked up in a table:</p>
@@ -923,6 +920,8 @@ dog[1]
 <pre><code>&gt; = '$animal[$num]' % {animal='dog',num=1}
 dog[1]
 </code></pre>
+
+<p><a id="rici_templates"></a></p>
 
 <p>A new module is <code>template</code>, which is a version of Rici Lake's <a href="http://lua-users.org/wiki/SlightlyLessSimpleLuaPreprocessor">Lua  Preprocessor</a>.  This allows you to mix Lua code with your templates in a straightforward way. There are only two rules:</p>
 
@@ -999,6 +998,8 @@ print(subst(templ,{
 </code></pre>
 
 <p>(<a href="api/modules/pl.text.html">see text</a>, <a href="api/modules/pl.template.html">see template</a>)</p>
+
+<p><a id="stringio"></a></p>
 
 <h3  id="T18">File-style I/O on Strings</h3>
 
@@ -1149,6 +1150,8 @@ end)
 </code></pre>
 
 <h2  id="T23">Date and Time</h2>
+
+<p><a id="date"></a></p>
 
 <h3  id="T24">Manipulating Dates</h3>
 

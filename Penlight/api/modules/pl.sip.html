@@ -97,8 +97,8 @@
 <h2>Functions</h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#create_pattern">create_pattern&nbsp;(spec, fieldnames, fieldtypes, options)</a></td>
-	<td class="summary">convert a SIP pattern into the equivalent Lua regular expression</td>
+	<td class="name" nowrap><a href="#create_pattern">create_pattern&nbsp;(spec, options)</a></td>
+	<td class="summary">convert a SIP pattern into the equivalent Lua string pattern</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#compile">compile&nbsp;(spec, options)</a></td>
@@ -133,21 +133,25 @@
     <dl class="function">
     <dt>
     <a name = "create_pattern"></a>
-    <strong>create_pattern&nbsp;(spec, fieldnames, fieldtypes, options)</strong>
+    <strong>create_pattern&nbsp;(spec, options)</strong>
     </dt>
     <dd>
-    convert a SIP pattern into the equivalent Lua regular expression
+    convert a SIP pattern into the equivalent Lua string pattern
     
 
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>spec</em></code>:  a SIP pattern</li>
-       <li><code><em>fieldnames</em></code>:  an optional table which is to be filled with fieldnames</li>
-       <li><code><em>fieldtypes</em></code>:  an optional table which maps the names to their types</li>
-       <li><code><em>options</em></code>: </li>
+       <li><code><em>options</em></code>:  a table; only the <code>at_start</code> field is
+ currently meaningful and esures that the pattern is anchored
+ at the start of the string.</li>
     </ul>
 
 
+    <h3>Returns:</h3>
+    <ol>
+        a Lua string pattern.
+    </ol>
 
 </dd>
     <dt>

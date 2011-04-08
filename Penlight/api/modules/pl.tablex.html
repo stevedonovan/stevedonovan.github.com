@@ -408,6 +408,11 @@
        <li><code><em>idx</em></code>:  index to start; -1 means last element,etc (default 1)</li>
     </ul>
 
+    <h3>Usage:</h3>
+    <ul>
+        <li><pre class="example">find({10,20,30},20) == 2</pre></li>
+        <li><pre class="example">find({'a','b','a','c'},'a',2) == 3</pre></li>
+    </ul>
 
     <h3>Returns:</h3>
     <ol>
@@ -431,6 +436,10 @@
        <li><code><em>idx</em></code>:  index to start; -1 means last element,etc (default 1)</li>
     </ul>
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">rfind({10,10,10},10) == 3</pre>
+    </ul>
 
     <h3>Returns:</h3>
     <ol>
@@ -475,6 +484,11 @@
        <li><code><em>idx</em></code>:  an index table (a list of keys)</li>
     </ul>
 
+    <h3>Usage:</h3>
+    <ul>
+        <li><pre class="example">index_by({10,20,30,40},{2,4}) == {20,40}</pre></li>
+        <li><pre class="example">index_by({one=1,two=2,three=3},{'one','three'}) == {1,3}</pre></li>
+    </ul>
 
     <h3>Returns:</h3>
     <ol>
@@ -498,6 +512,10 @@
        <li><code><em>...</em></code>: </li>
     </ul>
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">map(function(v) return v*v end, {10,20,30,fred=2}) is {100,400,900,fred=4}</pre>
+    </ul>
 
 
 </dd>
@@ -517,6 +535,10 @@
        <li><code><em>...</em></code>: </li>
     </ul>
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">imap(function(v) return v*v end, {10,20,30,fred=2}) is {100,400,900}</pre>
+    </ul>
 
     <h3>Returns:</h3>
     <ol>
@@ -594,6 +616,10 @@
        <li><code><em>...</em></code>:  extra arguments</li>
     </ul>
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">map2('+',{1,2,3,m=4},{10,20,30,m=40}) is {11,22,23,m=44}</pre>
+    </ul>
 
     <h3>Returns:</h3>
     <ol>
@@ -617,6 +643,10 @@
        <li><code><em>...</em></code>:  extra arguments</li>
     </ul>
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">imap2('+',{1,2,3,m=4},{10,20,30,m=40}) is {11,22,23}</pre>
+    </ul>
 
 
 </dd>
@@ -634,6 +664,10 @@
        <li><code><em>t</em></code>:  a list-like table</li>
     </ul>
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">reduce('+',{1,2,3,4}) == 10</pre>
+    </ul>
 
     <h3>Returns:</h3>
     <ol>
@@ -696,6 +730,11 @@
        <li><code><em>...</em></code>: </li>
     </ul>
 
+    <h3>Usage:</h3>
+    <ul>
+        <li><pre class="example">mapn(function(x,y,z) return x+y+z end, {1,2,3},{10,20,30},{100,200,300}) is {111,222,333}</pre></li>
+        <li><pre class="example">mapn(math.max, {1,20,300},{10,2,3},{100,200,100}) is	{100,200,300}</pre></li>
+    </ul>
 
 
 </dd>
@@ -716,6 +755,11 @@
        <li><code><em>...</em></code>: </li>
     </ul>
 
+    <h3>Usage:</h3>
+    <ul>
+        <li><pre class="example">pairmap({fred=10,bonzo=20},function(k,v) return v end) is {10,20}</pre></li>
+        <li><pre class="example">pairmap({one=1,two=2},function(k,v) return {k,v},k end) is {one={'one',1},two={'two',2}}</pre></li>
+    </ul>
 
 
 </dd>
@@ -810,6 +854,11 @@
        <li><code><em>dup</em></code>:  true for a union, false for an intersection.</li>
     </ul>
 
+    <h3>Usage:</h3>
+    <ul>
+        <li><pre class="example">merge({alice=23,fred=34},{bob=25,fred=34}) is {fred=34}</pre></li>
+        <li><pre class="example">merge({alice=23,fred=34},{bob=25,fred=34},true) is {bob=25,fred=34,alice=23}</pre></li>
+    </ul>
 
 
     <h3>see also:</h3>
@@ -898,6 +947,10 @@
        <li><code><em>...</em></code>: </li>
     </ul>
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">zip({10,20,30},{100,200,300}) is {{10,100},{20,200},{30,300}}</pre>
+    </ul>
 
 
 </dd>
@@ -1082,6 +1135,10 @@
        <li><code><em>exclude</em></code>:  any tables to avoid searching</li>
     </ul>
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">search(_G,math.sin,{package.path}) == 'math.sin'</pre>
+    </ul>
 
     <h3>Returns:</h3>
     <ol>

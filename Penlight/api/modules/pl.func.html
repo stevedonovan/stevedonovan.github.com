@@ -72,8 +72,21 @@
 <h1>Module <code>pl.func</code></h1>
 
 
-<p>Functional helpers like composition,binding and placeholder expressions</p>
-<p><br>
+<p>Functional helpers like composition, binding and placeholder expressions</p>
+<p>Placeholder expressions are useful for short anonymous functions, and were
+ inspired by the Boost Lambda library.
+ <pre class=example>
+ utils.import 'pl.func'
+ ls = List{10,20,30}
+ = ls:map(_1+1)
+    {11,21,31}
+ </pre>
+ They can also be used to <em>bind</em> particular arguments of a function.
+ <pre class = example>
+ p = bind(print,'start>',_0)
+ p(10,20,30)
+ start>   10   20  30
+ </pre>
  See <a href="../../index.html#func">the Guide</a></p>
 
 <h2>Functions</h2>
@@ -251,6 +264,10 @@
        <li><code><em>p</em></code>:  a value</li>
     </ul>
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">(curry(math.max,10))(20) == math.max(10,20)</pre>
+    </ul>
 
     <h3>Returns:</h3>
     <ol>
@@ -272,6 +289,10 @@
        <li><code><em>g</em></code>:  a function of at least one argument</li>
     </ul>
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">printf = compose(io.write,string.format)</pre>
+    </ul>
 
     <h3>Returns:</h3>
     <ol>
@@ -293,6 +314,11 @@
        <li><code><em>...</em></code>:  values or placeholder variables</li>
     </ul>
 
+    <h3>Usage:</h3>
+    <ul>
+        <li><pre class="example">(bind(f,_1,a))(b) == f(a,b)</pre></li>
+        <li><pre class="example">(bind(f,_2,_1))(a,b) == f(b,a)</pre></li>
+    </ul>
 
     <h3>Returns:</h3>
     <ol>
