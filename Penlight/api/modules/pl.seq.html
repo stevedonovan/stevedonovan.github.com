@@ -20,13 +20,19 @@
 
 <!-- Menu -->
 
+
 <div id="navigation">
-<h1>Penlight</h1>
+<h1>ldoc</h1>
 <ul>
-  <li><strong>Index</strong></li>
+  <li><a href="../index.html">Index</a></li>
 </ul>
 
-<h1>Modules</h1>
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+<h2>Modules</h2>
 <ul>
   <li><a href="pl.html">pl</a></li>
   <li><a href="pl.Date.html">pl.Date</a></li>
@@ -62,6 +68,7 @@
   <li><a href="pl.test.html">pl.test</a></li>
   <li><a href="pl.text.html">pl.text</a></li>
   <li><a href="pl.utils.html">pl.utils</a></li>
+  <li><a href="platf.luajava.html">platf.luajava</a></li>
 </ul>
 
 </div>
@@ -72,67 +79,67 @@
 <h1>Module <code>pl.seq</code></h1>
 
 
-<p>Manipulating sequences as iterators</p>
+<p>Manipulating sequences as iterators.</p>
 <p></p>
 
-<h2>Functions</h2>
+<h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
 	<td class="name" nowrap><a href="#matching">matching&nbsp;(s)</a></td>
-	<td class="summary">given a string, return a function(y) which matches y against the string</td>
+	<td class="summary">given a string, return a function(y) which matches y against the string.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#list">list&nbsp;(t)</a></td>
-	<td class="summary">sequence adaptor for a table</td>
+	<td class="summary">sequence adaptor for a table.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#keys">keys&nbsp;(t)</a></td>
-	<td class="summary">return the keys of the table</td>
+	<td class="summary">return the keys of the table.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#range">range&nbsp;(start, finish)</a></td>
-	<td class="summary">create an iterator over a numerical range</td>
+	<td class="summary">create an iterator over a numerical range.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#minmax">minmax&nbsp;(iter)</a></td>
-	<td class="summary">return the minimum and the maximum value of the sequence</td>
+	<td class="summary">return the minimum and the maximum value of the sequence.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#sum">sum&nbsp;(iter, fn)</a></td>
-	<td class="summary">return the sum and element count of the sequence</td>
+	<td class="summary">return the sum and element count of the sequence.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#copy">copy&nbsp;(iter)</a></td>
-	<td class="summary">create a table from the sequence</td>
+	<td class="summary">create a table from the sequence.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#copy2">copy2&nbsp;(iter, i1, i2)</a></td>
-	<td class="summary">create a table of pairs from the double-valued sequence</td>
+	<td class="summary">create a table of pairs from the double-valued sequence.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#copy_tuples">copy_tuples&nbsp;(iter)</a></td>
-	<td class="summary">create a table of 'tuples' from a multi-valued sequence</td>
+	<td class="summary">create a table of 'tuples' from a multi-valued sequence.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#random">random&nbsp;(n, l, u)</a></td>
-	<td class="summary">return an iterator of random numbers</td>
+	<td class="summary">return an iterator of random numbers.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#sort">sort&nbsp;(iter, comp)</a></td>
-	<td class="summary">return an iterator to the sorted elements of a sequence</td>
+	<td class="summary">return an iterator to the sorted elements of a sequence.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#zip">zip&nbsp;(iter1, iter2)</a></td>
-	<td class="summary">return an iterator which returns elements of two sequences</td>
+	<td class="summary">return an iterator which returns elements of two sequences.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#count_map">count_map&nbsp;(iter)</a></td>
-	<td class="summary">A table where the key/values are the values and value counts of the sequence</td>
+	<td class="summary">A table where the key/values are the values and value counts of the sequence.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#map">map&nbsp;(iter, fn, arg)</a></td>
 	<td class="summary">return a sequence where every element of a sequence has been transformed
- by a function</td>
+ by a function.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#filter">filter&nbsp;(iter, pred, arg)</a></td>
@@ -140,11 +147,11 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#reduce">reduce&nbsp;(seq, fun, oldval)</a></td>
-	<td class="summary">'reduce' a sequence using a binary function</td>
+	<td class="summary">'reduce' a sequence using a binary function.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#take">take&nbsp;(iter, n)</a></td>
-	<td class="summary">take the first n values from the sequence</td>
+	<td class="summary">take the first n values from the sequence.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#skip">skip&nbsp;(iter, n)</a></td>
@@ -152,23 +159,23 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#enum">enum&nbsp;(iter)</a></td>
-	<td class="summary">a sequence with a sequence count and the original value</td>
+	<td class="summary">a sequence with a sequence count and the original value.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#mapmethod">mapmethod&nbsp;(iter, name, arg1, arg2)</a></td>
-	<td class="summary">map using a named method over a sequence</td>
+	<td class="summary">map using a named method over a sequence.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#last">last&nbsp;(iter)</a></td>
-	<td class="summary">a sequence of (last,current) values from another sequence</td>
+	<td class="summary">a sequence of (last,current) values from another sequence.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#foreach">foreach&nbsp;(iter, fn)</a></td>
-	<td class="summary">call the function on each element of the sequence</td>
+	<td class="summary">call the function on each element of the sequence.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#lines">lines&nbsp;(f)</a></td>
-	<td class="summary">create a wrapped iterator over all lines in the file</td>
+	<td class="summary">create a wrapped iterator over all lines in the file.</td>
 	</tr>
 </table>
 
@@ -176,13 +183,14 @@
 <br/>
 
     <h2><a name="Functions"></a>Functions</h2>
+    
     <dl class="function">
     <dt>
     <a name = "matching"></a>
     <strong>matching&nbsp;(s)</strong>
     </dt>
     <dd>
-    given a string, return a function(y) which matches y against the string
+    given a string, return a function(y) which matches y against the string.
     
 
     <h3>Parameters:</h3>
@@ -198,7 +206,7 @@
     <strong>list&nbsp;(t)</strong>
     </dt>
     <dd>
-    sequence adaptor for a table
+    sequence adaptor for a table.
     Note that if any generic function is
  passed a table, it will automatically use seq.list()
 
@@ -220,7 +228,7 @@
     <strong>keys&nbsp;(t)</strong>
     </dt>
     <dd>
-    return the keys of the table
+    return the keys of the table.
     
 
     <h3>Parameters:</h3>
@@ -240,7 +248,7 @@
     <strong>range&nbsp;(start, finish)</strong>
     </dt>
     <dd>
-    create an iterator over a numerical range
+    create an iterator over a numerical range.
     Like the standard Python function xrange.
 
     <h3>Parameters:</h3>
@@ -257,7 +265,7 @@
     <strong>minmax&nbsp;(iter)</strong>
     </dt>
     <dd>
-    return the minimum and the maximum value of the sequence
+    return the minimum and the maximum value of the sequence.
     
 
     <h3>Parameters:</h3>
@@ -273,7 +281,7 @@
     <strong>sum&nbsp;(iter, fn)</strong>
     </dt>
     <dd>
-    return the sum and element count of the sequence
+    return the sum and element count of the sequence.
     
 
     <h3>Parameters:</h3>
@@ -290,7 +298,7 @@
     <strong>copy&nbsp;(iter)</strong>
     </dt>
     <dd>
-    create a table from the sequence
+    create a table from the sequence.
     (This will make the result a List.)
 
     <h3>Parameters:</h3>
@@ -315,7 +323,7 @@
     <strong>copy2&nbsp;(iter, i1, i2)</strong>
     </dt>
     <dd>
-    create a table of pairs from the double-valued sequence
+    create a table of pairs from the double-valued sequence.
     
 
     <h3>Parameters:</h3>
@@ -337,7 +345,7 @@
     <strong>copy_tuples&nbsp;(iter)</strong>
     </dt>
     <dd>
-    create a table of 'tuples' from a multi-valued sequence
+    create a table of 'tuples' from a multi-valued sequence.
     A generalization of copy2 above
 
     <h3>Parameters:</h3>
@@ -357,7 +365,7 @@
     <strong>random&nbsp;(n, l, u)</strong>
     </dt>
     <dd>
-    return an iterator of random numbers
+    return an iterator of random numbers.
     
 
     <h3>Parameters:</h3>
@@ -379,7 +387,7 @@
     <strong>sort&nbsp;(iter, comp)</strong>
     </dt>
     <dd>
-    return an iterator to the sorted elements of a sequence
+    return an iterator to the sorted elements of a sequence.
     
 
     <h3>Parameters:</h3>
@@ -396,7 +404,7 @@
     <strong>zip&nbsp;(iter1, iter2)</strong>
     </dt>
     <dd>
-    return an iterator which returns elements of two sequences
+    return an iterator which returns elements of two sequences.
     
 
     <h3>Parameters:</h3>
@@ -417,7 +425,7 @@
     <strong>count_map&nbsp;(iter)</strong>
     </dt>
     <dd>
-    A table where the key/values are the values and value counts of the sequence
+    A table where the key/values are the values and value counts of the sequence.
     This version works with 'hashable' values like strings and numbers. <br>
  pl.tablex.count_map is more general.
 
@@ -444,7 +452,7 @@
     </dt>
     <dd>
     return a sequence where every element of a sequence has been transformed
- by a function
+ by a function.
     If you don't supply an argument, then the function will
  receive both values of a double-valued sequence, otherwise behaves rather like
  tablex.map.
@@ -482,7 +490,7 @@
     <strong>reduce&nbsp;(seq, fun, oldval)</strong>
     </dt>
     <dd>
-    'reduce' a sequence using a binary function
+    'reduce' a sequence using a binary function.
     
 
     <h3>Parameters:</h3>
@@ -504,7 +512,7 @@
     <strong>take&nbsp;(iter, n)</strong>
     </dt>
     <dd>
-    take the first n values from the sequence
+    take the first n values from the sequence.
     
 
     <h3>Parameters:</h3>
@@ -542,7 +550,7 @@
     <strong>enum&nbsp;(iter)</strong>
     </dt>
     <dd>
-    a sequence with a sequence count and the original value
+    a sequence with a sequence count and the original value.
     <br>
  enum(copy(ls)) is a roundabout way of saying ipairs(ls).
 
@@ -563,7 +571,7 @@
     <strong>mapmethod&nbsp;(iter, name, arg1, arg2)</strong>
     </dt>
     <dd>
-    map using a named method over a sequence
+    map using a named method over a sequence.
     
 
     <h3>Parameters:</h3>
@@ -582,7 +590,7 @@
     <strong>last&nbsp;(iter)</strong>
     </dt>
     <dd>
-    a sequence of (last,current) values from another sequence
+    a sequence of (last,current) values from another sequence.
     This will return S(i-1),S(i) if given S(i)
 
     <h3>Parameters:</h3>
@@ -598,7 +606,7 @@
     <strong>foreach&nbsp;(iter, fn)</strong>
     </dt>
     <dd>
-    call the function on each element of the sequence
+    call the function on each element of the sequence.
     
 
     <h3>Parameters:</h3>
@@ -615,7 +623,7 @@
     <strong>lines&nbsp;(f)</strong>
     </dt>
     <dd>
-    create a wrapped iterator over all lines in the file
+    create a wrapped iterator over all lines in the file.
     
 
     <h3>Parameters:</h3>
@@ -632,12 +640,10 @@
 </dd>
 </dl>
 
-</div> <!-- id="content" ->
+
+</div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-	<!--
-    <p><a href="http://validator.w3.org/check?uri=referer"><img src="http://www.w3.org/Icons/valid-xhtml10" alt="Valid XHTML 1.0!" height="31" width="88" /></a></p>
-    -->
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

@@ -20,13 +20,19 @@
 
 <!-- Menu -->
 
+
 <div id="navigation">
-<h1>Penlight</h1>
+<h1>ldoc</h1>
 <ul>
-  <li><strong>Index</strong></li>
+  <li><a href="../index.html">Index</a></li>
 </ul>
 
-<h1>Modules</h1>
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+<h2>Modules</h2>
 <ul>
   <li><a href="pl.html">pl</a></li>
   <li><a href="pl.Date.html">pl.Date</a></li>
@@ -62,6 +68,7 @@
   <li><a href="pl.test.html">pl.test</a></li>
   <li><a href="pl.text.html">pl.text</a></li>
   <li><strong>pl.utils</strong></li>
+  <li><a href="platf.luajava.html">platf.luajava</a></li>
 </ul>
 
 </div>
@@ -72,26 +79,26 @@
 <h1>Module <code>pl.utils</code></h1>
 
 
-<p>Generally useful routines</p>
+<p>Generally useful routines.</p>
 <p>See  <a href="../../index.html#utils">the Guide</a>.</p>
 
-<h2>Functions</h2>
+<h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
 	<td class="name" nowrap><a href="#quit">quit&nbsp;(code, msg, ...)</a></td>
-	<td class="summary">end this program gracefully</td>
+	<td class="summary">end this program gracefully.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#printf">printf&nbsp;(fmt, ...)</a></td>
-	<td class="summary">print an arbitrary number of arguments using a format</td>
+	<td class="summary">print an arbitrary number of arguments using a format.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#fprintf">fprintf&nbsp;(f, fmt, ...)</a></td>
-	<td class="summary">write an arbitrary number of arguments to a file using a format</td>
+	<td class="summary">write an arbitrary number of arguments to a file using a format.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#import">import&nbsp;(t, T)</a></td>
-	<td class="summary">take a table and 'inject' it into the local namespace</td>
+	<td class="summary">take a table and 'inject' it into the local namespace.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#escape">escape&nbsp;(s)</a></td>
@@ -99,7 +106,7 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#choose">choose&nbsp;(cond, value1, value2)</a></td>
-	<td class="summary">return either of two values, depending on a condition</td>
+	<td class="summary">return either of two values, depending on a condition.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#readfile">readfile&nbsp;(filename, is_bin)</a></td>
@@ -115,47 +122,47 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#split">split&nbsp;(s, re)</a></td>
-	<td class="summary">split a string into a list of strings separated by a delimiter</td>
+	<td class="summary">split a string into a list of strings separated by a delimiter.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#splitv">splitv&nbsp;(s, re)</a></td>
-	<td class="summary">split a string into a number of values</td>
+	<td class="summary">split a string into a number of values.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#memoize">memoize&nbsp;(func)</a></td>
-	<td class="summary">'memoize' a function (cache returned value for next call)</td>
+	<td class="summary">'memoize' a function (cache returned value for next call).</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#is_callable">is_callable&nbsp;(obj)</a></td>
-	<td class="summary">is the object either a function or a callable object?</td>
+	<td class="summary">is the object either a function or a callable object?.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#is_type">is_type&nbsp;(obj, tp)</a></td>
-	<td class="summary">is the object of the specified type?</td>
+	<td class="summary">is the object of the specified type?.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#function_arg">function_arg&nbsp;(idx, f, msg)</a></td>
-	<td class="summary">process a function argument</td>
+	<td class="summary">process a function argument.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#bind1">bind1&nbsp;(fn, p)</a></td>
-	<td class="summary">bind the first argument of the function to a value</td>
+	<td class="summary">bind the first argument of the function to a value.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#assert_arg">assert_arg&nbsp;(n, val, tp, verify, msg, lev)</a></td>
-	<td class="summary">assert that the given argument is in fact of the correct type</td>
+	<td class="summary">assert that the given argument is in fact of the correct type.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#assert_string">assert_string&nbsp;(n, val)</a></td>
-	<td class="summary">assert the common case that the argument is a string</td>
+	<td class="summary">assert the common case that the argument is a string.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#on_error">on_error&nbsp;(mode)</a></td>
-	<td class="summary">control the error strategy used by Penlight</td>
+	<td class="summary">control the error strategy used by Penlight.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#raise">raise&nbsp;(err)</a></td>
-	<td class="summary">used by Penlight functions to return errors</td>
+	<td class="summary">used by Penlight functions to return errors.</td>
 	</tr>
 </table>
 
@@ -163,13 +170,14 @@
 <br/>
 
     <h2><a name="Functions"></a>Functions</h2>
+    
     <dl class="function">
     <dt>
     <a name = "quit"></a>
     <strong>quit&nbsp;(code, msg, ...)</strong>
     </dt>
     <dd>
-    end this program gracefully
+    end this program gracefully.
     
 
     <h3>Parameters:</h3>
@@ -191,7 +199,7 @@
     <strong>printf&nbsp;(fmt, ...)</strong>
     </dt>
     <dd>
-    print an arbitrary number of arguments using a format
+    print an arbitrary number of arguments using a format.
     
 
     <h3>Parameters:</h3>
@@ -208,7 +216,7 @@
     <strong>fprintf&nbsp;(f, fmt, ...)</strong>
     </dt>
     <dd>
-    write an arbitrary number of arguments to a file using a format
+    write an arbitrary number of arguments to a file using a format.
     
 
     <h3>Parameters:</h3>
@@ -226,7 +234,7 @@
     <strong>import&nbsp;(t, T)</strong>
     </dt>
     <dd>
-    take a table and 'inject' it into the local namespace
+    take a table and 'inject' it into the local namespace.
     
 
     <h3>Parameters:</h3>
@@ -259,7 +267,7 @@
     <strong>choose&nbsp;(cond, value1, value2)</strong>
     </dt>
     <dd>
-    return either of two values, depending on a condition
+    return either of two values, depending on a condition.
     
 
     <h3>Parameters:</h3>
@@ -335,7 +343,7 @@
     <strong>split&nbsp;(s, re)</strong>
     </dt>
     <dd>
-    split a string into a list of strings separated by a delimiter
+    split a string into a list of strings separated by a delimiter.
     
 
     <h3>Parameters:</h3>
@@ -356,7 +364,7 @@
     <strong>splitv&nbsp;(s, re)</strong>
     </dt>
     <dd>
-    split a string into a number of values
+    split a string into a number of values.
     
 
     <h3>Parameters:</h3>
@@ -385,7 +393,7 @@
     <strong>memoize&nbsp;(func)</strong>
     </dt>
     <dd>
-    'memoize' a function (cache returned value for next call)
+    'memoize' a function (cache returned value for next call).
     This is useful if you have a function which is relatively expensive,
  but you don't know in advance what values will be required, so
  building a table upfront is wasteful/impossible.
@@ -407,7 +415,7 @@
     <strong>is_callable&nbsp;(obj)</strong>
     </dt>
     <dd>
-    is the object either a function or a callable object?
+    is the object either a function or a callable object?.
     
 
     <h3>Parameters:</h3>
@@ -423,7 +431,7 @@
     <strong>is_type&nbsp;(obj, tp)</strong>
     </dt>
     <dd>
-    is the object of the specified type?
+    is the object of the specified type?.
     If the type is a string, then use type, otherwise compare with metatable
 
     <h3>Parameters:</h3>
@@ -440,7 +448,7 @@
     <strong>function_arg&nbsp;(idx, f, msg)</strong>
     </dt>
     <dd>
-    process a function argument
+    process a function argument.
     This is used throughout Penlight and defines what is meant by a function:
  Something that is callable, or an operator string as defined by <code>pl.operator</code>,
  such as '>' or '#'.
@@ -468,7 +476,7 @@
     <strong>bind1&nbsp;(fn, p)</strong>
     </dt>
     <dd>
-    bind the first argument of the function to a value
+    bind the first argument of the function to a value.
     
 
     <h3>Parameters:</h3>
@@ -493,7 +501,7 @@
     <strong>assert_arg&nbsp;(n, val, tp, verify, msg, lev)</strong>
     </dt>
     <dd>
-    assert that the given argument is in fact of the correct type
+    assert that the given argument is in fact of the correct type.
     
 
     <h3>Parameters:</h3>
@@ -519,7 +527,7 @@
     <strong>assert_string&nbsp;(n, val)</strong>
     </dt>
     <dd>
-    assert the common case that the argument is a string
+    assert the common case that the argument is a string.
     
 
     <h3>Parameters:</h3>
@@ -536,7 +544,7 @@
     <strong>on_error&nbsp;(mode)</strong>
     </dt>
     <dd>
-    control the error strategy used by Penlight
+    control the error strategy used by Penlight.
     Controls how <code>utils.raise</code> works; the default is for it
  to return nil and the error string, but if the mode is 'error' then
  it will throw an error. If mode is 'quit' it will immediately terminate
@@ -559,7 +567,7 @@
     <strong>raise&nbsp;(err)</strong>
     </dt>
     <dd>
-    used by Penlight functions to return errors
+    used by Penlight functions to return errors.
     Its global behaviour is controlled
  by <code>utils.on_error</code>
 
@@ -577,12 +585,10 @@
 </dd>
 </dl>
 
-</div> <!-- id="content" ->
+
+</div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-	<!--
-    <p><a href="http://validator.w3.org/check?uri=referer"><img src="http://www.w3.org/Icons/valid-xhtml10" alt="Valid XHTML 1.0!" height="31" width="88" /></a></p>
-    -->
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
