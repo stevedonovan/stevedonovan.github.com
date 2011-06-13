@@ -11,15 +11,16 @@
 <ul>
     <li><a href="#T2">Creating and working with Processes</a></li>
     <li><a href="#T3">Working with Windows</a></li>
-    <li><a href="#T4">File and Directory Operations</a></li>
-    <li><a href="#T5">Output and Timers</a></li>
-    <li><a href="#T6">Reading from the Registry</a></li>
-    <li><a href="#T7">Pipe Server</a></li>
+    <li><a href="#T4">Working with Processes</a></li>
+    <li><a href="#T5">Drive and Directory Operations</a></li>
+    <li><a href="#T6">Output and Timers</a></li>
+    <li><a href="#T7">Reading from the Registry</a></li>
+    <li><a href="#T8">Pipe Server</a></li>
 </ul>
 
 
 
-<p>This module provides some basic tools for working with Windows systems, finding out system resources, and gives you more control over process creation.  In this introduction any plain reference is in the <code>winapi</code> table, so that <code>find_window</code> means <code>winapi.find_window</code>.</p>
+<p>This module provides some basic tools for working with Windows systems, finding out system resources, and gives you more control over process creation.  In this introduction any plain reference is in the <code>winapi</code> table, so that <code>find_window</code> means <code>winapi.find_window</code>.  Normally <code>winapi</code> works with the current Windows code page, but can be told to use UTF-8 with <code>set_encoding</code>; interally string operations are in Unicode.</p>
 
 <h3  id="T2">Creating and working with Processes</h3>
 
@@ -91,7 +92,7 @@ hello
 &gt; proc:kill()
 </code></pre>
 
-<p>(We also found it necessary in the <a href="">Lua for Windows</a> project to switch off buffering for using Lua in SciTE)</p>
+<p>(We also found it necessary in the <a href="http://code.google.com/p/luaforwindows/">Lua for Windows</a> project to switch off buffering for using Lua in SciTE)</p>
 
 <p>Note that reading the result also returns the prompt '>', which isn't so obvious if we're running Lua from within Lua itself. It's clearer when using Python:</p>
 
@@ -138,7 +139,7 @@ Type "help", "copyright", "credits" or "license" for more information.
 local t = os.clock()
 local P = {}
 P[1] = winapi.spawn 'lua slow.lua'
-P[1] = winapi.spawn 'lua slow.lua'
+P[2] = winapi.spawn 'lua slow.lua'
 winapi.wait_for_processes(P,true)
 print(os.clock() - t)
 </code></pre>
@@ -220,7 +221,47 @@ winapi.send_input 'Hello World!'
 
 <p>The little sleep is important: it gives the other process a chance to get going, and to create a new window which we can promote.</p>
 
-<h3  id="T4">File and Directory Operations</h3>
+<p>An important point is that you can choose to use UTF-8 encoding with winapi. This little program shows how:</p>
+
+<pre><code>local W = require 'winapi'
+W.set_encoding(W.CP_UTF8)
+win = W.foreground_window()
+win:set_text 'ελληνική'
+</code></pre>
+
+<p>When run in SciTE, it successfully puts a little bit of Greek in the title bar.</p>
+
+
+<h3  id="T4">Working with Processes</h3>
+
+<p><code>current_process</code> will give you a process object for the current program. It's also possible to get a process object from a program's window:</p>
+
+<pre><code>&gt; w = winapi.foreground_window()
+&gt; = w
+Command Prompt - lua -lwinapi
+&gt; p = w:get_process()
+&gt; = p:get_process_name()
+cmd.exe
+&gt; = p:get_process_name(true)
+C:\WINDOWS\system32\cmd.exe
+</code></pre>
+
+<p>(Note that the <code>get_process_name</code> method can optionally give you the full path to the process.)</p>
+
+<p>To get all the current processes:</p>
+
+<pre><code>pids = winapi.get_processes()
+
+for _,pid in ipairs(pids) do
+   local P = winapi.process(pid)
+   local name = P:get_process_name(true)
+   if name then print(pid,name) end
+   P:close()
+end
+</code></pre>
+
+
+<h3  id="T5">Drive and Directory Operations</h3>
 
 <p>There are functions for querying the filesystem: <code>get_logical_drives()</code> returns all available drives (in 'D:\' format) and <code>get_drive_type()</code> will tell you whether these drives are fixed, remote, removable, etc. <code>get_disk_free_space()</code> will return the space used and the space available in kB as two results.</p>
 
@@ -234,16 +275,33 @@ for _,drive in ipairs(drives) do
     else
         free = math.ceil(free/1024) -- get Mb
     end
-    print(drive,winapi.get_drive_type(drive),free)
+    local rname = ''
+    local dtype = winapi.get_drive_type(drive)
+    if dtype == 'remote' then  -- note it wants the drive letter!
+        rname = winapi.get_disk_network_name(drive:gsub('\\$',''))
+    end
+    print(drive,dtype,free,rname)
 end
 </code></pre>
 
-<p>This script gives the following output on my machine:</p>
+<p>This script gives the following output on my home machine:</p>
 
 <pre><code>C:\ fixed   218967
 F:\ fixed   1517
 G:\ cdrom   (The device is not ready.)
 Q:\ fixed   (Access is denied.)
+</code></pre>
+
+<p>Or at work:</p>
+
+<pre><code>C:\ fixed   1455
+D:\ fixed   49996
+E:\ cdrom   (The device is not ready.)
+G:\ remote  33844   \\CARL-VFILE\SYS
+I:\ remote  452789  \\CARL-VFILE\GROUPS
+X:\ remote  12160   \\CARL-VFILE\APPS
+Y:\ remote  33844   \\CARL-VFILE\SYS\PUBLIC
+Z:\ remote  33844   \\CARL-VFILE\SYS\PUBLIC
 </code></pre>
 
 <p>A useful operation is watching directories for changes. You specify the directory, the kind of change to monitor and whether subdirectories should be checked. You also provide a function that will be called when something changes.</p>
@@ -268,9 +326,21 @@ for f in output:gmatch '[^\r\n]+' do
 end
 </code></pre>
 
-<h3  id="T5">Output and Timers</h3>
+<h3  id="T6">Output and Timers</h3>
 
-<p>GUI applications do not have a console so <code>print</code> does not work. <code>show_message</code> will put up a message box to bother users, and <code>output_debug_string</code> will write text quietly to the debug stream. A utility such as <a href="">DebugView</a> can be used to view this output, which shows it with a timestamp.</p>
+<p>GUI applications do not have a console so <code>print</code> does not work. <code>show_message</code> will put up a message box to bother users, and <code>output_debug_string</code> will write text quietly to the debug stream. A utility such as <a href="http://technet.microsoft.com/en-us/sysinternals/bb896647">DebugView</a> can be used to view this output, which shows it with a timestamp.</p>
+
+<p>Here is the old favourite, system message boxes:</p>
+
+<pre><code>print(winapi.show_message("Message","stuff\nand nonsense","yes-no","warning"))
+</code></pre>
+
+<p>The first parameter is the caption of the message box, the second is the text (which may contain line feeds); the third controls which buttons are to be shown, and the fourth is the icon to use. The function returns a string indicating which button has been pressed: 'ok','yes','no','cancel', etc.</p>
+
+<p>Or you may prefer to irritate the user with a sound:</p>
+
+<pre><code>winapi.beep 'warning'
+</code></pre>
 
 <p>It is straightforward to create a timer. You could of course use <code>sleep</code> but then your application will do nothing but sleep most of the time. This callback-driven timer can run in the background:</p>
 
@@ -286,9 +356,18 @@ end)
 <pre><code>winapi.sleep(-1)
 </code></pre>
 
-<h3  id="T6">Reading from the Registry</h3>
+<p>To show what happens if you don't follow the rule:</p>
 
-<h3  id="T7">Pipe Server</h3>
+<pre><code>&gt; winapi.timer(500,function() end)
+&gt; = 23
+nil     nil     return  23
+</code></pre>
+
+<p>In short: completely messed!</p>
+
+<h3  id="T7">Reading from the Registry</h3>
+
+<h3  id="T8">Pipe Server</h3>
 
 <p>Interprocess communication (IPC) is one of those tangled, operating-system-dependent things that can be terribly useful. On Unix, <em>named pipes</em> are special files which can be used for two processes to easily exchange information. One process opens the pipe for reading, and the other process opens it for writing; the first process will start reading, and this will block until the other process writes to the pipe. Since pipes are a regular part of the filesystem, two Lua scripts can use regular I/O to complete this transaction.</p>
 

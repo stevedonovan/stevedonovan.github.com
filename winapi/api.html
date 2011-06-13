@@ -28,18 +28,19 @@
 
 <h2>Contents</h2>
 <ul>
+<li><a href="#Text_encoding">Text encoding</a></li>
 <li><a href="#Class_Window">Class Window</a></li>
 <li><a href="#Manipulating_Windows">Manipulating Windows</a></li>
 <li><a href="#Miscelaneous_functions">Miscelaneous functions</a></li>
 <li><a href="#Class_Process">Class Process</a></li>
 <li><a href="#Working_with_processes">Working with processes</a></li>
-<li><a href="#Class_regkey">Class regkey</a></li>
-<li><a href="#Registry_Functions">Registry Functions</a></li>
 <li><a href="#Class_File">Class File</a></li>
 <li><a href="#Launching_processes">Launching processes</a></li>
 <li><a href="#Asynchronous_Timers">Asynchronous Timers</a></li>
 <li><a href="#Dealing_with_named_pipes">Dealing with named pipes</a></li>
 <li><a href="#Drive_information_and_watching_directories">Drive information and watching directories</a></li>
+<li><a href="#Class_regkey">Class regkey</a></li>
+<li><a href="#Registry_Functions">Registry Functions</a></li>
 <li><a href="#Constants">Constants</a></li>
 </ul>
 
@@ -68,6 +69,21 @@
 </ul>
 </p>
 
+<h2><a href="#Text_encoding">Text encoding</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#set_encoding">set_encoding&nbsp;(e)</a></td>
+	<td class="summary">set the current text encoding.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#get_encoding">get_encoding&nbsp;()</a></td>
+	<td class="summary">get the current text encoding.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#encode">encode&nbsp;(e_in, e_out, text)</a></td>
+	<td class="summary">encode a string in another encoding.</td>
+	</tr>
+</table>
 <h2><a href="#Class_Window">Class Window</a></h2>
 <table class="function_list">
 	<tr>
@@ -129,6 +145,10 @@
 	<tr>
 	<td class="name" nowrap><a href="#Window.set_foreground">Window.set_foreground&nbsp;()</a></td>
 	<td class="summary">bring this window to the foreground.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Window.get_process">Window.get_process&nbsp;()</a></td>
+	<td class="summary">get the associated process of this window</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#Window.__tostring">Window.__tostring&nbsp;()</a></td>
@@ -193,8 +213,12 @@
 	<td class="summary">sleep and use no processing time.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#show_message">show_message&nbsp;(caption, msg)</a></td>
+	<td class="name" nowrap><a href="#show_message">show_message&nbsp;(caption, msg, btns, icon)</a></td>
 	<td class="summary">show a message box.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#beep">beep&nbsp;(type)</a></td>
+	<td class="summary">make a beep sound.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#copy_file">copy_file&nbsp;(src, dest, fail_if_exists)</a></td>
@@ -209,18 +233,18 @@
 	<td class="summary">execute a shell command.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#put_clipboard_text">put_clipboard_text&nbsp;(text)</a></td>
+	<td class="name" nowrap><a href="#set_clipboard">set_clipboard&nbsp;(text)</a></td>
 	<td class="summary">Copy text onto the clipboard.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#get_clipboard_text">get_clipboard_text&nbsp;()</a></td>
+	<td class="name" nowrap><a href="#get_clipboard">get_clipboard&nbsp;()</a></td>
 	<td class="summary">Get the text on the clipboard.</td>
 	</tr>
 </table>
 <h2><a href="#Class_Process">Class Process</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#Process.get_process_name">Process.get_process_name&nbsp;()</a></td>
+	<td class="name" nowrap><a href="#Process.get_process_name">Process.get_process_name&nbsp;(full)</a></td>
 	<td class="summary">get the name of the process.</td>
 	</tr>
 	<tr>
@@ -273,36 +297,6 @@
 	<tr>
 	<td class="name" nowrap><a href="#wait_for_processes">wait_for_processes&nbsp;(processes, all, timeout)</a></td>
 	<td class="summary">Wait for a group of processes</td>
-	</tr>
-</table>
-<h2><a href="#Class_regkey">Class regkey</a></h2>
-<table class="function_list">
-	<tr>
-	<td class="name" nowrap><a href="#regkey.set_value">regkey.set_value&nbsp;(name, val)</a></td>
-	<td class="summary">set the string value of a name.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#regkey.get_value">regkey.get_value&nbsp;(name)</a></td>
-	<td class="summary">get the value and type of a name.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#regkey.get_keys">regkey.get_keys&nbsp;()</a></td>
-	<td class="summary">enumerate the subkeys of a key.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#regkey.close">regkey.close&nbsp;()</a></td>
-	<td class="summary">close this key.</td>
-	</tr>
-</table>
-<h2><a href="#Registry_Functions">Registry Functions</a></h2>
-<table class="function_list">
-	<tr>
-	<td class="name" nowrap><a href="#open_key">open_key&nbsp;(path, writeable)</a></td>
-	<td class="summary">Open a registry key.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#create_key">create_key&nbsp;(path)</a></td>
-	<td class="summary">Create a registry key.</td>
 	</tr>
 </table>
 <h2><a href="#Class_File">Class File</a></h2>
@@ -368,6 +362,36 @@
 	<td class="summary">start watching a directory.</td>
 	</tr>
 </table>
+<h2><a href="#Class_regkey">Class regkey</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#regkey.set_value">regkey.set_value&nbsp;(name, val)</a></td>
+	<td class="summary">set the string value of a name.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#regkey.get_value">regkey.get_value&nbsp;(name)</a></td>
+	<td class="summary">get the value and type of a name.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#regkey.get_keys">regkey.get_keys&nbsp;()</a></td>
+	<td class="summary">enumerate the subkeys of a key.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#regkey.close">regkey.close&nbsp;()</a></td>
+	<td class="summary">close this key.</td>
+	</tr>
+</table>
+<h2><a href="#Registry_Functions">Registry Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#open_key">open_key&nbsp;(path, writeable)</a></td>
+	<td class="summary">Open a registry key.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#create_key">create_key&nbsp;(path)</a></td>
+	<td class="summary">Create a registry key.</td>
+	</tr>
+</table>
 <h2><a href="#Constants">Constants</a></h2>
 <table class="function_list">
 	<tr>
@@ -379,6 +403,60 @@
 <br/>
 <br/>
 
+    <h2><a name="Text_encoding"></a>Text encoding</h2>
+    
+    <dl class="function">
+    <dt>
+    <a name = "set_encoding"></a>
+    <strong>set_encoding&nbsp;(e)</strong>
+    </dt>
+    <dd>
+    set the current text encoding.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>e</em></code>:  one of <code>CP_ACP</code> (Windows code page; default) and <code>CP_UTF8</code></li>
+    </ul>
+
+
+
+</dd>
+    <dt>
+    <a name = "get_encoding"></a>
+    <strong>get_encoding&nbsp;()</strong>
+    </dt>
+    <dd>
+    get the current text encoding.
+    
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+        either <code>CP_ACP</code> or <code>CP_UTF8</code>
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "encode"></a>
+    <strong>encode&nbsp;(e_in, e_out, text)</strong>
+    </dt>
+    <dd>
+    encode a string in another encoding.
+    Note: currently there's a limit of about 1K on the string buffer.
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>e_in</em></code>:  <code>CP_ACP</code> or <code>CP_UTF8</code></li>
+       <li><code><em>e_out</em></code>:  <code>CP_UTF8</code> or <code>CP_ACP</code></li>
+       <li><code><em>text</em></code>:  the string</li>
+    </ul>
+
+
+
+</dd>
+</dl>
     <h2><a name="Class_Window"></a>Class Window</h2>
     
     <dl class="function">
@@ -596,6 +674,18 @@
     </dt>
     <dd>
     bring this window to the foreground.
+    
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Window.get_process"></a>
+    <strong>Window.get_process&nbsp;()</strong>
+    </dt>
+    <dd>
+    get the associated process of this window
     
 
 
@@ -861,7 +951,7 @@
 </dd>
     <dt>
     <a name = "show_message"></a>
-    <strong>show_message&nbsp;(caption, msg)</strong>
+    <strong>show_message&nbsp;(caption, msg, btns, icon)</strong>
     </dt>
     <dd>
     show a message box.
@@ -871,6 +961,30 @@
     <ul>
        <li><code><em>caption</em></code>:  for dialog</li>
        <li><code><em>msg</em></code>:  the message</li>
+       <li><code><em>btns</em></code>:  (default 'ok') one of 'ok','ok-cancel','yes','yes-no',
+ "abort-retry-ignore", "retry-cancel", "yes-no-cancel"</li>
+       <li><code><em>icon</em></code>:  (default 'information') one of 'information','question','warning','error'</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        a string giving the pressed button: one of 'ok','yes','no','cancel',
+ 'try','abort' and 'retry'
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "beep"></a>
+    <strong>beep&nbsp;(type)</strong>
+    </dt>
+    <dd>
+    make a beep sound.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>type</em></code>:  (default 'ok'); one of 'information','question','warning','error'</li>
     </ul>
 
 
@@ -932,8 +1046,8 @@
 
 </dd>
     <dt>
-    <a name = "put_clipboard_text"></a>
-    <strong>put_clipboard_text&nbsp;(text)</strong>
+    <a name = "set_clipboard"></a>
+    <strong>set_clipboard&nbsp;(text)</strong>
     </dt>
     <dd>
     Copy text onto the clipboard.
@@ -948,8 +1062,8 @@
 
 </dd>
     <dt>
-    <a name = "get_clipboard_text"></a>
-    <strong>get_clipboard_text&nbsp;()</strong>
+    <a name = "get_clipboard"></a>
+    <strong>get_clipboard&nbsp;()</strong>
     </dt>
     <dd>
     Get the text on the clipboard.
@@ -970,12 +1084,16 @@
     <dl class="function">
     <dt>
     <a name = "Process.get_process_name"></a>
-    <strong>Process.get_process_name&nbsp;()</strong>
+    <strong>Process.get_process_name&nbsp;(full)</strong>
     </dt>
     <dd>
     get the name of the process.
     
 
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>full</em></code>:  true if you want the full path; otherwise returns the base name.</li>
+    </ul>
 
 
 
@@ -1170,124 +1288,8 @@
 
 </dd>
 </dl>
-    <h2><a name="Class_regkey"></a>Class regkey</h2>
-    
-    <dl class="function">
-    <dt>
-    <a name = "regkey.set_value"></a>
-    <strong>regkey.set_value&nbsp;(name, val)</strong>
-    </dt>
-    <dd>
-    set the string value of a name.
-    
-
-    <h3>Parameters:</h3>
-    <ul>
-       <li><code><em>name</em></code>:  the name</li>
-       <li><code><em>val</em></code>:  the value</li>
-    </ul>
-
-
-
-</dd>
-    <dt>
-    <a name = "regkey.get_value"></a>
-    <strong>regkey.get_value&nbsp;(name)</strong>
-    </dt>
-    <dd>
-    get the value and type of a name.
-    
-
-    <h3>Parameters:</h3>
-    <ul>
-       <li><code><em>name</em></code>:  the name (can be empty for the default value)</li>
-    </ul>
-
-
-    <h3>Returns:</h3>
-    <ol>
-        <li>the value (either a string or a number)</li>
-        <li>the type</li>
-    </ol>
-
-</dd>
-    <dt>
-    <a name = "regkey.get_keys"></a>
-    <strong>regkey.get_keys&nbsp;()</strong>
-    </dt>
-    <dd>
-    enumerate the subkeys of a key.
-    
-
-
-
-    <h3>Returns:</h3>
-    <ol>
-        a table of key names
-    </ol>
-
-</dd>
-    <dt>
-    <a name = "regkey.close"></a>
-    <strong>regkey.close&nbsp;()</strong>
-    </dt>
-    <dd>
-    close this key.
-    
-
-
-
-
-</dd>
-</dl>
-    <h2><a name="Registry_Functions"></a>Registry Functions</h2>
-    
-    <dl class="function">
-    <dt>
-    <a name = "open_key"></a>
-    <strong>open_key&nbsp;(path, writeable)</strong>
-    </dt>
-    <dd>
-    Open a registry key.
-    
-
-    <h3>Parameters:</h3>
-    <ul>
-       <li><code><em>path</em></code>:  the full registry key
- e.g [[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion]]</li>
-       <li><code><em>writeable</em></code>:  true if you want to set values</li>
-    </ul>
-
-
-    <h3>Returns:</h3>
-    <ol>
-        a regkey object
-    </ol>
-
-</dd>
-    <dt>
-    <a name = "create_key"></a>
-    <strong>create_key&nbsp;(path)</strong>
-    </dt>
-    <dd>
-    Create a registry key.
-    
-
-    <h3>Parameters:</h3>
-    <ul>
-       <li><code><em>path</em></code>:  the full registry key</li>
-    </ul>
-
-
-    <h3>Returns:</h3>
-    <ol>
-        a regkey object
-    </ol>
-
-</dd>
-</dl>
     <h2><a name="Class_File"></a>Class File</h2>
-    
+    The write handle may be distinct from the read handle.
     <dl class="function">
     <dt>
     <a name = "File.write"></a>
@@ -1558,11 +1560,129 @@
 
 </dd>
 </dl>
+    <h2><a name="Class_regkey"></a>Class regkey</h2>
+    
+    <dl class="function">
+    <dt>
+    <a name = "regkey.set_value"></a>
+    <strong>regkey.set_value&nbsp;(name, val)</strong>
+    </dt>
+    <dd>
+    set the string value of a name.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>name</em></code>:  the name</li>
+       <li><code><em>val</em></code>:  the value</li>
+    </ul>
+
+
+
+</dd>
+    <dt>
+    <a name = "regkey.get_value"></a>
+    <strong>regkey.get_value&nbsp;(name)</strong>
+    </dt>
+    <dd>
+    get the value and type of a name.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>name</em></code>:  the name (can be empty for the default value)</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>the value (either a string or a number)</li>
+        <li>the type</li>
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "regkey.get_keys"></a>
+    <strong>regkey.get_keys&nbsp;()</strong>
+    </dt>
+    <dd>
+    enumerate the subkeys of a key.
+    
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+        a table of key names
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "regkey.close"></a>
+    <strong>regkey.close&nbsp;()</strong>
+    </dt>
+    <dd>
+    close this key.
+    
+
+
+
+
+</dd>
+</dl>
+    <h2><a name="Registry_Functions"></a>Registry Functions</h2>
+    
+    <dl class="function">
+    <dt>
+    <a name = "open_key"></a>
+    <strong>open_key&nbsp;(path, writeable)</strong>
+    </dt>
+    <dd>
+    Open a registry key.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>path</em></code>:  the full registry key
+ e.g [[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion]]</li>
+       <li><code><em>writeable</em></code>:  true if you want to set values</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        a regkey object
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "create_key"></a>
+    <strong>create_key&nbsp;(path)</strong>
+    </dt>
+    <dd>
+    Create a registry key.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>path</em></code>:  the full registry key</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        a regkey object
+    </ol>
+
+</dd>
+</dl>
     <h2><a name="Constants"></a>Constants</h2>
     
 <p>The following constants are available:</p>
 
 <ul>
+    <li>CP_ACP, (valid values for encoding)</li>
+    <li>CP_UTF8,</li>
     <li>SW_HIDE, (Window operations for Window.show)</li>
     <li>SW_MAXIMIZE,</li>
     <li>SW_MINIMIZE,</li>
