@@ -34,6 +34,7 @@
 <li><a href="#Miscelaneous_functions">Miscelaneous functions</a></li>
 <li><a href="#Class_Process">Class Process</a></li>
 <li><a href="#Working_with_processes">Working with processes</a></li>
+<li><a href="#Class_Thread">Class Thread</a></li>
 <li><a href="#Class_File">Class File</a></li>
 <li><a href="#Launching_processes">Launching processes</a></li>
 <li><a href="#Asynchronous_Timers">Asynchronous Timers</a></li>
@@ -233,6 +234,10 @@
 	<td class="summary">execute a shell command.</td>
 	</tr>
 	<tr>
+	<td class="name" nowrap><a href="#setenv">setenv&nbsp;(name, value)</a></td>
+	<td class="summary">set an environment variable for this process.</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#set_clipboard">set_clipboard&nbsp;(text)</a></td>
 	<td class="summary">Copy text onto the clipboard.</td>
 	</tr>
@@ -268,6 +273,10 @@
 	<td class="summary">wait for this process to finish.</td>
 	</tr>
 	<tr>
+	<td class="name" nowrap><a href="#Process.wait_for_input_idle">Process.wait_for_input_idle&nbsp;(timeout)</a></td>
+	<td class="summary">wait for this process to become idle and ready for input.</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#Process.exit_code">Process.exit_code&nbsp;()</a></td>
 	<td class="summary">exit code of this process.</td>
 	</tr>
@@ -299,6 +308,29 @@
 	<td class="summary">Wait for a group of processes</td>
 	</tr>
 </table>
+<h2><a href="#Class_Thread">Class Thread</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#Thread.suspend">Thread.suspend&nbsp;()</a></td>
+	<td class="summary">suspend this thread.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Thread.resume">Thread.resume&nbsp;()</a></td>
+	<td class="summary">resume a suspended thread.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Thread.kill">Thread.kill&nbsp;()</a></td>
+	<td class="summary">kill this thread.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Thread.set_priority">Thread.set_priority&nbsp;(p)</a></td>
+	<td class="summary">set a thread's priority</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Thread.get_priority">Thread.get_priority&nbsp;()</a></td>
+	<td class="summary">get a thread's priority</td>
+	</tr>
+</table>
 <h2><a href="#Class_File">Class File</a></h2>
 <table class="function_list">
 	<tr>
@@ -317,7 +349,7 @@
 <h2><a href="#Launching_processes">Launching processes</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#spawn">spawn&nbsp;(program)</a></td>
+	<td class="name" nowrap><a href="#spawn">spawn&nbsp;(program, dir)</a></td>
 	<td class="summary">Spawn a process.</td>
 	</tr>
 	<tr>
@@ -356,6 +388,10 @@
 	<tr>
 	<td class="name" nowrap><a href="#get_disk_free_space">get_disk_free_space&nbsp;(root)</a></td>
 	<td class="summary">get the free disk space.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#get_disk_network_name">get_disk_network_name&nbsp;(root)</a></td>
+	<td class="summary">get the network resource associated with this drive.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#watch_for_file_changes">watch_for_file_changes&nbsp;(dir, how, subdirs, callback)</a></td>
@@ -506,7 +542,7 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>flags</em></code>:  one of SW<em>SHOW, SW</em>MAXIMIZE, etc</li>
+       <li><code><em>flags</em></code>:  one of <code>SW_SHOW</code>, <code>SW_MAXIMIZE</code>, etc</li>
     </ul>
 
 
@@ -1046,6 +1082,26 @@
 
 </dd>
     <dt>
+    <a name = "setenv"></a>
+    <strong>setenv&nbsp;(name, value)</strong>
+    </dt>
+    <dd>
+    set an environment variable for this process.
+    Any child process inherits the environment.
+ Note that this can't affect any system environment variables, see
+ <a href="http://msdn.microsoft.com/en-us/library/ms682653%28VS.85%29.aspx">here</a>
+ for how to set these.
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>name</em></code>:  name of variable</li>
+       <li><code><em>value</em></code>:  value to set</li>
+    </ul>
+
+
+
+</dd>
+    <dt>
     <a name = "set_clipboard"></a>
     <strong>set_clipboard&nbsp;(text)</strong>
     </dt>
@@ -1079,8 +1135,7 @@
 </dd>
 </dl>
     <h2><a name="Class_Process"></a>Class Process</h2>
-    this example was very helpful:
- http://msdn.microsoft.com/en-us/library/ms682623%28VS.85%29.aspx
+    this example was <a href="http://msdn.microsoft.com/en-us/library/ms682623%28VS.85%29.aspx">helpful</a>
     <dl class="function">
     <dt>
     <a name = "Process.get_process_name"></a>
@@ -1139,7 +1194,7 @@
 
     <h3>Returns:</h3>
     <ol>
-        a table containing year, month, etc fields.
+        a table in the same format as os.time() and os.date() expects.
     </ol>
 
 </dd>
@@ -1171,6 +1226,27 @@
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>timeout</em></code>:  optional timeout in millisec; defaults to waiting indefinitely.</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>this process object</li>
+        <li>either "OK" or "TIMEOUT"</li>
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "Process.wait_for_input_idle"></a>
+    <strong>Process.wait_for_input_idle&nbsp;(timeout)</strong>
+    </dt>
+    <dd>
+    wait for this process to become idle and ready for input.
+    Only makes sense for processes with windows (will return immediately if not)
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>timeout</em></code>:  optional timeout in millisec</li>
     </ul>
 
 
@@ -1288,6 +1364,78 @@
 
 </dd>
 </dl>
+    <h2><a name="Class_Thread"></a>Class Thread</h2>
+    This is returned by the <code>read_async</code> method and the <code>timer</code>,
+ <code>server</code> and <code>watch_for_file_changes</code> functions. Useful to kill a thread
+ and free associated resources.
+    <dl class="function">
+    <dt>
+    <a name = "Thread.suspend"></a>
+    <strong>Thread.suspend&nbsp;()</strong>
+    </dt>
+    <dd>
+    suspend this thread.
+    
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Thread.resume"></a>
+    <strong>Thread.resume&nbsp;()</strong>
+    </dt>
+    <dd>
+    resume a suspended thread.
+    
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Thread.kill"></a>
+    <strong>Thread.kill&nbsp;()</strong>
+    </dt>
+    <dd>
+    kill this thread.
+    Generally considered a 'nuclear' option, but
+ this implementation will free any associated callback references, buffers
+ and handles.
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Thread.set_priority"></a>
+    <strong>Thread.set_priority&nbsp;(p)</strong>
+    </dt>
+    <dd>
+    set a thread's priority
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>p</em></code>:  positive integer to increase thread priority</li>
+    </ul>
+
+
+
+</dd>
+    <dt>
+    <a name = "Thread.get_priority"></a>
+    <strong>Thread.get_priority&nbsp;()</strong>
+    </dt>
+    <dd>
+    get a thread's priority
+    
+
+
+
+
+</dd>
+</dl>
     <h2><a name="Class_File"></a>Class File</h2>
     The write handle may be distinct from the read handle.
     <dl class="function">
@@ -1343,6 +1491,10 @@
     </ul>
 
 
+    <h3>Returns:</h3>
+    <ol>
+        a thread object.
+    </ol>
 
 </dd>
 </dl>
@@ -1351,7 +1503,7 @@
     <dl class="function">
     <dt>
     <a name = "spawn"></a>
-    <strong>spawn&nbsp;(program)</strong>
+    <strong>spawn&nbsp;(program, dir)</strong>
     </dt>
     <dd>
     Spawn a process.
@@ -1360,6 +1512,7 @@
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>program</em></code>:  the command-line (program + parameters)</li>
+       <li><code><em>dir</em></code>:  the working directory for the process (optional)</li>
     </ul>
 
 
@@ -1417,6 +1570,10 @@
     </ul>
 
 
+    <h3>Returns:</h3>
+    <ol>
+        a thread object.
+    </ol>
 
 </dd>
 </dl>
@@ -1457,6 +1614,10 @@
     </ul>
 
 
+    <h3>Returns:</h3>
+    <ol>
+        a thread object.
+    </ol>
 
 </dd>
 </dl>
@@ -1522,6 +1683,26 @@
 
 </dd>
     <dt>
+    <a name = "get_disk_network_name"></a>
+    <strong>get_disk_network_name&nbsp;(root)</strong>
+    </dt>
+    <dd>
+    get the network resource associated with this drive.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>root</em></code>:  drive name in the form 'X:'</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        UNC name
+    </ol>
+
+</dd>
+    <dt>
     <a name = "watch_for_file_changes"></a>
     <strong>watch_for_file_changes&nbsp;(dir, how, subdirs, callback)</strong>
     </dt>
@@ -1536,9 +1717,9 @@
 <p> what events to monitor. Can be a sum of these flags:</p>
 
 <ul>
-    <li>FILE<em>NOTIFY</em>CHANGE<em>FILE</em>NAME</li>
-    <li>FILE<em>NOTIFY</em>CHANGE<em>DIR</em>NAME</li>
-    <li>FILE<em>NOTIFY</em>CHANGE<em>LAST</em>WRITE</li>
+    <li><code>FILE_NOTIFY_CHANGE_FILE_NAME</code></li>
+    <li><code>FILE_NOTIFY_CHANGE_DIR_NAME</code></li>
+    <li><code>FILE_NOTIFY_CHANGE_LAST_WRITE</code></li>
 </ul>
 </li>
        <li><code><em>subdirs</em></code>:  whether subdirectories should be monitored</li>
@@ -1547,16 +1728,20 @@
  plus the filename that changed. The change will be one of these:</p>
 
 <ul>
-    <li>FILE<em>ACTION</em>ADDED</li>
-    <li>FILE<em>ACTION</em>REMOVED</li>
-    <li>FILE<em>ACTION</em>MODIFIED</li>
-    <li>FILE<em>ACTION</em>RENAMED<em>OLD</em>NAME</li>
-    <li>FILE<em>ACTION</em>RENAMED<em>NEW</em>NAME</li>
+    <li><code>FILE_ACTION_ADDED</code></li>
+    <li><code>FILE_ACTION_REMOVED</code></li>
+    <li><code>FILE_ACTION_MODIFIED</code></li>
+    <li><code>FILE_ACTION_RENAMED_OLD_NAME</code></li>
+    <li><code>FILE_ACTION_RENAMED_NEW_NAME</code></li>
 </ul>
 </li>
     </ul>
 
 
+    <h3>Returns:</h3>
+    <ol>
+        a thread object.
+    </ol>
 
 </dd>
 </dl>
