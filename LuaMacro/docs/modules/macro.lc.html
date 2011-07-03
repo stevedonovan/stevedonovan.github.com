@@ -1,0 +1,157 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+<div id="main">
+
+
+<!-- Menu -->
+
+
+<div id="navigation">
+<h1>LuaMacro</h1>
+<ul>
+  <li><a href="../api.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+</ul>
+
+<h2>Modules</h2>
+<ul>
+  <li><a href="macro.html">macro</a></li>
+  <li><a href="macro.Getter.html">macro.Getter</a></li>
+  <li><a href="macro.TokenList.html">macro.TokenList</a></li>
+  <li><a href="macro.assert.html">macro.assert</a></li>
+  <li><a href="macro.builtin.html">macro.builtin</a></li>
+  <li><a href="macro.clexer.html">macro.clexer</a></li>
+  <li><a href="macro.do.html">macro.do</a></li>
+  <li><a href="macro.forall.html">macro.forall</a></li>
+  <li><a href="macro.lambda.html">macro.lambda</a></li>
+  <li><strong>macro.lc</strong></li>
+  <li><a href="macro.lexer.html">macro.lexer</a></li>
+  <li><a href="macro.lib.class.html">macro.lib.class</a></li>
+  <li><a href="macro.libs.test.html">macro.libs.test</a></li>
+  <li><a href="macro.module.html">macro.module</a></li>
+  <li><a href="macro.try.html">macro.try</a></li>
+  <li><a href="macro.with.html">macro.with</a></li>
+</ul>
+<h2>Scripts</h2>
+<ul>
+  <li><a href="../scripts/luam.html">luam</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+
+<h1>Module <code>macro.lc</code></h1>
+
+
+<p>Simplifying writing C extensions for Lua.</p>
+<p>
+<p><code>lc</code> generates common boilerplate, registers functions and classes,
+and translates argument lists into appropriate Lua API calls.</p>
+
+<pre><code>// preprocess using luam -C -llc str.lc &gt; str.c
+#include &lt;string.h&gt;
+
+module str {
+
+  def at (Str s, Int i = 0) {
+    lua_pushlstring(L,&amp;s[i-1],1);
+    return 1;
+  }
+
+  def upto (Str s, Str delim =  ) {
+    lua_pushinteger(L, strcspn(s,delim) + 1);
+    return 1;
+  }
+
+}
+</code></pre>
+
+<p>This will result in a module <code>str</code> which exports Lua functions <code>at</code> and <code>upto</code>.
+Argument lists are of the form <code>TYPE NAME [ = VALUE]</code> where <code>TYPE</code> is one of
+the following:</p>
+
+<ul>
+    <li><code>Str</code> a string value <code>const char *</code></li>
+    <li><code>StrNil</code> a string value that may be <code>NULL</code></li>
+    <li><code>Int</code> an integer</li>
+    <li><code>Number</code> a number (usually <code>double</code>)</li>
+    <li><code>Boolean</code> a boolean value</li>
+    <li><code>Value</code> placeholder for any Lua value on stack; initialized
+    to the stack index.</li>
+</ul>
+
+<p>All of these (except <code>Value</code>) are typedef'd to their corresponding C types.</p>
+
+<p>Classes can be defined:</p>
+
+<pre><code>module class1 {
+
+class A {
+  int handle;
+
+  constructor (int i) { // required: takes C argument types
+    this-&gt;handle = i;
+  }
+
+  def geth () {
+    lua_pushinteger(L, this-&gt;handle);
+    return 1;
+  }
+
+  def __eq(A other) {
+    lua_pushboolean(L, this-&gt;handle == other-&gt;handle);
+    return 1;
+  }
+}
+
+def A (Int i) {
+  push_new_A(L,i);
+  return 1;
+}
+
+}
+</code></pre>
+
+<p>This will create a suitable userdata type for <code>A</code>, a corresponding structure <code>A</code>, and
+two new functions:</p>
+
+<ul>
+    <li><code>A* A_arg(lua_State *L,int idx)</code> // check and return userdata value at index</li>
+    <li><code>void push_new_A(lua_State *L,Int i)</code> // make a new <code>A</code> and push on stack</li>
+</ul>
+</p>
+
+
+<br/>
+<br/>
+
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
+

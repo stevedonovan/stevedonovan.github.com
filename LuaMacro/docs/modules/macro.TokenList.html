@@ -1,0 +1,486 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+<div id="main">
+
+
+<!-- Menu -->
+
+
+<div id="navigation">
+<h1>LuaMacro</h1>
+<ul>
+  <li><a href="../api.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+<h2>Modules</h2>
+<ul>
+  <li><a href="macro.html">macro</a></li>
+  <li><a href="macro.Getter.html">macro.Getter</a></li>
+  <li><strong>macro.TokenList</strong></li>
+  <li><a href="macro.assert.html">macro.assert</a></li>
+  <li><a href="macro.builtin.html">macro.builtin</a></li>
+  <li><a href="macro.clexer.html">macro.clexer</a></li>
+  <li><a href="macro.do.html">macro.do</a></li>
+  <li><a href="macro.forall.html">macro.forall</a></li>
+  <li><a href="macro.lambda.html">macro.lambda</a></li>
+  <li><a href="macro.lc.html">macro.lc</a></li>
+  <li><a href="macro.lexer.html">macro.lexer</a></li>
+  <li><a href="macro.lib.class.html">macro.lib.class</a></li>
+  <li><a href="macro.libs.test.html">macro.libs.test</a></li>
+  <li><a href="macro.module.html">macro.module</a></li>
+  <li><a href="macro.try.html">macro.try</a></li>
+  <li><a href="macro.with.html">macro.with</a></li>
+</ul>
+<h2>Scripts</h2>
+<ul>
+  <li><a href="../scripts/luam.html">luam</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+
+<h1>Module <code>macro.TokenList</code></h1>
+
+
+<p>A TokenList class for generating token lists.</p>
+<p>There are also useful <code>get_</code> methods for extracting values from
+ the first token.</p>
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#get_iden">get_iden&nbsp;(tl)</a></td>
+	<td class="summary">get an identifier from front of a token list.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#get_number">get_number&nbsp;(tl)</a></td>
+	<td class="summary">get an number from front of a token list.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#get_string">get_string&nbsp;(tl)</a></td>
+	<td class="summary">get a string from front of a token list.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#strip_spaces">strip_spaces&nbsp;(tl)</a></td>
+	<td class="summary">takes a token list and strips spaces and comments.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#pick">pick&nbsp;(n, tl)</a></td>
+	<td class="summary">pick the n-th token from this tokenlist.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#name">name&nbsp;(name, no_space, res)</a></td>
+	<td class="summary">append an identifier.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#string">string&nbsp;(name, res)</a></td>
+	<td class="summary">append a string.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#number">number&nbsp;(val, res)</a></td>
+	<td class="summary">append a number.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#names">names&nbsp;(res, names)</a></td>
+	<td class="summary">put out a list of names, separated by commas.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#tokens">tokens&nbsp;(res, names, tl)</a></td>
+	<td class="summary">put out a token list.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list">list&nbsp;(res, names, ltl)</a></td>
+	<td class="summary">put out a list of token lists, separated by commas.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#space">space&nbsp;(res, space)</a></td>
+	<td class="summary">put out a space token.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#keyword">keyword&nbsp;(res, keyw)</a></td>
+	<td class="summary">put out a keyword token.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#__tostring">__tostring&nbsp;(tl)</a></td>
+	<td class="summary">convert this tokenlist into a string.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#__call">__call&nbsp;(res, keyw, t, v)</a></td>
+	<td class="summary">put out a operator token.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+    <h2><a name="Functions"></a>Functions</h2>
+    
+    <dl class="function">
+    <dt>
+    <a name = "get_iden"></a>
+    <strong>get_iden&nbsp;(tl)</strong>
+    </dt>
+    <dd>
+    get an identifier from front of a token list.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>tl</em></code>: 
+
+</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        name
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "get_number"></a>
+    <strong>get_number&nbsp;(tl)</strong>
+    </dt>
+    <dd>
+    get an number from front of a token list.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>tl</em></code>: 
+
+</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        number
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "get_string"></a>
+    <strong>get_string&nbsp;(tl)</strong>
+    </dt>
+    <dd>
+    get a string from front of a token list.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>tl</em></code>: 
+
+</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        string value (without quotes)
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "strip_spaces"></a>
+    <strong>strip_spaces&nbsp;(tl)</strong>
+    </dt>
+    <dd>
+    takes a token list and strips spaces and comments.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>tl</em></code>: 
+
+</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        new tokenlist
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "pick"></a>
+    <strong>pick&nbsp;(n, tl)</strong>
+    </dt>
+    <dd>
+    pick the n-th token from this tokenlist.
+    Note that it returns the value and type, not the type and value.
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>n</em></code>:  (1 to #self)</li>
+       <li><code><em>tl</em></code>: 
+
+</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>token value</li>
+        <li>token type</li>
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "name"></a>
+    <strong>name&nbsp;(name, no_space, res)</strong>
+    </dt>
+    <dd>
+    append an identifier.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>name</em></code>:  the identifier</li>
+       <li><code><em>no_space</em></code>:  true if you don't want a space after the iden</li>
+       <li><code><em>res</em></code>: 
+
+</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        self
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "string"></a>
+    <strong>string&nbsp;(name, res)</strong>
+    </dt>
+    <dd>
+    append a string.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>name</em></code>:  the string</li>
+       <li><code><em>res</em></code>: 
+
+</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        self
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "number"></a>
+    <strong>number&nbsp;(val, res)</strong>
+    </dt>
+    <dd>
+    append a number.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>val</em></code>:  the number</li>
+       <li><code><em>res</em></code>: 
+
+</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        self
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "names"></a>
+    <strong>names&nbsp;(res, names)</strong>
+    </dt>
+    <dd>
+    put out a list of names, separated by commas.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>res</em></code>:  output token list</li>
+       <li><code><em>names</em></code>:  a list of strings</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        self
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "tokens"></a>
+    <strong>tokens&nbsp;(res, names, tl)</strong>
+    </dt>
+    <dd>
+    put out a token list.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>res</em></code>:  output token list</li>
+       <li><code><em>names</em></code>:  a token list</li>
+       <li><code><em>tl</em></code>: 
+
+</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        self
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "list"></a>
+    <strong>list&nbsp;(res, names, ltl)</strong>
+    </dt>
+    <dd>
+    put out a list of token lists, separated by commas.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>res</em></code>:  output token list</li>
+       <li><code><em>names</em></code>:  a list of strings</li>
+       <li><code><em>ltl</em></code>: 
+
+</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        self
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "space"></a>
+    <strong>space&nbsp;(res, space)</strong>
+    </dt>
+    <dd>
+    put out a space token.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>res</em></code>:  output token list</li>
+       <li><code><em>space</em></code>:  a string containing only whitespace (default ' ')</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        self
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "keyword"></a>
+    <strong>keyword&nbsp;(res, keyw)</strong>
+    </dt>
+    <dd>
+    put out a keyword token.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>res</em></code>:  output token list</li>
+       <li><code><em>keyw</em></code>:  a Lua keyword</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        self
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "__tostring"></a>
+    <strong>__tostring&nbsp;(tl)</strong>
+    </dt>
+    <dd>
+    convert this tokenlist into a string.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>tl</em></code>: 
+
+</li>
+    </ul>
+
+
+
+</dd>
+    <dt>
+    <a name = "__call"></a>
+    <strong>__call&nbsp;(res, keyw, t, v)</strong>
+    </dt>
+    <dd>
+    put out a operator token.
+    This is the overloaded call operator
+ for token lists.
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>res</em></code>:  output token list</li>
+       <li><code><em>keyw</em></code>:  an operator string</li>
+       <li><code><em>t</em></code>: 
+
+</li>
+       <li><code><em>v</em></code>: 
+
+</li>
+    </ul>
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
+

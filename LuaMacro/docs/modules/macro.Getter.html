@@ -1,0 +1,384 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+<div id="main">
+
+
+<!-- Menu -->
+
+
+<div id="navigation">
+<h1>LuaMacro</h1>
+<ul>
+  <li><a href="../api.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+<h2>Modules</h2>
+<ul>
+  <li><a href="macro.html">macro</a></li>
+  <li><strong>macro.Getter</strong></li>
+  <li><a href="macro.TokenList.html">macro.TokenList</a></li>
+  <li><a href="macro.assert.html">macro.assert</a></li>
+  <li><a href="macro.builtin.html">macro.builtin</a></li>
+  <li><a href="macro.clexer.html">macro.clexer</a></li>
+  <li><a href="macro.do.html">macro.do</a></li>
+  <li><a href="macro.forall.html">macro.forall</a></li>
+  <li><a href="macro.lambda.html">macro.lambda</a></li>
+  <li><a href="macro.lc.html">macro.lc</a></li>
+  <li><a href="macro.lexer.html">macro.lexer</a></li>
+  <li><a href="macro.lib.class.html">macro.lib.class</a></li>
+  <li><a href="macro.libs.test.html">macro.libs.test</a></li>
+  <li><a href="macro.module.html">macro.module</a></li>
+  <li><a href="macro.try.html">macro.try</a></li>
+  <li><a href="macro.with.html">macro.with</a></li>
+</ul>
+<h2>Scripts</h2>
+<ul>
+  <li><a href="../scripts/luam.html">luam</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+
+<h1>Module <code>macro.Getter</code></h1>
+
+
+<p>Getter class.</p>
+<p>Used to get values from the token stream. The first
+ argument <code>get</code> of a macro substitution function is of this type.</p>
+
+<pre><code>M.define ('\\',function(get,put)
+    local args, body = get:names('('), get:list()
+    return put:keyword 'function' '(' : names(args) ')' :
+         keyword 'return' : list(body) : space() : keyword 'end'
+end)
+</code></pre>
+
+<p> The second argument <code>put</code> is a <code>TokenList</code> object.</p>
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#next">next&nbsp;()</a></td>
+	<td class="summary">get the next non-whitespace token.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list">list&nbsp;(tok, endt, delim, endtoken)</a></td>
+	<td class="summary">get a delimited list of token lists.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#name">name&nbsp;(tok)</a></td>
+	<td class="summary">get the next identifier token.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#number">number&nbsp;(tok)</a></td>
+	<td class="summary">get the next number token.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#names">names&nbsp;(tok, endt, delim)</a></td>
+	<td class="summary">get a delimited list of names.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#string">string&nbsp;(tok)</a></td>
+	<td class="summary">get the next string token.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#expecting">expecting&nbsp;(type, value, tok)</a></td>
+	<td class="summary">assert that the next token has the given type.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#peek">peek&nbsp;(k, dont_skip)</a></td>
+	<td class="summary">peek ahead or before in the token stream.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#peek2">peek2&nbsp;()</a></td>
+	<td class="summary">peek ahead two tokens.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#patch">patch&nbsp;(idx, text)</a></td>
+	<td class="summary">patch the token stream at the end.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#placeholder">placeholder&nbsp;(put)</a></td>
+	<td class="summary">put out a placeholder for later patching.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+    <h2><a name="Functions"></a>Functions</h2>
+    
+    <dl class="function">
+    <dt>
+    <a name = "next"></a>
+    <strong>next&nbsp;()</strong>
+    </dt>
+    <dd>
+    get the next non-whitespace token.
+    
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>token type</li>
+        <li>token value</li>
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "list"></a>
+    <strong>list&nbsp;(tok, endt, delim, endtoken)</strong>
+    </dt>
+    <dd>
+    get a delimited list of token lists.
+    Typically used for grabbing argument lists like ('hello',a+1,fred(c,d)); will count parens
+ so that the delimiter (usually a comma) is ignored inside sub-expressions. You must have
+ already read the start token of the list, e.g. open parentheses. It will eat the end token
+ and return the list of TLs, plus the end token. Based on similar code in Penlight's
+ <code>pl.lexer</code> module.
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>tok</em></code>:  the token stream</li>
+       <li><code><em>endt</em></code>:  the end token (default ')')</li>
+       <li><code><em>delim</em></code>:  the delimiter (default ',')</li>
+       <li><code><em>endtoken</em></code>: 
+
+</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>list of token lists</li>
+        <li>end token in form {type,value}</li>
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "name"></a>
+    <strong>name&nbsp;(tok)</strong>
+    </dt>
+    <dd>
+    get the next identifier token.
+    (will be an error if the token has wrong type)
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>tok</em></code>: 
+
+</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        name
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "number"></a>
+    <strong>number&nbsp;(tok)</strong>
+    </dt>
+    <dd>
+    get the next number token.
+    (will be an error if the token has wrong type)
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>tok</em></code>: 
+
+</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        converted number
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "names"></a>
+    <strong>names&nbsp;(tok, endt, delim)</strong>
+    </dt>
+    <dd>
+    get a delimited list of names.
+    works like list.
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>tok</em></code>:  the token stream</li>
+       <li><code><em>endt</em></code>:  the end token (default ')')</li>
+       <li><code><em>delim</em></code>:  the delimiter (default ',')</li>
+    </ul>
+
+
+
+    <h3>see also:</h3>
+    <ul>
+         <a href="macro.Getter.html#list">list</a>
+    </ul>
+</dd>
+    <dt>
+    <a name = "string"></a>
+    <strong>string&nbsp;(tok)</strong>
+    </dt>
+    <dd>
+    get the next string token.
+    (will be an error if the token has wrong type)
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>tok</em></code>: 
+
+</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        string value (without quotes)
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "expecting"></a>
+    <strong>expecting&nbsp;(type, value, tok)</strong>
+    </dt>
+    <dd>
+    assert that the next token has the given type.
+    This will throw an
+ error if the next non-whitespace token does not match.
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>type</em></code>:  a token type ('iden','string',etc)</li>
+       <li><code><em>value</em></code>:  a token value (optional)</li>
+       <li><code><em>tok</em></code>: 
+
+</li>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <li><pre class="example">get:expecting '('</pre></li>
+        <li><pre class="example">get:expecting ('iden','bonzo')</pre></li>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "peek"></a>
+    <strong>peek&nbsp;(k, dont_skip)</strong>
+    </dt>
+    <dd>
+    peek ahead or before in the token stream.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>k</em></code>:  positive delta for looking ahead, negative for looking behind.</li>
+       <li><code><em>dont_skip</em></code>:  true if you want to check for whitespace</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>the token type</li>
+        <li>the token value</li>
+        <li>the token offset</li>
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "peek2"></a>
+    <strong>peek2&nbsp;()</strong>
+    </dt>
+    <dd>
+    peek ahead two tokens.
+    
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>first token type</li>
+        <li>first token value</li>
+        <li>second token type</li>
+        <li>second token value</li>
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "patch"></a>
+    <strong>patch&nbsp;(idx, text)</strong>
+    </dt>
+    <dd>
+    patch the token stream at the end.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>idx</em></code>:  index in output table</li>
+       <li><code><em>text</em></code>:  to replace value at that index</li>
+    </ul>
+
+
+
+</dd>
+    <dt>
+    <a name = "placeholder"></a>
+    <strong>placeholder&nbsp;(put)</strong>
+    </dt>
+    <dd>
+    put out a placeholder for later patching.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>put</em></code>:  a putter object</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        an index into the output table
+    </ol>
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
+

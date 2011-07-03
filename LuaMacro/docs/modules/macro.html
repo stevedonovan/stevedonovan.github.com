@@ -1,0 +1,598 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+<div id="main">
+
+
+<!-- Menu -->
+
+
+<div id="navigation">
+<h1>LuaMacro</h1>
+<ul>
+  <li><a href="../api.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Defining_and_Working_with_Macros">Defining and Working with Macros</a></li>
+</ul>
+
+<h2>Modules</h2>
+<ul>
+  <li><strong>macro</strong></li>
+  <li><a href="macro.Getter.html">macro.Getter</a></li>
+  <li><a href="macro.TokenList.html">macro.TokenList</a></li>
+  <li><a href="macro.assert.html">macro.assert</a></li>
+  <li><a href="macro.builtin.html">macro.builtin</a></li>
+  <li><a href="macro.clexer.html">macro.clexer</a></li>
+  <li><a href="macro.do.html">macro.do</a></li>
+  <li><a href="macro.forall.html">macro.forall</a></li>
+  <li><a href="macro.lambda.html">macro.lambda</a></li>
+  <li><a href="macro.lc.html">macro.lc</a></li>
+  <li><a href="macro.lexer.html">macro.lexer</a></li>
+  <li><a href="macro.lib.class.html">macro.lib.class</a></li>
+  <li><a href="macro.libs.test.html">macro.libs.test</a></li>
+  <li><a href="macro.module.html">macro.module</a></li>
+  <li><a href="macro.try.html">macro.try</a></li>
+  <li><a href="macro.with.html">macro.with</a></li>
+</ul>
+<h2>Scripts</h2>
+<ul>
+  <li><a href="../scripts/luam.html">luam</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+
+<h1>Module <code>macro</code></h1>
+
+
+<p>LuaMacro 2, a macro-preprocessor for Lua.</p>
+<p>
+<p>Unlike LuaMacro 1.x, it does not depend on the token-filter patch and generates
+ Lua code which can be printed out or compiled directly. C-style macros are easy, but LM2
+ allows for macros that can read their own input and generate output using Lua code.
+ New in this release are lexically-scoped macros.
+ The Lua Lpeg Lexer is by Peter Odding.</p>
+
+<p> Examples:</p>
+
+<pre><code> macro.define 'sqr(x) ((x)*(x))'
+ macro.define 'assert_(expr) assert(expr,_STR_(expr))'
+ macro.define('R(n)',function(n)
+   n = n:get_number()
+   return ('-'):rep(n)
+ end
+ macro.define('lazy',function(get)
+    get() -- skip space
+    local expr,endt = get:upto(function(t,v)
+        return t == ',' or t == ')' or t == ';'
+          or (t=='space' and v:match '\n')
+    end)
+    return 'function(_) return '..tostring(expr)..' end'..tostring(endt)
+ end)
+</code></pre>
+</p>
+
+<h2><a href="#Defining_and_Working_with_Macros">Defining and Working with Macros</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#copy_tokens">copy_tokens&nbsp;(tok, pred)</a></td>
+	<td class="summary">make a copy of a list of tokens.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#define_tokens">define_tokens&nbsp;(extra)</a></td>
+	<td class="summary">define new lexical tokens.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#define">define&nbsp;(macstr, subst_fn)</a></td>
+	<td class="summary">define a macro using a specification string and optional function.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#set_macro">set_macro&nbsp;(name, subst, parms)</a></td>
+	<td class="summary">define a macro using a function and a parameter list.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#define_scoped">define_scoped&nbsp;(name, subst, parms)</a></td>
+	<td class="summary">defined a scoped macro.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#get_macro_value">get_macro_value&nbsp;(name)</a></td>
+	<td class="summary">get the value of a macro.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#push_macro_stack">push_macro_stack&nbsp;(name, value)</a></td>
+	<td class="summary">push a value on the stack associated with a macro.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#pop_macro_stack">pop_macro_stack&nbsp;(name)</a></td>
+	<td class="summary">pop a value from a macro stack.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#value_of_macro_stack">value_of_macro_stack&nbsp;(name)</a></td>
+	<td class="summary">value of top of macro stack.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#block_handler">block_handler&nbsp;(lev, action)</a></td>
+	<td class="summary">specify a block handler at a given level.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#keyword_handler">keyword_handler&nbsp;(word, action)</a></td>
+	<td class="summary">set a keyword handler.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#scoped_keyword_handler">scoped_keyword_handler&nbsp;(word, action, keyword)</a></td>
+	<td class="summary">set a scoped keyword handler.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#error">error&nbsp;(msg)</a></td>
+	<td class="summary">macro error messages.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#assert">assert&nbsp;(expr, msg)</a></td>
+	<td class="summary">macro error assert.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#substitute">substitute&nbsp;(src, out, name, use_c)</a></td>
+	<td class="summary">do a macro substitution on Lua source.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#substitute_tostring">substitute_tostring&nbsp;(src, name, use_c, throw)</a></td>
+	<td class="summary">take some Lua source and return the result of the substitution.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#load">load&nbsp;(src, name, env)</a></td>
+	<td class="summary">load Lua code in a given envrionment after passing
+ through the macro preprocessor.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#eval">eval&nbsp;(src, env)</a></td>
+	<td class="summary">evaluate Lua macro code in a given environment.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#set_package_loader">set_package_loader&nbsp;(ext)</a></td>
+	<td class="summary">Make <code>require</code> use macro expansion for a given extension.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+    <h2><a name="Defining_and_Working_with_Macros"></a>Defining and Working with Macros</h2>
+    
+    <dl class="function">
+    <dt>
+    <a name = "copy_tokens"></a>
+    <strong>copy_tokens&nbsp;(tok, pred)</strong>
+    </dt>
+    <dd>
+    make a copy of a list of tokens.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>tok</em></code>:  the list</li>
+       <li><code><em>pred</em></code>:  copy up to this condition; if defined, must be a function
+ of two arguments, the token type and the token value.</li>
+    </ul>
+
+
+
+</dd>
+    <dt>
+    <a name = "define_tokens"></a>
+    <strong>define_tokens&nbsp;(extra)</strong>
+    </dt>
+    <dd>
+    define new lexical tokens.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>extra</em></code>:  a list of strings defining the new tokens</li>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">macro.define_tokens{'{|'}</pre>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "define"></a>
+    <strong>define&nbsp;(macstr, subst_fn)</strong>
+    </dt>
+    <dd>
+    define a macro using a specification string and optional function.
+    The specification looks very much like a C preprocessor macro: the name,
+ followed by an optional formal argument list (<em>no</em> space after name!) and
+ the substitution. e.g <code>answer 42</code> or <code>sqr(x) ((x)*(x))</code></p>
+
+<p> If there is no substitution, then the second argument must be a function which
+ will be evaluated for the actual substitution. If there are explicit parameters, then they will be passed as token lists. Otherwise, the function is passed a <code>get</code> and a <code>put</code> argument, which are <code>Getter</code> and <code>TokenList</code> objects.</p>
+
+<p> The substitution function may return a <code>TokenList</code> object, or a string.
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>macstr</em></code>: 
+
+</li>
+       <li><code><em>subst_fn</em></code>:  the optional substitution function</li>
+    </ul>
+
+
+
+    <h3>see also:</h3>
+    <ul>
+         <li><a href="macro.Getter.html#">macro.Getter</a></li>
+         <li><a href="macro.TokenList.html#">macro.TokenList</a></li>
+    </ul>
+</dd>
+    <dt>
+    <a name = "set_macro"></a>
+    <strong>set_macro&nbsp;(name, subst, parms)</strong>
+    </dt>
+    <dd>
+    define a macro using a function and a parameter list.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>name</em></code>:  either an identifier or an operator.</li>
+       <li><code><em>subst</em></code>:  a function</li>
+       <li><code><em>parms</em></code>:  a list of parameter names</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        the existing value of this macro, if any
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "define_scoped"></a>
+    <strong>define_scoped&nbsp;(name, subst, parms)</strong>
+    </dt>
+    <dd>
+    defined a scoped macro.
+    Like define except this macro will not
+ be visible outside the current scope.
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>name</em></code>:  either an identifier or an operator.</li>
+       <li><code><em>subst</em></code>:  a function</li>
+       <li><code><em>parms</em></code>:  a list of parameter names</li>
+    </ul>
+
+
+
+    <h3>see also:</h3>
+    <ul>
+         <a href="macro.html#set_macro">set_macro</a>
+    </ul>
+</dd>
+    <dt>
+    <a name = "get_macro_value"></a>
+    <strong>get_macro_value&nbsp;(name)</strong>
+    </dt>
+    <dd>
+    get the value of a macro.
+    The macro substitution must either be a
+ a string or a single token.
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>name</em></code>:  existing macro name</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        a string value, or nil if the macro does not exist.
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "push_macro_stack"></a>
+    <strong>push_macro_stack&nbsp;(name, value)</strong>
+    </dt>
+    <dd>
+    push a value on the stack associated with a macro.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>name</em></code>:  macro name</li>
+       <li><code><em>value</em></code>:  any value</li>
+    </ul>
+
+
+
+</dd>
+    <dt>
+    <a name = "pop_macro_stack"></a>
+    <strong>pop_macro_stack&nbsp;(name)</strong>
+    </dt>
+    <dd>
+    pop a value from a macro stack.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>name</em></code>:  macro name</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        any value, if defined
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "value_of_macro_stack"></a>
+    <strong>value_of_macro_stack&nbsp;(name)</strong>
+    </dt>
+    <dd>
+    value of top of macro stack.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>name</em></code>:  macro name</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        any value, if defined
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "block_handler"></a>
+    <strong>block_handler&nbsp;(lev, action)</strong>
+    </dt>
+    <dd>
+    specify a block handler at a given level.
+    a block handler may indicate with an extra true return
+ that it wants to persist; it is passed the getter and the keyword
+ so we can get more specific end-of-block handlers.
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>lev</em></code>:  relative block level</li>
+       <li><code><em>action</em></code>:  will be called when the block reaches the level</li>
+    </ul>
+
+
+
+</dd>
+    <dt>
+    <a name = "keyword_handler"></a>
+    <strong>keyword_handler&nbsp;(word, action)</strong>
+    </dt>
+    <dd>
+    set a keyword handler.
+    Unlike macros, the keyword itself is always
+ passed through, but the handler may add some output afterwards.
+ If the action is nil, then the handler for that keyword is removed.
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>word</em></code>:  keyword</li>
+       <li><code><em>action</em></code>:  function to be called when keyword is encountered</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        previous handler associated with this keyword
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "scoped_keyword_handler"></a>
+    <strong>scoped_keyword_handler&nbsp;(word, action, keyword)</strong>
+    </dt>
+    <dd>
+    set a scoped keyword handler.
+    Like keyword_handler, except
+ it restores the original keyword handler (if any) at the end
+ of the current block.
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>word</em></code>:  keyword</li>
+       <li><code><em>action</em></code>:  to be called when keyword is encountered</li>
+       <li><code><em>keyword</em></code>: 
+
+</li>
+    </ul>
+
+
+
+    <h3>see also:</h3>
+    <ul>
+         <a href="macro.html#keyword_handler">keyword_handler</a>
+    </ul>
+</dd>
+    <dt>
+    <a name = "error"></a>
+    <strong>error&nbsp;(msg)</strong>
+    </dt>
+    <dd>
+    macro error messages.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>msg</em></code>:  the message: will also have file:line.</li>
+    </ul>
+
+
+
+</dd>
+    <dt>
+    <a name = "assert"></a>
+    <strong>assert&nbsp;(expr, msg)</strong>
+    </dt>
+    <dd>
+    macro error assert.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>expr</em></code>:  an expression.</li>
+       <li><code><em>msg</em></code>:  a message</li>
+    </ul>
+
+
+
+</dd>
+    <dt>
+    <a name = "substitute"></a>
+    <strong>substitute&nbsp;(src, out, name, use_c)</strong>
+    </dt>
+    <dd>
+    do a macro substitution on Lua source.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>src</em></code>:  Lua source (either string or file-like reader)</li>
+       <li><code><em>out</em></code>:  output (a file-like writer)</li>
+       <li><code><em>name</em></code>:  input file name</li>
+       <li><code><em>use_c</em></code>:  nil for Lua; if 'line', then output #line directives; if true, then don't</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>the result as table of strings</li>
+        <li>line number information</li>
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "substitute_tostring"></a>
+    <strong>substitute_tostring&nbsp;(src, name, use_c, throw)</strong>
+    </dt>
+    <dd>
+    take some Lua source and return the result of the substitution.
+    Does not raise any errors.
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>src</em></code>:  either a string or a readable file object</li>
+       <li><code><em>name</em></code>:  optional name for the chunk</li>
+       <li><code><em>use_c</em></code>: 
+
+</li>
+       <li><code><em>throw</em></code>: 
+
+</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>the result or nil</li>
+        <li>the error, if error</li>
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "load"></a>
+    <strong>load&nbsp;(src, name, env)</strong>
+    </dt>
+    <dd>
+    load Lua code in a given envrionment after passing
+ through the macro preprocessor.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>src</em></code>:  either a string or a readable file object</li>
+       <li><code><em>name</em></code>:  optional name for the chunk</li>
+       <li><code><em>env</em></code>:  the environment (may be nil)</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>the cnunk, or nil</li>
+        <li>the error, if no chunk</li>
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "eval"></a>
+    <strong>eval&nbsp;(src, env)</strong>
+    </dt>
+    <dd>
+    evaluate Lua macro code in a given environment.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>src</em></code>:  either a string or a readable file object</li>
+       <li><code><em>env</em></code>:  the environment (can be nil)</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>true if succeeded</li>
+        <li>result(s)</li>
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "set_package_loader"></a>
+    <strong>set_package_loader&nbsp;(ext)</strong>
+    </dt>
+    <dd>
+    Make <code>require</code> use macro expansion for a given extension.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>ext</em></code>:  the extension - default is 'm.lua'</li>
+    </ul>
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
+

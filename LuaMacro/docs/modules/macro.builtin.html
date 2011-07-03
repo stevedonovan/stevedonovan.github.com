@@ -1,0 +1,345 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+<div id="main">
+
+
+<!-- Menu -->
+
+
+<div id="navigation">
+<h1>LuaMacro</h1>
+<ul>
+  <li><a href="../api.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Macros">Macros</a></li>
+</ul>
+
+<h2>Modules</h2>
+<ul>
+  <li><a href="macro.html">macro</a></li>
+  <li><a href="macro.Getter.html">macro.Getter</a></li>
+  <li><a href="macro.TokenList.html">macro.TokenList</a></li>
+  <li><a href="macro.assert.html">macro.assert</a></li>
+  <li><strong>macro.builtin</strong></li>
+  <li><a href="macro.clexer.html">macro.clexer</a></li>
+  <li><a href="macro.do.html">macro.do</a></li>
+  <li><a href="macro.forall.html">macro.forall</a></li>
+  <li><a href="macro.lambda.html">macro.lambda</a></li>
+  <li><a href="macro.lc.html">macro.lc</a></li>
+  <li><a href="macro.lexer.html">macro.lexer</a></li>
+  <li><a href="macro.lib.class.html">macro.lib.class</a></li>
+  <li><a href="macro.libs.test.html">macro.libs.test</a></li>
+  <li><a href="macro.module.html">macro.module</a></li>
+  <li><a href="macro.try.html">macro.try</a></li>
+  <li><a href="macro.with.html">macro.with</a></li>
+</ul>
+<h2>Scripts</h2>
+<ul>
+  <li><a href="../scripts/luam.html">luam</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+
+<h1>Module <code>macro.builtin</code></h1>
+
+
+<p>LuaMacro built-in macros.</p>
+<p></p>
+
+<h2><a href="#Macros">Macros</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#def_">def_</a></td>
+	<td class="summary">a macro for defining lexically scoped simple macros.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#define_">define_</a></td>
+	<td class="summary">a global version of <code>def_</code>.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#set_">set_</a></td>
+	<td class="summary">set the value of an existing macro.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#undef_">undef_</a></td>
+	<td class="summary">undefining identifier macros.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#_END_">_END_</a></td>
+	<td class="summary">Insert text after current block end.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#_END_END_">_END_END_</a></td>
+	<td class="summary">insert an end after the next closing block.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#_END_CLOSE_">_END_CLOSE_</a></td>
+	<td class="summary">insert a closing parens after next closing block.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#_STR_">_STR_</a></td>
+	<td class="summary">'stringizing' macro.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#_PUSH_">_PUSH_</a></td>
+	<td class="summary">push a value onto a given macro' stack.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#_POP_">_POP_</a></td>
+	<td class="summary">pop a value from a macro's stack.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#_DROP_">_DROP_</a></td>
+	<td class="summary">drop the top of a macro's stack.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#require_">require_</a></td>
+	<td class="summary">Load a Lua module immediately.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#include_">include_</a></td>
+	<td class="summary">Include the contents of a file.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+    <h2><a name="Macros"></a>Macros</h2>
+    
+    <dl class="function">
+    <dt>
+    <a name = "def_"></a>
+    <strong>def_</strong>
+    </dt>
+    <dd>
+    a macro for defining lexically scoped simple macros.
+    def_ may be followed by an arglist, and the substitution is the
+ rest of the line.
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <li><pre class="example">def_ block (function() _END_CLOSE_</pre></li>
+        <li><pre class="example">def_ sqr(x) ((x)*(x))</pre></li>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "define_"></a>
+    <strong>define_</strong>
+    </dt>
+    <dd>
+    a global version of <code>def_</code>.
+    
+
+
+
+
+    <h3>see also:</h3>
+    <ul>
+         <a href="macro.builtin.html#def_">def_</a>
+    </ul>
+</dd>
+    <dt>
+    <a name = "set_"></a>
+    <strong>set_</strong>
+    </dt>
+    <dd>
+    set the value of an existing macro.
+    the name and value follows immediately, and the value must be
+ a single token
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <li><pre class="example">set_ T 'string'</pre></li>
+        <li><pre class="example">set_ F function</pre></li>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "undef_"></a>
+    <strong>undef_</strong>
+    </dt>
+    <dd>
+    undefining identifier macros.
+    
+
+
+
+
+</dd>
+    <dt>
+    <a name = "_END_"></a>
+    <strong>_END_</strong>
+    </dt>
+    <dd>
+    Insert text after current block end.
+    <code>_END_</code> is followed by a quoted string
+ and is used to insert that string after the current block closes.
+
+
+
+
+</dd>
+    <dt>
+    <a name = "_END_END_"></a>
+    <strong>_END_END_</strong>
+    </dt>
+    <dd>
+    insert an end after the next closing block.
+    
+
+
+
+
+    <h3>see also:</h3>
+    <ul>
+         <a href="macro.builtin.html#_END_">_END_</a>
+    </ul>
+</dd>
+    <dt>
+    <a name = "_END_CLOSE_"></a>
+    <strong>_END_CLOSE_</strong>
+    </dt>
+    <dd>
+    insert a closing parens after next closing block.
+    
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">def_ begin (function() _END_CLOSE_
+ fun begin ... end --> fun (function() ... end)</pre>
+    </ul>
+
+
+    <h3>see also:</h3>
+    <ul>
+         <a href="macro.builtin.html#_END_">_END_</a>
+    </ul>
+</dd>
+    <dt>
+    <a name = "_STR_"></a>
+    <strong>_STR_</strong>
+    </dt>
+    <dd>
+    'stringizing' macro.
+    Will convert its argument into a string.
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">def_ _assert(x) assert(x,_STR_(x))</pre>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "_PUSH_"></a>
+    <strong>_PUSH_</strong>
+    </dt>
+    <dd>
+    push a value onto a given macro' stack.
+    
+
+
+
+
+</dd>
+    <dt>
+    <a name = "_POP_"></a>
+    <strong>_POP_</strong>
+    </dt>
+    <dd>
+    pop a value from a macro's stack.
+    
+
+
+
+
+    <h3>see also:</h3>
+    <ul>
+         <a href="macro.builtin.html#_PUSH_">_PUSH_</a>
+    </ul>
+</dd>
+    <dt>
+    <a name = "_DROP_"></a>
+    <strong>_DROP_</strong>
+    </dt>
+    <dd>
+    drop the top of a macro's stack.
+    Like <code>_POP_</code>, except that it does not return the value
+
+
+
+
+    <h3>see also:</h3>
+    <ul>
+         <a href="macro.builtin.html#_POP_">_POP_</a>
+    </ul>
+</dd>
+    <dt>
+    <a name = "require_"></a>
+    <strong>require_</strong>
+    </dt>
+    <dd>
+    Load a Lua module immediately.
+    This allows macro definitions to
+ to be loaded before the rest of the file is parsed.
+ If the module returns a function, then this is assumed to be a
+ substitution function, allowing macro modules to insert code
+ at this point.
+
+
+
+
+</dd>
+    <dt>
+    <a name = "include_"></a>
+    <strong>include_</strong>
+    </dt>
+    <dd>
+    Include the contents of a file.
+    This inserts the file directly
+ into the token stream, and is equivalent to cpp's <code>#include</code> directive.
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
+
