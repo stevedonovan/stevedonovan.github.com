@@ -31,7 +31,7 @@
 <li><a href="#Text_encoding">Text encoding</a></li>
 <li><a href="#Class_Window">Class Window</a></li>
 <li><a href="#Manipulating_Windows">Manipulating Windows</a></li>
-<li><a href="#Miscelaneous_functions">Miscelaneous functions</a></li>
+<li><a href="#Miscellaneous_functions">Miscellaneous functions</a></li>
 <li><a href="#Class_Process">Class Process</a></li>
 <li><a href="#Working_with_processes">Working with processes</a></li>
 <li><a href="#Class_Thread">Class Thread</a></li>
@@ -39,7 +39,7 @@
 <li><a href="#Launching_processes">Launching processes</a></li>
 <li><a href="#Asynchronous_Timers">Asynchronous Timers</a></li>
 <li><a href="#Dealing_with_named_pipes">Dealing with named pipes</a></li>
-<li><a href="#Drive_information_and_watching_directories">Drive information and watching directories</a></li>
+<li><a href="#Drive_information_and_directories">Drive information and directories</a></li>
 <li><a href="#Class_regkey">Class regkey</a></li>
 <li><a href="#Registry_Functions">Registry Functions</a></li>
 <li><a href="#Constants">Constants</a></li>
@@ -83,6 +83,10 @@
 	<tr>
 	<td class="name" nowrap><a href="#encode">encode&nbsp;(e_in, e_out, text)</a></td>
 	<td class="summary">encode a string in another encoding.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#uexpand">uexpand&nbsp;(text)</a></td>
+	<td class="summary">expand unicode escapes in a string.</td>
 	</tr>
 </table>
 <h2><a href="#Class_Window">Class Window</a></h2>
@@ -207,7 +211,7 @@
 	<td class="summary">tile a group of windows.</td>
 	</tr>
 </table>
-<h2><a href="#Miscelaneous_functions">Miscelaneous functions</a></h2>
+<h2><a href="#Miscellaneous_functions">Miscellaneous functions</a></h2>
 <table class="function_list">
 	<tr>
 	<td class="name" nowrap><a href="#sleep">sleep&nbsp;(millisec)</a></td>
@@ -232,10 +236,6 @@
 	<tr>
 	<td class="name" nowrap><a href="#shell_exec">shell_exec&nbsp;(verb, file, parms, dir, show)</a></td>
 	<td class="summary">execute a shell command.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#setenv">setenv&nbsp;(name, value)</a></td>
-	<td class="summary">set an environment variable for this process.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#set_clipboard">set_clipboard&nbsp;(text)</a></td>
@@ -349,12 +349,20 @@
 <h2><a href="#Launching_processes">Launching processes</a></h2>
 <table class="function_list">
 	<tr>
+	<td class="name" nowrap><a href="#setenv">setenv&nbsp;(name, value)</a></td>
+	<td class="summary">set an environment variable for any child processes.</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#spawn">spawn&nbsp;(program, dir)</a></td>
 	<td class="summary">Spawn a process.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#execute">execute&nbsp;(cmd)</a></td>
 	<td class="summary">Execute a system command.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#execute_unicode">execute_unicode&nbsp;(cmd)</a></td>
+	<td class="summary">execute a system command in Unicode mode.</td>
 	</tr>
 </table>
 <h2><a href="#Asynchronous_Timers">Asynchronous Timers</a></h2>
@@ -375,8 +383,36 @@
 	<td class="summary">Create a named pipe server.</td>
 	</tr>
 </table>
-<h2><a href="#Drive_information_and_watching_directories">Drive information and watching directories</a></h2>
+<h2><a href="#Drive_information_and_directories">Drive information and directories</a></h2>
 <table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#short_path_name">short_path_name&nbsp;(path)</a></td>
+	<td class="summary">the short path name of a directory or file.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#tmpname">tmpname&nbsp;()</a></td>
+	<td class="summary">get a temporary filename.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#delete">delete&nbsp;(file)</a></td>
+	<td class="summary">delete a file or directory.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#mkdir">mkdir&nbsp;()</a></td>
+	<td class="summary">make a directory.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#rmdir">rmdir&nbsp;(dir, tree)</a></td>
+	<td class="summary">remove a directory.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#get_files">get_files&nbsp;(mask, subdirs, attrib)</a></td>
+	<td class="summary">iterator over directory contents.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#get_dirs">get_dirs&nbsp;(file, subdirs)</a></td>
+	<td class="summary">iterate over subdirectories</td>
+	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#get_logical_drives">get_logical_drives&nbsp;()</a></td>
 	<td class="summary">get all the drives on this computer.</td>
@@ -480,16 +516,36 @@
     </dt>
     <dd>
     encode a string in another encoding.
-    Note: currently there's a limit of about 1K on the string buffer.
+    Note: currently there's a limit of about 2K on the string buffer.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>e_in</em></code>:  <code>CP_ACP</code> or <code>CP_UTF8</code></li>
-       <li><code><em>e_out</em></code>:  <code>CP_UTF8</code> or <code>CP_ACP</code></li>
+       <li><code><em>e_in</em></code>:  <code>CP_ACP</code>, <code>CP_UTF8</code> or <code>CP_UTF16</code></li>
+       <li><code><em>e_out</em></code>:  likewise</li>
        <li><code><em>text</em></code>:  the string</li>
     </ul>
 
 
+
+</dd>
+    <dt>
+    <a name = "uexpand"></a>
+    <strong>uexpand&nbsp;(text)</strong>
+    </dt>
+    <dd>
+    expand unicode escapes in a string.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>text</em></code>:  ASCII text with %uXXXX, where XXXX is four hex digits. %% means % itself.</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        text as UTF-8
+    </ol>
 
 </dd>
 </dl>
@@ -966,7 +1022,7 @@
 
 </dd>
 </dl>
-    <h2><a name="Miscelaneous_functions"></a>Miscelaneous functions</h2>
+    <h2><a name="Miscellaneous_functions"></a>Miscellaneous functions</h2>
     
     <dl class="function">
     <dt>
@@ -1076,26 +1132,6 @@
        <li><code><em>parms</em></code>:  any parameters (optional)</li>
        <li><code><em>dir</em></code>:  the working directory (optional)</li>
        <li><code><em>show</em></code>:  the window show flags (default is SW_SHOWNORMAL)</li>
-    </ul>
-
-
-
-</dd>
-    <dt>
-    <a name = "setenv"></a>
-    <strong>setenv&nbsp;(name, value)</strong>
-    </dt>
-    <dd>
-    set an environment variable for this process.
-    Any child process inherits the environment.
- Note that this can't affect any system environment variables, see
- <a href="http://msdn.microsoft.com/en-us/library/ms682653%28VS.85%29.aspx">here</a>
- for how to set these.
-
-    <h3>Parameters:</h3>
-    <ul>
-       <li><code><em>name</em></code>:  name of variable</li>
-       <li><code><em>value</em></code>:  value to set</li>
     </ul>
 
 
@@ -1502,6 +1538,25 @@
     
     <dl class="function">
     <dt>
+    <a name = "setenv"></a>
+    <strong>setenv&nbsp;(name, value)</strong>
+    </dt>
+    <dd>
+    set an environment variable for any child processes.
+    Note that this can't affect any system environment variables, see
+ <a href="http://msdn.microsoft.com/en-us/library/ms682653%28VS.85%29.aspx">here</a>
+ for how to set these.
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>name</em></code>:  name of variable</li>
+       <li><code><em>value</em></code>:  value to set</li>
+    </ul>
+
+
+
+</dd>
+    <dt>
     <a name = "spawn"></a>
     <strong>spawn&nbsp;(program, dir)</strong>
     </dt>
@@ -1548,6 +1603,27 @@
     <ol>
         <li>status code</li>
         <li>program output</li>
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "execute_unicode"></a>
+    <strong>execute_unicode&nbsp;(cmd)</strong>
+    </dt>
+    <dd>
+    execute a system command in Unicode mode.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>cmd</em></code>:  a built-in command like dir</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>return code</li>
+        <li>text as UTF-8</li>
     </ol>
 
 </dd>
@@ -1621,9 +1697,131 @@
 
 </dd>
 </dl>
-    <h2><a name="Drive_information_and_watching_directories"></a>Drive information and watching directories</h2>
+    <h2><a name="Drive_information_and_directories"></a>Drive information and directories</h2>
     
     <dl class="function">
+    <dt>
+    <a name = "short_path_name"></a>
+    <strong>short_path_name&nbsp;(path)</strong>
+    </dt>
+    <dd>
+    the short path name of a directory or file.
+    This is always in ASCII, 8.3 format. This function will create the
+ file first if it does not exist; the result can be used to open
+ files with unicode names.
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>path</em></code>:  multibyte encoded file path</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        ASCII 8.3 format file path
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "tmpname"></a>
+    <strong>tmpname&nbsp;()</strong>
+    </dt>
+    <dd>
+    get a temporary filename.
+    (Don't use os.tmpname)
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+        full path within temporary files directory.
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "delete"></a>
+    <strong>delete&nbsp;(file)</strong>
+    </dt>
+    <dd>
+    delete a file or directory.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>file</em></code>:  may be a wildcard</li>
+    </ul>
+
+
+
+</dd>
+    <dt>
+    <a name = "mkdir"></a>
+    <strong>mkdir&nbsp;()</strong>
+    </dt>
+    <dd>
+    make a directory.
+    Will make necessary subpaths if command extensions are enabled.
+
+
+
+
+</dd>
+    <dt>
+    <a name = "rmdir"></a>
+    <strong>rmdir&nbsp;(dir, tree)</strong>
+    </dt>
+    <dd>
+    remove a directory.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>dir</em></code>:  the directory</li>
+       <li><code><em>tree</em></code>:  if true, clean out the directory tree</li>
+    </ul>
+
+
+
+</dd>
+    <dt>
+    <a name = "get_files"></a>
+    <strong>get_files&nbsp;(mask, subdirs, attrib)</strong>
+    </dt>
+    <dd>
+    iterator over directory contents.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>mask</em></code>:  a file mask like "*.txt"</li>
+       <li><code><em>subdirs</em></code>:  iterate over subdirectories (default no)</li>
+       <li><code><em>attrib</em></code>:  iterate over items with given attribute (as in dir /A:)</li>
+    </ul>
+
+
+
+</dd>
+    <dt>
+    <a name = "get_dirs"></a>
+    <strong>get_dirs&nbsp;(file, subdirs)</strong>
+    </dt>
+    <dd>
+    iterate over subdirectories
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>file</em></code>:  mask like "mydirs\t*"</li>
+       <li><code><em>subdirs</em></code>:  iterate over subdirectories (default no)</li>
+    </ul>
+
+
+
+    <h3>see also:</h3>
+    <ul>
+         <a href="winapi.html#get_files">get_files</a>
+    </ul>
+</dd>
     <dt>
     <a name = "get_logical_drives"></a>
     <strong>get_logical_drives&nbsp;()</strong>
