@@ -40,7 +40,7 @@
 <li><a href="#Asynchronous_Timers">Asynchronous Timers</a></li>
 <li><a href="#Dealing_with_named_pipes">Dealing with named pipes</a></li>
 <li><a href="#Drive_information_and_directories">Drive information and directories</a></li>
-<li><a href="#Class_regkey">Class regkey</a></li>
+<li><a href="#Class_Regkey">Class Regkey</a></li>
 <li><a href="#Registry_Functions">Registry Functions</a></li>
 <li><a href="#Constants">Constants</a></li>
 </ul>
@@ -85,14 +85,14 @@
 	<td class="summary">encode a string in another encoding.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#uexpand">uexpand&nbsp;(text)</a></td>
-	<td class="summary">expand unicode escapes in a string.</td>
+	<td class="name" nowrap><a href="#utf8_expand">utf8_expand&nbsp;(text)</a></td>
+	<td class="summary">expand # unicode escapes in a string.</td>
 	</tr>
 </table>
 <h2><a href="#Class_Window">Class Window</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#Window.handle">Window.handle&nbsp;()</a></td>
+	<td class="name" nowrap><a href="#Window.get_handle">Window.get_handle&nbsp;()</a></td>
 	<td class="summary">the handle of this window.</td>
 	</tr>
 	<tr>
@@ -105,7 +105,7 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#Window.show">Window.show&nbsp;(flags)</a></td>
-	<td class="summary">Change the visibility, state etc</td>
+	<td class="summary">change the visibility, state etc</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#Window.get_position">Window.get_position&nbsp;()</a></td>
@@ -167,11 +167,11 @@
 	<td class="summary">find a window based on classname and caption</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#match_name">match_name&nbsp;(text)</a></td>
+	<td class="name" nowrap><a href="#make_name_matcher">make_name_matcher&nbsp;(text)</a></td>
 	<td class="summary">makes a function that matches against window text</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#match_class">match_class&nbsp;(text)</a></td>
+	<td class="name" nowrap><a href="#make_class_matcher">make_class_matcher&nbsp;(text)</a></td>
 	<td class="summary">makes a function that matches against window class name</td>
 	</tr>
 	<tr>
@@ -187,11 +187,11 @@
 	<td class="summary">find a window matching the given text.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#foreground_window">foreground_window&nbsp;()</a></td>
-	<td class="summary">currently foreground window.</td>
+	<td class="name" nowrap><a href="#get_foreground_window">get_foreground_window&nbsp;()</a></td>
+	<td class="summary">current foreground window.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#desktop_window">desktop_window&nbsp;()</a></td>
+	<td class="name" nowrap><a href="#get_desktop_window">get_desktop_window&nbsp;()</a></td>
 	<td class="summary">the desktop window.</td>
 	</tr>
 	<tr>
@@ -203,7 +203,7 @@
 	<td class="summary">route callback dispatch through a message window.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#send_input">send_input&nbsp;(text)</a></td>
+	<td class="name" nowrap><a href="#send_to_window">send_to_window&nbsp;(text)</a></td>
 	<td class="summary">send a string or virtual key to the active window.</td>
 	</tr>
 	<tr>
@@ -239,11 +239,11 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#set_clipboard">set_clipboard&nbsp;(text)</a></td>
-	<td class="summary">Copy text onto the clipboard.</td>
+	<td class="summary">copy text onto the clipboard.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#get_clipboard">get_clipboard&nbsp;()</a></td>
-	<td class="summary">Get the text on the clipboard.</td>
+	<td class="summary">get the text on the clipboard.</td>
 	</tr>
 </table>
 <h2><a href="#Class_Process">Class Process</a></h2>
@@ -257,15 +257,15 @@
 	<td class="summary">kill the process.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Process.working_size">Process.working_size&nbsp;()</a></td>
+	<td class="name" nowrap><a href="#Process.get_working_size">Process.get_working_size&nbsp;()</a></td>
 	<td class="summary">get the working size of the process.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Process.start_time">Process.start_time&nbsp;()</a></td>
+	<td class="name" nowrap><a href="#Process.get_start_time">Process.get_start_time&nbsp;()</a></td>
 	<td class="summary">get the start time of this process.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Process.run_times">Process.run_times&nbsp;()</a></td>
+	<td class="name" nowrap><a href="#Process.get_run_times">Process.get_run_times&nbsp;()</a></td>
 	<td class="summary">elapsed run time of this process.</td>
 	</tr>
 	<tr>
@@ -277,7 +277,7 @@
 	<td class="summary">wait for this process to become idle and ready for input.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Process.exit_code">Process.exit_code&nbsp;()</a></td>
+	<td class="name" nowrap><a href="#Process.get_exit_code">Process.get_exit_code&nbsp;()</a></td>
 	<td class="summary">exit code of this process.</td>
 	</tr>
 	<tr>
@@ -288,16 +288,16 @@
 <h2><a href="#Working_with_processes">Working with processes</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#process">process&nbsp;(pid)</a></td>
-	<td class="summary">Create a process object from the id.</td>
+	<td class="name" nowrap><a href="#Process">Process&nbsp;(pid)</a></td>
+	<td class="summary">create a process object from the id.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#current_pid">current_pid&nbsp;()</a></td>
-	<td class="summary">Process id of current process.</td>
+	<td class="name" nowrap><a href="#get_current_pid">get_current_pid&nbsp;()</a></td>
+	<td class="summary">process id of current process.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#current_process">current_process&nbsp;()</a></td>
-	<td class="summary">Process object of the current process.</td>
+	<td class="name" nowrap><a href="#get_current_process">get_current_process&nbsp;()</a></td>
+	<td class="summary">process object of the current process.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#get_processes">get_processes&nbsp;()</a></td>
@@ -305,7 +305,7 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#wait_for_processes">wait_for_processes&nbsp;(processes, all, timeout)</a></td>
-	<td class="summary">Wait for a group of processes</td>
+	<td class="summary">wait for a group of processes</td>
 	</tr>
 </table>
 <h2><a href="#Class_Thread">Class Thread</a></h2>
@@ -353,22 +353,18 @@
 	<td class="summary">set an environment variable for any child processes.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#spawn">spawn&nbsp;(program, dir)</a></td>
+	<td class="name" nowrap><a href="#spawn_process">spawn_process&nbsp;(program, dir)</a></td>
 	<td class="summary">Spawn a process.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#execute">execute&nbsp;(cmd)</a></td>
-	<td class="summary">Execute a system command.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#execute_unicode">execute_unicode&nbsp;(cmd)</a></td>
-	<td class="summary">execute a system command in Unicode mode.</td>
+	<td class="name" nowrap><a href="#execute">execute&nbsp;(cmd, unicode)</a></td>
+	<td class="summary">execute a system command.</td>
 	</tr>
 </table>
 <h2><a href="#Asynchronous_Timers">Asynchronous Timers</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#timer">timer&nbsp;(msec, callback)</a></td>
+	<td class="name" nowrap><a href="#make_timer">make_timer&nbsp;(msec, callback)</a></td>
 	<td class="summary">Create an asynchronous timer.</td>
 	</tr>
 </table>
@@ -376,33 +372,33 @@
 <table class="function_list">
 	<tr>
 	<td class="name" nowrap><a href="#open_pipe">open_pipe&nbsp;(pipename)</a></td>
-	<td class="summary">Open a pipe for reading and writing.</td>
+	<td class="summary">open a pipe for reading and writing.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#server">server&nbsp;(callback, pipename)</a></td>
-	<td class="summary">Create a named pipe server.</td>
+	<td class="name" nowrap><a href="#make_pipe_server">make_pipe_server&nbsp;(callback, pipename)</a></td>
+	<td class="summary">create a named pipe server.</td>
 	</tr>
 </table>
 <h2><a href="#Drive_information_and_directories">Drive information and directories</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#short_path_name">short_path_name&nbsp;(path)</a></td>
+	<td class="name" nowrap><a href="#short_path">short_path&nbsp;(path)</a></td>
 	<td class="summary">the short path name of a directory or file.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#tmpname">tmpname&nbsp;()</a></td>
+	<td class="name" nowrap><a href="#temp_name">temp_name&nbsp;()</a></td>
 	<td class="summary">get a temporary filename.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#delete">delete&nbsp;(file)</a></td>
+	<td class="name" nowrap><a href="#delete_file_or_dir">delete_file_or_dir&nbsp;(file)</a></td>
 	<td class="summary">delete a file or directory.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#mkdir">mkdir&nbsp;()</a></td>
+	<td class="name" nowrap><a href="#make_dir">make_dir&nbsp;()</a></td>
 	<td class="summary">make a directory.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#rmdir">rmdir&nbsp;(dir, tree)</a></td>
+	<td class="name" nowrap><a href="#remove_dir">remove_dir&nbsp;(dir, tree)</a></td>
 	<td class="summary">remove a directory.</td>
 	</tr>
 	<tr>
@@ -434,33 +430,33 @@
 	<td class="summary">start watching a directory.</td>
 	</tr>
 </table>
-<h2><a href="#Class_regkey">Class regkey</a></h2>
+<h2><a href="#Class_Regkey">Class Regkey</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#regkey.set_value">regkey.set_value&nbsp;(name, val)</a></td>
+	<td class="name" nowrap><a href="#Regkey.set_value">Regkey.set_value&nbsp;(name, val)</a></td>
 	<td class="summary">set the string value of a name.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#regkey.get_value">regkey.get_value&nbsp;(name)</a></td>
+	<td class="name" nowrap><a href="#Regkey.get_value">Regkey.get_value&nbsp;(name)</a></td>
 	<td class="summary">get the value and type of a name.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#regkey.get_keys">regkey.get_keys&nbsp;()</a></td>
+	<td class="name" nowrap><a href="#Regkey.get_keys">Regkey.get_keys&nbsp;()</a></td>
 	<td class="summary">enumerate the subkeys of a key.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#regkey.close">regkey.close&nbsp;()</a></td>
+	<td class="name" nowrap><a href="#Regkey.close">Regkey.close&nbsp;()</a></td>
 	<td class="summary">close this key.</td>
 	</tr>
 </table>
 <h2><a href="#Registry_Functions">Registry Functions</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#open_key">open_key&nbsp;(path, writeable)</a></td>
+	<td class="name" nowrap><a href="#open_reg_key">open_reg_key&nbsp;(path, writeable)</a></td>
 	<td class="summary">Open a registry key.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#create_key">create_key&nbsp;(path)</a></td>
+	<td class="name" nowrap><a href="#create_reg_key">create_reg_key&nbsp;(path)</a></td>
 	<td class="summary">Create a registry key.</td>
 	</tr>
 </table>
@@ -529,16 +525,16 @@
 
 </dd>
     <dt>
-    <a name = "uexpand"></a>
-    <strong>uexpand&nbsp;(text)</strong>
+    <a name = "utf8_expand"></a>
+    <strong>utf8_expand&nbsp;(text)</strong>
     </dt>
     <dd>
-    expand unicode escapes in a string.
+    expand # unicode escapes in a string.
     
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>text</em></code>:  ASCII text with %uXXXX, where XXXX is four hex digits. %% means % itself.</li>
+       <li><code><em>text</em></code>:  ASCII text with #XXXX, where XXXX is four hex digits. ## means # itself.</li>
     </ul>
 
 
@@ -553,8 +549,8 @@
     
     <dl class="function">
     <dt>
-    <a name = "Window.handle"></a>
-    <strong>Window.handle&nbsp;()</strong>
+    <a name = "Window.get_handle"></a>
+    <strong>Window.get_handle&nbsp;()</strong>
     </dt>
     <dd>
     the handle of this window.
@@ -593,7 +589,7 @@
     <strong>Window.show&nbsp;(flags)</strong>
     </dt>
     <dd>
-    Change the visibility, state etc
+    change the visibility, state etc
     
 
     <h3>Parameters:</h3>
@@ -822,8 +818,8 @@
 
 </dd>
     <dt>
-    <a name = "match_name"></a>
-    <strong>match_name&nbsp;(text)</strong>
+    <a name = "make_name_matcher"></a>
+    <strong>make_name_matcher&nbsp;(text)</strong>
     </dt>
     <dd>
     makes a function that matches against window text
@@ -840,8 +836,8 @@
 
 </dd>
     <dt>
-    <a name = "match_class"></a>
-    <strong>match_class&nbsp;(text)</strong>
+    <a name = "make_class_matcher"></a>
+    <strong>make_class_matcher&nbsp;(text)</strong>
     </dt>
     <dd>
     makes a function that matches against window class name
@@ -918,11 +914,11 @@
 
 </dd>
     <dt>
-    <a name = "foreground_window"></a>
-    <strong>foreground_window&nbsp;()</strong>
+    <a name = "get_foreground_window"></a>
+    <strong>get_foreground_window&nbsp;()</strong>
     </dt>
     <dd>
-    currently foreground window.
+    current foreground window.
     
 
 
@@ -934,8 +930,8 @@
 
 </dd>
     <dt>
-    <a name = "desktop_window"></a>
-    <strong>desktop_window&nbsp;()</strong>
+    <a name = "get_desktop_window"></a>
+    <strong>get_desktop_window&nbsp;()</strong>
     </dt>
     <dd>
     the desktop window.
@@ -944,7 +940,7 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">winapi.desktop_window():get_bounds()</pre>
+        <pre class="example">winapi.get_desktop_window():get_bounds()</pre>
     </ul>
 
     <h3>Returns:</h3>
@@ -982,8 +978,8 @@
 
 </dd>
     <dt>
-    <a name = "send_input"></a>
-    <strong>send_input&nbsp;(text)</strong>
+    <a name = "send_to_window"></a>
+    <strong>send_to_window&nbsp;(text)</strong>
     </dt>
     <dd>
     send a string or virtual key to the active window.
@@ -1142,7 +1138,7 @@
     <strong>set_clipboard&nbsp;(text)</strong>
     </dt>
     <dd>
-    Copy text onto the clipboard.
+    copy text onto the clipboard.
     
 
     <h3>Parameters:</h3>
@@ -1158,7 +1154,7 @@
     <strong>get_clipboard&nbsp;()</strong>
     </dt>
     <dd>
-    Get the text on the clipboard.
+    get the text on the clipboard.
     
 
 
@@ -1202,8 +1198,8 @@
 
 </dd>
     <dt>
-    <a name = "Process.working_size"></a>
-    <strong>Process.working_size&nbsp;()</strong>
+    <a name = "Process.get_working_size"></a>
+    <strong>Process.get_working_size&nbsp;()</strong>
     </dt>
     <dd>
     get the working size of the process.
@@ -1219,8 +1215,8 @@
 
 </dd>
     <dt>
-    <a name = "Process.start_time"></a>
-    <strong>Process.start_time&nbsp;()</strong>
+    <a name = "Process.get_start_time"></a>
+    <strong>Process.get_start_time&nbsp;()</strong>
     </dt>
     <dd>
     get the start time of this process.
@@ -1235,8 +1231,8 @@
 
 </dd>
     <dt>
-    <a name = "Process.run_times"></a>
-    <strong>Process.run_times&nbsp;()</strong>
+    <a name = "Process.get_run_times"></a>
+    <strong>Process.get_run_times&nbsp;()</strong>
     </dt>
     <dd>
     elapsed run time of this process.
@@ -1294,8 +1290,8 @@
 
 </dd>
     <dt>
-    <a name = "Process.exit_code"></a>
-    <strong>Process.exit_code&nbsp;()</strong>
+    <a name = "Process.get_exit_code"></a>
+    <strong>Process.get_exit_code&nbsp;()</strong>
     </dt>
     <dd>
     exit code of this process.
@@ -1326,11 +1322,11 @@
     
     <dl class="function">
     <dt>
-    <a name = "process"></a>
-    <strong>process&nbsp;(pid)</strong>
+    <a name = "Process"></a>
+    <strong>Process&nbsp;(pid)</strong>
     </dt>
     <dd>
-    Create a process object from the id.
+    create a process object from the id.
     
 
     <h3>Parameters:</h3>
@@ -1342,11 +1338,11 @@
 
 </dd>
     <dt>
-    <a name = "current_pid"></a>
-    <strong>current_pid&nbsp;()</strong>
+    <a name = "get_current_pid"></a>
+    <strong>get_current_pid&nbsp;()</strong>
     </dt>
     <dd>
-    Process id of current process.
+    process id of current process.
     
 
 
@@ -1354,11 +1350,11 @@
 
 </dd>
     <dt>
-    <a name = "current_process"></a>
-    <strong>current_process&nbsp;()</strong>
+    <a name = "get_current_process"></a>
+    <strong>get_current_process&nbsp;()</strong>
     </dt>
     <dd>
-    Process object of the current process.
+    process object of the current process.
     
 
 
@@ -1386,7 +1382,7 @@
     <strong>wait_for_processes&nbsp;(processes, all, timeout)</strong>
     </dt>
     <dd>
-    Wait for a group of processes
+    wait for a group of processes
     
 
     <h3>Parameters:</h3>
@@ -1557,8 +1553,8 @@
 
 </dd>
     <dt>
-    <a name = "spawn"></a>
-    <strong>spawn&nbsp;(program, dir)</strong>
+    <a name = "spawn_process"></a>
+    <strong>spawn_process&nbsp;(program, dir)</strong>
     </dt>
     <dd>
     Spawn a process.
@@ -1580,50 +1576,31 @@
     <h3>see also:</h3>
     <ul>
          <li><a href="winapi.html#Class_File">File</a></li>
-         <li><a href="winapi.html#Class_Process">Process</a></li>
+         <li><a href="winapi.html#Process">Process</a></li>
     </ul>
 </dd>
     <dt>
     <a name = "execute"></a>
-    <strong>execute&nbsp;(cmd)</strong>
+    <strong>execute&nbsp;(cmd, unicode)</strong>
     </dt>
     <dd>
-    Execute a system command.
-    This is like os.execute(), except that it works without ugly
+    execute a system command.
+    This is like <code>os.execute()</code>, except that it works without ugly
  console flashing in Windows GUI applications. It additionally
  returns all text read from stdout and stderr.
 
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>cmd</em></code>:  a shell command (may include redirection, etc)</li>
-    </ul>
-
-
-    <h3>Returns:</h3>
-    <ol>
-        <li>status code</li>
-        <li>program output</li>
-    </ol>
-
-</dd>
-    <dt>
-    <a name = "execute_unicode"></a>
-    <strong>execute_unicode&nbsp;(cmd)</strong>
-    </dt>
-    <dd>
-    execute a system command in Unicode mode.
-    
-
-    <h3>Parameters:</h3>
-    <ul>
-       <li><code><em>cmd</em></code>:  a built-in command like dir</li>
+       <li><code><em>unicode</em></code>:  if 'unicode' force built-in commands to output in unicode;
+ in this case the result is always UTF-8</li>
     </ul>
 
 
     <h3>Returns:</h3>
     <ol>
         <li>return code</li>
-        <li>text as UTF-8</li>
+        <li>program output</li>
     </ol>
 
 </dd>
@@ -1632,8 +1609,8 @@
     
     <dl class="function">
     <dt>
-    <a name = "timer"></a>
-    <strong>timer&nbsp;(msec, callback)</strong>
+    <a name = "make_timer"></a>
+    <strong>make_timer&nbsp;(msec, callback)</strong>
     </dt>
     <dd>
     Create an asynchronous timer.
@@ -1661,7 +1638,7 @@
     <strong>open_pipe&nbsp;(pipename)</strong>
     </dt>
     <dd>
-    Open a pipe for reading and writing.
+    open a pipe for reading and writing.
     
 
     <h3>Parameters:</h3>
@@ -1673,11 +1650,11 @@
 
 </dd>
     <dt>
-    <a name = "server"></a>
-    <strong>server&nbsp;(callback, pipename)</strong>
+    <a name = "make_pipe_server"></a>
+    <strong>make_pipe_server&nbsp;(callback, pipename)</strong>
     </dt>
     <dd>
-    Create a named pipe server.
+    create a named pipe server.
     This goes into a background loop, and accepts client connections.
  For each new connection, the callback will be called with a File
  object for reading and writing to the client.
@@ -1701,8 +1678,8 @@
     
     <dl class="function">
     <dt>
-    <a name = "short_path_name"></a>
-    <strong>short_path_name&nbsp;(path)</strong>
+    <a name = "short_path"></a>
+    <strong>short_path&nbsp;(path)</strong>
     </dt>
     <dd>
     the short path name of a directory or file.
@@ -1723,8 +1700,8 @@
 
 </dd>
     <dt>
-    <a name = "tmpname"></a>
-    <strong>tmpname&nbsp;()</strong>
+    <a name = "temp_name"></a>
+    <strong>temp_name&nbsp;()</strong>
     </dt>
     <dd>
     get a temporary filename.
@@ -1739,8 +1716,8 @@
 
 </dd>
     <dt>
-    <a name = "delete"></a>
-    <strong>delete&nbsp;(file)</strong>
+    <a name = "delete_file_or_dir"></a>
+    <strong>delete_file_or_dir&nbsp;(file)</strong>
     </dt>
     <dd>
     delete a file or directory.
@@ -1755,8 +1732,8 @@
 
 </dd>
     <dt>
-    <a name = "mkdir"></a>
-    <strong>mkdir&nbsp;()</strong>
+    <a name = "make_dir"></a>
+    <strong>make_dir&nbsp;()</strong>
     </dt>
     <dd>
     make a directory.
@@ -1767,8 +1744,8 @@
 
 </dd>
     <dt>
-    <a name = "rmdir"></a>
-    <strong>rmdir&nbsp;(dir, tree)</strong>
+    <a name = "remove_dir"></a>
+    <strong>remove_dir&nbsp;(dir, tree)</strong>
     </dt>
     <dd>
     remove a directory.
@@ -1798,6 +1775,10 @@
        <li><code><em>attrib</em></code>:  iterate over items with given attribute (as in dir /A:)</li>
     </ul>
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">for f in winapi.get_files 'dir\\*.txt' do print(f) end</pre>
+    </ul>
 
 
 </dd>
@@ -1943,12 +1924,12 @@
 
 </dd>
 </dl>
-    <h2><a name="Class_regkey"></a>Class regkey</h2>
+    <h2><a name="Class_Regkey"></a>Class Regkey</h2>
     
     <dl class="function">
     <dt>
-    <a name = "regkey.set_value"></a>
-    <strong>regkey.set_value&nbsp;(name, val)</strong>
+    <a name = "Regkey.set_value"></a>
+    <strong>Regkey.set_value&nbsp;(name, val)</strong>
     </dt>
     <dd>
     set the string value of a name.
@@ -1964,8 +1945,8 @@
 
 </dd>
     <dt>
-    <a name = "regkey.get_value"></a>
-    <strong>regkey.get_value&nbsp;(name)</strong>
+    <a name = "Regkey.get_value"></a>
+    <strong>Regkey.get_value&nbsp;(name)</strong>
     </dt>
     <dd>
     get the value and type of a name.
@@ -1985,8 +1966,8 @@
 
 </dd>
     <dt>
-    <a name = "regkey.get_keys"></a>
-    <strong>regkey.get_keys&nbsp;()</strong>
+    <a name = "Regkey.get_keys"></a>
+    <strong>Regkey.get_keys&nbsp;()</strong>
     </dt>
     <dd>
     enumerate the subkeys of a key.
@@ -2001,8 +1982,8 @@
 
 </dd>
     <dt>
-    <a name = "regkey.close"></a>
-    <strong>regkey.close&nbsp;()</strong>
+    <a name = "Regkey.close"></a>
+    <strong>Regkey.close&nbsp;()</strong>
     </dt>
     <dd>
     close this key.
@@ -2017,8 +1998,8 @@
     
     <dl class="function">
     <dt>
-    <a name = "open_key"></a>
-    <strong>open_key&nbsp;(path, writeable)</strong>
+    <a name = "open_reg_key"></a>
+    <strong>open_reg_key&nbsp;(path, writeable)</strong>
     </dt>
     <dd>
     Open a registry key.
@@ -2027,20 +2008,20 @@
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>path</em></code>:  the full registry key
- e.g [[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion]]</li>
+ e.g <code>[[HKEY\_LOCAL\_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion]]</code></li>
        <li><code><em>writeable</em></code>:  true if you want to set values</li>
     </ul>
 
 
     <h3>Returns:</h3>
     <ol>
-        a regkey object
+        a Regkey object
     </ol>
 
 </dd>
     <dt>
-    <a name = "create_key"></a>
-    <strong>create_key&nbsp;(path)</strong>
+    <a name = "create_reg_key"></a>
+    <strong>create_reg_key&nbsp;(path)</strong>
     </dt>
     <dd>
     Create a registry key.
@@ -2066,6 +2047,7 @@
 <ul>
     <li>CP_ACP, (valid values for encoding)</li>
     <li>CP_UTF8,</li>
+    <li>CP_UTF16,</li>
     <li>SW_HIDE, (Window operations for Window.show)</li>
     <li>SW_MAXIMIZE,</li>
     <li>SW_MINIMIZE,</li>
