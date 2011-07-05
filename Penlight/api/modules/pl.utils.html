@@ -2,7 +2,7 @@
    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
 <head>
-    <title>Reference</title>
+    <title>Penlight Documentation</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -22,7 +22,7 @@
 
 
 <div id="navigation">
-<h1>ldoc</h1>
+<h1>Penlight</h1>
 <ul>
   <li><a href="../index.html">Index</a></li>
 </ul>
@@ -30,6 +30,7 @@
 <h2>Contents</h2>
 <ul>
 <li><a href="#Functions">Functions</a></li>
+<li><a href="#Lua_5.2_Compatible_Functions">Lua 5.2 Compatible Functions</a></li>
 </ul>
 
 <h2>Modules</h2>
@@ -68,7 +69,6 @@
   <li><a href="pl.test.html">pl.test</a></li>
   <li><a href="pl.text.html">pl.text</a></li>
   <li><strong>pl.utils</strong></li>
-  <li><a href="platf.luajava.html">platf.luajava</a></li>
 </ul>
 
 </div>
@@ -129,6 +129,10 @@
 	<td class="summary">split a string into a number of values.</td>
 	</tr>
 	<tr>
+	<td class="name" nowrap><a href="#execute">execute&nbsp;(cmd)</a></td>
+	<td class="summary">execute a shell command.</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#memoize">memoize&nbsp;(func)</a></td>
 	<td class="summary">'memoize' a function (cache returned value for next call).</td>
 	</tr>
@@ -163,6 +167,17 @@
 	<tr>
 	<td class="name" nowrap><a href="#raise">raise&nbsp;(err)</a></td>
 	<td class="summary">used by Penlight functions to return errors.</td>
+	</tr>
+</table>
+<h2><a href="#Lua_5.2_Compatible_Functions">Lua 5.2 Compatible Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#load">load&nbsp;(code, name, mode, env)</a></td>
+	<td class="summary">load a code string or bytecode chunk.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#table.pack">table.pack&nbsp;(...)</a></td>
+	<td class="summary">pack an argument list into a table.</td>
 	</tr>
 </table>
 
@@ -389,6 +404,27 @@
     </ul>
 </dd>
     <dt>
+    <a name = "execute"></a>
+    <strong>execute&nbsp;(cmd)</strong>
+    </dt>
+    <dd>
+    execute a shell command.
+    This is a compatibility function that returns the same for Lua 5.1 and Lua 5.2
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>cmd</em></code>:  a shell command</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>true if successful</li>
+        <li>actual return code</li>
+    </ol>
+
+</dd>
+    <dt>
     <a name = "memoize"></a>
     <strong>memoize&nbsp;(func)</strong>
     </dt>
@@ -582,6 +618,55 @@
     <ul>
          <a href="pl.utils.html#on_error">utils.on_error</a>
     </ul>
+</dd>
+</dl>
+    <h2><a name="Lua_5.2_Compatible_Functions"></a>Lua 5.2 Compatible Functions</h2>
+    
+    <dl class="function">
+    <dt>
+    <a name = "load"></a>
+    <strong>load&nbsp;(code, name, mode, env)</strong>
+    </dt>
+    <dd>
+    load a code string or bytecode chunk.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>code</em></code>:  Lua code as a string or bytecode</li>
+       <li><code><em>name</em></code>:  for source errors</li>
+       <li><code><em>mode</em></code>:  kind of chunk, 't' for text, 'b' for bytecode, 'bt' for all (default)</li>
+       <li><code><em>env</em></code>:   the environment for the new chunk (default nil)</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>compiled chunk</li>
+        <li>error message (chunk is nil)</li>
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "table.pack"></a>
+    <strong>table.pack&nbsp;(...)</strong>
+    </dt>
+    <dd>
+    pack an argument list into a table.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>...</em></code>:  any arguments</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>a table with field n set to the length</li>
+        <li>the length</li>
+    </ol>
+
 </dd>
 </dl>
 

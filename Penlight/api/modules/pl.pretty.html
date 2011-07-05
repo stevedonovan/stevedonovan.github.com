@@ -2,7 +2,7 @@
    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
 <head>
-    <title>Reference</title>
+    <title>Penlight Documentation</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -22,7 +22,7 @@
 
 
 <div id="navigation">
-<h1>ldoc</h1>
+<h1>Penlight</h1>
 <ul>
   <li><a href="../index.html">Index</a></li>
 </ul>
@@ -68,7 +68,6 @@
   <li><a href="pl.test.html">pl.test</a></li>
   <li><a href="pl.text.html">pl.text</a></li>
   <li><a href="pl.utils.html">pl.utils</a></li>
-  <li><a href="platf.luajava.html">platf.luajava</a></li>
 </ul>
 
 </div>
@@ -93,7 +92,7 @@
 	<td class="summary">Create a string representation of a Lua table.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#dump">dump&nbsp;(t, ...)</a></td>
+	<td class="name" nowrap><a href="#dump">dump&nbsp;(t, fname)</a></td>
 	<td class="summary">Dump a Lua table out to a file or stdout.</td>
 	</tr>
 </table>
@@ -130,7 +129,10 @@
     </dt>
     <dd>
     Create a string representation of a Lua table.
-    
+    This function never fails, but may complain by returning an
+  extra value. Normally puts out one item per line, using
+  the provided indent; set the second parameter to '' if
+  you want output on one line.
 
     <h3>Parameters:</h3>
     <ul>
@@ -142,11 +144,16 @@
     </ul>
 
 
+    <h3>Returns:</h3>
+    <ol>
+        <li>a string</li>
+        <li>a possible error message</li>
+    </ol>
 
 </dd>
     <dt>
     <a name = "dump"></a>
-    <strong>dump&nbsp;(t, ...)</strong>
+    <strong>dump&nbsp;(t, fname)</strong>
     </dt>
     <dd>
     Dump a Lua table out to a file or stdout.
@@ -155,7 +162,7 @@
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>t</em></code>:  {table} The table to write to a file or stdout.</li>
-       <li><code><em>...</em></code>:  {string} (optional) File name to write too. Defaults to writing
+       <li><code><em>fname</em></code>:  {string} (optional) File name to write too. Defaults to writing
 		to stdout.</li>
     </ul>
 

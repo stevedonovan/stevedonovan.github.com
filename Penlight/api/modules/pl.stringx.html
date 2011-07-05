@@ -2,7 +2,7 @@
    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
 <head>
-    <title>Reference</title>
+    <title>Penlight Documentation</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -22,7 +22,7 @@
 
 
 <div id="navigation">
-<h1>ldoc</h1>
+<h1>Penlight</h1>
 <ul>
   <li><a href="../index.html">Index</a></li>
 </ul>
@@ -68,7 +68,6 @@
   <li><a href="pl.test.html">pl.test</a></li>
   <li><a href="pl.text.html">pl.text</a></li>
   <li><a href="pl.utils.html">pl.utils</a></li>
-  <li><a href="platf.luajava.html">platf.luajava</a></li>
 </ul>
 
 </div>
@@ -191,6 +190,10 @@
 	<tr>
 	<td class="name" nowrap><a href="#lines">lines&nbsp;(self)</a></td>
 	<td class="summary">return an interator over all lines in a string</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#title">title&nbsp;(self)</a></td>
+	<td class="summary">iniital word letters uppercase ('title case').</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#shorten">shorten&nbsp;(self, sz, tail)</a></td>
@@ -362,11 +365,13 @@
     <dd>
     replace all tabs in s with n spaces.
     If not specified, n defaults to 8.
+ with 0.9.5 this now correctly expands to the next tab stop (if you really
+ want to just replace tabs, use :gsub('\t','  ') etc)
 
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>self</em></code>:  the string</li>
-       <li><code><em>n</em></code>:  number of spaces to expand each tab</li>
+       <li><code><em>n</em></code>:  number of spaces to expand each tab, (default 8)</li>
     </ul>
 
 
@@ -685,6 +690,26 @@
     <h3>Returns:</h3>
     <ol>
         an iterator
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "title"></a>
+    <strong>title&nbsp;(self)</strong>
+    </dt>
+    <dd>
+    iniital word letters uppercase ('title case').
+    Here 'words' mean chunks of non-space characters.
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>self</em></code>:  the string</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        a string with each word's first letter uppercase
     </ol>
 
 </dd>

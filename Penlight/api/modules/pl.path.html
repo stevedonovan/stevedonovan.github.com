@@ -2,7 +2,7 @@
    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
 <head>
-    <title>Reference</title>
+    <title>Penlight Documentation</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -22,7 +22,7 @@
 
 
 <div id="navigation">
-<h1>ldoc</h1>
+<h1>Penlight</h1>
 <ul>
   <li><a href="../index.html">Index</a></li>
 </ul>
@@ -69,7 +69,6 @@
   <li><a href="pl.test.html">pl.test</a></li>
   <li><a href="pl.text.html">pl.text</a></li>
   <li><a href="pl.utils.html">pl.utils</a></li>
-  <li><a href="platf.luajava.html">platf.luajava</a></li>
 </ul>
 
 </div>
@@ -148,7 +147,11 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#normcase">normcase&nbsp;(P)</a></td>
-	<td class="summary">Normalize the case of a pathname.</td>
+	<td class="summary">normalize the case of a pathname.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#normpath">normpath&nbsp;(P)</a></td>
+	<td class="summary">normalize a path name.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#expanduser">expanduser&nbsp;(P)</a></td>
@@ -440,14 +443,30 @@
     <strong>normcase&nbsp;(P)</strong>
     </dt>
     <dd>
-    Normalize the case of a pathname.
+    normalize the case of a pathname.
     On Unix, this returns the path unchanged;
   for Windows, it converts the path to lowercase, and it also converts forward slashes
- to backward slashes. Will also replace '\dir\..\' by '\' (PL extension!)
+ to backward slashes.
 
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>P</em></code>:  A file path</li>
+    </ul>
+
+
+
+</dd>
+    <dt>
+    <a name = "normpath"></a>
+    <strong>normpath&nbsp;(P)</strong>
+    </dt>
+    <dd>
+    normalize a path name.
+    A//B, A/./B and A/foo/../B all become A/B.
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>P</em></code>:  a file path</li>
     </ul>
 
 
