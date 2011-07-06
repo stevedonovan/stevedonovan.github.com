@@ -15,39 +15,123 @@
 	<div id="product_description"></div>
 </div> <!-- id="product" -->
 
+
 <div id="main">
 
 
 <!-- Menu -->
-
 
 <div id="navigation">
 <h1>winapi</h1>
 <p>A minimal but useful binding to the Windows API.
 </p>
 
-<h2>Contents</h2>
-<ul>
-<li><a href="#Text_encoding">Text encoding</a></li>
-<li><a href="#Class_Window">Class Window</a></li>
-<li><a href="#Manipulating_Windows">Manipulating Windows</a></li>
-<li><a href="#Miscellaneous_functions">Miscellaneous functions</a></li>
-<li><a href="#Class_Process">Class Process</a></li>
-<li><a href="#Working_with_processes">Working with processes</a></li>
-<li><a href="#Class_Thread">Class Thread</a></li>
-<li><a href="#Class_File">Class File</a></li>
-<li><a href="#Launching_processes">Launching processes</a></li>
-<li><a href="#Asynchronous_Timers">Asynchronous Timers</a></li>
-<li><a href="#Dealing_with_named_pipes">Dealing with named pipes</a></li>
-<li><a href="#Drive_information_and_directories">Drive information and directories</a></li>
-<li><a href="#Class_Regkey">Class Regkey</a></li>
-<li><a href="#Registry_Functions">Registry Functions</a></li>
-<li><a href="#Constants">Constants</a></li>
-</ul>
 
-<h2>Modules</h2>
 <ul>
-  <li><strong>winapi</strong></li>
+<h2>Text encoding</h2>
+    <li><a href="#set_encoding">set_encoding&nbsp;(e)</a></li>
+    <li><a href="#get_encoding">get_encoding&nbsp;()</a></li>
+    <li><a href="#encode">encode&nbsp;(e_in, e_out, text)</a></li>
+    <li><a href="#utf8_expand">utf8_expand&nbsp;(text)</a></li>
+<h2>Class Window</h2>
+    <li><a href="#Window.get_handle">Window.get_handle&nbsp;()</a></li>
+    <li><a href="#Window.get_text">Window.get_text&nbsp;()</a></li>
+    <li><a href="#Window.set_text">Window.set_text&nbsp;()</a></li>
+    <li><a href="#Window.show">Window.show&nbsp;(flags)</a></li>
+    <li><a href="#Window.get_position">Window.get_position&nbsp;()</a></li>
+    <li><a href="#Window.get_bounds">Window.get_bounds&nbsp;()</a></li>
+    <li><a href="#Window.is_visible">Window.is_visible&nbsp;()</a></li>
+    <li><a href="#Window.destroy">Window.destroy&nbsp;()</a></li>
+    <li><a href="#Window.resize">Window.resize&nbsp;(x0, y0, w, h)</a></li>
+    <li><a href="#Window.send_message">Window.send_message&nbsp;(msg, wparam, lparam)</a></li>
+    <li><a href="#Window.enum_children">Window.enum_children&nbsp;(a)</a></li>
+    <li><a href="#Window.get_parent">Window.get_parent&nbsp;()</a></li>
+    <li><a href="#Window.get_module_filename">Window.get_module_filename&nbsp;()</a></li>
+    <li><a href="#Window.get_class_name">Window.get_class_name&nbsp;()</a></li>
+    <li><a href="#Window.set_foreground">Window.set_foreground&nbsp;()</a></li>
+    <li><a href="#Window.get_process">Window.get_process&nbsp;()</a></li>
+    <li><a href="#Window.__tostring">Window.__tostring&nbsp;()</a></li>
+<h2>Manipulating Windows</h2>
+    <li><a href="#find_window">find_window&nbsp;(cname, wname)</a></li>
+    <li><a href="#make_name_matcher">make_name_matcher&nbsp;(text)</a></li>
+    <li><a href="#make_class_matcher">make_class_matcher&nbsp;(text)</a></li>
+    <li><a href="#find_window_ex">find_window_ex&nbsp;(match)</a></li>
+    <li><a href="#find_all_windows">find_all_windows&nbsp;(match)</a></li>
+    <li><a href="#find_window_match">find_window_match&nbsp;(text)</a></li>
+    <li><a href="#get_foreground_window">get_foreground_window&nbsp;()</a></li>
+    <li><a href="#get_desktop_window">get_desktop_window&nbsp;()</a></li>
+    <li><a href="#enum_windows">enum_windows&nbsp;(callback)</a></li>
+    <li><a href="#use_gui">use_gui&nbsp;()</a></li>
+    <li><a href="#send_to_window">send_to_window&nbsp;(text)</a></li>
+    <li><a href="#tile_windows">tile_windows&nbsp;(parent, horiz, kids, bounds)</a></li>
+<h2>Miscellaneous functions</h2>
+    <li><a href="#sleep">sleep&nbsp;(millisec)</a></li>
+    <li><a href="#show_message">show_message&nbsp;(caption, msg, btns, icon)</a></li>
+    <li><a href="#beep">beep&nbsp;(type)</a></li>
+    <li><a href="#copy_file">copy_file&nbsp;(src, dest, fail_if_exists)</a></li>
+    <li><a href="#move_file">move_file&nbsp;(src, dest)</a></li>
+    <li><a href="#shell_exec">shell_exec&nbsp;(verb, file, parms, dir, show)</a></li>
+    <li><a href="#set_clipboard">set_clipboard&nbsp;(text)</a></li>
+    <li><a href="#get_clipboard">get_clipboard&nbsp;()</a></li>
+<h2>Class Process</h2>
+    <li><a href="#Process.get_process_name">Process.get_process_name&nbsp;(full)</a></li>
+    <li><a href="#Process.kill">Process.kill&nbsp;()</a></li>
+    <li><a href="#Process.get_working_size">Process.get_working_size&nbsp;()</a></li>
+    <li><a href="#Process.get_start_time">Process.get_start_time&nbsp;()</a></li>
+    <li><a href="#Process.get_run_times">Process.get_run_times&nbsp;()</a></li>
+    <li><a href="#Process.wait">Process.wait&nbsp;(timeout)</a></li>
+    <li><a href="#Process.wait_for_input_idle">Process.wait_for_input_idle&nbsp;(timeout)</a></li>
+    <li><a href="#Process.get_exit_code">Process.get_exit_code&nbsp;()</a></li>
+    <li><a href="#Process.close">Process.close&nbsp;()</a></li>
+<h2>Working with processes</h2>
+    <li><a href="#process_from_id">process_from_id&nbsp;(pid)</a></li>
+    <li><a href="#get_current_pid">get_current_pid&nbsp;()</a></li>
+    <li><a href="#get_current_process">get_current_process&nbsp;()</a></li>
+    <li><a href="#get_processes">get_processes&nbsp;()</a></li>
+    <li><a href="#wait_for_processes">wait_for_processes&nbsp;(processes, all, timeout)</a></li>
+<h2>Class Thread</h2>
+    <li><a href="#Thread.suspend">Thread.suspend&nbsp;()</a></li>
+    <li><a href="#Thread.resume">Thread.resume&nbsp;()</a></li>
+    <li><a href="#Thread.kill">Thread.kill&nbsp;()</a></li>
+    <li><a href="#Thread.set_priority">Thread.set_priority&nbsp;(p)</a></li>
+    <li><a href="#Thread.get_priority">Thread.get_priority&nbsp;()</a></li>
+<h2>Class File</h2>
+    <li><a href="#File.write">File.write&nbsp;(s)</a></li>
+    <li><a href="#File.read">File.read&nbsp;()</a></li>
+    <li><a href="#File.read_async">File.read_async&nbsp;(callback)</a></li>
+<h2>Launching processes</h2>
+    <li><a href="#setenv">setenv&nbsp;(name, value)</a></li>
+    <li><a href="#spawn_process">spawn_process&nbsp;(program, dir)</a></li>
+    <li><a href="#execute">execute&nbsp;(cmd, unicode)</a></li>
+<h2>Asynchronous Timers</h2>
+    <li><a href="#make_timer">make_timer&nbsp;(msec, callback)</a></li>
+<h2>Dealing with named pipes</h2>
+    <li><a href="#open_pipe">open_pipe&nbsp;(pipename)</a></li>
+    <li><a href="#make_pipe_server">make_pipe_server&nbsp;(callback, pipename)</a></li>
+<h2>Drive information and directories</h2>
+    <li><a href="#short_path">short_path&nbsp;(path)</a></li>
+    <li><a href="#temp_name">temp_name&nbsp;()</a></li>
+    <li><a href="#delete_file_or_dir">delete_file_or_dir&nbsp;(file)</a></li>
+    <li><a href="#make_dir">make_dir&nbsp;()</a></li>
+    <li><a href="#remove_dir">remove_dir&nbsp;(dir, tree)</a></li>
+    <li><a href="#files">files&nbsp;(mask, subdirs, attrib)</a></li>
+    <li><a href="#dirs">dirs&nbsp;(file, subdirs)</a></li>
+    <li><a href="#get_logical_drives">get_logical_drives&nbsp;()</a></li>
+    <li><a href="#get_drive_type">get_drive_type&nbsp;(root)</a></li>
+    <li><a href="#get_disk_free_space">get_disk_free_space&nbsp;(root)</a></li>
+    <li><a href="#get_disk_network_name">get_disk_network_name&nbsp;(root)</a></li>
+    <li><a href="#watch_for_file_changes">watch_for_file_changes&nbsp;(dir, how, subdirs, callback)</a></li>
+<h2>Class Regkey</h2>
+    <li><a href="#Regkey.set_value">Regkey.set_value&nbsp;(name, val)</a></li>
+    <li><a href="#Regkey.get_value">Regkey.get_value&nbsp;(name)</a></li>
+    <li><a href="#Regkey.get_keys">Regkey.get_keys&nbsp;()</a></li>
+    <li><a href="#Regkey.close">Regkey.close&nbsp;()</a></li>
+    <li><a href="#Regkey.flush">Regkey.flush&nbsp;()</a></li>
+<h2>Registry Functions</h2>
+    <li><a href="#open_reg_key">open_reg_key&nbsp;(path, writeable)</a></li>
+    <li><a href="#create_reg_key">create_reg_key&nbsp;(path)</a></li>
+<h2>Constants</h2>
+    <li><a href="#constants">constants</a></li>
 </ul>
 
 </div>
@@ -60,6 +144,7 @@
 
 <p>A useful set of Windows API functions.</p>
 <p>
+
 <ul>
     <li>Enumerating and accessing windows, including sending keys.</li>
     <li>Enumerating processes and querying their program name, memory used, etc.</li>
@@ -70,406 +155,6 @@
 </ul>
 </p>
 
-<h2><a href="#Text_encoding">Text encoding</a></h2>
-<table class="function_list">
-	<tr>
-	<td class="name" nowrap><a href="#set_encoding">set_encoding&nbsp;(e)</a></td>
-	<td class="summary">set the current text encoding.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#get_encoding">get_encoding&nbsp;()</a></td>
-	<td class="summary">get the current text encoding.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#encode">encode&nbsp;(e_in, e_out, text)</a></td>
-	<td class="summary">encode a string in another encoding.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#utf8_expand">utf8_expand&nbsp;(text)</a></td>
-	<td class="summary">expand # unicode escapes in a string.</td>
-	</tr>
-</table>
-<h2><a href="#Class_Window">Class Window</a></h2>
-<table class="function_list">
-	<tr>
-	<td class="name" nowrap><a href="#Window.get_handle">Window.get_handle&nbsp;()</a></td>
-	<td class="summary">the handle of this window.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#Window.get_text">Window.get_text&nbsp;()</a></td>
-	<td class="summary">get the window text.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#Window.set_text">Window.set_text&nbsp;()</a></td>
-	<td class="summary">set the window text.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#Window.show">Window.show&nbsp;(flags)</a></td>
-	<td class="summary">change the visibility, state etc</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#Window.get_position">Window.get_position&nbsp;()</a></td>
-	<td class="summary">get the position in pixels</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#Window.get_bounds">Window.get_bounds&nbsp;()</a></td>
-	<td class="summary">get the bounds in pixels</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#Window.is_visible">Window.is_visible&nbsp;()</a></td>
-	<td class="summary">is this window visible?</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#Window.destroy">Window.destroy&nbsp;()</a></td>
-	<td class="summary">destroy this window.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#Window.resize">Window.resize&nbsp;(x0, y0, w, h)</a></td>
-	<td class="summary">resize this window.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#Window.send_message">Window.send_message&nbsp;(msg, wparam, lparam)</a></td>
-	<td class="summary">send a message.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#Window.enum_children">Window.enum_children&nbsp;(a)</a></td>
-	<td class="summary">enumerate all child windows.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#Window.get_parent">Window.get_parent&nbsp;()</a></td>
-	<td class="summary">get the parent window.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#Window.get_module_filename">Window.get_module_filename&nbsp;()</a></td>
-	<td class="summary">get the name of the program owning this window.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#Window.get_class_name">Window.get_class_name&nbsp;()</a></td>
-	<td class="summary">get the window class name.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#Window.set_foreground">Window.set_foreground&nbsp;()</a></td>
-	<td class="summary">bring this window to the foreground.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#Window.get_process">Window.get_process&nbsp;()</a></td>
-	<td class="summary">get the associated process of this window</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#Window.__tostring">Window.__tostring&nbsp;()</a></td>
-	<td class="summary">this window as string (up to 100 chars).</td>
-	</tr>
-</table>
-<h2><a href="#Manipulating_Windows">Manipulating Windows</a></h2>
-<table class="function_list">
-	<tr>
-	<td class="name" nowrap><a href="#find_window">find_window&nbsp;(cname, wname)</a></td>
-	<td class="summary">find a window based on classname and caption</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#make_name_matcher">make_name_matcher&nbsp;(text)</a></td>
-	<td class="summary">makes a function that matches against window text</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#make_class_matcher">make_class_matcher&nbsp;(text)</a></td>
-	<td class="summary">makes a function that matches against window class name</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#find_window_ex">find_window_ex&nbsp;(match)</a></td>
-	<td class="summary">find a window using a condition function.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#find_all_windows">find_all_windows&nbsp;(match)</a></td>
-	<td class="summary">return all windows matching a condition.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#find_window_match">find_window_match&nbsp;(text)</a></td>
-	<td class="summary">find a window matching the given text.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#get_foreground_window">get_foreground_window&nbsp;()</a></td>
-	<td class="summary">current foreground window.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#get_desktop_window">get_desktop_window&nbsp;()</a></td>
-	<td class="summary">the desktop window.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#enum_windows">enum_windows&nbsp;(callback)</a></td>
-	<td class="summary">enumerate over all top-level windows.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#use_gui">use_gui&nbsp;()</a></td>
-	<td class="summary">route callback dispatch through a message window.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#send_to_window">send_to_window&nbsp;(text)</a></td>
-	<td class="summary">send a string or virtual key to the active window.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#tile_windows">tile_windows&nbsp;(parent, horiz, kids, bounds)</a></td>
-	<td class="summary">tile a group of windows.</td>
-	</tr>
-</table>
-<h2><a href="#Miscellaneous_functions">Miscellaneous functions</a></h2>
-<table class="function_list">
-	<tr>
-	<td class="name" nowrap><a href="#sleep">sleep&nbsp;(millisec)</a></td>
-	<td class="summary">sleep and use no processing time.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#show_message">show_message&nbsp;(caption, msg, btns, icon)</a></td>
-	<td class="summary">show a message box.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#beep">beep&nbsp;(type)</a></td>
-	<td class="summary">make a beep sound.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#copy_file">copy_file&nbsp;(src, dest, fail_if_exists)</a></td>
-	<td class="summary">copy a file.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#move_file">move_file&nbsp;(src, dest)</a></td>
-	<td class="summary">move a file.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#shell_exec">shell_exec&nbsp;(verb, file, parms, dir, show)</a></td>
-	<td class="summary">execute a shell command.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#set_clipboard">set_clipboard&nbsp;(text)</a></td>
-	<td class="summary">copy text onto the clipboard.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#get_clipboard">get_clipboard&nbsp;()</a></td>
-	<td class="summary">get the text on the clipboard.</td>
-	</tr>
-</table>
-<h2><a href="#Class_Process">Class Process</a></h2>
-<table class="function_list">
-	<tr>
-	<td class="name" nowrap><a href="#Process.get_process_name">Process.get_process_name&nbsp;(full)</a></td>
-	<td class="summary">get the name of the process.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#Process.kill">Process.kill&nbsp;()</a></td>
-	<td class="summary">kill the process.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#Process.get_working_size">Process.get_working_size&nbsp;()</a></td>
-	<td class="summary">get the working size of the process.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#Process.get_start_time">Process.get_start_time&nbsp;()</a></td>
-	<td class="summary">get the start time of this process.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#Process.get_run_times">Process.get_run_times&nbsp;()</a></td>
-	<td class="summary">elapsed run time of this process.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#Process.wait">Process.wait&nbsp;(timeout)</a></td>
-	<td class="summary">wait for this process to finish.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#Process.wait_for_input_idle">Process.wait_for_input_idle&nbsp;(timeout)</a></td>
-	<td class="summary">wait for this process to become idle and ready for input.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#Process.get_exit_code">Process.get_exit_code&nbsp;()</a></td>
-	<td class="summary">exit code of this process.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#Process.close">Process.close&nbsp;()</a></td>
-	<td class="summary">close this process handle.</td>
-	</tr>
-</table>
-<h2><a href="#Working_with_processes">Working with processes</a></h2>
-<table class="function_list">
-	<tr>
-	<td class="name" nowrap><a href="#Process">Process&nbsp;(pid)</a></td>
-	<td class="summary">create a process object from the id.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#get_current_pid">get_current_pid&nbsp;()</a></td>
-	<td class="summary">process id of current process.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#get_current_process">get_current_process&nbsp;()</a></td>
-	<td class="summary">process object of the current process.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#get_processes">get_processes&nbsp;()</a></td>
-	<td class="summary">get all process ids in the system.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#wait_for_processes">wait_for_processes&nbsp;(processes, all, timeout)</a></td>
-	<td class="summary">wait for a group of processes</td>
-	</tr>
-</table>
-<h2><a href="#Class_Thread">Class Thread</a></h2>
-<table class="function_list">
-	<tr>
-	<td class="name" nowrap><a href="#Thread.suspend">Thread.suspend&nbsp;()</a></td>
-	<td class="summary">suspend this thread.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#Thread.resume">Thread.resume&nbsp;()</a></td>
-	<td class="summary">resume a suspended thread.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#Thread.kill">Thread.kill&nbsp;()</a></td>
-	<td class="summary">kill this thread.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#Thread.set_priority">Thread.set_priority&nbsp;(p)</a></td>
-	<td class="summary">set a thread's priority</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#Thread.get_priority">Thread.get_priority&nbsp;()</a></td>
-	<td class="summary">get a thread's priority</td>
-	</tr>
-</table>
-<h2><a href="#Class_File">Class File</a></h2>
-<table class="function_list">
-	<tr>
-	<td class="name" nowrap><a href="#File.write">File.write&nbsp;(s)</a></td>
-	<td class="summary">write to a file.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#File.read">File.read&nbsp;()</a></td>
-	<td class="summary">read from a file.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#File.read_async">File.read_async&nbsp;(callback)</a></td>
-	<td class="summary">asynchronous read.</td>
-	</tr>
-</table>
-<h2><a href="#Launching_processes">Launching processes</a></h2>
-<table class="function_list">
-	<tr>
-	<td class="name" nowrap><a href="#setenv">setenv&nbsp;(name, value)</a></td>
-	<td class="summary">set an environment variable for any child processes.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#spawn_process">spawn_process&nbsp;(program, dir)</a></td>
-	<td class="summary">Spawn a process.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#execute">execute&nbsp;(cmd, unicode)</a></td>
-	<td class="summary">execute a system command.</td>
-	</tr>
-</table>
-<h2><a href="#Asynchronous_Timers">Asynchronous Timers</a></h2>
-<table class="function_list">
-	<tr>
-	<td class="name" nowrap><a href="#make_timer">make_timer&nbsp;(msec, callback)</a></td>
-	<td class="summary">Create an asynchronous timer.</td>
-	</tr>
-</table>
-<h2><a href="#Dealing_with_named_pipes">Dealing with named pipes</a></h2>
-<table class="function_list">
-	<tr>
-	<td class="name" nowrap><a href="#open_pipe">open_pipe&nbsp;(pipename)</a></td>
-	<td class="summary">open a pipe for reading and writing.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#make_pipe_server">make_pipe_server&nbsp;(callback, pipename)</a></td>
-	<td class="summary">create a named pipe server.</td>
-	</tr>
-</table>
-<h2><a href="#Drive_information_and_directories">Drive information and directories</a></h2>
-<table class="function_list">
-	<tr>
-	<td class="name" nowrap><a href="#short_path">short_path&nbsp;(path)</a></td>
-	<td class="summary">the short path name of a directory or file.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#temp_name">temp_name&nbsp;()</a></td>
-	<td class="summary">get a temporary filename.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#delete_file_or_dir">delete_file_or_dir&nbsp;(file)</a></td>
-	<td class="summary">delete a file or directory.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#make_dir">make_dir&nbsp;()</a></td>
-	<td class="summary">make a directory.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#remove_dir">remove_dir&nbsp;(dir, tree)</a></td>
-	<td class="summary">remove a directory.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#get_files">get_files&nbsp;(mask, subdirs, attrib)</a></td>
-	<td class="summary">iterator over directory contents.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#get_dirs">get_dirs&nbsp;(file, subdirs)</a></td>
-	<td class="summary">iterate over subdirectories</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#get_logical_drives">get_logical_drives&nbsp;()</a></td>
-	<td class="summary">get all the drives on this computer.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#get_drive_type">get_drive_type&nbsp;(root)</a></td>
-	<td class="summary">get the type of the given drive.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#get_disk_free_space">get_disk_free_space&nbsp;(root)</a></td>
-	<td class="summary">get the free disk space.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#get_disk_network_name">get_disk_network_name&nbsp;(root)</a></td>
-	<td class="summary">get the network resource associated with this drive.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#watch_for_file_changes">watch_for_file_changes&nbsp;(dir, how, subdirs, callback)</a></td>
-	<td class="summary">start watching a directory.</td>
-	</tr>
-</table>
-<h2><a href="#Class_Regkey">Class Regkey</a></h2>
-<table class="function_list">
-	<tr>
-	<td class="name" nowrap><a href="#Regkey.set_value">Regkey.set_value&nbsp;(name, val)</a></td>
-	<td class="summary">set the string value of a name.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#Regkey.get_value">Regkey.get_value&nbsp;(name)</a></td>
-	<td class="summary">get the value and type of a name.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#Regkey.get_keys">Regkey.get_keys&nbsp;()</a></td>
-	<td class="summary">enumerate the subkeys of a key.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#Regkey.close">Regkey.close&nbsp;()</a></td>
-	<td class="summary">close this key.</td>
-	</tr>
-</table>
-<h2><a href="#Registry_Functions">Registry Functions</a></h2>
-<table class="function_list">
-	<tr>
-	<td class="name" nowrap><a href="#open_reg_key">open_reg_key&nbsp;(path, writeable)</a></td>
-	<td class="summary">Open a registry key.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#create_reg_key">create_reg_key&nbsp;(path)</a></td>
-	<td class="summary">Create a registry key.</td>
-	</tr>
-</table>
-<h2><a href="#Constants">Constants</a></h2>
-<table class="function_list">
-	<tr>
-	<td class="name" nowrap><a href="#constants">constants</a></td>
-	<td class="summary">useful Windows API constants</td>
-	</tr>
-</table>
-
-<br/>
-<br/>
 
     <h2><a name="Text_encoding"></a>Text encoding</h2>
     
@@ -512,7 +197,7 @@
     </dt>
     <dd>
     encode a string in another encoding.
-    Note: currently there's a limit of about 2K on the string buffer.
+     Note: currently there's a limit of about 2K on the string buffer.
 
     <h3>Parameters:</h3>
     <ul>
@@ -749,7 +434,7 @@
     </dt>
     <dd>
     get the window class name.
-    Useful to find all instances of a running program, when you
+     Useful to find all instances of a running program, when you
  know the class of the top level window.
 
 
@@ -925,7 +610,8 @@
 
     <h3>Returns:</h3>
     <ol>
-        a window object
+        <li>a window object</li>
+        <li><a href="api.html#Class_Window">Window</a></li>
     </ol>
 
 </dd>
@@ -945,7 +631,8 @@
 
     <h3>Returns:</h3>
     <ol>
-        a window object
+        <li>a window object</li>
+        <li><a href="api.html#Class_Window">Window</a></li>
     </ol>
 
 </dd>
@@ -971,7 +658,8 @@
     </dt>
     <dd>
     route callback dispatch through a message window.
-    
+     You need to do this when using Winapi in a GUI application,
+ since it ensures that Lua callbacks happen in the GUI thread.
 
 
 
@@ -1057,8 +745,9 @@
 
     <h3>Returns:</h3>
     <ol>
-        a string giving the pressed button: one of 'ok','yes','no','cancel',
- 'try','abort' and 'retry'
+        a string giving the pressed button: one of 'ok','yes','no','cancel',</p>
+
+<p> 'try','abort' and 'retry'
     </ol>
 
 </dd>
@@ -1167,7 +856,7 @@
 </dd>
 </dl>
     <h2><a name="Class_Process"></a>Class Process</h2>
-    this example was <a href="http://msdn.microsoft.com/en-us/library/ms682623%28VS.85%29.aspx">helpful</a>
+     this example was <a href="http://msdn.microsoft.com/en-us/library/ms682623%28VS.85%29.aspx">helpful</a>
     <dl class="function">
     <dt>
     <a name = "Process.get_process_name"></a>
@@ -1274,7 +963,7 @@
     </dt>
     <dd>
     wait for this process to become idle and ready for input.
-    Only makes sense for processes with windows (will return immediately if not)
+     Only makes sense for processes with windows (will return immediately if not)
 
     <h3>Parameters:</h3>
     <ul>
@@ -1295,7 +984,7 @@
     </dt>
     <dd>
     exit code of this process.
-    (Only makes sense if the process has in fact finished.)
+     (Only makes sense if the process has in fact finished.)
 
 
 
@@ -1322,8 +1011,8 @@
     
     <dl class="function">
     <dt>
-    <a name = "Process"></a>
-    <strong>Process&nbsp;(pid)</strong>
+    <a name = "process_from_id"></a>
+    <strong>process_from_id&nbsp;(pid)</strong>
     </dt>
     <dd>
     create a process object from the id.
@@ -1335,6 +1024,10 @@
     </ul>
 
 
+    <h3>Returns:</h3>
+    <ol>
+        <a href="api.html#Class_Process">Process</a>
+    </ol>
 
 </dd>
     <dt>
@@ -1347,6 +1040,10 @@
 
 
 
+    <h3>Returns:</h3>
+    <ol>
+        integer id
+    </ol>
 
 </dd>
     <dt>
@@ -1359,6 +1056,10 @@
 
 
 
+    <h3>Returns:</h3>
+    <ol>
+        <a href="api.html#Class_Process">Process</a>
+    </ol>
 
 </dd>
     <dt>
@@ -1397,8 +1098,9 @@
 </dd>
 </dl>
     <h2><a name="Class_Thread"></a>Class Thread</h2>
-    This is returned by the <code>read_async</code> method and the <code>timer</code>,
- <code>server</code> and <code>watch_for_file_changes</code> functions. Useful to kill a thread
+    This is returned by the <code>read_async</code> method and the <code>timer</code>,</p>
+
+<p> <code>server</code> and <code>watch_for_file_changes</code> functions. Useful to kill a thread
  and free associated resources.
     <dl class="function">
     <dt>
@@ -1431,8 +1133,9 @@
     </dt>
     <dd>
     kill this thread.
-    Generally considered a 'nuclear' option, but
- this implementation will free any associated callback references, buffers
+    Generally considered a 'nuclear' option, but</p>
+
+<p> this implementation will free any associated callback references, buffers
  and handles.
 
 
@@ -1469,7 +1172,7 @@
 </dd>
 </dl>
     <h2><a name="Class_File"></a>Class File</h2>
-    The write handle may be distinct from the read handle.
+     The write handle may be distinct from the read handle.
     <dl class="function">
     <dt>
     <a name = "File.write"></a>
@@ -1497,7 +1200,7 @@
     </dt>
     <dd>
     read from a file.
-    Please note that this is not buffered, and you will have to
+     Please note that this is not buffered, and you will have to
  split into lines, etc yourself.
 
 
@@ -1539,7 +1242,7 @@
     </dt>
     <dd>
     set an environment variable for any child processes.
-    Note that this can't affect any system environment variables, see
+     Note that this can't affect any system environment variables, see
  <a href="http://msdn.microsoft.com/en-us/library/ms682653%28VS.85%29.aspx">here</a>
  for how to set these.
 
@@ -1569,15 +1272,10 @@
 
     <h3>Returns:</h3>
     <ol>
-        <li>a process object</li>
-        <li>a File object</li>
+        <li>a <a href="api.html#Class_Process">Process</a> object</li>
+        <li>a <a href="api.html#Class_File">File</a> object</li>
     </ol>
 
-    <h3>see also:</h3>
-    <ul>
-         <li><a href="winapi.html#Class_File">File</a></li>
-         <li><a href="winapi.html#Process">Process</a></li>
-    </ul>
 </dd>
     <dt>
     <a name = "execute"></a>
@@ -1585,7 +1283,7 @@
     </dt>
     <dd>
     execute a system command.
-    This is like <code>os.execute()</code>, except that it works without ugly
+     This is like <code>os.execute()</code>, except that it works without ugly
  console flashing in Windows GUI applications. It additionally
  returns all text read from stdout and stderr.
 
@@ -1614,7 +1312,7 @@
     </dt>
     <dd>
     Create an asynchronous timer.
-    The callback can return true if it wishes to cancel the timer.
+     The callback can return true if it wishes to cancel the timer.
 
     <h3>Parameters:</h3>
     <ul>
@@ -1655,7 +1353,7 @@
     </dt>
     <dd>
     create a named pipe server.
-    This goes into a background loop, and accepts client connections.
+     This goes into a background loop, and accepts client connections.
  For each new connection, the callback will be called with a File
  object for reading and writing to the client.
 
@@ -1683,7 +1381,7 @@
     </dt>
     <dd>
     the short path name of a directory or file.
-    This is always in ASCII, 8.3 format. This function will create the
+     This is always in ASCII, 8.3 format. This function will create the
  file first if it does not exist; the result can be used to open
  files with unicode names.
 
@@ -1705,7 +1403,7 @@
     </dt>
     <dd>
     get a temporary filename.
-    (Don't use os.tmpname)
+     (Don't use os.tmpname)
 
 
 
@@ -1737,7 +1435,7 @@
     </dt>
     <dd>
     make a directory.
-    Will make necessary subpaths if command extensions are enabled.
+     Will make necessary subpaths if command extensions are enabled.
 
 
 
@@ -1761,8 +1459,8 @@
 
 </dd>
     <dt>
-    <a name = "get_files"></a>
-    <strong>get_files&nbsp;(mask, subdirs, attrib)</strong>
+    <a name = "files"></a>
+    <strong>files&nbsp;(mask, subdirs, attrib)</strong>
     </dt>
     <dd>
     iterator over directory contents.
@@ -1777,14 +1475,14 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">for f in winapi.get_files 'dir\\*.txt' do print(f) end</pre>
+        <pre class="example">for f in winapi.files 'dir\\*.txt' do print(f) end</pre>
     </ul>
 
 
 </dd>
     <dt>
-    <a name = "get_dirs"></a>
-    <strong>get_dirs&nbsp;(file, subdirs)</strong>
+    <a name = "dirs"></a>
+    <strong>dirs&nbsp;(file, subdirs)</strong>
     </dt>
     <dd>
     iterate over subdirectories
@@ -1800,7 +1498,7 @@
 
     <h3>see also:</h3>
     <ul>
-         <a href="winapi.html#get_files">get_files</a>
+         <a href="api.html#files">files</a>
     </ul>
 </dd>
     <dt>
@@ -1835,8 +1533,9 @@
 
     <h3>Returns:</h3>
     <ol>
-        one of the following: unknown, none, removable, fixed, remote,
- cdrom, ramdisk.
+        one of the following: unknown, none, removable, fixed, remote,</p>
+
+<p> cdrom, ramdisk.
     </ol>
 
 </dd>
@@ -1894,6 +1593,7 @@
        <li><code><em>dir</em></code>:  the directory</li>
        <li><code><em>how</em></code>: 
 <p> what events to monitor. Can be a sum of these flags:</p>
+
 
 <ul>
     <li><code>FILE_NOTIFY_CHANGE_FILE_NAME</code></li>
@@ -1987,7 +1687,21 @@
     </dt>
     <dd>
     close this key.
-    
+     Although this will happen when garbage collection happens, it
+ is good practice to call this explicitly.
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Regkey.flush"></a>
+    <strong>Regkey.flush&nbsp;()</strong>
+    </dt>
+    <dd>
+    flush the key.
+     Considered an expensive function; use it only when you have
+ to guarantee modification.
 
 
 
@@ -2015,7 +1729,7 @@
 
     <h3>Returns:</h3>
     <ol>
-        a Regkey object
+        a <a href="api.html#Class_Regkey">Regkey</a> object
     </ol>
 
 </dd>
@@ -2035,7 +1749,7 @@
 
     <h3>Returns:</h3>
     <ol>
-        a regkey object
+        a <a href="api.html#Class_Regkey">Regkey</a> object
     </ol>
 
 </dd>
@@ -2043,6 +1757,7 @@
     <h2><a name="Constants"></a>Constants</h2>
     
 <p>The following constants are available:</p>
+
 
 <ul>
     <li>CP_ACP, (valid values for encoding)</li>
