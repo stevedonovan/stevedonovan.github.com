@@ -1,0 +1,127 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Winapi documentation</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+
+<h1>winapi</h1>
+
+<p>A minimal but useful binding to the Windows API.
+</p>
+
+
+<h2>Modules</h2>
+<ul>
+  <li><a href="../api.html">winapi</a></li>
+<h2>Examples</h2>
+<ul>
+  <li><a href="../examples/caption.lua.html">caption.lua</a></li>
+  <li><a href="../examples/drives.lua.html">drives.lua</a></li>
+  <li><a href="../examples/files.lua.html">files.lua</a></li>
+  <li><a href="../examples/input.lua.html">input.lua</a></li>
+  <li><a href="../examples/message.lua.html">message.lua</a></li>
+  <li><a href="../examples/process-wait.lua.html">process-wait.lua</a></li>
+  <li><a href="../examples/setenv.lua.html">setenv.lua</a></li>
+  <li><a href="../examples/start_time.lua.html">start_time.lua</a></li>
+  <li><a href="../examples/test-processes.lua.html">test-processes.lua</a></li>
+  <li><a href="../examples/test-reg.lua.html">test-reg.lua</a></li>
+  <li><a href="../examples/test-sleep.lua.html">test-sleep.lua</a></li>
+  <li><a href="../examples/test-spawn.lua.html">test-spawn.lua</a></li>
+  <li><a href="../examples/test-timer.lua.html">test-timer.lua</a></li>
+  <li><a href="../examples/test-times.lua.html">test-times.lua</a></li>
+  <li><a href="../examples/test-watcher.lua.html">test-watcher.lua</a></li>
+  <li><strong>test-wexec.lua</strong></li>
+  <li><a href="../examples/testshort.lua.html">testshort.lua</a></li>
+  <li><a href="../examples/testu.lua.html">testu.lua</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Example <code>test-wexec.lua</code></h1>
+
+    <pre>
+require <span class="string">'winapi'</span>
+
+<span class="keyword">local</span> long = <span class="string">'ελληνική.txt'</span>
+<span class="keyword">local</span> UTF8 = winapi.CP_UTF8
+winapi.set_encoding(UTF8)
+
+<span class="keyword">function</span> winapi.tmpname () <span class="keyword">return</span> os.getenv(<span class="string">'TEMP'</span>)..os.tmpname() <span class="keyword">end</span>
+<span class="keyword">function</span> winapi.execute_unicode(cmd)
+   <span class="keyword">local</span> tmpfile = winapi.tmpname()
+   cmd = os.getenv(<span class="string">'COMSPEC'</span>)..<span class="string">' /u /c '</span>..cmd..<span class="string">' &gt; "'</span>..tmpfile..<span class="string">'"'</span>
+   <span class="keyword">local</span> P,err = winapi.spawn(cmd)
+   <span class="keyword">if</span> <span class="keyword">not</span> P <span class="keyword">then</span> <span class="keyword">return</span> <span class="keyword">nil</span>,err <span class="keyword">end</span>
+   <span class="keyword">local</span> res,f,out
+   res = P:wait():exit_code()
+   f = io.open(tmpfile)
+   out = f:read <span class="string">'*a'</span>
+   f:close()
+   os.remove(tmpfile)
+   out, err = winapi.encode(-<span class="number">1</span>,winapi.CP_UTF8,out)
+   <span class="keyword">if</span> err <span class="keyword">then</span> <span class="keyword">return</span> <span class="keyword">nil</span>,err <span class="keyword">end</span>
+   <span class="keyword">return</span> res,out
+<span class="keyword">end</span>
+<span class="keyword">local</span> <span class="keyword">function</span> exec_cmd (cmd,arg)
+    <span class="keyword">local</span> res,err = winapi.execute(cmd..<span class="string">' "'</span>..arg..<span class="string">'"'</span>)
+    <span class="keyword">if</span> res == <span class="number">0</span> <span class="keyword">then</span> <span class="keyword">return</span> <span class="keyword">true</span>
+    <span class="keyword">else</span> <span class="keyword">return</span> <span class="keyword">nil</span>,err
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+<span class="keyword">function</span> winapi.mkdir(dir) <span class="keyword">return</span> exec_cmd(<span class="string">'mkdir'</span>,dir) <span class="keyword">end</span>
+<span class="keyword">function</span> winapi.rmdir(dir) <span class="keyword">return</span> exec_cmd(<span class="string">'rmdir'</span>,dir) <span class="keyword">end</span>
+<span class="keyword">function</span> winapi.delete(file) <span class="keyword">return</span> exec_cmd(<span class="string">'del'</span>,file) <span class="keyword">end</span>
+<span class="keyword">function</span> winapi.get_files(mask,subdirs,attrib)
+    <span class="keyword">local</span> flags = <span class="string">'/B '</span>
+    <span class="keyword">if</span> subdirs <span class="keyword">then</span> flags = flags..<span class="string">' /S'</span> <span class="keyword">end</span>
+    <span class="keyword">if</span> attrib <span class="keyword">then</span> flags = flags..<span class="string">' /A:'</span>..attrib <span class="keyword">end</span>
+    <span class="keyword">local</span> ret, text = winapi.execute_unicode(<span class="string">'dir '</span>..flags..<span class="string">' "'</span>..mask..<span class="string">'"'</span>)
+    <span class="keyword">if</span> ret ~= <span class="number">0</span> <span class="keyword">then</span> <span class="keyword">return</span> <span class="keyword">nil</span>,text <span class="keyword">end</span>
+    <span class="keyword">return</span> text:gmatch(<span class="string">'[^\r\n]+'</span>)
+<span class="keyword">end</span>
+<span class="keyword">function</span> winapi.get_dirs(mask,subdirs) <span class="keyword">return</span> winapi.get_files(mask,subdirs,<span class="string">'D'</span>) <span class="keyword">end</span>
+
+files,err = winapi.get_files (<span class="string">'*.txt'</span>,<span class="keyword">false</span>)
+<span class="keyword">if</span> <span class="keyword">not</span> files <span class="keyword">then</span> <span class="keyword">return</span> print(err) <span class="keyword">end</span>
+<span class="keyword">for</span> f <span class="keyword">in</span> files <span class="keyword">do</span> print(f) <span class="keyword">end</span>
+
+
+
+
+
+
+
+
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 0.5</a></i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
+
