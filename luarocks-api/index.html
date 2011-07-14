@@ -1,0 +1,446 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>luarocks API documentation</title>
+    <link rel="stylesheet" href="ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+
+<h1>luarocks-api</h1>
+
+<p></p>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+<li><a href="#Tables">Tables</a></li>
+</ul>
+
+<h2>Modules</h2>
+<ul>
+  <li><strong>luarocks.api</strong></li>
+<h2>Examples</h2>
+<ul>
+  <li><a href="examples/check.lua.html">check.lua</a></li>
+  <li><a href="examples/install.lua.html">install.lua</a></li>
+  <li><a href="examples/list.lua.html">list.lua</a></li>
+  <li><a href="examples/search.lua.html">search.lua</a></li>
+  <li><a href="examples/show.lua.html">show.lua</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>luarocks.api</code></h1>
+
+<p>A simple external API for LuaRocks.</p>
+<p> This allows you to query the existing packages (<a href="index.html#show">show</a> and <a href="index.html#list">list</a>) and
+ packages on a remote repository (<a href="index.html#search">search</a>). Like the luarocks command-line
+ tool, you can specify the flags <code>from</code> and <code>only_from</code> for this function.</p>
+
+<p> Local information is a table: <a href="index.html#local_info_table">local_info_table</a>.  Usually you get less
+ information for remote queries (basically, package, version and repo) but setting the
+ flag <code>details</code> for <a href="index.html#search">search</a> will fill in more fields by downloading the remote
+ rockspecs - bear in mind that this can be slow for large queries.</p>
+
+<p> It is also possible to install and remove packages. If you use the flag <code>quiet</code>, then
+ normal output is suppressed and sent to a log file.</p>
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#set_rocks_tree">set_rocks_tree&nbsp;(make_local)</a></td>
+	<td class="summary">set the current tree to be global or local</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#get_log_file">get_log_file&nbsp;()</a></td>
+	<td class="summary">get the log file.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#show">show&nbsp;(name, version, field)</a></td>
+	<td class="summary">show information about an installed package.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list">list&nbsp;(pattern, version, flags)</a></td>
+	<td class="summary">list information about currently installed packages.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list_map">list_map&nbsp;(pattern, version, flags)</a></td>
+	<td class="summary">list information like <a href="index.html#list">list</a>, but return as a map.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#compare_versions">compare_versions&nbsp;(linfo, info)</a></td>
+	<td class="summary">is this package outdated?.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#search">search&nbsp;(pattern, version, flags)</a></td>
+	<td class="summary">search LuaRocks repositories for a package.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#search_map">search_map&nbsp;(pattern, version, flags)</a></td>
+	<td class="summary">search repositories like <a href="index.html#search">search</a>, but return a map.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#install">install&nbsp;(name, version, flags)</a></td>
+	<td class="summary">install a rock.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#remove">remove&nbsp;(name, version)</a></td>
+	<td class="summary">remove a rock.</td>
+	</tr>
+</table>
+<h2><a href="#Tables">Tables</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#local_info_table">local_info_table</a></td>
+	<td class="summary">information returned by <a href="index.html#show">show</a> and <a href="index.html#list">list</a>.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#flags">flags</a></td>
+	<td class="summary">known flag names for the <code>flags</code> parameter.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2><a name="Functions"></a>Functions</h2>
+    
+    <dl class="function">
+    <dt>
+    <a name = "set_rocks_tree"></a>
+    <strong>set_rocks_tree&nbsp;(make_local)</strong>
+    </dt>
+    <dd>
+    set the current tree to be global or local
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>make_local</em></code>:  use the local tree (default false)</li>
+    </ul>
+
+
+
+</dd>
+    <dt>
+    <a name = "get_log_file"></a>
+    <strong>get_log_file&nbsp;()</strong>
+    </dt>
+    <dd>
+    get the log file.
+     This is used when the <code>quiet</code> flag is specified.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+        full path to log file
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "show"></a>
+    <strong>show&nbsp;(name, version, field)</strong>
+    </dt>
+    <dd>
+    show information about an installed package.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>name</em></code>:  the package name</li>
+       <li><code><em>version</em></code>:  version, may be nil</li>
+       <li><code><em>field</em></code>:  one of the output fields</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        <a href="index.html#local_info_table">local_info_table</a>, or a string if field is specified.
+    </ol>
+
+    <h3>see also:</h3>
+    <ul>
+         <a href="examples/show.lua.html#">show.lua</a>
+    </ul>
+</dd>
+    <dt>
+    <a name = "list"></a>
+    <strong>list&nbsp;(pattern, version, flags)</strong>
+    </dt>
+    <dd>
+    list information about currently installed packages.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>pattern</em></code>:  a string which is partially matched against packages</li>
+       <li><code><em>version</em></code>:  a specific version, may be nil.</li>
+       <li><code><em>flags</em></code>:  <a href="index.html#flags">flags</a></li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        list of <a href="index.html#local_info_table">local_info_table</a>
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "list_map"></a>
+    <strong>list_map&nbsp;(pattern, version, flags)</strong>
+    </dt>
+    <dd>
+    list information like <a href="index.html#list">list</a>, but return as a map.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>pattern</em></code>:  a string which is partially matched against packages</li>
+       <li><code><em>version</em></code>:  a specific version, may be nil.</li>
+       <li><code><em>flags</em></code>:  <a href="index.html#flags">flags</a></li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        a table where the keys are package names and values are <a href="index.html#local_info_table">local_info_table</a>
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "compare_versions"></a>
+    <strong>compare_versions&nbsp;(linfo, info)</strong>
+    </dt>
+    <dd>
+    is this package outdated?.
+     <a href="examples/check.lua.html#">check.lua</a> shows how to compare installed and available packages.
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>linfo</em></code>:  local info table</li>
+       <li><code><em>info</em></code>:  server info table</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        true if the package is out of date.
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "search"></a>
+    <strong>search&nbsp;(pattern, version, flags)</strong>
+    </dt>
+    <dd>
+    search LuaRocks repositories for a package.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>pattern</em></code>:  a string which is partially matched against packages</li>
+       <li><code><em>version</em></code>:  a specific version, may be nil.</li>
+       <li><code><em>flags</em></code>: 
+<p> <a href="index.html#flags">flags</a> a table with keys</p>
+
+<ul>
+    <li>'all' means get all version information,</li>
+    <li>'from' to add another repository to the search</li>
+    <li>'only_from' to only search one repository</li>
+    <li>'details' get more information about each package</li>
+</ul>
+</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        
+<p>a list of server information.</p>
+
+<ul>
+    <li>Without 'all', we get package, version and the remote server (repo)</li>
+    <li>With 'all', instead of the repo we get versions, which is a list of
+    <ul>
+        <li>version</li>
+        <li>repos</li>
+    </ul></li>
+    <li>with 'details', you get pretty much what <a href="index.html#list">list</a> returns. Note that
+    this function will then have to download the remote rockspec for this,
+    and may not always be able to deduce the modules provided by a package.</li>
+</ul>
+
+    </ol>
+
+    <h3>see also:</h3>
+    <ul>
+         <a href="examples/search.lua.html#">search.lua</a>
+    </ul>
+</dd>
+    <dt>
+    <a name = "search_map"></a>
+    <strong>search_map&nbsp;(pattern, version, flags)</strong>
+    </dt>
+    <dd>
+    search repositories like <a href="index.html#search">search</a>, but return a map.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>pattern</em></code>:  a string which is partially matched against packages</li>
+       <li><code><em>version</em></code>:  a specific version, may be nil.</li>
+       <li><code><em>flags</em></code>:  <a href="index.html#flags">flags</a></li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        a table of server information indexed by package name.
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "install"></a>
+    <strong>install&nbsp;(name, version, flags)</strong>
+    </dt>
+    <dd>
+    install a rock.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>name</em></code>: 
+
+</li>
+       <li><code><em>version</em></code>:  can ask for a specific version (default nil means get latest)</li>
+       <li><code><em>flags</em></code>:  <a href="index.html#flags">flags</a> <code>use_local</code> to install to local tree,
+ <code>from</code> to add another repository to the search and <code>only_from</code> to only use
+ the given repository</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>true if successful, nil if not.</li>
+        <li>error message if not</li>
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "remove"></a>
+    <strong>remove&nbsp;(name, version)</strong>
+    </dt>
+    <dd>
+    remove a rock.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>name</em></code>: 
+
+</li>
+       <li><code><em>version</em></code>:  a specific version (default nil means remove all)</li>
+    </ul>
+
+
+
+</dd>
+</dl>
+    <h2><a name="Tables"></a>Tables</h2>
+    
+    <dl class="function">
+    <dt>
+    <a name = "local_info_table"></a>
+    <strong>local_info_table</strong>
+    </dt>
+    <dd>
+    information returned by <a href="index.html#show">show</a> and <a href="index.html#list">list</a>.
+    
+
+    <h3>Fields:</h3>
+    <ul>
+       <li><code><em>package</em></code>:  canonical name</li>
+       <li><code><em>repo</em></code>:  the tree where found</li>
+       <li><code><em>version</em></code>: 
+
+</li>
+       <li><code><em>rock_dir</em></code>:  the full path to the rock</li>
+       <li><code><em>homepage</em></code>: 
+
+</li>
+       <li><code><em>maintainer</em></code>: 
+
+</li>
+       <li><code><em>license</em></code>: 
+
+</li>
+       <li><code><em>summary</em></code>: 
+
+</li>
+       <li><code><em>description</em></code>: 
+
+</li>
+       <li><code><em>build_type</em></code>:  (this is the rockspec's build.type)</li>
+       <li><code><em>modules</em></code>:  modules provided by this package</li>
+       <li><code><em>dependencies</em></code>:  packages that this package needs</li>
+    </ul>
+
+
+
+</dd>
+    <dt>
+    <a name = "flags"></a>
+    <strong>flags</strong>
+    </dt>
+    <dd>
+    known flag names for the <code>flags</code> parameter.
+    
+
+    <h3>Fields:</h3>
+    <ul>
+       <li><code><em>exact</em></code>:  (bool) query pattern is an exact name (default false)</li>
+       <li><code><em>use_local</em></code>:  use local rock tree, not global (default false)</li>
+       <li><code><em>from</em></code>:  include this URL in <a href="index.html#search">search</a></li>
+       <li><code><em>only_from</em></code>:  only use this URL in <a href="index.html#search">search</a></li>
+       <li><code><em>all</em></code>:  get all version info with <a href="index.html#search">search</a></li>
+       <li><code><em>quiet</em></code>:  suppress output to stdout, write it all to a log file.
+ Can use <a href="index.html#get_log_file">get_log_file</a> to find the name of the log.</li>
+    </ul>
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 0.5</a></i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
+
