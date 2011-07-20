@@ -20,7 +20,7 @@ description = {
 build = {
   type = "builtin",
   modules = {
-    ["luarocks.api"] = "lua/luarocks/api.lua"
+    ["luarocks.api"] = "luarocks/api.lua"
   }
 }
 

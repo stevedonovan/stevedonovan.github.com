@@ -1,0 +1,688 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>luarocks documentation</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+
+<h1>luarocks</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+<h2>Modules</h2>
+<ul>
+  <li><a href="../modules/luarocks.add.html">luarocks.add</a></li>
+  <li><a href="../modules/luarocks.build.html">luarocks.build</a></li>
+  <li><a href="../modules/luarocks.build.builtin.html">luarocks.build.builtin</a></li>
+  <li><a href="../modules/luarocks.build.cmake.html">luarocks.build.cmake</a></li>
+  <li><a href="../modules/luarocks.build.command.html">luarocks.build.command</a></li>
+  <li><a href="../modules/luarocks.build.lake.html">luarocks.build.lake</a></li>
+  <li><a href="../modules/luarocks.build.make.html">luarocks.build.make</a></li>
+  <li><a href="../modules/luarocks.cache.html">luarocks.cache</a></li>
+  <li><a href="../modules/luarocks.cfg.html">luarocks.cfg</a></li>
+  <li><a href="../modules/luarocks.command_line.html">luarocks.command_line</a></li>
+  <li><a href="../modules/luarocks.config.html">luarocks.config</a></li>
+  <li><a href="../modules/luarocks.deps.html">luarocks.deps</a></li>
+  <li><a href="../modules/luarocks.dir.html">luarocks.dir</a></li>
+  <li><a href="../modules/luarocks.download.html">luarocks.download</a></li>
+  <li><a href="../modules/luarocks.fetch.html">luarocks.fetch</a></li>
+  <li><a href="../modules/luarocks.fetch.cvs.html">luarocks.fetch.cvs</a></li>
+  <li><a href="../modules/luarocks.fetch.git.html">luarocks.fetch.git</a></li>
+  <li><a href="../modules/luarocks.fetch.sscm.html">luarocks.fetch.sscm</a></li>
+  <li><a href="../modules/luarocks.fetch.svn.html">luarocks.fetch.svn</a></li>
+  <li><a href="../modules/luarocks.fs.html">luarocks.fs</a></li>
+  <li><a href="../modules/luarocks.fs.lua.html">luarocks.fs.lua</a></li>
+  <li><a href="../modules/luarocks.fs.unix.html">luarocks.fs.unix</a></li>
+  <li><strong>luarocks.fs.unix.tools</strong></li>
+  <li><a href="../modules/luarocks.fs.win32.html">luarocks.fs.win32</a></li>
+  <li><a href="../modules/luarocks.fs.win32.tools.html">luarocks.fs.win32.tools</a></li>
+  <li><a href="../modules/luarocks.help.html">luarocks.help</a></li>
+  <li><a href="../modules/luarocks.index.html">luarocks.index</a></li>
+  <li><a href="../modules/luarocks.install.html">luarocks.install</a></li>
+  <li><a href="../modules/luarocks.list.html">luarocks.list</a></li>
+  <li><a href="../modules/luarocks.loader.html">luarocks.loader</a></li>
+  <li><a href="../modules/luarocks.make.html">luarocks.make</a></li>
+  <li><a href="../modules/luarocks.make_manifest.html">luarocks.make_manifest</a></li>
+  <li><a href="../modules/luarocks.manif.html">luarocks.manif</a></li>
+  <li><a href="../modules/luarocks.manif_core.html">luarocks.manif_core</a></li>
+  <li><a href="../modules/luarocks.pack.html">luarocks.pack</a></li>
+  <li><a href="../modules/luarocks.path.html">luarocks.path</a></li>
+  <li><a href="../modules/luarocks.persist.html">luarocks.persist</a></li>
+  <li><a href="../modules/luarocks.refresh_cache.html">luarocks.refresh_cache</a></li>
+  <li><a href="../modules/luarocks.remove.html">luarocks.remove</a></li>
+  <li><a href="../modules/luarocks.rep.html">luarocks.rep</a></li>
+  <li><a href="../modules/luarocks.require.html">luarocks.require</a></li>
+  <li><a href="../modules/luarocks.search.html">luarocks.search</a></li>
+  <li><a href="../modules/luarocks.show.html">luarocks.show</a></li>
+  <li><a href="../modules/luarocks.tools.tar.html">luarocks.tools.tar</a></li>
+  <li><a href="../modules/luarocks.tools.zip.html">luarocks.tools.zip</a></li>
+  <li><a href="../modules/luarocks.type_check.html">luarocks.type_check</a></li>
+  <li><a href="../modules/luarocks.unpack.html">luarocks.unpack</a></li>
+  <li><a href="../modules/luarocks.util.html">luarocks.util</a></li>
+  <li><a href="../modules/luarocks.validate.html">luarocks.validate</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>luarocks.fs.unix.tools</code></h1>
+
+<p>fs operations implemented with third-party tools for Unix platform abstractions.</p>
+<p></p>
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#execute_string">execute_string&nbsp;(cmd)</a></td>
+	<td class="summary">Run the given command.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#current_dir">current_dir&nbsp;()</a></td>
+	<td class="summary">Obtain current directory.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#change_dir">change_dir&nbsp;(d)</a></td>
+	<td class="summary">Change the current directory.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#change_dir_to_root">change_dir_to_root&nbsp;()</a></td>
+	<td class="summary">Change directory to root.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#pop_dir">pop_dir&nbsp;()</a></td>
+	<td class="summary">Change working directory to the previous in the dir stack.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#make_dir">make_dir&nbsp;(d)</a></td>
+	<td class="summary">Create a directory if it does not already exist.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#remove_dir_if_empty">remove_dir_if_empty&nbsp;(dir, d)</a></td>
+	<td class="summary">Remove a directory if it is empty.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#remove_dir_tree_if_empty">remove_dir_tree_if_empty&nbsp;(dir, d)</a></td>
+	<td class="summary">Remove a directory if it is empty.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#copy">copy&nbsp;(src, dest)</a></td>
+	<td class="summary">Copy a file.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#copy_contents">copy_contents&nbsp;(src, dest)</a></td>
+	<td class="summary">Recursively copy the contents of a directory.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#delete">delete&nbsp;(arg)</a></td>
+	<td class="summary">Delete a file or a directory and all its contents.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list_dir">list_dir&nbsp;(at)</a></td>
+	<td class="summary">List the contents of a directory.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#find">find&nbsp;(at)</a></td>
+	<td class="summary">Recursively scan the contents of a directory.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#zip">zip&nbsp;(zipfile, ...)</a></td>
+	<td class="summary">Compress files in a .zip archive.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unzip">unzip&nbsp;(zipfile)</a></td>
+	<td class="summary">Uncompress files from a .zip archive.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#exists">exists&nbsp;(file)</a></td>
+	<td class="summary">Test for existance of a file.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#is_writable">is_writable&nbsp;(file)</a></td>
+	<td class="summary">Test is file/dir is writable.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#is_dir">is_dir&nbsp;(file)</a></td>
+	<td class="summary">Test is pathname is a directory.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#is_file">is_file&nbsp;(file)</a></td>
+	<td class="summary">Test is pathname is a regular file.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#download">download&nbsp;(url, filename)</a></td>
+	<td class="summary">Download a remote file.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#apply_patch">apply_patch&nbsp;(patchname)</a></td>
+	<td class="summary">Apply a patch.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unpack_archive">unpack_archive&nbsp;(archive)</a></td>
+	<td class="summary">Unpack an archive.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#get_md5">get_md5&nbsp;(file, md5sum)</a></td>
+	<td class="summary">Get the MD5 checksum for a file.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unpack_archive">unpack_archive&nbsp;(archive)</a></td>
+	<td class="summary">Unpack an archive.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2><a name="Functions"></a>Functions</h2>
+    
+    <dl class="function">
+    <dt>
+    <a name = "execute_string"></a>
+    <strong>execute_string&nbsp;(cmd)</strong>
+    </dt>
+    <dd>
+    Run the given command.
+     The command is executed in the current directory in the dir stack.
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>cmd</em></code>:  string: No quoting/escaping is applied to the command.</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        boolean: true if command succeeds (status code 0), false
+ otherwise.
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "current_dir"></a>
+    <strong>current_dir&nbsp;()</strong>
+    </dt>
+    <dd>
+    Obtain current directory.
+     Uses the module's internal dir stack.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+        string: the absolute pathname of the current directory.
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "change_dir"></a>
+    <strong>change_dir&nbsp;(d)</strong>
+    </dt>
+    <dd>
+    Change the current directory.
+     Uses the module's internal dir stack. This does not have exact
+ semantics of chdir, as it does not handle errors the same way,
+ but works well for our purposes for now.
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>d</em></code>:  string: The directory to switch to.</li>
+    </ul>
+
+
+
+</dd>
+    <dt>
+    <a name = "change_dir_to_root"></a>
+    <strong>change_dir_to_root&nbsp;()</strong>
+    </dt>
+    <dd>
+    Change directory to root.
+     Allows leaving a directory (e.g. for deleting it) in
+ a crossplatform way.
+
+
+
+
+</dd>
+    <dt>
+    <a name = "pop_dir"></a>
+    <strong>pop_dir&nbsp;()</strong>
+    </dt>
+    <dd>
+    Change working directory to the previous in the dir stack.
+    
+
+
+
+
+</dd>
+    <dt>
+    <a name = "make_dir"></a>
+    <strong>make_dir&nbsp;(d)</strong>
+    </dt>
+    <dd>
+    Create a directory if it does not already exist.
+     If any of the higher levels in the path name does not exist
+ too, they are created as well.
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>d</em></code>:  string: pathname of directory to create.</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        boolean: true on success, false on failure.
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "remove_dir_if_empty"></a>
+    <strong>remove_dir_if_empty&nbsp;(dir, d)</strong>
+    </dt>
+    <dd>
+    Remove a directory if it is empty.
+     Does not return errors (for example, if directory is not empty or
+ if already does not exist)
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>dir</em></code>:  string: pathname of directory to remove.</li>
+       <li><code><em>d</em></code>: </li>
+    </ul>
+
+
+
+</dd>
+    <dt>
+    <a name = "remove_dir_tree_if_empty"></a>
+    <strong>remove_dir_tree_if_empty&nbsp;(dir, d)</strong>
+    </dt>
+    <dd>
+    Remove a directory if it is empty.
+     Does not return errors (for example, if directory is not empty or
+ if already does not exist)
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>dir</em></code>:  string: pathname of directory to remove.</li>
+       <li><code><em>d</em></code>: </li>
+    </ul>
+
+
+
+</dd>
+    <dt>
+    <a name = "copy"></a>
+    <strong>copy&nbsp;(src, dest)</strong>
+    </dt>
+    <dd>
+    Copy a file.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>src</em></code>:  string: Pathname of source</li>
+       <li><code><em>dest</em></code>:  string: Pathname of destination</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        boolean or (boolean, string): true on success, false on failure,
+ plus an error message.
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "copy_contents"></a>
+    <strong>copy_contents&nbsp;(src, dest)</strong>
+    </dt>
+    <dd>
+    Recursively copy the contents of a directory.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>src</em></code>:  string: Pathname of source</li>
+       <li><code><em>dest</em></code>:  string: Pathname of destination</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        boolean or (boolean, string): true on success, false on failure,
+ plus an error message.
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "delete"></a>
+    <strong>delete&nbsp;(arg)</strong>
+    </dt>
+    <dd>
+    Delete a file or a directory and all its contents.
+     For safety, this only accepts absolute paths.
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>arg</em></code>:  string: Pathname of source</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        boolean: true on success, false on failure.
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "list_dir"></a>
+    <strong>list_dir&nbsp;(at)</strong>
+    </dt>
+    <dd>
+    List the contents of a directory.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>at</em></code>:  string or nil: directory to list (will be the current
+ directory if none is given).</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        table: an array of strings with the filenames representing
+ the contents of a directory.
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "find"></a>
+    <strong>find&nbsp;(at)</strong>
+    </dt>
+    <dd>
+    Recursively scan the contents of a directory.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>at</em></code>:  string or nil: directory to scan (will be the current
+ directory if none is given).</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        table: an array of strings with the filenames representing
+ the contents of a directory.
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "zip"></a>
+    <strong>zip&nbsp;(zipfile, ...)</strong>
+    </dt>
+    <dd>
+    Compress files in a .zip archive.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>zipfile</em></code>:  string: pathname of .zip archive to be created.</li>
+       <li><code><em>...</em></code>:  Filenames to be stored in the archive are given as
+ additional arguments.</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        boolean: true on success, false on failure.
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "unzip"></a>
+    <strong>unzip&nbsp;(zipfile)</strong>
+    </dt>
+    <dd>
+    Uncompress files from a .zip archive.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>zipfile</em></code>:  string: pathname of .zip archive to be extracted.</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        boolean: true on success, false on failure.
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "exists"></a>
+    <strong>exists&nbsp;(file)</strong>
+    </dt>
+    <dd>
+    Test for existance of a file.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>file</em></code>:  string: filename to test</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        boolean: true if file exists, false otherwise.
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "is_writable"></a>
+    <strong>is_writable&nbsp;(file)</strong>
+    </dt>
+    <dd>
+    Test is file/dir is writable.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>file</em></code>:  string: filename to test</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        boolean: true if file exists, false otherwise.
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "is_dir"></a>
+    <strong>is_dir&nbsp;(file)</strong>
+    </dt>
+    <dd>
+    Test is pathname is a directory.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>file</em></code>:  string: pathname to test</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        boolean: true if it is a directory, false otherwise.
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "is_file"></a>
+    <strong>is_file&nbsp;(file)</strong>
+    </dt>
+    <dd>
+    Test is pathname is a regular file.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>file</em></code>:  string: pathname to test</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        boolean: true if it is a regular file, false otherwise.
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "download"></a>
+    <strong>download&nbsp;(url, filename)</strong>
+    </dt>
+    <dd>
+    Download a remote file.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>url</em></code>:  string: URL to be fetched.</li>
+       <li><code><em>filename</em></code>:  string or nil: this function attempts to detect the
+ resulting local filename of the remote file as the basename of the URL;
+ if that is not correct (due to a redirection, for example), the local
+ filename can be given explicitly as this second argument.</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        boolean: true on success, false on failure.
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "apply_patch"></a>
+    <strong>apply_patch&nbsp;(patchname)</strong>
+    </dt>
+    <dd>
+    Apply a patch.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>patchname</em></code>:  string: The filename of the patch.</li>
+    </ul>
+
+
+
+</dd>
+    <dt>
+    <a name = "unpack_archive"></a>
+    <strong>unpack_archive&nbsp;(archive)</strong>
+    </dt>
+    <dd>
+    Unpack an archive.
+     Extract the contents of an archive, detecting its format by
+ filename extension.
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>archive</em></code>:  string: Filename of archive.</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        boolean or (boolean, string): true on success, false and an error message on failure.
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "get_md5"></a>
+    <strong>get_md5&nbsp;(file, md5sum)</strong>
+    </dt>
+    <dd>
+    Get the MD5 checksum for a file.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>file</em></code>:  string: The file to be computed.</li>
+       <li><code><em>md5sum</em></code>: </li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        string: The MD5 checksum
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "unpack_archive"></a>
+    <strong>unpack_archive&nbsp;(archive)</strong>
+    </dt>
+    <dd>
+    Unpack an archive.
+     Extract the contents of an archive, detecting its format by
+ filename extension.
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>archive</em></code>:  string: Filename of archive.</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        boolean or (boolean, string): true on success, false and an error message on failure.
+    </ol>
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 0.5</a></i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
+

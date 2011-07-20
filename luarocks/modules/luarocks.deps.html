@@ -1,0 +1,498 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>luarocks documentation</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+
+<h1>luarocks</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+<h2>Modules</h2>
+<ul>
+  <li><a href="../modules/luarocks.add.html">luarocks.add</a></li>
+  <li><a href="../modules/luarocks.build.html">luarocks.build</a></li>
+  <li><a href="../modules/luarocks.build.builtin.html">luarocks.build.builtin</a></li>
+  <li><a href="../modules/luarocks.build.cmake.html">luarocks.build.cmake</a></li>
+  <li><a href="../modules/luarocks.build.command.html">luarocks.build.command</a></li>
+  <li><a href="../modules/luarocks.build.lake.html">luarocks.build.lake</a></li>
+  <li><a href="../modules/luarocks.build.make.html">luarocks.build.make</a></li>
+  <li><a href="../modules/luarocks.cache.html">luarocks.cache</a></li>
+  <li><a href="../modules/luarocks.cfg.html">luarocks.cfg</a></li>
+  <li><a href="../modules/luarocks.command_line.html">luarocks.command_line</a></li>
+  <li><a href="../modules/luarocks.config.html">luarocks.config</a></li>
+  <li><strong>luarocks.deps</strong></li>
+  <li><a href="../modules/luarocks.dir.html">luarocks.dir</a></li>
+  <li><a href="../modules/luarocks.download.html">luarocks.download</a></li>
+  <li><a href="../modules/luarocks.fetch.html">luarocks.fetch</a></li>
+  <li><a href="../modules/luarocks.fetch.cvs.html">luarocks.fetch.cvs</a></li>
+  <li><a href="../modules/luarocks.fetch.git.html">luarocks.fetch.git</a></li>
+  <li><a href="../modules/luarocks.fetch.sscm.html">luarocks.fetch.sscm</a></li>
+  <li><a href="../modules/luarocks.fetch.svn.html">luarocks.fetch.svn</a></li>
+  <li><a href="../modules/luarocks.fs.html">luarocks.fs</a></li>
+  <li><a href="../modules/luarocks.fs.lua.html">luarocks.fs.lua</a></li>
+  <li><a href="../modules/luarocks.fs.unix.html">luarocks.fs.unix</a></li>
+  <li><a href="../modules/luarocks.fs.unix.tools.html">luarocks.fs.unix.tools</a></li>
+  <li><a href="../modules/luarocks.fs.win32.html">luarocks.fs.win32</a></li>
+  <li><a href="../modules/luarocks.fs.win32.tools.html">luarocks.fs.win32.tools</a></li>
+  <li><a href="../modules/luarocks.help.html">luarocks.help</a></li>
+  <li><a href="../modules/luarocks.index.html">luarocks.index</a></li>
+  <li><a href="../modules/luarocks.install.html">luarocks.install</a></li>
+  <li><a href="../modules/luarocks.list.html">luarocks.list</a></li>
+  <li><a href="../modules/luarocks.loader.html">luarocks.loader</a></li>
+  <li><a href="../modules/luarocks.make.html">luarocks.make</a></li>
+  <li><a href="../modules/luarocks.make_manifest.html">luarocks.make_manifest</a></li>
+  <li><a href="../modules/luarocks.manif.html">luarocks.manif</a></li>
+  <li><a href="../modules/luarocks.manif_core.html">luarocks.manif_core</a></li>
+  <li><a href="../modules/luarocks.pack.html">luarocks.pack</a></li>
+  <li><a href="../modules/luarocks.path.html">luarocks.path</a></li>
+  <li><a href="../modules/luarocks.persist.html">luarocks.persist</a></li>
+  <li><a href="../modules/luarocks.refresh_cache.html">luarocks.refresh_cache</a></li>
+  <li><a href="../modules/luarocks.remove.html">luarocks.remove</a></li>
+  <li><a href="../modules/luarocks.rep.html">luarocks.rep</a></li>
+  <li><a href="../modules/luarocks.require.html">luarocks.require</a></li>
+  <li><a href="../modules/luarocks.search.html">luarocks.search</a></li>
+  <li><a href="../modules/luarocks.show.html">luarocks.show</a></li>
+  <li><a href="../modules/luarocks.tools.tar.html">luarocks.tools.tar</a></li>
+  <li><a href="../modules/luarocks.tools.zip.html">luarocks.tools.zip</a></li>
+  <li><a href="../modules/luarocks.type_check.html">luarocks.type_check</a></li>
+  <li><a href="../modules/luarocks.unpack.html">luarocks.unpack</a></li>
+  <li><a href="../modules/luarocks.util.html">luarocks.util</a></li>
+  <li><a href="../modules/luarocks.validate.html">luarocks.validate</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>luarocks.deps</code></h1>
+
+<p>Dependency handling functions.</p>
+<p> Dependencies are represented in LuaRocks through strings with
+ a package name followed by a comma-separated list of constraints.
+ Each constraint consists of an operator and a version number.
+ In this string format, version numbers are represented as
+ naturally as possible, like they are used by upstream projects
+ (e.g. "2.0beta3"). Internally, LuaRocks converts them to a purely
+ numeric representation, allowing comparison following some
+ "common sense" heuristics. The precise specification of the
+ comparison criteria is the source code of this module, but the
+ test/test_deps.lua file included with LuaRocks provides some
+ insights on what these criteria are.</p>
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#__eq">__eq&nbsp;(v1, v2)</a></td>
+	<td class="summary">Equality comparison for versions.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#__lt">__lt&nbsp;(v1, v2)</a></td>
+	<td class="summary">Size comparison for versions.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#parse_version">parse_version&nbsp;(vstring)</a></td>
+	<td class="summary">Parse a version string, converting to table format.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#compare_versions">compare_versions&nbsp;(a, b)</a></td>
+	<td class="summary">Utility function to compare version numbers given as strings.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#parse_constraints">parse_constraints&nbsp;(input)</a></td>
+	<td class="summary">Convert a list of constraints from string to table format.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#parse_dep">parse_dep&nbsp;(dep)</a></td>
+	<td class="summary">Convert a dependency from string to table format.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#show_version">show_version&nbsp;(v, internal)</a></td>
+	<td class="summary">Convert a version table to a string.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#show_dep">show_dep&nbsp;(dep, internal)</a></td>
+	<td class="summary">Convert a dependency in table format to a string.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#match_constraints">match_constraints&nbsp;(version, constraints)</a></td>
+	<td class="summary">Check if a version satisfies a set of constraints.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#match_deps">match_deps&nbsp;(rockspec, blacklist)</a></td>
+	<td class="summary">Attempt to match dependencies of a rockspec to installed rocks.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#fulfill_dependencies">fulfill_dependencies&nbsp;(rockspec)</a></td>
+	<td class="summary">Check dependencies of a rock and attempt to install any missing ones.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#check_external_deps">check_external_deps&nbsp;(rockspec, mode)</a></td>
+	<td class="summary">Set up path-related variables for external dependencies.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#scan_deps">scan_deps&nbsp;(results, name, version, missing, manifest)</a></td>
+	<td class="summary">Recursively scan dependencies, to build a transitive closure of all
+ dependent packages.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2><a name="Functions"></a>Functions</h2>
+    
+    <dl class="function">
+    <dt>
+    <a name = "__eq"></a>
+    <strong>__eq&nbsp;(v1, v2)</strong>
+    </dt>
+    <dd>
+    Equality comparison for versions.
+     All version numbers must be equal.
+ If both versions have revision numbers, they must be equal;
+ otherwise the revision number is ignored.
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>v1</em></code>:  table: version table to compare.</li>
+       <li><code><em>v2</em></code>:  table: version table to compare.</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        boolean: true if they are considered equivalent.
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "__lt"></a>
+    <strong>__lt&nbsp;(v1, v2)</strong>
+    </dt>
+    <dd>
+    Size comparison for versions.
+     All version numbers are compared.
+ If both versions have revision numbers, they are compared;
+ otherwise the revision number is ignored.
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>v1</em></code>:  table: version table to compare.</li>
+       <li><code><em>v2</em></code>:  table: version table to compare.</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        boolean: true if v1 is considered lower than v2.
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "parse_version"></a>
+    <strong>parse_version&nbsp;(vstring)</strong>
+    </dt>
+    <dd>
+    Parse a version string, converting to table format.
+     A version table contains all components of the version string
+ converted to numeric format, stored in the array part of the table.
+ If the version contains a revision, it is stored numerically
+ in the 'revision' field. The original string representation of
+ the string is preserved in the 'string' field.
+ Returned version tables use a metatable
+ allowing later comparison through relational operators.
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>vstring</em></code>:  string: A version number in string format.</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        table or nil: A version table or nil
+ if the input string contains invalid characters.
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "compare_versions"></a>
+    <strong>compare_versions&nbsp;(a, b)</strong>
+    </dt>
+    <dd>
+    Utility function to compare version numbers given as strings.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>a</em></code>:  string: one version.</li>
+       <li><code><em>b</em></code>:  string: another version.</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        boolean: True if a > b.
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "parse_constraints"></a>
+    <strong>parse_constraints&nbsp;(input)</strong>
+    </dt>
+    <dd>
+    Convert a list of constraints from string to table format.
+     For example, a string ">= 1.0, < 2.0" is converted to a table in the format
+ {{op = ">=", version={1,0}}, {op = "<", version={2,0}}}.
+ Version tables use a metatable allowing later comparison through
+ relational operators.
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>input</em></code>:  string: A list of constraints in string format.</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        table or nil: A table representing the same constraints,
+ or nil if the input string is invalid.
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "parse_dep"></a>
+    <strong>parse_dep&nbsp;(dep)</strong>
+    </dt>
+    <dd>
+    Convert a dependency from string to table format.
+     For example, a string "foo >= 1.0, < 2.0"
+ is converted to a table in the format
+ {name = "foo", constraints = {{op = ">=", version={1,0}},
+ {op = "<", version={2,0}}}}. Version tables use a metatable
+ allowing later comparison through relational operators.
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>dep</em></code>:  string: A dependency in string format
+ as entered in rockspec files.</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        table or nil: A table representing the same dependency relation,
+ or nil if the input string is invalid.
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "show_version"></a>
+    <strong>show_version&nbsp;(v, internal)</strong>
+    </dt>
+    <dd>
+    Convert a version table to a string.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>v</em></code>:  table: The version table</li>
+       <li><code><em>internal</em></code>:  boolean or nil: Whether to display versions in their
+ internal representation format or how they were specified.</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        string: The dependency information pretty-printed as a string.
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "show_dep"></a>
+    <strong>show_dep&nbsp;(dep, internal)</strong>
+    </dt>
+    <dd>
+    Convert a dependency in table format to a string.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>dep</em></code>:  table: The dependency in table format</li>
+       <li><code><em>internal</em></code>:  boolean or nil: Whether to display versions in their
+ internal representation format or how they were specified.</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        string: The dependency information pretty-printed as a string.
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "match_constraints"></a>
+    <strong>match_constraints&nbsp;(version, constraints)</strong>
+    </dt>
+    <dd>
+    Check if a version satisfies a set of constraints.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>version</em></code>:  table: A version in table format</li>
+       <li><code><em>constraints</em></code>:  table: An array of constraints in table format.</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        boolean: True if version satisfies all constraints,
+ false otherwise.
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "match_deps"></a>
+    <strong>match_deps&nbsp;(rockspec, blacklist)</strong>
+    </dt>
+    <dd>
+    Attempt to match dependencies of a rockspec to installed rocks.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>rockspec</em></code>:  table: The rockspec loaded as a table.</li>
+       <li><code><em>blacklist</em></code>:  table or nil: Program versions to not use as valid matches.
+ Table where keys are program names and values are tables where keys
+ are program versions and values are 'true'.</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        table, table: A table where keys are dependencies parsed
+ in table format and values are tables containing fields 'name' and
+ version' representing matches, and a table of missing dependencies
+ parsed as tables.
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "fulfill_dependencies"></a>
+    <strong>fulfill_dependencies&nbsp;(rockspec)</strong>
+    </dt>
+    <dd>
+    Check dependencies of a rock and attempt to install any missing ones.
+     Packages are installed using the LuaRocks "install" command.
+ Aborts the program if a dependency could not be fulfilled.
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>rockspec</em></code>:  table: A rockspec in table format.</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        boolean or (nil, string, [string]): True if no errors occurred, or
+ nil and an error message if any test failed, followed by an optional
+ error code.
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "check_external_deps"></a>
+    <strong>check_external_deps&nbsp;(rockspec, mode)</strong>
+    </dt>
+    <dd>
+    Set up path-related variables for external dependencies.
+     For each key in the external_dependencies table in the
+ rockspec file, four variables are created: <key>_DIR, <key>_BINDIR,
+ <key>_INCDIR and <key>_LIBDIR. These are not overwritten
+ if already set (e.g. by the LuaRocks config file or through the
+ command-line). Values in the external_dependencies table
+ are tables that may contain a "header" or a "library" field,
+ with filenames to be tested for existence.
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>rockspec</em></code>:  table: The rockspec table.</li>
+       <li><code><em>mode</em></code>:  string: if "build" is given, checks all files;
+ if "install" is given, do not scan for headers.</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        boolean or (nil, string): True if no errors occurred, or
+ nil and an error message if any test failed.
+    </ol>
+
+</dd>
+    <dt>
+    <a name = "scan_deps"></a>
+    <strong>scan_deps&nbsp;(results, name, version, missing, manifest)</strong>
+    </dt>
+    <dd>
+    Recursively scan dependencies, to build a transitive closure of all
+ dependent packages.
+    
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>results</em></code>:  table: The results table being built.</li>
+       <li><code><em>name</em></code>:  string: Package name.</li>
+       <li><code><em>version</em></code>:  string: Package version.</li>
+       <li><code><em>missing</em></code>: </li>
+       <li><code><em>manifest</em></code>: </li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        (table, table): The results and a table of missing dependencies.
+    </ol>
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 0.5</a></i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
+
