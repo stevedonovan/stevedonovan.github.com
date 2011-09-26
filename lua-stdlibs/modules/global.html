@@ -1,0 +1,562 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Lua</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+
+
+<h2>Functions</h2>
+<ul>
+    <li><a href="#assert">assert&nbsp;(v, message)</a></li>
+    <li><a href="#collectgarbage">collectgarbage&nbsp;(opt, arg)</a></li>
+    <li><a href="#dofile">dofile&nbsp;(filename)</a></li>
+    <li><a href="#error">error&nbsp;(message, level)</a></li>
+    <li><a href="#getfenv">getfenv&nbsp;(f)</a></li>
+    <li><a href="#getmetatable">getmetatable&nbsp;(object)</a></li>
+    <li><a href="#ipairs">ipairs&nbsp;(t)</a></li>
+    <li><a href="#load">load&nbsp;(func, chunkname)</a></li>
+    <li><a href="#loadfile">loadfile&nbsp;(filename)</a></li>
+    <li><a href="#loadstring">loadstring&nbsp;(string, chunkname)</a></li>
+    <li><a href="#next">next&nbsp;(table, index)</a></li>
+    <li><a href="#pairs">pairs&nbsp;(t)</a></li>
+    <li><a href="#pcall">pcall&nbsp;(f, arg1, ...)</a></li>
+    <li><a href="#print">print&nbsp;(...)</a></li>
+    <li><a href="#rawequal">rawequal&nbsp;(v1, v2)</a></li>
+    <li><a href="#rawget">rawget&nbsp;(table, index)</a></li>
+    <li><a href="#rawset">rawset&nbsp;(table, index, value)</a></li>
+    <li><a href="#select">select&nbsp;(index, ...)</a></li>
+    <li><a href="#setfenv">setfenv&nbsp;(f, table)</a></li>
+    <li><a href="#setmetatable">setmetatable&nbsp;(table, metatable)</a></li>
+    <li><a href="#tonumber">tonumber&nbsp;(e, base)</a></li>
+    <li><a href="#tostring">tostring&nbsp;(e)</a></li>
+    <li><a href="#type">type&nbsp;(v)</a></li>
+    <li><a href="#unpack">unpack&nbsp;(list, i, j)</a></li>
+    <li><a href="#xpcall">xpcall&nbsp;(f, err)</a></li>
+    <li><a href="#module">module&nbsp;(name, ...)</a></li>
+    <li><a href="#require">require&nbsp;(modname)</a></li>
+</ul>
+<h2>Modules</h2>
+<ul>
+  <li><a href="../modules/coroutine.html">coroutine</a></li>
+  <li><a href="../modules/debug.html">debug</a></li>
+  <li><strong>global</strong></li>
+  <li><a href="../modules/io.html">io</a></li>
+  <li><a href="../modules/lfs.html">lfs</a></li>
+  <li><a href="../modules/lpeg.html">lpeg</a></li>
+  <li><a href="../modules/math.html">math</a></li>
+  <li><a href="../modules/os.html">os</a></li>
+  <li><a href="../modules/package.html">package</a></li>
+  <li><a href="../modules/string.html">string</a></li>
+  <li><a href="../modules/table.html">table</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>global</code></h1>
+
+<p>Lua global functions.</p>
+<p>
+</p>
+
+
+    <h2><a name="Functions"></a>Functions</h2>
+    
+    <dl class="function">
+    <dt>
+    <a name = "assert"></a>
+    <strong>assert&nbsp;(v, message)</strong>
+    </dt>
+    <dd>
+    Issues an error when the value of its argument <code>v</code> is false (i.e.,
+ nil or false); otherwise, returns all its arguments.  <code>message</code> is an error
+ message; when absent, it defaults to &ldquo;assertion failed!&rdquo;
+
+
+
+
+</dd>
+    <dt>
+    <a name = "collectgarbage"></a>
+    <strong>collectgarbage&nbsp;(opt, arg)</strong>
+    </dt>
+    <dd>
+    <p>This function is a generic interface to the garbage collector.  It
+ performs different functions according to its first argument, <code>opt</code>:</p>
+
+<ul>
+<li> &ldquo;stop&rdquo;: stops the garbage collector.</li>
+<li> &ldquo;restart&rdquo;: restarts the garbage collector.</li>
+<li> &ldquo;collect&rdquo;: performs a full garbage-collection cycle.</li>
+<li> &ldquo;count&rdquo;: returns the total memory in use by Lua (in Kbytes).</li>
+<li> &ldquo;step&rdquo;: performs a garbage-collection step. The step &ldquo;size&rdquo; is controlled
+by <code>arg</code> (larger values mean more steps) in a non-specified way. If you
+want to control the step size you must experimentally tune the value of</li>
+<li> <code>arg</code>. Returns true if the step finished a collection cycle.</li>
+<li> &ldquo;setpause&rdquo;: sets <code>arg</code> as the new value for the <em>pause</em> of the collector
+(see §2.10). Returns the previous value for <em>pause</em>.</li>
+<li> &ldquo;setstepmul&rdquo;: sets <code>arg</code> as the new value for the <em>step multiplier</em>
+of the collector (see §2.10). Returns the previous value for <em>step</em>.</li>
+</ul>
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "dofile"></a>
+    <strong>dofile&nbsp;(filename)</strong>
+    </dt>
+    <dd>
+    Opens the named file and executes its contents as a Lua chunk.  When
+ called without arguments,
+ <code>dofile</code> executes the contents of the standard input (<code>stdin</code>). Returns
+ all values returned by the chunk. In case of errors, <code>dofile</code> propagates
+ the error to its caller (that is, <code>dofile</code> does not run in protected mode).
+
+
+
+
+</dd>
+    <dt>
+    <a name = "error"></a>
+    <strong>error&nbsp;(message, level)</strong>
+    </dt>
+    <dd>
+    Terminates the last protected function called and returns <code>message</code>
+ as the error message.  Function <code>error</code> never returns.
+ Usually, <code>error</code> adds some information about the error position at the
+ beginning of the message. The <code>level</code> argument specifies how to get the
+ error position. With level 1 (the default), the error position is where the
+ <code>error</code> function was called. Level 2 points the error to where the function
+ that called <code>error</code> was called; and so on. Passing a level 0 avoids the
+ addition of error position information to the message.
+
+
+
+
+</dd>
+    <dt>
+    <a name = "getfenv"></a>
+    <strong>getfenv&nbsp;(f)</strong>
+    </dt>
+    <dd>
+    Returns the current environment in use by the function. 
+ <code>f</code> can be a Lua function or a number that specifies the function at that
+ stack level: Level 1 is the function calling <code>getfenv</code>. If the given
+ function is not a Lua function, or if <code>f</code> is 0, <code>getfenv</code> returns the
+ global environment. The default for <code>f</code> is 1.
+
+
+
+
+</dd>
+    <dt>
+    <a name = "getmetatable"></a>
+    <strong>getmetatable&nbsp;(object)</strong>
+    </dt>
+    <dd>
+    If <code>object</code> does not have a metatable, returns nil.  Otherwise, if the
+ object&rsquo;s metatable has a <code>"__metatable"</code> field, returns the associated
+ value. Otherwise, returns the metatable of the given object.
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ipairs"></a>
+    <strong>ipairs&nbsp;(t)</strong>
+    </dt>
+    <dd>
+    Returns three values: an iterator function, the table <code>t</code>, and 0,
+ so that the construction
+   for i,v in ipairs(t) do <em>body</em> end
+ will iterate over the pairs (<code>1,t[1]</code>), (<code>2,t[2]</code>), &hellip;, up to the
+ first integer key absent from the table. 
+
+
+
+
+</dd>
+    <dt>
+    <a name = "load"></a>
+    <strong>load&nbsp;(func, chunkname)</strong>
+    </dt>
+    <dd>
+    Loads a chunk using function <code>func</code> to get its pieces.  Each call to
+ <code>func</code> must return a string that concatenates with previous results. A
+ return of an empty string, nil, or no value signals the end of the chunk.
+ If there are no errors, returns the compiled chunk as a function; otherwise,
+ returns nil plus the error message. The environment of the returned function
+ is the global environment.
+ <code>chunkname</code> is used as the chunk name for error messages and debug
+ information. When absent, it defaults to &ldquo;<code>=(load)</code>&rdquo;.
+
+
+
+
+</dd>
+    <dt>
+    <a name = "loadfile"></a>
+    <strong>loadfile&nbsp;(filename)</strong>
+    </dt>
+    <dd>
+    Similar to <code>load</code>, but gets the chunk from file <code>filename</code> or from the
+ standard input, if no file name is given. 
+
+
+
+
+</dd>
+    <dt>
+    <a name = "loadstring"></a>
+    <strong>loadstring&nbsp;(string, chunkname)</strong>
+    </dt>
+    <dd>
+    Similar to <code>load</code>, but gets the chunk from the given string. 
+ To load and run a given string, use the idiom
+   assert(loadstring(s))()
+ When absent, <code>chunkname</code> defaults to the given string.
+
+
+
+
+</dd>
+    <dt>
+    <a name = "next"></a>
+    <strong>next&nbsp;(table, index)</strong>
+    </dt>
+    <dd>
+    Allows a program to traverse all fields of a table.  Its first argument is
+ a table and its second argument is an index in this table. <code>next</code> returns
+ the next index of the table and its associated value.</p>
+
+<p> When called with nil
+ as its second argument, <code>next</code> returns an initial index and its associated
+ value. When called with the last index, or with nil in an empty table, <code>next</code>
+ returns nil.</p>
+
+<p> If the second argument is absent, then it is interpreted as
+ nil. In particular, you can use <code>next(t)</code> to check whether a table is empty.
+ The order in which the indices are enumerated is not specified, <em>even for
+ numeric indices</em>. (To traverse a table in numeric order, use a numerical
+ for or the <code>ipairs</code> function.)</p>
+
+<p> The behavior of <code>next</code> is <em>undefined</em> if, during the traversal, you assign
+ any value to a non-existent field in the table. You may however modify
+ existing fields. In particular, you may clear existing fields.
+
+
+
+
+</dd>
+    <dt>
+    <a name = "pairs"></a>
+    <strong>pairs&nbsp;(t)</strong>
+    </dt>
+    <dd>
+    Returns three values: the <code>next</code> function, the table <code>t</code>, and nil,
+ so that the construction
+   for k,v in pairs(t) do <em>body</em> end
+ will iterate over all key–value pairs of table <code>t</code>. 
+ See function <code>next</code> for the caveats of modifying the table during its
+ traversal.
+
+
+
+
+</dd>
+    <dt>
+    <a name = "pcall"></a>
+    <strong>pcall&nbsp;(f, arg1, ...)</strong>
+    </dt>
+    <dd>
+    Calls function <code>f</code> with the given arguments in <em>protected mode</em>.  This
+ means that any error inside <code>f</code> is not propagated; instead, <code>pcall</code> catches
+ the error and returns a status code. Its first result is the status code (a
+ boolean), which is true if the call succeeds without errors. In such case,
+ <code>pcall</code> also returns all results from the call, after this first result. In
+ case of any error, <code>pcall</code> returns false plus the error message.
+
+
+
+
+</dd>
+    <dt>
+    <a name = "print"></a>
+    <strong>print&nbsp;(...)</strong>
+    </dt>
+    <dd>
+    Receives any number of arguments, and prints their values to <code>stdout</code>,
+ using the <code>tostring</code> function to convert them to strings.  <code>print</code> is not
+ intended for formatted output, but only as a quick way to show a value,
+ typically for debugging. For formatted output, use <code>string.format</code>.
+
+
+
+
+</dd>
+    <dt>
+    <a name = "rawequal"></a>
+    <strong>rawequal&nbsp;(v1, v2)</strong>
+    </dt>
+    <dd>
+    Checks whether <code>v1</code> is equal to <code>v2</code>, without invoking any
+ metamethod.  Returns a boolean.
+
+
+
+
+</dd>
+    <dt>
+    <a name = "rawget"></a>
+    <strong>rawget&nbsp;(table, index)</strong>
+    </dt>
+    <dd>
+    Gets the real value of <code>table[index]</code>, without invoking any
+ metamethod.  <code>table</code> must be a table; <code>index</code> may be any value.
+
+
+
+
+</dd>
+    <dt>
+    <a name = "rawset"></a>
+    <strong>rawset&nbsp;(table, index, value)</strong>
+    </dt>
+    <dd>
+    Sets the real value of <code>table[index]</code> to <code>value</code>, without invoking any
+ metamethod.  <code>table</code> must be a table, <code>index</code> any value different from nil,
+ and <code>value</code> any Lua value.
+ This function returns <code>table</code>.
+
+
+
+
+</dd>
+    <dt>
+    <a name = "select"></a>
+    <strong>select&nbsp;(index, ...)</strong>
+    </dt>
+    <dd>
+    If <code>index</code> is a number, returns all arguments after argument number
+ <code>index</code>.  Otherwise, <code>index</code> must be the string <code>"#"</code>, and <code>select</code> returns
+ the total number of extra arguments it received.
+
+
+
+
+</dd>
+    <dt>
+    <a name = "setfenv"></a>
+    <strong>setfenv&nbsp;(f, table)</strong>
+    </dt>
+    <dd>
+    Sets the environment to be used by the given function.  <code>f</code> can be a Lua
+ function or a number that specifies the function at that stack level: Level
+ 1 is the function calling <code>setfenv</code>. <code>setfenv</code> returns the given function.
+ As a special case, when <code>f</code> is 0 <code>setfenv</code> changes the environment of the
+ running thread. In this case, <code>setfenv</code> returns no values.
+
+
+
+
+</dd>
+    <dt>
+    <a name = "setmetatable"></a>
+    <strong>setmetatable&nbsp;(table, metatable)</strong>
+    </dt>
+    <dd>
+    Sets the metatable for the given table.  (You cannot change the metatable
+ of other types from Lua, only from C.) If <code>metatable</code> is nil, removes the
+ metatable of the given table. If the original metatable has a <code>"__metatable"</code>
+ field, raises an error.
+ This function returns <code>table</code>.
+
+
+
+
+</dd>
+    <dt>
+    <a name = "tonumber"></a>
+    <strong>tonumber&nbsp;(e, base)</strong>
+    </dt>
+    <dd>
+    Tries to convert its argument to a number.  If the argument is already
+ a number or a string convertible to a number, then <code>tonumber</code> returns this
+ number; otherwise, it returns nil.
+ An optional argument specifies the base to interpret the numeral. The base
+ may be any integer between 2 and 36, inclusive. In bases above 10, the
+ letter &lsquo;<code>A</code>&rsquo; (in either upper or lower case) represents 10, &lsquo;<code>B</code>&rsquo; represents
+ 11, and so forth, with &lsquo;<code>Z</code>&rsquo; representing 35. In base 10 (the default),
+ the number can have a decimal part, as well as an optional exponent part
+ (see §2.1). In other bases, only unsigned integers are accepted.
+
+
+
+
+</dd>
+    <dt>
+    <a name = "tostring"></a>
+    <strong>tostring&nbsp;(e)</strong>
+    </dt>
+    <dd>
+    Receives an argument of any type and converts it to a string in a
+ reasonable format.  For complete control of how numbers are converted, use
+ <code>string.format</code>.
+ If the metatable of <code>e</code> has a <code>"__tostring"</code> field, then <code>tostring</code> calls
+ the corresponding value with <code>e</code> as argument, and uses the result of the
+ call as its result.
+
+
+
+
+</dd>
+    <dt>
+    <a name = "type"></a>
+    <strong>type&nbsp;(v)</strong>
+    </dt>
+    <dd>
+    Returns the type of its only argument, coded as a string.  The possible
+ results of this function are &ldquo;
+ <code>nil</code>&rdquo; (a string, not the value nil), &ldquo;<code>number</code>&rdquo;, &ldquo;<code>string</code>&rdquo;, &ldquo;<code>boolean</code>&rdquo;,
+ &ldquo;<code>table</code>&rdquo;, &ldquo;<code>function</code>&rdquo;, &ldquo;<code>thread</code>&rdquo;, and &ldquo;<code>userdata</code>&rdquo;.
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unpack"></a>
+    <strong>unpack&nbsp;(list, i, j)</strong>
+    </dt>
+    <dd>
+    Returns the elements from the given table.  This function is equivalent to
+   return list[i], list[i+1], &hellip;, list[j]
+ except that the above code can be written only for a fixed number of
+ elements. By default, <code>i</code> is 1 and <code>j</code> is the length of the list, as
+ defined by the length operator (see §2.5.5).
+
+
+
+
+</dd>
+    <dt>
+    <a name = "xpcall"></a>
+    <strong>xpcall&nbsp;(f, err)</strong>
+    </dt>
+    <dd>
+    This function is similar to <code>pcall</code>, except that you can set a new
+ error handler. 
+ <code>xpcall</code> calls function <code>f</code> in protected mode, using <code>err</code> as the error
+ handler. Any error inside <code>f</code> is not propagated; instead, <code>xpcall</code> catches
+ the error, calls the <code>err</code> function with the original error object, and
+ returns a status code. Its first result is the status code (a boolean),
+ which is true if the call succeeds without errors. In this case, <code>xpcall</code>
+ also returns all results from the call, after this first result. In case
+ of any error, <code>xpcall</code> returns false plus the result from <code>err</code>.
+
+
+
+
+</dd>
+    <dt>
+    <a name = "module"></a>
+    <strong>module&nbsp;(name, ...)</strong>
+    </dt>
+    <dd>
+    Creates a module.  If there is a table in <code>package.loaded[name]</code>,
+ this table is the module. Otherwise, if there is a global table <code>t</code>
+ with the given name, this table is the module. Otherwise creates a new
+ table <code>t</code> and sets it as the value of the global <code>name</code> and the value of
+ <code>package.loaded[name]</code>. This function also initializes <code>t._NAME</code> with the
+ given name, <code>t._M</code> with the module (<code>t</code> itself), and <code>t._PACKAGE</code> with the
+ package name (the full module name minus last component; see below). Finally,
+ <code>module</code> sets <code>t</code> as the new environment of the current function and the
+ new value of <code>package.loaded[name]</code>, so that <code>require</code> returns <code>t</code>.
+ If <code>name</code> is a compound name (that is, one with components separated by
+ dots), <code>module</code> creates (or reuses, if they already exist) tables for each
+ component. For instance, if <code>name</code> is <code>a.b.c</code>, then <code>module</code> stores the
+ module table in field <code>c</code> of field <code>b</code> of global <code>a</code>.
+ This function can receive optional <em>options</em> after the module name, where
+ each option is a function to be applied over the module.
+
+
+
+
+</dd>
+    <dt>
+    <a name = "require"></a>
+    <strong>require&nbsp;(modname)</strong>
+    </dt>
+    <dd>
+    Loads the given module.  The function starts by looking into the
+ <code>package.loaded</code> table to determine whether <code>modname</code> is already
+ loaded. If it is, then <code>require</code> returns the value stored at
+ <code>package.loaded[modname]</code>. Otherwise, it tries to find a <em>loader</em> for
+ the module.
+ To find a loader, <code>require</code> is guided by the <code>package.loaders</code> array. By
+ changing this array, we can change how <code>require</code> looks for a module. The
+ following explanation is based on the default configuration for
+ <code>package.loaders</code>.
+ First <code>require</code> queries <code>package.preload[modname]</code>. If it has a value,
+ this value (which should be a function) is the loader. Otherwise <code>require</code>
+ searches for a Lua loader using the path stored in <code>package.path</code>. If
+ that also fails, it searches for a C loader using the path stored in
+ <code>package.cpath</code>. If that also fails, it tries an <em>all-in-one</em> loader (see
+ <code>package.loaders</code>).
+ Once a loader is found, <code>require</code> calls the loader with a single argument,
+ <code>modname</code>. If the loader returns any value, <code>require</code> assigns the returned
+ value to <code>package.loaded[modname]</code>. If the loader returns no value and
+ has not assigned any value to <code>package.loaded[modname]</code>, then <code>require</code>
+ assigns true to this entry. In any case, <code>require</code> returns the final value
+ of <code>package.loaded[modname]</code>.
+ If there is any error loading or running the module, or if it cannot find
+ any loader for the module, then <code>require</code> signals an error.
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.0</a></i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
