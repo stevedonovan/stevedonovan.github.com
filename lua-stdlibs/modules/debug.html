@@ -1,0 +1,303 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Lua</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+
+
+<h2>Functions</h2>
+<ul>
+    <li><a href="#debug">debug&nbsp;()</a></li>
+    <li><a href="#getfenv">getfenv&nbsp;(o)</a></li>
+    <li><a href="#gethook">gethook&nbsp;(thread)</a></li>
+    <li><a href="#getinfo">getinfo&nbsp;(thread, function, what)</a></li>
+    <li><a href="#getlocal">getlocal&nbsp;(thread, level, local)</a></li>
+    <li><a href="#getmetatable">getmetatable&nbsp;(object)</a></li>
+    <li><a href="#getregistry">getregistry&nbsp;()</a></li>
+    <li><a href="#getupvalue">getupvalue&nbsp;(func, up)</a></li>
+    <li><a href="#setfenv">setfenv&nbsp;(object, table)</a></li>
+    <li><a href="#sethook">sethook&nbsp;(thread, hook, mask, count)</a></li>
+    <li><a href="#setlocal">setlocal&nbsp;(thread, level, local, value)</a></li>
+    <li><a href="#setmetatable">setmetatable&nbsp;(object, table)</a></li>
+    <li><a href="#setupvalue">setupvalue&nbsp;(func, up, value)</a></li>
+</ul>
+<h2>Modules</h2>
+<ul>
+  <li><a href="../modules/coroutine.html">coroutine</a></li>
+  <li><strong>debug</strong></li>
+  <li><a href="../modules/global.html">global</a></li>
+  <li><a href="../modules/io.html">io</a></li>
+  <li><a href="../modules/lfs.html">lfs</a></li>
+  <li><a href="../modules/lpeg.html">lpeg</a></li>
+  <li><a href="../modules/math.html">math</a></li>
+  <li><a href="../modules/os.html">os</a></li>
+  <li><a href="../modules/package.html">package</a></li>
+  <li><a href="../modules/string.html">string</a></li>
+  <li><a href="../modules/table.html">table</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>debug</code></h1>
+
+<p>getting runtime debug information.</p>
+<p>
+</p>
+
+
+    <h2><a name="Functions"></a>Functions</h2>
+    
+    <dl class="function">
+    <dt>
+    <a name = "debug"></a>
+    <strong>debug&nbsp;()</strong>
+    </dt>
+    <dd>
+    Enters an interactive mode with the user, running each string that
+ the user enters.  Using simple commands and other debug facilities,
+ the user can inspect global and local variables, change their values,
+ evaluate expressions, and so on. A line containing only the word <code>cont</code>
+ finishes this function, so that the caller continues its execution.
+ Note that commands for <code>debug.debug</code> are not lexically nested within any
+ function, and so have no direct access to local variables.
+
+
+
+
+</dd>
+    <dt>
+    <a name = "getfenv"></a>
+    <strong>getfenv&nbsp;(o)</strong>
+    </dt>
+    <dd>
+    Returns the environment of object <code>o</code>. 
+
+
+
+
+</dd>
+    <dt>
+    <a name = "gethook"></a>
+    <strong>gethook&nbsp;(thread)</strong>
+    </dt>
+    <dd>
+    Returns the current hook settings of the thread, as three values: the
+ current hook function, the current hook mask, and the current hook count
+ (as set by the <code>debug.sethook</code> function). 
+
+
+
+
+</dd>
+    <dt>
+    <a name = "getinfo"></a>
+    <strong>getinfo&nbsp;(thread, function, what)</strong>
+    </dt>
+    <dd>
+    Returns a table with information about a function.  You can give the
+ function directly, or you can give a number as the value of <code>function</code>,
+ which means the function running at level <code>function</code> of the call stack
+ of the given thread: level 0 is the current function (<code>getinfo</code> itself);
+ level 1 is the function that called <code>getinfo</code>; and so on. If <code>function</code>
+ is a number larger than the number of active functions, then <code>getinfo</code>
+ returns nil.</p>
+
+<p> <code>thread</code> and <code>what</code> are optional.</p>
+
+<p> The returned table can contain all the fields returned by <code>lua_getinfo</code>,
+ with the string <code>what</code> describing which fields to fill in. The default for
+ <code>what</code> is to get all information available, except the table of valid
+ lines. If present, the option &lsquo;<code>f</code>&rsquo; adds a field named <code>func</code> with
+ the function itself. If present, the option &lsquo;<code>L</code>&rsquo; adds a field named
+ <code>activelines</code> with the table of valid lines.
+ For instance, the expression <code>debug.getinfo(1,"n").name</code> returns a table
+ with a name for the current function, if a reasonable name can be found,
+ and the expression <code>debug.getinfo(print)</code> returns a table with all available
+ information about the <code>print</code> function.
+
+
+
+
+</dd>
+    <dt>
+    <a name = "getlocal"></a>
+    <strong>getlocal&nbsp;(thread, level, local)</strong>
+    </dt>
+    <dd>
+    This function returns the name and the value of the local variable with
+ index <code>local</code> of the function at level <code>level</code> of the stack.  (The first
+ parameter or local variable has index 1, and so on, until the last active
+ local variable.) The function returns nil if there is no local variable
+ with the given index, and raises an error when called with a <code>level</code> out
+ of range. (You can call <code>debug.getinfo</code> to check whether the level is valid.)
+ Variable names starting with &lsquo;<code>(</code>&rsquo; (open parentheses) represent internal
+ variables (loop control variables, temporaries, and C function locals).
+
+
+
+
+</dd>
+    <dt>
+    <a name = "getmetatable"></a>
+    <strong>getmetatable&nbsp;(object)</strong>
+    </dt>
+    <dd>
+    Returns the metatable of the given <code>object</code> or nil if it does not have
+ a metatable. 
+
+
+
+
+</dd>
+    <dt>
+    <a name = "getregistry"></a>
+    <strong>getregistry&nbsp;()</strong>
+    </dt>
+    <dd>
+    Returns the registry table (see §3.5). 
+
+
+
+
+</dd>
+    <dt>
+    <a name = "getupvalue"></a>
+    <strong>getupvalue&nbsp;(func, up)</strong>
+    </dt>
+    <dd>
+    This function returns the name and the value of the upvalue with index
+ <code>up</code> of the function <code>func</code>.  The function returns nil if there is no
+ upvalue with the given index.
+
+
+
+
+</dd>
+    <dt>
+    <a name = "setfenv"></a>
+    <strong>setfenv&nbsp;(object, table)</strong>
+    </dt>
+    <dd>
+    Sets the environment of the given <code>object</code> to the given <code>table</code>.  Returns
+ <code>object</code>.
+
+
+
+
+</dd>
+    <dt>
+    <a name = "sethook"></a>
+    <strong>sethook&nbsp;(thread, hook, mask, count)</strong>
+    </dt>
+    <dd>
+    Sets the given function as a hook.  The string <code>mask</code> and the number
+ <code>count</code> describe when the hook will be called. The string mask may have
+ the following characters, with the given meaning:</p>
+
+<ul>
+<li> <code>"c"</code>: the hook is called every time Lua calls a function;</li>
+<li> <code>"r"</code>: the hook is called every time Lua returns from a function;</li>
+<li> <code>"l"</code>: the hook is called every time Lua enters a new line of code.</li>
+</ul>
+
+
+<p> With a <code>count</code> different from zero, the hook is called after every <code>count</code>
+ instructions.</p>
+
+<p> When called without arguments, <code>debug.sethook</code> turns off the hook.</p>
+
+<p> When the hook is called, its first parameter is a string describing
+ the event that has triggered its call: <code>"call"</code>, <code>"return"</code> (or <code>"tail
+ return"</code>, when simulating a return from a tail call), <code>"line"</code>, and
+ <code>"count"</code>. For line events, the hook also gets the new line number as its
+ second parameter. Inside a hook, you can call <code>getinfo</code> with level 2 to
+ get more information about the running function (level 0 is the <code>getinfo</code>
+ function, and level 1 is the hook function), unless the event is <code>"tail
+ return"</code>. In this case, Lua is only simulating the return, and a call to
+ <code>getinfo</code> will return invalid data.
+
+
+
+
+</dd>
+    <dt>
+    <a name = "setlocal"></a>
+    <strong>setlocal&nbsp;(thread, level, local, value)</strong>
+    </dt>
+    <dd>
+    This function assigns the value <code>value</code> to the local variable with
+ index <code>local</code> of the function at level <code>level</code> of the stack.  The function
+ returns nil if there is no local variable with the given index, and raises
+ an error when called with a <code>level</code> out of range. (You can call <code>getinfo</code>
+ to check whether the level is valid.) Otherwise, it returns the name of
+ the local variable.
+
+
+
+
+</dd>
+    <dt>
+    <a name = "setmetatable"></a>
+    <strong>setmetatable&nbsp;(object, table)</strong>
+    </dt>
+    <dd>
+    Sets the metatable for the given <code>object</code> to the given <code>table</code> (which
+ can be nil). 
+
+
+
+
+</dd>
+    <dt>
+    <a name = "setupvalue"></a>
+    <strong>setupvalue&nbsp;(func, up, value)</strong>
+    </dt>
+    <dd>
+    This function assigns the value <code>value</code> to the upvalue with index <code>up</code>
+ of the function <code>func</code>.  The function returns nil if there is no upvalue
+ with the given index. Otherwise, it returns the name of the upvalue.
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.0</a></i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
