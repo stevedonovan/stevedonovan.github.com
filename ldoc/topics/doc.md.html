@@ -42,9 +42,12 @@
 <li><a href="#Getting_Help_about_a_Module">Getting Help about a Module</a></li>
 <li><a href="#Anatomy_of_a_LDoc_generated_Page">Anatomy of a LDoc-generated Page</a></li>
 <li><a href="#Customizing_the_Page">Customizing the Page</a></li>
-<li><a href="#Examples_and_readme_files">Examples and readme files</a></li>
+<li><a href="#Examples_and_Readme_files">Examples and Readme files</a></li>
+<li><a href="#Tag_Modifiers">Tag Modifiers</a></li>
 <li><a href="#Fields_allowed_in__config_ld_">Fields allowed in `config.ld`</a></li>
+<li><a href="#Annotations_and_Searching_for_Tags">Annotations and Searching for Tags</a></li>
 <li><a href="#Generating_HTML">Generating HTML</a></li>
+<li><a href="#Internal_Data_Representation">Internal Data Representation</a></li>
 </ul>
 
 
@@ -64,7 +67,6 @@
 <h1>Topic <code>doc.md</code></h1>
 
     <a name="Introduction"></a></p>
-
 <h2>Introduction</h2>
 
 <p>LDoc is a second-generation documentation tool that can be used as a replacement for <a href="http://keplerproject.github.com/luadoc/">LuaDoc</a>. It arose out of my need to document my own projects and only depends on the <a href="https://github.com/stevedonovan/Penlight">Penlight</a> libraries.</p>
@@ -78,12 +80,12 @@
 <p>Although there are a fair number of command-line options, the preferred route is to write a <code>config.ld</code> configuration file in Lua format. By convention, if LDoc is simply invoked as <code>ldoc .</code> it will read this file first. In this way, the aim is to make it very easy for end-users to build your documentation using this simple command.</p>
 
 <p><a name="Commenting_Conventions"></a></p>
-
 <h2>Commenting Conventions</h2>
 
 <p>LDoc follows the conventions established by Javadoc and later by LuaDoc.</p>
 
-<p>Only &lsquo;doc comments&rsquo; are parsed; these can be started with at least 3 hyphens, or by a empty comment line with at least 3 hypens:</p>
+<p>Only 'doc comments' are parsed; these can be started with at least 3 hyphens, or by a empty comment line with at least 3 hypens:</p>
+
 
 <pre>
  <span class="comment">--- summary.
@@ -95,8 +97,8 @@
 </span>
 </pre>
 
-
 <p>You can also use Lua block comments:</p>
+
 
 <pre>
  <span class="comment">--[[--
@@ -106,12 +108,12 @@
 
 </pre>
 
-
 <p>Any module or script must start with a doc comment; any other files are ignored and a warning issued. The only exception is if the module starts with an explicit <code>module</code> statement.</p>
 
 <p>All doc comments start with a summary sentence, that ends with a period or a question mark. An optional description may follow. Normally the summary sentence will appear in the module contents.</p>
 
 <p>After this descriptive text, there will typically be <em>tags</em>. These follow the convention established by Javadoc and widely used in tools for other languages.</p>
+
 
 <pre>
  <span class="comment">--- foo explodes text.
@@ -124,8 +126,8 @@
 
 </pre>
 
+<p>There may be multiple 'param' tags, which should document each formal parameter of the function. For Lua, there can also be multiple 'return' tags</p>
 
-<p>There may be multiple &lsquo;param&rsquo; tags, which should document each formal parameter of the function. For Lua, there can also be multiple &lsquo;return&rsquo; tags</p>
 
 <pre>
  <span class="comment">--- solvers for common equations.
@@ -152,8 +154,8 @@
 
 </pre>
 
+<p>This is the common module style used in Lua 5.1, but it's increasingly common to see less 'magic' ways of creating modules in Lua. Since <code>module</code> is deprecated in Lua 5.2, any future-proof documentation tool needs to handle these styles gracefully:</p>
 
-<p>This is the common module style used in Lua 5.1, but it&rsquo;s increasingly common to see less &lsquo;magic&rsquo; ways of creating modules in Lua. Since <code>module</code> is deprecated in Lua 5.2, any future-proof documentation tool needs to handle these styles gracefully:</p>
 
 <pre>
  <span class="comment">--- a test module
@@ -172,10 +174,10 @@
 
 </pre>
 
+<p>Here the name of the module is explicitly given using the 'module' tag. If you leave this out, then LDoc will infer the name of the module from the name of the file and its relative location in the filesystem; this logic is also used for the <code>module(...)</code> idiom. (How this works and when you need to provide extra information is discussed later.)</p>
 
-<p>Here the name of the module is explicitly given using the &lsquo;module&rsquo; tag. If you leave this out, then LDoc will infer the name of the module from the name of the file and its relative location in the filesystem; this logic is also used for the <code>module(...)</code> idiom. (How this works and when you need to provide extra information is discussed later.)</p>
+<p>It is common to use a local name for a module when declaring its contents. In this case the 'alias' tag can tell LDoc that these functions do belong to the module:</p>
 
-<p>It is common to use a local name for a module when declaring its contents. In this case the &lsquo;alias&rsquo; tag can tell LDoc that these functions do belong to the module:</p>
 
 <pre>
  <span class="comment">--- another test.
@@ -193,10 +195,10 @@
 
 </pre>
 
+<p><code>M</code> and <code>_M</code> are used commonly enough that LDoc will recognize them as aliases automatically, but 'alias' allows you to use any identifier.</p>
 
-<p><code>M</code> and <code>_M</code> are used commonly enough that LDoc will recognize them as aliases automatically, but &lsquo;alias&rsquo; allows you to use any identifier.</p>
+<p>LDoc tries to deduce the function name and the formal parameter names from examining the code after the doc comment. It also recognizes the 'unsugared' way of defining functions as explicit assignment to a variable:</p>
 
-<p>LDoc tries to deduce the function name and the formal parameter names from examining the code after the doc comment. It also recognizes the &lsquo;unsugared&rsquo; way of defining functions as explicit assignment to a variable:</p>
 
 <pre>
  <span class="comment">--- second test.
@@ -204,8 +206,8 @@
 
 </pre>
 
+<p>Apart from exported functions, a module usually contains local functions. By default, LDoc does not include these in the documentation, but they can be enabled using the <code>--all</code> flag. They can be documented just like 'public' functions:</p>
 
-<p>Apart from exported functions, a module usually contains local functions. By default, LDoc does not include these in the documentation, but they can be enabled using the <code>--all</code> flag. They can be documented just like &lsquo;public&rsquo; functions:</p>
 
 <pre>
  <span class="comment">--- it's clear that boo is local from context.
@@ -219,8 +221,8 @@
 
 </pre>
 
-
 <p>Modules can of course export tables and other values. The classic way to document a table looks like this:</p>
+
 
 <pre>
  <span class="comment">--- a useful table of constants
@@ -231,10 +233,10 @@
 </span>
 </pre>
 
-
-<p>Here the kind of item is made explicit by the &lsquo;table&rsquo; tag; tables have &lsquo;fields&rsquo; in the same way as functions have parameters.</p>
+<p>Here the kind of item is made explicit by the 'table' tag; tables have 'fields' in the same way as functions have parameters.</p>
 
 <p>This can get tedious, so LDoc will attempt to extract table documentation from code:</p>
+
 
 <pre>
  <span class="comment">--- a useful table of constants
@@ -246,10 +248,10 @@
 
 </pre>
 
+<p>The rule followed here is <code>NAME = &lt;table-constructor&gt;</code>. If LDoc can't work out the name and type from the following code, then a warning will be issued, pointing to the file and location.</p>
 
-<p>The rule followed here is <code>NAME = &lt;table-constructor&gt;</code>. If LDoc can&rsquo;t work out the name and type from the following code, then a warning will be issued, pointing to the file and location.</p>
+<p>Another kind of module-level type is 'field', such as follows:</p>
 
-<p>Another kind of module-level type is &lsquo;field&rsquo;, such as follows:</p>
 
 <pre>
  <span class="comment">--- module version.
@@ -257,10 +259,10 @@
 
 </pre>
 
-
 <p>That is, a module may contain exported functions, local functions, tables and fields.</p>
 
 <p>When the code analysis would lead to the wrong type, you can always be explicit.</p>
+
 
 <pre>
  <span class="comment">--- module contents.
@@ -269,20 +271,19 @@
 
 </pre>
 
+<p>The order of tags is not important, but as always, consistency is useful.  Tags like 'param' and 'return' can be specified multiple times, whereas a type tag like 'function' can only occur once in a comment. The basic rule is that a single doc comment can only document one entity.</p>
 
-<p>The order of tags is not important, but as always, consistency is useful.  Tags like &lsquo;param&rsquo; and &lsquo;return&rsquo; can be specified multiple times, whereas a type tag like &lsquo;function&rsquo; can only occur once in a comment. The basic rule is that a single doc comment can only document one entity.</p>
-
-<p>By default, LDoc will process any file ending in &lsquo;.lua&rsquo; or &lsquo;.luadoc&rsquo; in a specified directory; you may point it to a single file as well. A &lsquo;project&rsquo; usually consists of many modules in one or more <em>packages</em>. The generated <code>index.html</code> will point to the generated documentation for each of these modules.</p>
+<p>By default, LDoc will process any file ending in '.lua' or '.luadoc' in a specified directory; you may point it to a single file as well. A 'project' usually consists of many modules in one or more <em>packages</em>. The generated <code>index.html</code> will point to the generated documentation for each of these modules.</p>
 
 <p>If only one module or script is documented for a project, then the <code>index.html</code> generated contains the documentation for that module, since an index pointing to one module would be redundant.</p>
 
-<p> (If you want to document a script, there is a project-level type &lsquo;script&rsquo; for that.)  By default it will process any file ending in <code>.lua</code> or <code>.luadoc</code>.</p>
+<p> (If you want to document a script, there is a project-level type 'script' for that.)  By default it will process any file ending in <code>.lua</code> or <code>.luadoc</code>.</p>
 
 <p><a name="See_References"></a></p>
-
 <h2>See References</h2>
 
-<p>The tag &lsquo;see&rsquo; is used to reference other parts of the documentation, and &lsquo;usage&rsquo; can provide examples of use:</p>
+<p>The tag 'see' is used to reference other parts of the documentation, and 'usage' can provide examples of use:</p>
+
 
 <pre>
  <span class="comment">---------
@@ -297,12 +298,12 @@
 
 </pre>
 
-
-<p>Here it&rsquo;s assumed that &lsquo;split&rsquo; is a function defined in the same module. If you wish to link to a function in another module, then the reference has to be qualified.</p>
+<p>Here it's assumed that 'split' is a function defined in the same module. If you wish to link to a function in another module, then the reference has to be qualified.</p>
 
 <p>References to methods use a colon: <code>myclass:method</code>; this is for instance how you would refer to members of a <code>@type</code> section.</p>
 
 <p>The example at <code>tests/complex</code> shows how @see references are interpreted:</p>
+
 
 <pre>
  complex.util.parse
@@ -313,14 +314,14 @@
 
 </pre>
 
-
-<p>You may of course use the full name of a module or function, but can omit the top-level namespace &ndash; e.g. can refer to the module <code>util</code> and the function <code>display.display_that</code> directly. Within a module, you can directly use a function name, e.g. in <code>display</code> you can say <code>display_this</code>.</p>
+<p>You may of course use the full name of a module or function, but can omit the top-level namespace - e.g. can refer to the module <code>util</code> and the function <code>display.display_that</code> directly. Within a module, you can directly use a function name, e.g. in <code>display</code> you can say <code>display_this</code>.</p>
 
 <p>What applies to functions also applies to any module-level item like tables. New module-level items can be defined and they will work according to these rules.</p>
 
-<p>If a reference is not found within the project, LDoc checks to see if it is a reference to a Lua standard function or table, and links to the online Lua manual. So references like &lsquo;table.concat&rsquo; are handled sensibly.</p>
+<p>If a reference is not found within the project, LDoc checks to see if it is a reference to a Lua standard function or table, and links to the online Lua manual. So references like 'table.concat' are handled sensibly.</p>
 
 <p>References may be made inline using the @{ref} syntax. This may appear anywhere in the text, and is more flexible than @see. In particular, it provides one way to document the type of a parameter or return value when that type has a particular structure:</p>
+
 
 <pre>
  <span class="comment">------
@@ -340,16 +341,15 @@
 </span>
 </pre>
 
-
 <p>@{ref} is very useful for referencing your API from code samples and readme text.</p>
 
 <p><a name="Sections"></a></p>
-
 <h2>Sections</h2>
 
-<p>LDoc supports <em>explicit</em> sections. By default, the sections correspond to the pre-existing types in a module: &lsquo;Functions&rsquo;, &lsquo;Tables&rsquo; and &lsquo;Fields&rsquo; (There is another default section &lsquo;Local Functions&rsquo; which only appears if LDoc is invoked with the <code>--all</code> flag.) But new sections can be added; the first mechanism is when you define a new type (say &lsquo;macro&rsquo;) you can define a new section (&lsquo;Macros&rsquo;) to contain these types. There is also a way to declare ad-hoc sections using the <code>@section</code> tag.</p>
+<p>LDoc supports <em>explicit</em> sections. By default, the sections correspond to the pre-existing types in a module: 'Functions', 'Tables' and 'Fields' (There is another default section 'Local Functions' which only appears if LDoc is invoked with the <code>--all</code> flag.) But new sections can be added; the first mechanism is when you define a new type (say 'macro') you can define a new section ('Macros') to contain these types. There is also a way to declare ad-hoc sections using the <code>@section</code> tag.</p>
 
 <p>The need occurs when a module has a lot of functions that need to be put into logical sections.</p>
+
 
 <pre>
  <span class="comment">--- File functions.
@@ -370,14 +370,14 @@
 
 </pre>
 
-
 <p>A section doc-comment has the same structure as a normal doc-comment; the summary is used as the new section title, and the description will be output at the start of the function details for that section.</p>
 
-<p>In any case, sections appear under &lsquo;Contents&rsquo; on the left-hand side. See the <a href="http://stevedonovan.github.com/winapi/api.html">winapi</a> documentation for an example of how this looks.</p>
+<p>In any case, sections appear under 'Contents' on the left-hand side. See the <a href="http://stevedonovan.github.com/winapi/api.html">winapi</a> documentation for an example of how this looks.</p>
 
 <p>Arguably a module writer should not write such very long modules, but it is not the job of the documentation tool to limit the programmer!</p>
 
 <p>A specialized kind of section is <code>type</code>: it is used for documenting classes. The functions (or fields) within a type section are considered to be the methods of that class.</p>
+
 
 <pre>
  <span class="comment">--- A File class.
@@ -391,18 +391,17 @@
 
 </pre>
 
-
-<p>(In an ideal world, we would use the word &lsquo;class&rsquo; instead of &lsquo;type&rsquo;, but this would conflict with the LuaDoc usage.)</p>
+<p>(In an ideal world, we would use the word 'class' instead of 'type', but this would conflict with the LuaDoc usage.)</p>
 
 <p>A section continues until the next section is found, <code>@section end</code>, or end of file.</p>
 
 <p><a name="Differences_from_LuaDoc"></a></p>
-
 <h2>Differences from LuaDoc</h2>
 
-<p>LDoc only does &lsquo;module&rsquo; documentation, so the idea of &lsquo;files&rsquo; is redundant.</p>
+<p>LDoc only does 'module' documentation, so the idea of 'files' is redundant.</p>
 
 <p>One added convenience is that it is easier to name entities:</p>
+
 
 <pre>
  <span class="comment">------------
@@ -418,31 +417,17 @@
 </span>
 </pre>
 
+<p>This is because type names (like 'function', 'module', 'table', etc) can function as tags. LDoc also provides a means to add new types (e.g. 'macro') using a configuration file which can be shipped with the source. If you become bored with typing 'param' repeatedly then you can define an alias for it, such as 'p'. This can also be specified in the configuration file.</p>
 
-<p>This is because type names (like &lsquo;function&rsquo;, &lsquo;module&rsquo;, &lsquo;table&rsquo;, etc) can function as tags. LDoc also provides a means to add new types (e.g. &lsquo;macro&rsquo;) using a configuration file which can be shipped with the source. If you become bored with typing &lsquo;param&rsquo; repeatedly then you can define an alias for it, such as &lsquo;p&rsquo;. This can also be specified in the configuration file.</p>
-
-<p>LDoc will also work with C/C++ files, since extension writers clearly have the same documentation needs as Lua module writers:</p>
-
-<pre><code>/***
-Create a table with given array and hash slots.
-@function createtable
-@param narr initial array slots, default 0
-@param nrec initial hash slots, default 0
-@return the new table
-*/
-static int l_createtable (lua_State *L) {
-....
-</code></pre>
-
-<p>LDoc does not pretend to understand C/C++, so in this case it is necessary to specify the name and type explicitly.</p>
+<p>LDoc will also work with C/C++ files, since extension writers clearly have the same documentation needs as Lua module writers.</p>
 
 <p>LDoc gives the documenter the option to use Markdown to parse the contents of comments.</p>
 
 <p><a name="Adding_new_Tags"></a></p>
-
 <h2>Adding new Tags</h2>
 
 <p>LDoc tries to be faithful to LuaDoc, but provides some extensions. Aliases for tags can be defined, and new types declared.</p>
+
 
 <pre>
  <span class="comment">--- zero function. Two new ldoc features here; item types
@@ -454,8 +439,8 @@ static int l_createtable (lua_State *L) {
 </span>
 </pre>
 
+<p>Here an alias for 'param' has been defined. If a file <code>config.ld</code> is found in the source, then it will be loaded as Lua data. For example, the configuration for the above module provides a title and defines an alias for 'param':</p>
 
-<p>Here an alias for &lsquo;param&rsquo; has been defined. If a file <code>config.ld</code> is found in the source, then it will be loaded as Lua data. For example, the configuration for the above module provides a title and defines an alias for &lsquo;param&rsquo;:</p>
 
 <pre>
  title = <span class="string">"testmod docs"</span>
@@ -464,16 +449,16 @@ static int l_createtable (lua_State *L) {
 
 </pre>
 
-
 <p>Extra tag <em>types</em> can be defined:</p>
+
 
 <pre>
  new_type(<span class="string">"macro"</span>,<span class="string">"Macros"</span>)
 
 </pre>
 
-
 <p>And then used as any other type:</p>
+
 
 <pre>
  <span class="comment">-----
@@ -483,16 +468,15 @@ static int l_createtable (lua_State *L) {
 </span>
 </pre>
 
-
-<p>This will also create a new module section called &lsquo;Macros&rsquo;.</p>
+<p>This will also create a new module section called 'Macros'.</p>
 
 <p><a name="Inferring_more_from_Code"></a></p>
-
 <h2>Inferring more from Code</h2>
 
 <p>The qualified name of a function will be inferred from any <code>function</code> keyword following the doc comment. LDoc goes further with this kind of code analysis, however.</p>
 
 <p>Instead of:</p>
+
 
 <pre>
  <span class="comment">--- first table.
@@ -506,8 +490,8 @@ static int l_createtable (lua_State *L) {
 
 </pre>
 
-
 <p>you can write:</p>
+
 
 <pre>
  <span class="comment">--- first table
@@ -519,8 +503,8 @@ static int l_createtable (lua_State *L) {
 
 </pre>
 
-
 <p>Simularly, function parameter comments can be directly used:</p>
+
 
 <pre>
  <span class="comment">------------
@@ -536,40 +520,36 @@ static int l_createtable (lua_State *L) {
 
 </pre>
 
-
 <p>As always, explicit tags can override this behaviour if it is inappropriate.</p>
 
 <p><a name="Extension_modules_written_in_C"></a></p>
-
 <h2>Extension modules written in C</h2>
 
 <p>LDoc can process C/C++ files:</p>
 
-<pre>
- /***
- Create a <span class="global">table</span> with given array <span class="keyword">and</span> hash slots.
- @<span class="keyword">function</span> createtable
- @param narr initial array slots, default <span class="number">0</span>
- @param nrec initial hash slots, default <span class="number">0</span>
- @<span class="keyword">return</span> the new <span class="global">table</span>
- */
- static int l_createtable (lua_State *L) {
- ....
-
-</pre>
+<pre><code>/***
+Create a table with given array and hash slots.
+@function createtable
+@param narr initial array slots, default 0
+@param nrec initial hash slots, default 0
+@return the new table
+*/
+static int l_createtable (lua_State *L) {
+....
+</code></pre>
 
 
 <p>Both <code>/**</code> and <code>///</code> are recognized as starting a comment block. Otherwise, the tags are processed in exactly the same way. It is necessary to specify that this is a function with a given name, since this cannot be reliably be inferred from code. Such a file will need a module comment, which is treated exactly as in Lua.</p>
 
-<p>An unknown extension can be associated with a language using a call like <code>add_language_extension('lc','c')</code> in <code>config.ld</code>. (Currently the language can only be &lsquo;c&rsquo; or &lsquo;lua&rsquo;.)</p>
+<p>An unknown extension can be associated with a language using a call like <code>add_language_extension('lc','c')</code> in <code>config.ld</code>. (Currently the language can only be 'c' or 'lua'.)</p>
 
-<p>See &lsquo;tests/examples/mylib.c&rsquo; for the full example.</p>
+<p>See 'tests/examples/mylib.c' for the full example.</p>
 
 <p><a name="Basic_Usage"></a></p>
-
 <h2>Basic Usage</h2>
 
-<p>For example, to process all files in the &lsquo;lua&rsquo; directory:</p>
+<p>For example, to process all files in the 'lua' directory:</p>
+
 
 <pre>
  $ ldoc lua
@@ -577,24 +557,24 @@ static int l_createtable (lua_State *L) {
 
 </pre>
 
-
 <p>Thereafter the <code>docs</code> directory will contain <code>index.html</code> which points to individual modules in the <code>modules</code> subdirectory.  The <code>--dir</code> flag can specify where the output is generated, and will ensure that the directory exists. The output structure is like LuaDoc: there is an <code>index.html</code> and the individual modules are in the <code>modules</code> subdirectory. This applies to all project-level types, so that you can also get <code>scripts</code>, <code>examples</code> and <code>topics</code> directories.</p>
 
-<p>If your modules use <code>module(...)</code> then the module name has to be deduced. If <code>ldoc</code> is run from the root of the package, then this deduction does not need any help &ndash; e.g. if your package was <code>foo</code> then <code>ldoc foo</code> will work as expected. If we were actually in the <code>foo</code> directory then <code>ldoc -b .. .</code> will correctly deduce the module names. An example would be generating documentation for LuaDoc itself:</p>
+<p>If your modules use <code>module(...)</code> then the module name has to be deduced. If <code>ldoc</code> is run from the root of the package, then this deduction does not need any help - e.g. if your package was <code>foo</code> then <code>ldoc foo</code> will work as expected. If we were actually in the <code>foo</code> directory then <code>ldoc -b .. .</code> will correctly deduce the module names. An example would be generating documentation for LuaDoc itself:</p>
+
 
 <pre>
  $ ldoc -b .. /path/to/luadoc
 
 </pre>
 
-
 <p>Without the <code>-b</code> setting the base of the package to  the <em>parent</em> of the directory, implicit modules like <code>luadoc.config</code> will be incorrectly placed in the global namespace.</p>
 
-<p>For new-style modules, that don&rsquo;t use <code>module()</code>, it is recommended that the module comment has an explicit <code>@module PACKAGE.NAME</code>. If it does not, then <code>ldoc</code> will still attempt to deduce the module name, but may need help with <code>--package/-b</code> as above.</p>
+<p>For new-style modules, that don't use <code>module()</code>, it is recommended that the module comment has an explicit <code>@module PACKAGE.NAME</code>. If it does not, then <code>ldoc</code> will still attempt to deduce the module name, but may need help with <code>--package/-b</code> as above.</p>
 
-<p><code>format = 'markdown'</code> can be used in your <code>config.ld</code> and will be used to process summaries and descriptions. This requires <a href="http://www.frykholm.se/files/markdown.lua">markdown.lua</a> by Niklas Frykholm to be installed (this can be most easily done with <code>luarocks install markdown</code>.)  A much faster alternative is <a href="http://asbradbury.org/projects/lua-discount/">lua-discount</a> which you can use by setting <code>format</code> to &lsquo;discount&rsquo; after installing using <code>luarocks install lua-discount</code>)  The <a href="http://www.pell.portland.or.us/%7Eorc/Code/discount/">discount</a> Markdown processor additionally has more features than the pure Lua version, such as PHP-Extra style tables.</p>
+<p><code>format = 'markdown'</code> can be used in your <code>config.ld</code> and will be used to process summaries and descriptions. This requires <a href="http://www.frykholm.se/files/markdown.lua">markdown.lua</a> by Niklas Frykholm to be installed (this can be most easily done with <code>luarocks install markdown</code>.)  A much faster alternative is <a href="http://asbradbury.org/projects/lua-discount/">lua-discount</a> which you can use by setting <code>format</code> to 'discount' after installing using <code>luarocks install lua-discount</code>)  The <a href="http://www.pell.portland.or.us/~orc/Code/discount/">discount</a> Markdown processor additionally has more features than the pure Lua version, such as PHP-Extra style tables.</p>
 
-<p>A special case is if you simply say &lsquo;ldoc .&rsquo;. Then there <em>must</em> be a <code>config.ld</code> file available in the directory, and it can specify the file:</p>
+<p>A special case is if you simply say 'ldoc .'. Then there <em>must</em> be a <code>config.ld</code> file available in the directory, and it can specify the file:</p>
+
 
 <pre>
  file = <span class="string">"mymod.lua"</span>
@@ -603,16 +583,16 @@ static int l_createtable (lua_State *L) {
 
 </pre>
 
-
 <p><code>file</code> can of course point to a directory, just as with the <code>--file</code> option. This mode makes it particularly easy for the user to build the documentation, by allowing you to specify everything explicitly in the configuration.</p>
 
 <p>In <code>config.ld</code>, <code>file</code> may be a Lua table, containing file names or directories; if it has an <code>exclude</code> field then that will be used to exclude files from the list, for example <code>{'examples', exclude = {'examples/slow.lua'}}</code>.</p>
 
-<p><a name="Processing_Single_Modules"></a></p>
 
+<p><a name="Processing_Single_Modules"></a></p>
 <h2>Processing Single Modules</h2>
 
 <p><code>--output</code> can be used to give the output file a different name. This is useful for the special case when a single module file is specified. Here an index would be redundant, so the single HTML file generated contains the module documentation.</p>
+
 
 <pre>
  $ ldoc mylib.lua <span class="comment">--&gt; results in docs/index.html
@@ -621,14 +601,12 @@ static int l_createtable (lua_State *L) {
 </span>
 </pre>
 
-
-<p>The default sections used by LDoc are &lsquo;Functions&rsquo;, &lsquo;Tables&rsquo; and &lsquo;Fields&rsquo;, corresponding to the built-in types &lsquo;function&rsquo;, &lsquo;table&rsquo; and &lsquo;field&rsquo;. If <code>config.ld</code> contains something like <code>new_type("macro","Macros")</code> then this adds a new section &lsquo;Macros&rsquo; which contains items of &lsquo;macro&rsquo; type &ndash; &lsquo;macro&rsquo; is registered as a new valid tag name.  The default template then presents items under their corresponding section titles, in order of definition.</p>
+<p>The default sections used by LDoc are 'Functions', 'Tables' and 'Fields', corresponding to the built-in types 'function', 'table' and 'field'. If <code>config.ld</code> contains something like <code>new_type("macro","Macros")</code> then this adds a new section 'Macros' which contains items of 'macro' type - 'macro' is registered as a new valid tag name.  The default template then presents items under their corresponding section titles, in order of definition.</p>
 
 <p><a name="Getting_Help_about_a_Module"></a></p>
-
 <h2>Getting Help about a Module</h2>
 
-<p>There is an option to simply dump the results of parsing modules. Consider the C example <code>tests/example/mylib.c':</code></p>
+<p>There is an option to simply dump the results of parsing modules. Consider the C example `tests/example/mylib.c':</p>
 
 <pre><code>$ ldoc --dump mylib.c
 ----
@@ -648,17 +626,8 @@ c        constant
 return  {"first root","second root"}
 </code></pre>
 
+
 <p>This is useful to quickly check for problems; here we see that <code>createable</code> did not have a return tag.</p>
-
-<p>There is a more customizable way to process the data, using the <code>--filter</code> parameter. This is understood to be a fully qualified function (module + name). For example, try</p>
-
-<pre>
- $ ldoc <span class="comment">--filter pl.pretty.dump mylib.c
-</span>
-</pre>
-
-
-<p>to see a raw dump of the data. (Simply using <code>dump</code> as the value here would be a shorthand for <code>pl.pretty.dump</code>.)  This is potentially very powerful, since you may write arbitrary Lua code to extract the information you need from your project.</p>
 
 <p>LDoc takes this idea of data dumping one step further. If used with the <code>-m</code> flag it will look up an installed Lua module and parse it. If it has been marked up in LuaDoc-style then you will get a handy summary of the contents:</p>
 
@@ -670,6 +639,7 @@ module: pl.pretty       Pretty-printing Lua tables.
 
 * dump(t, ...) - Dump a Lua table out to a file or stdout.
 </code></pre>
+
 
 <p>You can specify a fully qualified function to get more information:</p>
 
@@ -684,6 +654,7 @@ not_clever       {bool} (optional) Use for plain output, e.g {['key']=1}.
                Defaults to false.
 </code></pre>
 
+
 <p>LDoc knows about the basic Lua libraries, so that it can be used as a handy console reference:</p>
 
 <pre><code>$&gt; ldoc -m assert
@@ -697,7 +668,8 @@ v
 message
 </code></pre>
 
-<p>Thanks to mitchell&rsquo;s <a href="http://code.google.com/p/textadept/">TextAdept</a> project, LDoc has a set of <code>.luadoc</code> files for all the standard tables, plus <a href="http://keplerproject.github.com/luafilesystem/">LuaFileSystem</a> and <a href="http://www.inf.puc-rio.br/%7Eroberto/lpeg/lpeg.html">LPeg</a>.</p>
+
+<p>Thanks to mitchell's <a href="http://code.google.com/p/textadept/">TextAdept</a> project, LDoc has a set of <code>.luadoc</code> files for all the standard tables, plus <a href="http://keplerproject.github.com/luafilesystem/">LuaFileSystem</a> and <a href="http://www.inf.puc-rio.br/~roberto/lpeg/lpeg.html">LPeg</a>.</p>
 
 <pre><code>$&gt; ldoc -m lfs.lock
 
@@ -716,8 +688,8 @@ start
 length
 </code></pre>
 
-<p><a name="Anatomy_of_a_LDoc_generated_Page"></a></p>
 
+<p><a name="Anatomy_of_a_LDoc_generated_Page"></a></p>
 <h2>Anatomy of a LDoc-generated Page</h2>
 
 <p><a href="http://stevedonovan.github.com/winapi/api.html">winapi</a> can be used as a good example of a module that uses extended LDoc features.</p>
@@ -725,37 +697,35 @@ length
 <p>The <em>navigation section</em> down the left has several parts:</p>
 
 <ul>
-<li>The project name (&lsquo;project&rsquo; in the config)</li>
-<li>A project description (&lsquo;description&rsquo;)</li>
-<li>&lsquo;'Contents&rsquo;&lsquo; of the current page</li>
-<li>'&lsquo;Modules&rsquo;&lsquo; listing all the modules in this project</li>
+    <li>The project name ('project' in the config)</li>
+    <li>A project description ('description')</li>
+    <li>''Contents'' of the current page</li>
+    <li>''Modules'' listing all the modules in this project</li>
 </ul>
 
+<p>Note that <code>description</code> will be passed through Markdown, if it has been specified for the project. This gives you an opportunity to make lists of links, etc; any '##' headers will be formatted like the other top-level items on the navigation bar.</p>
 
-<p>Note that <code>description</code> will be passed through Markdown, if it has been specified for the project. This gives you an opportunity to make lists of links, etc; any &lsquo;##&rsquo; headers will be formatted like the other top-level items on the navigation bar.</p>
+<p>'Contents' is automatically generated. It will contain any explicit sections, if they have been used. Otherwise you will get the usual categories: 'Functions', 'Tables' and 'Fields'.</p>
 
-<p>&lsquo;Contents&rsquo; is automatically generated. It will contain any explicit sections, if they have been used. Otherwise you will get the usual categories: &lsquo;Functions&rsquo;, &lsquo;Tables&rsquo; and &lsquo;Fields&rsquo;.</p>
-
-<p>&lsquo;Modules&rsquo; will appear for any project providing Lua libraries; there may also be a &lsquo;Scripts&rsquo; section if the project contains Lua scripts. For example,  <a href="http://stevedonovan.github.com/LuaMacro/docs/api.html">LuaMacro</a> has a driver script <code>luam</code> in this section. The <a href="http://stevedonovan.github.com/LuaMacro/docs/modules/macro.builtin.html">builtin</a> module only defines macros, which are defined as a <em>custom tag type</em>.</p>
+<p>'Modules' will appear for any project providing Lua libraries; there may also be a 'Scripts' section if the project contains Lua scripts. For example,  <a href="http://stevedonovan.github.com/LuaMacro/docs/api.html">LuaMacro</a> has a driver script <code>luam</code> in this section. The <a href="http://stevedonovan.github.com/LuaMacro/docs/modules/macro.builtin.html">builtin</a> module only defines macros, which are defined as a <em>custom tag type</em>.</p>
 
 <p>The <em>content section</em> on the right shows:</p>
 
 <ul>
-<li>The module summary and description</li>
-<li>The contents summary, per section as above</li>
-<li>The detailed documentation for each item</li>
+    <li>The module summary and description</li>
+    <li>The contents summary, per section as above</li>
+    <li>The detailed documentation for each item</li>
 </ul>
 
-
-<p>As before, the description can use Markdown. The summary contains the contents of each section as a table, with links to the details. This is where the difference between an item&rsquo;s summary and an item&rsquo;s description is important; the first will appear in the contents summary. The item details show the item name and its summary again, followed by the description. There are then sections for the following tags: &lsquo;param&rsquo;, &lsquo;usage&rsquo;, &lsquo;return&rsquo; and &lsquo;see&rsquo; in that order. (For tables, &lsquo;Fields&rsquo; is used instead of &lsquo;Parameters&rsquo; but internally fields of a table are stored as the &lsquo;param&rsquo; tag.)</p>
+<p>As before, the description can use Markdown. The summary contains the contents of each section as a table, with links to the details. This is where the difference between an item's summary and an item's description is important; the first will appear in the contents summary. The item details show the item name and its summary again, followed by the description. There are then sections for the following tags: 'param', 'usage', 'return' and 'see' in that order. (For tables, 'Fields' is used instead of 'Parameters' but internally fields of a table are stored as the 'param' tag.)</p>
 
 <p>You can of course customize the default template, but there are some parameters that can control what the template will generate. Setting <code>one</code> to <code>true</code> in your configuration file will give a <em>one-column</em> layout, which can be easier to use as a programming reference.  You can suppress the contents summary with <code>no_summary</code>.</p>
 
 <p><a name="Customizing_the_Page"></a></p>
-
 <h2>Customizing the Page</h2>
 
-<p>Setting <code>no_return_or_parms</code> to <code>true</code> will suppress the display of &lsquo;param&rsquo; and &lsquo;return&rsquo; tags. This may appeal to programmers who dislike the traditional @tag soup xDoc style and prefer to comment functions just with a description. This is particularly useful when using Markdown in a stylized way to specify arguments:</p>
+<p>Setting <code>no_return_or_parms</code> to <code>true</code> will suppress the display of 'param' and 'return' tags. This may appeal to programmers who dislike the traditional @tag soup xDoc style and prefer to comment functions just with a description. This is particularly useful when using Markdown in a stylized way to specify arguments:</p>
+
 
 <pre>
  <span class="comment">---------
@@ -764,12 +734,12 @@ length
 
 </pre>
 
-
 <p>Here I've chosen to italicise parameter names; the main thing is to be consistent.</p>
 
 <p>This style is close to the Python <a href="http://docs.python.org/library/array.html#module-array">documentation standard</a>, especially when used with <code>no_summary</code>.</p>
 
 <p>It is also very much how the Lua documentation is ordered. For instance, this configuration file formats the built-in documentation for the Lua global functions in a way which is close to the original:</p>
+
 
 <pre>
  project = <span class="string">'Lua'</span>
@@ -782,87 +752,139 @@ length
 
 </pre>
 
-
 <p>Generally, using Markdown gives you the opportunity to structure your documentation in any way you want; particularly if using lua-discount and its <a href="http://michelf.com/projects/php-markdown/extra/#table">table syntax</a>; the desired result can often be achieved then by using a custom style sheet.</p>
 
-<p><a name="Examples_and_readme_files"></a></p>
-
-<h2>Examples and readme files</h2>
+<p><a name="Examples_and_Readme_files"></a></p>
+<h2>Examples and Readme files</h2>
 
 <p>It has been long known that documentation generated just from the source is not really adequate to explain <em>how</em> to use a library.  People like reading narrative documentation, and they like looking at examples.  Previously I found myself dealing with source-generated and writer-generated documentation using different tools, and having to match these up.</p>
 
-<p>LDoc allows for source examples to be included in the documentation. For example, see the online documentation for <a href="http://stevedonovan.github.com/winapi/api.html">winapi</a>. The function <code>utf8_expand</code> has a <code>@see</code> reference to &lsquo;testu.lua&rsquo; and following that link gives you a pretty-printed version of the code.</p>
+<p>LDoc allows for source examples to be included in the documentation. For example, see the online documentation for <a href="http://stevedonovan.github.com/winapi/api.html">winapi</a>. The function <code>utf8_expand</code> has a <code>@see</code> reference to 'testu.lua' and following that link gives you a pretty-printed version of the code.</p>
 
 <p>The line in the <code>config.ld</code> that enables this is:</p>
+
 
 <pre>
  examples = {<span class="string">'examples'</span>, exclude = {<span class="string">'examples/slow.lua'</span>}}
 
 </pre>
 
-
-<p>That is, all files in the <code>examples</code> folder are to be pretty-printed, except for <code>slow.lua</code> which is meant to be called from one of the examples. The see-reference to <code>testu.lua</code> resolves to &lsquo;examples/testu.lua.html&rsquo;.</p>
+<p>That is, all files in the <code>examples</code> folder are to be pretty-printed, except for <code>slow.lua</code> which is meant to be called from one of the examples. The see-reference to <code>testu.lua</code> resolves to 'examples/testu.lua.html'.</p>
 
 <p>Examples may link back to the API documentation, for instance the example <code>input.lua</code> has a @{spawn_process} inline reference.</p>
 
 <p>Like all good Github projects, Winapi has a <code>readme.md</code>:</p>
+
 
 <pre>
  readme = <span class="string">"readme.md"</span>
 
 </pre>
 
+<p>This goes under the 'Topics' global section; the 'Contents' of this document is generated from the second-level (##) headings of the readme.</p>
 
-<p>This goes under the &lsquo;Topics&rsquo; global section; the &lsquo;Contents&rsquo; of this document is generated from the second-level (##) headings of the readme.</p>
+<p>Readme files are always processed with Markdown, but may also contain @{} references back to the documentation and to example files. As with doc comments, a link to a standard Lua function like @{os.execute} will work as well. Any code sections will be pretty-printed as Lua, unless the first indented line is '@plain'.</p>
 
-<p>Readme files are always processed with Markdown, but may also contain @{} references back to the documentation and to example files. As with doc comments, a link to a standard Lua function like @{os.execute} will work as well. Any code sections will be pretty-printed as well, unless the first indented line is &lsquo;@plain&rsquo;.</p>
+<p><a name="Tag_Modifiers"></a></p>
+<h2>Tag Modifiers</h2>
+
+<p>New with this release is the idea of <em>tag modifiers</em>. For instance, you may say @\param[type=number] and this associates the modifier <code>type</code> with value <code>number</code> with this particular param tag. A shorthand can be introduced for this common case, which is "@\tparam <type> <parmname> <comment>"; in the same way @\treturn is defined.</p>
+
+<p>The exact form of <code>&lt;type&gt;</code> is not defined, but here is a suggested scheme:</p>
+
+
+<pre>
+ number  <span class="comment">-- a plain type
+</span> Bonzo   <span class="comment">-- a known type; a reference link will be generated
+</span> {<span class="global">string</span>,number}  <span class="comment">-- a 'list' tuple, built from type expressions
+</span> {A=<span class="global">string</span>,N=number} <span class="comment">-- a 'struct' tuple, ditto
+</span> {Bonzo,...}   <span class="comment">-- an array of Bonzo objects
+</span> {[<span class="global">string</span>]=Bonzo,...} <span class="comment">-- a map of Bonzo objects with string keys
+</span>
+</pre>
+
+<p>Currently the <code>type</code> modifier is the only one known and used by LDoc when generating HTML output. However, any other modifiers are allowed and are available for use with your own templates or for extraction by your own tools.</p>
+
+<p>The <code>alias</code> function within configuration files has been extended so that alias tags can be defined as a tag plus a set of modifiers.  So <code>tparam</code> is defined as:</p>
+
+
+<pre>
+ alias(<span class="string">'tparam'</span>,{<span class="string">'param'</span>,modifiers={<span class="global">type</span>=<span class="string">"$1"</span>}})
+
+</pre>
 
 <p><a name="Fields_allowed_in__config_ld_"></a></p>
-
 <h2>Fields allowed in <code>config.ld</code></h2>
 
 <p>These mostly have the same meaning as the corresponding parameters:</p>
 
 <ul>
-<li><code>file</code>  a file or directory containing sources. In <code>config.ld</code> this can also be a table of files and directories.</li>
-<li><code>project</code> name of project, used as title in top left</li>
-<li><code>title</code> page title, default &lsquo;Reference&rsquo;</li>
-<li><code>package</code></li>
-<li><code>all</code> show local functions, etc as well in the docs</li>
-<li><code>format</code> markup processor, can be &lsquo;plain&rsquo; (default), &lsquo;markdown&rsquo; or &lsquo;discount&rsquo;</li>
-<li><code>output</code> output name (default &lsquo;index&rsquo;)</li>
-<li><code>dir</code> directory for output files (default &lsquo;docs&rsquo;)</li>
-<li><code>ext</code> extension for output (default &lsquo;html&rsquo;)</li>
-<li><code>one</code> use a one-column layout</li>
-<li><code>style</code>, <code>template</code> together these specify the directories for the style and and the template. In <code>config.ld</code> they may also be <code>true</code>, meaning use the same directory as the configuration file.</li>
+    <li><code>file</code>  a file or directory containing sources. In <code>config.ld</code> this can also be a table of files and directories.</li>
+    <li><code>project</code> name of project, used as title in top left</li>
+    <li><code>title</code> page title, default 'Reference'</li>
+    <li><code>package</code></li>
+    <li><code>all</code> show local functions, etc as well in the docs</li>
+    <li><code>format</code> markup processor, can be 'plain' (default), 'markdown' or 'discount'</li>
+    <li><code>output</code> output name (default 'index')</li>
+    <li><code>dir</code> directory for output files (default 'docs')</li>
+    <li><code>ext</code> extension for output (default 'html')</li>
+    <li><code>one</code> use a one-column layout</li>
+    <li><code>style</code>, <code>template</code> together these specify the directories for the style and and the template. In <code>config.ld</code> they may also be <code>true</code>, meaning use the same directory as the configuration file.</li>
 </ul>
-
 
 <p>These only appear in <code>config.ld</code>:</p>
 
 <ul>
-<li><code>description</code> a project description used under the project title</li>
-<li><code>examples</code> a directory or file: can be a table</li>
-<li><code>readme</code> name of readme file (to be processed with Markdown)</li>
-<li><code>no_return_or_parms</code> don&rsquo;t show parameters or return values in output</li>
+    <li><code>description</code> a project description used under the project title</li>
+    <li><code>examples</code> a directory or file: can be a table</li>
+    <li><code>readme</code> name of readme file (to be processed with Markdown)</li>
+    <li><code>no_return_or_parms</code> don't show parameters or return values in output</li>
 </ul>
-
 
 <p>Available functions are:</p>
 
 <ul>
-<li><code>alias(a,tag)</code> provide an alias <code>a</code> for the tag <code>tag</code>, for instance <code>p</code> as short for <code>param</code></li>
-<li><code>add_language_extension(ext,lang)</code> here <code>lang</code> may be either &lsquo;c&rsquo; or &lsquo;lua&rsquo;, and <code>ext</code> is an extension to be recognized as this language</li>
-<li><code>add_section</code></li>
-<li><code>new_type(tag,header,project_level)</code> used to add new tags, which are put in their own section <code>header</code>. They may be &lsquo;project level&rsquo;.</li>
+    <li><code>alias(a,tag)</code> provide an alias <code>a</code> for the tag <code>tag</code>, for instance <code>p</code> as short for <code>param</code></li>
+    <li><code>add_language_extension(ext,lang)</code> here <code>lang</code> may be either 'c' or 'lua', and <code>ext</code> is an extension to be recognized as this language</li>
+    <li><code>add_section</code></li>
+    <li><code>new_type(tag,header,project_level)</code> used to add new tags, which are put in their own section <code>header</code>. They may be 'project level'.</li>
 </ul>
+
+<p><a name="Annotations_and_Searching_for_Tags"></a></p>
+<h2>Annotations and Searching for Tags</h2>
+
+<p>Annotations are special tags that can be used to keep track of internal development status. The known annotations are 'todo', 'fixme' and 'warning'. They may occur in regular function/table doc comments, or on their own anywhere in the code.</p>
+
+
+<pre>
+ <span class="comment">--- Testing annotations
+</span> <span class="comment">-- @module annot1
+</span> ...
+ <span class="comment">--- first function.
+</span> <span class="comment">-- @todo check if this works!
+</span> <span class="keyword">function</span> annot1.first ()
+     <span class="keyword">if</span> boo <span class="keyword">then</span>
+
+     <span class="keyword">end</span>
+     <span class="comment">--- @fixme what about else?
+</span> <span class="keyword">end</span>
+
+</pre>
+
+<p>Although not currently rendered by the template as HTML, they can be extracted by the <code>--tags</code> flag, which is given a comma-separated list of tags to list.</p>
+
+<pre><code>D:\dev\lua\LDoc\tests&gt; ldoc --tags todo,fixme annot1.lua
+d:\dev\lua\ldoc\tests\annot1.lua:14: first: todo check if this works!
+d:\dev\lua\ldoc\tests\annot1.lua:19: first-fixme1: fixme what about else?
+</code></pre>
+
 
 
 <p><a name="Generating_HTML"></a></p>
-
 <h2>Generating HTML</h2>
 
-<p>LDoc, like LuaDoc, generates output HTML using a template, in this case <code>ldoc_ltp.lua</code>. This is expanded by the powerful but simple preprocessor devised originally by <a href="http://lua-users.org/wiki/SlightlyLessSimpleLuaPreprocessor">Rici Lake</a> which is now part of Penlight. There are two rules &ndash; any line starting with &lsquo;#&rsquo; is Lua code, which can also be embedded with &lsquo;$(&hellip;)&rsquo;.</p>
+<p>LDoc, like LuaDoc, generates output HTML using a template, in this case <code>ldoc_ltp.lua</code>. This is expanded by the powerful but simple preprocessor devised originally by <a href="http://lua-users.org/wiki/SlightlyLessSimpleLuaPreprocessor">Rici Lake</a> which is now part of Penlight. There are two rules - any line starting with '#' is Lua code, which can also be embedded with '$(...)'.</p>
+
 
 <pre>
  &lt;h2&gt;Contents&lt;/h2&gt;
@@ -874,17 +896,76 @@ length
 
 </pre>
 
+<p>This is then styled with <code>ldoc.css</code>. Currently the template and stylesheet is very much based on LuaDoc, so the results are mostly equivalent; the main change that the template has been more generalized. The default location (indicated by '!') is the directory of <code>ldoc.lua</code>.</p>
 
-<p>This is then styled with <code>ldoc.css</code>. Currently the template and stylesheet is very much based on LuaDoc, so the results are mostly equivalent; the main change that the template has been more generalized. The default location (indicated by &lsquo;!&rsquo;) is the directory of <code>ldoc.lua</code>.</p>
+<p>You may customize how you generate your documentation by specifying an alternative style sheet and/or template, which can be deployed with your project. The parameters are <code>--style</code> and <code>--template</code>, which give the directories where <code>ldoc.css</code> and <code>ldoc.ltp</code> are to be found. If <code>config.ld</code> contains these variables, they are interpreted slightly differently; if they are true, then it means 'use the same directory as config.ld'; otherwise they must be a valid directory relative to the ldoc invocation. An example of fully customized documentation is <code>tests/example/style</code>: this is what you could call 'minimal Markdown style' where there is no attempt to tag things (except emphasizing parameter names). The narrative ought to be sufficient, if it is written appropriately.</p>
 
-<p>You may customize how you generate your documentation by specifying an alternative style sheet and/or template, which can be deployed with your project. The parameters are <code>--style</code> and <code>--template</code>, which give the directories where <code>ldoc.css</code> and <code>ldoc.ltp</code> are to be found. If <code>config.ld</code> contains these variables, they are interpreted slightly differently; if they are true, then it means &lsquo;use the same directory as config.ld&rsquo;; otherwise they must be a valid directory relative to the ldoc invocation. An example of fully customized documentation is <code>tests/example/style': this is what you could call 'minimal Markdown style' where there is no attempt to tag things (except emphasizing parameter names). The narrative ought to be sufficient, if it is written appropriately.</code></p>
+<p>Of course, there's no reason why LDoc must always generate HTML. <code>--ext</code> defines what output extension to use; this can also be set in the configuration file. So it's possible to write a template that converts LDoc output to LaTex, for instance.</p>
 
-<p>Of course, there&rsquo;s no reason why LDoc must always generate HTML. <code>--ext</code> defines what output extension to use; this can also be set in the configuration file. So it&rsquo;s possible to write a template that converts LDoc output to LaTex, for instance.
+<p><a name="Internal_Data_Representation"></a></p>
+<h2>Internal Data Representation</h2>
+
+<p>The <code>--dump</code> flag gives a rough text output on the console. But there is a more customizeable way to process the output data generated by LDoc, using the <code>--filter</code> parameter. This is understood to be a fully qualified function (module + name). For example, try</p>
+
+
+<pre>
+ $ ldoc <span class="comment">--filter pl.pretty.dump mylib.c
+</span>
+</pre>
+
+<p>to see a raw dump of the data. (Simply using <code>dump</code> as the value here would be a shorthand for <code>pl.pretty.dump</code>.)  This is potentially very powerful, since you may write arbitrary Lua code to extract the information you need from your project.</p>
+
+<p>For instance, a file <code>custom.lua</code> like this:</p>
+
+
+<pre>
+ <span class="keyword">return</span> {
+    filter = <span class="keyword">function</span> (t)
+       <span class="keyword">for</span> _, mod <span class="keyword">in</span> <span class="global">ipairs</span>(t) <span class="keyword">do</span>
+          <span class="global">print</span>(mod.<span class="global">type</span>,mod.name,mod.summary)
+       <span class="keyword">end</span>
+    <span class="keyword">end</span>
+ }
+
+</pre>
+
+<p>Can be used like so:</p>
+
+
+<pre>
+ ~/LDoc/tests/example$ ldoc <span class="comment">--filter custom.filter mylib.c
+</span> <span class="global">module</span>  mylib   A sample C extension.
+
+</pre>
+
+<p>The basic data structure is straightforward: it is an array of 'modules' (project-level entities, including scripts) which each contain an <code>item</code> array (functions, tables and so forth).</p>
+
+<p>For instance, to find all functions which don't have a @return tag:</p>
+
+
+<pre>
+ <span class="keyword">return</span> {
+    filter = <span class="keyword">function</span> (t)
+       <span class="keyword">for</span> _, mod <span class="keyword">in</span> <span class="global">ipairs</span>(t) <span class="keyword">do</span>
+          <span class="keyword">for</span> _, item <span class="keyword">in</span> <span class="global">ipairs</span>(mod.items) <span class="keyword">do</span>
+             <span class="keyword">if</span> item.<span class="global">type</span> == <span class="string">'function'</span> <span class="keyword">and</span> <span class="keyword">not</span> item.ret <span class="keyword">then</span>
+                <span class="global">print</span>(mod.name,item.name,mod.file,item.lineno)
+             <span class="keyword">end</span>
+          <span class="keyword">end</span>
+       <span class="keyword">end</span>
+    <span class="keyword">end</span>
+ }
+
+</pre>
+
+<p>The internal naming is not always so consistent; <code>ret</code> corresponds to @return, and <code>params</code> corresponds to @param.  <code>item.params</code> is an array of the function parameters, in order; it is also a map from these names to the individual descriptions of the parameters.</p>
+
+<p><code>item.modifiers</code> is a table where the keys are the tags and the values are arrays of modifier tables.  The standard tag aliases <code>tparam</code> and <code>treturn</code> attach a <code>type</code> modifier to their tags.
 
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.0</a></i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.1</a></i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
