@@ -23,11 +23,9 @@
 <!-- Menu -->
 
 <div id="navigation">
-
+<br/>
 <h1>winapi</h1>
 
-<p>A minimal but useful binding to the Windows API.
-</p>
 
 <h2>Contents</h2>
 <ul>
@@ -48,12 +46,15 @@
 <li><a href="#Constants">Constants</a></li>
 </ul>
 
+
 <h2>Modules</h2>
 <ul>
   <li><strong>winapi</strong></li>
+</ul>
 <h2>Topics</h2>
 <ul>
   <li><a href="topics/readme.md.html">readme.md</a></li>
+</ul>
 <h2>Examples</h2>
 <ul>
   <li><a href="examples/caption.lua.html">caption.lua</a></li>
@@ -62,6 +63,8 @@
   <li><a href="examples/input.lua.html">input.lua</a></li>
   <li><a href="examples/message.lua.html">message.lua</a></li>
   <li><a href="examples/process-wait.lua.html">process-wait.lua</a></li>
+  <li><a href="examples/read-console.lua.html">read-console.lua</a></li>
+  <li><a href="examples/readserial.lua.html">readserial.lua</a></li>
   <li><a href="examples/setenv.lua.html">setenv.lua</a></li>
   <li><a href="examples/start_time.lua.html">start_time.lua</a></li>
   <li><a href="examples/test-processes.lua.html">test-processes.lua</a></li>
@@ -70,6 +73,7 @@
   <li><a href="examples/test-spawn.lua.html">test-spawn.lua</a></li>
   <li><a href="examples/test-timer.lua.html">test-timer.lua</a></li>
   <li><a href="examples/test-times.lua.html">test-times.lua</a></li>
+  <li><a href="examples/test-uninterrupted.lua.html">test-uninterrupted.lua</a></li>
   <li><a href="examples/test-watcher.lua.html">test-watcher.lua</a></li>
   <li><a href="examples/testshort.lua.html">testshort.lua</a></li>
   <li><a href="examples/testu.lua.html">testu.lua</a></li>
@@ -275,12 +279,24 @@
 	<td class="name" nowrap><a href="#get_clipboard">get_clipboard&nbsp;()</a></td>
 	<td class="summary">get the text on the clipboard.</td>
 	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#get_console">get_console&nbsp;()</a></td>
+	<td class="summary">open console i/o.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#open_serial">open_serial&nbsp;(defn)</a></td>
+	<td class="summary">open a serial port for reading and writing.</td>
+	</tr>
 </table>
 <h2><a href="#Class_Process">Class Process</a></h2>
 <table class="function_list">
 	<tr>
 	<td class="name" nowrap><a href="#Process:get_process_name">Process:get_process_name&nbsp;(full)</a></td>
 	<td class="summary">get the name of the process.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Process:get_pid">Process:get_pid&nbsp;()</a></td>
+	<td class="summary">get the the pid of the process.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#Process:kill">Process:kill&nbsp;()</a></td>
@@ -525,6 +541,7 @@
 
 
 
+
 </dd>
     <dt>
     <a name = "get_encoding"></a>
@@ -539,6 +556,7 @@
     <ol>
         either <code>CP_ACP</code> or <code>CP_UTF8</code>
     </ol>
+
 
 </dd>
     <dt>
@@ -555,6 +573,7 @@
        <li><code><em>e_out</em></code>:  likewise</li>
        <li><code><em>text</em></code>:  the string</li>
     </ul>
+
 
 
 
@@ -577,6 +596,7 @@
         text as UTF-8
     </ol>
 
+
     <h3>see also:</h3>
     <ul>
          <a href="examples/testu.lua.html#">testu.lua</a>
@@ -598,6 +618,7 @@
 
 
 
+
 </dd>
     <dt>
     <a name = "Window:get_text"></a>
@@ -609,6 +630,7 @@
 
 
 
+
 </dd>
     <dt>
     <a name = "Window:set_text"></a>
@@ -616,6 +638,7 @@
     </dt>
     <dd>
     set the window text. 
+
 
 
 
@@ -635,6 +658,7 @@
 
 
 
+
 </dd>
     <dt>
     <a name = "Window:get_position"></a>
@@ -650,6 +674,7 @@
         <li>left position</li>
         <li>top position</li>
     </ol>
+
 
 </dd>
     <dt>
@@ -667,6 +692,7 @@
         <li>height</li>
     </ol>
 
+
 </dd>
     <dt>
     <a name = "Window:is_visible"></a>
@@ -678,6 +704,7 @@
 
 
 
+
 </dd>
     <dt>
     <a name = "Window:destroy"></a>
@@ -685,6 +712,7 @@
     </dt>
     <dd>
     destroy this window. 
+
 
 
 
@@ -704,6 +732,7 @@
        <li><code><em>w</em></code>:  width</li>
        <li><code><em>h</em></code>:  height</li>
     </ul>
+
 
 
 
@@ -732,6 +761,7 @@
         the result
     </ol>
 
+
 </dd>
     <dt>
     <a name = "Window:enum_children"></a>
@@ -747,6 +777,7 @@
 
 
 
+
 </dd>
     <dt>
     <a name = "Window:get_parent"></a>
@@ -758,6 +789,7 @@
 
 
 
+
 </dd>
     <dt>
     <a name = "Window:get_module_filename"></a>
@@ -765,6 +797,7 @@
     </dt>
     <dd>
     get the name of the program owning this window. 
+
 
 
 
@@ -782,6 +815,7 @@
 
 
 
+
 </dd>
     <dt>
     <a name = "Window:set_foreground"></a>
@@ -789,6 +823,7 @@
     </dt>
     <dd>
     bring this window to the foreground. 
+
 
 
 
@@ -804,6 +839,7 @@
 
 
 
+
 </dd>
     <dt>
     <a name = "Window:__tostring"></a>
@@ -811,6 +847,7 @@
     </dt>
     <dd>
     this window as string (up to 100 chars). 
+
 
 
 
@@ -841,6 +878,7 @@
         <a href="api.html#Class_Window">Window</a>
     </ol>
 
+
 </dd>
     <dt>
     <a name = "make_name_matcher"></a>
@@ -858,6 +896,7 @@
 
 
 
+
 </dd>
     <dt>
     <a name = "make_class_matcher"></a>
@@ -872,6 +911,7 @@
 
 </li>
     </ul>
+
 
 
 
@@ -894,6 +934,7 @@
         <a href="api.html#Class_Window">Window</a>
     </ol>
 
+
 </dd>
     <dt>
     <a name = "find_all_windows"></a>
@@ -912,6 +953,7 @@
     <ol>
         a list of window objects
     </ol>
+
 
 </dd>
     <dt>
@@ -932,6 +974,7 @@
         a window object.
     </ol>
 
+
 </dd>
     <dt>
     <a name = "get_foreground_window"></a>
@@ -947,6 +990,7 @@
     <ol>
         <a href="api.html#Class_Window">Window</a>
     </ol>
+
 
 </dd>
     <dt>
@@ -967,6 +1011,7 @@
         <a href="api.html#Class_Window">Window</a>
     </ol>
 
+
 </dd>
     <dt>
     <a name = "enum_windows"></a>
@@ -982,6 +1027,7 @@
 
 
 
+
 </dd>
     <dt>
     <a name = "use_gui"></a>
@@ -991,6 +1037,7 @@
     route callback dispatch through a message window. 
  You need to do this when using Winapi in a GUI application,
  since it ensures that Lua callbacks happen in the GUI thread.
+
 
 
 
@@ -1017,6 +1064,7 @@
         <li>any error string</li>
     </ol>
 
+
 </dd>
     <dt>
     <a name = "tile_windows"></a>
@@ -1032,6 +1080,7 @@
        <li><code><em>kids</em></code>:  a table of window objects</li>
        <li><code><em>bounds</em></code>:  a bounds table (left,top,right,bottom) - can be nil</li>
     </ul>
+
 
 
 
@@ -1053,6 +1102,7 @@
     <ul>
        <li><code><em>millisec</em></code>:  sleep period</li>
     </ul>
+
 
 
 
@@ -1080,6 +1130,7 @@
  'try','abort' and 'retry'
     </ol>
 
+
     <h3>see also:</h3>
     <ul>
          <a href="examples/message.lua.html#">message.lua</a>
@@ -1096,6 +1147,7 @@
     <ul>
        <li><code><em>type</em></code>:  (default 'ok'); one of 'information','question','warning','error'</li>
     </ul>
+
 
 
 
@@ -1116,6 +1168,7 @@
 
 
 
+
 </dd>
     <dt>
     <a name = "output_debug_string"></a>
@@ -1133,6 +1186,7 @@
 
 
 
+
 </dd>
     <dt>
     <a name = "move_file"></a>
@@ -1146,6 +1200,7 @@
        <li><code><em>src</em></code>:  source file</li>
        <li><code><em>dest</em></code>:  destination file</li>
     </ul>
+
 
 
 
@@ -1168,6 +1223,7 @@
 
 
 
+
 </dd>
     <dt>
     <a name = "set_clipboard"></a>
@@ -1180,6 +1236,7 @@
     <ul>
        <li><code><em>text</em></code>:  the text</li>
     </ul>
+
 
 
 
@@ -1197,6 +1254,43 @@
     <ol>
         the text
     </ol>
+
+
+</dd>
+    <dt>
+    <a name = "get_console"></a>
+    <strong>get_console&nbsp;()</strong>
+    </dt>
+    <dd>
+    open console i/o. 
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+        <a href="api.html#Class_File">File</a>
+    </ol>
+
+
+</dd>
+    <dt>
+    <a name = "open_serial"></a>
+    <strong>open_serial&nbsp;(defn)</strong>
+    </dt>
+    <dd>
+    open a serial port for reading and writing. 
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>defn</em></code>:  a string as used by the <a href="http://technet.microsoft.com/en-us/library/cc732236%28WS.10%29.aspx">mode command</a></li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        <a href="api.html#Class_File">File</a>
+    </ol>
+
 
 </dd>
 </dl>
@@ -1217,6 +1311,19 @@
 
 
 
+
+</dd>
+    <dt>
+    <a name = "Process:get_pid"></a>
+    <strong>Process:get_pid&nbsp;()</strong>
+    </dt>
+    <dd>
+    get the the pid of the process. 
+
+
+
+
+
 </dd>
     <dt>
     <a name = "Process:kill"></a>
@@ -1225,6 +1332,7 @@
     <dd>
     kill the process. 
  <a href="examples/test-spawn.lua.html#">test-spawn.lua</a> kills a launched process after a certain amount of output.
+
 
 
 
@@ -1245,6 +1353,7 @@
         <li>maximum working set size.</li>
     </ol>
 
+
 </dd>
     <dt>
     <a name = "Process:get_start_time"></a>
@@ -1259,6 +1368,7 @@
     <ol>
         a table in the same format as os.time() and os.date() expects.
     </ol>
+
 
 </dd>
     <dt>
@@ -1275,6 +1385,7 @@
         <li>user time in msec</li>
         <li>system time in msec</li>
     </ol>
+
 
 </dd>
     <dt>
@@ -1295,6 +1406,7 @@
         <li>this process object</li>
         <li>either "OK" or "TIMEOUT"</li>
     </ol>
+
 
 </dd>
     <dt>
@@ -1317,6 +1429,7 @@
         <li>either "OK" or "TIMEOUT"</li>
     </ol>
 
+
 </dd>
     <dt>
     <a name = "Process:get_exit_code"></a>
@@ -1333,6 +1446,7 @@
         exit code
     </ol>
 
+
 </dd>
     <dt>
     <a name = "Process:close"></a>
@@ -1340,6 +1454,7 @@
     </dt>
     <dd>
     close this process handle. 
+
 
 
 
@@ -1369,6 +1484,7 @@
         <a href="api.html#Class_Process">Process</a>
     </ol>
 
+
 </dd>
     <dt>
     <a name = "get_current_pid"></a>
@@ -1383,6 +1499,7 @@
     <ol>
         integer id
     </ol>
+
 
 </dd>
     <dt>
@@ -1399,6 +1516,7 @@
         <a href="api.html#Class_Process">Process</a>
     </ol>
 
+
 </dd>
     <dt>
     <a name = "get_processes"></a>
@@ -1414,6 +1532,7 @@
     <ol>
         an array of process ids.
     </ol>
+
 
 </dd>
     <dt>
@@ -1434,6 +1553,7 @@
 
 
 
+
 </dd>
 </dl>
     <h2><a name="Class_Thread"></a>Class Thread</h2>
@@ -1451,6 +1571,7 @@
 
 
 
+
 </dd>
     <dt>
     <a name = "Thread:resume"></a>
@@ -1458,6 +1579,7 @@
     </dt>
     <dd>
     resume a suspended thread. 
+
 
 
 
@@ -1471,6 +1593,7 @@
     kill this thread.  Generally considered a 'nuclear' option, but
  this implementation will free any associated callback references, buffers
  and handles. <a href="examples/test-timer.lua.html#">test-timer.lua</a> shows how a timer can be terminated.
+
 
 
 
@@ -1490,6 +1613,7 @@
 
 
 
+
 </dd>
     <dt>
     <a name = "Thread:get_priority"></a>
@@ -1497,6 +1621,7 @@
     </dt>
     <dd>
     get a thread's priority 
+
 
 
 
@@ -1524,6 +1649,7 @@
         number of bytes written.
     </ol>
 
+
 </dd>
     <dt>
     <a name = "File:read"></a>
@@ -1540,6 +1666,7 @@
     <ol>
         text if successful, nil plus error otherwise.
     </ol>
+
 
 </dd>
     <dt>
@@ -1560,6 +1687,7 @@
     <ol>
         <a href="api.html#Class_Thread">Thread</a>
     </ol>
+
 
 </dd>
 </dl>
@@ -1588,6 +1716,7 @@
 
 
 
+
 </dd>
     <dt>
     <a name = "spawn_process"></a>
@@ -1608,6 +1737,7 @@
         <li><a href="api.html#Class_Process">Process</a></li>
         <li><a href="api.html#Class_File">File</a></li>
     </ol>
+
 
 </dd>
     <dt>
@@ -1633,6 +1763,7 @@
         <li>return code</li>
         <li>program output</li>
     </ol>
+
 
 </dd>
 </dl>
@@ -1663,6 +1794,7 @@
         <a href="api.html#Class_Thread">Thread</a>
     </ol>
 
+
 </dd>
 </dl>
     <h2><a name="Dealing_with_named_pipes"></a>Dealing with named pipes</h2>
@@ -1681,6 +1813,7 @@
     <ul>
        <li><code><em>pipename</em></code>:  the pipename (default is "\\.\pipe\luawinapi")</li>
     </ul>
+
 
 
 
@@ -1707,6 +1840,7 @@
     <ol>
         <a href="api.html#Class_Thread">Thread</a>.
     </ol>
+
 
 </dd>
 </dl>
@@ -1736,6 +1870,7 @@
         ASCII 8.3 format file path
     </ol>
 
+
 </dd>
     <dt>
     <a name = "temp_name"></a>
@@ -1752,6 +1887,7 @@
         full path within temporary files directory.
     </ol>
 
+
 </dd>
     <dt>
     <a name = "delete_file_or_dir"></a>
@@ -1767,6 +1903,7 @@
 
 
 
+
 </dd>
     <dt>
     <a name = "make_dir"></a>
@@ -1775,6 +1912,7 @@
     <dd>
     make a directory. 
  Will make necessary subpaths if command extensions are enabled.
+
 
 
 
@@ -1792,6 +1930,7 @@
        <li><code><em>dir</em></code>:  the directory</li>
        <li><code><em>tree</em></code>:  if true, clean out the directory tree</li>
     </ul>
+
 
 
 
@@ -1816,6 +1955,7 @@
     </ul>
 
 
+
     <h3>see also:</h3>
     <ul>
          <a href="examples/files.lua.html#">files.lua</a>
@@ -1833,6 +1973,7 @@
        <li><code><em>file</em></code>:  mask like "mydirs\t*"</li>
        <li><code><em>subdirs</em></code>:  iterate over subdirectories (default no)</li>
     </ul>
+
 
 
 
@@ -1856,6 +1997,7 @@
         a table of drive names
     </ol>
 
+
 </dd>
     <dt>
     <a name = "get_drive_type"></a>
@@ -1875,6 +2017,7 @@
         one of the following: unknown, none, removable, fixed, remote,
  cdrom, ramdisk.
     </ol>
+
 
 </dd>
     <dt>
@@ -1896,6 +2039,7 @@
         <li>total space in kB</li>
     </ol>
 
+
 </dd>
     <dt>
     <a name = "get_disk_network_name"></a>
@@ -1914,6 +2058,7 @@
     <ol>
         UNC name
     </ol>
+
 
 </dd>
     <dt>
@@ -1956,6 +2101,7 @@
         a thread object.
     </ol>
 
+
     <h3>see also:</h3>
     <ul>
          <a href="examples/test-watcher.lua.html#">test-watcher.lua</a>
@@ -1982,6 +2128,7 @@
 
 
 
+
 </dd>
     <dt>
     <a name = "Regkey:get_value"></a>
@@ -2002,6 +2149,7 @@
         <li>the type</li>
     </ol>
 
+
 </dd>
     <dt>
     <a name = "Regkey:get_keys"></a>
@@ -2017,6 +2165,7 @@
         a table of key names
     </ol>
 
+
 </dd>
     <dt>
     <a name = "Regkey:close"></a>
@@ -2030,6 +2179,7 @@
 
 
 
+
 </dd>
     <dt>
     <a name = "Regkey:flush"></a>
@@ -2039,6 +2189,7 @@
     flush the key. 
  Considered an expensive function; use it only when you have
  to guarantee modification.
+
 
 
 
@@ -2071,6 +2222,7 @@
         <a href="api.html#Class_Regkey">Regkey</a>
     </ol>
 
+
 </dd>
     <dt>
     <a name = "create_reg_key"></a>
@@ -2089,6 +2241,7 @@
     <ol>
         <a href="api.html#Class_Regkey">Regkey</a>
     </ol>
+
 
 </dd>
 </dl>
@@ -2154,6 +2307,7 @@
 
 
 
+
 </dd>
 </dl>
 
@@ -2161,7 +2315,7 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.0</a></i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.1</a></i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

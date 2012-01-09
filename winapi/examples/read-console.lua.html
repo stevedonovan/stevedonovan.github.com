@@ -45,7 +45,7 @@
   <li><a href="../examples/input.lua.html">input.lua</a></li>
   <li><a href="../examples/message.lua.html">message.lua</a></li>
   <li><a href="../examples/process-wait.lua.html">process-wait.lua</a></li>
-  <li><a href="../examples/read-console.lua.html">read-console.lua</a></li>
+  <li><strong>read-console.lua</strong></li>
   <li><a href="../examples/readserial.lua.html">readserial.lua</a></li>
   <li><a href="../examples/setenv.lua.html">setenv.lua</a></li>
   <li><a href="../examples/start_time.lua.html">start_time.lua</a></li>
@@ -57,7 +57,7 @@
   <li><a href="../examples/test-times.lua.html">test-times.lua</a></li>
   <li><a href="../examples/test-uninterrupted.lua.html">test-uninterrupted.lua</a></li>
   <li><a href="../examples/test-watcher.lua.html">test-watcher.lua</a></li>
-  <li><strong>testshort.lua</strong></li>
+  <li><a href="../examples/testshort.lua.html">testshort.lua</a></li>
   <li><a href="../examples/testu.lua.html">testu.lua</a></li>
 </ul>
 
@@ -65,26 +65,20 @@
 
 <div id="content">
 
-<h1>Example <code>testshort.lua</code></h1>
+<h1>Example <code>read-console.lua</code></h1>
 
     <pre>
 <span class="global">require</span> <span class="string">'winapi'</span>
-<span class="keyword">local</span> U = winapi.uexpand
-<span class="keyword">local</span> encode = winapi.encode
-<span class="keyword">local</span> UTF8 = winapi.CP_UTF8
 
-winapi.set_encoding(UTF8)
+f = winapi.get_console()
+f:read_async(<span class="keyword">function</span>(line)
+  f:write(line)
+  <span class="keyword">if</span> line:match <span class="string">'^quit'</span> <span class="keyword">then</span>
+    <span class="global">os</span>.exit()
+  <span class="keyword">end</span>
+<span class="keyword">end</span>)
 
-<span class="keyword">local</span> short = winapi.short_path
-<span class="keyword">local</span> name = short <span class="string">'ελληνική.txt'</span>
-<span class="global">os</span>.remove(name)
-<span class="global">print</span>(name)
-<span class="keyword">local</span> f,err = <span class="global">io</span>.open(name,<span class="string">'w'</span>)
-<span class="keyword">if</span> <span class="keyword">not</span> f <span class="keyword">then</span> <span class="keyword">return</span> <span class="global">print</span>(err) <span class="keyword">end</span>
-f:write <span class="string">'a new file\n'</span>
-f:close()
-
-
+winapi.sleep(-<span class="number">1</span>)
 
 
 </div> <!-- id="content" -->

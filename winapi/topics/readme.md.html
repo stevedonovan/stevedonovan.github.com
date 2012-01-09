@@ -23,16 +23,15 @@
 <!-- Menu -->
 
 <div id="navigation">
-
+<br/>
 <h1>winapi</h1>
 
-<p>A minimal but useful binding to the Windows API.
-</p>
 
 <h2>Contents</h2>
 <ul>
 <li><a href="#Creating_and_working_with_Processes">Creating and working with Processes</a></li>
 <li><a href="#Working_with_Windows">Working with Windows</a></li>
+<li><a href="#Working_with_Text_Encoding">Working with Text Encoding</a></li>
 <li><a href="#Working_with_Processes">Working with Processes</a></li>
 <li><a href="#Drive_and_Directory_Operations">Drive and Directory Operations</a></li>
 <li><a href="#Output_and_Timers">Output and Timers</a></li>
@@ -40,12 +39,15 @@
 <li><a href="#Pipe_Server">Pipe Server</a></li>
 </ul>
 
+
 <h2>Modules</h2>
 <ul>
   <li><a href="../api.html">winapi</a></li>
+</ul>
 <h2>Topics</h2>
 <ul>
   <li><strong>readme.md</strong></li>
+</ul>
 <h2>Examples</h2>
 <ul>
   <li><a href="../examples/caption.lua.html">caption.lua</a></li>
@@ -54,6 +56,8 @@
   <li><a href="../examples/input.lua.html">input.lua</a></li>
   <li><a href="../examples/message.lua.html">message.lua</a></li>
   <li><a href="../examples/process-wait.lua.html">process-wait.lua</a></li>
+  <li><a href="../examples/read-console.lua.html">read-console.lua</a></li>
+  <li><a href="../examples/readserial.lua.html">readserial.lua</a></li>
   <li><a href="../examples/setenv.lua.html">setenv.lua</a></li>
   <li><a href="../examples/start_time.lua.html">start_time.lua</a></li>
   <li><a href="../examples/test-processes.lua.html">test-processes.lua</a></li>
@@ -62,6 +66,7 @@
   <li><a href="../examples/test-spawn.lua.html">test-spawn.lua</a></li>
   <li><a href="../examples/test-timer.lua.html">test-timer.lua</a></li>
   <li><a href="../examples/test-times.lua.html">test-times.lua</a></li>
+  <li><a href="../examples/test-uninterrupted.lua.html">test-uninterrupted.lua</a></li>
   <li><a href="../examples/test-watcher.lua.html">test-watcher.lua</a></li>
   <li><a href="../examples/testshort.lua.html">testshort.lua</a></li>
   <li><a href="../examples/testu.lua.html">testu.lua</a></li>
@@ -87,6 +92,7 @@
 
 <pre>
  winapi.shell_exec(<span class="string">'open'</span>,<span class="string">'myold.doc'</span>)
+
 </pre>
 
 <p>Or an explorer window for a directory:</p>
@@ -94,6 +100,7 @@
 
 <pre>
  winapi.shell_exec(<span class="string">'open'</span>,<span class="string">'\\users\\steve\\lua'</span>)
+
 </pre>
 
 <p>Note that this function launches the process and does not block. The path may be an explicit program to use, and then we can also specify the command-line parameters:</p>
@@ -101,6 +108,7 @@
 
 <pre>
  winapi.shell_exec(<span class="keyword">nil</span>,<span class="string">'scite'</span>,<span class="string">'wina.lua'</span>)
+
 </pre>
 
 <p>The fourth parameter is the working directory for the process, and the fifth indicates how the program's window is to be opened. For instance, you can open a file in Notepad already minimized:</p>
@@ -108,6 +116,7 @@
 
 <pre>
  winapi.shell_exec(<span class="keyword">nil</span>,<span class="string">'notepad'</span>,<span class="string">'wina.lua'</span>,<span class="keyword">nil</span>,winapi.SW_MINIMIZE)
+
 </pre>
 
 <p>For fine control over console programs, use <a href="../api.html#spawn_process">spawn_process</a> - you pass it the command-line, and receive two values; a process object and a file object. You monitor the process with the first, and can read from or write to the second.</p>
@@ -124,6 +133,7 @@
  userdata: <span class="number">0000000000539608</span>      OK
  &gt; = proc:exit_code()
  <span class="number">0</span>
+
 </pre>
 
 <p>If the command is invalid, then you will get an error message instead:</p>
@@ -132,6 +142,7 @@
 <pre>
  &gt; = winapi.spawn_process <span class="string">'frodo'</span>
  <span class="keyword">nil</span>     The system cannot find the file specified.
+
 </pre>
 
 <p>This is what <a href="../api.html#execute">execute</a> does under the hood, but doing it explicitly gives you more control.  For instance, the <a href="../api.html#Process:wait">Process:wait</a> method of the process object can take an optional time-out parameter; if you wait too long for the process, it will return the process object and the string 'TIMEOUT'.</p>
@@ -142,6 +153,7 @@
  <span class="keyword">if</span> status == <span class="string">'TIMEOUT'</span> <span class="keyword">then</span>
    proc:kill()
  <span class="keyword">end</span>
+
 </pre>
 
 <p>The file object is unfortunately not a Lua file object, since it is not possible to <em>portably</em> re-use the existing Lua implementation without copying large chunks of <code>liolib.c</code> into this library. So <a href="../api.html#File:read">File:read</a> grabs what's available, unbuffered. But I feel that it's easy enough for Lua code to parse the result into separate lines, if needed.</p>
@@ -160,6 +172,7 @@
  hello
  &gt;
  &gt; proc:kill()
+
 </pre>
 
 <p>(We also found it necessary in the <a href="http://code.google.com/p/luaforwindows/">Lua for Windows</a> project to switch off buffering for using Lua in SciTE)</p>
@@ -178,6 +191,7 @@
  &gt; = file:read()
  <span class="number">42</span>
  &gt;&gt;&gt;
+
 </pre>
 
 <p>This kind of interactive process capture is fine for a console application, but <a href="../api.html#File:read">File:read</a> is blocking and will freeze any GUI program. For this, you use <a href="../api.html#File:read_async">File:read_async</a> which returns the result through a callback.</p>
@@ -188,6 +202,7 @@
  &gt; file:read_async(<span class="keyword">function</span>(s) <span class="global">print</span>(<span class="string">'++'</span>,s) <span class="keyword">end</span>)
  &gt; ++    <span class="number">42</span>
  &gt;&gt;&gt;
+
 </pre>
 
 <p>This can work nicely with Lua coroutines, allowing us to write pseudo-blocking code for interacting with processes.</p>
@@ -200,6 +215,7 @@
  <span class="number">200</span>     <span class="number">1380</span>
  &gt; = proc:run_times()
  <span class="number">0</span>       <span class="number">31</span>
+
 </pre>
 
 <p><a href="../api.html#Process:get_working_size">Process:get_working_size</a> gives you a lower and an upper bound on the process memory in kB; <a href="../api.html#Process:get_run_times">Process:get_run_times</a> gives you the time (in milliseconds) spent in the user process and in the kernel. So the time to calculate <code>40+2</code> twice is too fast to even register, and it has only spent 31 msec in the system.</p>
@@ -209,6 +225,7 @@
 
 <pre>
  <span class="keyword">for</span> i = <span class="number">1</span>,<span class="number">1e8</span> <span class="keyword">do</span> <span class="keyword">end</span>
+
 </pre>
 
 <p>It takes me 0.743 seconds to do this, with stock Lua 5.1. But running two such scripts in parallel is about the same speed (0.776):</p>
@@ -222,6 +239,7 @@
  P[<span class="number">2</span>] = winapi.spawn_process <span class="string">'lua slow.lua'</span>
  winapi.wait_for_processes(P,<span class="keyword">true</span>)
  <span class="global">print</span>(<span class="global">os</span>.clock() - t)
+
 </pre>
 
 <p>So my i3 is effectively a two-processor machine; four such processes take 1.325 seconds, just under twice as long. The second parameter means 'wait for all'; like the <a href="../api.html#Process:wait">Process:wait</a> method, it has an optional timeout parameter.</p>
@@ -233,8 +251,9 @@
 
 
 <pre>
- &gt; = winapi.desktop_window():get_bounds()
+ &gt; = winapi.get_desktop_window():get_bounds()
  <span class="number">1600</span>    <span class="number">900</span>
+
 </pre>
 
 <p>Finding other windows is best done by iterating over all top-level windows and checking them for some desired property; (<a href="../api.html#find_window">find_window</a> is provided for completeness, but you really have to provide the exact window caption for the second parameter.)</p>
@@ -243,10 +262,11 @@
 
 
 <pre>
- &gt; t = winapi.find_all_windows(winapi.match_name <span class="string">'- SciTE'</span>)
+ &gt; t = winapi.find_all_windows(winapi.make_name_matcher <span class="string">'- SciTE'</span>)
  &gt; = #t
  <span class="number">2</span>
- &gt; winapi.tile_windows(winapi.desktop_window(),<span class="keyword">false</span>,t)
+ &gt; winapi.tile_windows(winapi.get_desktop_window(),<span class="keyword">false</span>,t)
+
 </pre>
 
 <p>This call needs the parent window (we just use the desktop), whether to tile horizontally, and a table of window objects.  There is an optional fourth parameter, which is the bounds to use for the tiling, specified like so <code>{left=0,top=0,right=600,bottom=900}</code>.</p>
@@ -259,15 +279,17 @@
 
 
 <pre>
- &gt; = winapi.foreground_window()
+ &gt; = winapi.get_foreground_window()
  Command Prompt - lua -lwinapi
+
 </pre>
 
 <p>So the equivalent of the old DOS command <code>title</code> would here be:</p>
 
 
 <pre>
- winapi.foreground_window():set_text <span class="string">'My new title'</span>
+ winapi.get_foreground_window():set_text <span class="string">'My new title'</span>
+
 </pre>
 
 <p>Any top-level window will contain child windows. For example, Notepad has a simple structure revealed by <a href="../api.html#Window:enum_children">Window:enum_children</a>:</p>
@@ -285,6 +307,7 @@
  Edit
  &gt; = t[<span class="number">2</span>]:get_class_name()
  msctls_statusbar32
+
 </pre>
 
 <p>Windows controls like the 'Edit' control interact with the unverse via messages.
@@ -294,29 +317,38 @@
 <pre>
  &gt; = t[<span class="number">1</span>]:send_message(<span class="number">186</span>,<span class="number">0</span>,<span class="number">0</span>)
  <span class="number">6</span>
+
 </pre>
 
 <p>An entertaining way to automate some programs is to send virtual keystrokes to them. The function <a href="../api.html#send_to_window">send_to_window</a> sends characters to the current foreground window:</p>
 
 
 <pre>
- &gt; winapi.send_input <span class="string">'= 20 + 10\n'</span>
+ &gt; winapi.send_to_window <span class="string">'= 20 + 10\n'</span>
  &gt; = <span class="number">20</span> + <span class="number">10</span>
  <span class="number">30</span>
+
 </pre>
 
 <p>After launching a window, you can make it the foreground window and send it text:</p>
 
 
 <pre>
- winapi.shell_exec(<span class="keyword">nil</span>,<span class="string">'notepad'</span>)
- winapi.sleep(<span class="number">100</span>)
- notew = winapi.find_window_match <span class="string">'Untitled'</span>
- notew:set_foreground()
- winapi.send_input <span class="string">'Hello World!'</span>
+ P = winapi.spawn_process <span class="string">'notepad'</span>
+ P:wait_for_input_idle()
+ w = winapi.find_window_match <span class="string">'Untitled'</span>
+ w:show()
+ w:set_foreground()
+ winapi.send_to_window <span class="string">'hello dammit'</span>
+
 </pre>
 
-<p>The little sleep is important: it gives the other process a chance to get going, and to create a new window which we can promote.</p>
+<p>Waiting on the process is important: it gives the other process a chance to get going, and to create a new window which we can promote.</p>
+
+<p><a name="Working_with_Text_Encoding"></a></p>
+<h2  id="T4">Working with Text Encoding</h2>
+
+<p>Lua has internally no concept of text encoding; strings are sequences of bytes. This means that the string functions cannot generally give you the correct length of a UTF-8 encoded string, for instance. Internally, Windows uses UTF-16 and winapi gives you several options for passing and getting lua strings from Windows.</p>
 
 <p>An important point is that you can choose to use UTF-8 encoding with winapi. This little program shows how:</p>
 
@@ -326,19 +358,49 @@
  W.set_encoding(W.CP_UTF8)
  win = W.foreground_window()
  win:set_text <span class="string">'ελληνική'</span>
+
 </pre>
 
 <p>When run in SciTE, it successfully puts a little bit of Greek in the title bar.</p>
 
+<p><a href="../api.html#encode">encode</a> can translate text explicitly between encodings; <code>winapi.enode(ein,eout,text)</code> where the encodings can be one of the <code>winapi.CP_ACP</code>, <code>winapi_UTF8</code> and <code>winapi_UTF16</code> constants.</p>
+
+<p><a href="../api.html#utf8_expand">utf8_expand</a> will expand '#' two-byte Unicode hex constants:</p>
+
+
+<pre>
+ <span class="keyword">local</span> U = winapi.utf8_expand
+ txt = U <span class="string">'#03BB + #03BC + C'</span>
+ <span class="global">print</span>(txt)
+ <span class="global">print</span>(U <span class="string">'#03BD'</span>)
+ <span class="comment">---&gt; OUTPUT
+</span> λ + μ + C
+ ν
+
+</pre>
+
+<p>You may work internally in UTF-8 and get a suitable <em>short file name</em> for working with files in Lua.</p>
+
+
+<pre>
+ name = winapi.short_path <span class="string">'ελληνική.txt'</span>
+ <span class="global">print</span>(name)
+ <span class="keyword">local</span> f,err = <span class="global">io</span>.open(name,<span class="string">'w'</span>)
+ f:write <span class="string">'a new file\n'</span>
+ f:close()
+
+</pre>
+
+<p>A filename with the correct Greek name appears in Explorer, and can be edited with Notepad.</p>
 
 <p><a name="Working_with_Processes"></a></p>
-<h2  id="T4">Working with Processes</h2>
+<h2  id="T5">Working with Processes</h2>
 
 <p><a href="../api.html#get_current_process">get_current_process</a> will give you a <a href="../api.html#Class_Process">Process</a> object for the current program. It's also possible to get a process object from a program's window:</p>
 
 
 <pre>
- &gt; w = winapi.foreground_window()
+ &gt; w = winapi.get_foreground_window()
  &gt; = w
  Command Prompt - lua -lwinapi
  &gt; p = w:get_process()
@@ -346,6 +408,7 @@
  cmd.exe
  &gt; = p:get_process_name(<span class="keyword">true</span>)
  C:\WINDOWS\system32\cmd.exe
+
 </pre>
 
 <p>(Note that the <a href="../api.html#Process:get_process_name">Process:get_process_name</a> method can optionally give you the full path to the process.)</p>
@@ -357,16 +420,17 @@
  pids = winapi.get_processes()
 
  <span class="keyword">for</span> _,pid <span class="keyword">in</span> <span class="global">ipairs</span>(pids) <span class="keyword">do</span>
-    <span class="keyword">local</span> P = winapi.process(pid)
+    <span class="keyword">local</span> P = winapi.process_from_id(pid)
     <span class="keyword">local</span> name = P:get_process_name(<span class="keyword">true</span>)
     <span class="keyword">if</span> name <span class="keyword">then</span> <span class="global">print</span>(pid,name) <span class="keyword">end</span>
     P:close()
  <span class="keyword">end</span>
 
+
 </pre>
 
 <p><a name="Drive_and_Directory_Operations"></a></p>
-<h2  id="T5">Drive and Directory Operations</h2>
+<h2  id="T6">Drive and Directory Operations</h2>
 
 <p>There are functions for querying the filesystem: <a href="../api.html#get_logical_drives">get_logical_drives</a> returns all available drives (in 'D:\' format) and <a href="../api.html#get_drive_type">get_drive_type</a> will tell you whether these drives are fixed, remote, removable, etc. <a href="../api.html#get_disk_free_space">get_disk_free_space</a> will return the space used and the space available in kB as two results.</p>
 
@@ -389,6 +453,7 @@
      <span class="keyword">end</span>
      <span class="global">print</span>(drive,dtype,free,rname)
  <span class="keyword">end</span>
+
 </pre>
 
 <p>This script gives the following output on my home machine:</p>
@@ -399,6 +464,7 @@
  F:\    fixed    <span class="number">1517</span>
  G:\    cdrom    (The device is <span class="keyword">not</span> ready.)
  Q:\    fixed    (Access is denied.)
+
 </pre>
 
 <p>Or at work:</p>
@@ -413,6 +479,7 @@
  X:\    remote    <span class="number">12160</span>    \\CARL-VFILE\APPS
  Y:\    remote    <span class="number">33844</span>    \\CARL-VFILE\SYS\PUBLIC
  Z:\    remote    <span class="number">33844</span>    \\CARL-VFILE\SYS\PUBLIC
+
 </pre>
 
 <p>A useful operation is watching directories for changes. You specify the directory, the kind of change to monitor and whether subdirectories should be checked. You also provide a function that will be called when something changes.</p>
@@ -426,6 +493,7 @@
 </span>         <span class="global">print</span>(what,who)
      <span class="keyword">end</span>
  )
+
 </pre>
 
 <p>Using a callback means that you can watch multiple directories and still respond to timers, etc.</p>
@@ -439,10 +507,11 @@
  <span class="keyword">for</span> f <span class="keyword">in</span> output:gmatch <span class="string">'[^\r\n]+'</span> <span class="keyword">do</span>
      <span class="global">table</span>.insert(files,f)
  <span class="keyword">end</span>
+
 </pre>
 
 <p><a name="Output_and_Timers"></a></p>
-<h2  id="T6">Output and Timers</h2>
+<h2  id="T7">Output and Timers</h2>
 
 <p>GUI applications do not have a console so <a href="http://www.lua.org/manual/5.1/manual.html#pdf-print">print</a> does not work. <a href="../api.html#show_message">show_message</a> will put up a message box to bother users, and <a href="../api.html#output_debug_string">output_debug_string</a> will write text quietly to the debug stream. A utility such as <a href="http://technet.microsoft.com/en-us/sysinternals/bb896647">DebugView</a> can be used to view this output, which shows it with a timestamp.</p>
 
@@ -451,6 +520,7 @@
 
 <pre>
  <span class="global">print</span>(winapi.show_message(<span class="string">"Message"</span>,<span class="string">"stuff\nand nonsense"</span>,<span class="string">"yes-no"</span>,<span class="string">"warning"</span>))
+
 </pre>
 
 <p>The first parameter is the caption of the message box, the second is the text (which may contain line feeds); the third controls which buttons are to be shown, and the fourth is the icon to use. The function returns a string indicating which button has been pressed: 'ok','yes','no','cancel', etc.</p>
@@ -460,6 +530,7 @@
 
 <pre>
  winapi.beep <span class="string">'warning'</span>
+
 </pre>
 
 <p>It is straightforward to create a timer. You could of course use <a href="../api.html#sleep">sleep</a> but then your application will do nothing but sleep most of the time. This callback-driven timer can run in the background:</p>
@@ -469,33 +540,73 @@
  winapi.make_timer(<span class="number">500</span>,<span class="keyword">function</span>()
      text:append <span class="string">'gotcha'</span>
  <span class="keyword">end</span>)
+
 </pre>
 
 <p>Such callbacks can be made GUI-safe by first calling <a href="../api.html#use_gui">use_gui</a> which ensures that any callback is called in the main GUI thread.</p>
 
-<p>The basic rule for callbacks enforced by <code>winapi</code> is that only one may be active at a time; otherwise we would risk re-entering Lua using the same state. So be quick when responding to callbacks, since they effectively block Lua. For a console application, the best bet (after setting some timers and so forth) is just to sleep indefinitely:</p>
+<p>The basic rule for callbacks enforced by <code>winapi</code> is that only one may be active at a time; otherwise we would risk re-entering Lua on another thread, using the same Lua state. So be quick when responding to callbacks, since they effectively block Lua. For a console application, the best bet (after setting some timers and so forth) is just to sleep indefinitely:</p>
 
 
 <pre>
  winapi.sleep(-<span class="number">1</span>)
+
 </pre>
 
-<p>To show what happens if you don't follow the rule:</p>
+<p>To show what happens in an interactive prompt if you don't follow this rule:</p>
 
 
 <pre>
  &gt; winapi.timer(<span class="number">500</span>,<span class="keyword">function</span>() <span class="keyword">end</span>)
  &gt; = <span class="number">23</span>
  <span class="keyword">nil</span>     <span class="keyword">nil</span>     <span class="keyword">return</span>  <span class="number">23</span>
+
 </pre>
 
 <p>In short: completely messed!</p>
 
+<p>There is another option. <a href="../api.html#sleep">sleep</a> takes an optional argument which makes it automatically unlock and lock the mutex:</p>
+
+
+<pre>
+ <span class="keyword">while</span> <span class="keyword">true</span> <span class="keyword">do</span>
+   winapi.sleep(<span class="number">200</span>,<span class="keyword">true</span>)
+   <span class="global">print</span> <span class="string">'gotcha'</span>
+ <span class="keyword">end</span>
+
+</pre>
+
+<p>While we are sleeping, the mutex is unlocked and anybody can grab it, but afterwards we are locked.</p>
+
+<p>It's possible to read from the console asynchronously, which allows you to write servers which are responsive to interactive commands.</p>
+
+
+<pre>
+ f = winapi.get_console()
+ f:read_async(<span class="keyword">function</span>(line)
+   f:write(line)
+   <span class="keyword">if</span> line:match <span class="string">'^quit'</span> <span class="keyword">then</span>
+     <span class="global">os</span>.exit()
+   <span class="keyword">end</span>
+ <span class="keyword">end</span>)
+
+ winapi.sleep(-<span class="number">1</span>)
+
+</pre>
+
+<p>Please note that you will get the end-of-line characters as well.</p>
+
+
+
+
+
+
+
 <p><a name="Reading_from_the_Registry"></a></p>
-<h2  id="T7">Reading from the Registry</h2>
+<h2  id="T8">Reading from the Registry</h2>
 
 <p><a name="Pipe_Server"></a></p>
-<h2  id="T8">Pipe Server</h2>
+<h2  id="T9">Pipe Server</h2>
 
 <p>Interprocess communication (IPC) is one of those tangled, operating-system-dependent things that can be terribly useful. On Unix, <em>named pipes</em> are special files which can be used for two processes to easily exchange information. One process opens the pipe for reading, and the other process opens it for writing; the first process will start reading, and this will block until the other process writes to the pipe. Since pipes are a regular part of the filesystem, two Lua scripts can use regular I/O to complete this transaction.</p>
 
@@ -510,6 +621,7 @@
  <span class="keyword">end</span>)
 
  winapi.sleep(-<span class="number">1</span>)
+
 </pre>
 
 <p>Like timers and file notifications, this server runs in its own thread so we have to put the main thread to sleep.  This function is passed a callback and a pipe name; pipe names must look like '\\.\pipe\NAME' and the default name is '\\.\pipe\luawinapi'. The callback receives a file object - in this case we use <a href="../api.html#File:read_async">File:read_async</a> to play nice with other Lua threads. Multiple clients can have open connections in this way, up to the number of available pipes.</p>
@@ -522,6 +634,7 @@
  &gt; f:write <span class="string">'hello server!\n'</span>
  &gt; f:flush()
  &gt; f:close()
+
 </pre>
 
 <p>and our server will say:</p>
@@ -531,6 +644,7 @@
  [hello server!
  ]
  []
+
 </pre>
 
 <p>(Note that <a href="../api.html#File:read">File:read</a> receives an <em>empty string</em> when the handle is closed.)</p>
@@ -550,6 +664,7 @@
     <span class="keyword">end</span>
   <span class="keyword">end</span>)
  <span class="keyword">end</span>)
+
 </pre>
 
 <p>On the client side:</p>
@@ -562,6 +677,7 @@
 </span> f:write <span class="string">'dog\n'</span>
  <span class="global">print</span>(f:read()) <span class="comment">-- DOG
 </span> f:close()
+
 </pre>
 
 <p>Another similarity with sockets is that you can connect to remote pipes (see <a href="http://msdn.microsoft.com/en-us/library/aa365783(v=vs.85">pipe names</a>)
@@ -569,7 +685,7 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.0</a></i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.1</a></i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

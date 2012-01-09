@@ -55,9 +55,9 @@
   <li><a href="../examples/test-spawn.lua.html">test-spawn.lua</a></li>
   <li><a href="../examples/test-timer.lua.html">test-timer.lua</a></li>
   <li><a href="../examples/test-times.lua.html">test-times.lua</a></li>
-  <li><a href="../examples/test-uninterrupted.lua.html">test-uninterrupted.lua</a></li>
+  <li><strong>test-uninterrupted.lua</strong></li>
   <li><a href="../examples/test-watcher.lua.html">test-watcher.lua</a></li>
-  <li><strong>testshort.lua</strong></li>
+  <li><a href="../examples/testshort.lua.html">testshort.lua</a></li>
   <li><a href="../examples/testu.lua.html">testu.lua</a></li>
 </ul>
 
@@ -65,24 +65,40 @@
 
 <div id="content">
 
-<h1>Example <code>testshort.lua</code></h1>
+<h1>Example <code>test-uninterrupted.lua</code></h1>
 
     <pre>
 <span class="global">require</span> <span class="string">'winapi'</span>
-<span class="keyword">local</span> U = winapi.uexpand
-<span class="keyword">local</span> encode = winapi.encode
-<span class="keyword">local</span> UTF8 = winapi.CP_UTF8
 
-winapi.set_encoding(UTF8)
+l = <span class="number">1</span>
+winapi.make_timer(<span class="number">400</span>,<span class="keyword">function</span>()
+  <span class="global">print</span> <span class="string">'bonzo'</span>
+  l = l + <span class="number">1</span>
+  <span class="comment">--if l &gt; 10 then os.exit() end
+</span><span class="keyword">end</span>)
 
-<span class="keyword">local</span> short = winapi.short_path
-<span class="keyword">local</span> name = short <span class="string">'ελληνική.txt'</span>
-<span class="global">os</span>.remove(name)
-<span class="global">print</span>(name)
-<span class="keyword">local</span> f,err = <span class="global">io</span>.open(name,<span class="string">'w'</span>)
-<span class="keyword">if</span> <span class="keyword">not</span> f <span class="keyword">then</span> <span class="keyword">return</span> <span class="global">print</span>(err) <span class="keyword">end</span>
-f:write <span class="string">'a new file\n'</span>
-f:close()
+winapi.make_timer(<span class="number">300</span>,<span class="keyword">function</span>()
+  <span class="global">print</span> <span class="string">'woo'</span>
+<span class="keyword">end</span>)
+
+<span class="keyword">function</span> protected(val)
+  <span class="global">print</span>(val)
+<span class="keyword">end</span>
+
+<span class="comment">-- --[[
+</span><span class="keyword">while</span> <span class="keyword">true</span> <span class="keyword">do</span>
+  winapi.sleep(<span class="number">200</span>,<span class="keyword">true</span>)  
+  <span class="global">print</span> <span class="string">'gotcha'</span>
+<span class="keyword">end</span>
+<span class="comment">--]]
+</span>
+<span class="comment">--[[
+while true do
+  winapi.sleep(200)
+  winapi.locked_eval(protected,'hello')
+  --protected 'hello'  --&gt; this will cause nonsense
+end
+--]]</span>
 
 
 
