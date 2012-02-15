@@ -73,6 +73,10 @@
 <h2><a href="#File_and_Path_functions">File and Path functions</a></h2>
 <table class="function_list">
 	<tr>
+	<td class="name" nowrap><a href="#exists">exists&nbsp;(filename)</a></td>
+	<td class="summary">Does a file exist?</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#splitpath">splitpath&nbsp;(P)</a></td>
 	<td class="summary">split a file path.</td>
 	</tr>
@@ -252,7 +256,7 @@
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>s</em></code>:  the string</li>
-       <li><code><em>subst</em></code>:  either a table or a function (as in string.gsub)</li>
+       <li><code><em>subst</em></code>:  either a table or a function (as in <code>string.gsub</code>)</li>
     </ul>
 
 
@@ -290,6 +294,30 @@
 
 
     <dl class="function">
+    <dt>
+    <a name = "exists"></a>
+    <strong>exists&nbsp;(filename)</strong>
+    </dt>
+    <dd>
+    Does a file exist? 
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>filename</em></code>:  a file path</li>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">exists 'readme' or exists 'readme.txt' or exists 'readme.md'</pre>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        the file path, otherwise nil
+    </ol>
+
+
+</dd>
     <dt>
     <a name = "splitpath"></a>
     <strong>splitpath&nbsp;(P)</strong>
@@ -337,7 +365,7 @@
 </dl>
     <h2><a name="Extended_table_functions"></a>Extended table functions</h2>
      'list' here is shorthand for 'list-like table'; these functions
- only operate over the numeric 1..#t range of a table and are
+ only operate over the numeric <code>1..#t</code> range of a table and are
  particularly efficient for this purpose.
     <dl class="function">
     <dt>
@@ -385,7 +413,7 @@
     </dt>
     <dd>
     map a function over a list. 
- the output must always be the same length as the input, so
+ The output must always be the same length as the input, so
  any <code>nil</code> values are mapped to <code>false</code>.
 
     <h3>Parameters:</h3>
@@ -398,7 +426,7 @@
 
     <h3>Returns:</h3>
     <ol>
-        new list with elements f(t[i])
+        a list with elements <code>f(t[i])</code>
     </ol>
 
 
@@ -418,6 +446,10 @@
     </ul>
 
 
+    <h3>Returns:</h3>
+    <ol>
+        a list such that <code>pred(t[i])</code> is true
+    </ol>
 
 
 </dd>
@@ -430,18 +462,16 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>t</em></code>: 
-
-</li>
-       <li><code><em>pred</em></code>: 
-
-</li>
-       <li><code><em>...</em></code>: 
-
-</li>
+       <li><code><em>t</em></code>:  the list</li>
+       <li><code><em>pred</em></code>:  a function of at least one argument</li>
+       <li><code><em>...</em></code>:  any extra arguments</li>
     </ul>
 
 
+    <h3>Returns:</h3>
+    <ol>
+        the item value
+    </ol>
 
 
 </dd>
@@ -454,15 +484,15 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>t</em></code>: 
-
-</li>
-       <li><code><em>value</em></code>: 
-
-</li>
+       <li><code><em>t</em></code>:  the list</li>
+       <li><code><em>value</em></code>:  item value</li>
     </ul>
 
 
+    <h3>Returns:</h3>
+    <ol>
+        index, otherwise <code>nil</code>
+    </ol>
 
 
 </dd>
@@ -476,7 +506,7 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>t</em></code>:  the table</li>
+       <li><code><em>t</em></code>:  the list</li>
        <li><code><em>i1</em></code>:  the start index</li>
        <li><code><em>i2</em></code>:  the end index, default #t</li>
     </ul>
@@ -519,7 +549,7 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">tfilter({a=1,b=-1},function(v) return</pre>
+        <pre class="example">tfilter({a=1,b='boo'},tonumber) == {a=1}</pre>
     </ul>
 
 
@@ -581,6 +611,10 @@
        <li><code><em>t</em></code>:  a list of values</li>
     </ul>
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">set{'one','two'} == {one=true,two=true}</pre>
+    </ul>
 
     <h3>Returns:</h3>
     <ol>
@@ -759,6 +793,10 @@
        <li><code><em>v</em></code>:  a value</li>
     </ul>
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">(bind1(string.match,'hello')('^hell') == 'hell'</pre>
+    </ul>
 
     <h3>Returns:</h3>
     <ol>
@@ -773,7 +811,7 @@
     </dt>
     <dd>
     compose two functions. 
- For instance, printf can be defined as compose(io.write,string.format)
+ For instance, <code>printf</code> can be defined as <code>compose(io.write,string.format)</code>
 
     <h3>Parameters:</h3>
     <ul>
@@ -822,9 +860,9 @@
     <dd>
     create a class with an optional base class. 
  The resulting table has a new() function for invoking
- the constructor, which must be named _init. If the base
- class has a constructor, you can call it as the super() method.
- The __tostring metamethod is also inherited, but others need
+ the constructor, which must be named <code>_init</code>. If the base
+ class has a constructor, you can call it as the <code>super()</code> method.
+ The <code>__tostring</code> metamethod is also inherited, but others need
  to be brought in explicitly.
 
     <h3>Parameters:</h3>
