@@ -88,16 +88,24 @@
 <h2><a href="#Extended_table_functions">Extended table functions</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#tstring">tstring&nbsp;(t, limit)</a></td>
-	<td class="summary">return a string representation of a Lua table.</td>
+	<td class="name" nowrap><a href="#tstring">tstring&nbsp;(t)</a></td>
+	<td class="summary">return a string representation of a Lua value.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#tdump">tdump&nbsp;(t, ...)</a></td>
-	<td class="summary">dump a Lua table to a file object.</td>
+	<td class="summary">dump a Lua value to a file object.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#imap">imap&nbsp;(f, t, ...)</a></td>
 	<td class="summary">map a function over a list.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#imap2">imap2&nbsp;(f, t1, t2)</a></td>
+	<td class="summary">map a function over two lists.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#foreach">foreach&nbsp;(t, f, ...)</a></td>
+	<td class="summary">call a function repeatedly.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#ifilter">ifilter&nbsp;(t, pred, ...)</a></td>
@@ -108,7 +116,7 @@
 	<td class="summary">find an item in a list using a predicate.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#index">index&nbsp;(t, value)</a></td>
+	<td class="name" nowrap><a href="#indexof">indexof&nbsp;(t, value)</a></td>
 	<td class="summary">return the index of an item in a list.</td>
 	</tr>
 	<tr>
@@ -116,15 +124,15 @@
 	<td class="summary">return a slice of a list.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#tmap">tmap&nbsp;(f, t, ...)</a></td>
-	<td class="summary">map a function over a Lua table.</td>
+	<td class="name" nowrap><a href="#icopy">icopy&nbsp;(dest, src, idest, isrc, nsrc)</a></td>
+	<td class="summary">copy a list into another.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#tfilter">tfilter&nbsp;(t, pred, ...)</a></td>
-	<td class="summary">filter a table using a predicate.</td>
+	<td class="name" nowrap><a href="#indexby">indexby&nbsp;(t, keys)</a></td>
+	<td class="summary">make a list of indexed values.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#update">update&nbsp;(t, other)</a></td>
+	<td class="name" nowrap><a href="#import">import&nbsp;(t, ...)</a></td>
 	<td class="summary">add the key/value pairs of <code>other</code> to <code>t</code>.</td>
 	</tr>
 	<tr>
@@ -132,8 +140,8 @@
 	<td class="summary">extend a list using values from another.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#set">set&nbsp;(t)</a></td>
-	<td class="summary">make a set from a list.</td>
+	<td class="name" nowrap><a href="#makemap">makemap&nbsp;(t, tv)</a></td>
+	<td class="summary">make a map from a list.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#keys">keys&nbsp;(t)</a></td>
@@ -148,31 +156,27 @@
 	<td class="summary">are these two tables equal?</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#intersect">intersect&nbsp;(t, other)</a></td>
-	<td class="summary">the intersection of two tables.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#collect">collect&nbsp;(iter, count)</a></td>
+	<td class="name" nowrap><a href="#collect">collect&nbsp;(iter, select)</a></td>
 	<td class="summary">collect the values of an iterator into a list.</td>
 	</tr>
 </table>
 <h2><a href="#Functional_helpers">Functional helpers</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#throw">throw&nbsp;(f)</a></td>
-	<td class="summary">create a function which will throw an error on failure.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#safe">safe&nbsp;(f)</a></td>
-	<td class="summary">create a function which will never throw an error.</td>
-	</tr>
-	<tr>
 	<td class="name" nowrap><a href="#bind1">bind1&nbsp;(f, v)</a></td>
 	<td class="summary">bind the value <code>v</code> to the first argument of function <code>f</code>.</td>
 	</tr>
 	<tr>
+	<td class="name" nowrap><a href="#bind2">bind2&nbsp;(f, v)</a></td>
+	<td class="summary">bind the value <code>v</code> to the second argument of function <code>f</code>.</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#compose">compose&nbsp;(f1, f2)</a></td>
 	<td class="summary">compose two functions.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#binop">binop&nbsp;(key, op)</a></td>
+	<td class="summary">make a binary comparison function.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#callable">callable&nbsp;(obj)</a></td>
@@ -184,14 +188,6 @@
 	<tr>
 	<td class="name" nowrap><a href="#class">class&nbsp;(base)</a></td>
 	<td class="summary">create a class with an optional base class.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#is_a">is_a&nbsp;(self, klass)</a></td>
-	<td class="summary">is an object derived from a class?</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#type">type&nbsp;(obj)</a></td>
-	<td class="summary">extended type of an object.</td>
 	</tr>
 </table>
 
@@ -370,16 +366,15 @@
     <dl class="function">
     <dt>
     <a name = "tstring"></a>
-    <strong>tstring&nbsp;(t, limit)</strong>
+    <strong>tstring&nbsp;(t)</strong>
     </dt>
     <dd>
-    return a string representation of a Lua table. 
+    return a string representation of a Lua value. 
  Cycles are detected, and a limit on number of items can be imposed.
 
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>t</em></code>:  the table</li>
-       <li><code><em>limit</em></code>:  the limit on items, default 1000</li>
     </ul>
 
 
@@ -395,7 +390,8 @@
     <strong>tdump&nbsp;(t, ...)</strong>
     </dt>
     <dd>
-    dump a Lua table to a file object. 
+    dump a Lua value to a file object. 
+ With no second argument, dumps to standard output.
 
     <h3>Parameters:</h3>
     <ul>
@@ -419,15 +415,59 @@
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>f</em></code>:  a function of one or more arguments</li>
-       <li><code><em>t</em></code>:  the table</li>
+       <li><code><em>t</em></code>:  the list</li>
        <li><code><em>...</em></code>:  any extra arguments to the function</li>
     </ul>
 
 
     <h3>Returns:</h3>
     <ol>
-        a list with elements <code>f(t[i])</code>
+        a list with elements <code>f(t[i],...)</code>
     </ol>
+
+
+</dd>
+    <dt>
+    <a name = "imap2"></a>
+    <strong>imap2&nbsp;(f, t1, t2)</strong>
+    </dt>
+    <dd>
+    map a function over two lists. 
+ The output must always be the same length as the input, so
+ any <code>nil</code> values are mapped to <code>false</code>.
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>f</em></code>:  a function of two or more arguments</li>
+       <li><code><em>t1</em></code>:  first list</li>
+       <li><code><em>t2</em></code>:  second list</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        a list with elements <code>f(t1[i],t2[i],...)</code>
+    </ol>
+
+
+</dd>
+    <dt>
+    <a name = "foreach"></a>
+    <strong>foreach&nbsp;(t, f, ...)</strong>
+    </dt>
+    <dd>
+    call a function repeatedly. 
+ The first argument of the function will be the values
+ from a list, if specified.
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>t</em></code>:  either a count or a list</li>
+       <li><code><em>f</em></code>:  a function to be repeatedly called</li>
+       <li><code><em>...</em></code>:  any extra arguments to the function</li>
+    </ul>
+
+
 
 
 </dd>
@@ -437,6 +477,8 @@
     </dt>
     <dd>
     filter a list using a predicate. 
+ If <code>pred</code> is absent, then we provide a default which
+ filters out any <code>false</code> values.
 
     <h3>Parameters:</h3>
     <ul>
@@ -476,8 +518,8 @@
 
 </dd>
     <dt>
-    <a name = "index"></a>
-    <strong>index&nbsp;(t, value)</strong>
+    <a name = "indexof"></a>
+    <strong>indexof&nbsp;(t, value)</strong>
     </dt>
     <dd>
     return the index of an item in a list. 
@@ -516,58 +558,71 @@
 
 </dd>
     <dt>
-    <a name = "tmap"></a>
-    <strong>tmap&nbsp;(f, t, ...)</strong>
+    <a name = "icopy"></a>
+    <strong>icopy&nbsp;(dest, src, idest, isrc, nsrc)</strong>
     </dt>
     <dd>
-    map a function over a Lua table. 
+    copy a list into another. 
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>f</em></code>:  a function of one or more arguments</li>
-       <li><code><em>t</em></code>:  the table</li>
-       <li><code><em>...</em></code>:  any optional arguments to the function</li>
+       <li><code><em>dest</em></code>:  destination list</li>
+       <li><code><em>src</em></code>:  source list</li>
+       <li><code><em>idest</em></code>:  start index in destination, default 1</li>
+       <li><code><em>isrc</em></code>:  start index in source, default 1</li>
+       <li><code><em>nsrc</em></code>:  number of elements to copy, default #src</li>
     </ul>
 
 
+    <h3>Returns:</h3>
+    <ol>
+        the first list
+    </ol>
 
 
 </dd>
     <dt>
-    <a name = "tfilter"></a>
-    <strong>tfilter&nbsp;(t, pred, ...)</strong>
+    <a name = "indexby"></a>
+    <strong>indexby&nbsp;(t, keys)</strong>
     </dt>
     <dd>
-    filter a table using a predicate. 
+    make a list of indexed values. 
+ Generalized table indexing
 
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>t</em></code>:  a table</li>
-       <li><code><em>pred</em></code>:  the predicate function</li>
-       <li><code><em>...</em></code>:  any extra arguments to the predicate</li>
+       <li><code><em>keys</em></code>:  a list of keys or indices</li>
     </ul>
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">tfilter({a=1,b='boo'},tonumber) == {a=1}</pre>
+        <pre class="example">indexby({one=1,two=2},{'one'}) == {1}</pre>
     </ul>
 
+    <h3>Returns:</h3>
+    <ol>
+        a list <code>L</code> such that <code>L[keys[i]]</code>
+    </ol>
 
 
 </dd>
     <dt>
-    <a name = "update"></a>
-    <strong>update&nbsp;(t, other)</strong>
+    <a name = "import"></a>
+    <strong>import&nbsp;(t, ...)</strong>
     </dt>
     <dd>
     add the key/value pairs of <code>other</code> to <code>t</code>. 
  For sets, this is their union. For the same keys,
- the values from the first table will be overwritten
+ the values from the first table will be overwritten.
+ If <code>other</code> is a string, then it becomes the result of <code>require</code>
+ With only one argument, the second argument is assumed to be
+ the <code>ml</code> table itself.
 
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>t</em></code>:  table to be updated</li>
-       <li><code><em>other</em></code>:  table</li>
+       <li><code><em>...</em></code>:  table</li>
     </ul>
 
 
@@ -600,20 +655,25 @@
 
 </dd>
     <dt>
-    <a name = "set"></a>
-    <strong>set&nbsp;(t)</strong>
+    <a name = "makemap"></a>
+    <strong>makemap&nbsp;(t, tv)</strong>
     </dt>
     <dd>
-    make a set from a list. 
+    make a map from a list. 
+ In its simplest form, this makes a <em>set</em> from a list; each value
+ becomes a key. The default value of that key is the original
+ list index. These values can also be provided directly.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>t</em></code>:  a list of values</li>
+       <li><code><em>t</em></code>:  a list of values that become the keys</li>
+       <li><code><em>tv</em></code>:  optional list that become the values</li>
     </ul>
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">set{'one','two'} == {one=true,two=true}</pre>
+        <li><pre class="example">makemap{'one','two'} == {one=1,two=2}</pre></li>
+        <li><pre class="example">makemap({'power','glory'},{20,30}) == {power=20,glory=30}</pre></li>
     </ul>
 
     <h3>Returns:</h3>
@@ -629,7 +689,6 @@
     </dt>
     <dd>
     extract the keys of a table as a list. 
- This is the opposite operation to tset
 
     <h3>Parameters:</h3>
     <ul>
@@ -637,6 +696,10 @@
     </ul>
 
 
+    <h3>Returns:</h3>
+    <ol>
+        a list of keys
+    </ol>
 
 
 </dd>
@@ -684,44 +747,22 @@
 
 </dd>
     <dt>
-    <a name = "intersect"></a>
-    <strong>intersect&nbsp;(t, other)</strong>
-    </dt>
-    <dd>
-    the intersection of two tables. 
- Works as expected for sets, otherwise note that the first
- table's values are preseved
-
-    <h3>Parameters:</h3>
-    <ul>
-       <li><code><em>t</em></code>:  a table</li>
-       <li><code><em>other</em></code>:  a table</li>
-    </ul>
-
-
-    <h3>Returns:</h3>
-    <ol>
-        the intersection of the tables
-    </ol>
-
-
-</dd>
-    <dt>
     <a name = "collect"></a>
-    <strong>collect&nbsp;(iter, count)</strong>
+    <strong>collect&nbsp;(iter, select)</strong>
     </dt>
     <dd>
     collect the values of an iterator into a list. 
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>iter</em></code>:  a single or double-valued iterator</li>
-       <li><code><em>count</em></code>:  an optional number of values to collect</li>
+       <li><code><em>iter</em></code>:  an iterator returning one or more values</li>
+       <li><code><em>select</em></code>:  (optional) Either a number of values to collect, or <code>true</code>
+ meaning collect values as a tuple, or a function to process/filter values.</li>
     </ul>
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">collect(ipairs{10,20}) == {{1,10},{2,20}}</pre>
+        <pre class="example">collect(math.random,3) == {0.23,0.75,0.13}</pre>
     </ul>
 
     <h3>Returns:</h3>
@@ -737,49 +778,6 @@
 
 
     <dl class="function">
-    <dt>
-    <a name = "throw"></a>
-    <strong>throw&nbsp;(f)</strong>
-    </dt>
-    <dd>
-    create a function which will throw an error on failure. 
-
-    <h3>Parameters:</h3>
-    <ul>
-       <li><code><em>f</em></code>:  a function that returns nil,err if it fails</li>
-    </ul>
-
-
-    <h3>Returns:</h3>
-    <ol>
-        an equivalent function that raises an error
-    </ol>
-
-
-</dd>
-    <dt>
-    <a name = "safe"></a>
-    <strong>safe&nbsp;(f)</strong>
-    </dt>
-    <dd>
-    create a function which will never throw an error. 
- This is the opposite situation to throw; if the
- original function throws an error e, then this
- function will return nil,e.
-
-    <h3>Parameters:</h3>
-    <ul>
-       <li><code><em>f</em></code>:  a function which can throw an error</li>
-    </ul>
-
-
-    <h3>Returns:</h3>
-    <ol>
-        a function which returns nil,error when it fails
-    </ol>
-
-
-</dd>
     <dt>
     <a name = "bind1"></a>
     <strong>bind1&nbsp;(f, v)</strong>
@@ -806,6 +804,31 @@
 
 </dd>
     <dt>
+    <a name = "bind2"></a>
+    <strong>bind2&nbsp;(f, v)</strong>
+    </dt>
+    <dd>
+    bind the value <code>v</code> to the second argument of function <code>f</code>. 
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>f</em></code>:  a function of at least one argument</li>
+       <li><code><em>v</em></code>:  a value</li>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">(bind2(string.match,'^hell')('hello') == 'hell'</pre>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        a function of one less argument
+    </ol>
+
+
+</dd>
+    <dt>
     <a name = "compose"></a>
     <strong>compose&nbsp;(f1, f2)</strong>
     </dt>
@@ -822,7 +845,28 @@
 
     <h3>Returns:</h3>
     <ol>
-        f1(f2(...))
+        <code>f1(f2(...))</code>
+    </ol>
+
+
+</dd>
+    <dt>
+    <a name = "binop"></a>
+    <strong>binop&nbsp;(key, op)</strong>
+    </dt>
+    <dd>
+    make a binary comparison function. 
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>key</em></code>:  in structure or array to be compared</li>
+       <li><code><em>op</em></code>:  '&lt;' for less than, '==' for equals, and otherwise a binary function.</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        a comparison function
     </ol>
 
 
@@ -859,11 +903,13 @@
     </dt>
     <dd>
     create a class with an optional base class. 
- The resulting table has a new() function for invoking
- the constructor, which must be named <code>_init</code>. If the base
+ The resulting table can be called to make a new object, which invokes
+ an optional constructor named <code>_init</code>. If the base
  class has a constructor, you can call it as the <code>super()</code> method.
- The <code>__tostring</code> metamethod is also inherited, but others need
- to be brought in explicitly.
+ Every class has a <code>_class</code> and a maybe-nil <code>_base</code> field, which can
+ be accessed through the object.
+ All metamethods are inherited.
+ The class is given a function <code>Klass.class_of(obj)</code>.
 
     <h3>Parameters:</h3>
     <ul>
@@ -874,48 +920,6 @@
     <h3>Returns:</h3>
     <ol>
         the metatable representing the class
-    </ol>
-
-
-</dd>
-    <dt>
-    <a name = "is_a"></a>
-    <strong>is_a&nbsp;(self, klass)</strong>
-    </dt>
-    <dd>
-    is an object derived from a class? 
-
-    <h3>Parameters:</h3>
-    <ul>
-       <li><code><em>self</em></code>:  the object</li>
-       <li><code><em>klass</em></code>:  a class created with <code>class</code></li>
-    </ul>
-
-
-    <h3>Returns:</h3>
-    <ol>
-        true or false
-    </ol>
-
-
-</dd>
-    <dt>
-    <a name = "type"></a>
-    <strong>type&nbsp;(obj)</strong>
-    </dt>
-    <dd>
-    extended type of an object. 
- The type of a table is its metatable, otherwise works like standard type()
-
-    <h3>Parameters:</h3>
-    <ul>
-       <li><code><em>obj</em></code>:  a value</li>
-    </ul>
-
-
-    <h3>Returns:</h3>
-    <ol>
-        the type, either a string or the metatable
     </ol>
 
 
