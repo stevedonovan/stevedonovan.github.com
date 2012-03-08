@@ -56,8 +56,6 @@
   <li><a href="../examples/input.lua.html">input.lua</a></li>
   <li><a href="../examples/message.lua.html">message.lua</a></li>
   <li><a href="../examples/process-wait.lua.html">process-wait.lua</a></li>
-  <li><a href="../examples/read-console.lua.html">read-console.lua</a></li>
-  <li><a href="../examples/readserial.lua.html">readserial.lua</a></li>
   <li><a href="../examples/setenv.lua.html">setenv.lua</a></li>
   <li><a href="../examples/start_time.lua.html">start_time.lua</a></li>
   <li><a href="../examples/test-processes.lua.html">test-processes.lua</a></li>
@@ -66,7 +64,6 @@
   <li><a href="../examples/test-spawn.lua.html">test-spawn.lua</a></li>
   <li><a href="../examples/test-timer.lua.html">test-timer.lua</a></li>
   <li><a href="../examples/test-times.lua.html">test-times.lua</a></li>
-  <li><a href="../examples/test-uninterrupted.lua.html">test-uninterrupted.lua</a></li>
   <li><a href="../examples/test-watcher.lua.html">test-watcher.lua</a></li>
   <li><a href="../examples/testshort.lua.html">testshort.lua</a></li>
   <li><a href="../examples/testu.lua.html">testu.lua</a></li>
@@ -78,14 +75,14 @@
 
 <h1>Topic <code>readme.md</code></h1>
 
-    This module provides some basic tools for working with Windows systems, finding out system resources, and gives you more control over process creation.  In this introduction any plain reference is in the <code>winapi</code> table, so that <code>find_window</code> means <code>winapi.find_window</code>.  Normally <code>winapi</code> works with the current Windows code page, but can be told to use UTF-8 with <a href="../api.html#set_encoding">set_encoding</a>; interally string operations are in Unicode.</p>
+    This module provides some basic tools for working with Windows systems, finding out system resources, and gives you more control over process creation.  In this introduction any plain reference is in the <a href="../api.html#">winapi</a>  table, so that <a href="../api.html#find_window">find_window</a>  means <a href="../api.html#find_window">winapi.find_window</a> .  Normally <a href="../api.html#">winapi</a>  works with the current Windows code page, but can be told to use UTF-8 with <a href="../api.html#set_encoding">set_encoding</a>; interally string operations are in Unicode.</p>
 
 <p><a name="Creating_and_working_with_Processes"></a></p>
 <h2  id="T2">Creating and working with Processes</h2>
 
 <p>An  irritating fact is that Lua GUI applications (such as IUP or wxLua) cannot use <a href="http://www.lua.org/manual/5.1/manual.html#pdf-os.execute">os.execute</a> without the infamous 'flashing black box' of console creation. And <a href="http://www.lua.org/manual/5.1/manual.html#pdf-io.popen">io.popen</a> may in fact not work at all.</p>
 
-<p><a href="../api.html#execute">execute</a> provides a <em>quiet</em> method to call a shell command.  It returns the result code (like <a href="http://www.lua.org/manual/5.1/manual.html#pdf-os.execute">os.execute</a>) but also any text generated from the command. So for many common applications it will do as a <a href="http://www.lua.org/manual/5.1/manual.html#pdf-io.popen">io.popen</a> replacement as well. This function is blocking, but <code>winapi</code> provides more general ways of launching processes in the background and even capturing their output asynchronously. This will be discussed later with <a href="../api.html#spawn_process">spawn_process</a>.</p>
+<p><a href="../api.html#execute">execute</a> provides a <em>quiet</em> method to call a shell command.  It returns the result code (like <a href="http://www.lua.org/manual/5.1/manual.html#pdf-os.execute">os.execute</a>) but also any text generated from the command. So for many common applications it will do as a <a href="http://www.lua.org/manual/5.1/manual.html#pdf-io.popen">io.popen</a> replacement as well. This function is blocking, but <a href="../api.html#">winapi</a>  provides more general ways of launching processes in the background and even capturing their output asynchronously. This will be discussed later with <a href="../api.html#spawn_process">spawn_process</a>.</p>
 
 <p>Apart from <a href="../api.html#execute">execute</a>, <a href="../api.html#shell_exec">shell_exec</a> is the Swiss-Army-Knife of Windows process creation. The first parameter is the 'action' or 'verb' to apply to the path; common actions are 'open', 'edit' and 'print'. Notice that these are the actions defined in Explorer (hence the word 'shell'). So to open a document in Word (or whatever application is registered for this extension):</p>
 
@@ -247,7 +244,7 @@
 <p><a name="Working_with_Windows"></a></p>
 <h2  id="T3">Working with Windows</h2>
 
-<p>The ${Windows} object provides methods for querying window properties. For instance, the desktop window fills the whole screen, so to find out the screen dimensions is straightforward:</p>
+<p>The <a href="../api.html#Class_Window">Window</a>  object provides methods for querying window properties. For instance, the desktop window fills the whole screen, so to find out the screen dimensions is straightforward:</p>
 
 
 <pre>
@@ -545,7 +542,7 @@
 
 <p>Such callbacks can be made GUI-safe by first calling <a href="../api.html#use_gui">use_gui</a> which ensures that any callback is called in the main GUI thread.</p>
 
-<p>The basic rule for callbacks enforced by <code>winapi</code> is that only one may be active at a time; otherwise we would risk re-entering Lua on another thread, using the same Lua state. So be quick when responding to callbacks, since they effectively block Lua. For a console application, the best bet (after setting some timers and so forth) is just to sleep indefinitely:</p>
+<p>The basic rule for callbacks enforced by <a href="../api.html#">winapi</a>  is that only one may be active at a time; otherwise we would risk re-entering Lua on another thread, using the same Lua state. So be quick when responding to callbacks, since they effectively block Lua. For a console application, the best bet (after setting some timers and so forth) is just to sleep indefinitely:</p>
 
 
 <pre>
@@ -595,10 +592,6 @@
 </pre>
 
 <p>Please note that you will get the end-of-line characters as well.</p>
-
-
-
-
 
 
 
