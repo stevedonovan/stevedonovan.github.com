@@ -74,6 +74,37 @@
   <li><a href="../modules/pl.utils.html">pl.utils</a></li>
   <li><a href="../modules/pl.xml.html">pl.xml</a></li>
 </ul>
+<h2>Topics</h2>
+<ul>
+  <li><a href="../topics/01-introduction.md.html">01-introduction.md</a></li>
+  <li><a href="../topics/02-arrays.md.html">02-arrays.md</a></li>
+  <li><a href="../topics/03-strings.md.html">03-strings.md</a></li>
+  <li><a href="../topics/04-paths.md.html">04-paths.md</a></li>
+  <li><a href="../topics/05-dates.md.html">05-dates.md</a></li>
+  <li><a href="../topics/06-data.md.html">06-data.md</a></li>
+  <li><a href="../topics/07-functional.md.html">07-functional.md</a></li>
+  <li><a href="../topics/08-additional.md.html">08-additional.md</a></li>
+  <li><a href="../topics/09-discussion.md.html">09-discussion.md</a></li>
+</ul>
+<h2>Examples</h2>
+<ul>
+  <li><a href="../examples/seesubst.lua.html">seesubst.lua</a></li>
+  <li><a href="../examples/sipscan.lua.html">sipscan.lua</a></li>
+  <li><a href="../examples/symbols.lua.html">symbols.lua</a></li>
+  <li><a href="../examples/test-cmp.lua.html">test-cmp.lua</a></li>
+  <li><a href="../examples/test-data.lua.html">test-data.lua</a></li>
+  <li><a href="../examples/test-listcallbacks.lua.html">test-listcallbacks.lua</a></li>
+  <li><a href="../examples/test-pretty.lua.html">test-pretty.lua</a></li>
+  <li><a href="../examples/test-symbols.lua.html">test-symbols.lua</a></li>
+  <li><a href="../examples/testapp.lua.html">testapp.lua</a></li>
+  <li><a href="../examples/testclone.lua.html">testclone.lua</a></li>
+  <li><a href="../examples/testconfig.lua.html">testconfig.lua</a></li>
+  <li><a href="../examples/testglobal.lua.html">testglobal.lua</a></li>
+  <li><a href="../examples/testinputfields.lua.html">testinputfields.lua</a></li>
+  <li><a href="../examples/testinputfields2.lua.html">testinputfields2.lua</a></li>
+  <li><a href="../examples/testxml.lua.html">testxml.lua</a></li>
+  <li><a href="../examples/which.lua.html">which.lua</a></li>
+</ul>
 
 </div>
 
@@ -82,51 +113,62 @@
 <h1>Module <code>pl.data</code></h1>
 
 <p>Reading and querying simple tabular data.</p>
-<p>
- <pre class=example>
- data.read 'test.txt'
- ==> {{10,20},{2,5},{40,50},fieldnames={'x','y'},delim=','}
- </pre>
- Provides a way of creating basic SQL-like queries.
- <pre class=example>
-    require 'pl'
-    local d = data.read('xyz.txt')
-    local q = d:select('x,y,z where x > 3 and z < 2 sort by y')
-    for x,y,z in q do
-        print(x,y,z)
-    end
- </pre>
- <p>See <a href="../../index.html#data">the Guide</a></p>
+<p><pre><code>data.read 'test.txt'
+==&gt; {{10,20},{2,5},{40,50},fieldnames={'x','y'},delim=','}
+</code></pre>
+
+<p> Provides a way of creating basic SQL-like queries.</p>
+
+<pre><code>require 'pl'
+local d = data.read('xyz.txt')
+local q = d:select('x,y,z where x &gt; 3 and z &lt; 2 sort by y')
+for x,y,z in q do
+    print(x,y,z)
+end
+</code></pre>
+
+<p> See <a href="../topics/06-data.md.html#Reading_Columnar_Data">the Guide</a></p>
+
+<p> Dependencies: <a href="../modules/pl.utils.html#">pl.utils</a> , <a href="../modules/pl.array2d.html#">pl.array2d</a>  (fallback methods)</p>
+</p>
 
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
 	<td class="name" nowrap><a href="#Data.column_by_name">Data.column_by_name&nbsp;(name)</a></td>
-	<td class="summary">return a particular column as a list of values (Method).</td>
+	<td class="summary">return a particular column as a list of values (method).</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#Data.select">Data.select&nbsp;(condn)</a></td>
-	<td class="summary">return a query iterator on this data object (Method).</td>
+	<td class="summary">return a query iterator on this data (method).</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Data.select_row">Data.select_row&nbsp;(condn)</a></td>
+	<td class="summary">return a row iterator on this data (method).</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#Data.copy_select">Data.copy_select&nbsp;(condn)</a></td>
-	<td class="summary">return a new data object based on this query (Method).</td>
+	<td class="summary">return a new data object based on this query (method).</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#Data.column_names">Data.column_names&nbsp;()</a></td>
-	<td class="summary">return the field names of this data object (Method).</td>
+	<td class="summary">return the field names of this data object (method).</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#Data.write_row">Data.write_row&nbsp;(f)</a></td>
-	<td class="summary">write out a row (Method).</td>
+	<td class="summary">write out a row (method).</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#Data.write">Data.write&nbsp;(f)</a></td>
-	<td class="summary">write data out to file(Method).</td>
+	<td class="summary">write data out to file (method).</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#read">read&nbsp;(file, cnfg)</a></td>
 	<td class="summary">read a delimited file in a Lua table.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#write">write&nbsp;(data, file, fieldnames, delim)</a></td>
+	<td class="summary">write 2D data to a file.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#new">new&nbsp;(d, fieldnames)</a></td>
@@ -154,7 +196,7 @@
     <strong>Data.column_by_name&nbsp;(name)</strong>
     </dt>
     <dd>
-    return a particular column as a list of values (Method).  <br>
+    return a particular column as a list of values (method). 
 
     <h3>Parameters:</h3>
     <ul>
@@ -170,7 +212,7 @@
     <strong>Data.select&nbsp;(condn)</strong>
     </dt>
     <dd>
-    return a query iterator on this data object (Method).  <br>
+    return a query iterator on this data (method). 
 
     <h3>Parameters:</h3>
     <ul>
@@ -186,11 +228,27 @@
     </ul>
 </dd>
     <dt>
+    <a name = "Data.select_row"></a>
+    <strong>Data.select_row&nbsp;(condn)</strong>
+    </dt>
+    <dd>
+    return a row iterator on this data (method). 
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>condn</em></code>:  the query expression</li>
+    </ul>
+
+
+
+
+</dd>
+    <dt>
     <a name = "Data.copy_select"></a>
     <strong>Data.copy_select&nbsp;(condn)</strong>
     </dt>
     <dd>
-    return a new data object based on this query (Method).  <br>
+    return a new data object based on this query (method). 
 
     <h3>Parameters:</h3>
     <ul>
@@ -206,7 +264,7 @@
     <strong>Data.column_names&nbsp;()</strong>
     </dt>
     <dd>
-    return the field names of this data object (Method).  <br>
+    return the field names of this data object (method). 
 
 
 
@@ -218,7 +276,7 @@
     <strong>Data.write_row&nbsp;(f)</strong>
     </dt>
     <dd>
-    write out a row (Method).  <br>
+    write out a row (method). 
 
     <h3>Parameters:</h3>
     <ul>
@@ -234,7 +292,7 @@
     <strong>Data.write&nbsp;(f)</strong>
     </dt>
     <dd>
-    write data out to file(Method).  <br>
+    write data out to file (method). 
 
     <h3>Parameters:</h3>
     <ul>
@@ -258,7 +316,28 @@
        <li><code><em>file</em></code>:  a filename or a file-like object (default stdin)</li>
        <li><code><em>cnfg</em></code>:  options table: can override delim (a string pattern), fieldnames (a list),
  specify no_convert (default is to convert), numfields (indices of columns known
- to be numbers) and thousands_dot (thousands separator in Excel CSV is '.')</li>
+ to be numbers) and thousands_dot (thousands separator in Excel CSV is &lsquo;.&rsquo;)</li>
+    </ul>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "write"></a>
+    <strong>write&nbsp;(data, file, fieldnames, delim)</strong>
+    </dt>
+    <dd>
+    write 2D data to a file. 
+ Does not assume that the data has actually been
+ generated with <a href="../modules/pl.data.html#new">new</a>  or <a href="../modules/pl.data.html#read">read</a> .
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>data</em></code>:  2D array</li>
+       <li><code><em>file</em></code>:  filename or file-like object</li>
+       <li><code><em>fieldnames</em></code>:  list of fields (optional)</li>
+       <li><code><em>delim</em></code>:  delimiter (default tab)</li>
     </ul>
 
 
@@ -272,9 +351,9 @@
     <dd>
     create a new dataset from a table of rows.  <br>
  Can specify the fieldnames, else the table must have a field called
- 'fieldnames', which is either a string of delimiter-separated names,
+ &lsquo;fieldnames&rsquo;, which is either a string of delimiter-separated names,
  or a table of names. <br>
- If the table does not have a field called 'delim', then an attempt will be
+ If the table does not have a field called &lsquo;delim&rsquo;, then an attempt will be
  made to guess it from the fieldnames string, defaults otherwise to tab.
 
     <h3>Parameters:</h3>
@@ -299,9 +378,9 @@
     create a query iterator from a select string. 
  Select string has this format: <br>
  FIELDLIST [ where LUA-CONDN [ sort by FIELD] ]<br>
- FIELDLISt is a comma-separated list of valid fields, or '*'. <br> <br>
- The condition can also be a table, with fields 'fields' (comma-sep string or
- table), 'sort_by' (string) and 'where' (Lua expression string or function)
+ FIELDLIST is a comma-separated list of valid fields, or &lsquo;*&rsquo;. <br> <br>
+ The condition can also be a table, with fields &lsquo;fields&rsquo; (comma-sep string or
+ table), &lsquo;sort_by&rsquo; (string) and &lsquo;where&rsquo; (Lua expression string or function)
 
     <h3>Parameters:</h3>
     <ul>
@@ -314,7 +393,8 @@
 
     <h3>Returns:</h3>
     <ol>
-        an iterator over the specified fields
+        <li>an iterator over the specified fields, or nil</li>
+        <li>an error message</li>
     </ol>
 
 
@@ -344,7 +424,7 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.0</a></i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.2</a></i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

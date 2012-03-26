@@ -74,6 +74,37 @@
   <li><a href="../modules/pl.utils.html">pl.utils</a></li>
   <li><a href="../modules/pl.xml.html">pl.xml</a></li>
 </ul>
+<h2>Topics</h2>
+<ul>
+  <li><a href="../topics/01-introduction.md.html">01-introduction.md</a></li>
+  <li><a href="../topics/02-arrays.md.html">02-arrays.md</a></li>
+  <li><a href="../topics/03-strings.md.html">03-strings.md</a></li>
+  <li><a href="../topics/04-paths.md.html">04-paths.md</a></li>
+  <li><a href="../topics/05-dates.md.html">05-dates.md</a></li>
+  <li><a href="../topics/06-data.md.html">06-data.md</a></li>
+  <li><a href="../topics/07-functional.md.html">07-functional.md</a></li>
+  <li><a href="../topics/08-additional.md.html">08-additional.md</a></li>
+  <li><a href="../topics/09-discussion.md.html">09-discussion.md</a></li>
+</ul>
+<h2>Examples</h2>
+<ul>
+  <li><a href="../examples/seesubst.lua.html">seesubst.lua</a></li>
+  <li><a href="../examples/sipscan.lua.html">sipscan.lua</a></li>
+  <li><a href="../examples/symbols.lua.html">symbols.lua</a></li>
+  <li><a href="../examples/test-cmp.lua.html">test-cmp.lua</a></li>
+  <li><a href="../examples/test-data.lua.html">test-data.lua</a></li>
+  <li><a href="../examples/test-listcallbacks.lua.html">test-listcallbacks.lua</a></li>
+  <li><a href="../examples/test-pretty.lua.html">test-pretty.lua</a></li>
+  <li><a href="../examples/test-symbols.lua.html">test-symbols.lua</a></li>
+  <li><a href="../examples/testapp.lua.html">testapp.lua</a></li>
+  <li><a href="../examples/testclone.lua.html">testclone.lua</a></li>
+  <li><a href="../examples/testconfig.lua.html">testconfig.lua</a></li>
+  <li><a href="../examples/testglobal.lua.html">testglobal.lua</a></li>
+  <li><a href="../examples/testinputfields.lua.html">testinputfields.lua</a></li>
+  <li><a href="../examples/testinputfields2.lua.html">testinputfields2.lua</a></li>
+  <li><a href="../examples/testxml.lua.html">testxml.lua</a></li>
+  <li><a href="../examples/which.lua.html">which.lua</a></li>
+</ul>
 
 </div>
 
@@ -82,41 +113,43 @@
 <h1>Module <code>pl.config</code></h1>
 
 <p>Reads configuration files into a Lua table.</p>
-<p> <p>
-  Understands INI files, classic Unix config files, and simple
- delimited columns of values. <p>
- <pre class=example>
-    # test.config
-    # Read timeout in seconds
-    read.timeout=10
-    # Write timeout in seconds
-    write.timeout=5
-    #acceptable ports
-    ports = 1002,1003,1004
+<p>  Understands INI files, classic Unix config files, and simple
+ delimited columns of values.</p>
 
-        -- readconfig.lua
-    require 'pl'
-    local t = config.read 'test.config'
-    print(pretty.write(t))
+<pre><code># test.config
+# Read timeout in seconds
+read.timeout=10
+# Write timeout in seconds
+write.timeout=5
+#acceptable ports
+ports = 1002,1003,1004
 
-    ### output #####
-   {
-      ports = {
-        1002,
-        1003,
-        1004
-      },
-      write_timeout = 5,
-      read_timeout = 10
-    }
- </pre>
- See the Guide for further <a href="../../index.html#config">discussion</a></p>
+-- readconfig.lua
+require 'pl'
+local t = config.read 'test.config'
+print(pretty.write(t))
+
+### output #####
+{
+  ports = {
+    1002,
+    1003,
+    1004
+  },
+  write_timeout = 5,
+  read_timeout = 10
+}
+</code></pre>
+
+<p> See the Guide for further <a href="../topics/06-data.md.html#Reading_Configuration_Files">discussion</a></p>
+
+<p> Dependencies: none</p>
 
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
 	<td class="name" nowrap><a href="#lines">lines&nbsp;(file)</a></td>
-	<td class="summary">like io.lines(), but allows for lines to be continued with '\'.</td>
+	<td class="summary">like io.lines(), but allows for lines to be continued with &lsquo;'.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#read">read&nbsp;(file, cnfg)</a></td>
@@ -136,7 +169,7 @@
     <strong>lines&nbsp;(file)</strong>
     </dt>
     <dd>
-    like io.lines(), but allows for lines to be continued with '\'. 
+    like io.lines(), but allows for lines to be continued with &lsquo;'. 
 
     <h3>Parameters:</h3>
     <ul>
@@ -147,7 +180,8 @@
 
     <h3>Returns:</h3>
     <ol>
-        an iterator over the lines
+        <li>an iterator over the lines, or nil</li>
+        <li>error &lsquo;not a file-like object&rsquo; or &lsquo;file is nil&rsquo;</li>
     </ol>
 
 
@@ -168,14 +202,15 @@
  <li> convert_numbers try to convert values into numbers (default true)</li>
  <li> trim_space ensure that there is no starting or trailing whitespace with values (default true)</li>
  <li> trim_quotes remove quotes from strings (default false)</li>
- <li> list_delim delimiter to use when separating columns (default ',')</li>
+ <li> list_delim delimiter to use when separating columns (default &lsquo;,&rsquo;)</li>
  </ul></li>
     </ul>
 
 
     <h3>Returns:</h3>
     <ol>
-        nil,error_msg in case of an error, otherwise a table containing items
+        <li>a table containing items, or nil</li>
+        <li>error message (same as <a href="../modules/pl.config.html#lines">config.lines</a></li>
     </ol>
 
 
@@ -186,7 +221,7 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.0</a></i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.2</a></i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

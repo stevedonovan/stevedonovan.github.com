@@ -32,6 +32,25 @@
 
 
 
+<h2>Examples</h2>
+<ul>
+  <li><a href="../examples/seesubst.lua.html">seesubst.lua</a></li>
+  <li><a href="../examples/sipscan.lua.html">sipscan.lua</a></li>
+  <li><a href="../examples/symbols.lua.html">symbols.lua</a></li>
+  <li><a href="../examples/test-cmp.lua.html">test-cmp.lua</a></li>
+  <li><a href="../examples/test-data.lua.html">test-data.lua</a></li>
+  <li><a href="../examples/test-listcallbacks.lua.html">test-listcallbacks.lua</a></li>
+  <li><a href="../examples/test-pretty.lua.html">test-pretty.lua</a></li>
+  <li><a href="../examples/test-symbols.lua.html">test-symbols.lua</a></li>
+  <li><a href="../examples/testapp.lua.html">testapp.lua</a></li>
+  <li><a href="../examples/testclone.lua.html">testclone.lua</a></li>
+  <li><a href="../examples/testconfig.lua.html">testconfig.lua</a></li>
+  <li><a href="../examples/testglobal.lua.html">testglobal.lua</a></li>
+  <li><strong>testinputfields.lua</strong></li>
+  <li><a href="../examples/testinputfields2.lua.html">testinputfields2.lua</a></li>
+  <li><a href="../examples/testxml.lua.html">testxml.lua</a></li>
+  <li><a href="../examples/which.lua.html">which.lua</a></li>
+</ul>
 <h2>Modules</h2>
 <ul>
   <li><a href="../modules/pl.html">pl</a></li>
@@ -60,7 +79,7 @@
   <li><a href="../modules/pl.pretty.html">pl.pretty</a></li>
   <li><a href="../modules/pl.seq.html">pl.seq</a></li>
   <li><a href="../modules/pl.sip.html">pl.sip</a></li>
-  <li><strong>pl.strict</strong></li>
+  <li><a href="../modules/pl.strict.html">pl.strict</a></li>
   <li><a href="../modules/pl.stringio.html">pl.stringio</a></li>
   <li><a href="../modules/pl.stringx.html">pl.stringx</a></li>
   <li><a href="../modules/pl.tablex.html">pl.tablex</a></li>
@@ -82,43 +101,27 @@
   <li><a href="../topics/08-additional.md.html">08-additional.md</a></li>
   <li><a href="../topics/09-discussion.md.html">09-discussion.md</a></li>
 </ul>
-<h2>Examples</h2>
-<ul>
-  <li><a href="../examples/seesubst.lua.html">seesubst.lua</a></li>
-  <li><a href="../examples/sipscan.lua.html">sipscan.lua</a></li>
-  <li><a href="../examples/symbols.lua.html">symbols.lua</a></li>
-  <li><a href="../examples/test-cmp.lua.html">test-cmp.lua</a></li>
-  <li><a href="../examples/test-data.lua.html">test-data.lua</a></li>
-  <li><a href="../examples/test-listcallbacks.lua.html">test-listcallbacks.lua</a></li>
-  <li><a href="../examples/test-pretty.lua.html">test-pretty.lua</a></li>
-  <li><a href="../examples/test-symbols.lua.html">test-symbols.lua</a></li>
-  <li><a href="../examples/testapp.lua.html">testapp.lua</a></li>
-  <li><a href="../examples/testclone.lua.html">testclone.lua</a></li>
-  <li><a href="../examples/testconfig.lua.html">testconfig.lua</a></li>
-  <li><a href="../examples/testglobal.lua.html">testglobal.lua</a></li>
-  <li><a href="../examples/testinputfields.lua.html">testinputfields.lua</a></li>
-  <li><a href="../examples/testinputfields2.lua.html">testinputfields2.lua</a></li>
-  <li><a href="../examples/testxml.lua.html">testxml.lua</a></li>
-  <li><a href="../examples/which.lua.html">which.lua</a></li>
-</ul>
 
 </div>
 
 <div id="content">
 
-<h1>Module <code>pl.strict</code></h1>
+<h1>Example <code>testinputfields.lua</code></h1>
 
-<p>Checks uses of undeclared global variables.</p>
-<p> All global variables must be &lsquo;declared&rsquo; through a regular assignment
- (even assigning nil will do) in a main chunk before being used
- anywhere or assigned to inside a function.</p>
-
-
-<br/>
-<br/>
-
-
-
+    <pre>
+<span class="global">require</span> <span class="string">'pl'</span>
+<span class="keyword">local</span> sum = <span class="number">0.0</span>
+<span class="keyword">local</span> count = <span class="number">0</span>
+<span class="keyword">local</span> text = <span class="string">[[
+    981124001	2.0	18988.4	10047.1	4149.7
+    981125001	0.8	19104.0	9970.4	5088.7
+    981127003	0.5	19012.5	9946.9	3831.2
+]]</span>
+<span class="keyword">for</span> id,magn,x <span class="keyword">in</span> input.fields(<span class="number">3</span>,<span class="string">' '</span>,text) <span class="keyword">do</span>
+  sum = sum + x
+  count = count + <span class="number">1</span>
+<span class="keyword">end</span>
+<span class="global">print</span>(<span class="string">'average x coord is '</span>,sum/count)
 
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->

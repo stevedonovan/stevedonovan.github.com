@@ -74,6 +74,37 @@
   <li><a href="../modules/pl.utils.html">pl.utils</a></li>
   <li><a href="../modules/pl.xml.html">pl.xml</a></li>
 </ul>
+<h2>Topics</h2>
+<ul>
+  <li><a href="../topics/01-introduction.md.html">01-introduction.md</a></li>
+  <li><a href="../topics/02-arrays.md.html">02-arrays.md</a></li>
+  <li><a href="../topics/03-strings.md.html">03-strings.md</a></li>
+  <li><a href="../topics/04-paths.md.html">04-paths.md</a></li>
+  <li><a href="../topics/05-dates.md.html">05-dates.md</a></li>
+  <li><a href="../topics/06-data.md.html">06-data.md</a></li>
+  <li><a href="../topics/07-functional.md.html">07-functional.md</a></li>
+  <li><a href="../topics/08-additional.md.html">08-additional.md</a></li>
+  <li><a href="../topics/09-discussion.md.html">09-discussion.md</a></li>
+</ul>
+<h2>Examples</h2>
+<ul>
+  <li><a href="../examples/seesubst.lua.html">seesubst.lua</a></li>
+  <li><a href="../examples/sipscan.lua.html">sipscan.lua</a></li>
+  <li><a href="../examples/symbols.lua.html">symbols.lua</a></li>
+  <li><a href="../examples/test-cmp.lua.html">test-cmp.lua</a></li>
+  <li><a href="../examples/test-data.lua.html">test-data.lua</a></li>
+  <li><a href="../examples/test-listcallbacks.lua.html">test-listcallbacks.lua</a></li>
+  <li><a href="../examples/test-pretty.lua.html">test-pretty.lua</a></li>
+  <li><a href="../examples/test-symbols.lua.html">test-symbols.lua</a></li>
+  <li><a href="../examples/testapp.lua.html">testapp.lua</a></li>
+  <li><a href="../examples/testclone.lua.html">testclone.lua</a></li>
+  <li><a href="../examples/testconfig.lua.html">testconfig.lua</a></li>
+  <li><a href="../examples/testglobal.lua.html">testglobal.lua</a></li>
+  <li><a href="../examples/testinputfields.lua.html">testinputfields.lua</a></li>
+  <li><a href="../examples/testinputfields2.lua.html">testinputfields2.lua</a></li>
+  <li><a href="../examples/testxml.lua.html">testxml.lua</a></li>
+  <li><a href="../examples/which.lua.html">which.lua</a></li>
+</ul>
 
 </div>
 
@@ -82,10 +113,16 @@
 <h1>Module <code>pl.array2d</code></h1>
 
 <p>Operations on two-dimensional arrays.</p>
-<p></p>
+<p> See <a href="../topics/02-arrays.md.html#Operations_on_two_dimensional_tables">The Guide</a></p>
+
+<p> Dependencies: <a href="../modules/pl.utils.html#">pl.utils</a> , <a href="../modules/pl.tablex.html#">pl.tablex</a> </p>
 
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#size">size&nbsp;(t)</a></td>
+	<td class="summary">return the row and column size.</td>
+	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#column">column&nbsp;(a, key)</a></td>
 	<td class="summary">extract a column from the 2D array.</td>
@@ -117,6 +154,10 @@
 	<tr>
 	<td class="name" nowrap><a href="#flatten">flatten&nbsp;(t)</a></td>
 	<td class="summary">flatten a 2D array.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#reshape">reshape&nbsp;(t, nrows, co)</a></td>
+	<td class="summary">reshape a 2D array.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#swap_rows">swap_rows&nbsp;(t, i1, i2)</a></td>
@@ -167,8 +208,20 @@
 	<td class="summary">perform an operation for all values in a 2D array.</td>
 	</tr>
 	<tr>
+	<td class="name" nowrap><a href="#move">move&nbsp;(dest, di, dj, src, i1, j1, i2, j2)</a></td>
+	<td class="summary">move a block from the destination to the source.</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#iter">iter&nbsp;(a, indices, i1, j1, i2, j2)</a></td>
 	<td class="summary">iterate over all elements in a 2D array, with optional indices.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#columns">columns&nbsp;(a)</a></td>
+	<td class="summary">iterate over all columns.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#new">new&nbsp;(rows, cols, val)</a></td>
+	<td class="summary">new array of specified dimensions</td>
 	</tr>
 </table>
 
@@ -179,6 +232,27 @@
     <h2><a name="Functions"></a>Functions</h2>
     
     <dl class="function">
+    <dt>
+    <a name = "size"></a>
+    <strong>size&nbsp;(t)</strong>
+    </dt>
+    <dd>
+    return the row and column size. 
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>t</em></code>:  a 2d array</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>number of rows</li>
+        <li>number of cols</li>
+    </ol>
+
+
+</dd>
     <dt>
     <a name = "column"></a>
     <strong>column&nbsp;(a, key)</strong>
@@ -368,6 +442,28 @@
 
 </dd>
     <dt>
+    <a name = "reshape"></a>
+    <strong>reshape&nbsp;(t, nrows, co)</strong>
+    </dt>
+    <dd>
+    reshape a 2D array. 
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>t</em></code>:  2d array</li>
+       <li><code><em>nrows</em></code>:  new number of rows</li>
+       <li><code><em>co</em></code>:  column-order (Fortran-style) (default false)</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        a new 2d array
+    </ol>
+
+
+</dd>
+    <dt>
     <a name = "swap_rows"></a>
     <strong>swap_rows&nbsp;(t, i1, i2)</strong>
     </dt>
@@ -477,8 +573,8 @@
     </dt>
     <dd>
     parse a spreadsheet range. 
- The range can be specified either as 'A1:B2' or 'R1C1:R2C2';
- a special case is a single element (e.g 'A1' or 'R1C1')
+ The range can be specified either as &lsquo;A1:B2&rsquo; or &lsquo;R1C1:R2C2&rsquo;;
+ a special case is a single element (e.g &lsquo;A1&rsquo; or &lsquo;R1C1&rsquo;)
 
     <h3>Parameters:</h3>
     <ul>
@@ -557,7 +653,7 @@
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>t</em></code>:  a 2D array</li>
-       <li><code><em>value</em></code>:  the value</li>
+       <li><code><em>value</em></code>:  the value (may be a function)</li>
        <li><code><em>i1</em></code>:  start row (default 1)</li>
        <li><code><em>j1</em></code>:  start col (default 1)</li>
        <li><code><em>i2</em></code>:  end row   (default N)</li>
@@ -567,6 +663,10 @@
 
 
 
+    <h3>see also:</h3>
+    <ul>
+         <a href="../modules/pl.tablex.html#set">tablex.set</a>
+    </ul>
 </dd>
     <dt>
     <a name = "write"></a>
@@ -613,6 +713,29 @@
 
 </dd>
     <dt>
+    <a name = "move"></a>
+    <strong>move&nbsp;(dest, di, dj, src, i1, j1, i2, j2)</strong>
+    </dt>
+    <dd>
+    move a block from the destination to the source. 
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>dest</em></code>:  a 2D array</li>
+       <li><code><em>di</em></code>:  start row in dest</li>
+       <li><code><em>dj</em></code>:  start col in dest</li>
+       <li><code><em>src</em></code>:  a 2D array</li>
+       <li><code><em>i1</em></code>:  start row (default 1)</li>
+       <li><code><em>j1</em></code>:  start col (default 1)</li>
+       <li><code><em>i2</em></code>:  end row   (default N)</li>
+       <li><code><em>j2</em></code>:  end col   (default M)</li>
+    </ul>
+
+
+
+
+</dd>
+    <dt>
     <a name = "iter"></a>
     <strong>iter&nbsp;(a, indices, i1, j1, i2, j2)</strong>
     </dt>
@@ -637,13 +760,55 @@
 
 
 </dd>
+    <dt>
+    <a name = "columns"></a>
+    <strong>columns&nbsp;(a)</strong>
+    </dt>
+    <dd>
+    iterate over all columns. 
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>a</em></code>:  a 2D array</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        each column in turn
+    </ol>
+
+
+</dd>
+    <dt>
+    <a name = "new"></a>
+    <strong>new&nbsp;(rows, cols, val)</strong>
+    </dt>
+    <dd>
+    new array of specified dimensions 
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>rows</em></code>:  number of rows</li>
+       <li><code><em>cols</em></code>:  number of cols</li>
+       <li><code><em>val</em></code>:  initial value; if it&rsquo;s a function then use <code>val(i,j)</code></li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        new 2d array
+    </ol>
+
+
+</dd>
 </dl>
 
 
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.0</a></i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.2</a></i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

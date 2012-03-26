@@ -74,6 +74,37 @@
   <li><a href="../modules/pl.utils.html">pl.utils</a></li>
   <li><a href="../modules/pl.xml.html">pl.xml</a></li>
 </ul>
+<h2>Topics</h2>
+<ul>
+  <li><a href="../topics/01-introduction.md.html">01-introduction.md</a></li>
+  <li><a href="../topics/02-arrays.md.html">02-arrays.md</a></li>
+  <li><a href="../topics/03-strings.md.html">03-strings.md</a></li>
+  <li><a href="../topics/04-paths.md.html">04-paths.md</a></li>
+  <li><a href="../topics/05-dates.md.html">05-dates.md</a></li>
+  <li><a href="../topics/06-data.md.html">06-data.md</a></li>
+  <li><a href="../topics/07-functional.md.html">07-functional.md</a></li>
+  <li><a href="../topics/08-additional.md.html">08-additional.md</a></li>
+  <li><a href="../topics/09-discussion.md.html">09-discussion.md</a></li>
+</ul>
+<h2>Examples</h2>
+<ul>
+  <li><a href="../examples/seesubst.lua.html">seesubst.lua</a></li>
+  <li><a href="../examples/sipscan.lua.html">sipscan.lua</a></li>
+  <li><a href="../examples/symbols.lua.html">symbols.lua</a></li>
+  <li><a href="../examples/test-cmp.lua.html">test-cmp.lua</a></li>
+  <li><a href="../examples/test-data.lua.html">test-data.lua</a></li>
+  <li><a href="../examples/test-listcallbacks.lua.html">test-listcallbacks.lua</a></li>
+  <li><a href="../examples/test-pretty.lua.html">test-pretty.lua</a></li>
+  <li><a href="../examples/test-symbols.lua.html">test-symbols.lua</a></li>
+  <li><a href="../examples/testapp.lua.html">testapp.lua</a></li>
+  <li><a href="../examples/testclone.lua.html">testclone.lua</a></li>
+  <li><a href="../examples/testconfig.lua.html">testconfig.lua</a></li>
+  <li><a href="../examples/testglobal.lua.html">testglobal.lua</a></li>
+  <li><a href="../examples/testinputfields.lua.html">testinputfields.lua</a></li>
+  <li><a href="../examples/testinputfields2.lua.html">testinputfields2.lua</a></li>
+  <li><a href="../examples/testxml.lua.html">testxml.lua</a></li>
+  <li><a href="../examples/which.lua.html">which.lua</a></li>
+</ul>
 
 </div>
 
@@ -82,7 +113,9 @@
 <h1>Module <code>pl.dir</code></h1>
 
 <p>Useful functions for getting directory contents and matching them against wildcards.</p>
-<p></p>
+<p> Dependencies: <a href="../modules/pl.utils.html#">pl.utils</a> , <a href="../modules/pl.path.html#">pl.path</a> , <a href="../modules/pl.tablex.html#">pl.tablex</a> </p>
+
+<p> Soft Dependencies: <code>alien</code>, <code>ffi</code> (either are used on Windows for copying/moving files)</p>
 
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
@@ -92,7 +125,7 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#filter">filter&nbsp;(files, pattern)</a></td>
-	<td class="summary">return a list of all files in a list of files which match the pattern.</td>
+	<td class="summary">return a list of all files which match the pattern.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#getfiles">getfiles&nbsp;(dir, mask)</a></td>
@@ -158,7 +191,13 @@
     </ul>
 
 
+    <h3>Returns:</h3>
+    <ol>
+        true or false
+    </ol>
 
+    <h3>Raises:</h3>
+    file and pattern must be strings
 
 </dd>
     <dt>
@@ -166,7 +205,7 @@
     <strong>filter&nbsp;(files, pattern)</strong>
     </dt>
     <dd>
-    return a list of all files in a list of files which match the pattern. 
+    return a list of all files which match the pattern. 
  (cf. fnmatch.filter in Python, 11.8)
 
     <h3>Parameters:</h3>
@@ -176,7 +215,13 @@
     </ul>
 
 
+    <h3>Returns:</h3>
+    <ol>
+        list of files
+    </ol>
 
+    <h3>Raises:</h3>
+    file and pattern must be strings
 
 </dd>
     <dt>
@@ -193,7 +238,13 @@
     </ul>
 
 
+    <h3>Returns:</h3>
+    <ol>
+        lsit of files
+    </ol>
 
+    <h3>Raises:</h3>
+    dir and mask must be strings
 
 </dd>
     <dt>
@@ -209,7 +260,13 @@
     </ul>
 
 
+    <h3>Returns:</h3>
+    <ol>
+        a list of directories
+    </ol>
 
+    <h3>Raises:</h3>
+    dir must be a string
 
 </dd>
     <dt>
@@ -232,6 +289,8 @@
         true if operation succeeded
     </ol>
 
+    <h3>Raises:</h3>
+    src and dest must be strings
 
 </dd>
     <dt>
@@ -253,6 +312,8 @@
         true if operation succeeded
     </ol>
 
+    <h3>Raises:</h3>
+    src and dest must be strings
 
 </dd>
     <dt>
@@ -277,7 +338,13 @@
     </ul>
 
 
+    <h3>Returns:</h3>
+    <ol>
+        an iterator returning root,dirs,files
+    </ol>
 
+    <h3>Raises:</h3>
+    root must be a string
 
 </dd>
     <dt>
@@ -293,7 +360,14 @@
     </ul>
 
 
+    <h3>Returns:</h3>
+    <ol>
+        <li>true or nil</li>
+        <li>error if failed</li>
+    </ol>
 
+    <h3>Raises:</h3>
+    fullpath must be a string
 
 </dd>
     <dt>
@@ -310,7 +384,13 @@
     </ul>
 
 
+    <h3>Returns:</h3>
+    <ol>
+        a valid created path
+    </ol>
 
+    <h3>Raises:</h3>
+    p must be a string
 
 </dd>
     <dt>
@@ -337,10 +417,13 @@
 
     <h3>Returns:</h3>
     <ol>
-        if failed, false plus an error message. If completed the traverse,
-  true, a list of failed directory creations and a list of failed file operations.
+        <li>true, or nil</li>
+        <li>error message, or list of failed directory creations</li>
+        <li>list of failed file operations</li>
     </ol>
 
+    <h3>Raises:</h3>
+    path1 and path2 must be strings
 
 </dd>
     <dt>
@@ -361,6 +444,8 @@
         an iterator giving pathname and mode (true for dir, false otherwise)
     </ol>
 
+    <h3>Raises:</h3>
+    d must be a non-empty string
 
 </dd>
     <dt>
@@ -368,8 +453,11 @@
     <strong>getallfiles&nbsp;(start_path, pattern)</strong>
     </dt>
     <dd>
-    Recursively returns all the file starting at <i>path</i>.  It can optionally take a shell pattern and
-	only returns files that match <i>pattern</i>. If a pattern is given it will do a case insensitive search.
+    <p>Recursively returns all the file starting at <i>path</i>.  It can optionally take a shell pattern and</p>
+
+<pre><code>only returns files that match &lt;i&gt;pattern&lt;/i&gt;. If a pattern is given it will do a case insensitive search.
+</code></pre>
+
 
     <h3>Parameters:</h3>
     <ul>
@@ -383,6 +471,8 @@
         Table containing all the files found recursively starting at <i>path</i> and filtered by <i>pattern</i>.
     </ol>
 
+    <h3>Raises:</h3>
+    start_path must be a string
 
 </dd>
 </dl>
@@ -391,7 +481,7 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.0</a></i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.2</a></i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

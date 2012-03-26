@@ -32,6 +32,25 @@
 
 
 
+<h2>Examples</h2>
+<ul>
+  <li><a href="../examples/seesubst.lua.html">seesubst.lua</a></li>
+  <li><a href="../examples/sipscan.lua.html">sipscan.lua</a></li>
+  <li><a href="../examples/symbols.lua.html">symbols.lua</a></li>
+  <li><a href="../examples/test-cmp.lua.html">test-cmp.lua</a></li>
+  <li><a href="../examples/test-data.lua.html">test-data.lua</a></li>
+  <li><a href="../examples/test-listcallbacks.lua.html">test-listcallbacks.lua</a></li>
+  <li><a href="../examples/test-pretty.lua.html">test-pretty.lua</a></li>
+  <li><a href="../examples/test-symbols.lua.html">test-symbols.lua</a></li>
+  <li><a href="../examples/testapp.lua.html">testapp.lua</a></li>
+  <li><a href="../examples/testclone.lua.html">testclone.lua</a></li>
+  <li><a href="../examples/testconfig.lua.html">testconfig.lua</a></li>
+  <li><strong>testglobal.lua</strong></li>
+  <li><a href="../examples/testinputfields.lua.html">testinputfields.lua</a></li>
+  <li><a href="../examples/testinputfields2.lua.html">testinputfields2.lua</a></li>
+  <li><a href="../examples/testxml.lua.html">testxml.lua</a></li>
+  <li><a href="../examples/which.lua.html">which.lua</a></li>
+</ul>
 <h2>Modules</h2>
 <ul>
   <li><a href="../modules/pl.html">pl</a></li>
@@ -60,7 +79,7 @@
   <li><a href="../modules/pl.pretty.html">pl.pretty</a></li>
   <li><a href="../modules/pl.seq.html">pl.seq</a></li>
   <li><a href="../modules/pl.sip.html">pl.sip</a></li>
-  <li><strong>pl.strict</strong></li>
+  <li><a href="../modules/pl.strict.html">pl.strict</a></li>
   <li><a href="../modules/pl.stringio.html">pl.stringio</a></li>
   <li><a href="../modules/pl.stringx.html">pl.stringx</a></li>
   <li><a href="../modules/pl.tablex.html">pl.tablex</a></li>
@@ -82,43 +101,39 @@
   <li><a href="../topics/08-additional.md.html">08-additional.md</a></li>
   <li><a href="../topics/09-discussion.md.html">09-discussion.md</a></li>
 </ul>
-<h2>Examples</h2>
-<ul>
-  <li><a href="../examples/seesubst.lua.html">seesubst.lua</a></li>
-  <li><a href="../examples/sipscan.lua.html">sipscan.lua</a></li>
-  <li><a href="../examples/symbols.lua.html">symbols.lua</a></li>
-  <li><a href="../examples/test-cmp.lua.html">test-cmp.lua</a></li>
-  <li><a href="../examples/test-data.lua.html">test-data.lua</a></li>
-  <li><a href="../examples/test-listcallbacks.lua.html">test-listcallbacks.lua</a></li>
-  <li><a href="../examples/test-pretty.lua.html">test-pretty.lua</a></li>
-  <li><a href="../examples/test-symbols.lua.html">test-symbols.lua</a></li>
-  <li><a href="../examples/testapp.lua.html">testapp.lua</a></li>
-  <li><a href="../examples/testclone.lua.html">testclone.lua</a></li>
-  <li><a href="../examples/testconfig.lua.html">testconfig.lua</a></li>
-  <li><a href="../examples/testglobal.lua.html">testglobal.lua</a></li>
-  <li><a href="../examples/testinputfields.lua.html">testinputfields.lua</a></li>
-  <li><a href="../examples/testinputfields2.lua.html">testinputfields2.lua</a></li>
-  <li><a href="../examples/testxml.lua.html">testxml.lua</a></li>
-  <li><a href="../examples/which.lua.html">which.lua</a></li>
-</ul>
 
 </div>
 
 <div id="content">
 
-<h1>Module <code>pl.strict</code></h1>
+<h1>Example <code>testglobal.lua</code></h1>
 
-<p>Checks uses of undeclared global variables.</p>
-<p> All global variables must be &lsquo;declared&rsquo; through a regular assignment
- (even assigning nil will do) in a main chunk before being used
- anywhere or assigned to inside a function.</p>
+    <pre>
+<span class="comment">-- very simple lexer program which looks at all identifiers in a Lua
+</span><span class="comment">-- file and checks whether they're in the global namespace.
+</span><span class="comment">-- At the end, we dump out the result of count_map, which will give us
+</span><span class="comment">-- unique identifiers with their usage count.
+</span><span class="comment">-- (an example of a program which itself needs to be careful about what
+</span><span class="comment">-- goes into the global namespace)
+</span>
+<span class="keyword">local</span> utils = <span class="global">require</span> <span class="string">'pl.utils'</span>
+<span class="keyword">local</span> file = <span class="global">require</span> <span class="string">'pl.file'</span>
+<span class="keyword">local</span> lexer = <span class="global">require</span> <span class="string">'pl.lexer'</span>
+<span class="keyword">local</span> List = <span class="global">require</span> <span class="string">'pl.List'</span>
+<span class="keyword">local</span> pretty = <span class="global">require</span> <span class="string">'pl.pretty'</span>
+<span class="keyword">local</span> seq = <span class="global">require</span> <span class="string">'pl.seq'</span>
 
+utils.on_error <span class="string">'quit'</span>
 
-<br/>
-<br/>
+<span class="keyword">local</span> txt,err = file.read(arg[<span class="number">1</span>] <span class="keyword">or</span> <span class="string">'testglobal.lua'</span>)
+<span class="keyword">local</span> globals = List()
+<span class="keyword">for</span> t,v <span class="keyword">in</span> lexer.lua(txt) <span class="keyword">do</span>
+	<span class="keyword">if</span> t == <span class="string">'iden'</span> <span class="keyword">and</span> <span class="global">rawget</span>(_G,v) <span class="keyword">then</span>
+		globals:append(v)
+	<span class="keyword">end</span>
+<span class="keyword">end</span>
 
-
-
+pretty.dump(seq.count_map(globals))
 
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->

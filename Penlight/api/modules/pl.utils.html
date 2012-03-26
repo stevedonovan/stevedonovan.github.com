@@ -33,7 +33,6 @@
 <h2>Contents</h2>
 <ul>
 <li><a href="#Functions">Functions</a></li>
-<li><a href="#Fields">Fields</a></li>
 <li><a href="#Lua_____Compatible_Functions">Lua 5.2 Compatible Functions</a></li>
 </ul>
 
@@ -76,6 +75,37 @@
   <li><strong>pl.utils</strong></li>
   <li><a href="../modules/pl.xml.html">pl.xml</a></li>
 </ul>
+<h2>Topics</h2>
+<ul>
+  <li><a href="../topics/01-introduction.md.html">01-introduction.md</a></li>
+  <li><a href="../topics/02-arrays.md.html">02-arrays.md</a></li>
+  <li><a href="../topics/03-strings.md.html">03-strings.md</a></li>
+  <li><a href="../topics/04-paths.md.html">04-paths.md</a></li>
+  <li><a href="../topics/05-dates.md.html">05-dates.md</a></li>
+  <li><a href="../topics/06-data.md.html">06-data.md</a></li>
+  <li><a href="../topics/07-functional.md.html">07-functional.md</a></li>
+  <li><a href="../topics/08-additional.md.html">08-additional.md</a></li>
+  <li><a href="../topics/09-discussion.md.html">09-discussion.md</a></li>
+</ul>
+<h2>Examples</h2>
+<ul>
+  <li><a href="../examples/seesubst.lua.html">seesubst.lua</a></li>
+  <li><a href="../examples/sipscan.lua.html">sipscan.lua</a></li>
+  <li><a href="../examples/symbols.lua.html">symbols.lua</a></li>
+  <li><a href="../examples/test-cmp.lua.html">test-cmp.lua</a></li>
+  <li><a href="../examples/test-data.lua.html">test-data.lua</a></li>
+  <li><a href="../examples/test-listcallbacks.lua.html">test-listcallbacks.lua</a></li>
+  <li><a href="../examples/test-pretty.lua.html">test-pretty.lua</a></li>
+  <li><a href="../examples/test-symbols.lua.html">test-symbols.lua</a></li>
+  <li><a href="../examples/testapp.lua.html">testapp.lua</a></li>
+  <li><a href="../examples/testclone.lua.html">testclone.lua</a></li>
+  <li><a href="../examples/testconfig.lua.html">testconfig.lua</a></li>
+  <li><a href="../examples/testglobal.lua.html">testglobal.lua</a></li>
+  <li><a href="../examples/testinputfields.lua.html">testinputfields.lua</a></li>
+  <li><a href="../examples/testinputfields2.lua.html">testinputfields2.lua</a></li>
+  <li><a href="../examples/testxml.lua.html">testxml.lua</a></li>
+  <li><a href="../examples/which.lua.html">which.lua</a></li>
+</ul>
 
 </div>
 
@@ -84,8 +114,7 @@
 <h1>Module <code>pl.utils</code></h1>
 
 <p>Generally useful routines.</p>
-<p>
- See  <a href="../../index.html#utils">the Guide</a>.</p>
+<p> See  <a href="../topics/01-introduction.md.html#Generally_useful_functions_">the Guide</a>.</p>
 
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
@@ -103,11 +132,11 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#import">import&nbsp;(t, T)</a></td>
-	<td class="summary">take a table and 'inject' it into the local namespace.</td>
+	<td class="summary">take a table and &lsquo;inject&rsquo; it into the local namespace.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#escape">escape&nbsp;(s)</a></td>
-	<td class="summary">escape any 'magic' characters in a string</td>
+	<td class="summary">escape any &lsquo;magic&rsquo; characters in a string</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#choose">choose&nbsp;(cond, value1, value2)</a></td>
@@ -139,7 +168,7 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#memoize">memoize&nbsp;(func)</a></td>
-	<td class="summary">'memoize' a function (cache returned value for next call).</td>
+	<td class="summary">&lsquo;memoize&rsquo; a function (cache returned value for next call).</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#is_callable">is_callable&nbsp;(obj)</a></td>
@@ -162,12 +191,20 @@
 	<td class="summary">associate a function factory with a type.</td>
 	</tr>
 	<tr>
+	<td class="name" nowrap><a href="#string_lambda">string_lambda&nbsp;(lf)</a></td>
+	<td class="summary">an anonymous function as a string.</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#function_arg">function_arg&nbsp;(idx, f, msg)</a></td>
 	<td class="summary">process a function argument.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#bind1">bind1&nbsp;(fn, p)</a></td>
 	<td class="summary">bind the first argument of the function to a value.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#bind2">bind2&nbsp;(fn, p)</a></td>
+	<td class="summary">bind the second argument of the function to a value.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#assert_arg">assert_arg&nbsp;(n, val, tp, verify, msg, lev)</a></td>
@@ -188,13 +225,6 @@
 	<tr>
 	<td class="name" nowrap><a href="#load">load&nbsp;(code, name, mode, env)</a></td>
 	<td class="summary">load a code string or bytecode chunk.</td>
-	</tr>
-</table>
-<h2><a href="#Fields">Fields</a></h2>
-<table class="function_list">
-	<tr>
-	<td class="name" nowrap><a href="#string_lambda">string_lambda</a></td>
-	<td class="summary">an anonymous function as a string.</td>
 	</tr>
 </table>
 <h2><a href="#Lua_____Compatible_Functions">Lua 5.2 Compatible Functions</a></h2>
@@ -226,7 +256,7 @@
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>code</em></code>:  The exit code or a message to be printed</li>
-       <li><code><em>...</em></code>:  extra arguments for message's format'</li>
+       <li><code><em>...</em></code>:  extra arguments for message&rsquo;s format'</li>
     </ul>
 
 
@@ -277,7 +307,7 @@
     <strong>import&nbsp;(t, T)</strong>
     </dt>
     <dd>
-    take a table and 'inject' it into the local namespace. 
+    take a table and &lsquo;inject&rsquo; it into the local namespace. 
 
     <h3>Parameters:</h3>
     <ul>
@@ -294,7 +324,7 @@
     <strong>escape&nbsp;(s)</strong>
     </dt>
     <dd>
-    escape any 'magic' characters in a string 
+    escape any &lsquo;magic&rsquo; characters in a string 
 
     <h3>Parameters:</h3>
     <ul>
@@ -365,7 +395,7 @@
     </ol>
 
     <h3>Raises:</h3>
-    error if filename or str aren't strings
+    error if filename or str aren&rsquo;t strings
 
 </dd>
     <dt>
@@ -400,8 +430,8 @@
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>s</em></code>:  The input string</li>
-       <li><code><em>re</em></code>:  A Lua string pattern; defaults to '%s+'</li>
-       <li><code><em>plain</em></code>:  don't use Lua patterns</li>
+       <li><code><em>re</em></code>:  A Lua string pattern; defaults to &lsquo;%s+&rsquo;</li>
+       <li><code><em>plain</em></code>:  don&rsquo;t use Lua patterns</li>
        <li><code><em>n</em></code>:  optional maximum number of splits</li>
     </ul>
 
@@ -471,9 +501,9 @@
     <strong>memoize&nbsp;(func)</strong>
     </dt>
     <dd>
-    'memoize' a function (cache returned value for next call). 
+    &lsquo;memoize&rsquo; a function (cache returned value for next call). 
  This is useful if you have a function which is relatively expensive,
- but you don't know in advance what values will be required, so
+ but you don&rsquo;t know in advance what values will be required, so
  building a table upfront is wasteful/impossible.
 
     <h3>Parameters:</h3>
@@ -529,7 +559,7 @@
     </dt>
     <dd>
     a string representation of a type. 
- For tables with metatables, we assume that the metatable has a `_name`
+ For tables with metatables, we assume that the metatable has a <code>_name</code>
  field. Knows about Lua file objects.
 
     <h3>Parameters:</h3>
@@ -540,7 +570,7 @@
 
     <h3>Returns:</h3>
     <ol>
-        a string like 'number', 'table' or 'List'
+        a string like &lsquo;number&rsquo;, &lsquo;table&rsquo; or &lsquo;List&rsquo;
     </ol>
 
 
@@ -583,6 +613,32 @@
 
 </dd>
     <dt>
+    <a name = "string_lambda"></a>
+    <strong>string_lambda&nbsp;(lf)</strong>
+    </dt>
+    <dd>
+    an anonymous function as a string.  This string is either of the form
+ &lsquo;|args| expression&rsquo; or is a function of one argument, &lsquo;_&rsquo;
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>lf</em></code>:  function as a string</li>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <li><pre class="example">string_lambda '|x|x+1' (2) == 3</pre></li>
+        <li><pre class="example">string_lambda '_+1 (2) == 3</pre></li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        a function
+    </ol>
+
+
+</dd>
+    <dt>
     <a name = "function_arg"></a>
     <strong>function_arg&nbsp;(idx, f, msg)</strong>
     </dt>
@@ -590,7 +646,7 @@
     process a function argument. 
  This is used throughout Penlight and defines what is meant by a function:
  Something that is callable, or an operator string as defined by <code>pl.operator</code>,
- such as '>' or '#'. If a function factory has been registered for the type, it will
+ such as &lsquo;>&rsquo; or &lsquo;#&rsquo;. If a function factory has been registered for the type, it will
  be called to get the function.
 
     <h3>Parameters:</h3>
@@ -606,6 +662,8 @@
         a callable
     </ol>
 
+    <h3>Raises:</h3>
+    if idx is not a number or if f is not callable
 
     <h3>see also:</h3>
     <ul>
@@ -631,11 +689,36 @@
         a function such that f(x) is fn(p,x)
     </ol>
 
+    <h3>Raises:</h3>
+    same as <a href="../modules/pl.utils.html#function_arg">function_arg</a>
 
     <h3>see also:</h3>
     <ul>
          <a href="../modules/pl.func.html#curry">pl.func.curry</a>
     </ul>
+</dd>
+    <dt>
+    <a name = "bind2"></a>
+    <strong>bind2&nbsp;(fn, p)</strong>
+    </dt>
+    <dd>
+    bind the second argument of the function to a value. 
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>fn</em></code>:  a function of at least two values (may be an operator string)</li>
+       <li><code><em>p</em></code>:  a value</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        a function such that f(x) is fn(x,p)
+    </ol>
+
+    <h3>Raises:</h3>
+    same as <a href="../modules/pl.utils.html#function_arg">function_arg</a>
+
 </dd>
     <dt>
     <a name = "assert_arg"></a>
@@ -661,6 +744,8 @@
     </ul>
 
 
+    <h3>Raises:</h3>
+    if the argument n is not the correct type
 
 </dd>
     <dt>
@@ -678,6 +763,8 @@
 
 
 
+    <h3>Raises:</h3>
+    val must be a string
 
 </dd>
     <dt>
@@ -687,13 +774,17 @@
     <dd>
     control the error strategy used by Penlight. 
  Controls how <code>utils.raise</code> works; the default is for it
- to return nil and the error string, but if the mode is 'error' then
- it will throw an error. If mode is 'quit' it will immediately terminate
+ to return nil and the error string, but if the mode is &lsquo;error&rsquo; then
+ it will throw an error. If mode is &lsquo;quit&rsquo; it will immediately terminate
  the program.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>mode</em></code>:  - either 'default', 'quit'  or 'error'</li>
+       <li><code><em>mode</em></code>: <ul>
+<li>either &lsquo;default&rsquo;, &lsquo;quit&rsquo;  or &lsquo;error&rsquo;</li>
+</ul>
+
+</li>
     </ul>
 
 
@@ -736,7 +827,7 @@
     <ul>
        <li><code><em>code</em></code>:  Lua code as a string or bytecode</li>
        <li><code><em>name</em></code>:  for source errors</li>
-       <li><code><em>mode</em></code>:  kind of chunk, 't' for text, 'b' for bytecode, 'bt' for all (default)</li>
+       <li><code><em>mode</em></code>:  kind of chunk, &rsquo;t' for text, &lsquo;b&rsquo; for bytecode, &lsquo;bt&rsquo; for all (default)</li>
        <li><code><em>env</em></code>:   the environment for the new chunk (default nil)</li>
     </ul>
 
@@ -750,30 +841,9 @@
 
 </dd>
 </dl>
-    <h2><a name="Fields"></a>Fields</h2>
-    
-    <dl class="function">
-    <dt>
-    <a name = "string_lambda"></a>
-    <strong>string_lambda</strong>
-    </dt>
-    <dd>
-    an anonymous function as a string.  This string is either of the form
- '|args| expression' or is a function of one argument, '_'
-
-
-    <h3>Usage:</h3>
-    <ul>
-        <li><pre class="example">string_lambda '|x|x+1' (2) == 3</pre></li>
-        <li><pre class="example">string_lambda '_+1 (2) == 3</pre></li>
-    </ul>
-
-
-
-</dd>
-</dl>
     <h2><a name="Lua_____Compatible_Functions"></a>Lua 5.2 Compatible Functions</h2>
     
+
     <dl class="function">
     <dt>
     <a name = "table.pack"></a>
@@ -823,7 +893,7 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.0</a></i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.2</a></i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

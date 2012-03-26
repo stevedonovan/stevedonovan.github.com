@@ -74,6 +74,37 @@
   <li><a href="../modules/pl.utils.html">pl.utils</a></li>
   <li><a href="../modules/pl.xml.html">pl.xml</a></li>
 </ul>
+<h2>Topics</h2>
+<ul>
+  <li><a href="../topics/01-introduction.md.html">01-introduction.md</a></li>
+  <li><a href="../topics/02-arrays.md.html">02-arrays.md</a></li>
+  <li><a href="../topics/03-strings.md.html">03-strings.md</a></li>
+  <li><a href="../topics/04-paths.md.html">04-paths.md</a></li>
+  <li><a href="../topics/05-dates.md.html">05-dates.md</a></li>
+  <li><a href="../topics/06-data.md.html">06-data.md</a></li>
+  <li><a href="../topics/07-functional.md.html">07-functional.md</a></li>
+  <li><a href="../topics/08-additional.md.html">08-additional.md</a></li>
+  <li><a href="../topics/09-discussion.md.html">09-discussion.md</a></li>
+</ul>
+<h2>Examples</h2>
+<ul>
+  <li><a href="../examples/seesubst.lua.html">seesubst.lua</a></li>
+  <li><a href="../examples/sipscan.lua.html">sipscan.lua</a></li>
+  <li><a href="../examples/symbols.lua.html">symbols.lua</a></li>
+  <li><a href="../examples/test-cmp.lua.html">test-cmp.lua</a></li>
+  <li><a href="../examples/test-data.lua.html">test-data.lua</a></li>
+  <li><a href="../examples/test-listcallbacks.lua.html">test-listcallbacks.lua</a></li>
+  <li><a href="../examples/test-pretty.lua.html">test-pretty.lua</a></li>
+  <li><a href="../examples/test-symbols.lua.html">test-symbols.lua</a></li>
+  <li><a href="../examples/testapp.lua.html">testapp.lua</a></li>
+  <li><a href="../examples/testclone.lua.html">testclone.lua</a></li>
+  <li><a href="../examples/testconfig.lua.html">testconfig.lua</a></li>
+  <li><a href="../examples/testglobal.lua.html">testglobal.lua</a></li>
+  <li><a href="../examples/testinputfields.lua.html">testinputfields.lua</a></li>
+  <li><a href="../examples/testinputfields2.lua.html">testinputfields2.lua</a></li>
+  <li><a href="../examples/testxml.lua.html">testxml.lua</a></li>
+  <li><a href="../examples/which.lua.html">which.lua</a></li>
+</ul>
 
 </div>
 
@@ -82,23 +113,21 @@
 <h1>Module <code>pl.List</code></h1>
 
 <p>Python-style list class.</p>
-<p> <p>
- Based on original code by Nick Trout.
- <p>
- <b>Please Note</b>: methods that change the list will return the list.
- This is to allow for method chaining, but please note that <tt>ls = ls:sort()</tt>
+<p> <strong>Please Note</strong>: methods that change the list will return the list.
+ This is to allow for method chaining, but please note that <code>ls = ls:sort()</code>
  does not mean that a new copy of the list is made. In-place (mutable) methods
- are marked as returning 'the list' in this documentation.
- <p>
- See the Guide for further <a href="../../index.html#list">discussion</a>
- <p>
- See <a href="http://www.python.org/doc/current/tut/tut.html">http://www.python.org/doc/current/tut/tut.html</a>, section 5.1
- <p>
- <b>Note</b>: The comments before some of the functions are from the Python docs
- and contain Python code.
- <p>
- Written for Lua version 4.0 <br />
- Redone for Lua 5.1, Steve Donovan.</p>
+ are marked as returning &lsquo;the list&rsquo; in this documentation.</p>
+
+<p> See the Guide for further <a href="../topics/02-arrays.md.html#Python_style_Lists">discussion</a></p>
+
+<p> See <a href="http://www.python.org/doc/current/tut/tut.html">http://www.python.org/doc/current/tut/tut.html</a>, section 5.1</p>
+
+<p> <strong>Note</strong>: The comments before some of the functions are from the Python docs
+ and contain Python code.</p>
+
+<p> Written for Lua version Nick Trout 4.0; Redone for Lua 5.1, Steve Donovan.</p>
+
+<p> Dependencies: <a href="../modules/pl.utils.html#">pl.utils</a> , <a href="../modules/pl.tablex.html#">pl.tablex</a> </p>
 
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
@@ -151,8 +180,16 @@
 	<td class="summary">Sort the items of the list, in place.</td>
 	</tr>
 	<tr>
+	<td class="name" nowrap><a href="#List:sorted">List:sorted&nbsp;(cmp)</a></td>
+	<td class="summary">return a sorted copy of this list.</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#List:reverse">List:reverse&nbsp;()</a></td>
 	<td class="summary">Reverse the elements of the list, in place.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#List:minmax">List:minmax&nbsp;()</a></td>
+	<td class="summary">return the minimum and the maximum value of the list.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#List:slice">List:slice&nbsp;(first, last)</a></td>
@@ -164,7 +201,7 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#List.range">List.range&nbsp;(start, finish, incr)</a></td>
-	<td class="summary">Emulate Python's range(x) function.</td>
+	<td class="summary">Emulate Python&rsquo;s range(x) function.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#List:len">List:len&nbsp;()</a></td>
@@ -177,7 +214,7 @@
 	<tr>
 	<td class="name" nowrap><a href="#List:splice">List:splice&nbsp;(idx, list)</a></td>
 	<td class="summary">Insert a sublist into a list
- equivalent to 's[idx:idx] = list' in Python</td>
+ equivalent to &rsquo;s[idx:idx] = list' in Python</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#List:slice_assign">List:slice_assign&nbsp;(i1, i2, seq)</a></td>
@@ -233,7 +270,7 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#List:reduce">List:reduce&nbsp;(fun)</a></td>
-	<td class="summary">'reduce' a list using a binary function.</td>
+	<td class="summary">&lsquo;reduce&rsquo; a list using a binary function.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#List:partition">List:partition&nbsp;(fun, ...)</a></td>
@@ -263,7 +300,7 @@
     <dd>
     Create a new list.  Can optionally pass a table;
  passing another instance of List will cause a copy to be created
- we pass anything which isn't a simple table to iterate() to work out
+ we pass anything which isn&rsquo;t a simple table to iterate() to work out
  an appropriate iterator  @see List.iterate
 
     <h3>Parameters:</h3>
@@ -309,7 +346,7 @@
     </dt>
     <dd>
     Extend the list by appending all the items in the given list. 
- equivalent to 'a[len(a):] = L'.
+ equivalent to &lsquo;a[len(a):] = L&rsquo;.
 
     <h3>Parameters:</h3>
     <ul>
@@ -372,7 +409,7 @@
     </dt>
     <dd>
     Remove an element given its index. 
- (equivalent of Python's del s[i])
+ (equivalent of Python&rsquo;s del s[i])
 
     <h3>Parameters:</h3>
     <ul>
@@ -393,7 +430,7 @@
     </dt>
     <dd>
     Remove the first item from the list whose value is given. 
- (This is called 'remove' in Python; renamed to avoid confusion
+ (This is called &lsquo;remove&rsquo; in Python; renamed to avoid confusion
  with table.remove)
  Return nil if there is no such item.
 
@@ -503,13 +540,33 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>cmp</em></code>:  an optional comparison function; '<' is used if not given.</li>
+       <li><code><em>cmp</em></code>:  an optional comparison function, default &lsquo;&lt;&rsquo;</li>
     </ul>
 
 
     <h3>Returns:</h3>
     <ol>
         the list
+    </ol>
+
+
+</dd>
+    <dt>
+    <a name = "List:sorted"></a>
+    <strong>List:sorted&nbsp;(cmp)</strong>
+    </dt>
+    <dd>
+    return a sorted copy of this list. 
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>cmp</em></code>:  an optional comparison function, default &lsquo;&lt;&rsquo;</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        a new list
     </ol>
 
 
@@ -531,11 +588,28 @@
 
 </dd>
     <dt>
+    <a name = "List:minmax"></a>
+    <strong>List:minmax&nbsp;()</strong>
+    </dt>
+    <dd>
+    return the minimum and the maximum value of the list. 
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>minimum value</li>
+        <li>maximum value</li>
+    </ol>
+
+
+</dd>
+    <dt>
     <a name = "List:slice"></a>
     <strong>List:slice&nbsp;(first, last)</strong>
     </dt>
     <dd>
-    Emulate list slicing.   like  'list[first:last]' in Python.
+    Emulate list slicing.   like  &lsquo;list[first:last]&rsquo; in Python.
  If first or last are negative then they are relative to the end of the list
  eg. slice(-2) gives last 2 entries in a list, and
  slice(-4,-2) gives from -4th to -2nd
@@ -575,7 +649,7 @@
     <strong>List.range&nbsp;(start, finish, incr)</strong>
     </dt>
     <dd>
-    Emulate Python's range(x) function. 
+    Emulate Python&rsquo;s range(x) function. 
  Include it in List table for tidiness
 
     <h3>Parameters:</h3>
@@ -611,7 +685,7 @@
     </dt>
     <dd>
     Remove a subrange of elements. 
- equivalent to 'del s[i1:i2]' in Python.
+ equivalent to &lsquo;del s[i1:i2]&rsquo; in Python.
 
     <h3>Parameters:</h3>
     <ul>
@@ -633,7 +707,7 @@
     </dt>
     <dd>
     Insert a sublist into a list
- equivalent to 's[idx:idx] = list' in Python 
+ equivalent to &rsquo;s[idx:idx] = list' in Python 
 
     <h3>Parameters:</h3>
     <ul>
@@ -842,7 +916,9 @@
     </dt>
     <dd>
     apply a function to all elements. 
- Any extra arguments will be passed to the function
+ Any extra arguments will be passed to the function; if the function
+ is <code>nil</code> then <code>map</code> returns a mapper object that maps over a method
+ of the items
 
     <h3>Parameters:</h3>
     <ul>
@@ -850,6 +926,11 @@
        <li><code><em>...</em></code>:  arbitrary extra arguments.</li>
     </ul>
 
+    <h3>Usage:</h3>
+    <ul>
+        <li><pre class="example">List{'one','two'}:map(string.upper) == {'ONE','TWO'}</pre></li>
+        <li><pre class="example">List{'one','two'}:map():sub(1,2) == {'on','tw'}</pre></li>
+    </ul>
 
     <h3>Returns:</h3>
     <ol>
@@ -938,7 +1019,7 @@
     <strong>List:reduce&nbsp;(fun)</strong>
     </dt>
     <dd>
-    'reduce' a list using a binary function. 
+    &lsquo;reduce&rsquo; a list using a binary function. 
 
     <h3>Parameters:</h3>
     <ul>
@@ -963,7 +1044,7 @@
     </dt>
     <dd>
     partition a list using a classifier function. 
- The function may return nil, but this will be converted to the string key '<nil>'.
+ The function may return nil, but this will be converted to the string key &lsquo;<nil>&rsquo;.
 
     <h3>Parameters:</h3>
     <ul>
@@ -1002,7 +1083,7 @@
     </dt>
     <dd>
     Create an iterator over a seqence. 
- This captures the Python concept of 'sequence'.
+ This captures the Python concept of &lsquo;sequence&rsquo;.
  For tables, iterates over all values with integer indices.
 
     <h3>Parameters:</h3>
@@ -1025,7 +1106,7 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.0</a></i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.2</a></i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
