@@ -114,6 +114,7 @@
 </span><span class="comment">-- of .exe if no extension is given.
 </span><span class="keyword">local</span> List = <span class="global">require</span> <span class="string">'pl.List'</span>
 <span class="keyword">local</span> path = <span class="global">require</span> <span class="string">'pl.path'</span>
+<span class="keyword">local</span> app = <span class="global">require</span> <span class="string">'pl.app'</span>
 
 <span class="keyword">local</span> pathl = List.split(<span class="global">os</span>.getenv <span class="string">'PATH'</span>,path.dirsep)
 
@@ -123,7 +124,8 @@
     <span class="keyword">if</span> res <span class="keyword">then</span> <span class="keyword">return</span> res[<span class="number">1</span>] <span class="keyword">end</span>
 <span class="keyword">end</span>
 
-<span class="keyword">local</span> file = arg[<span class="number">1</span>] <span class="keyword">or</span> arg[-<span class="number">1</span>] <span class="comment">-- i.e. location of lua executable
+<span class="keyword">local</span> _,lua = app.lua()
+<span class="keyword">local</span> file = arg[<span class="number">1</span>] <span class="keyword">or</span> lua <span class="comment">-- i.e. location of lua executable
 </span><span class="keyword">local</span> try
 
 <span class="keyword">if</span> <span class="keyword">not</span> file <span class="keyword">then</span> <span class="keyword">return</span> <span class="global">print</span> <span class="string">'must provide a filename'</span> <span class="keyword">end</span>
