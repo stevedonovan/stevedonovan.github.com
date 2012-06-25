@@ -42,7 +42,7 @@
   <li><a href="../examples/process-wait.lua.html">process-wait.lua</a></li>
   <li><a href="../examples/read-console.lua.html">read-console.lua</a></li>
   <li><a href="../examples/readserial.lua.html">readserial.lua</a></li>
-  <li><strong>setenv.lua</strong></li>
+  <li><a href="../examples/setenv.lua.html">setenv.lua</a></li>
   <li><a href="../examples/start_time.lua.html">start_time.lua</a></li>
   <li><a href="../examples/test-processes.lua.html">test-processes.lua</a></li>
   <li><a href="../examples/test-reg.lua.html">test-reg.lua</a></li>
@@ -55,7 +55,7 @@
   <li><a href="../examples/testshort.lua.html">testshort.lua</a></li>
   <li><a href="../examples/testu.lua.html">testu.lua</a></li>
   <li><a href="../examples/thread-test.lua.html">thread-test.lua</a></li>
-  <li><a href="../examples/wait.lua.html">wait.lua</a></li>
+  <li><strong>wait.lua</strong></li>
 </ul>
 <h2>Modules</h2>
 <ul>
@@ -70,30 +70,44 @@
 
 <div id="content">
 
-<h1>Example <code>setenv.lua</code></h1>
+<h1>Example <code>wait.lua</code></h1>
 
     <pre>
-<span class="comment">-- You will only get nice output from this script (like other unicode examples)
-</span><span class="comment">-- if executed in a properly multilingual environment like SciTE.
-</span><span class="comment">-- To get UTF-8 support in SciTE, edit your global properties like so:
-</span><span class="comment">-- # Internationalisation
-</span><span class="comment">-- # Japanese input code page 932 and ShiftJIS character set 128
-</span><span class="comment">-- #code.page=932
-</span><span class="comment">-- #character.set=128
-</span><span class="comment">-- # Unicode
-</span><span class="comment">-- code.page=65001  # uncomment out this line
-</span><span class="comment">-- #code.page=0  # and comment out this line
-</span><span class="comment">--
-</span><span class="comment">-- And restart SciTE.
-</span>
 <span class="global">require</span> <span class="string">'winapi'</span>
 
-winapi.setenv(<span class="string">'greek'</span>,<span class="string">'ελληνική'</span>)
+<span class="keyword">local</span> k,processes,outputs = <span class="number">0</span>,{},{}
+<span class="keyword">local</span> append, remove = <span class="global">table</span>.insert, <span class="global">table</span>.remove
 
-<span class="global">print</span>(<span class="global">os</span>.getenv <span class="string">'greek'</span>) <span class="comment">-- this will still be nil
-</span>
-<span class="comment">-- but child processes can see this variable ...
-</span><span class="global">os</span>.execute <span class="string">[[lua -e "print(os.getenv('greek'))"]]</span>
+<span class="keyword">function</span> queue_drain()
+    <span class="keyword">local</span> idx,err = winapi.wait_for_processes(processes,<span class="keyword">false</span>)
+    <span class="keyword">if</span> err <span class="keyword">then</span> <span class="keyword">return</span> <span class="keyword">nil</span>, err <span class="keyword">end</span>
+    <span class="keyword">local</span> item, p = outputs[idx], processes[idx]
+    item.callback(item.read:read(),p:get_exit_code())
+    item.read:close()
+    p:close()
+    remove(processes,idx)
+    remove(outputs,idx)    
+<span class="keyword">end</span>
+
+<span class="keyword">function</span> queue_process(cmd,nc,finish,callback)  
+  <span class="comment">-- if there's already nc commands in the process queue,
+</span>  <span class="comment">-- then we just block, otherwise add a new command
+</span>  <span class="keyword">if</span> #processes == nc <span class="keyword">then</span>
+	queue_drain()
+  <span class="keyword">end</span>
+  <span class="keyword">if</span> #processes &lt; nc <span class="keyword">then</span>
+	  <span class="keyword">local</span> p,r = winapi.spawn_process(cmd)
+	  append(outputs,{read=r,callback=callback})
+	  append(processes,p)
+  <span class="keyword">end</span>
+  <span class="keyword">if</span> finish <span class="keyword">then</span> 
+    <span class="keyword">repeat</span> queue_drain() <span class="keyword">until</span> #processes == <span class="number">0</span>
+  <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+<span class="keyword">for</span> i = <span class="number">1</span>,<span class="number">7</span> <span class="keyword">do</span>
+  queue_process(<span class="string">'lua slow.lua '</span>..i,<span class="number">2</span>,i==<span class="number">7</span>,<span class="global">print</span>)
+<span class="keyword">end</span>
 
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->

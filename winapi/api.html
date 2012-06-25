@@ -33,6 +33,7 @@
 <li><a href="#Class_Window">Class Window</a></li>
 <li><a href="#Manipulating_Windows">Manipulating Windows</a></li>
 <li><a href="#Miscellaneous_functions">Miscellaneous functions</a></li>
+<li><a href="#Class_Event">Class Event</a></li>
 <li><a href="#Class_Process">Class Process</a></li>
 <li><a href="#Working_with_processes">Working with processes</a></li>
 <li><a href="#Class_Thread">Class Thread</a></li>
@@ -59,10 +60,15 @@
 <ul>
   <li><a href="examples/caption.lua.html">caption.lua</a></li>
   <li><a href="examples/drives.lua.html">drives.lua</a></li>
+  <li><a href="examples/event.lua.html">event.lua</a></li>
   <li><a href="examples/files.lua.html">files.lua</a></li>
   <li><a href="examples/input.lua.html">input.lua</a></li>
   <li><a href="examples/message.lua.html">message.lua</a></li>
+  <li><a href="examples/multiple.lua.html">multiple.lua</a></li>
+  <li><a href="examples/pipe-server.lua.html">pipe-server.lua</a></li>
   <li><a href="examples/process-wait.lua.html">process-wait.lua</a></li>
+  <li><a href="examples/read-console.lua.html">read-console.lua</a></li>
+  <li><a href="examples/readserial.lua.html">readserial.lua</a></li>
   <li><a href="examples/setenv.lua.html">setenv.lua</a></li>
   <li><a href="examples/start_time.lua.html">start_time.lua</a></li>
   <li><a href="examples/test-processes.lua.html">test-processes.lua</a></li>
@@ -71,9 +77,12 @@
   <li><a href="examples/test-spawn.lua.html">test-spawn.lua</a></li>
   <li><a href="examples/test-timer.lua.html">test-timer.lua</a></li>
   <li><a href="examples/test-times.lua.html">test-times.lua</a></li>
+  <li><a href="examples/test-uninterrupted.lua.html">test-uninterrupted.lua</a></li>
   <li><a href="examples/test-watcher.lua.html">test-watcher.lua</a></li>
   <li><a href="examples/testshort.lua.html">testshort.lua</a></li>
   <li><a href="examples/testu.lua.html">testu.lua</a></li>
+  <li><a href="examples/thread-test.lua.html">thread-test.lua</a></li>
+  <li><a href="examples/wait.lua.html">wait.lua</a></li>
 </ul>
 
 </div>
@@ -83,16 +92,13 @@
 <h1>Module <code>winapi</code></h1>
 
 <p>A useful set of Windows API functions.</p>
-<p>
-
-
-<ul>
-    <li>Enumerating and accessing windows, including sending keys.</li>
-    <li>Enumerating processes and querying their program name, memory used, etc.</li>
-    <li>Reading and Writing to the Registry</li>
-    <li>Copying and moving files, and showing drive information.</li>
-    <li>Launching processes and opening documents.</li>
-    <li>Monitoring filesystem changes.</li>
+<p><ul>
+<li>Enumerating and accessing windows, including sending keys.</li>
+<li>Enumerating processes and querying their program name, memory used, etc.</li>
+<li>Reading and Writing to the Registry</li>
+<li>Copying and moving files, and showing drive information.</li>
+<li>Launching processes and opening documents.</li>
+<li>Monitoring filesystem changes.</li>
 </ul>
 
 </p>
@@ -276,6 +282,25 @@
 	<td class="name" nowrap><a href="#get_clipboard">get_clipboard&nbsp;()</a></td>
 	<td class="summary">get the text on the clipboard.</td>
 	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#get_console">get_console&nbsp;()</a></td>
+	<td class="summary">open console i/o.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#open_serial">open_serial&nbsp;(defn)</a></td>
+	<td class="summary">open a serial port for reading and writing.</td>
+	</tr>
+</table>
+<h2><a href="#Class_Event">Class Event</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#Event:wait">Event:wait&nbsp;(timeout)</a></td>
+	<td class="summary">wait for this event to be signalled.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Event:wait_async">Event:wait_async&nbsp;(callback, timeout)</a></td>
+	<td class="summary">run callback when this process is finished.</td>
+	</tr>
 </table>
 <h2><a href="#Class_Process">Class Process</a></h2>
 <table class="function_list">
@@ -306,6 +331,10 @@
 	<tr>
 	<td class="name" nowrap><a href="#Process:wait">Process:wait&nbsp;(timeout)</a></td>
 	<td class="summary">wait for this process to finish.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Process:wait_async">Process:wait_async&nbsp;(callback, timeout)</a></td>
+	<td class="summary">run callback when this process is finished.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#Process:wait_for_input_idle">Process:wait_for_input_idle&nbsp;(timeout)</a></td>
@@ -359,11 +388,19 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#Thread:set_priority">Thread:set_priority&nbsp;(p)</a></td>
-	<td class="summary">set a thread's priority</td>
+	<td class="summary">set a thread&rsquo;s priority</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#Thread:get_priority">Thread:get_priority&nbsp;()</a></td>
-	<td class="summary">get a thread's priority</td>
+	<td class="summary">get a thread&rsquo;s priority</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Thread:wait">Thread:wait&nbsp;(timeout)</a></td>
+	<td class="summary">wait for this thread to finish.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Thread:wait_async">Thread:wait_async&nbsp;(callback, timeout)</a></td>
+	<td class="summary">run callback when this thread is finished.</td>
 	</tr>
 </table>
 <h2><a href="#Class_File">Class File</a></h2>
@@ -380,10 +417,6 @@
 	<td class="name" nowrap><a href="#File:read_async">File:read_async&nbsp;(callback)</a></td>
 	<td class="summary">asynchronous read.</td>
 	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#File:get_console">File:get_console&nbsp;()</a></td>
-	<td class="summary">open console i/o.</td>
-	</tr>
 </table>
 <h2><a href="#Launching_processes">Launching processes</a></h2>
 <table class="function_list">
@@ -398,6 +431,10 @@
 	<tr>
 	<td class="name" nowrap><a href="#execute">execute&nbsp;(cmd, unicode)</a></td>
 	<td class="summary">execute a system command.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#thread">thread&nbsp;(fun, data)</a></td>
+	<td class="summary">launch a function in a new thread.</td>
 	</tr>
 </table>
 <h2><a href="#Asynchronous_Timers">Asynchronous Timers</a></h2>
@@ -472,7 +509,7 @@
 <h2><a href="#Class_Regkey">Class Regkey</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#Regkey:set_value">Regkey:set_value&nbsp;(name, val)</a></td>
+	<td class="name" nowrap><a href="#Regkey:set_value">Regkey:set_value&nbsp;(name, val, type)</a></td>
 	<td class="summary">set the string value of a name.</td>
 	</tr>
 	<tr>
@@ -518,7 +555,6 @@
     <h2><a name="Text_encoding"></a>Text encoding</h2>
     
 
-
     <dl class="function">
     <dt>
     <a name = "set_encoding"></a>
@@ -558,7 +594,7 @@
     </dt>
     <dd>
     encode a string in another encoding. 
- Note: currently there's a limit of about 2K on the string buffer.
+ Note: currently there&rsquo;s a limit of about 2K on the string buffer.
 
     <h3>Parameters:</h3>
     <ul>
@@ -598,7 +634,6 @@
 </dl>
     <h2><a name="Class_Window"></a>Class Window</h2>
     
-
 
     <dl class="function">
     <dt>
@@ -741,10 +776,8 @@
     <ul>
        <li><code><em>msg</em></code>:  the message</li>
        <li><code><em>wparam</em></code>: 
-
 </li>
        <li><code><em>lparam</em></code>: 
-
 </li>
     </ul>
 
@@ -850,7 +883,6 @@
     <h2><a name="Manipulating_Windows"></a>Manipulating Windows</h2>
     
 
-
     <dl class="function">
     <dt>
     <a name = "find_window"></a>
@@ -883,7 +915,6 @@
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>text</em></code>: 
-
 </li>
     </ul>
 
@@ -901,7 +932,6 @@
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>text</em></code>: 
-
 </li>
     </ul>
 
@@ -1071,7 +1101,7 @@
        <li><code><em>parent</em></code>:  <a href="api.html#Class_Window">Window</a> (can use the desktop)</li>
        <li><code><em>horiz</em></code>:  tile vertically by default</li>
        <li><code><em>kids</em></code>:  a table of window objects</li>
-       <li><code><em>bounds</em></code>:  a bounds table (left,top,right,bottom) - can be nil</li>
+       <li><code><em>bounds</em></code>:  a bounds table (left,top,right,bottom) &ndash; can be nil</li>
     </ul>
 
 
@@ -1081,7 +1111,6 @@
 </dl>
     <h2><a name="Miscellaneous_functions"></a>Miscellaneous functions</h2>
     
-
 
     <dl class="function">
     <dt>
@@ -1111,16 +1140,16 @@
     <ul>
        <li><code><em>caption</em></code>:  for dialog</li>
        <li><code><em>msg</em></code>:  the message</li>
-       <li><code><em>btns</em></code>:  (default 'ok') one of 'ok','ok-cancel','yes','yes-no',
- "abort-retry-ignore", "retry-cancel", "yes-no-cancel"</li>
-       <li><code><em>icon</em></code>:  (default 'information') one of 'information','question','warning','error'</li>
+       <li><code><em>btns</em></code>:  (default &lsquo;ok&rsquo;) one of &lsquo;ok&rsquo;,&lsquo;ok-cancel&rsquo;,&lsquo;yes&rsquo;,&lsquo;yes-no&rsquo;,
+ &ldquo;abort-retry-ignore&rdquo;, &ldquo;retry-cancel&rdquo;, &ldquo;yes-no-cancel&rdquo;</li>
+       <li><code><em>icon</em></code>:  (default &lsquo;information&rsquo;) one of &lsquo;information&rsquo;,&lsquo;question&rsquo;,&lsquo;warning&rsquo;,&lsquo;error&rsquo;</li>
     </ul>
 
 
     <h3>Returns:</h3>
     <ol>
-        a string giving the pressed button: one of 'ok','yes','no','cancel',
- 'try','abort' and 'retry'
+        a string giving the pressed button: one of &lsquo;ok&rsquo;,&lsquo;yes&rsquo;,&lsquo;no&rsquo;,&lsquo;cancel&rsquo;,
+ &lsquo;try&rsquo;,&lsquo;abort&rsquo; and &lsquo;retry&rsquo;
     </ol>
 
 
@@ -1138,7 +1167,7 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>type</em></code>:  (default 'ok'); one of 'information','question','warning','error'</li>
+       <li><code><em>type</em></code>:  (default &lsquo;ok&rsquo;); one of &lsquo;information&rsquo;,&lsquo;question&rsquo;,&lsquo;warning&rsquo;,&lsquo;error&rsquo;</li>
     </ul>
 
 
@@ -1207,7 +1236,7 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>verb</em></code>:  the action (e.g. 'open' or 'edit') can be nil.</li>
+       <li><code><em>verb</em></code>:  the action (e.g. &lsquo;open&rsquo; or &lsquo;edit&rsquo;) can be nil.</li>
        <li><code><em>file</em></code>:  the command</li>
        <li><code><em>parms</em></code>:  any parameters (optional)</li>
        <li><code><em>dir</em></code>:  the working directory (optional)</li>
@@ -1250,9 +1279,93 @@
 
 
 </dd>
+    <dt>
+    <a name = "get_console"></a>
+    <strong>get_console&nbsp;()</strong>
+    </dt>
+    <dd>
+    open console i/o. 
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+        <a href="api.html#Class_File">File</a>
+    </ol>
+
+
+</dd>
+    <dt>
+    <a name = "open_serial"></a>
+    <strong>open_serial&nbsp;(defn)</strong>
+    </dt>
+    <dd>
+    open a serial port for reading and writing. 
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>defn</em></code>:  a string as used by the <a href="http://technet.microsoft.com/en-us/library/cc732236%2528WS.10%2529.aspx">mode command</a></li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        <a href="api.html#Class_File">File</a>
+    </ol>
+
+
+</dd>
+</dl>
+    <h2><a name="Class_Event"></a>Class Event</h2>
+    
+
+    <dl class="function">
+    <dt>
+    <a name = "Event:wait"></a>
+    <strong>Event:wait&nbsp;(timeout)</strong>
+    </dt>
+    <dd>
+    wait for this event to be signalled. 
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>timeout</em></code>:  optional timeout in millisec; defaults to waiting indefinitely.</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>this event object</li>
+        <li>either &ldquo;OK&rdquo; or &ldquo;TIMEOUT&rdquo;</li>
+    </ol>
+
+
+</dd>
+    <dt>
+    <a name = "Event:wait_async"></a>
+    <strong>Event:wait_async&nbsp;(callback, timeout)</strong>
+    </dt>
+    <dd>
+    run callback when this process is finished. 
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>callback</em></code>:  the callback</li>
+       <li><code><em>timeout</em></code>:  optional timeout in millisec; defaults to waiting indefinitely.</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>this process object</li>
+        <li>either &ldquo;OK&rdquo; or &ldquo;TIMEOUT&rdquo;</li>
+    </ol>
+
+
+</dd>
 </dl>
     <h2><a name="Class_Process"></a>Class Process</h2>
-     this example was <a href="http://msdn.microsoft.com/en-us/library/ms682623%28VS.85%29.aspx">helpful</a>
+     this example was <a href="http://msdn.microsoft.com/en-us/library/ms682623%2528VS.85%2529.aspx">helpful</a>
     <dl class="function">
     <dt>
     <a name = "Process:get_process_name"></a>
@@ -1361,7 +1474,29 @@
     <h3>Returns:</h3>
     <ol>
         <li>this process object</li>
-        <li>either "OK" or "TIMEOUT"</li>
+        <li>either &ldquo;OK&rdquo; or &ldquo;TIMEOUT&rdquo;</li>
+    </ol>
+
+
+</dd>
+    <dt>
+    <a name = "Process:wait_async"></a>
+    <strong>Process:wait_async&nbsp;(callback, timeout)</strong>
+    </dt>
+    <dd>
+    run callback when this process is finished. 
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>callback</em></code>:  the callback</li>
+       <li><code><em>timeout</em></code>:  optional timeout in millisec; defaults to waiting indefinitely.</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>this process object</li>
+        <li>either &ldquo;OK&rdquo; or &ldquo;TIMEOUT&rdquo;</li>
     </ol>
 
 
@@ -1383,7 +1518,7 @@
     <h3>Returns:</h3>
     <ol>
         <li>this process object</li>
-        <li>either "OK" or "TIMEOUT"</li>
+        <li>either &ldquo;OK&rdquo; or &ldquo;TIMEOUT&rdquo;</li>
     </ol>
 
 
@@ -1419,9 +1554,7 @@
 </dd>
 </dl>
     <h2><a name="Working_with_processes"></a>Working with processes</h2>
-    
-
-
+     <a href="topics/readme.md.html#Creating_and_working_with_Processes">Creating and working with Processes</a>
     <dl class="function">
     <dt>
     <a name = "process_from_id"></a>
@@ -1498,6 +1631,7 @@
     </dt>
     <dd>
     wait for a group of processes. 
+ Note that this will work with <a href="api.html#Class_Event">Event</a> and <a href="api.html#Class_Thread">Thread</a> objects as well.
  <a href="examples/process-wait.lua.html#">process-wait.lua</a> shows a number of processes launched
  in parallel
 
@@ -1547,7 +1681,7 @@
     <strong>Thread:kill&nbsp;()</strong>
     </dt>
     <dd>
-    kill this thread.  Generally considered a 'nuclear' option, but
+    kill this thread.  Generally considered a &lsquo;nuclear&rsquo; option, but
  this implementation will free any associated callback references, buffers
  and handles. <a href="examples/test-timer.lua.html#">test-timer.lua</a> shows how a timer can be terminated.
 
@@ -1561,7 +1695,7 @@
     <strong>Thread:set_priority&nbsp;(p)</strong>
     </dt>
     <dd>
-    set a thread's priority 
+    set a thread&rsquo;s priority 
 
     <h3>Parameters:</h3>
     <ul>
@@ -1577,10 +1711,53 @@
     <strong>Thread:get_priority&nbsp;()</strong>
     </dt>
     <dd>
-    get a thread's priority 
+    get a thread&rsquo;s priority 
 
 
 
+
+
+</dd>
+    <dt>
+    <a name = "Thread:wait"></a>
+    <strong>Thread:wait&nbsp;(timeout)</strong>
+    </dt>
+    <dd>
+    wait for this thread to finish. 
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>timeout</em></code>:  optional timeout in millisec; defaults to waiting indefinitely.</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>this thread object</li>
+        <li>either &ldquo;OK&rdquo; or &ldquo;TIMEOUT&rdquo;</li>
+    </ol>
+
+
+</dd>
+    <dt>
+    <a name = "Thread:wait_async"></a>
+    <strong>Thread:wait_async&nbsp;(callback, timeout)</strong>
+    </dt>
+    <dd>
+    run callback when this thread is finished. 
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>callback</em></code>:  the callback</li>
+       <li><code><em>timeout</em></code>:  optional timeout in millisec; defaults to waiting indefinitely.</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>this thread object</li>
+        <li>either &ldquo;OK&rdquo; or &ldquo;TIMEOUT&rdquo;</li>
+    </ol>
 
 
 </dd>
@@ -1647,26 +1824,9 @@
 
 
 </dd>
-    <dt>
-    <a name = "File:get_console"></a>
-    <strong>File:get_console&nbsp;()</strong>
-    </dt>
-    <dd>
-    open console i/o. 
-
-
-
-    <h3>Returns:</h3>
-    <ol>
-        <a href="api.html#Class_File">File</a>
-    </ol>
-
-
-</dd>
 </dl>
     <h2><a name="Launching_processes"></a>Launching processes</h2>
     
-
 
     <dl class="function">
     <dt>
@@ -1677,8 +1837,8 @@
     set an environment variable for any child processes. 
  <a href="examples/setenv.lua.html#">setenv.lua</a> shows how this also affects processes
  launched with <a href="http://www.lua.org/manual/5.1/manual.html#pdf-os.execute">os.execute</a>
- Note that this can't affect any system environment variables, see
- <a href="http://msdn.microsoft.com/en-us/library/ms682653%28VS.85%29.aspx">here</a>
+ Note that this can&rsquo;t affect any system environment variables, see
+ <a href="http://msdn.microsoft.com/en-us/library/ms682653%2528VS.85%2529.aspx">here</a>
  for how to set these.
 
     <h3>Parameters:</h3>
@@ -1726,7 +1886,7 @@
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>cmd</em></code>:  a shell command (may include redirection, etc)</li>
-       <li><code><em>unicode</em></code>:  if 'unicode' force built-in commands to output in unicode;
+       <li><code><em>unicode</em></code>:  if &lsquo;unicode&rsquo; force built-in commands to output in unicode;
  in this case the result is always UTF-8</li>
     </ul>
 
@@ -1739,10 +1899,30 @@
 
 
 </dd>
+    <dt>
+    <a name = "thread"></a>
+    <strong>thread&nbsp;(fun, data)</strong>
+    </dt>
+    <dd>
+    launch a function in a new thread. 
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>fun</em></code>:  a Lua function</li>
+       <li><code><em>data</em></code>:  any Lua value to be passed to function</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        <a href="api.html#Class_Thread">Thread</a> object
+    </ol>
+
+
+</dd>
 </dl>
     <h2><a name="Asynchronous_Timers"></a>Asynchronous Timers</h2>
     
-
 
     <dl class="function">
     <dt>
@@ -1773,7 +1953,6 @@
     <h2><a name="Dealing_with_named_pipes"></a>Dealing with named pipes</h2>
     
 
-
     <dl class="function">
     <dt>
     <a name = "open_pipe"></a>
@@ -1784,7 +1963,7 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>pipename</em></code>:  the pipename (default is "\\.\pipe\luawinapi")</li>
+       <li><code><em>pipename</em></code>:  the pipename (default is &ldquo;\\.\pipe\luawinapi&rdquo;)</li>
     </ul>
 
 
@@ -1820,7 +1999,6 @@
     <h2><a name="Drive_information_and_directories"></a>Drive information and directories</h2>
     
 
-
     <dl class="function">
     <dt>
     <a name = "short_path"></a>
@@ -1851,7 +2029,7 @@
     </dt>
     <dd>
     get a temporary filename. 
- (Don't use os.tmpname)
+ (Don&rsquo;t use os.tmpname)
 
 
 
@@ -1917,7 +2095,7 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>mask</em></code>:  a file mask like "*.txt"</li>
+       <li><code><em>mask</em></code>:  a file mask like &ldquo;*.txt&rdquo;</li>
        <li><code><em>subdirs</em></code>:  iterate over subdirectories (default no)</li>
        <li><code><em>attrib</em></code>:  iterate over items with given attribute (as in dir /A:)</li>
     </ul>
@@ -1943,7 +2121,7 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>file</em></code>:  mask like "mydirs\t*"</li>
+       <li><code><em>file</em></code>:  mask like &ldquo;mydirs\t*&rdquo;</li>
        <li><code><em>subdirs</em></code>:  iterate over subdirectories (default no)</li>
     </ul>
 
@@ -1981,7 +2159,7 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>root</em></code>:  root of drive (e.g. 'c:\')</li>
+       <li><code><em>root</em></code>:  root of drive (e.g. &lsquo;c:\&rsquo;)</li>
     </ul>
 
 
@@ -2002,7 +2180,7 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>root</em></code>:  the root of the drive (e.g. 'd:\')</li>
+       <li><code><em>root</em></code>:  the root of the drive (e.g. &lsquo;d:\&rsquo;)</li>
     </ul>
 
 
@@ -2023,7 +2201,7 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>root</em></code>:  drive name in the form 'X:'</li>
+       <li><code><em>root</em></code>:  drive name in the form &lsquo;X:&rsquo;</li>
     </ul>
 
 
@@ -2044,27 +2222,27 @@
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>dir</em></code>:  the directory</li>
-       <li><code><em>how</em></code>: 
-<p> what events to monitor. Can be a sum of these flags:</p>
+       <li><code><em>how</em></code>: <p> what events to monitor. Can be a sum of these flags:</p>
 
 <ul>
-    <li><code>FILE_NOTIFY_CHANGE_FILE_NAME</code></li>
-    <li><code>FILE_NOTIFY_CHANGE_DIR_NAME</code></li>
-    <li><code>FILE_NOTIFY_CHANGE_LAST_WRITE</code></li>
+<li><code>FILE_NOTIFY_CHANGE_FILE_NAME</code></li>
+<li><code>FILE_NOTIFY_CHANGE_DIR_NAME</code></li>
+<li><code>FILE_NOTIFY_CHANGE_LAST_WRITE</code></li>
 </ul>
+
 </li>
        <li><code><em>subdirs</em></code>:  whether subdirectories should be monitored</li>
-       <li><code><em>callback</em></code>: 
-<p> a function which will receive the kind of change
+       <li><code><em>callback</em></code>: <p> a function which will receive the kind of change
  plus the filename that changed. The change will be one of these:</p>
 
 <ul>
-    <li><code>FILE_ACTION_ADDED</code></li>
-    <li><code>FILE_ACTION_REMOVED</code></li>
-    <li><code>FILE_ACTION_MODIFIED</code></li>
-    <li><code>FILE_ACTION_RENAMED_OLD_NAME</code></li>
-    <li><code>FILE_ACTION_RENAMED_NEW_NAME</code></li>
+<li><code>FILE_ACTION_ADDED</code></li>
+<li><code>FILE_ACTION_REMOVED</code></li>
+<li><code>FILE_ACTION_MODIFIED</code></li>
+<li><code>FILE_ACTION_RENAMED_OLD_NAME</code></li>
+<li><code>FILE_ACTION_RENAMED_NEW_NAME</code></li>
 </ul>
+
 </li>
     </ul>
 
@@ -2084,11 +2262,10 @@
     <h2><a name="Class_Regkey"></a>Class Regkey</h2>
     
 
-
     <dl class="function">
     <dt>
     <a name = "Regkey:set_value"></a>
-    <strong>Regkey:set_value&nbsp;(name, val)</strong>
+    <strong>Regkey:set_value&nbsp;(name, val, type)</strong>
     </dt>
     <dd>
     set the string value of a name. 
@@ -2096,7 +2273,8 @@
     <h3>Parameters:</h3>
     <ul>
        <li><code><em>name</em></code>:  the name</li>
-       <li><code><em>val</em></code>:  the value</li>
+       <li><code><em>val</em></code>:  the string value</li>
+       <li><code><em>type</em></code>:  one of <code>REG_BINARY</code>,<code>REG_DWORD</code>,<code>REG_SZ</code>,<code>REG_MULTI_SZ</code>,<code>REG_EXPAND_SZ</code></li>
     </ul>
 
 
@@ -2172,7 +2350,6 @@
     <h2><a name="Registry_Functions"></a>Registry Functions</h2>
     
 
-
     <dl class="function">
     <dt>
     <a name = "open_reg_key"></a>
@@ -2219,53 +2396,51 @@
 </dd>
 </dl>
     <h2><a name="Constants"></a>Constants</h2>
-    
-
-<p>The following constants are available:</p>
+    <p>The following constants are available:</p>
 
 <ul>
-    <li>CP_ACP, (valid values for encoding)</li>
-    <li>CP_UTF8,</li>
-    <li>CP_UTF16,</li>
-    <li>SW_HIDE, (Window operations for Window.show)</li>
-    <li>SW_MAXIMIZE,</li>
-    <li>SW_MINIMIZE,</li>
-    <li>SW_SHOWNORMAL,</li>
-    <li>VK_BACK,</li>
-    <li>VK_TAB,</li>
-    <li>VK_RETURN,</li>
-    <li>VK_SPACE,</li>
-    <li>VK_PRIOR,</li>
-    <li>VK_NEXT,</li>
-    <li>VK_END,</li>
-    <li>VK_HOME,</li>
-    <li>VK_LEFT,</li>
-    <li>VK_UP,</li>
-    <li>VK_RIGHT,</li>
-    <li>VK_DOWN,</li>
-    <li>VK_INSERT,</li>
-    <li>VK_DELETE,</li>
-    <li>VK_ESCAPE,</li>
-    <li>VK_F1,</li>
-    <li>VK_F2,</li>
-    <li>VK_F3,</li>
-    <li>VK_F4,</li>
-    <li>VK_F5,</li>
-    <li>VK_F6,</li>
-    <li>VK_F7,</li>
-    <li>VK_F8,</li>
-    <li>VK_F9,</li>
-    <li>VK_F10,</li>
-    <li>VK_F11,</li>
-    <li>VK_F12,</li>
-    <li>FILE_NOTIFY_CHANGE_FILE_NAME  (these are input flags for watch_for_file_changes)</li>
-    <li>FILE_NOTIFY_CHANGE_DIR_NAME</li>
-    <li>FILE_NOTIFY_CHANGE_LAST_WRITE</li>
-    <li>FILE_ACTION_ADDED     (these describe the change: first argument of callback)</li>
-    <li>FILE_ACTION_REMOVED</li>
-    <li>FILE_ACTION_MODIFIED</li>
-    <li>FILE_ACTION_RENAMED_OLD_NAME</li>
-    <li>FILE_ACTION_RENAMED_NEW_NAME</li>
+<li>CP_ACP, (valid values for encoding)</li>
+<li>CP_UTF8,</li>
+<li>CP_UTF16,</li>
+<li>SW_HIDE, (Window operations for Window.show)</li>
+<li>SW_MAXIMIZE,</li>
+<li>SW_MINIMIZE,</li>
+<li>SW_SHOWNORMAL,</li>
+<li>VK_BACK,</li>
+<li>VK_TAB,</li>
+<li>VK_RETURN,</li>
+<li>VK_SPACE,</li>
+<li>VK_PRIOR,</li>
+<li>VK_NEXT,</li>
+<li>VK_END,</li>
+<li>VK_HOME,</li>
+<li>VK_LEFT,</li>
+<li>VK_UP,</li>
+<li>VK_RIGHT,</li>
+<li>VK_DOWN,</li>
+<li>VK_INSERT,</li>
+<li>VK_DELETE,</li>
+<li>VK_ESCAPE,</li>
+<li>VK_F1,</li>
+<li>VK_F2,</li>
+<li>VK_F3,</li>
+<li>VK_F4,</li>
+<li>VK_F5,</li>
+<li>VK_F6,</li>
+<li>VK_F7,</li>
+<li>VK_F8,</li>
+<li>VK_F9,</li>
+<li>VK_F10,</li>
+<li>VK_F11,</li>
+<li>VK_F12,</li>
+<li>FILE_NOTIFY_CHANGE_FILE_NAME  (these are input flags for watch_for_file_changes)</li>
+<li>FILE_NOTIFY_CHANGE_DIR_NAME</li>
+<li>FILE_NOTIFY_CHANGE_LAST_WRITE</li>
+<li>FILE_ACTION_ADDED     (these describe the change: first argument of callback)</li>
+<li>FILE_ACTION_REMOVED</li>
+<li>FILE_ACTION_MODIFIED</li>
+<li>FILE_ACTION_RENAMED_OLD_NAME</li>
+<li>FILE_ACTION_RENAMED_NEW_NAME</li>
 </ul>
 
 
@@ -2288,7 +2463,7 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.1</a></i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.2</a></i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

@@ -1,0 +1,155 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Winapi documentation</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>winapi</h1>
+
+
+
+
+<h2>Examples</h2>
+<ul>
+  <li><a href="../examples/caption.lua.html">caption.lua</a></li>
+  <li><a href="../examples/drives.lua.html">drives.lua</a></li>
+  <li><a href="../examples/event.lua.html">event.lua</a></li>
+  <li><a href="../examples/files.lua.html">files.lua</a></li>
+  <li><a href="../examples/input.lua.html">input.lua</a></li>
+  <li><a href="../examples/message.lua.html">message.lua</a></li>
+  <li><a href="../examples/multiple.lua.html">multiple.lua</a></li>
+  <li><strong>pipe-server.lua</strong></li>
+  <li><a href="../examples/process-wait.lua.html">process-wait.lua</a></li>
+  <li><a href="../examples/read-console.lua.html">read-console.lua</a></li>
+  <li><a href="../examples/readserial.lua.html">readserial.lua</a></li>
+  <li><a href="../examples/setenv.lua.html">setenv.lua</a></li>
+  <li><a href="../examples/start_time.lua.html">start_time.lua</a></li>
+  <li><a href="../examples/test-processes.lua.html">test-processes.lua</a></li>
+  <li><a href="../examples/test-reg.lua.html">test-reg.lua</a></li>
+  <li><a href="../examples/test-sleep.lua.html">test-sleep.lua</a></li>
+  <li><a href="../examples/test-spawn.lua.html">test-spawn.lua</a></li>
+  <li><a href="../examples/test-timer.lua.html">test-timer.lua</a></li>
+  <li><a href="../examples/test-times.lua.html">test-times.lua</a></li>
+  <li><a href="../examples/test-uninterrupted.lua.html">test-uninterrupted.lua</a></li>
+  <li><a href="../examples/test-watcher.lua.html">test-watcher.lua</a></li>
+  <li><a href="../examples/testshort.lua.html">testshort.lua</a></li>
+  <li><a href="../examples/testu.lua.html">testu.lua</a></li>
+  <li><a href="../examples/thread-test.lua.html">thread-test.lua</a></li>
+  <li><a href="../examples/wait.lua.html">wait.lua</a></li>
+</ul>
+<h2>Modules</h2>
+<ul>
+  <li><a href="../api.html">winapi</a></li>
+</ul>
+<h2>Topics</h2>
+<ul>
+  <li><a href="../topics/readme.md.html">readme.md</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Example <code>pipe-server.lua</code></h1>
+
+    <pre>
+<span class="global">require</span> <span class="string">'winapi'</span>
+
+<span class="comment">--[[ -- blocking version
+winapi.make_pipe_server(function(f)
+    local res = f:read()
+    f:write(res:upper())
+end)
+-- ]]</span>
+
+<span class="comment">--[[ 'node.js' style
+winapi.make_pipe_server(function(f)
+    f:read_async(function(res)
+        f:write(res:upper())
+    end)
+end)
+--]]</span>
+
+<span class="keyword">local</span> wrap, yield, resume = <span class="global">coroutine</span>.wrap, <span class="global">coroutine</span>.yield, <span class="global">coroutine</span>.resume
+
+<span class="comment">--[[
+winapi.make_pipe_server(function(f)
+    local fun = function(f)
+        while true do
+            local res = f:read()
+            if res == 'close' then break end
+            f:write(res:upper())
+        end
+    end
+    local co = coroutine.create(fun)
+    resume(co,fwrap(f,co))
+end)
+]]</span>
+
+<span class="comment">--~             f:read_async(function(txt)
+</span><span class="comment">--~                resume(co,txt)
+</span><span class="comment">--~             end)
+</span>
+<span class="keyword">function</span> fwrap (f,co)
+    <span class="keyword">local</span> obj = {}
+    <span class="keyword">local</span> started
+    <span class="keyword">function</span> obj:read ()
+        <span class="keyword">if</span> <span class="keyword">not</span> started <span class="keyword">then</span>
+            f:read_async(co)
+            started = <span class="keyword">true</span>
+        <span class="keyword">end</span>
+        <span class="keyword">return</span> yield()
+    <span class="keyword">end</span>
+    <span class="keyword">function</span> obj:write (s)
+        <span class="keyword">return</span> f:write(s)
+    <span class="keyword">end</span>
+    <span class="keyword">return</span> obj
+<span class="keyword">end</span>
+
+<span class="keyword">function</span> winapi.make_pipe_server_async(fun)
+    winapi.make_pipe_server(<span class="keyword">function</span>(f)
+        <span class="keyword">local</span> co = <span class="global">coroutine</span>.wrap(fun)
+        co(fwrap(f,co))
+    <span class="keyword">end</span>)
+<span class="keyword">end</span>
+
+winapi.make_pipe_server_async(<span class="keyword">function</span>(f)
+    <span class="keyword">while</span> <span class="keyword">true</span> <span class="keyword">do</span>
+        <span class="keyword">local</span> res = f:read()
+        <span class="keyword">if</span> res == <span class="string">'close'</span> <span class="keyword">then</span> <span class="keyword">break</span> <span class="keyword">end</span>
+        f:write(res:upper())
+    <span class="keyword">end</span>
+    <span class="global">print</span> <span class="string">'finis'</span>
+<span class="keyword">end</span>)
+
+
+winapi.sleep(-<span class="number">1</span>)
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.2</a></i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

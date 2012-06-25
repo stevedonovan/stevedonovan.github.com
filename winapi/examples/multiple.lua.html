@@ -37,12 +37,12 @@
   <li><a href="../examples/files.lua.html">files.lua</a></li>
   <li><a href="../examples/input.lua.html">input.lua</a></li>
   <li><a href="../examples/message.lua.html">message.lua</a></li>
-  <li><a href="../examples/multiple.lua.html">multiple.lua</a></li>
+  <li><strong>multiple.lua</strong></li>
   <li><a href="../examples/pipe-server.lua.html">pipe-server.lua</a></li>
   <li><a href="../examples/process-wait.lua.html">process-wait.lua</a></li>
   <li><a href="../examples/read-console.lua.html">read-console.lua</a></li>
   <li><a href="../examples/readserial.lua.html">readserial.lua</a></li>
-  <li><strong>setenv.lua</strong></li>
+  <li><a href="../examples/setenv.lua.html">setenv.lua</a></li>
   <li><a href="../examples/start_time.lua.html">start_time.lua</a></li>
   <li><a href="../examples/test-processes.lua.html">test-processes.lua</a></li>
   <li><a href="../examples/test-reg.lua.html">test-reg.lua</a></li>
@@ -70,30 +70,25 @@
 
 <div id="content">
 
-<h1>Example <code>setenv.lua</code></h1>
+<h1>Example <code>multiple.lua</code></h1>
 
     <pre>
-<span class="comment">-- You will only get nice output from this script (like other unicode examples)
-</span><span class="comment">-- if executed in a properly multilingual environment like SciTE.
-</span><span class="comment">-- To get UTF-8 support in SciTE, edit your global properties like so:
-</span><span class="comment">-- # Internationalisation
-</span><span class="comment">-- # Japanese input code page 932 and ShiftJIS character set 128
-</span><span class="comment">-- #code.page=932
-</span><span class="comment">-- #character.set=128
-</span><span class="comment">-- # Unicode
-</span><span class="comment">-- code.page=65001  # uncomment out this line
-</span><span class="comment">-- #code.page=0  # and comment out this line
-</span><span class="comment">--
-</span><span class="comment">-- And restart SciTE.
-</span>
 <span class="global">require</span> <span class="string">'winapi'</span>
 
-winapi.setenv(<span class="string">'greek'</span>,<span class="string">'ελληνική'</span>)
+<span class="keyword">function</span> printer(msec,msg)
+  <span class="keyword">local</span> i = <span class="number">1</span>
+  <span class="keyword">return</span> winapi.make_timer(<span class="number">500</span>,<span class="keyword">function</span>()
+    <span class="global">print</span> (msg,i)
+    i = i + <span class="number">1</span>
+  <span class="keyword">end</span>)
+<span class="keyword">end</span>
 
-<span class="global">print</span>(<span class="global">os</span>.getenv <span class="string">'greek'</span>) <span class="comment">-- this will still be nil
-</span>
-<span class="comment">-- but child processes can see this variable ...
-</span><span class="global">os</span>.execute <span class="string">[[lua -e "print(os.getenv('greek'))"]]</span>
+printer(<span class="number">500</span>,<span class="string">'bob'</span>)
+printer(<span class="number">500</span>,<span class="string">'june'</span>)
+printer(<span class="number">500</span>,<span class="string">'alice'</span>)
+printer(<span class="number">500</span>,<span class="string">'jim'</span>)
+
+winapi.sleep(-<span class="number">1</span>)
 
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
