@@ -38,6 +38,7 @@
 
 <h2>Modules</h2>
 <ul>
+  <li><a href="../modules/config.html">config</a></li>
   <li><a href="../modules/pl.html">pl</a></li>
   <li><a href="../modules/pl.Date.html">pl.Date</a></li>
   <li><a href="../modules/pl.List.html">pl.List</a></li>
@@ -49,7 +50,6 @@
   <li><a href="../modules/pl.array2d.html">pl.array2d</a></li>
   <li><a href="../modules/pl.class.html">pl.class</a></li>
   <li><a href="../modules/pl.comprehension.html">pl.comprehension</a></li>
-  <li><a href="../modules/pl.config.html">pl.config</a></li>
   <li><a href="../modules/pl.data.html">pl.data</a></li>
   <li><a href="../modules/pl.dir.html">pl.dir</a></li>
   <li><a href="../modules/pl.file.html">pl.file</a></li>
@@ -158,19 +158,20 @@
 
 
     <h2><a name="Functions"></a>Functions</h2>
-    
+
     <dl class="function">
     <dt>
     <a name = "OrderedMap:_init"></a>
     <strong>OrderedMap:_init&nbsp;(t)</strong>
     </dt>
     <dd>
-    construct an OrderedMap. 
+    construct an OrderedMap.
  Will throw an error if the argument is bad.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>t</em></code>:  optional initialization table, same as for <a href="../modules/pl.OrderedMap.html#OrderedMap:update">OrderedMap:update</a></li>
+      <li><span class="parameter">t</span>
+       optional initialization table, same as for <a href="../modules/pl.OrderedMap.html#OrderedMap:update">OrderedMap:update</a></li>
     </ul>
 
 
@@ -182,21 +183,24 @@
     <strong>OrderedMap:update&nbsp;(t)</strong>
     </dt>
     <dd>
-    update an OrderedMap using a table.  <br>
+    update an OrderedMap using a table.
  If the table is itself an OrderedMap, then its entries will be appended. <br>
  if it s a table of the form <code>{{key1=val1},{key2=val2},&hellip;}</code> these will be appended. <br>
  Otherwise, it is assumed to be a map-like table, and order of extra entries is arbitrary.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>t</em></code>:  a table.</li>
+      <li><span class="parameter">t</span>
+       a table.</li>
     </ul>
 
 
     <h3>Returns:</h3>
     <ol>
-        <li>the map, or nil in case of error</li>
-        <li>the error message</li>
+        <li>
+        the map, or nil in case of error</li>
+        <li>
+        the error message</li>
     </ol>
 
 
@@ -211,13 +215,16 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>key</em></code>:  the key</li>
-       <li><code><em>val</em></code>:  the value</li>
+      <li><span class="parameter">key</span>
+       the key</li>
+      <li><span class="parameter">val</span>
+       the value</li>
     </ul>
 
 
     <h3>Returns:</h3>
     <ol>
+
         the map
     </ol>
 
@@ -228,16 +235,19 @@
     <strong>OrderedMap:insert&nbsp;(pos, key, val)</strong>
     </dt>
     <dd>
-    insert a key/value pair before a given position. 
+    insert a key/value pair before a given position.
  Note: if the map already contains the key, then this effectively
  moves the item to the new position by first removing at the old position.
  Has no effect if the key does not exist and val is nil
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>pos</em></code>:  a position starting at 1</li>
-       <li><code><em>key</em></code>:  the key</li>
-       <li><code><em>val</em></code>:  the value; if nil use the old value</li>
+      <li><span class="parameter">pos</span>
+       a position starting at 1</li>
+      <li><span class="parameter">key</span>
+       the key</li>
+      <li><span class="parameter">val</span>
+       the value; if nil use the old value</li>
     </ul>
 
 
@@ -249,13 +259,14 @@
     <strong>OrderedMap:keys&nbsp;()</strong>
     </dt>
     <dd>
-    return the keys in order. 
+    return the keys in order.
  (Not a copy!)
 
 
 
     <h3>Returns:</h3>
     <ol>
+
         List
     </ol>
 
@@ -266,13 +277,14 @@
     <strong>OrderedMap:values&nbsp;()</strong>
     </dt>
     <dd>
-    return the values in order. 
+    return the values in order.
  this is relatively expensive.
 
 
 
     <h3>Returns:</h3>
     <ol>
+
         List
     </ol>
 
@@ -283,16 +295,18 @@
     <strong>OrderedMap:sort&nbsp;(cmp)</strong>
     </dt>
     <dd>
-    sort the keys. 
+    sort the keys.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>cmp</em></code>:  a comparison function as for <a href="http://www.lua.org/manual/5.1/manual.html#pdf-table.sort">table.sort</a></li>
+      <li><span class="parameter">cmp</span>
+       a comparison function as for <a href="http://www.lua.org/manual/5.1/manual.html#pdf-table.sort">table.sort</a></li>
     </ul>
 
 
     <h3>Returns:</h3>
     <ol>
+
         the map
     </ol>
 
@@ -303,7 +317,7 @@
     <strong>OrderedMap:iter&nbsp;()</strong>
     </dt>
     <dd>
-    iterate over key-value pairs in order. 
+    iterate over key-value pairs in order.
 
 
 

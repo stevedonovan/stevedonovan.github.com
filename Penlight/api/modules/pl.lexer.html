@@ -38,6 +38,7 @@
 
 <h2>Modules</h2>
 <ul>
+  <li><a href="../modules/config.html">config</a></li>
   <li><a href="../modules/pl.html">pl</a></li>
   <li><a href="../modules/pl.Date.html">pl.Date</a></li>
   <li><a href="../modules/pl.List.html">pl.List</a></li>
@@ -49,7 +50,6 @@
   <li><a href="../modules/pl.array2d.html">pl.array2d</a></li>
   <li><a href="../modules/pl.class.html">pl.class</a></li>
   <li><a href="../modules/pl.comprehension.html">pl.comprehension</a></li>
-  <li><a href="../modules/pl.config.html">pl.config</a></li>
   <li><a href="../modules/pl.data.html">pl.data</a></li>
   <li><a href="../modules/pl.dir.html">pl.dir</a></li>
   <li><a href="../modules/pl.file.html">pl.file</a></li>
@@ -187,21 +187,25 @@ keyword do
 
 
     <h2><a name="Functions"></a>Functions</h2>
-    
+
     <dl class="function">
     <dt>
     <a name = "scan"></a>
     <strong>scan&nbsp;(s, matches, filter, options)</strong>
     </dt>
     <dd>
-    create a plain token iterator from a string or file-like object. 
+    create a plain token iterator from a string or file-like object.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>s</em></code>:  the string</li>
-       <li><code><em>matches</em></code>:  an optional match table (set of pattern-action pairs)</li>
-       <li><code><em>filter</em></code>:  a table of token types to exclude, by default {space=true}</li>
-       <li><code><em>options</em></code>:  a table of options; by default, {number=true,string=true},
+      <li><span class="parameter">s</span>
+       the string</li>
+      <li><span class="parameter">matches</span>
+       an optional match table (set of pattern-action pairs)</li>
+      <li><span class="parameter">filter</span>
+       a table of token types to exclude, by default {space=true}</li>
+      <li><span class="parameter">options</span>
+       a table of options; by default, {number=true,string=true},
  which means convert numbers and strip string quotes.</li>
     </ul>
 
@@ -214,14 +218,17 @@ keyword do
     <strong>insert&nbsp;(tok, a1, a2)</strong>
     </dt>
     <dd>
-    insert tokens into a stream. 
+    insert tokens into a stream.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>tok</em></code>:  a token stream</li>
-       <li><code><em>a1</em></code>:  a string is the type, a table is a token list and
+      <li><span class="parameter">tok</span>
+       a token stream</li>
+      <li><span class="parameter">a1</span>
+       a string is the type, a table is a token list and
  a function is assumed to be a token-like iterator (returns type &amp; value)</li>
-       <li><code><em>a2</em></code>:  a string is the value</li>
+      <li><span class="parameter">a2</span>
+       a string is the value</li>
     </ul>
 
 
@@ -233,16 +240,18 @@ keyword do
     <strong>getline&nbsp;(tok)</strong>
     </dt>
     <dd>
-    get everything in a stream upto a newline. 
+    get everything in a stream upto a newline.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>tok</em></code>:  a token stream</li>
+      <li><span class="parameter">tok</span>
+       a token stream</li>
     </ul>
 
 
     <h3>Returns:</h3>
     <ol>
+
         a string
     </ol>
 
@@ -258,12 +267,14 @@ keyword do
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>tok</em></code>:  a token stream</li>
+      <li><span class="parameter">tok</span>
+       a token stream</li>
     </ul>
 
 
     <h3>Returns:</h3>
     <ol>
+
         the line number and current column
     </ol>
 
@@ -274,16 +285,18 @@ keyword do
     <strong>getrest&nbsp;(tok)</strong>
     </dt>
     <dd>
-    get the rest of the stream. 
+    get the rest of the stream.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>tok</em></code>:  a token stream</li>
+      <li><span class="parameter">tok</span>
+       a token stream</li>
     </ul>
 
 
     <h3>Returns:</h3>
     <ol>
+
         a string
     </ol>
 
@@ -294,13 +307,14 @@ keyword do
     <strong>get_keywords&nbsp;()</strong>
     </dt>
     <dd>
-    get the Lua keywords as a set-like table. 
+    get the Lua keywords as a set-like table.
  So <code>res[&ldquo;and&rdquo;]</code> etc would be <code>true</code>.
 
 
 
     <h3>Returns:</h3>
     <ol>
+
         a table
     </ol>
 
@@ -311,14 +325,17 @@ keyword do
     <strong>lua&nbsp;(s, filter, options)</strong>
     </dt>
     <dd>
-    create a Lua token iterator from a string or file-like object. 
+    create a Lua token iterator from a string or file-like object.
  Will return the token type and value.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>s</em></code>:  the string</li>
-       <li><code><em>filter</em></code>:  a table of token types to exclude, by default {space=true,comments=true}</li>
-       <li><code><em>options</em></code>:  a table of options; by default, {number=true,string=true},
+      <li><span class="parameter">s</span>
+       the string</li>
+      <li><span class="parameter">filter</span>
+       a table of token types to exclude, by default {space=true,comments=true}</li>
+      <li><span class="parameter">options</span>
+       a table of options; by default, {number=true,string=true},
  which means convert numbers and strip string quotes.</li>
     </ul>
 
@@ -331,14 +348,17 @@ keyword do
     <strong>cpp&nbsp;(s, filter, options)</strong>
     </dt>
     <dd>
-    create a C/C++ token iterator from a string or file-like object. 
+    create a C/C++ token iterator from a string or file-like object.
  Will return the token type type and value.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>s</em></code>:  the string</li>
-       <li><code><em>filter</em></code>:  a table of token types to exclude, by default {space=true,comments=true}</li>
-       <li><code><em>options</em></code>:  a table of options; by default, {number=true,string=true},
+      <li><span class="parameter">s</span>
+       the string</li>
+      <li><span class="parameter">filter</span>
+       a table of token types to exclude, by default {space=true,comments=true}</li>
+      <li><span class="parameter">options</span>
+       a table of options; by default, {number=true,string=true},
  which means convert numbers and strip string quotes.</li>
     </ul>
 
@@ -351,18 +371,22 @@ keyword do
     <strong>get_separated_list&nbsp;(tok, endtoken, delim)</strong>
     </dt>
     <dd>
-    get a list of parameters separated by a delimiter from a stream. 
+    get a list of parameters separated by a delimiter from a stream.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>tok</em></code>:  the token stream</li>
-       <li><code><em>endtoken</em></code>:  end of list (default &lsquo;)&rsquo;). Can be &lsquo;\n&rsquo;</li>
-       <li><code><em>delim</em></code>:  separator (default &lsquo;,&rsquo;)</li>
+      <li><span class="parameter">tok</span>
+       the token stream</li>
+      <li><span class="parameter">endtoken</span>
+       end of list (default &lsquo;)&rsquo;). Can be &lsquo;\n&rsquo;</li>
+      <li><span class="parameter">delim</span>
+       separator (default &lsquo;,&rsquo;)</li>
     </ul>
 
 
     <h3>Returns:</h3>
     <ol>
+
         a list of token lists.
     </ol>
 
@@ -373,11 +397,12 @@ keyword do
     <strong>skipws&nbsp;(tok)</strong>
     </dt>
     <dd>
-    get the next non-space token from the stream. 
+    get the next non-space token from the stream.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>tok</em></code>:  the token stream.</li>
+      <li><span class="parameter">tok</span>
+       the token stream.</li>
     </ul>
 
 
@@ -389,14 +414,17 @@ keyword do
     <strong>expecting&nbsp;(tok, expected_type, no_skip_ws)</strong>
     </dt>
     <dd>
-    get the next token, which must be of the expected type. 
+    get the next token, which must be of the expected type.
  Throws an error if this type does not match!
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>tok</em></code>:  the token stream</li>
-       <li><code><em>expected_type</em></code>:  the token type</li>
-       <li><code><em>no_skip_ws</em></code>:  whether we should skip whitespace</li>
+      <li><span class="parameter">tok</span>
+       the token stream</li>
+      <li><span class="parameter">expected_type</span>
+       the token type</li>
+      <li><span class="parameter">no_skip_ws</span>
+       whether we should skip whitespace</li>
     </ul>
 
 

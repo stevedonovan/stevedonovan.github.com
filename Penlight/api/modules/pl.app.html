@@ -38,6 +38,7 @@
 
 <h2>Modules</h2>
 <ul>
+  <li><a href="../modules/config.html">config</a></li>
   <li><a href="../modules/pl.html">pl</a></li>
   <li><a href="../modules/pl.Date.html">pl.Date</a></li>
   <li><a href="../modules/pl.List.html">pl.List</a></li>
@@ -49,7 +50,6 @@
   <li><a href="../modules/pl.array2d.html">pl.array2d</a></li>
   <li><a href="../modules/pl.class.html">pl.class</a></li>
   <li><a href="../modules/pl.comprehension.html">pl.comprehension</a></li>
-  <li><a href="../modules/pl.config.html">pl.config</a></li>
   <li><a href="../modules/pl.data.html">pl.data</a></li>
   <li><a href="../modules/pl.dir.html">pl.dir</a></li>
   <li><a href="../modules/pl.file.html">pl.file</a></li>
@@ -147,14 +147,14 @@
 
 
     <h2><a name="Functions"></a>Functions</h2>
-    
+
     <dl class="function">
     <dt>
     <a name = "require_here"></a>
     <strong>require_here&nbsp;(base)</strong>
     </dt>
     <dd>
-    add the current script&rsquo;s path to the Lua module path. 
+    add the current script&rsquo;s path to the Lua module path.
  Applies to both the source and the binary module paths. It makes it easy for
  the main file of a multi-file program to access its modules in the same directory.
  <code>base</code> allows these modules to be put in a specified subdirectory, to allow for
@@ -163,12 +163,14 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>base</em></code>:  optional base directory.</li>
+      <li><span class="parameter">base</span>
+       optional base directory.</li>
     </ul>
 
 
     <h3>Returns:</h3>
     <ol>
+
         the current script&rsquo;s path with a trailing slash
     </ol>
 
@@ -179,20 +181,23 @@
     <strong>appfile&nbsp;(file)</strong>
     </dt>
     <dd>
-    return a suitable path for files private to this application. 
+    return a suitable path for files private to this application.
  These will look like &lsquo;~/.SNAME/file&rsquo;, with &lsquo;~&rsquo; as with expanduser and
  SNAME is the name of the script without .lua extension.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>file</em></code>:  a filename (w/out path)</li>
+      <li><span class="parameter">file</span>
+       a filename (w/out path)</li>
     </ul>
 
 
     <h3>Returns:</h3>
     <ol>
-        <li>a full pathname, or nil</li>
-        <li>&lsquo;cannot create&rsquo; error</li>
+        <li>
+        a full pathname, or nil</li>
+        <li>
+        &lsquo;cannot create&rsquo; error</li>
     </ol>
 
 
@@ -202,12 +207,13 @@
     <strong>platform&nbsp;()</strong>
     </dt>
     <dd>
-    return string indicating operating system. 
+    return string indicating operating system.
 
 
 
     <h3>Returns:</h3>
     <ol>
+
         &lsquo;Windows&rsquo;,&lsquo;OSX&rsquo; or whatever uname returns (e.g. &lsquo;Linux&rsquo;)
     </ol>
 
@@ -219,14 +225,16 @@
     </dt>
     <dd>
     return the full command-line used to invoke this script
- any extra flags occupy slots, so that &lsquo;lua -lpl&rsquo; gives us {[-2]=&lsquo;lua&rsquo;,[-1]=&lsquo;-lpl&rsquo;) 
+ any extra flags occupy slots, so that &lsquo;lua -lpl&rsquo; gives us {[-2]=&lsquo;lua&rsquo;,[-1]=&lsquo;-lpl&rsquo;)
 
 
 
     <h3>Returns:</h3>
     <ol>
-        <li>command-line</li>
-        <li>name of Lua program used</li>
+        <li>
+        command-line</li>
+        <li>
+        name of Lua program used</li>
     </ol>
 
 
@@ -236,7 +244,7 @@
     <strong>parse_args&nbsp;(args, flags_with_values)</strong>
     </dt>
     <dd>
-    parse command-line arguments into flags and parameters. 
+    parse command-line arguments into flags and parameters.
  Understands GNU-style command-line flags; short (-f) and long (&mdash;flag).
  These may be given a value with either &lsquo;=&rsquo; or &lsquo;:&rsquo; (-k:2,&mdash;alpha=3.2,-n2);
  note that a number value can be given without a space.
@@ -244,15 +252,19 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>args</em></code>:  an array of strings (default is the global &lsquo;arg&rsquo;)</li>
-       <li><code><em>flags_with_values</em></code>:  any flags that take values, e.g. <code>{out=true}</code></li>
+      <li><span class="parameter">args</span>
+       an array of strings (default is the global &lsquo;arg&rsquo;)</li>
+      <li><span class="parameter">flags_with_values</span>
+       any flags that take values, e.g. <code>{out=true}</code></li>
     </ul>
 
 
     <h3>Returns:</h3>
     <ol>
-        <li>a table of flags (flag=value pairs)</li>
-        <li>an array of parameters</li>
+        <li>
+        a table of flags (flag=value pairs)</li>
+        <li>
+        an array of parameters</li>
     </ol>
 
     <h3>Raises:</h3>

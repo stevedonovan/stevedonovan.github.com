@@ -30,11 +30,15 @@
   <li><a href="../index.html">Index</a></li>
 </ul>
 
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
 
 
 <h2>Modules</h2>
 <ul>
-  <li><a href="../modules/config.html">config</a></li>
+  <li><strong>config</strong></li>
   <li><a href="../modules/pl.html">pl</a></li>
   <li><a href="../modules/pl.Date.html">pl.Date</a></li>
   <li><a href="../modules/pl.List.html">pl.List</a></li>
@@ -53,7 +57,7 @@
   <li><a href="../modules/pl.input.html">pl.input</a></li>
   <li><a href="../modules/pl.lapp.html">pl.lapp</a></li>
   <li><a href="../modules/pl.lexer.html">pl.lexer</a></li>
-  <li><strong>pl.luabalanced</strong></li>
+  <li><a href="../modules/pl.luabalanced.html">pl.luabalanced</a></li>
   <li><a href="../modules/pl.operator.html">pl.operator</a></li>
   <li><a href="../modules/pl.path.html">pl.path</a></li>
   <li><a href="../modules/pl.permute.html">pl.permute</a></li>
@@ -106,30 +110,116 @@
 
 <div id="content">
 
-<h1>Module <code>pl.luabalanced</code></h1>
+<h1>Module <code>config</code></h1>
 
-<p>Extract delimited Lua sequences from strings.</p>
-<p> Inspired by Damian Conway&rsquo;s Text::Balanced in Perl. <br/>
+<p>Reads configuration files into a Lua table.</p>
+<p><p>  Understands INI files, classic Unix config files, and simple
+ delimited columns of values.</p>
+
+<pre><code># test.config
+# Read timeout in seconds
+read.timeout=10
+# Write timeout in seconds
+write.timeout=5
+#acceptable ports
+ports = 1002,1003,1004
+
+-- readconfig.lua
+local config = require 'config'
+local t = config.read 'test.config'
+print(pretty.write(t))
+
+### output #####
+{
+  ports = {
+    1002,
+    1003,
+    1004
+  },
+  write_timeout = 5,
+  read_timeout = 10
+}
+</code></pre>
+</p>
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#lines">lines&nbsp;(file)</a></td>
+	<td class="summary">like io.lines(), but allows for lines to be continued with &lsquo;'.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#read">read&nbsp;(file, cnfg)</a></td>
+	<td class="summary">read a configuration file into a table</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "lines"></a>
+    <strong>lines&nbsp;(file)</strong>
+    </dt>
+    <dd>
+    like io.lines(), but allows for lines to be continued with &lsquo;'.
+
+    <h3>Parameters:</h3>
+    <ul>
+      <li><span class="parameter">file</span>
+       a file-like object (anything where read() returns the next line) or a filename.
+ Defaults to stardard input.</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+        an iterator over the lines, or nil</li>
+        <li>
+        error &lsquo;not a file-like object&rsquo; or &lsquo;file is nil&rsquo;</li>
+    </ol>
+
+
+</dd>
+    <dt>
+    <a name = "read"></a>
+    <strong>read&nbsp;(file, cnfg)</strong>
+    </dt>
+    <dd>
+    read a configuration file into a table
+
+    <h3>Parameters:</h3>
+    <ul>
+      <li><span class="parameter">file</span>
+       either a file-like object or a string, which must be a filename</li>
+      <li><span class="parameter">cnfg</span>
+       a configuration table that may contain these fields:
  <ul>
-   <li>[1] <a href="http://lua-users.org/wiki/LuaBalanced">Lua Wiki Page</a></li>
-   <li>[2] http://search.cpan.org/dist/Text-Balanced/lib/Text/Balanced.pm</li>
- </ul> <br/>
- <pre class=example>
- local lb = require &ldquo;pl.luabalanced&rdquo;
- &mdash;Extract Lua expression starting at position 4.
-  print(lb.match_expression(&ldquo;if x^2 + x > 5 then print(x) end&rdquo;, 4))
-  &mdash;> x^2 + x > 5     16
- &mdash;Extract Lua string starting at (default) position 1.
- print(lb.match_string([[&ldquo;test"123&rdquo; .. &ldquo;more&rdquo;]]))
- &mdash;> &ldquo;test"123&rdquo;     12
- </pre>
- &copy; 2008, David Manura, Licensed under the same terms as Lua (MIT license).</p>
+ <li> variablilize make names into valid Lua identifiers (default true)</li>
+ <li> convert_numbers try to convert values into numbers (default true)</li>
+ <li> trim_space ensure that there is no starting or trailing whitespace with values (default true)</li>
+ <li> trim_quotes remove quotes from strings (default false)</li>
+ <li> list_delim delimiter to use when separating columns (default &lsquo;,&rsquo;)</li>
+ </ul></li>
+    </ul>
 
 
-<br/>
-<br/>
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+        a table containing items, or nil</li>
+        <li>
+        error message (same as <a href="../modules/config.html#lines">config.lines</a></li>
+    </ol>
 
 
+</dd>
+</dl>
 
 
 </div> <!-- id="content" -->

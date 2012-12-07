@@ -38,6 +38,7 @@
 
 <h2>Modules</h2>
 <ul>
+  <li><a href="../modules/config.html">config</a></li>
   <li><a href="../modules/pl.html">pl</a></li>
   <li><a href="../modules/pl.Date.html">pl.Date</a></li>
   <li><a href="../modules/pl.List.html">pl.List</a></li>
@@ -49,7 +50,6 @@
   <li><a href="../modules/pl.array2d.html">pl.array2d</a></li>
   <li><a href="../modules/pl.class.html">pl.class</a></li>
   <li><a href="../modules/pl.comprehension.html">pl.comprehension</a></li>
-  <li><a href="../modules/pl.config.html">pl.config</a></li>
   <li><a href="../modules/pl.data.html">pl.data</a></li>
   <li><a href="../modules/pl.dir.html">pl.dir</a></li>
   <li><a href="../modules/pl.file.html">pl.file</a></li>
@@ -178,7 +178,7 @@
 
 
     <h2><a name="Functions"></a>Functions</h2>
-    
+
     <dl class="function">
     <dt>
     <a name = "import"></a>
@@ -190,8 +190,10 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>tname</em></code>:  a table name</li>
-       <li><code><em>context</em></code>:  context to put results, defaults to environment of caller</li>
+      <li><span class="parameter">tname</span>
+       a table name</li>
+      <li><span class="parameter">context</span>
+       context to put results, defaults to environment of caller</li>
     </ul>
 
 
@@ -203,17 +205,20 @@
     <strong>register&nbsp;(fun, name)</strong>
     </dt>
     <dd>
-    register a function for use in placeholder expressions. 
+    register a function for use in placeholder expressions.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>fun</em></code>:  a function</li>
-       <li><code><em>name</em></code>:  an optional name</li>
+      <li><span class="parameter">fun</span>
+       a function</li>
+      <li><span class="parameter">name</span>
+       an optional name</li>
     </ul>
 
 
     <h3>Returns:</h3>
     <ol>
+
         a placeholder functiond
     </ol>
 
@@ -224,11 +229,12 @@
     <strong>tail&nbsp;(ls)</strong>
     </dt>
     <dd>
-    all elements of a table except the first. 
+    all elements of a table except the first.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>ls</em></code>:  a list-like table.</li>
+      <li><span class="parameter">ls</span>
+       a list-like table.</li>
     </ul>
 
 
@@ -240,12 +246,14 @@
     <strong>repr&nbsp;(e, lastpred)</strong>
     </dt>
     <dd>
-    create a string representation of a placeholder expression. 
+    create a string representation of a placeholder expression.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>e</em></code>:  a placeholder expression</li>
-       <li><code><em>lastpred</em></code>:  not used</li>
+      <li><span class="parameter">e</span>
+       a placeholder expression</li>
+      <li><span class="parameter">lastpred</span>
+       not used</li>
     </ul>
 
 
@@ -264,12 +272,14 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>e</em></code>:  a placeholder expression</li>
+      <li><span class="parameter">e</span>
+       a placeholder expression</li>
     </ul>
 
 
     <h3>Returns:</h3>
     <ol>
+
         a function
     </ol>
 
@@ -280,16 +290,18 @@
     <strong>I&nbsp;(e)</strong>
     </dt>
     <dd>
-    instantiate a PE unless it has already been done. 
+    instantiate a PE unless it has already been done.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>e</em></code>:  a placeholder expression</li>
+      <li><span class="parameter">e</span>
+       a placeholder expression</li>
     </ul>
 
 
     <h3>Returns:</h3>
     <ol>
+
         the function
     </ol>
 
@@ -300,12 +312,14 @@
     <strong>curry&nbsp;(fn, p)</strong>
     </dt>
     <dd>
-    bind the first parameter of the function to a value. 
+    bind the first parameter of the function to a value.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>fn</em></code>:  a function of one or more arguments</li>
-       <li><code><em>p</em></code>:  a value</li>
+      <li><span class="parameter">fn</span>
+       a function of one or more arguments</li>
+      <li><span class="parameter">p</span>
+       a value</li>
     </ul>
 
     <h3>Usage:</h3>
@@ -315,6 +329,7 @@
 
     <h3>Returns:</h3>
     <ol>
+
         a function of one less argument
     </ol>
 
@@ -325,12 +340,14 @@
     <strong>compose&nbsp;(f, g)</strong>
     </dt>
     <dd>
-    create a function which chains two functions. 
+    create a function which chains two functions.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>f</em></code>:  a function of at least one argument</li>
-       <li><code><em>g</em></code>:  a function of at least one argument</li>
+      <li><span class="parameter">f</span>
+       a function of at least one argument</li>
+      <li><span class="parameter">g</span>
+       a function of at least one argument</li>
     </ul>
 
     <h3>Usage:</h3>
@@ -340,6 +357,7 @@
 
     <h3>Returns:</h3>
     <ol>
+
         a function
     </ol>
 
@@ -350,13 +368,15 @@
     <strong>bind&nbsp;(fn, ...)</strong>
     </dt>
     <dd>
-    bind the arguments of a function to given values. 
+    bind the arguments of a function to given values.
  bind(fn,v,_2) is equivalent to curry(fn,v).
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>fn</em></code>:  a function of at least one argument</li>
-       <li><code><em>...</em></code>:  values or placeholder variables</li>
+      <li><span class="parameter">fn</span>
+       a function of at least one argument</li>
+      <li><span class="parameter">...</span>
+       values or placeholder variables</li>
     </ul>
 
     <h3>Usage:</h3>
@@ -367,6 +387,7 @@
 
     <h3>Returns:</h3>
     <ol>
+
         a function
     </ol>
 

@@ -38,6 +38,7 @@
 
 <h2>Modules</h2>
 <ul>
+  <li><a href="../modules/config.html">config</a></li>
   <li><a href="../modules/pl.html">pl</a></li>
   <li><strong>pl.Date</strong></li>
   <li><a href="../modules/pl.List.html">pl.List</a></li>
@@ -49,7 +50,6 @@
   <li><a href="../modules/pl.array2d.html">pl.array2d</a></li>
   <li><a href="../modules/pl.class.html">pl.class</a></li>
   <li><a href="../modules/pl.comprehension.html">pl.comprehension</a></li>
-  <li><a href="../modules/pl.config.html">pl.config</a></li>
   <li><a href="../modules/pl.data.html">pl.data</a></li>
   <li><a href="../modules/pl.dir.html">pl.dir</a></li>
   <li><a href="../modules/pl.file.html">pl.file</a></li>
@@ -224,11 +224,11 @@
 	<td class="summary">long numerical ISO data format version of this date.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Date:__eq">Date:__eq&nbsp;()</a></td>
+	<td class="name" nowrap><a href="#Date:__eq">Date:__eq&nbsp;(other)</a></td>
 	<td class="summary">equality between Date objects.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Date:__lt">Date:__lt&nbsp;()</a></td>
+	<td class="name" nowrap><a href="#Date:__lt">Date:__lt&nbsp;(other)</a></td>
 	<td class="summary">equality between Date objects.</td>
 	</tr>
 	<tr>
@@ -250,26 +250,30 @@
 
 
     <h2><a name="Functions"></a>Functions</h2>
-    
+
     <dl class="function">
     <dt>
     <a name = "Date"></a>
     <strong>Date&nbsp;(t)</strong>
     </dt>
     <dd>
-    Date constructor. 
+    Date constructor.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>t</em></code>:  this can be either <ul>
- <li>nil &ndash; use current date and time</li>
- <li>number &ndash; seconds since epoch (as returned by <a href="http://www.lua.org/manual/5.1/manual.html#pdf-os.time">os.time</a>)</li>
- <li>Date &ndash; copy constructor</li>
- <li>table &ndash; table containing year, month, etc as for os.time()
-  You may leave out year, month or day, in which case current values will be used.
- </li>
- <li> two to six numbers: year, month, day, hour, min, sec
- </ul></li>
+      <li><span class="parameter">t</span>
+      <p> this can be either</p>
+
+<ul>
+<li> <code>nil</code> or empty &ndash; use current date and time</li>
+<li> number &ndash; seconds since epoch (as returned by <a href="http://www.lua.org/manual/5.1/manual.html#pdf-os.time">os.time</a>)</li>
+<li> <a href="../modules/pl.Date.html#pl.Date">Date</a>  &ndash; copy constructor</li>
+<li> table &ndash; table containing year, month, etc as for <a href="http://www.lua.org/manual/5.1/manual.html#pdf-os.time">os.time</a> . You may leave out year, month or day,
+in which case current values will be used.
+*three to six numbers: year, month, day, hour, min, sec</li>
+</ul>
+
+</li>
     </ul>
 
 
@@ -281,12 +285,13 @@
     <strong>Date.tzone&nbsp;()</strong>
     </dt>
     <dd>
-    get the time zone offset from UTC. 
+    get the time zone offset from UTC.
 
 
 
     <h3>Returns:</h3>
     <ol>
+
         seconds ahead of UTC
     </ol>
 
@@ -297,7 +302,7 @@
     <strong>Date:toUTC&nbsp;()</strong>
     </dt>
     <dd>
-    convert this date to UTC. 
+    convert this date to UTC.
 
 
 
@@ -309,7 +314,7 @@
     <strong>Date:toLocal&nbsp;()</strong>
     </dt>
     <dd>
-    convert this UTC date to local. 
+    convert this UTC date to local.
 
 
 
@@ -321,11 +326,12 @@
     <strong>Date:set&nbsp;(t)</strong>
     </dt>
     <dd>
-    set the current time of this Date object. 
+    set the current time of this Date object.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>t</em></code>:  seconds since epoch</li>
+      <li><span class="parameter">t</span>
+       seconds since epoch</li>
     </ul>
 
 
@@ -337,11 +343,12 @@
     <strong>Date:year&nbsp;(y)</strong>
     </dt>
     <dd>
-    set the year. 
+    set the year.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>y</em></code>:  Four-digit year</li>
+      <li><span class="parameter">y</span>
+       Four-digit year</li>
     </ul>
 
 
@@ -353,11 +360,12 @@
     <strong>Date:month&nbsp;(m)</strong>
     </dt>
     <dd>
-    set the month. 
+    set the month.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>m</em></code>:  month</li>
+      <li><span class="parameter">m</span>
+       month</li>
     </ul>
 
 
@@ -369,11 +377,12 @@
     <strong>Date:day&nbsp;(d)</strong>
     </dt>
     <dd>
-    set the day. 
+    set the day.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>d</em></code>:  day</li>
+      <li><span class="parameter">d</span>
+       day</li>
     </ul>
 
 
@@ -385,11 +394,12 @@
     <strong>Date:hour&nbsp;(h)</strong>
     </dt>
     <dd>
-    set the hour. 
+    set the hour.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>h</em></code>:  hour</li>
+      <li><span class="parameter">h</span>
+       hour</li>
     </ul>
 
 
@@ -401,11 +411,12 @@
     <strong>Date:min&nbsp;(min)</strong>
     </dt>
     <dd>
-    set the minutes. 
+    set the minutes.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>min</em></code>:  minutes</li>
+      <li><span class="parameter">min</span>
+       minutes</li>
     </ul>
 
 
@@ -417,11 +428,12 @@
     <strong>Date:sec&nbsp;(sec)</strong>
     </dt>
     <dd>
-    set the seconds. 
+    set the seconds.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>sec</em></code>:  seconds</li>
+      <li><span class="parameter">sec</span>
+       seconds</li>
     </ul>
 
 
@@ -433,11 +445,12 @@
     <strong>Date:yday&nbsp;(yday)</strong>
     </dt>
     <dd>
-    set the day of year. 
+    set the day of year.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>yday</em></code>:  day of year</li>
+      <li><span class="parameter">yday</span>
+       day of year</li>
     </ul>
 
 
@@ -449,11 +462,12 @@
     <strong>Date:year&nbsp;(y)</strong>
     </dt>
     <dd>
-    get the year. 
+    get the year.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>y</em></code>:  Four-digit year</li>
+      <li><span class="parameter">y</span>
+       Four-digit year</li>
     </ul>
 
 
@@ -465,7 +479,7 @@
     <strong>Date:month&nbsp;()</strong>
     </dt>
     <dd>
-    get the month. 
+    get the month.
 
 
 
@@ -477,7 +491,7 @@
     <strong>Date:day&nbsp;()</strong>
     </dt>
     <dd>
-    get the day. 
+    get the day.
 
 
 
@@ -489,7 +503,7 @@
     <strong>Date:hour&nbsp;()</strong>
     </dt>
     <dd>
-    get the hour. 
+    get the hour.
 
 
 
@@ -501,7 +515,7 @@
     <strong>Date:min&nbsp;()</strong>
     </dt>
     <dd>
-    get the minutes. 
+    get the minutes.
 
 
 
@@ -513,7 +527,7 @@
     <strong>Date:sec&nbsp;()</strong>
     </dt>
     <dd>
-    get the seconds. 
+    get the seconds.
 
 
 
@@ -525,7 +539,7 @@
     <strong>Date:yday&nbsp;()</strong>
     </dt>
     <dd>
-    get the day of year. 
+    get the day of year.
 
 
 
@@ -537,16 +551,18 @@
     <strong>Date:weekday_name&nbsp;(full)</strong>
     </dt>
     <dd>
-    name of day of week. 
+    name of day of week.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>full</em></code>:  abbreviated if true, full otherwise.</li>
+      <li><span class="parameter">full</span>
+       abbreviated if true, full otherwise.</li>
     </ul>
 
 
     <h3>Returns:</h3>
     <ol>
+
         string name
     </ol>
 
@@ -557,16 +573,18 @@
     <strong>Date:month_name&nbsp;(full)</strong>
     </dt>
     <dd>
-    name of month. 
+    name of month.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>full</em></code>:  abbreviated if true, full otherwise.</li>
+      <li><span class="parameter">full</span>
+       abbreviated if true, full otherwise.</li>
     </ul>
 
 
     <h3>Returns:</h3>
     <ol>
+
         string name
     </ol>
 
@@ -577,7 +595,7 @@
     <strong>Date:is_weekend&nbsp;()</strong>
     </dt>
     <dd>
-    is this day on a weekend?. 
+    is this day on a weekend?.
 
 
 
@@ -589,17 +607,19 @@
     <strong>Date:add&nbsp;(t)</strong>
     </dt>
     <dd>
-    add to a date object. 
+    add to a date object.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>t</em></code>:  a table containing one of the following keys and a value:<br>
+      <li><span class="parameter">t</span>
+       a table containing one of the following keys and a value:<br>
  year,month,day,hour,min,sec</li>
     </ul>
 
 
     <h3>Returns:</h3>
     <ol>
+
         this date
     </ol>
 
@@ -610,12 +630,13 @@
     <strong>Date:last_day&nbsp;()</strong>
     </dt>
     <dd>
-    last day of the month. 
+    last day of the month.
 
 
 
     <h3>Returns:</h3>
     <ol>
+
         int day
     </ol>
 
@@ -626,19 +647,21 @@
     <strong>Date:diff&nbsp;(other)</strong>
     </dt>
     <dd>
-    difference between two Date objects. 
+    difference between two Date objects.
  Note: currently the result is a regular <a href="../modules/pl.Date.html#pl.Date">?que</a> object,
  but also has <code>interval</code> field set, which means a more
  appropriate string rep is used.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>other</em></code>:  Date object</li>
+      <li><span class="parameter">other</span>
+       Date object</li>
     </ul>
 
 
     <h3>Returns:</h3>
     <ol>
+
         a Date object
     </ol>
 
@@ -649,7 +672,8 @@
     <strong>Date:__tostring&nbsp;()</strong>
     </dt>
     <dd>
-    long numerical ISO data format version of this date. 
+    long numerical ISO data format version of this date.
+ If it&rsquo;s an interval then the format is &lsquo;2 hours 29 sec&rsquo; etc.
 
 
 
@@ -658,11 +682,17 @@
 </dd>
     <dt>
     <a name = "Date:__eq"></a>
-    <strong>Date:__eq&nbsp;()</strong>
+    <strong>Date:__eq&nbsp;(other)</strong>
     </dt>
     <dd>
-    equality between Date objects. 
+    equality between Date objects.
 
+    <h3>Parameters:</h3>
+    <ul>
+      <li><span class="parameter">other</span>
+
+</li>
+    </ul>
 
 
 
@@ -670,11 +700,17 @@
 </dd>
     <dt>
     <a name = "Date:__lt"></a>
-    <strong>Date:__lt&nbsp;()</strong>
+    <strong>Date:__lt&nbsp;(other)</strong>
     </dt>
     <dd>
-    equality between Date objects. 
+    equality between Date objects.
 
+    <h3>Parameters:</h3>
+    <ul>
+      <li><span class="parameter">other</span>
+
+</li>
+    </ul>
 
 
 
@@ -685,11 +721,12 @@
     <strong>Date.Format&nbsp;(fmt.)</strong>
     </dt>
     <dd>
-    Date.Format constructor. 
+    Date.Format constructor.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>fmt.</em></code>:  A string where the following fields are significant: <ul>
+      <li><span class="parameter">fmt.</span>
+       A string where the following fields are significant: <ul>
  <li>d day (either d or dd)</li>
  <li>y year (either yy or yyy)</li>
  <li>m month (either m or mm)</li>
@@ -727,16 +764,18 @@
     <strong>Date.Format:parse&nbsp;(str)</strong>
     </dt>
     <dd>
-    parse a string into a Date object. 
+    parse a string into a Date object.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>str</em></code>:  a date string</li>
+      <li><span class="parameter">str</span>
+       a date string</li>
     </ul>
 
 
     <h3>Returns:</h3>
     <ol>
+
         date object
     </ol>
 
@@ -747,16 +786,18 @@
     <strong>Date.Format:tostring&nbsp;(d)</strong>
     </dt>
     <dd>
-    convert a Date object into a string. 
+    convert a Date object into a string.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>d</em></code>:  a date object, or a time value as returned by <a href="http://www.lua.org/manual/5.1/manual.html#pdf-os.time">os.time</a></li>
+      <li><span class="parameter">d</span>
+       a date object, or a time value as returned by <a href="http://www.lua.org/manual/5.1/manual.html#pdf-os.time">os.time</a></li>
     </ul>
 
 
     <h3>Returns:</h3>
     <ol>
+
         string
     </ol>
 

@@ -38,6 +38,7 @@
 
 <h2>Modules</h2>
 <ul>
+  <li><a href="../modules/config.html">config</a></li>
   <li><a href="../modules/pl.html">pl</a></li>
   <li><a href="../modules/pl.Date.html">pl.Date</a></li>
   <li><a href="../modules/pl.List.html">pl.List</a></li>
@@ -49,7 +50,6 @@
   <li><a href="../modules/pl.array2d.html">pl.array2d</a></li>
   <li><a href="../modules/pl.class.html">pl.class</a></li>
   <li><a href="../modules/pl.comprehension.html">pl.comprehension</a></li>
-  <li><a href="../modules/pl.config.html">pl.config</a></li>
   <li><a href="../modules/pl.data.html">pl.data</a></li>
   <li><a href="../modules/pl.dir.html">pl.dir</a></li>
   <li><a href="../modules/pl.file.html">pl.file</a></li>
@@ -169,7 +169,7 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#count_map">count_map&nbsp;(iter)</a></td>
-	<td class="summary">A table where the key/values are the values and value counts of the sequence.</td>
+	<td class="summary">Makes a table where the key/values are the values and value counts of the sequence.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#printall">printall&nbsp;(iter, sep, nfields, fmt)</a></td>
@@ -182,7 +182,7 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#filter">filter&nbsp;(iter, pred, arg)</a></td>
-	<td class="summary">filter a sequence using a predicate function</td>
+	<td class="summary">filter a sequence using a predicate function.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#reduce">reduce&nbsp;(fun, iter, oldval)</a></td>
@@ -213,7 +213,7 @@
 	<td class="summary">call the function on each element of the sequence.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#lines">lines&nbsp;(f)</a></td>
+	<td class="name" nowrap><a href="#lines">lines&nbsp;(f, ...)</a></td>
 	<td class="summary">create a wrapped iterator over all lines in the file.</td>
 	</tr>
 </table>
@@ -223,18 +223,19 @@
 
 
     <h2><a name="Functions"></a>Functions</h2>
-    
+
     <dl class="function">
     <dt>
     <a name = "matching"></a>
     <strong>matching&nbsp;(s)</strong>
     </dt>
     <dd>
-    given a string, return a function(y) which matches y against the string. 
+    given a string, return a function(y) which matches y against the string.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>s</em></code>:  a string</li>
+      <li><span class="parameter">s</span>
+       a string</li>
     </ul>
 
 
@@ -251,7 +252,8 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>t</em></code>:  a list-like table</li>
+      <li><span class="parameter">t</span>
+       a list-like table</li>
     </ul>
 
     <h3>Usage:</h3>
@@ -268,16 +270,18 @@
     <strong>keys&nbsp;(t)</strong>
     </dt>
     <dd>
-    return the keys of the table. 
+    return the keys of the table.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>t</em></code>:  a list-like table</li>
+      <li><span class="parameter">t</span>
+       an arbitrary table</li>
     </ul>
 
 
     <h3>Returns:</h3>
     <ol>
+
         iterator over keys
     </ol>
 
@@ -292,8 +296,10 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>start</em></code>:  a number</li>
-       <li><code><em>finish</em></code>:  a number greater than start</li>
+      <li><span class="parameter">start</span>
+       a number</li>
+      <li><span class="parameter">finish</span>
+       a number greater than start</li>
     </ul>
 
 
@@ -305,18 +311,21 @@
     <strong>minmax&nbsp;(iter)</strong>
     </dt>
     <dd>
-    return the minimum and the maximum value of the sequence. 
+    return the minimum and the maximum value of the sequence.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>iter</em></code>:  a sequence</li>
+      <li><span class="parameter">iter</span>
+       a sequence</li>
     </ul>
 
 
     <h3>Returns:</h3>
     <ol>
-        <li>minimum value</li>
-        <li>maximum value</li>
+        <li>
+        minimum value</li>
+        <li>
+        maximum value</li>
     </ol>
 
 
@@ -326,12 +335,14 @@
     <strong>sum&nbsp;(iter, fn)</strong>
     </dt>
     <dd>
-    return the sum and element count of the sequence. 
+    return the sum and element count of the sequence.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>iter</em></code>:  a sequence</li>
-       <li><code><em>fn</em></code>:  an optional function to apply to the values</li>
+      <li><span class="parameter">iter</span>
+       a sequence</li>
+      <li><span class="parameter">fn</span>
+       an optional function to apply to the values</li>
     </ul>
 
 
@@ -347,7 +358,8 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>iter</em></code>:  a sequence</li>
+      <li><span class="parameter">iter</span>
+       a sequence</li>
     </ul>
 
     <h3>Usage:</h3>
@@ -358,6 +370,7 @@
 
     <h3>Returns:</h3>
     <ol>
+
         a List
     </ol>
 
@@ -368,13 +381,16 @@
     <strong>copy2&nbsp;(iter, i1, i2)</strong>
     </dt>
     <dd>
-    create a table of pairs from the double-valued sequence. 
+    create a table of pairs from the double-valued sequence.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>iter</em></code>:  a double-valued sequence</li>
-       <li><code><em>i1</em></code>:  used to capture extra iterator values</li>
-       <li><code><em>i2</em></code>:  as with pairs &amp; ipairs</li>
+      <li><span class="parameter">iter</span>
+       a double-valued sequence</li>
+      <li><span class="parameter">i1</span>
+       used to capture extra iterator values</li>
+      <li><span class="parameter">i2</span>
+       as with pairs &amp; ipairs</li>
     </ul>
 
     <h3>Usage:</h3>
@@ -384,6 +400,7 @@
 
     <h3>Returns:</h3>
     <ol>
+
         a list-like table
     </ol>
 
@@ -394,17 +411,19 @@
     <strong>copy_tuples&nbsp;(iter)</strong>
     </dt>
     <dd>
-    create a table of &lsquo;tuples&rsquo; from a multi-valued sequence. 
+    create a table of &lsquo;tuples&rsquo; from a multi-valued sequence.
  A generalization of copy2 above
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>iter</em></code>:  a multiple-valued sequence</li>
+      <li><span class="parameter">iter</span>
+       a multiple-valued sequence</li>
     </ul>
 
 
     <h3>Returns:</h3>
     <ol>
+
         a list-like table
     </ol>
 
@@ -415,18 +434,22 @@
     <strong>random&nbsp;(n, l, u)</strong>
     </dt>
     <dd>
-    return an iterator of random numbers. 
+    return an iterator of random numbers.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>n</em></code>:  the length of the sequence</li>
-       <li><code><em>l</em></code>:  same as the first optional argument to math.random</li>
-       <li><code><em>u</em></code>:  same as the second optional argument to math.random</li>
+      <li><span class="parameter">n</span>
+       the length of the sequence</li>
+      <li><span class="parameter">l</span>
+       same as the first optional argument to math.random</li>
+      <li><span class="parameter">u</span>
+       same as the second optional argument to math.random</li>
     </ul>
 
 
     <h3>Returns:</h3>
     <ol>
+
         a sequnce
     </ol>
 
@@ -437,12 +460,14 @@
     <strong>sort&nbsp;(iter, comp)</strong>
     </dt>
     <dd>
-    return an iterator to the sorted elements of a sequence. 
+    return an iterator to the sorted elements of a sequence.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>iter</em></code>:  a sequence</li>
-       <li><code><em>comp</em></code>:  an optional comparison function (comp(x,y) is true if x &lt; y)</li>
+      <li><span class="parameter">iter</span>
+       a sequence</li>
+      <li><span class="parameter">comp</span>
+       an optional comparison function (comp(x,y) is true if x &lt; y)</li>
     </ul>
 
 
@@ -454,12 +479,14 @@
     <strong>zip&nbsp;(iter1, iter2)</strong>
     </dt>
     <dd>
-    return an iterator which returns elements of two sequences. 
+    return an iterator which returns elements of two sequences.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>iter1</em></code>:  a sequence</li>
-       <li><code><em>iter2</em></code>:  a sequence</li>
+      <li><span class="parameter">iter1</span>
+       a sequence</li>
+      <li><span class="parameter">iter2</span>
+       a sequence</li>
     </ul>
 
     <h3>Usage:</h3>
@@ -475,20 +502,23 @@
     <strong>count_map&nbsp;(iter)</strong>
     </dt>
     <dd>
-    A table where the key/values are the values and value counts of the sequence. 
- This version works with &lsquo;hashable&rsquo; values like strings and numbers. <br>
- pl.tablex.count_map is more general.
+    Makes a table where the key/values are the values and value counts of the sequence.
+ This version works with &lsquo;hashable&rsquo; values like strings and numbers.
+ <a href="../modules/pl.tablex.html#count_map">pl.tablex.count_map</a>  is more general.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>iter</em></code>:  a sequence</li>
+      <li><span class="parameter">iter</span>
+       a sequence</li>
     </ul>
 
 
     <h3>Returns:</h3>
     <ol>
-        <li>a map-like table</li>
-        <li>a table</li>
+        <li>
+        a map-like table</li>
+        <li>
+        a table</li>
     </ol>
 
 
@@ -502,14 +532,18 @@
     <strong>printall&nbsp;(iter, sep, nfields, fmt)</strong>
     </dt>
     <dd>
-    print out a sequence iter with a separator. 
+    print out a sequence iter with a separator.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>iter</em></code>:  a sequence</li>
-       <li><code><em>sep</em></code>:  the separator (default space)</li>
-       <li><code><em>nfields</em></code>:  maximum number of values per line (default 7)</li>
-       <li><code><em>fmt</em></code>:  optional format function for each value</li>
+      <li><span class="parameter">iter</span>
+       a sequence</li>
+      <li><span class="parameter">sep</span>
+       the separator (default space)</li>
+      <li><span class="parameter">nfields</span>
+       maximum number of values per line (default 7)</li>
+      <li><span class="parameter">fmt</span>
+       optional format function for each value</li>
     </ul>
 
 
@@ -528,9 +562,12 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>fn</em></code>:  a function to apply to elements; may take two arguments</li>
-       <li><code><em>iter</em></code>:  a sequence of one or two values</li>
-       <li><code><em>arg</em></code>:  optional argument to pass to function.</li>
+      <li><span class="parameter">fn</span>
+       a function to apply to elements; may take two arguments</li>
+      <li><span class="parameter">iter</span>
+       a sequence of one or two values</li>
+      <li><span class="parameter">arg</span>
+       optional argument to pass to function.</li>
     </ul>
 
 
@@ -542,13 +579,16 @@
     <strong>filter&nbsp;(iter, pred, arg)</strong>
     </dt>
     <dd>
-    filter a sequence using a predicate function 
+    filter a sequence using a predicate function.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>iter</em></code>:  a sequence of one or two values</li>
-       <li><code><em>pred</em></code>:  a boolean function; may take two arguments</li>
-       <li><code><em>arg</em></code>:  optional argument to pass to function.</li>
+      <li><span class="parameter">iter</span>
+       a sequence of one or two values</li>
+      <li><span class="parameter">pred</span>
+       a boolean function; may take two arguments</li>
+      <li><span class="parameter">arg</span>
+       optional argument to pass to function.</li>
     </ul>
 
 
@@ -560,13 +600,16 @@
     <strong>reduce&nbsp;(fun, iter, oldval)</strong>
     </dt>
     <dd>
-    &lsquo;reduce&rsquo; a sequence using a binary function. 
+    &lsquo;reduce&rsquo; a sequence using a binary function.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>fun</em></code>:  a function of two arguments</li>
-       <li><code><em>iter</em></code>:  a sequence</li>
-       <li><code><em>oldval</em></code>:  optional initial value</li>
+      <li><span class="parameter">fun</span>
+       a function of two arguments</li>
+      <li><span class="parameter">iter</span>
+       a sequence</li>
+      <li><span class="parameter">oldval</span>
+       optional initial value</li>
     </ul>
 
     <h3>Usage:</h3>
@@ -583,17 +626,20 @@
     <strong>take&nbsp;(iter, n)</strong>
     </dt>
     <dd>
-    take the first n values from the sequence. 
+    take the first n values from the sequence.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>iter</em></code>:  a sequence of one or two values</li>
-       <li><code><em>n</em></code>:  number of items to take</li>
+      <li><span class="parameter">iter</span>
+       a sequence of one or two values</li>
+      <li><span class="parameter">n</span>
+       number of items to take</li>
     </ul>
 
 
     <h3>Returns:</h3>
     <ol>
+
         a sequence of at most n items
     </ol>
 
@@ -604,12 +650,14 @@
     <strong>skip&nbsp;(iter, n)</strong>
     </dt>
     <dd>
-    skip the first n values of a sequence 
+    skip the first n values of a sequence
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>iter</em></code>:  a sequence of one or more values</li>
-       <li><code><em>n</em></code>:  number of items to skip</li>
+      <li><span class="parameter">iter</span>
+       a sequence of one or more values</li>
+      <li><span class="parameter">n</span>
+       number of items to skip</li>
     </ul>
 
 
@@ -621,17 +669,19 @@
     <strong>enum&nbsp;(iter)</strong>
     </dt>
     <dd>
-    a sequence with a sequence count and the original value.  <br>
+    a sequence with a sequence count and the original value.
  enum(copy(ls)) is a roundabout way of saying ipairs(ls).
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>iter</em></code>:  a single or double valued sequence</li>
+      <li><span class="parameter">iter</span>
+       a single or double valued sequence</li>
     </ul>
 
 
     <h3>Returns:</h3>
     <ol>
+
         sequence of (i,v), i = 1..n and v is from iter.
     </ol>
 
@@ -642,14 +692,18 @@
     <strong>mapmethod&nbsp;(iter, name, arg1, arg2)</strong>
     </dt>
     <dd>
-    map using a named method over a sequence. 
+    map using a named method over a sequence.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>iter</em></code>:  a sequence</li>
-       <li><code><em>name</em></code>:  the method name</li>
-       <li><code><em>arg1</em></code>:  optional first extra argument</li>
-       <li><code><em>arg2</em></code>:  optional second extra argument</li>
+      <li><span class="parameter">iter</span>
+       a sequence</li>
+      <li><span class="parameter">name</span>
+       the method name</li>
+      <li><span class="parameter">arg1</span>
+       optional first extra argument</li>
+      <li><span class="parameter">arg2</span>
+       optional second extra argument</li>
     </ul>
 
 
@@ -661,12 +715,13 @@
     <strong>last&nbsp;(iter)</strong>
     </dt>
     <dd>
-    a sequence of (last,current) values from another sequence. 
+    a sequence of (last,current) values from another sequence.
   This will return S(i-1),S(i) if given S(i)
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>iter</em></code>:  a sequence</li>
+      <li><span class="parameter">iter</span>
+       a sequence</li>
     </ul>
 
 
@@ -678,12 +733,14 @@
     <strong>foreach&nbsp;(iter, fn)</strong>
     </dt>
     <dd>
-    call the function on each element of the sequence. 
+    call the function on each element of the sequence.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>iter</em></code>:  a sequence with up to 3 values</li>
-       <li><code><em>fn</em></code>:  a function</li>
+      <li><span class="parameter">iter</span>
+       a sequence with up to 3 values</li>
+      <li><span class="parameter">fn</span>
+       a function</li>
     </ul>
 
 
@@ -692,19 +749,23 @@
 </dd>
     <dt>
     <a name = "lines"></a>
-    <strong>lines&nbsp;(f)</strong>
+    <strong>lines&nbsp;(f, ...)</strong>
     </dt>
     <dd>
-    create a wrapped iterator over all lines in the file. 
+    create a wrapped iterator over all lines in the file.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>f</em></code>:  either a filename or nil (for standard input)</li>
+      <li><span class="parameter">f</span>
+       either a filename, file-like object, or &lsquo;STDIN&rsquo; (for standard input)</li>
+      <li><span class="parameter">...</span>
+       for Lua 5.2 only, optional format specifiers, as in <a href="http://www.lua.org/manual/5.1/manual.html#pdf-io.read">io.read</a> .</li>
     </ul>
 
 
     <h3>Returns:</h3>
     <ol>
+
         a sequence wrapper
     </ol>
 

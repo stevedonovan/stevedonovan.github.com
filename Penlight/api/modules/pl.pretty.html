@@ -38,6 +38,7 @@
 
 <h2>Modules</h2>
 <ul>
+  <li><a href="../modules/config.html">config</a></li>
   <li><a href="../modules/pl.html">pl</a></li>
   <li><a href="../modules/pl.Date.html">pl.Date</a></li>
   <li><a href="../modules/pl.List.html">pl.List</a></li>
@@ -49,7 +50,6 @@
   <li><a href="../modules/pl.array2d.html">pl.array2d</a></li>
   <li><a href="../modules/pl.class.html">pl.class</a></li>
   <li><a href="../modules/pl.comprehension.html">pl.comprehension</a></li>
-  <li><a href="../modules/pl.config.html">pl.config</a></li>
   <li><a href="../modules/pl.data.html">pl.data</a></li>
   <li><a href="../modules/pl.dir.html">pl.dir</a></li>
   <li><a href="../modules/pl.file.html">pl.file</a></li>
@@ -147,14 +147,14 @@
 
 
     <h2><a name="Functions"></a>Functions</h2>
-    
+
     <dl class="function">
     <dt>
     <a name = "read"></a>
     <strong>read&nbsp;(s)</strong>
     </dt>
     <dd>
-    read a string representation of a Lua table. 
+    read a string representation of a Lua table.
  Uses load(), but tries to be cautious about loading arbitrary code!
  It is expecting a string of the form &lsquo;{&hellip;}&rsquo;, with perhaps some whitespace
  before or after the curly braces. A comment may occur beforehand.
@@ -164,7 +164,8 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>s</em></code>: <p> {string} string of the form &lsquo;{&hellip;}&rsquo;, with perhaps some whitespace</p>
+      <li><span class="parameter">s</span>
+      <p> {string} string of the form &lsquo;{&hellip;}&rsquo;, with perhaps some whitespace</p>
 
 <pre><code>    before or after the curly braces.
 </code></pre>
@@ -174,6 +175,7 @@
 
     <h3>Returns:</h3>
     <ol>
+
         a table
     </ol>
 
@@ -184,18 +186,22 @@
     <strong>load&nbsp;(s, env, paranoid)</strong>
     </dt>
     <dd>
-    read a Lua chunk. 
+    read a Lua chunk.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>s</em></code>:  Lua code</li>
-       <li><code><em>env</em></code>:  optional environment</li>
-       <li><code><em>paranoid</em></code>:  prevent any looping constructs and disable string methods</li>
+      <li><span class="parameter">s</span>
+       Lua code</li>
+      <li><span class="parameter">env</span>
+       optional environment</li>
+      <li><span class="parameter">paranoid</span>
+       prevent any looping constructs and disable string methods</li>
     </ul>
 
 
     <h3>Returns:</h3>
     <ol>
+
         the environment
     </ol>
 
@@ -206,7 +212,7 @@
     <strong>write&nbsp;(tbl, space, not_clever)</strong>
     </dt>
     <dd>
-    Create a string representation of a Lua table. 
+    Create a string representation of a Lua table.
   This function never fails, but may complain by returning an
   extra value. Normally puts out one item per line, using
   the provided indent; set the second parameter to &lsquo;&rsquo; if
@@ -214,13 +220,16 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>tbl</em></code>:  {table} Table to serialize to a string.</li>
-       <li><code><em>space</em></code>: <p> {string} (optional) The indent to use.</p>
+      <li><span class="parameter">tbl</span>
+       {table} Table to serialize to a string.</li>
+      <li><span class="parameter">space</span>
+      <p> {string} (optional) The indent to use.</p>
 
 <pre><code>    Defaults to two spaces; make it the empty string for no indentation
 </code></pre>
 </li>
-       <li><code><em>not_clever</em></code>: <p> {bool} (optional) Use for plain output, e.g {[&lsquo;key&rsquo;]=1}.</p>
+      <li><span class="parameter">not_clever</span>
+      <p> {bool} (optional) Use for plain output, e.g {[&lsquo;key&rsquo;]=1}.</p>
 
 <pre><code>    Defaults to false.
 </code></pre>
@@ -230,8 +239,10 @@
 
     <h3>Returns:</h3>
     <ol>
-        <li>a string</li>
-        <li>a possible error message</li>
+        <li>
+        a string</li>
+        <li>
+        a possible error message</li>
     </ol>
 
 
@@ -241,12 +252,14 @@
     <strong>dump&nbsp;(t, ...)</strong>
     </dt>
     <dd>
-    Dump a Lua table out to a file or stdout. 
+    Dump a Lua table out to a file or stdout.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>t</em></code>:  {table} The table to write to a file or stdout.</li>
-       <li><code><em>...</em></code>: <p> {string} (optional) File name to write too. Defaults to writing</p>
+      <li><span class="parameter">t</span>
+       {table} The table to write to a file or stdout.</li>
+      <li><span class="parameter">...</span>
+      <p> {string} (optional) File name to write too. Defaults to writing</p>
 
 <pre><code>    to stdout.
 </code></pre>
@@ -262,14 +275,17 @@
     <strong>number&nbsp;(num, kind, prec)</strong>
     </dt>
     <dd>
-    format large numbers nicely for human consumption. 
+    format large numbers nicely for human consumption.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>num</em></code>:  a number</li>
-       <li><code><em>kind</em></code>:  one of &lsquo;M&rsquo; (memory in KiB etc), &lsquo;N&rsquo; (postfixes are &lsquo;K&rsquo;,&lsquo;M&rsquo; and &lsquo;B&rsquo;)
+      <li><span class="parameter">num</span>
+       a number</li>
+      <li><span class="parameter">kind</span>
+       one of &lsquo;M&rsquo; (memory in KiB etc), &lsquo;N&rsquo; (postfixes are &lsquo;K&rsquo;,&lsquo;M&rsquo; and &lsquo;B&rsquo;)
  and &rsquo;T' (use commas as thousands separator)</li>
-       <li><code><em>prec</em></code>:  number of digits to use for &lsquo;M&rsquo; and &lsquo;N&rsquo; (default 1)</li>
+      <li><span class="parameter">prec</span>
+       number of digits to use for &lsquo;M&rsquo; and &lsquo;N&rsquo; (default 1)</li>
     </ul>
 
 

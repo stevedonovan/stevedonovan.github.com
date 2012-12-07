@@ -38,6 +38,7 @@
 
 <h2>Modules</h2>
 <ul>
+  <li><a href="../modules/config.html">config</a></li>
   <li><a href="../modules/pl.html">pl</a></li>
   <li><a href="../modules/pl.Date.html">pl.Date</a></li>
   <li><a href="../modules/pl.List.html">pl.List</a></li>
@@ -49,7 +50,6 @@
   <li><a href="../modules/pl.array2d.html">pl.array2d</a></li>
   <li><a href="../modules/pl.class.html">pl.class</a></li>
   <li><a href="../modules/pl.comprehension.html">pl.comprehension</a></li>
-  <li><a href="../modules/pl.config.html">pl.config</a></li>
   <li><a href="../modules/pl.data.html">pl.data</a></li>
   <li><a href="../modules/pl.dir.html">pl.dir</a></li>
   <li><a href="../modules/pl.file.html">pl.file</a></li>
@@ -244,7 +244,7 @@
 	<td class="summary">filter a table&rsquo;s values using a predicate function</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#zip">zip&nbsp;()</a></td>
+	<td class="name" nowrap><a href="#zip">zip&nbsp;(...)</a></td>
 	<td class="summary">return a table where each element is a table of the ith values of an arbitrary
  number of tables.</td>
 	</tr>
@@ -291,24 +291,27 @@
 
 
     <h2><a name="Functions"></a>Functions</h2>
-    
+
     <dl class="function">
     <dt>
     <a name = "update"></a>
     <strong>update&nbsp;(t1, t2)</strong>
     </dt>
     <dd>
-    copy a table into another, in-place. 
+    copy a table into another, in-place.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>t1</em></code>:  destination table</li>
-       <li><code><em>t2</em></code>:  source table</li>
+      <li><span class="parameter">t1</span>
+       destination table</li>
+      <li><span class="parameter">t2</span>
+       source (any iterable object)</li>
     </ul>
 
 
     <h3>Returns:</h3>
     <ol>
+
         first table
     </ol>
 
@@ -319,20 +322,23 @@
     <strong>size&nbsp;(t)</strong>
     </dt>
     <dd>
-    total number of elements in this table. 
+    total number of elements in this table.
  Note that this is distinct from <code>#t</code>, which is the number
  of values in the array part; this value will always
  be greater or equal. The difference gives the size of
- the hash part, for practical purposes.
+ the hash part, for practical purposes. Works for any
+ object with a __pairs metamethod.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>t</em></code>:  a table</li>
+      <li><span class="parameter">t</span>
+       a table</li>
     </ul>
 
 
     <h3>Returns:</h3>
     <ol>
+
         the size
     </ol>
 
@@ -343,16 +349,18 @@
     <strong>copy&nbsp;(t)</strong>
     </dt>
     <dd>
-    make a shallow copy of a table 
+    make a shallow copy of a table
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>t</em></code>:  source table</li>
+      <li><span class="parameter">t</span>
+       an iterable source</li>
     </ul>
 
 
     <h3>Returns:</h3>
     <ol>
+
         new table
     </ol>
 
@@ -363,17 +371,19 @@
     <strong>deepcopy&nbsp;(t)</strong>
     </dt>
     <dd>
-    make a deep copy of a table, recursively copying all the keys and fields. 
+    make a deep copy of a table, recursively copying all the keys and fields.
  This will also set the copied table&rsquo;s metatable to that of the original.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>t</em></code>:  A table</li>
+      <li><span class="parameter">t</span>
+       A table</li>
     </ul>
 
 
     <h3>Returns:</h3>
     <ol>
+
         new table
     </ol>
 
@@ -384,20 +394,25 @@
     <strong>deepcompare&nbsp;(t1, t2, ignore_mt, eps)</strong>
     </dt>
     <dd>
-    compare two values. 
+    compare two values.
  if they are tables, then compare their keys and fields recursively.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>t1</em></code>:  A value</li>
-       <li><code><em>t2</em></code>:  A value</li>
-       <li><code><em>ignore_mt</em></code>:  if true, ignore __eq metamethod (default false)</li>
-       <li><code><em>eps</em></code>:  if defined, then used for any number comparisons</li>
+      <li><span class="parameter">t1</span>
+       A value</li>
+      <li><span class="parameter">t2</span>
+       A value</li>
+      <li><span class="parameter">ignore_mt</span>
+       if true, ignore __eq metamethod (default false)</li>
+      <li><span class="parameter">eps</span>
+       if defined, then used for any number comparisons</li>
     </ul>
 
 
     <h3>Returns:</h3>
     <ol>
+
         true or false
     </ol>
 
@@ -408,13 +423,16 @@
     <strong>compare&nbsp;(t1, t2, cmp)</strong>
     </dt>
     <dd>
-    compare two arrays using a predicate. 
+    compare two arrays using a predicate.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>t1</em></code>:  an array</li>
-       <li><code><em>t2</em></code>:  an array</li>
-       <li><code><em>cmp</em></code>:  A comparison function</li>
+      <li><span class="parameter">t1</span>
+       an array</li>
+      <li><span class="parameter">t2</span>
+       an array</li>
+      <li><span class="parameter">cmp</span>
+       A comparison function</li>
     </ul>
 
 
@@ -426,13 +444,16 @@
     <strong>compare_no_order&nbsp;(t1, t2, cmp)</strong>
     </dt>
     <dd>
-    compare two list-like tables using an optional predicate, without regard for element order. 
+    compare two list-like tables using an optional predicate, without regard for element order.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>t1</em></code>:  a list-like table</li>
-       <li><code><em>t2</em></code>:  a list-like table</li>
-       <li><code><em>cmp</em></code>:  A comparison function (may be nil)</li>
+      <li><span class="parameter">t1</span>
+       a list-like table</li>
+      <li><span class="parameter">t2</span>
+       a list-like table</li>
+      <li><span class="parameter">cmp</span>
+       A comparison function (may be nil)</li>
     </ul>
 
 
@@ -444,15 +465,18 @@
     <strong>find&nbsp;(t, val, idx)</strong>
     </dt>
     <dd>
-    return the index of a value in a list. 
+    return the index of a value in a list.
  Like string.find, there is an optional index to start searching,
  which can be negative.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>t</em></code>:  A list-like table (i.e. with numerical indices)</li>
-       <li><code><em>val</em></code>:  A value</li>
-       <li><code><em>idx</em></code>:  index to start; -1 means last element,etc (default 1)</li>
+      <li><span class="parameter">t</span>
+       A list-like table (i.e. with numerical indices)</li>
+      <li><span class="parameter">val</span>
+       A value</li>
+      <li><span class="parameter">idx</span>
+       index to start; -1 means last element,etc (default 1)</li>
     </ul>
 
     <h3>Usage:</h3>
@@ -463,6 +487,7 @@
 
     <h3>Returns:</h3>
     <ol>
+
         index of value or nil if not found
     </ol>
 
@@ -473,15 +498,18 @@
     <strong>rfind&nbsp;(t, val, idx)</strong>
     </dt>
     <dd>
-    return the index of a value in a list, searching from the end. 
+    return the index of a value in a list, searching from the end.
  Like string.find, there is an optional index to start searching,
  which can be negative.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>t</em></code>:  A list-like table (i.e. with numerical indices)</li>
-       <li><code><em>val</em></code>:  A value</li>
-       <li><code><em>idx</em></code>:  index to start; -1 means last element,etc (default 1)</li>
+      <li><span class="parameter">t</span>
+       A list-like table (i.e. with numerical indices)</li>
+      <li><span class="parameter">val</span>
+       A value</li>
+      <li><span class="parameter">idx</span>
+       index to start; -1 means last element,etc (default 1)</li>
     </ul>
 
     <h3>Usage:</h3>
@@ -491,6 +519,7 @@
 
     <h3>Returns:</h3>
     <ol>
+
         index of value or nil if not found
     </ol>
 
@@ -501,20 +530,25 @@
     <strong>find_if&nbsp;(t, cmp, arg)</strong>
     </dt>
     <dd>
-    return the index (or key) of a value in a table using a comparison function. 
+    return the index (or key) of a value in a table using a comparison function.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>t</em></code>:  A table</li>
-       <li><code><em>cmp</em></code>:  A comparison function</li>
-       <li><code><em>arg</em></code>:  an optional second argument to the function</li>
+      <li><span class="parameter">t</span>
+       A table</li>
+      <li><span class="parameter">cmp</span>
+       A comparison function</li>
+      <li><span class="parameter">arg</span>
+       an optional second argument to the function</li>
     </ul>
 
 
     <h3>Returns:</h3>
     <ol>
-        <li>index of value, or nil if not found</li>
-        <li>value returned by comparison function</li>
+        <li>
+        index of value, or nil if not found</li>
+        <li>
+        value returned by comparison function</li>
     </ol>
 
 
@@ -524,12 +558,14 @@
     <strong>index_by&nbsp;(tbl, idx)</strong>
     </dt>
     <dd>
-    return a list of all values in a table indexed by another list. 
+    return a list of all values in a table indexed by another list.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>tbl</em></code>:  a table</li>
-       <li><code><em>idx</em></code>:  an index table (a list of keys)</li>
+      <li><span class="parameter">tbl</span>
+       a table</li>
+      <li><span class="parameter">idx</span>
+       an index table (a list of keys)</li>
     </ul>
 
     <h3>Usage:</h3>
@@ -540,6 +576,7 @@
 
     <h3>Returns:</h3>
     <ol>
+
         a list-like table
     </ol>
 
@@ -550,15 +587,18 @@
     <strong>map&nbsp;(fun, t, ...)</strong>
     </dt>
     <dd>
-    apply a function to all values of a table. 
+    apply a function to all values of a table.
  This returns a table of the results.
  Any extra arguments are passed to the function.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>fun</em></code>:  A function that takes at least one argument</li>
-       <li><code><em>t</em></code>:  A table</li>
-       <li><code><em>...</em></code>:  optional arguments</li>
+      <li><span class="parameter">fun</span>
+       A function that takes at least one argument</li>
+      <li><span class="parameter">t</span>
+       A table</li>
+      <li><span class="parameter">...</span>
+       optional arguments</li>
     </ul>
 
     <h3>Usage:</h3>
@@ -574,15 +614,18 @@
     <strong>imap&nbsp;(fun, t, ...)</strong>
     </dt>
     <dd>
-    apply a function to all values of a list. 
+    apply a function to all values of a list.
  This returns a table of the results.
  Any extra arguments are passed to the function.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>fun</em></code>:  A function that takes at least one argument</li>
-       <li><code><em>t</em></code>:  a table (applies to array part)</li>
-       <li><code><em>...</em></code>:  optional arguments</li>
+      <li><span class="parameter">fun</span>
+       A function that takes at least one argument</li>
+      <li><span class="parameter">t</span>
+       a table (applies to array part)</li>
+      <li><span class="parameter">...</span>
+       optional arguments</li>
     </ul>
 
     <h3>Usage:</h3>
@@ -592,6 +635,7 @@
 
     <h3>Returns:</h3>
     <ol>
+
         a list-like table
     </ol>
 
@@ -602,13 +646,16 @@
     <strong>map_named_method&nbsp;(name, t, ...)</strong>
     </dt>
     <dd>
-    apply a named method to values from a table. 
+    apply a named method to values from a table.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>name</em></code>:  the method name</li>
-       <li><code><em>t</em></code>:  a list-like table</li>
-       <li><code><em>...</em></code>:  any extra arguments to the method</li>
+      <li><span class="parameter">name</span>
+       the method name</li>
+      <li><span class="parameter">t</span>
+       a list-like table</li>
+      <li><span class="parameter">...</span>
+       any extra arguments to the method</li>
     </ul>
 
 
@@ -620,14 +667,17 @@
     <strong>transform&nbsp;(fun, t, ...)</strong>
     </dt>
     <dd>
-    apply a function to all values of a table, in-place. 
+    apply a function to all values of a table, in-place.
  Any extra arguments are passed to the function.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>fun</em></code>:  A function that takes at least one argument</li>
-       <li><code><em>t</em></code>:  a table</li>
-       <li><code><em>...</em></code>:  extra arguments</li>
+      <li><span class="parameter">fun</span>
+       A function that takes at least one argument</li>
+      <li><span class="parameter">t</span>
+       a table</li>
+      <li><span class="parameter">...</span>
+       extra arguments</li>
     </ul>
 
 
@@ -639,13 +689,16 @@
     <strong>range&nbsp;(start, finish, step)</strong>
     </dt>
     <dd>
-    generate a table of all numbers in a range 
+    generate a table of all numbers in a range
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>start</em></code>:   number</li>
-       <li><code><em>finish</em></code>:  number</li>
-       <li><code><em>step</em></code>:  optional increment (default 1 for increasing, -1 for decreasing)</li>
+      <li><span class="parameter">start</span>
+        number</li>
+      <li><span class="parameter">finish</span>
+       number</li>
+      <li><span class="parameter">step</span>
+       optional increment (default 1 for increasing, -1 for decreasing)</li>
     </ul>
 
 
@@ -657,14 +710,18 @@
     <strong>map2&nbsp;(fun, t1, t2, ...)</strong>
     </dt>
     <dd>
-    apply a function to values from two tables. 
+    apply a function to values from two tables.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>fun</em></code>:  a function of at least two arguments</li>
-       <li><code><em>t1</em></code>:  a table</li>
-       <li><code><em>t2</em></code>:  a table</li>
-       <li><code><em>...</em></code>:  extra arguments</li>
+      <li><span class="parameter">fun</span>
+       a function of at least two arguments</li>
+      <li><span class="parameter">t1</span>
+       a table</li>
+      <li><span class="parameter">t2</span>
+       a table</li>
+      <li><span class="parameter">...</span>
+       extra arguments</li>
     </ul>
 
     <h3>Usage:</h3>
@@ -674,6 +731,7 @@
 
     <h3>Returns:</h3>
     <ol>
+
         a table
     </ol>
 
@@ -684,14 +742,19 @@
     <strong>imap2&nbsp;(fun, t1, t2, ...)</strong>
     </dt>
     <dd>
-    apply a function to values from two arrays. 
+    apply a function to values from two arrays.
+ The result will be the length of the shortest array.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>fun</em></code>:  a function of at least two arguments</li>
-       <li><code><em>t1</em></code>:  a list-like table</li>
-       <li><code><em>t2</em></code>:  a list-like table</li>
-       <li><code><em>...</em></code>:  extra arguments</li>
+      <li><span class="parameter">fun</span>
+       a function of at least two arguments</li>
+      <li><span class="parameter">t1</span>
+       a list-like table</li>
+      <li><span class="parameter">t2</span>
+       a list-like table</li>
+      <li><span class="parameter">...</span>
+       extra arguments</li>
     </ul>
 
     <h3>Usage:</h3>
@@ -707,12 +770,14 @@
     <strong>reduce&nbsp;(fun, t)</strong>
     </dt>
     <dd>
-    &lsquo;reduce&rsquo; a list using a binary function. 
+    &lsquo;reduce&rsquo; a list using a binary function.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>fun</em></code>:  a function of two arguments</li>
-       <li><code><em>t</em></code>:  a list-like table</li>
+      <li><span class="parameter">fun</span>
+       a function of two arguments</li>
+      <li><span class="parameter">t</span>
+       a list-like table</li>
     </ul>
 
     <h3>Usage:</h3>
@@ -722,6 +787,7 @@
 
     <h3>Returns:</h3>
     <ol>
+
         the result of the function
     </ol>
 
@@ -732,16 +798,19 @@
     <strong>foreach&nbsp;(t, fun, ...)</strong>
     </dt>
     <dd>
-    apply a function to all elements of a table. 
+    apply a function to all elements of a table.
  The arguments to the function will be the value,
  the key and <i>finally</i> any extra arguments passed to this function.
  Note that the Lua 5.0 function table.foreach passed the <i>key</i> first.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>t</em></code>:  a table</li>
-       <li><code><em>fun</em></code>:  a function with at least one argument</li>
-       <li><code><em>...</em></code>:  extra arguments</li>
+      <li><span class="parameter">t</span>
+       a table</li>
+      <li><span class="parameter">fun</span>
+       a function with at least one argument</li>
+      <li><span class="parameter">...</span>
+       extra arguments</li>
     </ul>
 
 
@@ -753,15 +822,18 @@
     <strong>foreachi&nbsp;(t, fun, ...)</strong>
     </dt>
     <dd>
-    apply a function to all elements of a list-like table in order. 
+    apply a function to all elements of a list-like table in order.
  The arguments to the function will be the value,
  the index and <i>finally</i> any extra arguments passed to this function
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>t</em></code>:  a table</li>
-       <li><code><em>fun</em></code>:  a function with at least one argument</li>
-       <li><code><em>...</em></code>:  optional arguments</li>
+      <li><span class="parameter">t</span>
+       a table</li>
+      <li><span class="parameter">fun</span>
+       a function with at least one argument</li>
+      <li><span class="parameter">...</span>
+       optional arguments</li>
     </ul>
 
 
@@ -773,16 +845,19 @@
     <strong>mapn&nbsp;(fun, ..., fun)</strong>
     </dt>
     <dd>
-    Apply a function to a number of tables. 
+    Apply a function to a number of tables.
  A more general version of map
  The result is a table containing the result of applying that function to the
  ith value of each table. Length of output list is the minimum length of all the lists
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>fun</em></code>:  A function that takes as many arguments as there are tables</li>
-       <li><code><em>...</em></code>:  n tables</li>
-       <li><code><em>fun</em></code>:  A function that takes as many arguments as there are tables</li>
+      <li><span class="parameter">fun</span>
+       A function that takes as many arguments as there are tables</li>
+      <li><span class="parameter">...</span>
+       n tables</li>
+      <li><span class="parameter">fun</span>
+       A function that takes as many arguments as there are tables</li>
     </ul>
 
     <h3>Usage:</h3>
@@ -799,22 +874,25 @@
     <strong>pairmap&nbsp;(fun, t, ...)</strong>
     </dt>
     <dd>
-    call the function with the key and value pairs from a table. 
+    call the function with the key and value pairs from a table.
  The function can return a value and a key (note the order!). If both
  are not nil, then this pair is inserted into the result. If only value is not nil, then
  it is appended to the result.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>fun</em></code>:  A function which will be passed each key and value as arguments, plus any extra arguments to pairmap.</li>
-       <li><code><em>t</em></code>:  A table</li>
-       <li><code><em>...</em></code>:  optional arguments</li>
+      <li><span class="parameter">fun</span>
+       A function which will be passed each key and value as arguments, plus any extra arguments to pairmap.</li>
+      <li><span class="parameter">t</span>
+       A table</li>
+      <li><span class="parameter">...</span>
+       optional arguments</li>
     </ul>
 
     <h3>Usage:</h3>
     <ul>
-        <li><pre class="example">pairmap({fred=10,bonzo=20},function(k,v) return v end) is {10,20}</pre></li>
-        <li><pre class="example">pairmap({one=1,two=2},function(k,v) return {k,v},k end) is {one={'one',1},two={'two',2}}</pre></li>
+        <li><pre class="example">pairmap(function(k,v) return v end,{fred=10,bonzo=20}) is {10,20} _or_ {20,10}</pre></li>
+        <li><pre class="example">pairmap(function(k,v) return {k,v},k end,{one=1,two=2}) is {one={'one',1},two={'two',2}}</pre></li>
     </ul>
 
 
@@ -825,11 +903,12 @@
     <strong>keys&nbsp;(t)</strong>
     </dt>
     <dd>
-    return all the keys of a table in arbitrary order. 
+    return all the keys of a table in arbitrary order.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>t</em></code>:  A table</li>
+      <li><span class="parameter">t</span>
+       A table</li>
     </ul>
 
 
@@ -841,11 +920,12 @@
     <strong>values&nbsp;(t)</strong>
     </dt>
     <dd>
-    return all the values of the table in arbitrary order 
+    return all the values of the table in arbitrary order
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>t</em></code>:  A table</li>
+      <li><span class="parameter">t</span>
+       A table</li>
     </ul>
 
 
@@ -862,12 +942,14 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>t</em></code>:  a list-like table</li>
+      <li><span class="parameter">t</span>
+       a list-like table</li>
     </ul>
 
 
     <h3>Returns:</h3>
     <ol>
+
         a map-like table
     </ol>
 
@@ -883,12 +965,14 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>t</em></code>:  a list-like table</li>
+      <li><span class="parameter">t</span>
+       a list-like table</li>
     </ul>
 
 
     <h3>Returns:</h3>
     <ol>
+
         a set (a map-like table)
     </ol>
 
@@ -905,9 +989,12 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>t1</em></code>:  a table</li>
-       <li><code><em>t2</em></code>:  a table</li>
-       <li><code><em>dup</em></code>:  true for a union, false for an intersection.</li>
+      <li><span class="parameter">t1</span>
+       a table</li>
+      <li><span class="parameter">t2</span>
+       a table</li>
+      <li><span class="parameter">dup</span>
+       true for a union, false for an intersection.</li>
     </ul>
 
     <h3>Usage:</h3>
@@ -928,20 +1015,24 @@
     <strong>difference&nbsp;(s1, s2, symm)</strong>
     </dt>
     <dd>
-    a new table which is the difference of two tables. 
+    a new table which is the difference of two tables.
  With sets (where the values are all true) this is set difference and
  symmetric difference depending on the third parameter.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>s1</em></code>:  a map-like table or set</li>
-       <li><code><em>s2</em></code>:  a map-like table or set</li>
-       <li><code><em>symm</em></code>:  symmetric difference (default false)</li>
+      <li><span class="parameter">s1</span>
+       a map-like table or set</li>
+      <li><span class="parameter">s2</span>
+       a map-like table or set</li>
+      <li><span class="parameter">symm</span>
+       symmetric difference (default false)</li>
     </ul>
 
 
     <h3>Returns:</h3>
     <ol>
+
         a map-like table or set
     </ol>
 
@@ -952,17 +1043,20 @@
     <strong>count_map&nbsp;(t, cmp)</strong>
     </dt>
     <dd>
-    A table where the key/values are the values and value counts of the table. 
+    A table where the key/values are the values and value counts of the table.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>t</em></code>:  a list-like table</li>
-       <li><code><em>cmp</em></code>:  a function that defines equality (otherwise uses ==)</li>
+      <li><span class="parameter">t</span>
+       a list-like table</li>
+      <li><span class="parameter">cmp</span>
+       a function that defines equality (otherwise uses ==)</li>
     </ul>
 
 
     <h3>Returns:</h3>
     <ol>
+
         a map-like table
     </ol>
 
@@ -977,13 +1071,16 @@
     <strong>filter&nbsp;(t, pred, arg)</strong>
     </dt>
     <dd>
-    filter a table&rsquo;s values using a predicate function 
+    filter a table&rsquo;s values using a predicate function
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>t</em></code>:  a list-like table</li>
-       <li><code><em>pred</em></code>:  a boolean function</li>
-       <li><code><em>arg</em></code>:  optional argument to be passed as second argument of the predicate</li>
+      <li><span class="parameter">t</span>
+       a list-like table</li>
+      <li><span class="parameter">pred</span>
+       a boolean function</li>
+      <li><span class="parameter">arg</span>
+       optional argument to be passed as second argument of the predicate</li>
     </ul>
 
 
@@ -992,12 +1089,18 @@
 </dd>
     <dt>
     <a name = "zip"></a>
-    <strong>zip&nbsp;()</strong>
+    <strong>zip&nbsp;(...)</strong>
     </dt>
     <dd>
     return a table where each element is a table of the ith values of an arbitrary
  number of tables.  It is equivalent to a matrix transpose.
 
+    <h3>Parameters:</h3>
+    <ul>
+      <li><span class="parameter">...</span>
+
+</li>
+    </ul>
 
     <h3>Usage:</h3>
     <ul>
@@ -1016,11 +1119,16 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>dest</em></code>:  a list-like table</li>
-       <li><code><em>src</em></code>:  a list-like table</li>
-       <li><code><em>idest</em></code>:  where to start copying values from source (default 1)</li>
-       <li><code><em>isrc</em></code>:  where to start copying values into destination (default 1)</li>
-       <li><code><em>nsrc</em></code>:  number of elements to copy from source (default source size)</li>
+      <li><span class="parameter">dest</span>
+       a list-like table</li>
+      <li><span class="parameter">src</span>
+       a list-like table</li>
+      <li><span class="parameter">idest</span>
+       where to start copying values from source (default 1)</li>
+      <li><span class="parameter">isrc</span>
+       where to start copying values into destination (default 1)</li>
+      <li><span class="parameter">nsrc</span>
+       number of elements to copy from source (default source size)</li>
     </ul>
 
 
@@ -1036,11 +1144,16 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>dest</em></code>:  a list-like table</li>
-       <li><code><em>src</em></code>:  a list-like table</li>
-       <li><code><em>idest</em></code>:  where to start copying values from source (default 1)</li>
-       <li><code><em>isrc</em></code>:  where to start copying values into destination (default 1)</li>
-       <li><code><em>nsrc</em></code>:  number of elements to copy from source (default source size)</li>
+      <li><span class="parameter">dest</span>
+       a list-like table</li>
+      <li><span class="parameter">src</span>
+       a list-like table</li>
+      <li><span class="parameter">idest</span>
+       where to start copying values from source (default 1)</li>
+      <li><span class="parameter">isrc</span>
+       where to start copying values into destination (default 1)</li>
+      <li><span class="parameter">nsrc</span>
+       number of elements to copy from source (default source size)</li>
     </ul>
 
 
@@ -1052,21 +1165,25 @@
     <strong>sub&nbsp;(t, first, last)</strong>
     </dt>
     <dd>
-    Extract a range from a table, like  &lsquo;string.sub&rsquo;. 
+    Extract a range from a table, like  &lsquo;string.sub&rsquo;.
  If first or last are negative then they are relative to the end of the list
  eg. sub(t,-2) gives last 2 entries in a list, and
  sub(t,-4,-2) gives from -4th to -2nd
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>t</em></code>:  a list-like table</li>
-       <li><code><em>first</em></code>:  An index</li>
-       <li><code><em>last</em></code>:  An index</li>
+      <li><span class="parameter">t</span>
+       a list-like table</li>
+      <li><span class="parameter">first</span>
+       An index</li>
+      <li><span class="parameter">last</span>
+       An index</li>
     </ul>
 
 
     <h3>Returns:</h3>
     <ol>
+
         a new List
     </ol>
 
@@ -1082,10 +1199,14 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>t</em></code>:  a list-like table</li>
-       <li><code><em>val</em></code>:  a value</li>
-       <li><code><em>i1</em></code>:  start range (default 1)</li>
-       <li><code><em>i2</em></code>:  end range (default table size)</li>
+      <li><span class="parameter">t</span>
+       a list-like table</li>
+      <li><span class="parameter">val</span>
+       a value</li>
+      <li><span class="parameter">i1</span>
+       start range (default 1)</li>
+      <li><span class="parameter">i2</span>
+       end range (default table size)</li>
     </ul>
 
 
@@ -1097,17 +1218,20 @@
     <strong>new&nbsp;(n, val)</strong>
     </dt>
     <dd>
-    create a new array of specified size with initial value. 
+    create a new array of specified size with initial value.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>n</em></code>:  size</li>
-       <li><code><em>val</em></code>:  initial value (can be nil, but don&rsquo;t expect # to work!)</li>
+      <li><span class="parameter">n</span>
+       size</li>
+      <li><span class="parameter">val</span>
+       initial value (can be nil, but don&rsquo;t expect # to work!)</li>
     </ul>
 
 
     <h3>Returns:</h3>
     <ol>
+
         the table
     </ol>
 
@@ -1118,12 +1242,14 @@
     <strong>clear&nbsp;(t, istart)</strong>
     </dt>
     <dd>
-    clear out the contents of a table. 
+    clear out the contents of a table.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>t</em></code>:  a table</li>
-       <li><code><em>istart</em></code>:  optional start position</li>
+      <li><span class="parameter">t</span>
+       a table</li>
+      <li><span class="parameter">istart</span>
+       optional start position</li>
     </ul>
 
 
@@ -1142,9 +1268,11 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>t</em></code>: 
+      <li><span class="parameter">t</span>
+
 </li>
-       <li><code><em>...</em></code>: 
+      <li><span class="parameter">...</span>
+
 </li>
     </ul>
 
@@ -1157,18 +1285,22 @@
     <strong>removevalues&nbsp;(t, i1, i2)</strong>
     </dt>
     <dd>
-    remove a range of values from a table. 
+    remove a range of values from a table.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>t</em></code>:  a list-like table</li>
-       <li><code><em>i1</em></code>:  start index</li>
-       <li><code><em>i2</em></code>:  end index</li>
+      <li><span class="parameter">t</span>
+       a list-like table</li>
+      <li><span class="parameter">i1</span>
+       start index</li>
+      <li><span class="parameter">i2</span>
+       end index</li>
     </ul>
 
 
     <h3>Returns:</h3>
     <ol>
+
         the table
     </ol>
 
@@ -1179,13 +1311,16 @@
     <strong>search&nbsp;(t, value, exclude)</strong>
     </dt>
     <dd>
-    find a value in a table by recursive search. 
+    find a value in a table by recursive search.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>t</em></code>:  the table</li>
-       <li><code><em>value</em></code>:  the value</li>
-       <li><code><em>exclude</em></code>:  any tables to avoid searching</li>
+      <li><span class="parameter">t</span>
+       the table</li>
+      <li><span class="parameter">value</span>
+       the value</li>
+      <li><span class="parameter">exclude</span>
+       any tables to avoid searching</li>
     </ul>
 
     <h3>Usage:</h3>
@@ -1195,6 +1330,7 @@
 
     <h3>Returns:</h3>
     <ol>
+
         a fieldspec, e.g. &lsquo;a.b&rsquo; or &lsquo;math.sin&rsquo;
     </ol>
 

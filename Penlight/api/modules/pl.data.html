@@ -38,6 +38,7 @@
 
 <h2>Modules</h2>
 <ul>
+  <li><a href="../modules/config.html">config</a></li>
   <li><a href="../modules/pl.html">pl</a></li>
   <li><a href="../modules/pl.Date.html">pl.Date</a></li>
   <li><a href="../modules/pl.List.html">pl.List</a></li>
@@ -49,7 +50,6 @@
   <li><a href="../modules/pl.array2d.html">pl.array2d</a></li>
   <li><a href="../modules/pl.class.html">pl.class</a></li>
   <li><a href="../modules/pl.comprehension.html">pl.comprehension</a></li>
-  <li><a href="../modules/pl.config.html">pl.config</a></li>
   <li><strong>pl.data</strong></li>
   <li><a href="../modules/pl.dir.html">pl.dir</a></li>
   <li><a href="../modules/pl.file.html">pl.file</a></li>
@@ -189,18 +189,19 @@ end
 
 
     <h2><a name="Functions"></a>Functions</h2>
-    
+
     <dl class="function">
     <dt>
     <a name = "Data.column_by_name"></a>
     <strong>Data.column_by_name&nbsp;(name)</strong>
     </dt>
     <dd>
-    return a particular column as a list of values (method). 
+    return a particular column as a list of values (method).
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>name</em></code>:  either name of column, or numerical index.</li>
+      <li><span class="parameter">name</span>
+       either name of column, or numerical index.</li>
     </ul>
 
 
@@ -212,11 +213,12 @@ end
     <strong>Data.select&nbsp;(condn)</strong>
     </dt>
     <dd>
-    return a query iterator on this data (method). 
+    return a query iterator on this data (method).
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>condn</em></code>:  the query expression</li>
+      <li><span class="parameter">condn</span>
+       the query expression</li>
     </ul>
 
 
@@ -232,11 +234,12 @@ end
     <strong>Data.select_row&nbsp;(condn)</strong>
     </dt>
     <dd>
-    return a row iterator on this data (method). 
+    return a row iterator on this data (method).
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>condn</em></code>:  the query expression</li>
+      <li><span class="parameter">condn</span>
+       the query expression</li>
     </ul>
 
 
@@ -248,11 +251,12 @@ end
     <strong>Data.copy_select&nbsp;(condn)</strong>
     </dt>
     <dd>
-    return a new data object based on this query (method). 
+    return a new data object based on this query (method).
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>condn</em></code>:  the query expression</li>
+      <li><span class="parameter">condn</span>
+       the query expression</li>
     </ul>
 
 
@@ -264,7 +268,7 @@ end
     <strong>Data.column_names&nbsp;()</strong>
     </dt>
     <dd>
-    return the field names of this data object (method). 
+    return the field names of this data object (method).
 
 
 
@@ -276,11 +280,12 @@ end
     <strong>Data.write_row&nbsp;(f)</strong>
     </dt>
     <dd>
-    write out a row (method). 
+    write out a row (method).
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>f</em></code>:  file-like object</li>
+      <li><span class="parameter">f</span>
+       file-like object</li>
     </ul>
 
 
@@ -292,11 +297,12 @@ end
     <strong>Data.write&nbsp;(f)</strong>
     </dt>
     <dd>
-    write data out to file (method). 
+    write data out to file (method).
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>f</em></code>:  file-like object</li>
+      <li><span class="parameter">f</span>
+       file-like object</li>
     </ul>
 
 
@@ -308,18 +314,29 @@ end
     <strong>read&nbsp;(file, cnfg)</strong>
     </dt>
     <dd>
-    read a delimited file in a Lua table. 
+    read a delimited file in a Lua table.
  By default, attempts to treat first line as separated list of fieldnames.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>file</em></code>:  a filename or a file-like object (default stdin)</li>
-       <li><code><em>cnfg</em></code>:  options table: can override delim (a string pattern), fieldnames (a list),
- specify no_convert (default is to convert), numfields (indices of columns known
- to be numbers) and thousands_dot (thousands separator in Excel CSV is &lsquo;.&rsquo;)</li>
+      <li><span class="parameter">file</span>
+       a filename or a file-like object (default stdin)</li>
+      <li><span class="parameter">cnfg</span>
+       options table: can override <code>delim</code> (a string pattern), <code>fieldnames</code> (a list),
+ specify <code>no_convert</code> (default is to conversion), <code>numfields</code> (indices of columns known
+ to be numbers) and <code>thousands_dot</code> (thousands separator in Excel CSV is &lsquo;.&rsquo;).
+ If <code>csv</code> is set then fields may be double-quoted and contain commas;</li>
     </ul>
 
 
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+        <a href="../modules/pl.data.html#pl.data">data</a>  object, or <code>nil</code></li>
+        <li>
+        error message. May be a file error, &lsquo;not a file-like object&rsquo;
+ or a conversion error</li>
+    </ol>
 
 
 </dd>
@@ -328,16 +345,20 @@ end
     <strong>write&nbsp;(data, file, fieldnames, delim)</strong>
     </dt>
     <dd>
-    write 2D data to a file. 
+    write 2D data to a file.
  Does not assume that the data has actually been
  generated with <a href="../modules/pl.data.html#new">new</a>  or <a href="../modules/pl.data.html#read">read</a> .
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>data</em></code>:  2D array</li>
-       <li><code><em>file</em></code>:  filename or file-like object</li>
-       <li><code><em>fieldnames</em></code>:  list of fields (optional)</li>
-       <li><code><em>delim</em></code>:  delimiter (default tab)</li>
+      <li><span class="parameter">data</span>
+       2D array</li>
+      <li><span class="parameter">file</span>
+       filename or file-like object</li>
+      <li><span class="parameter">fieldnames</span>
+       list of fields (optional)</li>
+      <li><span class="parameter">delim</span>
+       delimiter (default tab)</li>
     </ul>
 
 
@@ -349,7 +370,7 @@ end
     <strong>new&nbsp;(d, fieldnames)</strong>
     </dt>
     <dd>
-    create a new dataset from a table of rows.  <br>
+    create a new dataset from a table of rows.
  Can specify the fieldnames, else the table must have a field called
  &lsquo;fieldnames&rsquo;, which is either a string of delimiter-separated names,
  or a table of names. <br>
@@ -358,13 +379,16 @@ end
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>d</em></code>:  the table.</li>
-       <li><code><em>fieldnames</em></code>:  optional fieldnames</li>
+      <li><span class="parameter">d</span>
+       the table.</li>
+      <li><span class="parameter">fieldnames</span>
+       optional fieldnames</li>
     </ul>
 
 
     <h3>Returns:</h3>
     <ol>
+
         the table.
     </ol>
 
@@ -375,7 +399,7 @@ end
     <strong>query&nbsp;(data, condn, context, return_row)</strong>
     </dt>
     <dd>
-    create a query iterator from a select string. 
+    create a query iterator from a select string.
  Select string has this format: <br>
  FIELDLIST [ where LUA-CONDN [ sort by FIELD] ]<br>
  FIELDLIST is a comma-separated list of valid fields, or &lsquo;*&rsquo;. <br> <br>
@@ -384,17 +408,23 @@ end
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>data</em></code>:  table produced by read</li>
-       <li><code><em>condn</em></code>:  select string or table</li>
-       <li><code><em>context</em></code>:  a list of tables to be searched when resolving functions</li>
-       <li><code><em>return_row</em></code>:  if true, wrap the results in a row table</li>
+      <li><span class="parameter">data</span>
+       table produced by read</li>
+      <li><span class="parameter">condn</span>
+       select string or table</li>
+      <li><span class="parameter">context</span>
+       a list of tables to be searched when resolving functions</li>
+      <li><span class="parameter">return_row</span>
+       if true, wrap the results in a row table</li>
     </ul>
 
 
     <h3>Returns:</h3>
     <ol>
-        <li>an iterator over the specified fields, or nil</li>
-        <li>an error message</li>
+        <li>
+        an iterator over the specified fields, or nil</li>
+        <li>
+        an error message</li>
     </ol>
 
 
@@ -404,14 +434,18 @@ end
     <strong>filter&nbsp;(Q, infile, outfile, dont_fail)</strong>
     </dt>
     <dd>
-    Filter input using a query. 
+    Filter input using a query.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>Q</em></code>:  a query string</li>
-       <li><code><em>infile</em></code>:  filename or file-like object</li>
-       <li><code><em>outfile</em></code>:  filename or file-like object</li>
-       <li><code><em>dont_fail</em></code>:  true if you want to return an error, not just fail</li>
+      <li><span class="parameter">Q</span>
+       a query string</li>
+      <li><span class="parameter">infile</span>
+       filename or file-like object</li>
+      <li><span class="parameter">outfile</span>
+       filename or file-like object</li>
+      <li><span class="parameter">dont_fail</span>
+       true if you want to return an error, not just fail</li>
     </ul>
 
 

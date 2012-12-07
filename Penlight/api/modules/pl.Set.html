@@ -38,6 +38,7 @@
 
 <h2>Modules</h2>
 <ul>
+  <li><a href="../modules/config.html">config</a></li>
   <li><a href="../modules/pl.html">pl</a></li>
   <li><a href="../modules/pl.Date.html">pl.Date</a></li>
   <li><a href="../modules/pl.List.html">pl.List</a></li>
@@ -49,7 +50,6 @@
   <li><a href="../modules/pl.array2d.html">pl.array2d</a></li>
   <li><a href="../modules/pl.class.html">pl.class</a></li>
   <li><a href="../modules/pl.comprehension.html">pl.comprehension</a></li>
-  <li><a href="../modules/pl.config.html">pl.config</a></li>
   <li><a href="../modules/pl.data.html">pl.data</a></li>
   <li><a href="../modules/pl.dir.html">pl.dir</a></li>
   <li><a href="../modules/pl.file.html">pl.file</a></li>
@@ -130,7 +130,7 @@
  [orange]
 </code></pre>
 
-<p> Depdencies: <a href="../modules/pl.utils.html#">pl.utils</a> , <a href="../modules/pl.tablex.html#">pl.tablex</a> , <a href="../modules/pl.class.html#">pl.class</a> </p>
+<p> Depdencies: <a href="../modules/pl.utils.html#">pl.utils</a> , <a href="../modules/pl.tablex.html#">pl.tablex</a> , <a href="../modules/pl.class.html#">pl.class</a> , (<a href="../modules/pl.List.html#">pl.List</a>  if __tostring is used)</p>
 </p>
 
 <h2><a href="#Functions">Functions</a></h2>
@@ -171,6 +171,10 @@
 	<td class="name" nowrap><a href="#isdisjoint">isdisjoint&nbsp;(s1, s2)</a></td>
 	<td class="summary">are the sets disjoint?</td>
 	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#len">len&nbsp;(s)</a></td>
+	<td class="summary">size of this set (also # for 5.2).</td>
+	</tr>
 </table>
 
 <br/>
@@ -178,7 +182,7 @@
 
 
     <h2><a name="Functions"></a>Functions</h2>
-    
+
     <dl class="function">
     <dt>
     <a name = "Set"></a>
@@ -189,7 +193,8 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>t</em></code>:  may be a Set, Map or list-like table.</li>
+      <li><span class="parameter">t</span>
+       may be a Set, Map or list-like table.</li>
     </ul>
 
 
@@ -201,11 +206,12 @@
     <strong>values&nbsp;(self)</strong>
     </dt>
     <dd>
-    get a list of the values in a set. 
+    get a list of the values in a set.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>self</em></code>:  a Set</li>
+      <li><span class="parameter">self</span>
+       a Set</li>
     </ul>
 
 
@@ -217,18 +223,22 @@
     <strong>map&nbsp;(self, fn, ...)</strong>
     </dt>
     <dd>
-    map a function over the values of a set. 
+    map a function over the values of a set.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>self</em></code>:  a Set</li>
-       <li><code><em>fn</em></code>:  a function</li>
-       <li><code><em>...</em></code>:  extra arguments to pass to the function.</li>
+      <li><span class="parameter">self</span>
+       a Set</li>
+      <li><span class="parameter">fn</span>
+       a function</li>
+      <li><span class="parameter">...</span>
+       extra arguments to pass to the function.</li>
     </ul>
 
 
     <h3>Returns:</h3>
     <ol>
+
         a new set
     </ol>
 
@@ -239,17 +249,20 @@
     <strong>union&nbsp;(self, set)</strong>
     </dt>
     <dd>
-    union of two sets (also +). 
+    union of two sets (also +).
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>self</em></code>:  a Set</li>
-       <li><code><em>set</em></code>:  another set</li>
+      <li><span class="parameter">self</span>
+       a Set</li>
+      <li><span class="parameter">set</span>
+       another set</li>
     </ul>
 
 
     <h3>Returns:</h3>
     <ol>
+
         a new set
     </ol>
 
@@ -260,17 +273,20 @@
     <strong>intersection&nbsp;(self, set)</strong>
     </dt>
     <dd>
-    intersection of two sets (also *). 
+    intersection of two sets (also *).
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>self</em></code>:  a Set</li>
-       <li><code><em>set</em></code>:  another set</li>
+      <li><span class="parameter">self</span>
+       a Set</li>
+      <li><span class="parameter">set</span>
+       another set</li>
     </ul>
 
 
     <h3>Returns:</h3>
     <ol>
+
         a new set
     </ol>
 
@@ -281,17 +297,20 @@
     <strong>difference&nbsp;(self, set)</strong>
     </dt>
     <dd>
-    new set with elements in the set that are not in the other (also &ndash;). 
+    new set with elements in the set that are not in the other (also &ndash;).
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>self</em></code>:  a Set</li>
-       <li><code><em>set</em></code>:  another set</li>
+      <li><span class="parameter">self</span>
+       a Set</li>
+      <li><span class="parameter">set</span>
+       another set</li>
     </ul>
 
 
     <h3>Returns:</h3>
     <ol>
+
         a new set
     </ol>
 
@@ -302,17 +321,20 @@
     <strong>issubset&nbsp;(self, set)</strong>
     </dt>
     <dd>
-    is the first set a subset of the second (also &lt;)?. 
+    is the first set a subset of the second (also &lt;)?.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>self</em></code>:  a Set</li>
-       <li><code><em>set</em></code>:  another set</li>
+      <li><span class="parameter">self</span>
+       a Set</li>
+      <li><span class="parameter">set</span>
+       another set</li>
     </ul>
 
 
     <h3>Returns:</h3>
     <ol>
+
         true or false
     </ol>
 
@@ -323,16 +345,18 @@
     <strong>issempty&nbsp;(self)</strong>
     </dt>
     <dd>
-    is the set empty?. 
+    is the set empty?.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>self</em></code>:  a Set</li>
+      <li><span class="parameter">self</span>
+       a Set</li>
     </ul>
 
 
     <h3>Returns:</h3>
     <ol>
+
         true or false
     </ol>
 
@@ -348,14 +372,39 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>s1</em></code>:  a Set</li>
-       <li><code><em>s2</em></code>:  another set</li>
+      <li><span class="parameter">s1</span>
+       a Set</li>
+      <li><span class="parameter">s2</span>
+       another set</li>
     </ul>
 
 
     <h3>Returns:</h3>
     <ol>
+
         true or false
+    </ol>
+
+
+</dd>
+    <dt>
+    <a name = "len"></a>
+    <strong>len&nbsp;(s)</strong>
+    </dt>
+    <dd>
+    size of this set (also # for 5.2).
+
+    <h3>Parameters:</h3>
+    <ul>
+      <li><span class="parameter">s</span>
+       a Set</li>
+    </ul>
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        size
     </ol>
 
 

@@ -55,6 +55,7 @@
 </ul>
 <h2>Modules</h2>
 <ul>
+  <li><a href="../modules/config.html">config</a></li>
   <li><a href="../modules/pl.html">pl</a></li>
   <li><a href="../modules/pl.Date.html">pl.Date</a></li>
   <li><a href="../modules/pl.List.html">pl.List</a></li>
@@ -66,7 +67,6 @@
   <li><a href="../modules/pl.array2d.html">pl.array2d</a></li>
   <li><a href="../modules/pl.class.html">pl.class</a></li>
   <li><a href="../modules/pl.comprehension.html">pl.comprehension</a></li>
-  <li><a href="../modules/pl.config.html">pl.config</a></li>
   <li><a href="../modules/pl.data.html">pl.data</a></li>
   <li><a href="../modules/pl.dir.html">pl.dir</a></li>
   <li><a href="../modules/pl.file.html">pl.file</a></li>
@@ -485,7 +485,7 @@
 
 <h3>Reading Configuration Files</h3>
 
-<p>The <a href="../modules/pl.config.html#">config</a>  module provides a simple way to convert several kinds of configuration files into a Lua table. Consider the simple example:</p>
+<p>The <a href="../modules/config.html#">config</a>  module provides a simple way to convert several kinds of configuration files into a Lua table. Consider the simple example:</p>
 
 <pre>
  # test.config
@@ -500,7 +500,7 @@
 </pre>
 
 
-<p>This can be easily brought in using <a href="../modules/pl.config.html#read">config.read</a>  and the result shown using <a href="../modules/pl.pretty.html#write">pretty.write</a> :</p>
+<p>This can be easily brought in using <a href="../modules/config.html#read">config.read</a>  and the result shown using <a href="../modules/pl.pretty.html#write">pretty.write</a> :</p>
 
 <pre>
  <span class="comment">-- readconfig.lua
@@ -527,7 +527,7 @@
 </pre>
 
 
-<p>That is, <a href="../modules/pl.config.html#read">config.read</a>  will bring in all key/value pairs, ignore # comments, and ensure that the key names are proper Lua identifiers by replacing non-identifier characters with &lsquo;_&rsquo;. If the values are numbers, then they will be converted. (So the value of <code>t.write_timeout</code> is the number 5). In addition, any values which are separated by commas will be converted likewise into an array.</p>
+<p>That is, <a href="../modules/config.html#read">config.read</a>  will bring in all key/value pairs, ignore # comments, and ensure that the key names are proper Lua identifiers by replacing non-identifier characters with &lsquo;_&rsquo;. If the values are numbers, then they will be converted. (So the value of <code>t.write_timeout</code> is the number 5). In addition, any values which are separated by commas will be converted likewise into an array.</p>
 
 <p>Any line can be continued with a backslash. So this will all be considered one line:</p>
 
@@ -571,7 +571,7 @@
 
 <p>You can now refer to the write timeout as <code>t.timeouts.write</code>.</p>
 
-<p>As a final example of the flexibility of <a href="../modules/pl.config.html#read">config.read</a> , if passed this simple comma-delimited file</p>
+<p>As a final example of the flexibility of <a href="../modules/config.html#read">config.read</a> , if passed this simple comma-delimited file</p>
 
 <pre>
  one,two,three
@@ -593,21 +593,26 @@
 </pre>
 
 
-<p><a href="../modules/pl.config.html#read">config.read</a>  isn&rsquo;t designed to read all CSV files in general, but intended to support some Unix configuration files not structured as key-value pairs, such as &lsquo;/etc/passwd&rsquo;.</p>
+<p><a href="../modules/config.html#read">config.read</a>  isn&rsquo;t designed to read all CSV files in general, but intended to support some Unix configuration files not structured as key-value pairs, such as &lsquo;/etc/passwd&rsquo;.</p>
 
 <p>This function is intended to be a Swiss Army Knife of configuration readers, but it does have to make assumptions, and you may not like them. So there is an optional extra parameter which allows some control, which is table that may have the following fields:</p>
 
 <pre>
  {
     variablilize = <span class="keyword">true</span>,
-    convert_numbers = <span class="keyword">true</span>,
+    convert_numbers = <span class="global">tonumber</span>,
     trim_space = <span class="keyword">true</span>,
-    list_delim = <span class="string">','</span>
+    list_delim = <span class="string">','</span>,
+    trim_quotes = <span class="keyword">true</span>,
+    ignore_assign = <span class="keyword">false</span>,
+    keysep = <span class="string">'='</span>
  }
 </pre>
 
 
-<p><code>variablilize</code> is the option that converted <code>write.timeout</code> in the first example to the valid Lua identifier <code>write_timeout</code>.  If <code>convert_numbers</code> is true, then an attempt is made to convert any string that starts like a number. <code>trim_space</code> ensures that there is no starting or trailing whitespace with values, and <code>list_delim</code> is the character that will be used to decide whether to split a value up into a list (it may be a Lua string pattern such as &lsquo;%s+&rsquo;.)</p>
+<p><code>variablilize</code> is the option that converted <code>write.timeout</code> in the first example to the valid Lua identifier <code>write_timeout</code>.  If <code>convert_numbers</code> is true, then an attempt is made to convert any string that starts like a number. You can specify your own function (say one that will convert a string like &lsquo;5224 kb&rsquo; into a number.)</p>
+
+<p><code>trim_space</code> ensures that there is no starting or trailing whitespace with values, and <code>list_delim</code> is the character that will be used to decide whether to split a value up into a list (it may be a Lua string pattern such as &lsquo;%s+&rsquo;.)</p>
 
 <p>For instance, the password file in Unix is colon-delimited:</p>
 
@@ -667,6 +672,21 @@
  }
 </pre>
 
+
+<p>Many common Unix configuration files can be read by tweaking these parameters. For <code>/etc/fstab</code>, the options <code>{list_delim='%s+',ignore_assign=true}</code> will correctly separate the columns.  It&rsquo;s common to find &lsquo;KEY VALUE&rsquo; assignments in files such as <code>/etc/ssh/ssh_config</code>; the options <code>{keysep=' '}</code> make <a href="../modules/config.html#read">config.read</a>  return a table where each KEY has a value VALUE.</p>
+
+<p>Files in the Linux <code>procfs</code> usually use &lsquo;:<code>as the field delimiter:</code></p>
+
+<pre>
+ &gt; t = config.read(<span class="string">'/proc/meminfo'</span>,{keysep=<span class="string">':'</span>})
+ &gt; = t.MemFree
+ <span class="number">220140</span> kB
+</pre>
+
+
+<p>That result is a string, since <a href="http://www.lua.org/manual/5.1/manual.html#pdf-tonumber">tonumber</a>  doesn&rsquo;t like it, but defining the <code>convert_numbers</code> option as <code>function(s) return tonumber((s:gsub(' kB$',''))) end</code> will get the memory figures as actual numbers in the result. (The extra parentheses are necessary so that <a href="http://www.lua.org/manual/5.1/manual.html#pdf-tonumber">tonumber</a>  only gets the first result from <code>gsub</code>)</p>
+
+<p>Please note that <a href="../modules/config.html#read">config.read</a>  can be passed a <em>file-like object</em>; if it&rsquo;s not a string and supports the <a href="../modules/pl.data.html#read">read</a>  method, then that will be used. For instance, to read a configuration from a string, use <a href="../modules/pl.stringio.html#open">stringio.open</a> .</p>
 
 <p><a id="lexer"/></p>
 
