@@ -1,0 +1,657 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Microlight</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Microlight</h1>
+
+
+
+
+<h2>Topics</h2>
+<ul>
+  <li><strong>readme.md</strong></li>
+</ul>
+<h2>Modules</h2>
+<ul>
+  <li><a href="../index.html">ml</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Topic <code>readme.md</code></h1>
+
+
+<h2>A Small but Useful Lua library</h2>
+
+<p>The Lua standard library is deliberately kept small, based on the abstract platform defined by the C89 standard. It is intended as a base for further development, so Lua programmers tend to collect small useful functions for their projects.</p>
+
+<p>Microlight is an attempt at 'library golf', by analogy to the popular nerd sport 'code golf'. The idea here is to try capture some of these functions in one place and document them well enough so that it is easier to use them than to write them yourself.</p>
+
+<p>This library is intended to be a 'extra light' version of Penlight, which has nearly two dozen modules and hundreds of functions.</p>
+
+<p>In Lua, anything beyond the core involves 'personal' choice, and this list of functions does not claim to aspire to 'canonical' status. It emerged from discussion on the Lua Mailing list started by Jay Carlson, and was implemented by myself and Dirk Laurie.</p>
+
+<h2>Strings</h2>
+
+<p>THere is no built-in way to show a text representation of a Lua table, which can be frustrating for people first using the interactive prompt. Microlight provides <a href="../index.html#tstring">tstring</a> . Please note that globally redefining <a href="http://www.lua.org/manual/5.1/manual.html#pdf-tostring">tostring</a>  is <em>not</em> a good idea for Lua application development! This trick is intended to make experimation more satisfying:</p>
+
+
+<pre>
+ &gt; <span class="global">require</span> <span class="string">'ml'</span>.import()
+ &gt; <span class="global">tostring</span> = tstring
+ &gt; = {<span class="number">10</span>,<span class="number">20</span>,name=<span class="string">'joe'</span>}
+ {<span class="number">10</span>,<span class="number">20</span>,name=<span class="string">"joe"</span>}
+</pre>
+
+<p>The Lua string functions are particularly powerful but there are some common functions missing that tend to come up in projects frequently. There is <a href="http://www.lua.org/manual/5.1/manual.html#pdf-table.concat">table.concat</a>  for building a string out of a table, but no <a href="http://www.lua.org/manual/5.1/manual.html#pdf-table.split">table.split</a>  to break a string into a table.</p>
+
+
+<pre>
+ &gt;  = split(<span class="string">'hello dolly'</span>)
+ {<span class="string">"hello"</span>,<span class="string">"dolly"</span>}
+ &gt; = split(<span class="string">'one,two'</span>,<span class="string">','</span>)
+ {<span class="string">"one"</span>,<span class="string">"two"</span>}
+</pre>
+
+<p>The second argument is a <em>string pattern</em> that defaults to spaces.</p>
+
+<p>Although it's not difficult to do <a href="http://lua-users.org/wiki/StringInterpolation">string interpolation</a> in Lua, there's no little function to do it directly. So Microlight provides <a href="../index.html#expand">ml.expand</a> .</p>
+
+
+<pre>
+ &gt; = expand(<span class="string">"hello $you, from $me"</span>,{you=<span class="string">'dolly'</span>,me=<span class="string">'joe'</span>})
+ hello dolly, from joe
+</pre>
+
+<p><a href="../index.html#expand">expand</a>  also understands the alternative <code>${var}</code> and may also be given a function, just like <a href="http://www.lua.org/manual/5.1/manual.html#pdf-string.gsub">string.gsub</a> . (But pick one <em>or</em> the other consistently.)</p>
+
+<p>Lua string functions match using string patterns, which are a powerful subset of proper regular expressions: they contain 'magic' characters like '.','$' etc which you need to escape before using. <a href="../index.html#escape">escape</a>  is used when you wish to match a string literally:</p>
+
+
+<pre>
+ &gt; = (<span class="string">'woo%'</span>):gsub(escape(<span class="string">'%'</span>),<span class="string">'hoo'</span>)
+ <span class="string">"woohoo"</span>   <span class="number">1</span>
+ &gt; = split(<span class="string">"1.2.3"</span>,escape(<span class="string">"."</span>))
+ {<span class="string">"1"</span>,<span class="string">"2"</span>,<span class="string">"3"</span>}
+</pre>
+
+<h2>Files and Paths</h2>
+
+<p>Although <code>access</code> is available on most platforms, it's not part of the standard, (which is why it's spelt <code>_access</code> on Windows). So to test for the existance of a file, you need to attempt to open it. So the <code>exist</code> function is easy to write:</p>
+
+
+<pre>
+ <span class="keyword">function</span> ml.exists (filename)
+     <span class="keyword">local</span> f = <span class="global">io</span>.open(filename)
+     <span class="keyword">if</span> <span class="keyword">not</span> f <span class="keyword">then</span>
+         <span class="keyword">return</span> <span class="keyword">nil</span>
+     <span class="keyword">else</span>
+         f:close()
+         <span class="keyword">return</span> filename
+     <span class="keyword">end</span>
+ <span class="keyword">end</span>
+</pre>
+
+<p>The return value is <em>not</em> a simple true or false; it returns the filename if it exists so we can easily find an existing file out of a group of candidates:</p>
+
+
+<pre>
+ &gt; = exists <span class="string">'README'</span> <span class="keyword">or</span> exists <span class="string">'readme.txt'</span> <span class="keyword">or</span> exists <span class="string">'readme.md'</span>
+ <span class="string">"readme.md"</span>
+</pre>
+
+<p>Lua is good at slicing and dicing text, so a common strategy is to read all of a not-so-big file and process the string. This is the job of <a href="../index.html#readfile">readfile</a> . For instance, this returns the first 128 bytes of the file opened in binary mode:</p>
+
+
+<pre>
+ &gt; txt = readfile(<span class="string">'readme.md'</span>,<span class="keyword">true</span>):sub(<span class="number">1</span>,<span class="number">128</span>)
+</pre>
+
+<p>Note I said bytes, not characters, since strings can contain any byte sequence.</p>
+
+<p>If <a href="../index.html#readfile">readfile</a>  can't open a file, or can't read from it, it will return <code>nil</code> and an error message. This is the pattern followed by <a href="http://www.lua.org/manual/5.1/manual.html#pdf-io.open">io.open</a>  and many other Lua functions; it is considered bad form to raise an error for a <em>routine</em> problem.</p>
+
+<p>Breaking up paths into their components is done with <a href="../index.html#splitpath">splitpath</a>  and <a href="../index.html#splitext">splitext</a> :</p>
+
+
+<pre>
+ &gt; = splitpath(path)
+ <span class="string">"/path/to/dogs"</span> <span class="string">"bonzo.txt"</span>
+ &gt; = splitext(path)
+ <span class="string">"/path/to/dogs/bonzo"</span>   <span class="string">".txt"</span>
+ &gt; = splitpath <span class="string">'frodo.txt'</span>
+ <span class="string">""</span>      <span class="string">"frodo.txt"</span>
+ &gt; = splitpath <span class="string">'/usr/'</span>
+ <span class="string">"/usr"</span>  <span class="string">""</span>
+ &gt; = splitext <span class="string">'/usr/bin/lua'</span>
+ <span class="string">"/usr/bin/lua"</span>  <span class="string">""</span>
+ &gt;
+</pre>
+
+<p>These functions return <em>two</em> strings, one of which may be the empty string (rather than <code>nil</code>). On Windows, they use both forward- and back-slashes, on Unix only forward slashes.</p>
+
+<h2>Tables</h2>
+
+<p>Most of the Microlight functions work on Lua tables. Although these may be <em>both</em> arrays <em>and</em> hashmaps, generally we tend to <em>use</em> them as one or the other. From now on, we'll use array and map as shorthand terms for tables</p>
+
+<p><a href="../index.html#update">update</a>  adds key/value pairs to a map, and <a href="../index.html#extend">extend</a>  appends an array to an array; they are two complementary ways to add multiple items to a table in a single operation.</p>
+
+
+<pre>
+ &gt; a = {one=<span class="number">1</span>,two=<span class="number">2</span>}
+ &gt; update(a,{three=<span class="number">3</span>,four=<span class="number">4</span>})
+ &gt; = a
+ {one=<span class="number">1</span>,four=<span class="number">4</span>,three=<span class="number">3</span>,two=<span class="number">2</span>}
+ &gt; t = {<span class="number">10</span>,<span class="number">20</span>,<span class="number">30</span>}
+ &gt; extend(t,{<span class="number">40</span>,<span class="number">50</span>})
+ &gt; = t
+ {<span class="number">10</span>,<span class="number">20</span>,<span class="number">30</span>,<span class="number">40</span>,<span class="number">50</span>}
+</pre>
+
+<p>As from version 1.1, both of these functions take an arbitrary number of tables. To 'flatten' a table, just unpack it and use <a href="../index.html#extend">extend</a> :</p>
+
+
+<pre>
+ &gt; pair = {{<span class="number">1</span>,<span class="number">2</span>},{<span class="number">3</span>,<span class="number">4</span>}}
+ &gt; = extend({},<span class="global">unpack</span>(pair))
+ {<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>}
+</pre>
+
+<p>Note that to make a shallow copy of a table, just say <code>extend({},t)</code>.</p>
+
+<p>To insert multiple values into a position within an array, use <a href="../index.html#insertvalues">insertvalues</a> . It works like <a href="http://www.lua.org/manual/5.1/manual.html#pdf-table.insert">table.insert</a> , except that the third argument is an array of values. If you do want to overwrite values, then use <code>true</code> for the fourth argument:</p>
+
+
+<pre>
+ &gt; t = {<span class="number">10</span>,<span class="number">20</span>,<span class="number">30</span>,<span class="number">40</span>,<span class="number">50</span>}
+ &gt; insertvalues(t,<span class="number">2</span>,{<span class="number">11</span>,<span class="number">12</span>})
+ &gt; = t
+ {<span class="number">10</span>,<span class="number">11</span>,<span class="number">12</span>,<span class="number">20</span>,<span class="number">30</span>,<span class="number">40</span>,<span class="number">50</span>}
+ &gt; insertvalues(t,<span class="number">3</span>,{<span class="number">2</span>,<span class="number">3</span>},<span class="keyword">true</span>)
+ &gt; = t
+ {<span class="number">10</span>,<span class="number">11</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">30</span>,<span class="number">40</span>,<span class="number">50</span>}
+</pre>
+
+<p>(Please note that the <em>original</em> table is modified by these functions.)</p>
+
+<p><code>update' works like</code>extend`. except that all the key value pairs from the input tables are copied into the first argument. Keys may be overwritten by subsequent tables.</p>
+
+
+<pre>
+ &gt; t = {}
+ &gt; update(t,{one=<span class="number">1</span>},{ein=<span class="number">1</span>},{one=<span class="string">'ONE'</span>})
+ &gt; = t
+ {one=<span class="string">"ONE"</span>,ein=<span class="number">1</span>}
+</pre>
+
+<p><code>import</code> is a specialized version of <a href="../index.html#update">update</a> ; if the first argument is <code>nil</code> then it's assumed to be the global table. If no tables are provided, it brings in the ml table itself (hence the lazy <code>require "ml".import()</code> idiom).</p>
+
+<p>If the arguments are strings, then we try to <a href="http://www.lua.org/manual/5.1/manual.html#pdf-require">require</a>  them.  So this brings in LuaFileSystem and imports <code>lfs</code> into the global table. So it's a lazy way to do a whole bunch of requires. A module 'package.mod' will be brought in as <code>mod</code>. Note that the second form actually does bring all of <code>lpeg</code>'s functions in.</p>
+
+
+<pre>
+ &gt; import(<span class="keyword">nil</span>,<span class="string">'lfs'</span>)
+ &gt; import(<span class="keyword">nil</span>,<span class="global">require</span> <span class="string">'lpeg'</span>)
+</pre>
+
+<p>The opposite operation to extending is extracting a number of items from a table.</p>
+
+<p>There's <a href="../index.html#sub">sub</a> , which works just like <a href="http://www.lua.org/manual/5.1/manual.html#pdf-string.sub">string.sub</a>  and is the equivalent of list slicing in Python:</p>
+
+
+<pre>
+ &gt; numbers = {<span class="number">10</span>,<span class="number">20</span>,<span class="number">30</span>,<span class="number">40</span>,<span class="number">50</span>}
+ &gt; = sub(numbers,<span class="number">1</span>,<span class="number">1</span>)
+ {<span class="number">10</span>}
+ &gt; = sub(numbers,<span class="number">2</span>)
+ {<span class="number">20</span>,<span class="number">30</span>,<span class="number">40</span>,<span class="number">50</span>}
+ &gt; = sub(numbers,<span class="number">1</span>,-<span class="number">2</span>)
+ {<span class="number">10</span>,<span class="number">20</span>,<span class="number">30</span>,<span class="number">40</span>}
+</pre>
+
+<p><a href="../index.html#indexby">indexby</a>  indexes a table by an array of keys:</p>
+
+
+<pre>
+ &gt; = indexby(numbers,{<span class="number">1</span>,<span class="number">4</span>})
+ {<span class="number">10</span>,<span class="number">40</span>}
+ &gt; = indexby({one=<span class="number">1</span>,two=<span class="number">2</span>,three=<span class="number">3</span>},{<span class="string">'three'</span>,<span class="string">'two'</span>})
+ {[<span class="number">3</span>,<span class="number">2</span>}
+</pre>
+
+<p>Here is the old standby <a href="../index.html#imap">imap</a> , which makes a <em>new</em> array by applying a function to the original elements:</p>
+
+
+<pre>
+ &gt; words = {<span class="string">'one'</span>,<span class="string">'two'</span>,<span class="string">'three'</span>}
+ &gt; = imap(<span class="global">string</span>.upper,words)
+ {<span class="string">"ONE"</span>,<span class="string">"TWO"</span>,<span class="string">"THREE"</span>}
+ &gt; s = {<span class="string">'10'</span>,<span class="string">'x'</span>,<span class="string">'20'</span>}
+ &gt; ns = imap(<span class="global">tonumber</span>,s)
+ &gt; = ns
+ {<span class="number">10</span>,<span class="keyword">false</span>,<span class="number">20</span>}
+</pre>
+
+<p><a href="../index.html#imap">imap</a>  must always return an array of the same size - if the function returns <code>nil</code>, then we avoid leaving a hole in the array by using <code>false</code> as a placeholder.</p>
+
+<p>Another popular function <a href="../index.html#indexof">indexof</a>  does a linear search for a value and returns the 1-based index, or <code>nil</code> if not successful:</p>
+
+
+<pre>
+ &gt; = indexof(numbers,<span class="number">20</span>)
+ <span class="number">2</span>
+ &gt; = indexof(numbers,<span class="number">234</span>)
+ <span class="keyword">nil</span>
+</pre>
+
+<p>This function takes an optional third argument, which is a custom equality function.</p>
+
+<p>In general, you want to match something more than just equality. <a href="../index.html#ifind">ifind</a>  will return the first value that satisfies the given function.</p>
+
+
+<pre>
+ &gt; s = {<span class="string">'x'</span>,<span class="string">'10'</span>,<span class="string">'20'</span>,<span class="string">'y'</span>}
+ &gt; = ifind(s,<span class="global">tonumber</span>)
+ <span class="string">"10"</span>
+</pre>
+
+<p>The standard function <a href="http://www.lua.org/manual/5.1/manual.html#pdf-tonumber">tonumber</a>  returns a non-nil value, so the corresponding value is returned - that is, the string. To get all the values that match, use <a href="../index.html#ifilter">ifilter</a> :</p>
+
+
+<pre>
+ &gt; = ifilter(numbers,<span class="global">tonumber</span>)
+ {<span class="string">"10"</span>,<span class="string">"20"</span>}
+</pre>
+
+<p>Finally, <a href="../index.html#removerange">removerange</a>  removes a <em>range</em> of values from an array, and takes the same arguments as <a href="../index.html#sub">sub</a> .</p>
+
+<h2>Sets and Maps</h2>
+
+<p><a href="../index.html#indexof">indexof</a>  is not going to be your tool of choice for really big tables, since it does a linear search. Lookup on Lua hash tables is faster, if we can get the data into the right shape.  <a href="../index.html#invert">invert</a>  turns a array of values into a table with those values as keys:</p>
+
+
+<pre>
+ &gt; m = invert(numbers)
+ &gt; = m
+ {[<span class="number">20</span>]=<span class="number">2</span>,[<span class="number">10</span>]=<span class="number">1</span>,[<span class="number">40</span>]=<span class="number">4</span>,[<span class="number">30</span>]=<span class="number">3</span>,[<span class="number">50</span>]=<span class="number">5</span>}
+ &gt; = m[<span class="number">20</span>]
+ <span class="number">2</span>
+ &gt; = m[<span class="number">30</span>]
+ <span class="number">3</span>
+ &gt; = m[<span class="number">25</span>]
+ <span class="keyword">nil</span>
+ &gt; m = invert(words)
+ &gt; = m
+ {one=<span class="number">1</span>,three=<span class="number">3</span>,two=<span class="number">2</span>}
+</pre>
+
+<p>So from a array we get a reverse lookup map. This is also exactly what we want from a <em>set</em>: fast membership test and unique values.</p>
+
+<p>Sets don't particularly care about the actual value, as long as it evaluates as true or false, hence:</p>
+
+
+<pre>
+ &gt; = issubset(m,{one=<span class="keyword">true</span>,two=<span class="keyword">true</span>})
+ <span class="keyword">true</span>
+</pre>
+
+<p> <a href="../index.html#makemap">makemap</a>  takes another argument and makes up a table where the keys come from the first array and the values from the second array:</p>
+
+
+<pre>
+ &gt; = makemap({<span class="string">'a'</span>,<span class="string">'b'</span>,<span class="string">'c'</span>},{<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>})
+ {a=<span class="number">1</span>,c=<span class="number">3</span>,b=<span class="number">2</span>}
+</pre>
+
+<p>Finally, <a href="../index.html#collect">collect</a>  makes a array out of an iterator. 'collect_until<code>can be given the number of values to collect or a custom predicate, which is useful for iterators that never terminate. (Note that we need to pass it either a proper iterator, like</code>pairs<code>, or a function or exactly one function - which isn't the case with</code>math.random`)</p>
+
+
+<pre>
+ &gt; s = <span class="string">'my dog ate your homework'</span>
+ &gt; words = collect(s:gmatch <span class="string">'%a+'</span>)
+ &gt; = words
+ {<span class="string">"my"</span>,<span class="string">"dog"</span>,<span class="string">"ate"</span>,<span class="string">"your"</span>,<span class="string">"homework"</span>}
+ &gt; R = <span class="keyword">function</span>() <span class="keyword">return</span> <span class="global">math</span>.random() <span class="keyword">end</span>
+ &gt; = collect_until(<span class="number">3</span>,R)
+ {<span class="number">0.0012512588885159</span>,<span class="number">0.56358531449324</span>,<span class="number">0.19330423902097</span>}
+ &gt; lines = collect_until(<span class="number">4</span>,<span class="global">io</span>.lines())
+ one
+ two
+ three
+ four
+ &gt; = lines
+ {<span class="string">"one"</span>,<span class="string">"two"</span>,<span class="string">"three"</span>,<span class="string">"four"</span>}
+</pre>
+
+<p>A simple utility to sort standard input looks like this:</p>
+
+
+<pre>
+ <span class="global">require</span> <span class="string">'ml'</span>.import()
+ lines = collect(<span class="global">io</span>.lines())
+ <span class="global">table</span>.sort(lines)
+ <span class="global">print</span>(<span class="global">table</span>.concat(lines,<span class="string">'\n'</span>))
+</pre>
+
+<h1>Higher-order Functions</h1>
+
+<p>Functions are first-class values in Lua, so functions may manipulate them, often called 'higher-order' functions.</p>
+
+<p>By <em>callable</em> we either mean a function or an object which has a <code>__call</code> metamethod. The <a href="../index.html#callable">callable</a>  function checks for this case.</p>
+
+<p>Function <em>composition</em> is often useful:</p>
+
+
+<pre>
+ &gt; printf = compose(<span class="global">io</span>.write,<span class="global">string</span>.format)
+ &gt; printf(<span class="string">"the answer is %d\n"</span>,<span class="number">42</span>)
+ the answer is <span class="number">42</span>
+</pre>
+
+<p><a href="../index.html#bind1">bind1</a>  and <a href="../index.html#bind2">bind2</a>  specialize functions by creating a version that has one less argument. <a href="../index.html#bind1">bind1</a>  gives a function where the first argument is <em>bound</em> to some value. This can be used to pass methods to functions expecting a plain function. In Lua, <code>obj:f()</code> is shorthand for <code>obj.f(obj,...)</code>. Just using a dot is not enough, since there is no <em>implicit binding</em> of the self argument. This is precisely what <a href="../index.html#bind1">bind1</a>  can do:</p>
+
+
+<pre>
+ &gt; ewrite = bind1(<span class="global">io</span>.stderr.write,<span class="global">io</span>.stderr)
+ &gt; ewrite <span class="string">'hello\n'</span>
+</pre>
+
+<p>We want a logging function that writes a message to standard error with a line feed; just bind the second argument to '\n':</p>
+
+
+<pre>
+ &gt; log = bind2(ewrite,<span class="string">'\n'</span>)
+ &gt; log <span class="string">'hello'</span>
+ hello
+</pre>
+
+<p>Note that <code>sub(t,1)</code> does a simple array copy:</p>
+
+
+<pre>
+ &gt; copy = bind2(sub,<span class="number">1</span>)
+ &gt; t = {<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>}
+ &gt; = copy(t)
+ {<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>}
+</pre>
+
+<p>It's easy to make a 'predicate' for detecting empty or blank strings:</p>
+
+
+<pre>
+ &gt; blank = bind2(<span class="global">string</span>.match,<span class="string">'^%s*$'</span>)
+ &gt; = blank <span class="string">''</span>
+ <span class="string">""</span>
+ &gt; = blank <span class="string">'  '</span>
+ <span class="string">"  "</span>
+ &gt; = blank <span class="string">'oy vey'</span>
+ <span class="keyword">nil</span>
+</pre>
+
+<p>I put 'predicate' in quotes because it's again not classic true/false; Lua actually only developed <code>false</code> fairly late in its career. Operationally, this is a fine predicate because <code>nil</code> matches as 'false' and any string matches as 'true'.</p>
+
+<p>This pattern generates a whole family of classification functions, e.g. <code>hex</code> (using '%x+'), <code>upcase</code> ('%u+'), <code>iden</code> ('%a[%w_]*') and so forth. You can keep the binding game going (after all, <a href="../index.html#bind2">bind2</a>  is just a function like any other.)</p>
+
+
+<pre>
+ &gt; matcher = bind1(bind2,<span class="global">string</span>.match)
+ &gt; hex = matcher <span class="string">'^%x+$'</span>
+</pre>
+
+<p>Predicates are particularly useful for <a href="../index.html#ifind">ifind</a>  and <a href="../index.html#ifilter">ifilter</a> .  It's now easy to filter out strings from a array that match <code>blank</code> or <code>hex</code>, for instance.</p>
+
+<p>There is a pair of functions <a href="../index.html#map2fun">map2fun</a>  and <a href="../index.html#fun2map">fun2map</a>  which convert indexable objects into callables and vice versa. Say I have a table of key/value pairs, but an API requires a function - use <a href="../index.html#map2fun">map2fun</a> . Alternatively, the API might want a lookup table and you only have a lookup function.  Say we have an array of objects with a name field. The <code>find</code> method will give us an object with a particular name:</p>
+
+
+<pre>
+ &gt; obj = objects:find (<span class="string">'X.name=Y'</span>,<span class="string">'Alfred'</span>)
+ {name=<span class="string">'Afred'</span>,age=<span class="number">23</span>}
+ &gt; by_name = <span class="keyword">function</span>(name) <span class="keyword">return</span> objects:find(<span class="string">'X.name=Y'</span>,name) <span class="keyword">end</span>
+ &gt; lookup = fun2map(by_name)
+ &gt; = lookup.Alfred
+ {name=<span class="string">'Alfred'</span>,age=<span class="number">23</span>}
+</pre>
+
+<p>Now if you felt particularly clever and/or sadistic, that anonymous function could be written like so: (note the different quotes needed to get a nested string lambda):</p>
+
+
+<pre>
+ by_name = bind1(<span class="string">'X:find("X.name==Y",Y)'</span>,objects)
+</pre>
+
+<h2>Classes</h2>
+
+<p>Lua and Javascript have two important things in common; objects are associative arrays, with sugar so that <code>t.key == t['key']</code>; there is no built-in class mechanism. This causes a lot of (iniital) unhappiness. It's straightforward to build a class system, and so it is reinvented numerous times in incompatible ways.</p>
+
+<p><a href="../index.html#class">class</a>  works as expected:</p>
+
+
+<pre>
+ Animal = ml.class()
+ Animal.sound = <span class="string">'?'</span>
+
+ <span class="keyword">function</span> Animal:_init(name)
+     self.name = name
+ <span class="keyword">end</span>
+
+ <span class="keyword">function</span> Animal:speak()
+     <span class="keyword">return</span> self._class.sound..<span class="string">' I am '</span>..self.name
+ <span class="keyword">end</span>
+
+ Cat = class(Animal)
+ Cat.sound = <span class="string">'meow'</span>
+
+ felix = Cat(<span class="string">'felix'</span>)
+
+ <span class="global">assert</span>(felix:speak() == <span class="string">'meow I am felix'</span>)
+ <span class="global">assert</span>(felix._base == Animal)
+ <span class="global">assert</span>(Cat.class_of(felix))
+ <span class="global">assert</span>(Animal.class_of(felix))
+</pre>
+
+<p>It creates a table (what else?) which will contain the methods; if there's a base class, then that will be copied into the table. This table becomes the metatable of each new instance of that class, with <code>__index</code> pointing to the metatable itself. If <code>obj.key</code> is not found, then Lua will attempt to look it up in the class. In this way, each object does not have to carry references to all of its methods, which gets inefficient.</p>
+
+<p>The class is callable, and when called it returns a new object; if there is an <code>_init</code> method that will be called to do any custom setup; if not then the base class constructor will be called.</p>
+
+<p>All classes have a <code>_class</code> field pointing to itself (which is how <code>Animal.speak</code> gets its polymorphic behaviour) and a <code>class_of</code> function.</p>
+
+<h2>Array Class</h2>
+
+<p>Since Lua 5.1, the string functions can be called as methods, e.g. <code>s:sub(1,2)</code>. People commonly would like this convenience for tables as well. But Lua tables are building blocks; to build abstract data types you need to specialize your tables. So <a href="../index.html#">ml</a>  provides a <a href="../index.html#Array">Array</a>  class:</p>
+
+
+<pre>
+ <span class="keyword">local</span> Array = ml.class()
+
+ <span class="comment">-- A constructor can return a _specific_ object
+</span> <span class="keyword">function</span> Array:_init(t)
+     <span class="keyword">if</span> <span class="keyword">not</span> t <span class="keyword">then</span> <span class="keyword">return</span> <span class="keyword">nil</span> <span class="keyword">end</span>  <span class="comment">-- no table, make a new one
+</span>     <span class="keyword">if</span> <span class="global">getmetatable</span>(t)==Array <span class="keyword">then</span>  <span class="comment">-- was already a Array: copy constructor!
+</span>         t = ml.sub(t,<span class="number">1</span>)
+     <span class="keyword">end</span>
+     <span class="keyword">return</span> t
+ <span class="keyword">end</span>
+
+ <span class="keyword">function</span> Array:map(f,...) <span class="keyword">return</span> Array(ml.imap(f,self,...)) <span class="keyword">end</span>
+</pre>
+
+<p>Note that if a constructor <em>does</em> return a value, then it becomes the new object. This flexibility is useful if you want to wrap <em>existing</em> objects.</p>
+
+<p>We can't just add <a href="../index.html#imap">imap</a> , because the function signature is wrong; the first argument is the function and it returns a plain jane array.</p>
+
+<p>But we can add methods to the class directly if the functions have the right first argument, and don't return anything:</p>
+
+
+<pre>
+ ml.import(Array,{
+     <span class="comment">-- straight from the table library
+</span>     concat=<span class="global">table</span>.concat,sort=<span class="global">table</span>.sort,insert=<span class="global">table</span>.insert,
+     remove=<span class="global">table</span>.remove,append=<span class="global">table</span>.insert,
+ ...
+ })
+</pre>
+
+<p><a href="../index.html#ifilter">ifilter</a>  and <a href="../index.html#sub">sub</a>  are almost right, but they need to be wrapped so that they return Arrays as expected.</p>
+
+
+<pre>
+ &gt; words = Array{<span class="string">'frodo'</span>,<span class="string">'bilbo'</span>,<span class="string">'sam'</span>}
+ &gt; = words:sub(<span class="number">2</span>)
+ {<span class="string">"bilbo"</span>,<span class="string">"sam"</span>}
+ &gt; words:sort()
+ &gt; = words
+ {<span class="string">"bilbo"</span>,<span class="string">"frodo"</span>,<span class="string">"sam"</span>}
+ &gt; = words:concat <span class="string">','</span>
+ <span class="string">"bilbo,frodo,sam"</span>
+ &gt; = words:filter(<span class="global">string</span>.match,<span class="string">'o$'</span>):map(<span class="global">string</span>.upper)
+ {<span class="string">"BILBO"</span>,<span class="string">"FRODO"</span>}
+</pre>
+
+<p>Arrays are easier to use and involve less typing because the table functions are directly available from them.  Methods may be <em>chained</em>, which (I think) reads better than the usual functional application order from right to left.  For instance, the sort utility discussed above simply becomes:</p>
+
+
+<pre>
+ <span class="keyword">local</span> Array = <span class="global">require</span> <span class="string">'ml'</span>.Array
+ <span class="global">print</span>(Array.collect(<span class="global">io</span>.lines()):sort():concat <span class="string">'\n'</span>)
+</pre>
+
+<p>I don't generally recommend putting everything on one line, but it can be done if the urge is strong ;)</p>
+
+<p>The ml table functions are available as methods:</p>
+
+
+<pre>
+ &gt; l = Array.range(<span class="number">10</span>,<span class="number">50</span>,<span class="number">10</span>)
+ &gt; = l:indexof(<span class="number">30</span>)
+ <span class="number">3</span>
+ &gt; = l:indexby {<span class="number">1</span>,<span class="number">3</span>,<span class="number">5</span>}
+ {<span class="number">10</span>,<span class="number">30</span>,<span class="number">50</span>}
+ &gt; = l:map(<span class="keyword">function</span>(x) <span class="keyword">return</span> x + <span class="number">1</span> <span class="keyword">end</span>)
+ {<span class="number">11</span>,<span class="number">21</span>,<span class="number">31</span>,<span class="number">41</span>,<span class="number">51</span>}
+</pre>
+
+<p>Lua anonymous functions have a somewhat heavy syntax; three keywords needed to define a short lambda.  It would be cool if the shorthand syntax <code>|x| x+1</code> used by Metalua would make into mainstream Lua, but there seems to be widespread resistance to this little convenience. In the meantime, there are <em>string lambdas</em>.  All ml functions taking function args go through <a href="../index.html#function_arg">function_arg</a>  which raises an error if the argument isn't callable. But it will also understand 'X+1' as a shorthand for the above anonymous function. Such strings are expressions containing the placeholder variables <code>X</code>,<code>Y</code> and <code>Z</code> corresponding to the first, second and third arguments.</p>
+
+
+<pre>
+ &gt; A = Array
+ &gt; a1 = A{<span class="number">1</span>,<span class="number">2</span>}
+ &gt; a2 = A{<span class="number">10</span>,<span class="number">20</span>}
+ &gt; = a1:map2(<span class="string">'X+Y'</span>,a2)
+ {<span class="number">11</span>,<span class="number">21</span>}
+</pre>
+
+<p>String lambdas are more limited. There's no easy (or efficient) way for them to access local variables like proper functions; they only see the global environment. BUt I consider this a virtue, since they are intended to be 'pure' functions with no side-effects.</p>
+
+<h2>Experiments!</h2>
+
+<p>Every library project has a few things which didn't make the final cut, and this is particularly true of Microlight.  The <code>ml_properties</code> module allows you to define properties in your classes. This comes from `examples/test.lua':</p>
+
+
+<pre>
+ <span class="keyword">local</span> props = <span class="global">require</span> <span class="string">'ml_properties'</span>
+
+ <span class="keyword">local</span> P = class()
+
+ <span class="comment">-- will be called after setting _props
+</span> <span class="keyword">function</span> P:update (k,v)
+     last_set = k
+ <span class="keyword">end</span>
+
+ <span class="comment">-- any explicit setters will be called on construction
+</span> <span class="keyword">function</span> P:set_name (name)
+     self.myname = name
+ <span class="keyword">end</span>
+
+ <span class="keyword">function</span> P:get_name ()
+     last_get = <span class="string">'name'</span>
+     <span class="keyword">return</span> self.myname
+ <span class="keyword">end</span>
+
+ <span class="comment">-- have to call this after any setters or getters are defined...
+</span> props(P,{
+     __update = P.update;
+     enabled = <span class="keyword">true</span>,  <span class="comment">-- these are default values
+</span>     visible = <span class="keyword">false</span>,
+     name = <span class="string">'foo'</span>, <span class="comment">-- has both a setter and a getter
+</span> })
+
+ <span class="keyword">local</span> p = P()
+
+ <span class="comment">-- initial state
+</span> asserteq (p,{myname=<span class="string">"foo"</span>,_enabled=<span class="keyword">true</span>,_visible=<span class="keyword">false</span>})
+
+ p.visible = <span class="keyword">true</span>
+
+ <span class="comment">-- P.update fired!
+</span> asserteq(last_set,<span class="string">'visible'</span>)
+</pre>
+
+<p><code>ml_range</code> (constributed by Dirk Laurie for this release) returns a function which works like <a href="../index.html#range">ml.range</a> , except that it returns a Vector class which has element-wise addition and multiplication operators.</p>
+
+<p><code>ml_module</code> is a Lua 5.2 module constructor which shows off that interesting function <code>ml.import</code>.  Here is the example in the distribution:</p>
+
+
+<pre>
+ <span class="comment">-- mod52.lua
+</span> <span class="keyword">local</span> _ENV = <span class="global">require</span> <span class="string">'ml_module'</span> (<span class="keyword">nil</span>, <span class="comment">-- no wholesale access to _G
+</span>     <span class="string">'print'</span>,<span class="string">'assert'</span>,<span class="string">'os'</span>, <span class="comment">-- quoted global values brought in
+</span>     <span class="string">'lfs'</span>, <span class="comment">-- not global, so use require()!
+</span>     <span class="global">table</span> <span class="comment">-- not quoted, import the whole table into the environment!
+</span>     )
+
+ <span class="keyword">function</span> format (s)
+     <span class="keyword">local</span> out = {<span class="string">'Hello'</span>,s,<span class="string">'at'</span>,<span class="global">os</span>.date(<span class="string">'%c'</span>),<span class="string">'here is'</span>,lfs.currentdir()}
+     <span class="comment">-- remember table.* has been brought in..
+</span>     <span class="keyword">return</span> concat(out,<span class="string">' '</span>)
+ <span class="keyword">end</span>
+
+ <span class="keyword">function</span> message(s)
+     <span class="global">print</span>(format(s))
+ <span class="keyword">end</span>
+
+ <span class="comment">-- no, we didn't bring anything else in
+</span> <span class="global">assert</span>(<span class="global">setmetatable</span> == <span class="keyword">nil</span>)
+
+ <span class="comment">-- NB return the _module_, not the _environment_!
+</span> <span class="keyword">return</span> _M
+</pre>
+
+<p>This uses a 'shadow table' trick; the environment <code>_ENV</code> contains all the imports, plus the exported functions; the actual module <code>_M</code> only contains the exported functions.  So it's equivalent to the old-fashioned <code>module('mod',package.seeall)</code> technique, except that there is no way of accessing the environment of the module without using the debug module - which you would never allow into a sandboxed environment anyway.</p>
+
+
+
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.3</a></i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>Reference</title>
+    <title>Microlight</title>
     <link rel="stylesheet" href="ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,7 @@
 
 <div id="navigation">
 <br/>
-<h1>ldoc</h1>
+<h1>Microlight</h1>
 
 
 <h2>Contents</h2>
@@ -41,6 +41,10 @@
 <ul>
   <li><strong>ml</strong></li>
 </ul>
+<h2>Topics</h2>
+<ul>
+  <li><a href="topics/readme.md.html">readme.md</a></li>
+</ul>
 
 </div>
 
@@ -55,7 +59,7 @@
 <table class="function_list">
 	<tr>
 	<td class="name" nowrap><a href="#split">split&nbsp;(s, re, n)</a></td>
-	<td class="summary">split a string into a array of strings separated by a delimiter.</td>
+	<td class="summary">split a string into a table of strings separated by a delimiter.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#escape">escape&nbsp;(s)</a></td>
@@ -78,11 +82,11 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#splitpath">splitpath&nbsp;(P)</a></td>
-	<td class="summary">split a file path.</td>
+	<td class="summary">split a path into directory and file part.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#splitext">splitext&nbsp;(P)</a></td>
-	<td class="summary">given a path, return the root part and the extension part.</td>
+	<td class="summary">split a path into root part and extension part.</td>
 	</tr>
 </table>
 <h2><a href="#Extended_table_functions">Extended table functions</a></h2>
@@ -92,12 +96,28 @@
 	<td class="summary">return a string representation of a Lua value.</td>
 	</tr>
 	<tr>
+	<td class="name" nowrap><a href="#collect">collect&nbsp;(...)</a></td>
+	<td class="summary">collect a series of values from an interator.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#collect_until">collect_until&nbsp;(n, ...)</a></td>
+	<td class="summary">collect up to n values from an interator.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#collect2nd">collect2nd&nbsp;(...)</a></td>
+	<td class="summary">collect the second value from a iterator.</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#imap">imap&nbsp;(f, t, ...)</a></td>
 	<td class="summary">map a function over a array.</td>
 	</tr>
 	<tr>
+	<td class="name" nowrap><a href="#transform">transform&nbsp;(f, t, ...)</a></td>
+	<td class="summary">apply a function to each element of an array.</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#imap2">imap2&nbsp;(f, t1, t2, ...)</a></td>
-	<td class="summary">map a function over two arrays.</td>
+	<td class="summary">map a function over values from two arrays.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#ifilter">ifilter&nbsp;(t, pred, ...)</a></td>
@@ -121,11 +141,11 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#insertvalues">insertvalues&nbsp;(dest, index, src, overwrite)</a></td>
-	<td class="summary">copy values from `src` into `dest` starting at `index`.</td>
+	<td class="summary">copy values from <code>src</code> into <code>dest</code> starting at <code>index</code>.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#extend">extend&nbsp;(t, other)</a></td>
-	<td class="summary">extend a array using values from another.</td>
+	<td class="name" nowrap><a href="#extend">extend&nbsp;(t, ...)</a></td>
+	<td class="summary">extend a array using values from other tables.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#indexby">indexby&nbsp;(t, keys)</a></td>
@@ -136,8 +156,8 @@
 	<td class="summary">create an array of numbers from start to end.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#import">import&nbsp;(t, other)</a></td>
-	<td class="summary">add the key/value pairs of `other` to `t`.</td>
+	<td class="name" nowrap><a href="#update">update&nbsp;(t, ...)</a></td>
+	<td class="summary">add the key/value pairs of arrays to the first array.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#makemap">makemap&nbsp;(t, tv)</a></td>
@@ -153,11 +173,15 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#issubset">issubset&nbsp;(t, other)</a></td>
-	<td class="summary">are all the keys of `other` in `t`?</td>
+	<td class="summary">are all the values of <code>other</code> in <code>t</code>?</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#contains_keys">contains_keys</a></td>
+	<td class="summary">are all the keys of <code>other</code> in <code>t</code>?</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#count">count&nbsp;(t)</a></td>
-	<td class="summary">return the number of keys in this table.</td>
+	<td class="summary">return the number of keys in this table, or members in this set.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#equal_keys">equal_keys&nbsp;(t, other)</a></td>
@@ -167,16 +191,16 @@
 <h2><a href="#Functional_helpers">Functional helpers</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#throw">throw&nbsp;(f, quit)</a></td>
+	<td class="name" nowrap><a href="#throw">throw&nbsp;(f)</a></td>
 	<td class="summary">create a function which will throw an error on failure.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#bind1">bind1&nbsp;(f, v)</a></td>
-	<td class="summary">bind the value `v` to the first argument of function `f`.</td>
+	<td class="summary">bind the value <code>v</code> to the first argument of function <code>f</code>.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#bind2">bind2&nbsp;(f, v)</a></td>
-	<td class="summary">bind the value `v` to the second argument of function `f`.</td>
+	<td class="summary">bind the value <code>v</code> to the second argument of function <code>f</code>.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#compose">compose&nbsp;(f1, f2)</a></td>
@@ -185,6 +209,18 @@
 	<tr>
 	<td class="name" nowrap><a href="#callable">callable&nbsp;(obj)</a></td>
 	<td class="summary">is the object either a function or a callable object?.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#map2fun">map2fun&nbsp;(t)</a></td>
+	<td class="summary">create a callable from an indexable object.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#fun2map">fun2map&nbsp;(f)</a></td>
+	<td class="summary">create an indexable object from a callable.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#function_arg">function_arg&nbsp;(f)</a></td>
+	<td class="summary">defines how we convert something to a callable.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#memoize">memoize&nbsp;(func)</a></td>
@@ -208,27 +244,34 @@
 
 
     <h2><a name="String_utilties"></a>String utilties</h2>
-    
+
+
+
     <dl class="function">
     <dt>
     <a name = "split"></a>
     <strong>split&nbsp;(s, re, n)</strong>
     </dt>
     <dd>
-    split a string into a array of strings separated by a delimiter. 
+    split a string into a table of strings separated by a delimiter.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>s</em></code>:  The input string</li>
-       <li><code><em>re</em></code>:  A Lua string pattern; defaults to '%s+'</li>
-       <li><code><em>n</em></code>:  optional maximum number of splits</li>
+      <li><span class="parameter">s</span>
+       The input string</li>
+      <li><span class="parameter">re</span>
+       A Lua string pattern; defaults to '%s+'</li>
+      <li><span class="parameter">n</span>
+       optional maximum number of splits</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
-        a array
+
+        a table of strings
     </ol>
+
+
 
 
 </dd>
@@ -237,18 +280,21 @@
     <strong>escape&nbsp;(s)</strong>
     </dt>
     <dd>
-    escape any 'magic' characters in a string 
+    escape any 'magic' characters in a string
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>s</em></code>:  The input string</li>
+      <li><span class="parameter">s</span>
+       The input string</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
+
         an escaped string
     </ol>
+
+
 
 
 </dd>
@@ -257,20 +303,24 @@
     <strong>expand&nbsp;(s, subst)</strong>
     </dt>
     <dd>
-    expand a string containing any ${var} or $var. 
- However, you should pick _either one_ consistently!
+    expand a string containing any ${var} or $var.
+ However, you should pick <em>either one</em> consistently!
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>s</em></code>:  the string</li>
-       <li><code><em>subst</em></code>:  either a table or a function (as in `string.gsub`)</li>
+      <li><span class="parameter">s</span>
+       the string</li>
+      <li><span class="parameter">subst</span>
+       either a table or a function (as in <a href="http://www.lua.org/manual/5.1/manual.html#pdf-string.gsub">string.gsub</a> )</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
+
         expanded string
     </ol>
+
+
 
 
 </dd>
@@ -279,48 +329,57 @@
     <strong>readfile&nbsp;(filename, is_bin)</strong>
     </dt>
     <dd>
-    return the contents of a file as a string 
+    return the contents of a file as a string
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>filename</em></code>:  The file path</li>
-       <li><code><em>is_bin</em></code>:  open in binary mode, default false</li>
+      <li><span class="parameter">filename</span>
+       The file path</li>
+      <li><span class="parameter">is_bin</span>
+       open in binary mode, default false</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
+
         file contents
     </ol>
+
+
 
 
 </dd>
 </dl>
     <h2><a name="File_and_Path_functions"></a>File and Path functions</h2>
-    
+
+
+
     <dl class="function">
     <dt>
     <a name = "exists"></a>
     <strong>exists&nbsp;(filename)</strong>
     </dt>
     <dd>
-    Does a file exist? 
+    Does a file exist?
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>filename</em></code>:  a file path</li>
-    </ul>
-
-    <h3>Usage:</h3>
-    <ul>
-        <pre class="example">exists 'readme' or exists 'readme.txt' or exists 'readme.md'</pre>
+      <li><span class="parameter">filename</span>
+       a file path</li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
+
         the file path, otherwise nil
     </ol>
 
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">exists &apos;readme&apos; or exists &apos;readme.txt&apos; or exists &apos;readme.md&apos;</pre>
+    </ul>
 
 </dd>
     <dt>
@@ -328,20 +387,25 @@
     <strong>splitpath&nbsp;(P)</strong>
     </dt>
     <dd>
-    split a file path. 
- if there's no directory part, the first value will be the empty string
+    split a path into directory and file part.
+ if there's no directory part, the first value will be the empty string.
+ Handles both forward and back-slashes on Windows.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>P</em></code>:  A file path</li>
+      <li><span class="parameter">P</span>
+       A file path</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
-        <li>the directory part</li>
-        <li>the file part</li>
+        <li>
+        the directory part</li>
+        <li>
+        the file part</li>
     </ol>
+
+
 
 
 </dd>
@@ -350,28 +414,31 @@
     <strong>splitext&nbsp;(P)</strong>
     </dt>
     <dd>
-    given a path, return the root part and the extension part. 
+    split a path into root part and extension part.
  if there's no extension part, the second value will be empty
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>P</em></code>:  A file path</li>
+      <li><span class="parameter">P</span>
+       A file path</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
-        <li>the name part</li>
-        <li>the extension</li>
+        <li>
+        the name part</li>
+        <li>
+        the extension</li>
     </ol>
+
+
 
 
 </dd>
 </dl>
     <h2><a name="Extended_table_functions"></a>Extended table functions</h2>
-    
- 'array' here is shorthand for 'array-like table'; these functions
- only operate over the numeric `1..#t` range of a table and are
+     'array' here is shorthand for 'array-like table'; these functions
+ only operate over the numeric <code>1..#t</code> range of a table and are
  particularly efficient for this purpose.
     <dl class="function">
     <dt>
@@ -379,22 +446,108 @@
     <strong>tstring&nbsp;(t, how)</strong>
     </dt>
     <dd>
-    return a string representation of a Lua value. 
+    return a string representation of a Lua value.
  Cycles are detected, and the result can be optionally indented nicely.
+ to <code>indent</code>.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>t</em></code>:  the table</li>
-       <li><code><em>how</em></code>:  (optional) a table with fields `spacing' and 'indent', or a string corresponding
- to `indent`.</li>
+      <li><span class="parameter">t</span>
+       the table</li>
+      <li><span class="parameter">how</span>
+       (optional) a table with fields `spacing' and 'indent', or a string corresponding</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
+
         a string
     </ol>
 
+
+
+
+</dd>
+    <dt>
+    <a name = "collect"></a>
+    <strong>collect&nbsp;(...)</strong>
+    </dt>
+    <dd>
+    collect a series of values from an interator.
+
+    <h3>Parameters:</h3>
+    <ul>
+      <li><span class="parameter">...</span>
+       iterator</li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        array-like table
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">collect(pairs(t)) is the same as keys(t)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "collect_until"></a>
+    <strong>collect_until&nbsp;(n, ...)</strong>
+    </dt>
+    <dd>
+    collect up to n values from an interator.
+ <code>n</code> is usually an integer, but it can be a function. If that
+ function returns true, then collection stops.
+
+    <h3>Parameters:</h3>
+    <ul>
+      <li><span class="parameter">n</span>
+       count</li>
+      <li><span class="parameter">...</span>
+       iterator</li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        array-like table
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "collect2nd"></a>
+    <strong>collect2nd&nbsp;(...)</strong>
+    </dt>
+    <dd>
+    collect the second value from a iterator.
+ If the second value is <code>nil</code>, it won't be collected!
+
+    <h3>Parameters:</h3>
+    <ul>
+      <li><span class="parameter">...</span>
+       iterator</li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        array-like table
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">collect2nd(pairs(t)) would be the values of t</pre>
+    </ul>
 
 </dd>
     <dt>
@@ -402,22 +555,54 @@
     <strong>imap&nbsp;(f, t, ...)</strong>
     </dt>
     <dd>
-    map a function over a array. 
+    map a function over a array.
  The output must always be the same length as the input, so
- any `nil` values are mapped to `false`.
+ any <code>nil</code> values are mapped to <code>false</code>.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>f</em></code>:  a function of one or more arguments</li>
-       <li><code><em>t</em></code>:  the array</li>
-       <li><code><em>...</em></code>:  any extra arguments to the function</li>
+      <li><span class="parameter">f</span>
+       a function of one or more arguments</li>
+      <li><span class="parameter">t</span>
+       the array</li>
+      <li><span class="parameter">...</span>
+       any extra arguments to the function</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
-        a array with elements `f(t[i],...)`
+
+        a array with elements <code>f(t[i],...)</code>
     </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "transform"></a>
+    <strong>transform&nbsp;(f, t, ...)</strong>
+    </dt>
+    <dd>
+    apply a function to each element of an array.
+
+    <h3>Parameters:</h3>
+    <ul>
+      <li><span class="parameter">f</span>
+       a function of one or more arguments</li>
+      <li><span class="parameter">t</span>
+       the array</li>
+      <li><span class="parameter">...</span>
+       any extra arguments to the function</li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        the transformed array
+    </ol>
+
+
 
 
 </dd>
@@ -426,23 +611,28 @@
     <strong>imap2&nbsp;(f, t1, t2, ...)</strong>
     </dt>
     <dd>
-    map a function over two arrays. 
- The output must always be the same length as the input, so
- any `nil` values are mapped to `false`.
+    map a function over values from two arrays.
+ Length of output is the size of the smallest array.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>f</em></code>:  a function of two or more arguments</li>
-       <li><code><em>t1</em></code>:  first array</li>
-       <li><code><em>t2</em></code>:  second array</li>
-       <li><code><em>...</em></code>:  any extra arguments to the function</li>
+      <li><span class="parameter">f</span>
+       a function of two or more arguments</li>
+      <li><span class="parameter">t1</span>
+       first array</li>
+      <li><span class="parameter">t2</span>
+       second array</li>
+      <li><span class="parameter">...</span>
+       any extra arguments to the function</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
-        a array with elements `f(t1[i],t2[i],...)`
+
+        an array with elements <code>f(t1[i],t2[i],...)</code>
     </ol>
+
+
 
 
 </dd>
@@ -451,22 +641,26 @@
     <strong>ifilter&nbsp;(t, pred, ...)</strong>
     </dt>
     <dd>
-    filter a array using a predicate. 
- If `pred` is absent, then we provide a default which
- filters out any `false` values.
+    filter a array using a predicate.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>t</em></code>:  a table</li>
-       <li><code><em>pred</em></code>:  the predicate function</li>
-       <li><code><em>...</em></code>:  any extra arguments to the predicate</li>
+      <li><span class="parameter">t</span>
+       a table</li>
+      <li><span class="parameter">pred</span>
+       a function that must return <code>nil</code> or <code>false</code>
+ to exclude a value</li>
+      <li><span class="parameter">...</span>
+       any extra arguments to the predicate</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
-        a array such that `pred(t[i])` is true
+
+        a array such that <code>pred(t[i])</code> evaluates as true
     </ol>
+
+
 
 
 </dd>
@@ -475,21 +669,30 @@
     <strong>ifind&nbsp;(t, pred, ...)</strong>
     </dt>
     <dd>
-    find an item in a array using a predicate. 
+    find an item in a array using a predicate.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>t</em></code>:  the array</li>
-       <li><code><em>pred</em></code>:  a function of at least one argument</li>
-       <li><code><em>...</em></code>:  any extra arguments</li>
+      <li><span class="parameter">t</span>
+       the array</li>
+      <li><span class="parameter">pred</span>
+       a function of at least one argument</li>
+      <li><span class="parameter">...</span>
+       any extra arguments</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
+
         the item value
     </ol>
 
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">ifind({{1,2},{4,5}},&apos;X[1]==Y&apos;,4) is {4,5}</pre>
+    </ul>
 
 </dd>
     <dt>
@@ -497,20 +700,25 @@
     <strong>indexof&nbsp;(t, value, cmp)</strong>
     </dt>
     <dd>
-    return the index of an item in a array. 
+    return the index of an item in a array.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>t</em></code>:  the array</li>
-       <li><code><em>value</em></code>:  item value</li>
-       <li><code><em>cmp</em></code>:  optional comparison function (default is `v==value`)</li>
+      <li><span class="parameter">t</span>
+       the array</li>
+      <li><span class="parameter">value</span>
+       item value</li>
+      <li><span class="parameter">cmp</span>
+       optional comparison function (default is <code>X==Y</code>)</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
-        index, otherwise `nil`
+
+        index, otherwise <code>nil</code>
     </ol>
+
+
 
 
 </dd>
@@ -519,21 +727,26 @@
     <strong>sub&nbsp;(t, i1, i2)</strong>
     </dt>
     <dd>
-    return a slice of a array. 
- Like string.sub, the end index may be negative.
+    return a slice of a array.
+ Like <a href="http://www.lua.org/manual/5.1/manual.html#pdf-string.sub">string.sub</a> , the end index may be negative.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>t</em></code>:  the array</li>
-       <li><code><em>i1</em></code>:  the start index</li>
-       <li><code><em>i2</em></code>:  the end index, default #t</li>
+      <li><span class="parameter">t</span>
+       the array</li>
+      <li><span class="parameter">i1</span>
+       the start index, default 1</li>
+      <li><span class="parameter">i2</span>
+       the end index, default #t</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
-        a array such that `t[i]` for `i` from `i1` to `i2` inclusive
+
+        an array of <code>t[i]</code> for <code>i</code> from <code>i1</code> to <code>i2</code> inclusive
     </ol>
+
+
 
 
 </dd>
@@ -542,14 +755,18 @@
     <strong>removerange&nbsp;(tbl, start, finish)</strong>
     </dt>
     <dd>
-    delete a range of values from a array. 
+    delete a range of values from a array.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>tbl</em></code>:  the array</li>
-       <li><code><em>start</em></code>:  start index</li>
-       <li><code><em>finish</em></code>:  end index (like `ml.sub`)</li>
+      <li><span class="parameter">tbl</span>
+       the array</li>
+      <li><span class="parameter">start</span>
+       start index</li>
+      <li><span class="parameter">finish</span>
+       end index (like <a href="index.html#sub">ml.sub</a> )</li>
     </ul>
+
 
 
 
@@ -560,17 +777,21 @@
     <strong>insertvalues&nbsp;(dest, index, src, overwrite)</strong>
     </dt>
     <dd>
-    copy values from `src` into `dest` starting at `index`. 
- By default, it inserts into `dest` and moves up elements of `src`
- to make room.
+    copy values from <code>src</code> into <code>dest</code> starting at <code>index</code>.
+ By default, it moves up elements of <code>dest</code> to make room.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>dest</em></code>:  destination array</li>
-       <li><code><em>index</em></code>:  start index in destination</li>
-       <li><code><em>src</em></code>:  source array</li>
-       <li><code><em>overwrite</em></code>:  write over values</li>
+      <li><span class="parameter">dest</span>
+       destination array</li>
+      <li><span class="parameter">index</span>
+       start index in destination</li>
+      <li><span class="parameter">src</span>
+       source array</li>
+      <li><span class="parameter">overwrite</span>
+       write over values</li>
     </ul>
+
 
 
 
@@ -578,22 +799,26 @@
 </dd>
     <dt>
     <a name = "extend"></a>
-    <strong>extend&nbsp;(t, other)</strong>
+    <strong>extend&nbsp;(t, ...)</strong>
     </dt>
     <dd>
-    extend a array using values from another. 
+    extend a array using values from other tables.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>t</em></code>:  the array to be extended</li>
-       <li><code><em>other</em></code>:  a array</li>
+      <li><span class="parameter">t</span>
+       the array to be extended</li>
+      <li><span class="parameter">...</span>
+       the other arrays</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
+
         the extended array
     </ol>
+
+
 
 
 </dd>
@@ -602,25 +827,29 @@
     <strong>indexby&nbsp;(t, keys)</strong>
     </dt>
     <dd>
-    make a array of indexed values. 
+    make a array of indexed values.
  Generalized table indexing
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>t</em></code>:  a table</li>
-       <li><code><em>keys</em></code>:  a array of keys or indices</li>
-    </ul>
-
-    <h3>Usage:</h3>
-    <ul>
-        <pre class="example">indexby({one=1,two=2},{'one'}) == {1}</pre>
+      <li><span class="parameter">t</span>
+       a table</li>
+      <li><span class="parameter">keys</span>
+       a array of keys or indices</li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
-        a array `L` such that `L[keys[i]]`
+
+        a array <code>L</code> such that <code>L[keys[i]]</code>
     </ol>
 
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">indexby({one=1,two=2},{&apos;one&apos;}) == {1}</pre>
+    </ul>
 
 </dd>
     <dt>
@@ -628,16 +857,27 @@
     <strong>range&nbsp;(x1, x2, d)</strong>
     </dt>
     <dd>
-    create an array of numbers from start to end. 
- With one argument it goes `1..x1`. `d` may be a
+    create an array of numbers from start to end.
+ With one argument it goes <code>1..x1</code>. <code>d</code> may be a
  floating-point fraction
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>x1</em></code>:  start value</li>
-       <li><code><em>x2</em></code>:  end value</li>
-       <li><code><em>d</em></code>:  increment (default 1)</li>
+      <li><span class="parameter">x1</span>
+       start value</li>
+      <li><span class="parameter">x2</span>
+       end value</li>
+      <li><span class="parameter">d</span>
+       increment (default 1)</li>
     </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        array of numbers
+    </ol>
+
+
 
     <h3>Usage:</h3>
     <ul>
@@ -645,36 +885,31 @@
         <li><pre class="example">range(5) == {1,2,3,4,5}</pre></li>
     </ul>
 
-    <h3>Returns:</h3>
-    <ol>
-        array of numbers
-    </ol>
-
-
 </dd>
     <dt>
-    <a name = "import"></a>
-    <strong>import&nbsp;(t, other)</strong>
+    <a name = "update"></a>
+    <strong>update&nbsp;(t, ...)</strong>
     </dt>
     <dd>
-    add the key/value pairs of `other` to `t`. 
+    add the key/value pairs of arrays to the first array.
  For sets, this is their union. For the same keys,
  the values from the first table will be overwritten.
- If `other` is a string, then it becomes the result of `require`
- With only one argument, the second argument is assumed to be
- the `ml` table itself.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>t</em></code>:  table to be updated</li>
-       <li><code><em>other</em></code>:  table</li>
+      <li><span class="parameter">t</span>
+       table to be updated</li>
+      <li><span class="parameter">...</span>
+       tables containg more pairs to be added</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
+
         the updated table
     </ol>
+
+
 
 
 </dd>
@@ -683,24 +918,28 @@
     <strong>makemap&nbsp;(t, tv)</strong>
     </dt>
     <dd>
-    make a table from a array of keys and a array of values. 
+    make a table from a array of keys and a array of values.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>t</em></code>:  a array of keys</li>
-       <li><code><em>tv</em></code>:  a array of values</li>
-    </ul>
-
-    <h3>Usage:</h3>
-    <ul>
-        <pre class="example">makemap({'power','glory'},{20,30}) == {power=20,glory=30}</pre>
+      <li><span class="parameter">t</span>
+       a array of keys</li>
+      <li><span class="parameter">tv</span>
+       a array of values</li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
-        a table where `{[t[i]]=tv[i]}`
+
+        a table where <code>{[t[i]]=tv[i]}</code>
     </ol>
 
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">makemap({&apos;power&apos;,&apos;glory&apos;},{20,30}) == {power=20,glory=30}</pre>
+    </ul>
 
 </dd>
     <dt>
@@ -708,24 +947,27 @@
     <strong>invert&nbsp;(t)</strong>
     </dt>
     <dd>
-    make a set from a array. 
+    make a set from a array.
  The values are the original array indices.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>t</em></code>:  a array of values</li>
-    </ul>
-
-    <h3>Usage:</h3>
-    <ul>
-        <pre class="example">invert{'one','two'} == {one=1,two=2}</pre>
+      <li><span class="parameter">t</span>
+       a array of values</li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
+
         a table where the keys are the indices in the array.
     </ol>
 
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">invert{&apos;one&apos;,&apos;two&apos;} == {one=1,two=2}</pre>
+    </ul>
 
 </dd>
     <dt>
@@ -733,18 +975,21 @@
     <strong>keys&nbsp;(t)</strong>
     </dt>
     <dd>
-    extract the keys of a table as a array. 
+    extract the keys of a table as a array.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>t</em></code>:  a table</li>
+      <li><span class="parameter">t</span>
+       a table</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
+
         a array of keys
     </ol>
+
+
 
 
 </dd>
@@ -753,20 +998,46 @@
     <strong>issubset&nbsp;(t, other)</strong>
     </dt>
     <dd>
-    are all the keys of `other` in `t`? 
- Only compares keys!
+    are all the values of <code>other</code> in <code>t</code>?
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>t</em></code>:  a set</li>
-       <li><code><em>other</em></code>:  a possible subset</li>
+      <li><span class="parameter">t</span>
+       a set</li>
+      <li><span class="parameter">other</span>
+       a possible subset</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
-        true or false
+
+          <span class="types"><span class="type">bool</span></span>
+
+
+
     </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "contains_keys"></a>
+    <strong>contains_keys</strong>
+    </dt>
+    <dd>
+    are all the keys of <code>other</code> in <code>t</code>?
+
+    <h3>:</h3>
+    <ul>
+      <li><span class="parameter">t</span>
+       a table</li>
+      <li><span class="parameter">other</span>
+       another table</li>
+    </ul>
+
+
+
 
 
 </dd>
@@ -775,18 +1046,22 @@
     <strong>count&nbsp;(t)</strong>
     </dt>
     <dd>
-    return the number of keys in this table. 
+    return the number of keys in this table, or members in this set.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>t</em></code>:  a table</li>
+      <li><span class="parameter">t</span>
+       a table</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
-        key count, (which is set cardinality)
+
+          <span class="types"><span class="type">int</span></span>
+        key count
     </ol>
+
+
 
 
 </dd>
@@ -795,44 +1070,53 @@
     <strong>equal_keys&nbsp;(t, other)</strong>
     </dt>
     <dd>
-    do these tables have the same keys? 
+    do these tables have the same keys?
+ THis is set equality.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>t</em></code>:  a table</li>
-       <li><code><em>other</em></code>:  a table</li>
+      <li><span class="parameter">t</span>
+       a table</li>
+      <li><span class="parameter">other</span>
+       a table</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
+
         true or false
     </ol>
+
+
 
 
 </dd>
 </dl>
     <h2><a name="Functional_helpers"></a>Functional helpers</h2>
-    
+
+
+
     <dl class="function">
     <dt>
     <a name = "throw"></a>
-    <strong>throw&nbsp;(f, quit)</strong>
+    <strong>throw&nbsp;(f)</strong>
     </dt>
     <dd>
-    create a function which will throw an error on failure. 
+    create a function which will throw an error on failure.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>f</em></code>:  a function that returns nil,err if it fails</li>
-       <li><code><em>quit</em></code>:  exit the script immediately with the error (default false)</li>
+      <li><span class="parameter">f</span>
+       a function that returns nil,err if it fails</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
+
         an equivalent function that raises an error
     </ol>
+
+
 
 
 </dd>
@@ -841,24 +1125,28 @@
     <strong>bind1&nbsp;(f, v)</strong>
     </dt>
     <dd>
-    bind the value `v` to the first argument of function `f`. 
+    bind the value <code>v</code> to the first argument of function <code>f</code>.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>f</em></code>:  a function of at least one argument</li>
-       <li><code><em>v</em></code>:  a value</li>
-    </ul>
-
-    <h3>Usage:</h3>
-    <ul>
-        <pre class="example">(bind1(string.match,'hello')('^hell') == 'hell'</pre>
+      <li><span class="parameter">f</span>
+       a function of at least one argument</li>
+      <li><span class="parameter">v</span>
+       a value</li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
+
         a function of one less argument
     </ol>
 
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">(bind1(string.match,&apos;hello&apos;)(&apos;^hell&apos;) == &apos;hell&apos;</pre>
+    </ul>
 
 </dd>
     <dt>
@@ -866,24 +1154,28 @@
     <strong>bind2&nbsp;(f, v)</strong>
     </dt>
     <dd>
-    bind the value `v` to the second argument of function `f`. 
+    bind the value <code>v</code> to the second argument of function <code>f</code>.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>f</em></code>:  a function of at least one argument</li>
-       <li><code><em>v</em></code>:  a value</li>
-    </ul>
-
-    <h3>Usage:</h3>
-    <ul>
-        <pre class="example">(bind2(string.match,'^hell')('hello') == 'hell'</pre>
+      <li><span class="parameter">f</span>
+       a function of at least one argument</li>
+      <li><span class="parameter">v</span>
+       a value</li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
+
         a function of one less argument
     </ol>
 
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">(bind2(string.match,&apos;^hell&apos;)(&apos;hello&apos;) == &apos;hell&apos;</pre>
+    </ul>
 
 </dd>
     <dt>
@@ -891,20 +1183,24 @@
     <strong>compose&nbsp;(f1, f2)</strong>
     </dt>
     <dd>
-    compose two functions. 
- For instance, `printf` can be defined as `compose(io.write,string.format)`
+    compose two functions.
+ For instance, <code>printf</code> can be defined as <code>compose(io.write,string.format)</code>
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>f1</em></code>:  a function</li>
-       <li><code><em>f2</em></code>:  a function</li>
+      <li><span class="parameter">f1</span>
+       a function</li>
+      <li><span class="parameter">f2</span>
+       a function</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
-        `f1(f2(...))`
+
+        <code>f1(f2(...))</code>
     </ol>
+
+
 
 
 </dd>
@@ -913,19 +1209,94 @@
     <strong>callable&nbsp;(obj)</strong>
     </dt>
     <dd>
-    is the object either a function or a callable object?. 
+    is the object either a function or a callable object?.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>obj</em></code>:  Object to check.</li>
+      <li><span class="parameter">obj</span>
+       Object to check.</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
+
         true if callable
     </ol>
 
+
+
+
+</dd>
+    <dt>
+    <a name = "map2fun"></a>
+    <strong>map2fun&nbsp;(t)</strong>
+    </dt>
+    <dd>
+    create a callable from an indexable object.
+
+    <h3>Parameters:</h3>
+    <ul>
+      <li><span class="parameter">t</span>
+       a table or other indexable object.</li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "fun2map"></a>
+    <strong>fun2map&nbsp;(f)</strong>
+    </dt>
+    <dd>
+    create an indexable object from a callable.
+
+    <h3>Parameters:</h3>
+    <ul>
+      <li><span class="parameter">f</span>
+       a callable of one argument.</li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "function_arg"></a>
+    <strong>function_arg&nbsp;(f)</strong>
+    </dt>
+    <dd>
+    defines how we convert something to a callable. </p>
+
+<p> Currently, anything that matches <a href="index.html#callable">callable</a> or is a <em>string lambda</em>.
+ These are expressions with any of the placeholders, <code>X</code>,<code>Y</code> or <code>Z</code>
+ corresponding to the first, second or third argument to the function.</p>
+
+<p> This can be overriden by people
+ wishing to extend the idea of 'callable' in this library.
+
+    <h3>Parameters:</h3>
+    <ul>
+      <li><span class="parameter">f</span>
+       a callable or a string lambda.</li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        a function
+    </ol>
+
+    <h3>Raises:</h3>
+    error if <code>f</code> is not callable in any way, or errors in string lambda.
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">function_arg(&apos;X+Y&apos;)(1,2) == 3</pre>
+    </ul>
 
 </dd>
     <dt>
@@ -933,52 +1304,61 @@
     <strong>memoize&nbsp;(func)</strong>
     </dt>
     <dd>
-    'memoize' a function (cache returned value for next call). 
+    'memoize' a function (cache returned value for next call).
  This is useful if you have a function which is relatively expensive,
  but you don't know in advance what values will be required, so
  building a table upfront is wasteful/impossible.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>func</em></code>:  a function of at least one argument</li>
+      <li><span class="parameter">func</span>
+       a function of at least one argument</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
+
         a function with at least one argument, which is used as the key.
     </ol>
+
+
 
 
 </dd>
 </dl>
     <h2><a name="Classes"></a>Classes</h2>
-    
+
+
+
     <dl class="function">
     <dt>
     <a name = "class"></a>
     <strong>class&nbsp;(base)</strong>
     </dt>
     <dd>
-    create a class with an optional base class. 
+    create a class with an optional base class.
  The resulting table can be called to make a new object, which invokes
- an optional constructor named `_init`. If the base
- class has a constructor, you can call it as the `super()` method.
- Every class has a `_class` and a maybe-nil `_base` field, which can
- be accessed through the object.
- All metamethods are inherited.
- The class is given a function `Klass.class_of(obj)`.
+ an optional constructor named <code>_init</code>. If the base
+ class has a constructor, you can call it as the <code>super()</code> method.
+ Every class has a <code>_class</code> and a maybe-nil <code>_base</code> field, which can
+ be accessed through the object.</p>
+
+<p> All metamethods are inherited.
+ The class is given a function <code>Klass.class_of(obj)</code>.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>base</em></code>:  optional base class</li>
+      <li><span class="parameter">base</span>
+       optional base class</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
-        the metatable representing the class
+
+        the callable metatable representing the class
     </ol>
+
+
 
 
 </dd>
@@ -987,7 +1367,19 @@
     <strong>Array</strong>
     </dt>
     <dd>
-    a simple Array class. 
+    a simple Array class.
+ <a href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a>  functions: <code>sort</code>,<code>concat</code>,<code>insert</code>,<code>remove</code>,<code>insert</code> as <code>append</code>.</p>
+
+<p> <a href="index.html#">ml</a>  functions: <a href="index.html#ifilter">ifilter</a>  as <code>filter</code>,<a href="index.html#imap">imap</a>  as <code>map</code>,<a href="index.html#sub">sub</a> ,<a href="index.html#indexby">indexby</a> ,<a href="index.html#range">range</a> ,
+ <a href="index.html#indexof">indexof</a> ,<a href="index.html#ifind">ifind</a>  as <code>find</code>,<a href="index.html#extend">extend</a> ,<a href="index.html#split">split</a>  and <a href="index.html#collect">collect</a> .</p>
+
+<p> The <code>sorted</code> method returns a sorted copy.</p>
+
+<p> Concatenation, equality and custom tostring is defined.</p>
+
+<p> This implementation has covariant methods; so that methods like <code>map</code> and <a href="index.html#sub">sub</a>
+ will return an object of the derived type, not <a href="index.html#Array">Array</a>
+
 
 
 
@@ -1000,7 +1392,7 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.2</a></i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.3</a></i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
