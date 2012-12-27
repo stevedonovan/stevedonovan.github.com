@@ -24,8 +24,8 @@
 <h2>Getting an easy, good-looking plot of your data from Lua</h2>
 
 <p>The <a href="http://www.flotcharts.org/">Flot</a> JavaScript library does very <a href="http://people.iola.dk/olau/flot/examples/">nice</a> plots which render in modern browsers with Canvas support. 'Flot' means 'pretty' <em>or</em> 'handsome' in Danish, and it definitely provides the cleanest most attractice results I've seen for browser-side plots.</p>
-<p>Modern browsers are an attractive display option for a minimal language like Lua. This post describes a straightforward little Lua library for generating HTML with embedded Flot plots.</p>
-<p>In these articles, I like to describe things that can be done with 'about 100 lines' of Lua. We can get this compactness because the job of this library is to generate some HTML boilerplate and set up a JavaScript call with object arguments. And the close similarities between Lua and JavaScript make this job mechanical and easy: converting a Lua table constructor to a JavaScript object literal is mostly a matter of making array-like tables use <code>[]</code> and hash-like tables use <code>:</code> instead of <code>=</code>.</p>
+<p>Modern browsers are an attractive display option for a minimal language like Lua. <code>lua-flot</code> describes a straightforward little Lua library for generating HTML with embedded Flot plots.</p>
+<p>I like to describe things that can be done with 'about 100 lines' of Lua. We can get this compactness because the job of this library is to generate some HTML boilerplate and set up a JavaScript call with object arguments. And the close similarities between Lua and JavaScript make this job mechanical and easy: converting a Lua table constructor to a JavaScript object literal is mostly a matter of making array-like tables use <code>[]</code> and hash-like tables use <code>:</code> instead of <code>=</code>.</p>
 <pre>
  <span class="keyword">function</span> as_js (t)
     <span class="keyword">local</span> mt = getmetatable(t)
@@ -88,7 +88,7 @@
 <pre>
  <span class="keyword">return</span> plot
 nd</pre>
-<p>There's only one public API method, <code>add_series</code>, and it allows series to be added incrementally. The other major difference from the original API is that the label and the data array are arguments; the third argument is the rest of the data series object. The argument to <code>flot.Plot</code> is essentially the 'options' object in Flot, although it may also contain extra fields <code>width</code>, <code>height</code> and <code>xvalues</code>.</p>
+<p>There's only one public API method, <code>add_series</code>, and it allows series to be added incrementally. The other major difference from the original API is that the label and the data array are arguments; the third argument is the rest of the data series object. The argument to <code>flot.Plot</code> is essentially the 'options' object in Flot, although it may also contain extra fields <code>width</code>, <code>height</code> (for plot size in pixels) and <code>xvalues</code>,<code>x</code> and <code>y</code> for data. Generally series data is an array of two-element arrays, but if you specify <code>xvalues</code> then it can be an array of y values; <code>x</code> and <code>y</code> are for separate arrays of coordinates.</p>
 <p>This closure-based method for creating objects works particularly well when the number
 of objects of each 'class' is relatively few.  (With a trivial change, we could
 actually use dot <code>.</code> instead of colon <code>:</code> when calling these objects, but that would confuse most Lua programmers.)</p>
@@ -126,7 +126,7 @@ $(function () {
 
 
 
-<p>To run this script, the fastest way is <a href="">download and unzip</a> Flot to a directory, and copy <a href="">flot.lua</a> and <code>basic-flot.lua</code> to the same directory. (After that you can move <code>flot.lua</code> to your module path and modify <code>flot.path</code> to be the absolute path to the Flot directory)</p>
+<p>To run this script, the fastest way is to download and unzip Flot to a directory, and copy <a href="flot.lua">flot.lua</a> and <a href="basic-flot.lua">basic-flot.lua</a> to the same directory. (After that you can move <code>flot.lua</code> to your module path and modify <code>flot.path</code> in the source to be the absolute path to the Flot directory, or to a public internet uRL)</p>
 <p>Running this program will create a corresponding <code>basic-flot.html</code> which you can open in your browser.</p>
 <p>There's also a convenient way to input data that comes as a separate array of x and y values:</p>
 <pre>
@@ -236,6 +236,8 @@ $(function () {
 <ul>
     <li><a href="flot.lua">flot.lua</a> is just 146 lines...</li>
     <li><a href="filled.lua">filled</a>, <a href="basic-flot.lua">basic-flot</a> and <a href="normal.lua">normal</a> are examples</li>
+    <li><a href="prettify.lua">prettify.lua</a> is the script that generated this semi-nice HTML output with inlined plots. With a little styling, could be used as a tool for a blogger who likes to argue using code and numbers.</li>
 </ul>
+
 
 </body></html>
