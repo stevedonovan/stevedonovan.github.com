@@ -59,19 +59,23 @@
 <table class="function_list">
 	<tr>
 	<td class="name" nowrap><a href="#split">split&nbsp;(s, re, n)</a></td>
-	<td class="summary">split a string into a table of strings separated by a delimiter.</td>
+	<td class="summary">split a delimited string into an array of strings.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#escape">escape&nbsp;(s)</a></td>
-	<td class="summary">escape any 'magic' characters in a string</td>
+	<td class="summary">escape any 'magic' pattern characters in a string.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#expand">expand&nbsp;(s, subst)</a></td>
-	<td class="summary">expand a string containing any ${var} or $var.</td>
+	<td class="summary">expand a string containing any <code>${var}</code> or <code>$var</code>.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#readfile">readfile&nbsp;(filename, is_bin)</a></td>
 	<td class="summary">return the contents of a file as a string</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#writefile">writefile&nbsp;(filename, str, is_bin)</a></td>
+	<td class="summary">write a string to a file,</td>
 	</tr>
 </table>
 <h2><a href="#File_and_Path_functions">File and Path functions</a></h2>
@@ -86,7 +90,7 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#splitext">splitext&nbsp;(P)</a></td>
-	<td class="summary">split a path into root part and extension part.</td>
+	<td class="summary">split a path into root and extension part.</td>
 	</tr>
 </table>
 <h2><a href="#Extended_table_functions">Extended table functions</a></h2>
@@ -100,16 +104,24 @@
 	<td class="summary">collect a series of values from an interator.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#collect_until">collect_until&nbsp;(n, ...)</a></td>
-	<td class="summary">collect up to n values from an interator.</td>
+	<td class="name" nowrap><a href="#collectuntil">collectuntil&nbsp;(f, ...)</a></td>
+	<td class="summary">collect from an interator up to a condition.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#collectn">collectn&nbsp;(n, ...)</a></td>
+	<td class="summary">collect <code>n</code> values from an interator.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#collect2nd">collect2nd&nbsp;(...)</a></td>
 	<td class="summary">collect the second value from a iterator.</td>
 	</tr>
 	<tr>
+	<td class="name" nowrap><a href="#mapextend">mapextend&nbsp;(dest, j, nilv, f, t, ...)</a></td>
+	<td class="summary">extend a table by mapping a function over another table.</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#imap">imap&nbsp;(f, t, ...)</a></td>
-	<td class="summary">map a function over a array.</td>
+	<td class="summary">map a function over an array.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#transform">transform&nbsp;(f, t, ...)</a></td>
@@ -120,24 +132,28 @@
 	<td class="summary">map a function over values from two arrays.</td>
 	</tr>
 	<tr>
+	<td class="name" nowrap><a href="#imapfilter">imapfilter&nbsp;(f, t, ...)</a></td>
+	<td class="summary">map a function over an array only keeping non-<code>nil</code> values.</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#ifilter">ifilter&nbsp;(t, pred, ...)</a></td>
-	<td class="summary">filter a array using a predicate.</td>
+	<td class="summary">filter an array using a predicate.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#ifind">ifind&nbsp;(t, pred, ...)</a></td>
-	<td class="summary">find an item in a array using a predicate.</td>
+	<td class="summary">find an item in an array using a predicate.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#indexof">indexof&nbsp;(t, value, cmp)</a></td>
-	<td class="summary">return the index of an item in a array.</td>
+	<td class="summary">return the index of an item in an array.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#sub">sub&nbsp;(t, i1, i2)</a></td>
-	<td class="summary">return a slice of a array.</td>
+	<td class="summary">return a slice of an array.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#removerange">removerange&nbsp;(tbl, start, finish)</a></td>
-	<td class="summary">delete a range of values from a array.</td>
+	<td class="summary">delete a range of values from an array.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#insertvalues">insertvalues&nbsp;(dest, index, src, overwrite)</a></td>
@@ -145,11 +161,11 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#extend">extend&nbsp;(t, ...)</a></td>
-	<td class="summary">extend a array using values from other tables.</td>
+	<td class="summary">extend an array using values from other tables.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#indexby">indexby&nbsp;(t, keys)</a></td>
-	<td class="summary">make a array of indexed values.</td>
+	<td class="summary">make an array of indexed values.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#range">range&nbsp;(x1, x2, d)</a></td>
@@ -161,22 +177,22 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#makemap">makemap&nbsp;(t, tv)</a></td>
-	<td class="summary">make a table from a array of keys and a array of values.</td>
+	<td class="summary">make a table from an array of keys and an array of values.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#invert">invert&nbsp;(t)</a></td>
-	<td class="summary">make a set from a array.</td>
+	<td class="summary">make a set from an array.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#keys">keys&nbsp;(t)</a></td>
-	<td class="summary">extract the keys of a table as a array.</td>
+	<td class="summary">extract the keys of a table as an array.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#issubset">issubset&nbsp;(t, other)</a></td>
 	<td class="summary">are all the values of <code>other</code> in <code>t</code>?</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#contains_keys">contains_keys</a></td>
+	<td class="name" nowrap><a href="#containskeys">containskeys</a></td>
 	<td class="summary">are all the keys of <code>other</code> in <code>t</code>?</td>
 	</tr>
 	<tr>
@@ -184,7 +200,7 @@
 	<td class="summary">return the number of keys in this table, or members in this set.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#equal_keys">equal_keys&nbsp;(t, other)</a></td>
+	<td class="name" nowrap><a href="#equalkeys">equalkeys&nbsp;(t, other)</a></td>
 	<td class="summary">do these tables have the same keys?</td>
 	</tr>
 </table>
@@ -205,6 +221,10 @@
 	<tr>
 	<td class="name" nowrap><a href="#compose">compose&nbsp;(f1, f2)</a></td>
 	<td class="summary">compose two functions.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#take2">take2&nbsp;(f)</a></td>
+	<td class="summary">a function returning the second value of <code>f</code></td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#callable">callable&nbsp;(obj)</a></td>
@@ -253,7 +273,7 @@
     <strong>split&nbsp;(s, re, n)</strong>
     </dt>
     <dd>
-    split a string into a table of strings separated by a delimiter.
+    split a delimited string into an array of strings.
 
     <h3>Parameters:</h3>
     <ul>
@@ -268,7 +288,7 @@
     <h3>Returns:</h3>
     <ol>
 
-        a table of strings
+        an array of strings
     </ol>
 
 
@@ -280,7 +300,10 @@
     <strong>escape&nbsp;(s)</strong>
     </dt>
     <dd>
-    escape any 'magic' characters in a string
+    escape any 'magic' pattern characters in a string.
+ Useful for functions like <a href="http://www.lua.org/manual/5.1/manual.html#pdf-string.gsub">string.gsub</a>  and <a href="http://www.lua.org/manual/5.1/manual.html#pdf-string.match">string.match</a>  which
+ always work with Lua string patterns.
+ For any s, <code>s:match('^'..escape(s)..'$') == s</code> is <code>true</code>.
 
     <h3>Parameters:</h3>
     <ul>
@@ -303,7 +326,8 @@
     <strong>expand&nbsp;(s, subst)</strong>
     </dt>
     <dd>
-    expand a string containing any ${var} or $var.
+    expand a string containing any <code>${var}</code> or <code>$var</code>.
+ Substitution values should be only numbers or strings.
  However, you should pick <em>either one</em> consistently!
 
     <h3>Parameters:</h3>
@@ -342,7 +366,34 @@
     <h3>Returns:</h3>
     <ol>
 
-        file contents
+        file contents, or nil,error
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "writefile"></a>
+    <strong>writefile&nbsp;(filename, str, is_bin)</strong>
+    </dt>
+    <dd>
+    write a string to a file,
+
+    <h3>Parameters:</h3>
+    <ul>
+      <li><span class="parameter">filename</span>
+       The file path</li>
+      <li><span class="parameter">str</span>
+       The string</li>
+      <li><span class="parameter">is_bin</span>
+       open in binary mode, default false</li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        true or nil,error
     </ol>
 
 
@@ -378,7 +429,7 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">exists &apos;readme&apos; or exists &apos;readme.txt&apos; or exists &apos;readme.md&apos;</pre>
+        <pre class="example">file = exists &apos;readme&apos; or exists &apos;readme.txt&apos; or exists &apos;readme.md&apos;</pre>
     </ul>
 
 </dd>
@@ -414,7 +465,7 @@
     <strong>splitext&nbsp;(P)</strong>
     </dt>
     <dd>
-    split a path into root part and extension part.
+    split a path into root and extension part.
  if there's no extension part, the second value will be empty
 
     <h3>Parameters:</h3>
@@ -496,18 +547,42 @@
 
 </dd>
     <dt>
-    <a name = "collect_until"></a>
-    <strong>collect_until&nbsp;(n, ...)</strong>
+    <a name = "collectuntil"></a>
+    <strong>collectuntil&nbsp;(f, ...)</strong>
     </dt>
     <dd>
-    collect up to n values from an interator.
- <code>n</code> is usually an integer, but it can be a function. If that
- function returns true, then collection stops.
+    collect from an interator up to a condition.
+ If the function returns true, then collection stops.
+
+    <h3>Parameters:</h3>
+    <ul>
+      <li><span class="parameter">f</span>
+       predicate receiving (value,count)</li>
+      <li><span class="parameter">...</span>
+       iterator</li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        array-like table
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "collectn"></a>
+    <strong>collectn&nbsp;(n, ...)</strong>
+    </dt>
+    <dd>
+    collect <code>n</code> values from an interator.
 
     <h3>Parameters:</h3>
     <ul>
       <li><span class="parameter">n</span>
-       count</li>
+       number of values to collect</li>
       <li><span class="parameter">...</span>
        iterator</li>
     </ul>
@@ -546,8 +621,36 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">collect2nd(pairs(t)) would be the values of t</pre>
+        <pre class="example">collect2nd(pairs{one=1,two=2}) is {1,2} or {2,1}</pre>
     </ul>
+
+</dd>
+    <dt>
+    <a name = "mapextend"></a>
+    <strong>mapextend&nbsp;(dest, j, nilv, f, t, ...)</strong>
+    </dt>
+    <dd>
+    extend a table by mapping a function over another table.
+
+    <h3>Parameters:</h3>
+    <ul>
+      <li><span class="parameter">dest</span>
+       destination table</li>
+      <li><span class="parameter">j</span>
+       start index in destination</li>
+      <li><span class="parameter">nilv</span>
+       default value to use if function returns <code>nil</code></li>
+      <li><span class="parameter">f</span>
+       the function</li>
+      <li><span class="parameter">t</span>
+       source table</li>
+      <li><span class="parameter">...</span>
+       extra arguments to function</li>
+    </ul>
+
+
+
+
 
 </dd>
     <dt>
@@ -555,7 +658,7 @@
     <strong>imap&nbsp;(f, t, ...)</strong>
     </dt>
     <dd>
-    map a function over a array.
+    map a function over an array.
  The output must always be the same length as the input, so
  any <code>nil</code> values are mapped to <code>false</code>.
 
@@ -572,7 +675,7 @@
     <h3>Returns:</h3>
     <ol>
 
-        a array with elements <code>f(t[i],...)</code>
+        a new array with elements <code>f(t[i],...)</code>
     </ol>
 
 
@@ -629,7 +732,34 @@
     <h3>Returns:</h3>
     <ol>
 
-        an array with elements <code>f(t1[i],t2[i],...)</code>
+        a new array with elements <code>f(t1[i],t2[i],...)</code>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "imapfilter"></a>
+    <strong>imapfilter&nbsp;(f, t, ...)</strong>
+    </dt>
+    <dd>
+    map a function over an array only keeping non-<code>nil</code> values.
+
+    <h3>Parameters:</h3>
+    <ul>
+      <li><span class="parameter">f</span>
+       a function of one or more arguments</li>
+      <li><span class="parameter">t</span>
+       the array</li>
+      <li><span class="parameter">...</span>
+       any extra arguments to the function</li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        a new array with elements <code>v = f(t[i],...) such that v ~= nil</code>
     </ol>
 
 
@@ -641,7 +771,7 @@
     <strong>ifilter&nbsp;(t, pred, ...)</strong>
     </dt>
     <dd>
-    filter a array using a predicate.
+    filter an array using a predicate.
 
     <h3>Parameters:</h3>
     <ul>
@@ -657,7 +787,7 @@
     <h3>Returns:</h3>
     <ol>
 
-        a array such that <code>pred(t[i])</code> evaluates as true
+        a new array such that <code>pred(t[i])</code> evaluates as true
     </ol>
 
 
@@ -669,7 +799,7 @@
     <strong>ifind&nbsp;(t, pred, ...)</strong>
     </dt>
     <dd>
-    find an item in a array using a predicate.
+    find an item in an array using a predicate.
 
     <h3>Parameters:</h3>
     <ul>
@@ -684,7 +814,7 @@
     <h3>Returns:</h3>
     <ol>
 
-        the item value
+        the item value, or <code>nil</code>
     </ol>
 
 
@@ -700,7 +830,7 @@
     <strong>indexof&nbsp;(t, value, cmp)</strong>
     </dt>
     <dd>
-    return the index of an item in a array.
+    return the index of an item in an array.
 
     <h3>Parameters:</h3>
     <ul>
@@ -727,7 +857,7 @@
     <strong>sub&nbsp;(t, i1, i2)</strong>
     </dt>
     <dd>
-    return a slice of a array.
+    return a slice of an array.
  Like <a href="http://www.lua.org/manual/5.1/manual.html#pdf-string.sub">string.sub</a> , the end index may be negative.
 
     <h3>Parameters:</h3>
@@ -755,7 +885,7 @@
     <strong>removerange&nbsp;(tbl, start, finish)</strong>
     </dt>
     <dd>
-    delete a range of values from a array.
+    delete a range of values from an array.
 
     <h3>Parameters:</h3>
     <ul>
@@ -802,7 +932,8 @@
     <strong>extend&nbsp;(t, ...)</strong>
     </dt>
     <dd>
-    extend a array using values from other tables.
+    extend an array using values from other tables.
+ <a href="topics/readme.md.html#Extracting_and_Mapping">Extracting and Mapping</a>
 
     <h3>Parameters:</h3>
     <ul>
@@ -827,28 +958,30 @@
     <strong>indexby&nbsp;(t, keys)</strong>
     </dt>
     <dd>
-    make a array of indexed values.
- Generalized table indexing
+    make an array of indexed values.
+ Generalized table indexing. Result will only contain
+ values for keys that exist.
 
     <h3>Parameters:</h3>
     <ul>
       <li><span class="parameter">t</span>
        a table</li>
       <li><span class="parameter">keys</span>
-       a array of keys or indices</li>
+       an array of keys or indices</li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-        a array <code>L</code> such that <code>L[keys[i]]</code>
+        an array <code>L</code> such that <code>L[keys[i]]</code>
     </ol>
 
 
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">indexby({one=1,two=2},{&apos;one&apos;}) == {1}</pre>
+        <li><pre class="example">indexby({one=1,two=2},{&apos;one&apos;,&apos;three&apos;}) is {1}</pre></li>
+        <li><pre class="example">indexby({10,20,30,40},{2,4}) is {20,40}</pre></li>
     </ul>
 
 </dd>
@@ -881,8 +1014,8 @@
 
     <h3>Usage:</h3>
     <ul>
-        <li><pre class="example">range(2,10) == {2,3,4,5,6,7,8,9,10}</pre></li>
-        <li><pre class="example">range(5) == {1,2,3,4,5}</pre></li>
+        <li><pre class="example">range(2,10) is {2,3,4,5,6,7,8,9,10}</pre></li>
+        <li><pre class="example">range(5) is {1,2,3,4,5}</pre></li>
     </ul>
 
 </dd>
@@ -918,14 +1051,14 @@
     <strong>makemap&nbsp;(t, tv)</strong>
     </dt>
     <dd>
-    make a table from a array of keys and a array of values.
+    make a table from an array of keys and an array of values.
 
     <h3>Parameters:</h3>
     <ul>
       <li><span class="parameter">t</span>
-       a array of keys</li>
+       an array of keys</li>
       <li><span class="parameter">tv</span>
-       a array of values</li>
+       an array of values</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -938,7 +1071,7 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">makemap({&apos;power&apos;,&apos;glory&apos;},{20,30}) == {power=20,glory=30}</pre>
+        <pre class="example">makemap({&apos;power&apos;,&apos;glory&apos;},{20,30}) is {power=20,glory=30}</pre>
     </ul>
 
 </dd>
@@ -947,13 +1080,13 @@
     <strong>invert&nbsp;(t)</strong>
     </dt>
     <dd>
-    make a set from a array.
+    make a set from an array.
  The values are the original array indices.
 
     <h3>Parameters:</h3>
     <ul>
       <li><span class="parameter">t</span>
-       a array of values</li>
+       an array of values</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -966,7 +1099,7 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">invert{&apos;one&apos;,&apos;two&apos;} == {one=1,two=2}</pre>
+        <pre class="example">invert{&apos;one&apos;,&apos;two&apos;} is {one=1,two=2}</pre>
     </ul>
 
 </dd>
@@ -975,7 +1108,7 @@
     <strong>keys&nbsp;(t)</strong>
     </dt>
     <dd>
-    extract the keys of a table as a array.
+    extract the keys of a table as an array.
 
     <h3>Parameters:</h3>
     <ul>
@@ -986,7 +1119,7 @@
     <h3>Returns:</h3>
     <ol>
 
-        a array of keys
+        an array of keys
     </ol>
 
 
@@ -1022,8 +1155,8 @@
 
 </dd>
     <dt>
-    <a name = "contains_keys"></a>
-    <strong>contains_keys</strong>
+    <a name = "containskeys"></a>
+    <strong>containskeys</strong>
     </dt>
     <dd>
     are all the keys of <code>other</code> in <code>t</code>?
@@ -1066,8 +1199,8 @@
 
 </dd>
     <dt>
-    <a name = "equal_keys"></a>
-    <strong>equal_keys&nbsp;(t, other)</strong>
+    <a name = "equalkeys"></a>
+    <strong>equalkeys&nbsp;(t, other)</strong>
     </dt>
     <dd>
     do these tables have the same keys?
@@ -1205,6 +1338,33 @@
 
 </dd>
     <dt>
+    <a name = "take2"></a>
+    <strong>take2&nbsp;(f)</strong>
+    </dt>
+    <dd>
+    a function returning the second value of <code>f</code>
+
+    <h3>Parameters:</h3>
+    <ul>
+      <li><span class="parameter">f</span>
+       a function returning at least two values</li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        a function returning second of those values
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">take2(splitpath) is basename</pre>
+    </ul>
+
+</dd>
+    <dt>
     <a name = "callable"></a>
     <strong>callable&nbsp;(obj)</strong>
     </dt>
@@ -1336,7 +1496,9 @@
     <strong>class&nbsp;(base)</strong>
     </dt>
     <dd>
-    create a class with an optional base class.
+    create a class with an optional base class. </p>
+
+<p> See  <a href="topics/readme.md.html#Classes">Classes</a>
  The resulting table can be called to make a new object, which invokes
  an optional constructor named <code>_init</code>. If the base
  class has a constructor, you can call it as the <code>super()</code> method.
@@ -1344,7 +1506,7 @@
  be accessed through the object.</p>
 
 <p> All metamethods are inherited.
- The class is given a function <code>Klass.class_of(obj)</code>.
+ The class is given a function <code>Klass.classof(obj)</code>.
 
     <h3>Parameters:</h3>
     <ul>
@@ -1368,7 +1530,9 @@
     </dt>
     <dd>
     a simple Array class.
- <a href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a>  functions: <code>sort</code>,<code>concat</code>,<code>insert</code>,<code>remove</code>,<code>insert</code> as <code>append</code>.</p>
+ <a href="topics/readme.md.html#Array_Class">Array Class</a></p>
+
+<p> <a href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a>  functions: <code>sort</code>,<code>concat</code>,<code>insert</code>,<code>remove</code>,<code>insert</code> as <code>append</code>.</p>
 
 <p> <a href="index.html#">ml</a>  functions: <a href="index.html#ifilter">ifilter</a>  as <code>filter</code>,<a href="index.html#imap">imap</a>  as <code>map</code>,<a href="index.html#sub">sub</a> ,<a href="index.html#indexby">indexby</a> ,<a href="index.html#range">range</a> ,
  <a href="index.html#indexof">indexof</a> ,<a href="index.html#ifind">ifind</a>  as <code>find</code>,<a href="index.html#extend">extend</a> ,<a href="index.html#split">split</a>  and <a href="index.html#collect">collect</a> .</p>
