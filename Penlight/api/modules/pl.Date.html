@@ -54,6 +54,7 @@
   <li><a href="../modules/pl.dir.html">pl.dir</a></li>
   <li><a href="../modules/pl.file.html">pl.file</a></li>
   <li><a href="../modules/pl.func.html">pl.func</a></li>
+  <li><a href="../modules/pl.import_into.html">pl.import_into</a></li>
   <li><a href="../modules/pl.input.html">pl.input</a></li>
   <li><a href="../modules/pl.lapp.html">pl.lapp</a></li>
   <li><a href="../modules/pl.lexer.html">pl.lexer</a></li>
@@ -61,6 +62,7 @@
   <li><a href="../modules/pl.operator.html">pl.operator</a></li>
   <li><a href="../modules/pl.path.html">pl.path</a></li>
   <li><a href="../modules/pl.permute.html">pl.permute</a></li>
+  <li><a href="../modules/pl.platf.luajava.html">pl.platf.luajava</a></li>
   <li><a href="../modules/pl.pretty.html">pl.pretty</a></li>
   <li><a href="../modules/pl.seq.html">pl.seq</a></li>
   <li><a href="../modules/pl.sip.html">pl.sip</a></li>
@@ -116,6 +118,7 @@
 <p> See  <a href="../topics/05-dates.md.html#">the Guide</a>.</p>
 
 <p> Dependencies: <a href="../modules/pl.class.html#">pl.class</a> , <a href="../modules/pl.stringx.html#">pl.stringx</a> </p>
+
 
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
@@ -257,12 +260,7 @@
     <strong>Date&nbsp;(t)</strong>
     </dt>
     <dd>
-    Date constructor.
-
-    <h3>Parameters:</h3>
-    <ul>
-      <li><span class="parameter">t</span>
-      <p> this can be either</p>
+    <p>Date constructor. </p>
 
 <ul>
 <li> <code>nil</code> or empty &ndash; use current date and time</li>
@@ -273,8 +271,14 @@ in which case current values will be used.
 *three to six numbers: year, month, day, hour, min, sec</li>
 </ul>
 
-</li>
+
+
+    <h3>Parameters:</h3>
+    <ul>
+      <li><span class="parameter">t</span>
+       this can be either</li>
     </ul>
+
 
 
 
@@ -288,12 +292,13 @@ in which case current values will be used.
     get the time zone offset from UTC.
 
 
-
     <h3>Returns:</h3>
     <ol>
 
         seconds ahead of UTC
     </ol>
+
+
 
 
 </dd>
@@ -308,6 +313,7 @@ in which case current values will be used.
 
 
 
+
 </dd>
     <dt>
     <a name = "Date:toLocal"></a>
@@ -315,6 +321,7 @@ in which case current values will be used.
     </dt>
     <dd>
     convert this UTC date to local.
+
 
 
 
@@ -337,6 +344,7 @@ in which case current values will be used.
 
 
 
+
 </dd>
     <dt>
     <a name = "Date:year"></a>
@@ -350,6 +358,7 @@ in which case current values will be used.
       <li><span class="parameter">y</span>
        Four-digit year</li>
     </ul>
+
 
 
 
@@ -371,6 +380,7 @@ in which case current values will be used.
 
 
 
+
 </dd>
     <dt>
     <a name = "Date:day"></a>
@@ -384,6 +394,7 @@ in which case current values will be used.
       <li><span class="parameter">d</span>
        day</li>
     </ul>
+
 
 
 
@@ -405,6 +416,7 @@ in which case current values will be used.
 
 
 
+
 </dd>
     <dt>
     <a name = "Date:min"></a>
@@ -418,6 +430,7 @@ in which case current values will be used.
       <li><span class="parameter">min</span>
        minutes</li>
     </ul>
+
 
 
 
@@ -439,6 +452,7 @@ in which case current values will be used.
 
 
 
+
 </dd>
     <dt>
     <a name = "Date:yday"></a>
@@ -452,6 +466,7 @@ in which case current values will be used.
       <li><span class="parameter">yday</span>
        day of year</li>
     </ul>
+
 
 
 
@@ -473,6 +488,7 @@ in which case current values will be used.
 
 
 
+
 </dd>
     <dt>
     <a name = "Date:month"></a>
@@ -480,6 +496,7 @@ in which case current values will be used.
     </dt>
     <dd>
     get the month.
+
 
 
 
@@ -497,6 +514,7 @@ in which case current values will be used.
 
 
 
+
 </dd>
     <dt>
     <a name = "Date:hour"></a>
@@ -504,6 +522,7 @@ in which case current values will be used.
     </dt>
     <dd>
     get the hour.
+
 
 
 
@@ -521,6 +540,7 @@ in which case current values will be used.
 
 
 
+
 </dd>
     <dt>
     <a name = "Date:sec"></a>
@@ -533,6 +553,7 @@ in which case current values will be used.
 
 
 
+
 </dd>
     <dt>
     <a name = "Date:yday"></a>
@@ -540,6 +561,7 @@ in which case current values will be used.
     </dt>
     <dd>
     get the day of year.
+
 
 
 
@@ -559,12 +581,13 @@ in which case current values will be used.
        abbreviated if true, full otherwise.</li>
     </ul>
 
-
     <h3>Returns:</h3>
     <ol>
 
         string name
     </ol>
+
+
 
 
 </dd>
@@ -581,12 +604,13 @@ in which case current values will be used.
        abbreviated if true, full otherwise.</li>
     </ul>
 
-
     <h3>Returns:</h3>
     <ol>
 
         string name
     </ol>
+
+
 
 
 </dd>
@@ -601,6 +625,7 @@ in which case current values will be used.
 
 
 
+
 </dd>
     <dt>
     <a name = "Date:add"></a>
@@ -608,20 +633,21 @@ in which case current values will be used.
     </dt>
     <dd>
     add to a date object.
+ year,month,day,hour,min,sec
 
     <h3>Parameters:</h3>
     <ul>
       <li><span class="parameter">t</span>
-       a table containing one of the following keys and a value:<br>
- year,month,day,hour,min,sec</li>
+       a table containing one of the following keys and a value:<br></li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
 
         this date
     </ol>
+
+
 
 
 </dd>
@@ -633,12 +659,13 @@ in which case current values will be used.
     last day of the month.
 
 
-
     <h3>Returns:</h3>
     <ol>
 
         int day
     </ol>
+
+
 
 
 </dd>
@@ -658,12 +685,13 @@ in which case current values will be used.
        Date object</li>
     </ul>
 
-
     <h3>Returns:</h3>
     <ol>
 
         a Date object
     </ol>
+
+
 
 
 </dd>
@@ -674,6 +702,7 @@ in which case current values will be used.
     <dd>
     long numerical ISO data format version of this date.
  If it&rsquo;s an interval then the format is &lsquo;2 hours 29 sec&rsquo; etc.
+
 
 
 
@@ -697,6 +726,7 @@ in which case current values will be used.
 
 
 
+
 </dd>
     <dt>
     <a name = "Date:__lt"></a>
@@ -715,6 +745,7 @@ in which case current values will be used.
 
 
 
+
 </dd>
     <dt>
     <a name = "Date.Format"></a>
@@ -722,11 +753,6 @@ in which case current values will be used.
     </dt>
     <dd>
     Date.Format constructor.
-
-    <h3>Parameters:</h3>
-    <ul>
-      <li><span class="parameter">fmt.</span>
-       A string where the following fields are significant: <ul>
  <li>d day (either d or dd)</li>
  <li>y year (either yy or yyy)</li>
  <li>m month (either m or mm)</li>
@@ -748,15 +774,21 @@ in which case current values will be used.
  here the day will be 1 and the year this current year </li>
  </ol>
  A date in format 3 can be optionally followed by a time in format 2.
- Please see test-date.lua in the tests folder for more examples.</li>
+ Please see test-date.lua in the tests folder for more examples.
+
+    <h3>Parameters:</h3>
+    <ul>
+      <li><span class="parameter">fmt.</span>
+       A string where the following fields are significant: <ul></li>
     </ul>
+
+
+
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">df = Date.Format("yyyy-mm-dd HH:MM:SS")</pre>
+        <pre class="example">df = Date.Format(&quot;yyyy-mm-dd HH:MM:SS&quot;)</pre>
     </ul>
-
-
 
 </dd>
     <dt>
@@ -772,12 +804,13 @@ in which case current values will be used.
        a date string</li>
     </ul>
 
-
     <h3>Returns:</h3>
     <ol>
 
         date object
     </ol>
+
+
 
 
 </dd>
@@ -794,12 +827,13 @@ in which case current values will be used.
        a date object, or a time value as returned by <a href="http://www.lua.org/manual/5.1/manual.html#pdf-os.time">os.time</a></li>
     </ul>
 
-
     <h3>Returns:</h3>
     <ol>
 
         string
     </ol>
+
+
 
 
 </dd>
@@ -809,7 +843,7 @@ in which case current values will be used.
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.2</a></i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.3</a></i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

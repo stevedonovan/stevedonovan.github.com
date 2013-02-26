@@ -67,6 +67,7 @@
   <li><a href="../modules/pl.dir.html">pl.dir</a></li>
   <li><a href="../modules/pl.file.html">pl.file</a></li>
   <li><a href="../modules/pl.func.html">pl.func</a></li>
+  <li><a href="../modules/pl.import_into.html">pl.import_into</a></li>
   <li><a href="../modules/pl.input.html">pl.input</a></li>
   <li><a href="../modules/pl.lapp.html">pl.lapp</a></li>
   <li><a href="../modules/pl.lexer.html">pl.lexer</a></li>
@@ -74,6 +75,7 @@
   <li><a href="../modules/pl.operator.html">pl.operator</a></li>
   <li><a href="../modules/pl.path.html">pl.path</a></li>
   <li><a href="../modules/pl.permute.html">pl.permute</a></li>
+  <li><a href="../modules/pl.platf.luajava.html">pl.platf.luajava</a></li>
   <li><a href="../modules/pl.pretty.html">pl.pretty</a></li>
   <li><a href="../modules/pl.seq.html">pl.seq</a></li>
   <li><a href="../modules/pl.sip.html">pl.sip</a></li>
@@ -115,7 +117,8 @@
 
     <h2>Additional Libraries</h2>
 
-<p>Libraries in this section are no longer considered to be part of the Penlight core, but still provide specialized functionality when needed.</p>
+<p>Libraries in this section are no longer considered to be part of the Penlight
+core, but still provide specialized functionality when needed.</p>
 
 <p><a id="sip"/></p>
 
@@ -123,7 +126,11 @@
 
 <h3>Simple Input Patterns</h3>
 
-<p>Lua string pattern matching is very powerful, and usually you will not need a traditional regular expression library.  Even so, sometimes Lua code ends up looking like Perl, which happens because string patterns are not always the easiest things to read, especially for the casual reader.  Here is a program which needs to understand three distinct date formats:</p>
+<p>Lua string pattern matching is very powerful, and usually you will not need a
+traditional regular expression library.  Even so, sometimes Lua code ends up
+looking like Perl, which happens because string patterns are not always the
+easiest things to read, especially for the casual reader.  Here is a program
+which needs to understand three distinct date formats:</p>
 
 <pre>
  <span class="comment">-- parsing dates using Lua string patterns
@@ -156,11 +163,17 @@
 </pre>
 
 
-<p>These aren&rsquo;t particularly difficult patterns, but already typical issues are appearing, such as having to escape &lsquo;&ndash;&rsquo;. Also, <a href="http://www.lua.org/manual/5.1/manual.html#pdf-string.match">string.match</a>  returns its captures, so that we're forced to use a slightly awkward nested if-statement.</p>
+<p>These aren&rsquo;t particularly difficult patterns, but already typical issues are
+appearing, such as having to escape &lsquo;&ndash;&rsquo;. Also, <a href="http://www.lua.org/manual/5.1/manual.html#pdf-string.match">string.match</a>  returns its
+captures, so that we're forced to use a slightly awkward nested if-statement.</p>
 
-<p>Verification issues will further cloud the picture, since regular expression people try to enforce constraints (like year cannot be more than four digits) using regular expressions, on the usual grounds that one shouldn&rsquo;t stop using a hammer when one is enjoying oneself.</p>
+<p>Verification issues will further cloud the picture, since regular expression
+people try to enforce constraints (like year cannot be more than four digits)
+using regular expressions, on the usual grounds that one shouldn&rsquo;t stop using a
+hammer when one is enjoying oneself.</p>
 
-<p><a href="../modules/pl.sip.html#">pl.sip</a>  provides a simple, intuitive way to detect patterns in strings and extract relevant parts.</p>
+<p><a href="../modules/pl.sip.html#">pl.sip</a>  provides a simple, intuitive way to detect patterns in strings and
+extract relevant parts.</p>
 
 <pre>
  &gt; sip = <span class="global">require</span> <span class="string">'pl.sip'</span>
@@ -179,7 +192,9 @@
 </pre>
 
 
-<p><a href="../modules/pl.sip.html#compile">sip.compile</a>  creates a pattern matcher function, which is given a string and a table. If it matches the string, then <code>true</code> is returned and the table is populated according to the <em>named fields</em> in the pattern.</p>
+<p><a href="../modules/pl.sip.html#compile">sip.compile</a>  creates a pattern matcher function, which is given a string and a
+table. If it matches the string, then <code>true</code> is returned and the table is
+populated according to the <em>named fields</em> in the pattern.</p>
 
 <p>Here is another version of the date parser:</p>
 
@@ -207,7 +222,8 @@
 </pre>
 
 
-<p>SIP patterns start with &lsquo;$&rsquo;, then a one-letter type, and then an optional variable in curly braces.</p>
+<p>SIP patterns start with &lsquo;$&rsquo;, then a one-letter type, and then an optional
+variable in curly braces.</p>
 
 <pre>
  Type    Meaning
@@ -228,11 +244,17 @@
 </pre>
 
 
-<p>If a type is not one of v,i,f,r or q, then it&rsquo;s assumed to be one of the standard Lua character classes.  Any spaces you leave in your pattern will match any number of spaces.  And any &lsquo;magic&rsquo; string characters will be escaped.</p>
+<p>If a type is not one of v,i,f,r or q, then it&rsquo;s assumed to be one of the standard
+Lua character classes.  Any spaces you leave in your pattern will match any
+number of spaces.  And any &lsquo;magic&rsquo; string characters will be escaped.</p>
 
-<p>SIP captures (like <code>$v{mon}</code>) do not have to be named. You can use just <code>$v</code>, but you have to be consistent; if a pattern contains unnamed captures, then all captures must be unnamed. In this case, the result table is a simple list of values.</p>
+<p>SIP captures (like <code>$v{mon}</code>) do not have to be named. You can use just <code>$v</code>, but
+you have to be consistent; if a pattern contains unnamed captures, then all
+captures must be unnamed. In this case, the result table is a simple list of
+values.</p>
 
-<p><a href="../modules/pl.sip.html#match">sip.match</a>  is a useful shortcut if you like your matches to be &lsquo;in place&rsquo;. (It caches the result, so it is not much slower than explicitly using <a href="../modules/pl.sip.html#compile">sip.compile</a> .)</p>
+<p><a href="../modules/pl.sip.html#match">sip.match</a>  is a useful shortcut if you like your matches to be &lsquo;in place&rsquo;. (It
+caches the result, so it is not much slower than explicitly using <a href="../modules/pl.sip.html#compile">sip.compile</a> .)</p>
 
 <pre>
  &gt; sip.match(<span class="string">'($q{first},$q{second})'</span>,<span class="string">'("john","smith")'</span>,res)
@@ -253,7 +275,8 @@
 
 <p>As a general rule, allow for whitespace in your patterns.</p>
 
-<p>Finally, putting a &lsquo; $&rsquo; at the end of a pattern means &lsquo;capture the rest of the line, starting at the first non-space&rsquo;.</p>
+<p>Finally, putting a &lsquo; $&rsquo; at the end of a pattern means &lsquo;capture the rest of the
+line, starting at the first non-space&rsquo;.</p>
 
 <pre>
  &gt; sip.match(<span class="string">'( $q , $q ) $'</span>,<span class="string">'("jan", "smit") and a string'</span>,res)
@@ -274,11 +297,24 @@
 
 <h3>Command-line Programs with Lapp</h3>
 
-<p><a href="../modules/pl.lapp.html#">pl.lapp</a>  is a small and focused Lua module which aims to make standard command-line parsing easier and intuitive. It implements the standard GNU style, i.e. short flags with one letter start with &lsquo;&ndash;&rsquo;, and there may be an additional long flag which starts with &lsquo;&mdash;&rsquo;. Generally options which take an argument expect to find it as the next parameter (e.g. &lsquo;gcc test.c -o test&rsquo;) but single short options taking a numerical parameter can dispense with the space (e.g. &lsquo;head -n4 test.c&rsquo;)</p>
+<p><a href="../modules/pl.lapp.html#">pl.lapp</a>  is a small and focused Lua module which aims to make standard
+command-line parsing easier and intuitive. It implements the standard GNU style,
+i.e. short flags with one letter start with &lsquo;&ndash;&rsquo;, and there may be an additional
+long flag which starts with &lsquo;&mdash;&rsquo;. Generally options which take an argument expect
+to find it as the next parameter (e.g. &lsquo;gcc test.c -o test&rsquo;) but single short
+options taking a numerical parameter can dispense with the space (e.g. &lsquo;head -n4
+test.c&rsquo;)</p>
 
-<p>As far as possible, Lapp will convert parameters into their equivalent Lua types, i.e. convert numbers and convert filenames into file objects. If any conversion fails, or a required parameter is missing, an error will be issued and the usage text will be written out. So there are two necessary tasks, supplying the flag and option names and associating them with a type.</p>
+<p>As far as possible, Lapp will convert parameters into their equivalent Lua types,
+i.e. convert numbers and convert filenames into file objects. If any conversion
+fails, or a required parameter is missing, an error will be issued and the usage
+text will be written out. So there are two necessary tasks, supplying the flag
+and option names and associating them with a type.</p>
 
-<p>For any non-trivial script, even for personal consumption, it&rsquo;s necessary to supply usage text. The novelty of Lapp is that it starts from that point and defines a loose format for usage strings which can specify the names and types of the parameters.</p>
+<p>For any non-trivial script, even for personal consumption, it&rsquo;s necessary to
+supply usage text. The novelty of Lapp is that it starts from that point and
+defines a loose format for usage strings which can specify the names and types of
+the parameters.</p>
 
 <p>An example will make this clearer:</p>
 
@@ -317,9 +353,18 @@
 </pre>
 
 
-<p>There are two kinds of lines in Lapp usage strings which are meaningful; option and parameter lines. An option line gives the short option, optionally followed by the corresponding long option. A type specifier in parentheses may follow. Similarly, a parameter line starts with &lsquo;&lt;&rsquo; PARAMETER &lsquo;>&rsquo;, followed by a type specifier. Type specifiers are either of the form &lsquo;(default &rsquo; VALUE &lsquo;)&rsquo; or &lsquo;(&rsquo; TYPE &lsquo;)&rsquo;; the default specifier means that the parameter or option has a default value and is not required. TYPE is one of &lsquo;string&rsquo;,&lsquo;number&rsquo;,&lsquo;file-in&rsquo; or &lsquo;file-out&rsquo;; VALUE is a number, one of (&lsquo;stdin&rsquo;,&lsquo;stdout&rsquo;,&lsquo;stderr&rsquo;) or a token. The rest of the line is not parsed and can be used for explanatory text.</p>
+<p>There are two kinds of lines in Lapp usage strings which are meaningful; option
+and parameter lines. An option line gives the short option, optionally followed
+by the corresponding long option. A type specifier in parentheses may follow.
+Similarly, a parameter line starts with &lsquo;&lt;&rsquo; PARAMETER &lsquo;>&rsquo;, followed by a type
+specifier. Type specifiers are either of the form &lsquo;(default &rsquo; VALUE &lsquo;)&rsquo; or &lsquo;(&rsquo;
+TYPE &lsquo;)&rsquo;; the default specifier means that the parameter or option has a default
+value and is not required. TYPE is one of &lsquo;string&rsquo;,&lsquo;number&rsquo;,&lsquo;file-in&rsquo; or
+&lsquo;file-out&rsquo;; VALUE is a number, one of (&lsquo;stdin&rsquo;,&lsquo;stdout&rsquo;,&lsquo;stderr&rsquo;) or a token. The
+rest of the line is not parsed and can be used for explanatory text.</p>
 
-<p>This script shows the relation between the specified parameter names and the fields in the output table.</p>
+<p>This script shows the relation between the specified parameter names and the
+fields in the output table.</p>
 
 <pre>
  <span class="comment">-- simple.lua
@@ -337,7 +382,11 @@
 </pre>
 
 
-<p>I've just dumped out all values of the args table; note that args.quiet has become true, because it&rsquo;s specified; args.p defaults to false. If there is a long name for an option, that will be used in preference as a field name. A type or default specifier is not necessary for simple flags, since the default type is boolean.</p>
+<p>I've just dumped out all values of the args table; note that args.quiet has
+become true, because it&rsquo;s specified; args.p defaults to false. If there is a long
+name for an option, that will be used in preference as a field name. A type or
+default specifier is not necessary for simple flags, since the default type is
+boolean.</p>
 
 <pre>
  $ simple -o test -q simple.lua
@@ -358,11 +407,17 @@
 </pre>
 
 
-<p>The parameter input has been set to an open read-only file object &ndash; we know it must be a read-only file since that is the type of the default value. The field input_name is automatically generated, since it&rsquo;s often useful to have access to the original filename.</p>
+<p>The parameter input has been set to an open read-only file object &ndash; we know it
+must be a read-only file since that is the type of the default value. The field
+input_name is automatically generated, since it&rsquo;s often useful to have access to
+the original filename.</p>
 
-<p>Notice that any extra parameters supplied will be put in the result table with integer indices, i.e. args[i] where i goes from 1 to #args.</p>
+<p>Notice that any extra parameters supplied will be put in the result table with
+integer indices, i.e. args[i] where i goes from 1 to #args.</p>
 
-<p>Files don&rsquo;t really have to be closed explicitly for short scripts with a quick well-defined mission, since the result of garbage-collecting file objects is to close them.</p>
+<p>Files don&rsquo;t really have to be closed explicitly for short scripts with a quick
+well-defined mission, since the result of garbage-collecting file objects is to
+close them.</p>
 
 <h4>Enforcing a Range for a Parameter</h4>
 
@@ -380,7 +435,8 @@
 </pre>
 
 
-<p>Here the meaning is that the value is greater or equal to MIN and less or equal to MAX; there is no provision for forcing a parameter to be a whole number.</p>
+<p>Here the meaning is that the value is greater or equal to MIN and less or equal
+to MAX; there is no provision for forcing a parameter to be a whole number.</p>
 
 <p>You may also define custom types that can be used in the type specifier:</p>
 
@@ -401,7 +457,11 @@
 </pre>
 
 
-<p><a href="../modules/pl.lapp.html#add_type">lapp.add_type</a>  takes three parameters, a type name, a converter and a constraint function. The constraint function is expected to throw an assertion if some condition is not true; we use lapp.assert because it fails in the standard way for a command-line script. The converter argument can either be a type name known to Lapp, or a function which takes a string and generates a value.</p>
+<p><a href="../modules/pl.lapp.html#add_type">lapp.add_type</a>  takes three parameters, a type name, a converter and a constraint
+function. The constraint function is expected to throw an assertion if some
+condition is not true; we use lapp.assert because it fails in the standard way
+for a command-line script. The converter argument can either be a type name known
+to Lapp, or a function which takes a string and generates a value.</p>
 
 <h4>&lsquo;varargs&rsquo; Parameter Arrays</h4>
 
@@ -420,7 +480,9 @@
 </pre>
 
 
-<p>The parameter number has a trailing &lsquo;&hellip;&rsquo;, which indicates that this parameter is a &lsquo;varargs&rsquo; parameter. It must be the last parameter, and args.number will be an array.</p>
+<p>The parameter number has a trailing &lsquo;&hellip;&rsquo;, which indicates that this parameter is
+a &lsquo;varargs&rsquo; parameter. It must be the last parameter, and args.number will be an
+array.</p>
 
 <p>Consider this implementation of the head utility from Mac OS X:</p>
 
@@ -457,11 +519,17 @@
 </pre>
 
 
-<p>Note how we have access to all the filenames, because the auto-generated field <code>files_name</code> is also an array!</p>
+<p>Note how we have access to all the filenames, because the auto-generated field
+<code>files_name</code> is also an array!</p>
 
-<p>(This is probably not a very considerate script, since Lapp will open all the files provided, and only close them at the end of the script. See the <code>xhead.lua</code> example for another implementation.)</p>
+<p>(This is probably not a very considerate script, since Lapp will open all the
+files provided, and only close them at the end of the script. See the <code>xhead.lua</code>
+example for another implementation.)</p>
 
-<p>Flags and options may also be declared as vararg arrays, and can occur anywhere. Bear in mind that short options can be combined (like &lsquo;tar -xzf&rsquo;), so it&rsquo;s perfectly legal to have &lsquo;-vvv&rsquo;. But normally the value of args.v is just a simple <code>true</code> value.</p>
+<p>Flags and options may also be declared as vararg arrays, and can occur anywhere.
+Bear in mind that short options can be combined (like &lsquo;tar -xzf&rsquo;), so it&rsquo;s
+perfectly legal to have &lsquo;-vvv&rsquo;. But normally the value of args.v is just a simple
+<code>true</code> value.</p>
 
 <pre>
  <span class="keyword">local</span> args = <span class="global">require</span> (<span class="string">'pl.lapp'</span>) <span class="string">[[
@@ -484,7 +552,10 @@
 
 <h4>Defining a Parameter Callback</h4>
 
-<p>If a script implements <code>lapp.callback</code>, then Lapp will call it after each argument is parsed. The callback is passed the parameter name, the raw unparsed value, and the result table. It is called immediately after assignment of the value, so the corresponding field is available.</p>
+<p>If a script implements <code>lapp.callback</code>, then Lapp will call it after each
+argument is parsed. The callback is passed the parameter name, the raw unparsed
+value, and the result table. It is called immediately after assignment of the
+value, so the corresponding field is available.</p>
 
 <pre>
  lapp = <span class="global">require</span> (<span class="string">'pl.lapp'</span>)
@@ -532,13 +603,14 @@
 </pre>
 
 
-<p>Callbacks are needed when you want to take action immediately on parsing an argument.</p>
+<p>Callbacks are needed when you want to take action immediately on parsing an
+argument.</p>
 
 
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.2</a></i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.3</a></i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

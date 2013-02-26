@@ -66,6 +66,7 @@
   <li><a href="../modules/pl.dir.html">pl.dir</a></li>
   <li><a href="../modules/pl.file.html">pl.file</a></li>
   <li><a href="../modules/pl.func.html">pl.func</a></li>
+  <li><a href="../modules/pl.import_into.html">pl.import_into</a></li>
   <li><a href="../modules/pl.input.html">pl.input</a></li>
   <li><a href="../modules/pl.lapp.html">pl.lapp</a></li>
   <li><a href="../modules/pl.lexer.html">pl.lexer</a></li>
@@ -73,6 +74,7 @@
   <li><a href="../modules/pl.operator.html">pl.operator</a></li>
   <li><a href="../modules/pl.path.html">pl.path</a></li>
   <li><a href="../modules/pl.permute.html">pl.permute</a></li>
+  <li><a href="../modules/pl.platf.luajava.html">pl.platf.luajava</a></li>
   <li><a href="../modules/pl.pretty.html">pl.pretty</a></li>
   <li><a href="../modules/pl.seq.html">pl.seq</a></li>
   <li><a href="../modules/pl.sip.html">pl.sip</a></li>
@@ -120,9 +122,12 @@
 
 <h3>Manipulating Dates</h3>
 
-<p>The <a href="../modules/pl.Date.html#">Date</a>  class provides a simplified way to work with <a href="http://www.lua.org/pil/22.1.html">date and time</a> in Lua; it leans heavily on the functions <a href="http://www.lua.org/manual/5.1/manual.html#pdf-os.date">os.date</a>  and <a href="http://www.lua.org/manual/5.1/manual.html#pdf-os.time">os.time</a> .</p>
+<p>The <a href="../modules/pl.Date.html#">Date</a>  class provides a simplified way to work with <a href="http://www.lua.org/pil/22.1.html">date and
+time</a> in Lua; it leans heavily on the functions
+<a href="http://www.lua.org/manual/5.1/manual.html#pdf-os.date">os.date</a>  and <a href="http://www.lua.org/manual/5.1/manual.html#pdf-os.time">os.time</a> .</p>
 
-<p>A <a href="../modules/pl.Date.html#">Date</a>  object can be constructed from a table, just like with <a href="http://www.lua.org/manual/5.1/manual.html#pdf-os.time">os.time</a> . Methods are provided to get and set the various parts of the date.</p>
+<p>A <a href="../modules/pl.Date.html#">Date</a>  object can be constructed from a table, just like with <a href="http://www.lua.org/manual/5.1/manual.html#pdf-os.time">os.time</a> .
+Methods are provided to get and set the various parts of the date.</p>
 
 <pre>
  &gt; d = Date {year = <span class="number">2011</span>, month = <span class="number">3</span>, day = <span class="number">2</span> }
@@ -151,7 +156,8 @@
 </pre>
 
 
-<p>There is a default conversion to text for date objects, but <code>Date.Format</code> gives you full control of the format for both parsing and displaying dates:</p>
+<p>There is a default conversion to text for date objects, but <code>Date.Format</code> gives
+you full control of the format for both parsing and displaying dates:</p>
 
 <pre>
  &gt; iso = Date.Format <span class="string">'yyyy-mm-dd'</span>
@@ -162,7 +168,8 @@
 </pre>
 
 
-<p>With the 0.9.7 relase, the <a href="../modules/pl.Date.html#">Date</a>  constructor has become more flexible. You may omit any of the &lsquo;year&rsquo;, &lsquo;month&rsquo; or &lsquo;day&rsquo; fields:</p>
+<p>With the 0.9.7 relase, the <a href="../modules/pl.Date.html#">Date</a>  constructor has become more flexible. You may
+omit any of the &lsquo;year&rsquo;, &lsquo;month&rsquo; or &lsquo;day&rsquo; fields:</p>
 
 <pre>
  &gt; = Date { year = <span class="number">2008</span> }
@@ -178,7 +185,8 @@
 
 <p>If &lsquo;year&rsquo; is omitted, then the current year is assumed, and likewise for &lsquo;month&rsquo;.</p>
 
-<p>To set the time on such a partial date, you can use the fact that the &lsquo;setter&rsquo; methods return the date object and so you can &lsquo;chain&rsquo; these methods.</p>
+<p>To set the time on such a partial date, you can use the fact that the &lsquo;setter&rsquo;
+methods return the date object and so you can &lsquo;chain&rsquo; these methods.</p>
 
 <pre>
  &gt; d = Date { day = <span class="number">03</span> }
@@ -197,7 +205,10 @@
 </pre>
 
 
-<p><code>Date.format</code> has been extended. If you construct an instance without a pattern, then it will try to match against a set of known formats. This is useful for human-input dates since keeping to a strict format is not one of the strong points of users. It assumes that there will be a date, and then a date.</p>
+<p><code>Date.format</code> has been extended. If you construct an instance without a pattern,
+then it will try to match against a set of known formats. This is useful for
+human-input dates since keeping to a strict format is not one of the strong
+points of users. It assumes that there will be a date, and then a date.</p>
 
 <pre>
  &gt; df = Date.Format()
@@ -222,7 +233,8 @@
 </pre>
 
 
-<p>ISO date format is of course a good idea if you need to deal with users from different countries. Here is the default behaviour for &lsquo;short&rsquo; dates:</p>
+<p>ISO date format is of course a good idea if you need to deal with users from
+different countries. Here is the default behaviour for &lsquo;short&rsquo; dates:</p>
 
 <pre>
  &gt; = df:parse <span class="string">'24/02/12'</span>
@@ -230,7 +242,8 @@
 </pre>
 
 
-<p>That&rsquo;s not what Americans expect! It&rsquo;s tricky to work out in a cross-platform way exactly what the expected format is, so there is an explicit flag:</p>
+<p>That&rsquo;s not what Americans expect! It&rsquo;s tricky to work out in a cross-platform way
+exactly what the expected format is, so there is an explicit flag:</p>
 
 <pre>
  &gt; df:US_order(<span class="keyword">true</span>)
@@ -243,7 +256,7 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.2</a></i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.3</a></i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

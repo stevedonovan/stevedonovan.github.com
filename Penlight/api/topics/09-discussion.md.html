@@ -67,6 +67,7 @@
   <li><a href="../modules/pl.dir.html">pl.dir</a></li>
   <li><a href="../modules/pl.file.html">pl.file</a></li>
   <li><a href="../modules/pl.func.html">pl.func</a></li>
+  <li><a href="../modules/pl.import_into.html">pl.import_into</a></li>
   <li><a href="../modules/pl.input.html">pl.input</a></li>
   <li><a href="../modules/pl.lapp.html">pl.lapp</a></li>
   <li><a href="../modules/pl.lexer.html">pl.lexer</a></li>
@@ -74,6 +75,7 @@
   <li><a href="../modules/pl.operator.html">pl.operator</a></li>
   <li><a href="../modules/pl.path.html">pl.path</a></li>
   <li><a href="../modules/pl.permute.html">pl.permute</a></li>
+  <li><a href="../modules/pl.platf.luajava.html">pl.platf.luajava</a></li>
   <li><a href="../modules/pl.pretty.html">pl.pretty</a></li>
   <li><a href="../modules/pl.seq.html">pl.seq</a></li>
   <li><a href="../modules/pl.sip.html">pl.sip</a></li>
@@ -119,7 +121,9 @@
 
 <h3>Modularity and Granularity</h3>
 
-<p>In an ideal world, a program should only load the libraries it needs. Penlight is intended to work in situations where an extra 100Kb of bytecode could be a problem. It is straightforward but tedious to load exactly what you need:</p>
+<p>In an ideal world, a program should only load the libraries it needs. Penlight is
+intended to work in situations where an extra 100Kb of bytecode could be a
+problem. It is straightforward but tedious to load exactly what you need:</p>
 
 <pre>
  <span class="keyword">local</span> data = <span class="global">require</span> <span class="string">'pl.data'</span>
@@ -130,22 +134,46 @@
 </pre>
 
 
-<p>This is the style that I follow in Penlight itself, so that modules don&rsquo;t mess with the global environment; also, <code>stringx.import()</code> is not used because it will update the global <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>  table.</p>
+<p>This is the style that I follow in Penlight itself, so that modules don&rsquo;t mess
+with the global environment; also, <code>stringx.import()</code> is not used because it will
+update the global <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>  table.</p>
 
-<p>But <code>require 'pl'</code> is more convenient in scripts; the question is how to ensure that one doesn&rsquo;t load the whole kitchen sink as the price of convenience. The strategy is to only load modules when they are referenced. In &lsquo;init.lua&rsquo; (which is loaded by <code>require 'pl'</code>) a metatable is attached to the global table with an <code>__index</code> metamethod. Any unknown name is looked up in the list of modules, and if found, we require it and make that module globally available. So when <a href="../modules/pl.tablex.html#deepcompare">tablex.deepcompare</a>  is encountered, looking up <a href="../modules/pl.tablex.html#">tablex</a>  causes &lsquo;pl.tablex&rsquo; to be required.  .</p>
+<p>But <code>require 'pl'</code> is more convenient in scripts; the question is how to ensure
+that one doesn&rsquo;t load the whole kitchen sink as the price of convenience. The
+strategy is to only load modules when they are referenced. In &lsquo;init.lua&rsquo; (which
+is loaded by <code>require 'pl'</code>) a metatable is attached to the global table with an
+<code>__index</code> metamethod. Any unknown name is looked up in the list of modules, and
+if found, we require it and make that module globally available. So when
+<a href="../modules/pl.tablex.html#deepcompare">tablex.deepcompare</a>  is encountered, looking up <a href="../modules/pl.tablex.html#">tablex</a>  causes &lsquo;pl.tablex&rsquo; to be
+required.  .</p>
 
-<p>Modifying the behaviour of the global table has consequences. For instance, there is the famous module <a href="../modules/pl.strict.html#">strict</a>  which comes with Lua itself (perhaps the only standard Lua module written in Lua itself) which also does this modification so that global variiables must be defined before use.  So the implementation in &lsquo;init.lua&rsquo; allows for a &lsquo;not found&rsquo; hook, which &lsquo;pl.strict.lua&rsquo; uses.  Other libraries may install their own metatables for <code>_G</code>, but Penlight will now forward any unknown name to the <code>__index</code> defined by the original metatable.</p>
+<p>Modifying the behaviour of the global table has consequences. For instance, there
+is the famous module <a href="../modules/pl.strict.html#">strict</a>  which comes with Lua itself (perhaps the only
+standard Lua module written in Lua itself) which also does this modification so
+that global variiables must be defined before use.  So the implementation in
+&lsquo;init.lua&rsquo; allows for a &lsquo;not found&rsquo; hook, which &lsquo;pl.strict.lua&rsquo; uses.  Other
+libraries may install their own metatables for <code>_G</code>, but Penlight will now
+forward any unknown name to the <code>__index</code> defined by the original metatable.</p>
 
-<p>But the strategy is worth the effort: the old &lsquo;kitchen sink&rsquo; &lsquo;init.lua&rsquo; would pull in about 260K of bytecode, whereas now typical programs use about 100K less, and short scripts even better &ndash; for instance, if they were only needing functionality in <a href="../modules/pl.utils.html#">utils</a> .</p>
+<p>But the strategy is worth the effort: the old &lsquo;kitchen sink&rsquo; &lsquo;init.lua&rsquo; would
+pull in about 260K of bytecode, whereas now typical programs use about 100K less,
+and short scripts even better &ndash; for instance, if they were only needing
+functionality in <a href="../modules/pl.utils.html#">utils</a> .</p>
 
-<p>There are some functions which mark their output table with a special metatable, when it seems particularly appropriate. For instance, <a href="../modules/pl.tablex.html#makeset">tablex.makeset</a>  creates a <a href="../modules/pl.Set.html#">Set</a> , and <a href="../modules/pl.seq.html#copy">seq.copy</a>  creates a <a href="../modules/pl.List.html#">List</a> . But this does not automatically result in the loading of <a href="../modules/pl.Set.html#">pl.Set</a>  and <a href="../modules/pl.List.html#">pl.List</a> ; only if you try to access any of these methods.  In &lsquo;utils.lua&rsquo;, there is an exported table called <code>stdmt</code>:</p>
+<p>There are some functions which mark their output table with a special metatable,
+when it seems particularly appropriate. For instance, <a href="../modules/pl.tablex.html#makeset">tablex.makeset</a>  creates a
+<a href="../modules/pl.Set.html#">Set</a> , and <a href="../modules/pl.seq.html#copy">seq.copy</a>  creates a <a href="../modules/pl.List.html#">List</a> . But this does not automatically result in
+the loading of <a href="../modules/pl.Set.html#">pl.Set</a>  and <a href="../modules/pl.List.html#">pl.List</a> ; only if you try to access any of these
+methods.  In &lsquo;utils.lua&rsquo;, there is an exported table called <code>stdmt</code>:</p>
 
 <pre>
  stdmt = { List = {}, Map = {}, Set = {}, MultiMap = {} }
 </pre>
 
 
-<p>If you go through &lsquo;init.lua&rsquo;, then these plain little &lsquo;identity&rsquo; tables get an <code>__index</code> metamethod which forces the loading of the full functionality. Here is the code from &lsquo;list.lua&rsquo; which starts the ball rolling for lists:</p>
+<p>If you go through &lsquo;init.lua&rsquo;, then these plain little &lsquo;identity&rsquo; tables get an
+<code>__index</code> metamethod which forces the loading of the full functionality. Here is
+the code from &lsquo;list.lua&rsquo; which starts the ball rolling for lists:</p>
 
 <pre>
  List = utils.stdmt.List
@@ -155,21 +183,38 @@
 </pre>
 
 
-<p>The &lsquo;load-on-demand&rsquo; strategy helps to modularize the library.  Especially for more casual use, <code>require 'pl'</code> is a good compromise between convenience and modularity.</p>
+<p>The &lsquo;load-on-demand&rsquo; strategy helps to modularize the library.  Especially for
+more casual use, <code>require 'pl'</code> is a good compromise between convenience and
+modularity.</p>
 
-<p>In this current version, I have generally reduced the amount of trickery involved. Previously, <a href="../modules/pl.Map.html#">Map</a>  was defined in <a href="../modules/pl.class.html#">pl.class</a> ; now it is sensibly defined in <a href="../modules/pl.Map.html#">pl.Map</a> ; <a href="../modules/pl.class.html#">pl.class</a>  only contains the basic class mechanism (and returns that function.) For consistency, <a href="../modules/pl.List.html#">List</a>  is returned directly by  <code>require 'pl.List'</code> (note the uppercase &lsquo;L&rsquo;),  Also, the amount of module dependencies in the non-core libraries like <code>pl.config</code> have been reduced.</p>
+<p>In this current version, I have generally reduced the amount of trickery
+involved. Previously, <a href="../modules/pl.Map.html#">Map</a>  was defined in <a href="../modules/pl.class.html#">pl.class</a> ; now it is sensibly defined
+in <a href="../modules/pl.Map.html#">pl.Map</a> ; <a href="../modules/pl.class.html#">pl.class</a>  only contains the basic class mechanism (and returns that
+function.) For consistency, <a href="../modules/pl.List.html#">List</a>  is returned directly by  <code>require 'pl.List'</code>
+(note the uppercase &lsquo;L&rsquo;),  Also, the amount of module dependencies in the
+non-core libraries like <code>pl.config</code> have been reduced.</p>
 
 <p><a name="Defining_what_is_Callable"></a></p>
 
 <h3>Defining what is Callable</h3>
 
-<p>'utils.lua' exports <code>function_arg</code> which is used extensively throughout Penlight. It defines what is meant by &lsquo;callable&rsquo;.  Obviously true functions are immediately passed back. But what about strings? The first option is that it represents an operator in &lsquo;operator.lua&rsquo;, so that &lsquo;&lt;&rsquo; is just an alias for <a href="../modules/pl.operator.html#lt">operator.lt</a> .</p>
+<p>'utils.lua' exports <code>function_arg</code> which is used extensively throughout Penlight.
+It defines what is meant by &lsquo;callable&rsquo;.  Obviously true functions are immediately
+passed back. But what about strings? The first option is that it represents an
+operator in &lsquo;operator.lua&rsquo;, so that &lsquo;&lt;&rsquo; is just an alias for <a href="../modules/pl.operator.html#lt">operator.lt</a> .</p>
 
-<p>We then check whether there is a <em>function factory</em> defined for the metatable of the value.</p>
+<p>We then check whether there is a <em>function factory</em> defined for the metatable of
+the value.</p>
 
-<p>(It is true that strings can be made callable, but in practice this turns out to be a cute but dubious idea, since <em>all</em> strings share the same metatable. A common programming error is to pass the wrong kind of object to a function, and it&rsquo;s better to get a nice clean &lsquo;attempting to call a string&rsquo; message rather than some obscure trace from the bowels of your library.)</p>
+<p>(It is true that strings can be made callable, but in practice this turns out to
+be a cute but dubious idea, since <em>all</em> strings share the same metatable. A
+common programming error is to pass the wrong kind of object to a function, and
+it&rsquo;s better to get a nice clean &lsquo;attempting to call a string&rsquo; message rather than
+some obscure trace from the bowels of your library.)</p>
 
-<p>The other module that registers a function factory is <a href="../modules/pl.func.html#">pl.func</a> . Placeholder expressions cannot be directly calleable, and so need to be instantiated and cached in as efficient way as possible.</p>
+<p>The other module that registers a function factory is <a href="../modules/pl.func.html#">pl.func</a> . Placeholder
+expressions cannot be directly calleable, and so need to be instantiated and
+cached in as efficient way as possible.</p>
 
 <p>(An inconsistency is that <a href="../modules/pl.utils.html#is_callable">utils.is_callable</a>  does not do this thorough check.)</p>
 
@@ -177,7 +222,7 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.2</a></i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.3</a></i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

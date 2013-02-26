@@ -69,6 +69,7 @@
   <li><a href="../modules/pl.dir.html">pl.dir</a></li>
   <li><a href="../modules/pl.file.html">pl.file</a></li>
   <li><a href="../modules/pl.func.html">pl.func</a></li>
+  <li><a href="../modules/pl.import_into.html">pl.import_into</a></li>
   <li><a href="../modules/pl.input.html">pl.input</a></li>
   <li><a href="../modules/pl.lapp.html">pl.lapp</a></li>
   <li><a href="../modules/pl.lexer.html">pl.lexer</a></li>
@@ -76,6 +77,7 @@
   <li><a href="../modules/pl.operator.html">pl.operator</a></li>
   <li><a href="../modules/pl.path.html">pl.path</a></li>
   <li><a href="../modules/pl.permute.html">pl.permute</a></li>
+  <li><a href="../modules/pl.platf.luajava.html">pl.platf.luajava</a></li>
   <li><a href="../modules/pl.pretty.html">pl.pretty</a></li>
   <li><a href="../modules/pl.seq.html">pl.seq</a></li>
   <li><a href="../modules/pl.sip.html">pl.sip</a></li>
@@ -121,7 +123,14 @@
 
 <h3>Extra String Methods</h3>
 
-<p>These are convenient borrowings from Python, as described in 3.6.1 of the Python reference, but note that indices in Lua always begin at one. <a href="../modules/pl.stringx.html#">stringx</a>  defines functions like <a href="../modules/pl.stringx.html#isalpha">isalpha</a>  and <a href="../modules/pl.stringx.html#isdigit">isdigit</a> , which return <code>true</code> if s is only composed of letters or digits respectively. <a href="../modules/pl.stringx.html#startswith">startswith</a>  and <a href="../modules/pl.stringx.html#endswith">endswith</a>  are convenient ways to find substrings. (<a href="../modules/pl.stringx.html#endswith">endswith</a>  works as in Python 2.5, so that <code>f:endswith {'.bat','.exe','.cmd'}</code> will be true for any filename which ends with these extensions.) There are justify methods and whitespace trimming functions like <a href="../modules/pl.stringx.html#strip">strip</a> .</p>
+<p>These are convenient borrowings from Python, as described in 3.6.1 of the Python
+reference, but note that indices in Lua always begin at one. <a href="../modules/pl.stringx.html#">stringx</a>  defines
+functions like <a href="../modules/pl.stringx.html#isalpha">isalpha</a>  and <a href="../modules/pl.stringx.html#isdigit">isdigit</a> , which return <code>true</code> if s is only composed
+of letters or digits respectively. <a href="../modules/pl.stringx.html#startswith">startswith</a>  and <a href="../modules/pl.stringx.html#endswith">endswith</a>  are convenient
+ways to find substrings. (<a href="../modules/pl.stringx.html#endswith">endswith</a>  works as in Python 2.5, so that <code>f:endswith
+{'.bat','.exe','.cmd'}</code> will be true for any filename which ends with these
+extensions.) There are justify methods and whitespace trimming functions like
+<a href="../modules/pl.stringx.html#strip">strip</a> .</p>
 
 <pre>
  &gt; stringx.import()
@@ -146,13 +155,21 @@
 </pre>
 
 
-<p>Most of these can be fairly easily implemented using the Lua string library, which is more general and powerful. But they are convenient operations to have easily at hand. Note that can be injected into the <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>  table if you use <code>stringx.import</code>, but a simple alias like <code>local stringx = require 'pl.stringx'</code> is preferrable. This is the recommended practice when writing modules for consumption by other people, since it is bad manners to change the global state of the rest of the system.</p>
+<p>Most of these can be fairly easily implemented using the Lua string library,
+which is more general and powerful. But they are convenient operations to have
+easily at hand. Note that can be injected into the <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>  table if you use
+<code>stringx.import</code>, but a simple alias like <code>local stringx = require 'pl.stringx'</code>
+is preferrable. This is the recommended practice when writing modules for
+consumption by other people, since it is bad manners to change the global state
+of the rest of the system. Magic may be used for convenience, but there is always
+a cost.</p>
 
 <p><a name="String_Templates"></a></p>
 
 <h3>String Templates</h3>
 
-<p>Another borrowing from Python, string templates allow you to substitute values looked up in a table:</p>
+<p>Another borrowing from Python, string templates allow you to substitute values
+looked up in a table:</p>
 
 <pre>
  <span class="keyword">local</span> Template = <span class="global">require</span> (<span class="string">'pl.text'</span>).Template
@@ -163,9 +180,14 @@
 </pre>
 
 
-<p>&lsquo;$ variables&rsquo; can optionally have curly braces; this form is useful if you are glueing text together to make variables, e.g <code>${prefix}_name_${postfix}</code>. The <code>substitute</code> method will throw an error if a $ variable is not found in the table, and the <code>safe_substitute</code> method will not.</p>
+<p>&lsquo;$ variables&rsquo; can optionally have curly braces; this form is useful if you are
+glueing text together to make variables, e.g <code>${prefix}_name_${postfix}</code>. The
+<code>substitute</code> method will throw an error if a $ variable is not found in the
+table, and the <code>safe_substitute</code> method will not.</p>
 
-<p>The Lua implementation has an extra method, <code>indent_substitute</code> which is very useful for inserting blocks of text, because it adjusts indentation. Consider this example:</p>
+<p>The Lua implementation has an extra method, <code>indent_substitute</code> which is very
+useful for inserting blocks of text, because it adjusts indentation. Consider
+this example:</p>
 
 <pre>
  <span class="comment">-- testtemplate.lua
@@ -200,11 +222,19 @@
 </pre>
 
 
-<p><code>indent_substitute</code> can substitute templates, and in which case they themselves will be substituted using the given table. So in this case, <code>$t</code> was substituted twice.</p>
+<p><code>indent_substitute</code> can substitute templates, and in which case they themselves
+will be substituted using the given table. So in this case, <code>$t</code> was substituted
+twice.</p>
 
-<p><a href="../modules/pl.text.html#">pl.text</a>  also has a number of useful functions like <a href="../modules/pl.text.html#dedent">dedent</a> , which strips all the initial indentation from a multiline string. As in Python, this is useful for preprocessing multiline strings if you like indenting them with your code. The function <a href="../modules/pl.text.html#wrap">wrap</a>  is passed a long string (a <em>paragraph</em>) and returns a list of lines that fit into a desired line width. As an extension, there is also <a href="../modules/pl.text.html#indent">indent</a>  for indenting multiline strings.</p>
+<p><a href="../modules/pl.text.html#">pl.text</a>  also has a number of useful functions like <a href="../modules/pl.text.html#dedent">dedent</a> , which strips all
+the initial indentation from a multiline string. As in Python, this is useful for
+preprocessing multiline strings if you like indenting them with your code. The
+function <a href="../modules/pl.text.html#wrap">wrap</a>  is passed a long string (a <em>paragraph</em>) and returns a list of
+lines that fit into a desired line width. As an extension, there is also <a href="../modules/pl.text.html#indent">indent</a>
+for indenting multiline strings.</p>
 
-<p>New in Penlight with the 0.9 series is <a href="../modules/pl.text.html#format_operator">text.format_operator</a> . Calling this enables Python-style string formating using the modulo operator <code>%</code>:</p>
+<p>New in Penlight with the 0.9 series is <code>text.format_operator</code>. Calling this
+enables Python-style string formating using the modulo operator <code>%</code>:</p>
 
 <pre>
  &gt; text.format_operator()
@@ -213,7 +243,8 @@
 </pre>
 
 
-<p>So in its simplest form it saves the typing involved with <a href="http://www.lua.org/manual/5.1/manual.html#pdf-string.format">string.format</a> ; it will also expand <code>$</code> variables using named fields:</p>
+<p>So in its simplest form it saves the typing involved with <a href="http://www.lua.org/manual/5.1/manual.html#pdf-string.format">string.format</a> ; it
+will also expand <code>$</code> variables using named fields:</p>
 
 <pre>
  &gt; = <span class="string">'$animal[$num]'</span> % {animal=<span class="string">'dog'</span>,num=<span class="number">1</span>}
@@ -225,7 +256,10 @@
 
 <h3>Another Style of Template</h3>
 
-<p>A new module is <a href="../modules/pl.template.html#">template</a> , which is a version of Rici Lake&rsquo;s <a href="http://lua-users.org/wiki/SlightlyLessSimpleLuaPreprocessor">Lua  Preprocessor</a>.  This allows you to mix Lua code with your templates in a straightforward way. There are only two rules:</p>
+<p>A new module is <a href="../modules/pl.template.html#">template</a> , which is a version of Rici Lake&rsquo;s <a href="http://lua-users.org/wiki/SlightlyLessSimpleLuaPreprocessor">Lua
+Preprocessor</a>.  This
+allows you to mix Lua code with your templates in a straightforward way. There
+are only two rules:</p>
 
 <ul>
 <li>Lines begining with <code>#</code> are Lua</li>
@@ -263,11 +297,19 @@
 </pre>
 
 
-<p>There is a single function, <a href="../modules/pl.template.html#substitute">template.substitute</a>  which is passed a template string and an environment table.   This table may contain some special fields, like <code>_parent</code> which can be set to a table representing a &lsquo;fallback&rsquo; environment in case a symbol was not found. <code>_brackets</code> is usually &lsquo;()&rsquo; and <code>_escape</code> is usually &lsquo;#&rsquo; but it&rsquo;s sometimes necessary to redefine these if the defaults interfere with the target language &ndash; for instance, <code>$(V)</code> has another meaning in Make, and <code>#</code> means a preprocessor line in C/C++.</p>
+<p>There is a single function, <a href="../modules/pl.template.html#substitute">template.substitute</a>  which is passed a template
+string and an environment table.   This table may contain some special fields,
+like <code>_parent</code> which can be set to a table representing a &lsquo;fallback&rsquo; environment
+in case a symbol was not found. <code>_brackets</code> is usually &lsquo;()&rsquo; and <code>_escape</code> is
+usually &lsquo;#&rsquo; but it&rsquo;s sometimes necessary to redefine these if the defaults
+interfere with the target language &ndash; for instance, <code>$(V)</code> has another meaning in
+Make, and <code>#</code> means a preprocessor line in C/C++.</p>
 
-<p>Finally, if something goes wrong, passing <code>_debug</code> will cause the intermediate Lua code to be dumped if there&rsquo;s a problem.</p>
+<p>Finally, if something goes wrong, passing <code>_debug</code> will cause the intermediate
+Lua code to be dumped if there&rsquo;s a problem.</p>
 
-<p>Here is a C code generation example; something that could easily be extended to be a minimal Lua extension skeleton generator.</p>
+<p>Here is a C code generation example; something that could easily be extended to
+be a minimal Lua extension skeleton generator.</p>
 
 <pre>
  <span class="keyword">local</span> subst = <span class="global">require</span> <span class="string">'pl.template'</span>.substitute
@@ -312,7 +354,9 @@
 
 <h3>File-style I/O on Strings</h3>
 
-<p><a href="../modules/pl.stringio.html#">pl.stringio</a>   provides just three functions; <a href="../modules/pl.stringio.html#open">stringio.open</a>  is passed a string, and returns a file-like object for reading. It supports a <code>read</code> method, which takes the same arguments as standard file objects:</p>
+<p><a href="../modules/pl.stringio.html#">pl.stringio</a>   provides just three functions; <a href="../modules/pl.stringio.html#open">stringio.open</a>  is passed a string,
+and returns a file-like object for reading. It supports a <code>read</code> method, which
+takes the same arguments as standard file objects:</p>
 
 <pre>
  &gt; f = stringio.open <span class="string">'first line\n10 20 30\n'</span>
@@ -325,15 +369,18 @@
 
 <p><code>lines</code> and <code>seek</code> are also supported.</p>
 
-<p><code>stringio.lines</code> is a useful short-cut for iterating over all the lines in a string.</p>
+<p><code>stringio.lines</code> is a useful short-cut for iterating over all the lines in a
+string.</p>
 
-<p><a href="../modules/pl.stringio.html#create">stringio.create</a>  creates a writeable file-like object. You then use <code>write</code> to this stream, and finally extract the builded string using <code>value</code>.  This &lsquo;string builder&rsquo; pattern is useful for efficiently creating large strings.</p>
+<p><a href="../modules/pl.stringio.html#create">stringio.create</a>  creates a writeable file-like object. You then use <code>write</code> to
+this stream, and finally extract the builded string using <code>value</code>.  This &lsquo;string
+builder&rsquo; pattern is useful for efficiently creating large strings.</p>
 
 
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.2</a></i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.3</a></i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

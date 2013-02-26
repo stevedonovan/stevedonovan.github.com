@@ -62,7 +62,7 @@
   <li><a href="../modules/pl.operator.html">pl.operator</a></li>
   <li><a href="../modules/pl.path.html">pl.path</a></li>
   <li><a href="../modules/pl.permute.html">pl.permute</a></li>
-  <li><a href="../modules/pl.platf.luajava.html">pl.platf.luajava</a></li>
+  <li><strong>pl.platf.luajava</strong></li>
   <li><a href="../modules/pl.pretty.html">pl.pretty</a></li>
   <li><a href="../modules/pl.seq.html">pl.seq</a></li>
   <li><a href="../modules/pl.sip.html">pl.sip</a></li>
@@ -71,7 +71,7 @@
   <li><a href="../modules/pl.stringx.html">pl.stringx</a></li>
   <li><a href="../modules/pl.tablex.html">pl.tablex</a></li>
   <li><a href="../modules/pl.template.html">pl.template</a></li>
-  <li><strong>pl.test</strong></li>
+  <li><a href="../modules/pl.test.html">pl.test</a></li>
   <li><a href="../modules/pl.text.html">pl.text</a></li>
   <li><a href="../modules/pl.utils.html">pl.utils</a></li>
   <li><a href="../modules/pl.xml.html">pl.xml</a></li>
@@ -112,48 +112,38 @@
 
 <div id="content">
 
-<h1>Module <code>pl.test</code></h1>
+<h1>Module <code>pl.platf.luajava</code></h1>
 
-<p>Useful test utilities.</p>
-<p><pre><code>test.asserteq({1,2},{1,2}) -- can compare tables
-test.asserteq(1.2,1.19,0.02) -- compare FP numbers within precision
-T = test.tuple -- used for comparing multiple results
-test.asserteq(T(string.find(" me","me")),T(2,3))
-</code></pre>
-
-<p> Dependencies: <a href="../modules/pl.utils.html#">pl.utils</a> , <a href="../modules/pl.tablex.html#">pl.tablex</a> , <a href="../modules/pl.pretty.html#">pl.pretty</a> , <a href="../modules/pl.path.html#">pl.path</a> , <a href="http://www.lua.org/manual/5.1/manual.html#5.9">debug</a> </p>
+<p>is this a directory?</p>
+<p>
 </p>
 
 
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#complain">complain&nbsp;(x, y, msg)</a></td>
-	<td class="summary">general test complain message.</td>
+	<td class="name" nowrap><a href="#path.isfile">path.isfile&nbsp;(P)</a></td>
+	<td class="summary">is this a file?.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#asserteq">asserteq&nbsp;(x, y, eps)</a></td>
-	<td class="summary">like assert, except takes two arguments that must be equal and can be tables.</td>
+	<td class="name" nowrap><a href="#path.getsize">path.getsize&nbsp;(P)</a></td>
+	<td class="summary">return size of a file.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#assertmatch">assertmatch&nbsp;(s1, s2)</a></td>
-	<td class="summary">assert that the first string matches the second.</td>
+	<td class="name" nowrap><a href="#path.exists">path.exists&nbsp;(P)</a></td>
+	<td class="summary">does a path exist?.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#assertraise">assertraise&nbsp;(fn, e)</a></td>
-	<td class="summary">assert that the function raises a particular error.</td>
+	<td class="name" nowrap><a href="#path.getatime">path.getatime&nbsp;(P)</a></td>
+	<td class="summary">Return the time of last access as the number of seconds since the epoch.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#asserteq2">asserteq2&nbsp;(x1, x2, y1, y2)</a></td>
-	<td class="summary">a version of asserteq that takes two pairs of values.</td>
+	<td class="name" nowrap><a href="#path.getmtime">path.getmtime&nbsp;(P)</a></td>
+	<td class="summary">Return the time of last modification</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#tuple">tuple&nbsp;(...)</a></td>
-	<td class="summary">encode an arbitrary argument list as a tuple.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#timer">timer&nbsp;(msg, n, fun, ...)</a></td>
-	<td class="summary">Time a function.</td>
+	<td class="name" nowrap><a href="#path.getctime">path.getctime&nbsp;(P)</a></td>
+	<td class="summary">Return the system&rsquo;s ctime.</td>
 	</tr>
 </table>
 
@@ -165,21 +155,16 @@ test.asserteq(T(string.find(" me","me")),T(2,3))
 
     <dl class="function">
     <dt>
-    <a name = "complain"></a>
-    <strong>complain&nbsp;(x, y, msg)</strong>
+    <a name = "path.isfile"></a>
+    <strong>path.isfile&nbsp;(P)</strong>
     </dt>
     <dd>
-    general test complain message.
- Useful for composing new test functions (see tests/tablex.lua for an example)
+    is this a file?.
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">x</span>
-       a value</li>
-      <li><span class="parameter">y</span>
-       value to compare first value against</li>
-      <li><span class="parameter">msg</span>
-       message</li>
+      <li><span class="parameter">P</span>
+       A file path</li>
     </ul>
 
 
@@ -188,21 +173,16 @@ test.asserteq(T(string.find(" me","me")),T(2,3))
 
 </dd>
     <dt>
-    <a name = "asserteq"></a>
-    <strong>asserteq&nbsp;(x, y, eps)</strong>
+    <a name = "path.getsize"></a>
+    <strong>path.getsize&nbsp;(P)</strong>
     </dt>
     <dd>
-    like assert, except takes two arguments that must be equal and can be tables.
- If they are plain tables, it will use tablex.deepcompare.
+    return size of a file.
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">x</span>
-       any value</li>
-      <li><span class="parameter">y</span>
-       a value equal to x</li>
-      <li><span class="parameter">eps</span>
-       an optional tolerance for numerical comparisons</li>
+      <li><span class="parameter">P</span>
+       A file path</li>
     </ul>
 
 
@@ -211,18 +191,39 @@ test.asserteq(T(string.find(" me","me")),T(2,3))
 
 </dd>
     <dt>
-    <a name = "assertmatch"></a>
-    <strong>assertmatch&nbsp;(s1, s2)</strong>
+    <a name = "path.exists"></a>
+    <strong>path.exists&nbsp;(P)</strong>
     </dt>
     <dd>
-    assert that the first string matches the second.
+    does a path exist?.
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">s1</span>
-       a string</li>
-      <li><span class="parameter">s2</span>
-       a string</li>
+      <li><span class="parameter">P</span>
+       A file path</li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        the file path if it exists, nil otherwise
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "path.getatime"></a>
+    <strong>path.getatime&nbsp;(P)</strong>
+    </dt>
+    <dd>
+    Return the time of last access as the number of seconds since the epoch.
+
+    <h3>Parameters:</h3>
+    <ul>
+      <li><span class="parameter">P</span>
+       A file path</li>
     </ul>
 
 
@@ -231,18 +232,16 @@ test.asserteq(T(string.find(" me","me")),T(2,3))
 
 </dd>
     <dt>
-    <a name = "assertraise"></a>
-    <strong>assertraise&nbsp;(fn, e)</strong>
+    <a name = "path.getmtime"></a>
+    <strong>path.getmtime&nbsp;(P)</strong>
     </dt>
     <dd>
-    assert that the function raises a particular error.
+    Return the time of last modification
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">fn</span>
-       a function or a table of the form {function,arg1,&hellip;}</li>
-      <li><span class="parameter">e</span>
-       a string to match the error against</li>
+      <li><span class="parameter">P</span>
+       A file path</li>
     </ul>
 
 
@@ -251,74 +250,16 @@ test.asserteq(T(string.find(" me","me")),T(2,3))
 
 </dd>
     <dt>
-    <a name = "asserteq2"></a>
-    <strong>asserteq2&nbsp;(x1, x2, y1, y2)</strong>
+    <a name = "path.getctime"></a>
+    <strong>path.getctime&nbsp;(P)</strong>
     </dt>
     <dd>
-    a version of asserteq that takes two pairs of values.
- <code>x1==y1 and x2==y2</code> must be true. Useful for functions that naturally
- return two values.
+    Return the system&rsquo;s ctime.
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">x1</span>
-       any value</li>
-      <li><span class="parameter">x2</span>
-       any value</li>
-      <li><span class="parameter">y1</span>
-       any value</li>
-      <li><span class="parameter">y2</span>
-       any value</li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "tuple"></a>
-    <strong>tuple&nbsp;(...)</strong>
-    </dt>
-    <dd>
-    encode an arbitrary argument list as a tuple.
- This can be used to compare to other argument lists, which is
- very useful for testing functions which return a number of values.
-
-    <h3>Parameters:</h3>
-    <ul>
-      <li><span class="parameter">...</span>
-
-</li>
-    </ul>
-
-
-
-
-    <h3>Usage:</h3>
-    <ul>
-        <pre class="example">asserteq(tuple( (&apos;ab&apos;):find &apos;a&apos;), tuple(1,1))</pre>
-    </ul>
-
-</dd>
-    <dt>
-    <a name = "timer"></a>
-    <strong>timer&nbsp;(msg, n, fun, ...)</strong>
-    </dt>
-    <dd>
-    Time a function.  Call the function a given number of times, and report the number of seconds taken,
- together with a message.  Any extra arguments will be passed to the function.
-
-    <h3>Parameters:</h3>
-    <ul>
-      <li><span class="parameter">msg</span>
-       a descriptive message</li>
-      <li><span class="parameter">n</span>
-       number of times to call the function</li>
-      <li><span class="parameter">fun</span>
-       the function</li>
-      <li><span class="parameter">...</span>
-       optional arguments to fun</li>
+      <li><span class="parameter">P</span>
+       A file path</li>
     </ul>
 
 

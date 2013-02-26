@@ -54,6 +54,7 @@
   <li><a href="../modules/pl.dir.html">pl.dir</a></li>
   <li><a href="../modules/pl.file.html">pl.file</a></li>
   <li><a href="../modules/pl.func.html">pl.func</a></li>
+  <li><a href="../modules/pl.import_into.html">pl.import_into</a></li>
   <li><a href="../modules/pl.input.html">pl.input</a></li>
   <li><a href="../modules/pl.lapp.html">pl.lapp</a></li>
   <li><a href="../modules/pl.lexer.html">pl.lexer</a></li>
@@ -61,6 +62,7 @@
   <li><a href="../modules/pl.operator.html">pl.operator</a></li>
   <li><a href="../modules/pl.path.html">pl.path</a></li>
   <li><a href="../modules/pl.permute.html">pl.permute</a></li>
+  <li><a href="../modules/pl.platf.luajava.html">pl.platf.luajava</a></li>
   <li><a href="../modules/pl.pretty.html">pl.pretty</a></li>
   <li><a href="../modules/pl.seq.html">pl.seq</a></li>
   <li><a href="../modules/pl.sip.html">pl.sip</a></li>
@@ -120,6 +122,7 @@
 <p> See <a href="../topics/03-strings.md.html#">the Guide</a></p>
 
 <p> Dependencies: <a href="../modules/pl.utils.html#">pl.utils</a> </p>
+
 
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
@@ -260,6 +263,7 @@
 
 
 
+
 </dd>
     <dt>
     <a name = "isdigit"></a>
@@ -273,6 +277,7 @@
       <li><span class="parameter">s</span>
        a string</li>
     </ul>
+
 
 
 
@@ -294,6 +299,7 @@
 
 
 
+
 </dd>
     <dt>
     <a name = "isspace"></a>
@@ -307,6 +313,7 @@
       <li><span class="parameter">s</span>
        a string</li>
     </ul>
+
 
 
 
@@ -328,6 +335,7 @@
 
 
 
+
 </dd>
     <dt>
     <a name = "isupper"></a>
@@ -341,6 +349,7 @@
       <li><span class="parameter">s</span>
        a string</li>
     </ul>
+
 
 
 
@@ -361,12 +370,13 @@
        a table of strings or numbers</li>
     </ul>
 
+
+
+
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">(' '):join {1,2,3} == '1 2 3'</pre>
+        <pre class="example">(&apos; &apos;):join {1,2,3} == &apos;1 2 3&apos;</pre>
     </ul>
-
-
 
 </dd>
     <dt>
@@ -387,6 +397,7 @@
 
 
 
+
 </dd>
     <dt>
     <a name = "endswith"></a>
@@ -402,6 +413,7 @@
       <li><span class="parameter">send</span>
        a substring or a table of suffixes</li>
     </ul>
+
 
 
 
@@ -427,6 +439,7 @@
 
 
 
+
 </dd>
     <dt>
     <a name = "lfind"></a>
@@ -444,6 +457,7 @@
       <li><span class="parameter">i1</span>
        start index</li>
     </ul>
+
 
 
 
@@ -471,6 +485,7 @@
 
 
 
+
 </dd>
     <dt>
     <a name = "replace"></a>
@@ -492,7 +507,6 @@
        optional maximum number of substitutions</li>
     </ul>
 
-
     <h3>Returns:</h3>
     <ol>
         <li>
@@ -500,6 +514,8 @@
         <li>
         the number of substitutions</li>
     </ol>
+
+
 
 
 </dd>
@@ -520,14 +536,15 @@
        maximum number of results</li>
     </ul>
 
+
+
+
     <h3>Usage:</h3>
     <ul>
-        <li><pre class="example">#(('one two'):split()) == 2</pre></li>
-        <li><pre class="example">('one,two,three'):split(',') == List{'one','two','three'}</pre></li>
-        <li><pre class="example">('one,two,three'):split(',',2) == List{'one','two,three'}</pre></li>
+        <li><pre class="example">#((&apos;one two&apos;):split()) == 2</pre></li>
+        <li><pre class="example">(&apos;one,two,three&apos;):split(&apos;,&apos;) == List{&apos;one&apos;,&apos;two&apos;,&apos;three&apos;}</pre></li>
+        <li><pre class="example">(&apos;one,two,three&apos;):split(&apos;,&apos;,2) == List{&apos;one&apos;,&apos;two,three&apos;}</pre></li>
     </ul>
-
-
 
 </dd>
     <dt>
@@ -545,17 +562,18 @@
        a Lua string pattern (defaults to whitespace)</li>
     </ul>
 
-    <h3>Usage:</h3>
-    <ul>
-        <pre class="example">a,b = line:splitv('=')</pre>
-    </ul>
-
     <h3>Returns:</h3>
     <ol>
 
         the parts of the string
     </ol>
 
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">a,b = line:splitv(&apos;=&apos;)</pre>
+    </ul>
 
 </dd>
     <dt>
@@ -572,6 +590,7 @@
       <li><span class="parameter">sub</span>
        substring</li>
     </ul>
+
 
 
 
@@ -597,6 +616,7 @@
 
 
 
+
 </dd>
     <dt>
     <a name = "rjust"></a>
@@ -614,6 +634,7 @@
       <li><span class="parameter">ch</span>
        padding character, default &lsquo; &rsquo;</li>
     </ul>
+
 
 
 
@@ -639,6 +660,7 @@
 
 
 
+
 </dd>
     <dt>
     <a name = "lstrip"></a>
@@ -654,6 +676,7 @@
       <li><span class="parameter">chrs</span>
        default space, can be a string of characters to be trimmed</li>
     </ul>
+
 
 
 
@@ -677,6 +700,7 @@
 
 
 
+
 </dd>
     <dt>
     <a name = "strip"></a>
@@ -692,6 +716,7 @@
       <li><span class="parameter">chrs</span>
        default space, can be a string of characters to be trimmed</li>
     </ul>
+
 
 
 
@@ -712,7 +737,6 @@
        delimiter</li>
     </ul>
 
-
     <h3>Returns:</h3>
     <ol>
         <li>
@@ -722,6 +746,8 @@
         <li>
         part after ch</li>
     </ol>
+
+
 
 
 </dd>
@@ -740,7 +766,6 @@
        delimiter</li>
     </ul>
 
-
     <h3>Returns:</h3>
     <ol>
         <li>
@@ -750,6 +775,8 @@
         <li>
         part after ch</li>
     </ol>
+
+
 
 
 </dd>
@@ -768,12 +795,13 @@
        an index (can be negative)</li>
     </ul>
 
-
     <h3>Returns:</h3>
     <ol>
 
         a substring of length 1 if successful, empty string otherwise.
     </ol>
+
+
 
 
 </dd>
@@ -790,12 +818,13 @@
        the string</li>
     </ul>
 
-
     <h3>Returns:</h3>
     <ol>
 
         an iterator
     </ol>
+
+
 
 
 </dd>
@@ -813,12 +842,13 @@
        the string</li>
     </ul>
 
-
     <h3>Returns:</h3>
     <ol>
 
         a string with each word&rsquo;s first letter uppercase
     </ol>
+
+
 
 
 </dd>
@@ -842,6 +872,7 @@
 
 
 
+
 </dd>
 </dl>
 
@@ -849,7 +880,7 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.2</a></i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.3</a></i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

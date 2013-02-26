@@ -54,6 +54,7 @@
   <li><a href="../modules/pl.dir.html">pl.dir</a></li>
   <li><a href="../modules/pl.file.html">pl.file</a></li>
   <li><a href="../modules/pl.func.html">pl.func</a></li>
+  <li><a href="../modules/pl.import_into.html">pl.import_into</a></li>
   <li><a href="../modules/pl.input.html">pl.input</a></li>
   <li><a href="../modules/pl.lapp.html">pl.lapp</a></li>
   <li><a href="../modules/pl.lexer.html">pl.lexer</a></li>
@@ -61,6 +62,7 @@
   <li><a href="../modules/pl.operator.html">pl.operator</a></li>
   <li><a href="../modules/pl.path.html">pl.path</a></li>
   <li><a href="../modules/pl.permute.html">pl.permute</a></li>
+  <li><a href="../modules/pl.platf.luajava.html">pl.platf.luajava</a></li>
   <li><a href="../modules/pl.pretty.html">pl.pretty</a></li>
   <li><a href="../modules/pl.seq.html">pl.seq</a></li>
   <li><a href="../modules/pl.sip.html">pl.sip</a></li>
@@ -128,6 +130,7 @@
 <p> Written for Lua version Nick Trout 4.0; Redone for Lua 5.1, Steve Donovan.</p>
 
 <p> Dependencies: <a href="../modules/pl.utils.html#">pl.utils</a> , <a href="../modules/pl.tablex.html#">pl.tablex</a> </p>
+
 
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
@@ -309,17 +312,18 @@
        An optional list-like table</li>
     </ul>
 
-    <h3>Usage:</h3>
-    <ul>
-        <pre class="example">ls = List();  ls = List {1,2,3,4}</pre>
-    </ul>
-
     <h3>Returns:</h3>
     <ol>
 
         a new List
     </ol>
 
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">ls = List();  ls = List {1,2,3,4}</pre>
+    </ul>
 
 </dd>
     <dt>
@@ -335,12 +339,13 @@
        An item</li>
     </ul>
 
-
     <h3>Returns:</h3>
     <ol>
 
         the list
     </ol>
+
+
 
 
 </dd>
@@ -358,12 +363,13 @@
        Another List</li>
     </ul>
 
-
     <h3>Returns:</h3>
     <ol>
 
         the list
     </ol>
+
+
 
 
 </dd>
@@ -383,12 +389,13 @@
        A data item</li>
     </ul>
 
-
     <h3>Returns:</h3>
     <ol>
 
         the list
     </ol>
+
+
 
 
 </dd>
@@ -405,12 +412,13 @@
        a data item</li>
     </ul>
 
-
     <h3>Returns:</h3>
     <ol>
 
         the list
     </ol>
+
+
 
 
 </dd>
@@ -428,12 +436,13 @@
        the index</li>
     </ul>
 
-
     <h3>Returns:</h3>
     <ol>
 
         the list
     </ol>
+
+
 
 
 </dd>
@@ -453,12 +462,13 @@
        A data value</li>
     </ul>
 
-
     <h3>Returns:</h3>
     <ol>
 
         the list
     </ol>
+
+
 
 
 </dd>
@@ -477,12 +487,13 @@
        An index</li>
     </ul>
 
-
     <h3>Returns:</h3>
     <ol>
 
         the item
     </ol>
+
+
 
 
 </dd>
@@ -502,12 +513,13 @@
        where to start search (default 1)</li>
     </ul>
 
-
     <h3>Returns:</h3>
     <ol>
 
         the index, or nil if not found.
     </ol>
+
+
 
 
 </dd>
@@ -524,12 +536,13 @@
        A data value</li>
     </ul>
 
-
     <h3>Returns:</h3>
     <ol>
 
         true or false
     </ol>
+
+
 
 
 </dd>
@@ -546,12 +559,13 @@
        A data value</li>
     </ul>
 
-
     <h3>Returns:</h3>
     <ol>
 
         number of times x appears
     </ol>
+
+
 
 
 </dd>
@@ -568,12 +582,13 @@
        an optional comparison function, default &lsquo;&lt;&rsquo;</li>
     </ul>
 
-
     <h3>Returns:</h3>
     <ol>
 
         the list
     </ol>
+
+
 
 
 </dd>
@@ -590,12 +605,13 @@
        an optional comparison function, default &lsquo;&lt;&rsquo;</li>
     </ul>
 
-
     <h3>Returns:</h3>
     <ol>
 
         a new list
     </ol>
+
+
 
 
 </dd>
@@ -607,12 +623,13 @@
     Reverse the elements of the list, in place.
 
 
-
     <h3>Returns:</h3>
     <ol>
 
         the list
     </ol>
+
+
 
 
 </dd>
@@ -624,7 +641,6 @@
     return the minimum and the maximum value of the list.
 
 
-
     <h3>Returns:</h3>
     <ol>
         <li>
@@ -632,6 +648,8 @@
         <li>
         maximum value</li>
     </ol>
+
+
 
 
 </dd>
@@ -653,12 +671,13 @@
        An index</li>
     </ul>
 
-
     <h3>Returns:</h3>
     <ol>
 
         a new List
     </ol>
+
+
 
 
 </dd>
@@ -670,12 +689,13 @@
     empty the list.
 
 
-
     <h3>Returns:</h3>
     <ol>
 
         the list
     </ol>
+
+
 
 
 </dd>
@@ -698,19 +718,20 @@
        an optional increment (may be less than 1)</li>
     </ul>
 
-    <h3>Usage:</h3>
-    <ul>
-        <li><pre class="example">List.range(0,3) == List{0,1,2,3}</pre></li>
-        <li><pre class="example">List.range(4) = List{1,2,3,4}</pre></li>
-        <li><pre class="example">List.range(5,1,-1) == List{5,4,3,2,1}</pre></li>
-    </ul>
-
     <h3>Returns:</h3>
     <ol>
 
         a List from start .. finish
     </ol>
 
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <li><pre class="example">List.range(0,3) == List{0,1,2,3}</pre></li>
+        <li><pre class="example">List.range(4) = List{1,2,3,4}</pre></li>
+        <li><pre class="example">List.range(5,1,-1) == List{5,4,3,2,1}</pre></li>
+    </ul>
 
 </dd>
     <dt>
@@ -719,6 +740,7 @@
     </dt>
     <dd>
     list:len() is the same as #list.
+
 
 
 
@@ -741,12 +763,13 @@
        end of range</li>
     </ul>
 
-
     <h3>Returns:</h3>
     <ol>
 
         the list
     </ol>
+
+
 
 
 </dd>
@@ -766,17 +789,18 @@
        list to insert</li>
     </ul>
 
-    <h3>Usage:</h3>
-    <ul>
-        <pre class="example">l = List{10,20}; l:splice(2,{21,22});  assert(l == List{10,21,22,20})</pre>
-    </ul>
-
     <h3>Returns:</h3>
     <ol>
 
         the list
     </ol>
 
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">l = List{10,20}; l:splice(2,{21,22});  assert(l == List{10,21,22,20})</pre>
+    </ul>
 
 </dd>
     <dt>
@@ -796,12 +820,13 @@
        a list</li>
     </ul>
 
-
     <h3>Returns:</h3>
     <ol>
 
         the list
     </ol>
+
+
 
 
 </dd>
@@ -818,12 +843,13 @@
        another List</li>
     </ul>
 
-
     <h3>Returns:</h3>
     <ol>
 
         a new list consisting of the list with the elements of the new list appended
     </ol>
+
+
 
 
 </dd>
@@ -840,12 +866,13 @@
        another List</li>
     </ul>
 
-
     <h3>Returns:</h3>
     <ol>
 
         true or false
     </ol>
+
+
 
 
 </dd>
@@ -863,12 +890,13 @@
        a delimiter string, can be empty.</li>
     </ul>
 
-
     <h3>Returns:</h3>
     <ol>
 
         a string
     </ol>
+
+
 
 
 </dd>
@@ -886,12 +914,13 @@
        a delimiter</li>
     </ul>
 
-
     <h3>Returns:</h3>
     <ol>
 
         a string
     </ol>
+
+
 
 
 </dd>
@@ -905,11 +934,12 @@
 
 
 
-
     <h3>see also:</h3>
     <ul>
          <a href="../modules/pl.List.html#List:join">List:join</a>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "List:foreach"></a>
@@ -925,6 +955,7 @@
       <li><span class="parameter">...</span>
        optional values to pass to function</li>
     </ul>
+
 
 
 
@@ -945,12 +976,13 @@
        optional argument to be passed as second argument of the predicate</li>
     </ul>
 
-
     <h3>Returns:</h3>
     <ol>
 
         a new filtered list.
     </ol>
+
+
 
 
 </dd>
@@ -969,7 +1001,6 @@
        the delimiter (default spaces)</li>
     </ul>
 
-
     <h3>Returns:</h3>
     <ol>
 
@@ -981,6 +1012,8 @@
     <ul>
          <a href="../modules/pl.utils.html#split">pl.utils.split</a>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "List:map"></a>
@@ -1000,12 +1033,6 @@
        arbitrary extra arguments.</li>
     </ul>
 
-    <h3>Usage:</h3>
-    <ul>
-        <li><pre class="example">List{'one','two'}:map(string.upper) == {'ONE','TWO'}</pre></li>
-        <li><pre class="example">List{'one','two'}:map():sub(1,2) == {'on','tw'}</pre></li>
-    </ul>
-
     <h3>Returns:</h3>
     <ol>
 
@@ -1017,6 +1044,13 @@
     <ul>
          <a href="../modules/pl.tablex.html#imap">pl.tablex.imap</a>
     </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <li><pre class="example">List{&apos;one&apos;,&apos;two&apos;}:map(string.upper) == {&apos;ONE&apos;,&apos;TWO&apos;}</pre></li>
+        <li><pre class="example">List{&apos;one&apos;,&apos;two&apos;}:map():sub(1,2) == {&apos;on&apos;,&apos;tw&apos;}</pre></li>
+    </ul>
+
 </dd>
     <dt>
     <a name = "List:transform"></a>
@@ -1034,12 +1068,13 @@
        arbitrary extra arguments.</li>
     </ul>
 
-
     <h3>Returns:</h3>
     <ol>
 
         the list.
     </ol>
+
+
 
 
 </dd>
@@ -1061,7 +1096,6 @@
        arbitrary extra arguments.</li>
     </ul>
 
-
     <h3>Returns:</h3>
     <ol>
 
@@ -1073,6 +1107,8 @@
     <ul>
          <a href="../modules/pl.tablex.html#imap2">pl.tablex.imap2</a>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "List:mapm"></a>
@@ -1090,7 +1126,6 @@
        extra arguments</li>
     </ul>
 
-
     <h3>Returns:</h3>
     <ol>
 
@@ -1102,6 +1137,8 @@
     <ul>
          <a href="../modules/pl.seq.html#mapmethod">pl.seq.mapmethod</a>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "List:reduce"></a>
@@ -1116,7 +1153,6 @@
        a function of two arguments</li>
     </ul>
 
-
     <h3>Returns:</h3>
     <ol>
 
@@ -1128,6 +1164,8 @@
     <ul>
          <a href="../modules/pl.tablex.html#reduce">pl.tablex.reduce</a>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "List:partition"></a>
@@ -1136,6 +1174,7 @@
     <dd>
     partition a list using a classifier function.
  The function may return nil, but this will be converted to the string key &lsquo;<nil>&rsquo;.
+ of values where the function returned that key. It is given the type of Multimap.
 
     <h3>Parameters:</h3>
     <ul>
@@ -1145,12 +1184,10 @@
        will also be passed to the function</li>
     </ul>
 
-
     <h3>Returns:</h3>
     <ol>
 
         a table where the keys are the returned values, and the values are Lists
- of values where the function returned that key. It is given the type of Multimap.
     </ol>
 
 
@@ -1158,6 +1195,8 @@
     <ul>
          <a href="../modules/pl.MultiMap.html#">pl.MultiMap</a>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "List:iter"></a>
@@ -1165,6 +1204,7 @@
     </dt>
     <dd>
     return an iterator over all values.
+
 
 
 
@@ -1186,13 +1226,14 @@
        a sequence; a string (over characters), a table, a file object (over lines) or an iterator function</li>
     </ul>
 
+
+
+
     <h3>Usage:</h3>
     <ul>
-        <li><pre class="example">for x in iterate {1,10,22,55} do io.write(x,',') end ==> 1,10,22,55</pre></li>
-        <li><pre class="example">for ch in iterate 'help' do do io.write(ch,' ') end ==> h e l p</pre></li>
+        <li><pre class="example">for x in iterate {1,10,22,55} do io.write(x,&apos;,&apos;) end ==&gt; 1,10,22,55</pre></li>
+        <li><pre class="example">for ch in iterate &apos;help&apos; do do io.write(ch,&apos; &apos;) end ==&gt; h e l p</pre></li>
     </ul>
-
-
 
 </dd>
 </dl>
@@ -1201,7 +1242,7 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.2</a></i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.3</a></i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
