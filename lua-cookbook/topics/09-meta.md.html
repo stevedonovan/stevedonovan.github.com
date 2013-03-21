@@ -1,0 +1,423 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Lua Cookbook</h1>
+
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Custom_String_Representation_">Custom String Representation </a></li>
+<li><a href="#Making_a_Table_Callable_and_Overriding_Equality_">Making a Table Callable and Overriding Equality </a></li>
+<li><a href="#When_a_Key_is_not_Found_in_a_Table_">When a Key is not Found in a Table </a></li>
+<li><a href="#When_a_new_Key_is_Initialized_">When a new Key is Initialized </a></li>
+</ul>
+
+
+<h2>Topics</h2>
+<ul>
+  <li><a href="../topics/00-intro.md.html">00-intro.md</a></li>
+  <li><a href="../topics/01-types.md.html">01-types.md</a></li>
+  <li><a href="../topics/02-strings.md.html">02-strings.md</a></li>
+  <li><a href="../topics/03-tables.md.html">03-tables.md</a></li>
+  <li><a href="../topics/04-coroutines.md.html">04-coroutines.md</a></li>
+  <li><a href="../topics/05-programs.md.html">05-programs.md</a></li>
+  <li><a href="../topics/06-modules.md.html">06-modules.md</a></li>
+  <li><a href="../topics/07-variable-scope.md.html">07-variable-scope.md</a></li>
+  <li><a href="../topics/08-errors.md.html">08-errors.md</a></li>
+  <li><strong>09-meta.md</strong></li>
+</ul>
+<h2>Modules</h2>
+<ul>
+  <li><a href="../index.html">cookbook</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Topic <code>09-meta.md</code></h1>
+
+    <h2>Metatables</h2>
+
+<p>Any table or userdata may have a <em>metatable</em> associated with it.  Metatables specify
+the behaviour of their tables, in a similar way to how classes specify the behaviour of
+their objects in a traditional object-orientated language.  Metatables do this by defining
+<em>metamethods</em>.  In other respects, metatables are plain tables.</p>
+
+<p><a name="Custom_String_Representation"></a></p>
+
+<h3>Custom String Representation</h3>
+
+<p><a href="http://www.lua.org/manual/5.1/manual.html#pdf-tostring">tostring</a>  will try to convert a value into a string; it is used by <a href="http://www.lua.org/manual/5.1/manual.html#pdf-print">print</a>  when presenting
+values. It is not particularly useful for tables,</p>
+
+<pre>
+ obj = {label = <span class="string">"hello"</span>}
+ <span class="global">print</span>(obj) <span class="comment">--&gt; table: 0x80e91f8
+</span>
+</pre>
+
+
+<p><a href="http://www.lua.org/manual/5.1/manual.html#pdf-tostring">tostring</a>  does let an object decide how to show itself. If the object has a metatable,
+and that metatable contains a function called <code>__tostring</code>, it will use that function to
+get the string:</p>
+
+<pre>
+ <span class="keyword">local</span> MT = {}
+
+ MT.__tostring = <span class="keyword">function</span>(obj)
+     <span class="keyword">return</span> obj.label
+ <span class="keyword">end</span>
+
+ <span class="global">setmetatable</span>(obj,MT)
+
+ <span class="global">print</span>(obj) <span class="comment">--&gt; hello
+</span>
+</pre>
+
+
+<p>A more realistic example involves making tables print out their contents.  In the
+specialized case of an array or list, it would look like this:</p>
+
+<pre>
+ List = {}
+ List.__tostring = <span class="keyword">function</span>(list)
+     <span class="keyword">local</span> res = {}
+     <span class="keyword">for</span> i = <span class="number">1</span>,#list <span class="keyword">do</span>
+         res[i] = <span class="global">tostring</span>(list[i])
+     <span class="keyword">end</span>
+     <span class="keyword">return</span> <span class="string">'{'</span>..<span class="global">table</span>.concat(res,<span class="string">','</span>)..<span class="string">'}'</span>
+ <span class="keyword">end</span>
+
+ <span class="keyword">function</span> new_list(t)
+     <span class="keyword">return</span> <span class="global">setmetatable</span>(t <span class="keyword">or</span> {},List)
+ <span class="keyword">end</span>
+
+ l1 = new_list{<span class="number">10</span>,<span class="number">20</span>,<span class="number">30</span>}
+ <span class="global">print</span>(l2) <span class="comment">---&gt; {10,20,30}
+</span>
+</pre>
+
+
+<p>This is genuinely useful when working with lists.  The <code>__tostring</code> implementation is
+a little more complicated than it should be, because <a href="http://www.lua.org/manual/5.1/manual.html#pdf-table.concat">table.concat</a>  itself does not use
+<a href="http://www.lua.org/manual/5.1/manual.html#pdf-tostring">tostring</a>  and needs a table of strings or numbers.  (This is actually deliberate, since
+<a href="http://www.lua.org/manual/5.1/manual.html#pdf-table.concat">table.concat</a>  is <em>the</em> way to build large strings for output in Lua.  If you make a mistake
+and pass a table value or <code>nil</code>, then it is better for this to be a runtime error than
+to have to look through ten pages of output for the mistake.)</p>
+
+<p><a name="Making_a_Table_Callable_and_Overriding_Equality"></a></p>
+
+<h3>Making a Table Callable and Overriding Equality</h3>
+
+<p>The &lsquo;constructor&rsquo; <code>new_list</code> takes an existing table, or makes a new table. (<code>t or {}</code> is
+a common Lua idiom for specifying a default value for the case when something may
+be <code>nil</code>.)    It would be more elegant if <code>List</code> could be used as a constructor, like
+<code>List{10,20,30}</code>.  The <code>__call</code> metamethod makes a table <em>callable</em>.  When you try
+to &lsquo;call a table&rsquo; then Lua looks for a function with this name in the metatable, passing
+the original table:</p>
+
+<pre>
+ <span class="global">setmetatable</span>(List,{
+     __call = <span class="keyword">function</span>(C,t) <span class="keyword">return</span> new_list(t) <span class="keyword">end</span>
+ })
+
+ l2 = List{<span class="number">10</span>,<span class="number">20</span>,<span class="number">30</span>}
+ <span class="global">print</span>(l2) <span class="comment">--&gt; {10,20,30}
+</span>
+</pre>
+
+
+<p>It would be useful if lists could be compared element-by-element when using the
+equality operator <code>==</code>.  By defining the metamethod <code>__eq</code>, the usual behaviour
+is <em>overriden</em>.</p>
+
+<pre>
+ List.__eq = <span class="keyword">function</span>(list1,list2)
+     <span class="keyword">if</span> #list1 ~= #list2 <span class="keyword">then</span> <span class="keyword">return</span> <span class="keyword">false</span> <span class="keyword">end</span>
+     <span class="keyword">for</span> i = <span class="number">1</span>,#list1 <span class="keyword">do</span>
+         <span class="keyword">if</span> list1[i] ~= list2[i] <span class="keyword">then</span> <span class="keyword">return</span> <span class="keyword">false</span> <span class="keyword">end</span>
+     <span class="keyword">end</span>
+     <span class="keyword">return</span> <span class="keyword">true</span>
+ <span class="keyword">end</span>
+
+ <span class="global">print</span>(li1 == l2)   <span class="comment">--&gt; true
+</span>
+</pre>
+
+
+<p><code>List</code> is starting to resemble what people call a <em>class</em> in other languages; it serves both
+as a factory for making new <code>List</code> objects, and defines shared behaviour in all these
+objects.</p>
+
+<p><a name="When_a_Key_is_not_Found_in_a_Table"></a></p>
+
+<h3>When a Key is not Found in a Table</h3>
+
+<p>The basic table access operations using a key are getting and setting values. If a key
+is not found in the table, then <code>nil</code> is returned.   Sometimes this is not an appropriate
+default value, or you want this case to really be an error.  The <code>__index</code> metamethod
+is called if Lua <em>cannot</em> find a key in a table. It is passed the table and the key:</p>
+
+<pre>
+ <span class="keyword">local</span> ErrorMT = {}
+
+ <span class="keyword">function</span> ErrorMt.__index(t,key)
+     error(<span class="string">"Cannot find '"</span>..key..<span class="string">"' in table"</span>,<span class="number">2</span>)
+ <span class="keyword">end</span>
+
+ <span class="keyword">function</span> new_strict_table(t)
+     <span class="keyword">return</span> <span class="global">setmetatable</span>(t <span class="keyword">or</span> {},ErrorMT)
+ <span class="keyword">end</span>
+
+ t = new_strict_table {fred = <span class="number">1</span>}
+ <span class="comment">--&gt; case-sensitive!  Throws an error "Cannot find 'Fred' in table"
+</span> <span class="global">print</span>(t.Fred)
+</pre>
+
+
+<p>Consider counting unique words in a table:</p>
+
+<pre>
+ <span class="keyword">for</span> i = <span class="number">1</span>,#words <span class="keyword">do</span>
+     <span class="keyword">local</span> word = words[i]
+     <span class="keyword">local</span> count = count_of[word]
+     <span class="keyword">if</span> <span class="keyword">not</span> count <span class="keyword">then</span>
+         count_of[word] = <span class="number">0</span>
+     <span class="keyword">end</span>
+     count_of[word] = count + <span class="number">1</span>
+ <span class="keyword">end</span>
+</pre>
+
+
+<p>Having to check for the first occurance of a word is irritating; if the key is not found,
+the value should be zero.</p>
+
+<pre>
+ ZeroMT = {
+     __index = <span class="keyword">function</span>(t,key) <span class="keyword">return</span> <span class="number">0</span> <span class="keyword">end</span>
+ }
+</pre>
+
+
+<p>Then tables with this metatable can be used like this:</p>
+
+<pre>
+ <span class="keyword">for</span> i,word = <span class="global">ipairs</span>(words) <span class="keyword">do</span>
+     count_of[word] = count_of[word] + <span class="number">1</span>
+ <span class="keyword">end</span>
+</pre>
+
+
+<p>Going back to the <code>List</code> example, it would be nice if lists had some methods. The <code>extend</code> method
+will append all the elements of another table:</p>
+
+<pre>
+ <span class="keyword">local</span> methods = {}
+
+ List.__index = <span class="keyword">function</span>(list,k) <span class="comment">-- *note*
+</span>     <span class="keyword">return</span> methods[k]
+ <span class="keyword">end</span>
+
+ <span class="keyword">function</span> methods.extend(self,list)
+     <span class="keyword">local</span> k = #self
+     <span class="keyword">for</span> i = <span class="number">1</span>,#list <span class="keyword">do</span>
+         k = k + <span class="number">1</span>
+         self[k] = list[i]
+     <span class="keyword">end</span>
+     <span class="keyword">return</span> self
+ <span class="keyword">end</span>
+
+ ls = List{<span class="number">10</span>,<span class="number">20</span>,<span class="number">30</span>}
+ ls:extend {<span class="number">40</span>,<span class="number">50</span>}
+ <span class="global">print</span>(ls) <span class="comment">--&gt; {10,20,30,40,50}
+</span>
+</pre>
+
+
+<p>That is, if we can&rsquo;t find a key such as <code>extend</code> then <code>__index</code> assumes that it will be inside
+a table of methods.</p>
+
+<p>(This is such a common pattern that Lua allows <code>__index</code> to be a table, so you can write the
+marked line as:</p>
+
+<pre>
+ List.__index = methods
+</pre>
+
+
+<p>A little less flexible, but faster and cleaner.)</p>
+
+<p>It&rsquo;s easy to keep adding methods. For instance, this works like <a href="http://www.lua.org/manual/5.1/manual.html#pdf-string.sub">string.sub</a> , where the second
+index can be negative to refer to the end of the list:</p>
+
+<pre>
+ <span class="keyword">function</span> methods.sub(self,i1,i2)
+     <span class="keyword">if</span> i2 == <span class="keyword">nil</span> <span class="keyword">then</span>
+         i2 = #self
+     <span class="keyword">elseif</span> i2 &lt; <span class="number">0</span> <span class="keyword">then</span>
+         i2 = #self + i2 + <span class="number">1</span>
+     <span class="keyword">end</span>
+     <span class="keyword">local</span> res = List()
+     <span class="keyword">for</span> i = i1,i2 <span class="keyword">do</span>
+         res[#res + <span class="number">1</span>] = self[i]
+     <span class="keyword">end</span>
+     <span class="keyword">return</span> res
+ <span class="keyword">end</span>
+
+ <span class="global">print</span>(ls:sub(<span class="number">1</span>)) <span class="comment">--&gt; {10,20,30,40,50}
+</span> <span class="global">print</span>(ls:sub(<span class="number">2</span>,-<span class="number">2</span>)) <span class="comment">--&gt; {20,30,40}
+</span>
+</pre>
+
+
+<p>Such a section of a list is usually called a &lsquo;slice&rsquo;. Note that calling with a start index of 1 gives
+us a copy of the full list.</p>
+
+<p>To make this list even more Python-like, we can implement <em>concatenation</em>. This is the new list
+made from appending the second list to the first list.  <code>l1 .. l2</code> can be made to do this if
+the <code>__concat</code> metamethod is defined:</p>
+
+<pre>
+ List.__concat = <span class="keyword">function</span>(l1,l2)
+     <span class="keyword">local</span> res = self:sub(<span class="number">1</span>)  <span class="comment">--- make a copy
+</span>     <span class="keyword">return</span> res:extend(l2)    <span class="comment">--- and append l2
+</span> <span class="keyword">end</span>
+
+ <span class="global">print</span>(List{<span class="number">10</span>,<span class="number">20</span>} .. List{<span class="number">30</span>,<span class="number">40</span>} .. List{<span class="number">50</span>}) <span class="comment">--&gt; {10,20,30,40,50}
+</span>
+</pre>
+
+
+<p>To recap: the behaviour of any table can be changed by giving it a <em>metatable</em>, which contains
+<em>metamethods</em>. The most important of these is <code>__index</code> which allows you to handle the case
+where a key is not found in the table. It may simply point to a table which is used as the
+&lsquo;fallback&rsquo; table which is examined after the first lookup fails. This is a common way to implement
+object-oriented programming in Lua, allowing the methods for all objects of a given &lsquo;class&rsquo;
+to be stored in one place.</p>
+
+<p>You could define <code>l1 + l2</code> to mean this using the metamethod <code>__add</code>, but Lua programmers
+would not expect addition to work like that. They would expect that <code>l1 + l2</code> is the list made
+by adding the corresponding elements of the two lists (&lsquo;element-wise&rsquo;), and it would
+of course only work with lists where the elements <em>could</em> be added.</p>
+
+<p><a name="When_a_new_Key_is_Initialized"></a></p>
+
+<h3>When a new Key is Initialized</h3>
+
+<p>The operation of setting a value can also be customized.  <code>__newindex</code> works like
+<code>_index</code>; it is <em>only</em> called if the key is not in the table. It receives three arguments,
+the table itself, the key and the new value.</p>
+
+<p>A source of frustration is Lua&rsquo;s &lsquo;undefined is <code>nil</code>&rsquo; behaviour. Spelling mistakes become nil,
+which might crash immediately &ndash; that&rsquo;s the good outcome. Or these nils travel around and blow
+up in some other part of the program.  Fortunately, Lua provides the mechanism, you decide the policy.
+We would still like to create global variables <em>deliberately</em>, so <code>__newindex</code> can make a
+reference when a new variable is created (even if it is <code>nil</code>). It must actually set the
+value using <a href="http://www.lua.org/manual/5.1/manual.html#pdf-rawset">rawset</a> .</p>
+
+<p>Then <code>__index</code> merely has to check whether the variable has been already declared. In fact,
+we only need to keep those variables which are initially <code>nil</code> in <code>declared</code>.</p>
+
+<pre>
+ <span class="keyword">function</span> strict (T)
+     <span class="keyword">local</span> declared = {}
+     <span class="keyword">local</span> mt = {}
+
+     mt.__newindex = <span class="keyword">function</span>(t,key,value)
+         declared [variable] = <span class="keyword">true</span>
+         <span class="global">rawset</span> (t,key,value)
+     <span class="keyword">end</span>
+
+     mt.__index = <span class="keyword">function</span>(t,variable)
+         <span class="keyword">if</span> <span class="keyword">not</span> declared [variable] <span class="keyword">then</span>
+             error(<span class="string">"variable '"</span>..variable..<span class="string">"' is undeclared"</span>,<span class="number">2</span>)
+         <span class="keyword">end</span>
+     <span class="keyword">end</span>
+
+     <span class="keyword">return</span> <span class="global">setmetatable</span>(T,mt)
+ <span class="keyword">end</span>
+
+ strict (_G)
+ <span class="global">print</span> (prnt) <span class="comment">--&gt; error: variable 'prnt' is not declared
+</span> x = <span class="keyword">nil</span>
+ <span class="comment">-- ok, because it's declared
+</span> <span class="global">print</span>(x) <span class="comment">--&gt; nil
+</span>
+</pre>
+
+
+<p>No reason why we cannot use this on the standard library tables as well!</p>
+
+<pre>
+ strict(<span class="global">math</span>)
+ <span class="global">print</span>(<span class="global">math</span>.sine(<span class="number">1.2</span>)) <span class="comment">--&gt; error: variable 'sine' is not declared
+</span>
+</pre>
+
+
+<p>What if you want <code>__index</code> and <code>__newindex</code> to be <em>always</em> called? Then the keys by definition
+cannot be in the table itself; this is the important point about these metamethods &ndash; they only
+fire if the key does <em>not</em> already exist in the table. (Earlier in the history of Lua these functions
+were called <em>fallbacks</em> for this reason.)</p>
+
+<p>Instead, the table must act as a <em>proxy</em> for another table. Say we
+have an array and want to raise a &lsquo;out of bounds&rsquo; error instead of just silently returning <code>nil</code>.</p>
+
+<pre>
+ <span class="keyword">local</span> ProxyListMT = {}
+
+ <span class="keyword">function</span> new_array(arr)
+     <span class="keyword">return</span> <span class="global">setmetatable</span>({_data = arr},ProxyListMT)
+ <span class="keyword">end</span>
+
+ <span class="keyword">function</span> ProxyListMT.__index(self,k)
+     <span class="keyword">if</span> k &lt; <span class="number">1</span> <span class="keyword">or</span> k &gt; #self._data <span class="keyword">then</span> error(<span class="string">"out of bounds"</span>,<span class="number">2</span>) <span class="keyword">end</span>
+     <span class="keyword">return</span> self._data[k]
+ <span class="keyword">end</span>
+
+ <span class="keyword">function</span> ProxyListMT.__newindex(self,k,value)
+     <span class="keyword">if</span> k &lt; <span class="number">1</span> <span class="keyword">or</span> k &gt; #self._data <span class="keyword">then</span> error(<span class="string">"out of bounds"</span>,<span class="number">2</span>) <span class="keyword">end</span>
+     self._data[k] = value
+ <span class="keyword">end</span>
+</pre>
+
+
+<p>That is, the object just contains a <code>_data</code> field which refers to the actual table; any time we
+access an array element, it must go through <code>__index</code> because there are no array elements
+in the object itself; it is acting as a proxy for the table.  The object behaves like a
+non-resizable array.  It is naturally not quite as efficient, but it is often more important
+to be <em>correct</em> than to be <em>fast</em>.</p>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.3</a></i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

@@ -1,0 +1,187 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Lua Cookbook</h1>
+
+
+
+
+<h2>Topics</h2>
+<ul>
+  <li><a href="../topics/00-intro.md.html">00-intro.md</a></li>
+  <li><a href="../topics/01-types.md.html">01-types.md</a></li>
+  <li><a href="../topics/02-strings.md.html">02-strings.md</a></li>
+  <li><strong>03-tables.md</strong></li>
+  <li><a href="../topics/04-coroutines.md.html">04-coroutines.md</a></li>
+  <li><a href="../topics/05-programs.md.html">05-programs.md</a></li>
+  <li><a href="../topics/06-modules.md.html">06-modules.md</a></li>
+  <li><a href="../topics/07-variable-scope.md.html">07-variable-scope.md</a></li>
+  <li><a href="../topics/08-errors.md.html">08-errors.md</a></li>
+  <li><a href="../topics/09-meta.md.html">09-meta.md</a></li>
+</ul>
+<h2>Modules</h2>
+<ul>
+  <li><a href="../index.html">cookbook</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Topic <code>03-tables.md</code></h1>
+
+    <h2>Tables</h2>
+
+<p>It is commonly said that a Lua table has both an array and a map part.
+It is more correct to say that it can be used both ways.</p>
+
+<p>Here is a more general table &ndash; note that the length operator <code>#</code> does not see any
+non-array keys:</p>
+
+<pre>
+ t = {<span class="number">10</span>,<span class="number">20</span>,<span class="number">30</span>,<span class="number">40</span>,<span class="number">50</span>; sorted=<span class="keyword">true</span>}
+ <span class="global">print</span>(t[<span class="number">1</span>], #t, t[#t])  <span class="comment">--&gt; 10    5    50
+</span> <span class="global">print</span>(t[<span class="string">"sorted"</span>],  t.sorted) <span class="comment">--&gt; true     true
+</span>
+</pre>
+
+
+<p>In Lua, <code>t.sorted</code> is <em>defined</em> to be <code>t['sorted']</code>. (This is one of several simularities Lua
+has with JavaScript.)</p>
+
+<p>This gives us a way to do
+&lsquo;objects&rsquo; or &lsquo;structures&rsquo; with tables:</p>
+
+<pre>
+ <span class="comment">-- 'point' objects
+</span> s1 = {x = <span class="number">1</span>, y = <span class="number">2</span>}
+ s2 = {x = <span class="number">0</span>, y = <span class="number">4</span>}
+ <span class="comment">-- adding two points
+</span> sum = { x = s1.x + s2.x, y = s1.y + s2.y }
+ <span class="global">print</span>(sum.x, sum.y) <span class="comment">--&gt; 1    6
+</span>
+</pre>
+
+
+<p>Something like <code>t.function</code> is a syntax error, because <code>function</code> is a keyword. In this case
+you must say <code>t["function"]</code>. The general way to construct tables is</p>
+
+<pre>
+ t = {
+   [<span class="string">"function"</span>] = <span class="number">1</span>,
+   [<span class="string">"end"</span>] = <span class="number">2</span>
+ }
+</pre>
+
+
+<p>In Lua, tables are used to represent arrays.  But inserting a <code>nil</code> value creates a hole,
+and the length operator <code>#</code> is no longer defined.</p>
+
+<p>You must be careful not to insert any holes by
+accident. Consider a task in which you want to get a list of objects from a list of
+names using a function <code>getObject</code> which may return <code>nil</code>.  You furthermore want
+the resulting list to have the same length as the list of strings:</p>
+
+<pre>
+ <span class="keyword">local</span> null = {}
+ <span class="keyword">local</span> objects = {}
+ <span class="keyword">for</span> i = <span class="number">1</span>,#strings <span class="keyword">do</span>
+     <span class="keyword">local</span> obj = getObject(strings[i])
+     <span class="keyword">if</span> obj <span class="keyword">then</span>
+         objects[i] = obj
+     <span class="keyword">else</span>
+         objects[i] = null
+     <span class="keyword">end</span>
+ <span class="keyword">end</span>
+</pre>
+
+
+<p>That is, put some distinct and unique value into the array that stands for <code>nil</code>. Then
+when using the list of objects, test for this unique value:</p>
+
+<pre>
+ <span class="keyword">for</span> i = <span class="number">1</span>,#objects <span class="keyword">do</span>
+     <span class="keyword">local</span> obj = objects[i]
+     <span class="keyword">if</span> obj == null <span class="keyword">then</span>
+         <span class="global">print</span>(i,<span class="string">'nada'</span>)
+     <span class="keyword">else</span>
+         <span class="global">print</span>(i,<span class="global">tostring</span>(obj))
+     <span class="keyword">end</span>
+ <span class="keyword">end</span>
+</pre>
+
+
+<p>The list of objects remains a perfectly good array.</p>
+
+<p>(In this code, variables are <em>explicitly</em> declared as being local; we'll see why this is
+such a good idea later.)</p>
+
+<p>Most of the <a href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a>  functions are meant to operate on arrays; you can sort them with
+<a href="http://www.lua.org/manual/5.1/manual.html#pdf-table.sort">table.sort</a> . In the simple case the table must only contain numbers (or sortable
+objects), but a sort function can be provided.</p>
+
+<p>Arrays of strings can be joined together with <a href="http://www.lua.org/manual/5.1/manual.html#pdf-table.concat">table.concat</a> . This is the most
+efficient way to build up large strings:</p>
+
+<pre>
+ <span class="keyword">local</span> res = {}
+ <span class="keyword">for</span> i = <span class="number">1</span>,<span class="number">1000</span> <span class="keyword">do</span>
+     res[i] = <span class="string">"hello "</span>..i
+ <span class="keyword">end</span>
+ str = <span class="global">table</span>.concat(res)
+</pre>
+
+
+<p>(Note that <a href="http://www.lua.org/manual/5.1/manual.html#pdf-table.concat">table.concat</a>  is picky about the array elements; they must either be
+numbers or strings. If in doubt, use <a href="http://www.lua.org/manual/5.1/manual.html#pdf-tostring">tostring</a>  to convert values first.)</p>
+
+<p>The most commonly used function with tables is <a href="http://www.lua.org/manual/5.1/manual.html#pdf-pairs">pairs</a>  which allows you to iterate
+over all the elements.  There is a corresponding function <a href="http://www.lua.org/manual/5.1/manual.html#pdf-ipairs">ipairs</a>  which works for
+arrays:</p>
+
+<pre>
+ <span class="keyword">for</span> i,v <span class="keyword">in</span> <span class="global">ipairs</span>{<span class="number">10</span>,<span class="number">20</span>,<span class="number">30</span>; x=<span class="number">1</span>} <span class="keyword">do</span> <span class="global">print</span>(i,v) <span class="keyword">end</span>
+ <span class="comment">--&gt; 1   10
+</span> <span class="comment">--&gt; 2   20
+</span> <span class="comment">--&gt; 3   30
+</span>
+</pre>
+
+
+<p>Unlike <a href="http://www.lua.org/manual/5.1/manual.html#pdf-pairs">pairs</a> , <a href="http://www.lua.org/manual/5.1/manual.html#pdf-ipairs">ipairs</a>  will give you the keys in the correct order, and it will
+only access the array elements.</p>
+
+<p><a href="../topics/04-coroutines.md.html#">Next: Coroutines</a></p>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.3</a></i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

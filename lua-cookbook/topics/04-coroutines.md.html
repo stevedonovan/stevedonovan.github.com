@@ -1,0 +1,219 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Lua Cookbook</h1>
+
+
+
+
+<h2>Topics</h2>
+<ul>
+  <li><a href="../topics/00-intro.md.html">00-intro.md</a></li>
+  <li><a href="../topics/01-types.md.html">01-types.md</a></li>
+  <li><a href="../topics/02-strings.md.html">02-strings.md</a></li>
+  <li><a href="../topics/03-tables.md.html">03-tables.md</a></li>
+  <li><strong>04-coroutines.md</strong></li>
+  <li><a href="../topics/05-programs.md.html">05-programs.md</a></li>
+  <li><a href="../topics/06-modules.md.html">06-modules.md</a></li>
+  <li><a href="../topics/07-variable-scope.md.html">07-variable-scope.md</a></li>
+  <li><a href="../topics/08-errors.md.html">08-errors.md</a></li>
+  <li><a href="../topics/09-meta.md.html">09-meta.md</a></li>
+</ul>
+<h2>Modules</h2>
+<ul>
+  <li><a href="../index.html">cookbook</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Topic <code>04-coroutines.md</code></h1>
+
+    <h2>Coroutines</h2>
+
+<p>Although coroutines are sometimes called threads (and <a href="http://www.lua.org/manual/5.1/manual.html#pdf-type">type</a>  returns &lsquo;thread&rsquo; as
+their type) they are not operating system threads as usually understood. (Lua
+sometimes runs on machines that don&rsquo;t even have the luxury of an operating system.)</p>
+
+<p>Rather, a coroutine is another kind of &lsquo;function with memory&rsquo;. Once a coroutine is
+created from a regular Lua function, it can be resumed; the coroutine yields and
+waits for the caller to resume it again. Unlike a function which is repeatedly
+called, it resumes exactly at the point where it last yielded.</p>
+
+<pre>
+ <span class="keyword">function</span> coco()
+     <span class="global">print</span> <span class="string">'1'</span>
+     <span class="global">coroutine</span>.yield(<span class="number">1</span>)
+     <span class="global">print</span> <span class="string">'2'</span>
+     <span class="global">coroutine</span>.yield(<span class="number">2</span>)
+     <span class="global">print</span> <span class="string">'3'</span>
+     <span class="global">coroutine</span>.yield(<span class="number">3</span>)
+ <span class="keyword">end</span>
+
+ c = <span class="global">coroutine</span>.create(coco)
+ <span class="global">print</span>(<span class="global">coroutine</span>.resume(c))
+ <span class="global">print</span>(<span class="global">coroutine</span>.resume(c))
+ <span class="global">print</span>(<span class="global">coroutine</span>.resume(c))
+
+ <span class="comment">----&gt; output:
+</span> <span class="number">1</span>
+ <span class="keyword">true</span>    <span class="number">1</span>
+ <span class="number">2</span>
+ <span class="keyword">true</span>    <span class="number">2</span>
+ <span class="number">3</span>
+ <span class="keyword">true</span>    <span class="number">3</span>
+</pre>
+
+
+<p>The first <code>resume</code> call causes the first <code>yield</code> call (after printing 1) and we get
+the value that was passed to <code>yield</code>. The second <code>resume</code> call makes the <code>yield</code>
+return and we print out 2, etc. The key idea is that the coroutine <em>remembers where
+it was</em> and resumes where it last was executing.</p>
+
+<p>So each coroutine preserves its complete state, and is sleeping when not explicitly
+resumed. This is often called &lsquo;cooperative multitasking&rsquo; because one coroutine has
+to yield for another coroutine to resume.</p>
+
+<p><a href="http://www.lua.org/manual/5.1/manual.html#pdf-coroutine.wrap">coroutine.wrap</a>  will construct a function which resumes a coroutine.</p>
+
+<pre>
+ f = <span class="global">coroutine</span>.wrap(coco)
+ <span class="global">print</span>(f()) <span class="comment">-- 1
+</span> <span class="global">print</span>(f()) <span class="comment">-- 2
+</span> <span class="global">print</span>(f()) <span class="comment">-- 3
+</span> <span class="global">print</span>(f()) <span class="comment">-- nil
+</span>
+</pre>
+
+
+<p>(This is convenient, but if there is a problem an error will be raised and will
+need to be handled.
+With  <a href="http://www.lua.org/manual/5.1/manual.html#pdf-coroutine.resume">coroutine.resume</a>  the first returned value is the status; if it&rsquo;s <code>false</code>
+then the second value is the error, just like <a href="http://www.lua.org/manual/5.1/manual.html#pdf-pcall">pcall</a> .)</p>
+
+<p>This is exactly what Lua considers a simple iterator: a function which can be
+repeatedly called,  returning new values and indicating the end with a <code>nil</code>.</p>
+
+<p>Coroutines help in making iterators where the logic is not so straightforward
+as the previous examples.  Consider the following data structure:</p>
+
+<pre>
+ T = {
+     value = <span class="number">10</span>,
+     left = {
+         value = <span class="number">20</span>,
+         left = {value = <span class="number">40</span>},
+         right = {value = <span class="number">50</span>},
+     },
+     right = {
+         value = <span class="number">30</span>
+     }
+ }
+</pre>
+
+
+<p>This kind of structure is often called a <em>tree</em>, in this case a binary tree because
+there are at most two branches at each note. The end nodes are often called
+<em>leaves</em> because they have no branches.</p>
+
+<p>A recursive function for printing all the values is easy to write</p>
+
+<pre>
+ <span class="keyword">function</span> traverse(t)
+     <span class="keyword">if</span> t.left <span class="keyword">then</span> traverse(t.left) <span class="keyword">end</span>
+     <span class="global">print</span> (t.value)
+     <span class="keyword">if</span> t.right <span class="keyword">then</span> traverse(t.right) <span class="keyword">end</span>
+ <span class="keyword">end</span>
+
+ traverse(T)
+ <span class="comment">--&gt;
+</span> <span class="number">40</span>
+ <span class="number">20</span>
+ <span class="number">50</span>
+ <span class="number">10</span>
+ <span class="number">30</span>
+</pre>
+
+
+<p>This function will keep visiting the left branches until there isn&rsquo;t any, so it first
+visits <code>left = {value = 20..</code> and then <code>left = {value = 40}</code>; this node has no <code>left</code>
+so it prints out <code>value</code> (40), and so on.</p>
+
+<p>Now comes the key part: replace the <a href="http://www.lua.org/manual/5.1/manual.html#pdf-print">print</a>  with <a href="http://www.lua.org/manual/5.1/manual.html#pdf-coroutine.yield">coroutine.yield</a>  and turn it
+into a coroutine:</p>
+
+<pre>
+ <span class="keyword">function</span> traverse(t)
+     <span class="keyword">if</span> t.left <span class="keyword">then</span> traverse(t.left) <span class="keyword">end</span>
+     <span class="global">coroutine</span>.yield (t.value)
+     <span class="keyword">if</span> t.right <span class="keyword">then</span> traverse(t.right) <span class="keyword">end</span>
+ <span class="keyword">end</span>
+
+ c = <span class="global">coroutine</span>.create(traverse)
+ <span class="global">print</span>(<span class="global">coroutine</span>.resume(c,T)) <span class="comment">-- true   40
+</span> <span class="global">print</span>(<span class="global">coroutine</span>.resume(c,T)) <span class="comment">-- true    20
+</span>
+</pre>
+
+
+<p>This can be made into an iterator if we make a function of no arguments from this
+coroutine:</p>
+
+<pre>
+ <span class="keyword">function</span> tree_iter(t)
+     <span class="keyword">return</span> <span class="global">coroutine</span>.wrap(<span class="keyword">function</span>()
+         <span class="keyword">return</span> traverse(t)
+     <span class="keyword">end</span>)
+ <span class="keyword">end</span>
+
+ <span class="keyword">for</span> v <span class="keyword">in</span> tree_iter(T) <span class="keyword">do</span> <span class="global">print</span>(v) <span class="keyword">end</span>
+  <span class="comment">--&gt;
+</span> <span class="number">40</span>
+ <span class="number">20</span>
+ <span class="number">50</span>
+ <span class="number">10</span>
+ <span class="number">30</span>
+</pre>
+
+
+<p><code>tree_iter</code> returns the iterator.
+Each time it is called, the coroutine yields, returning the value of
+the node. We keep yielding until the function finishes, when it returns <code>nil</code>.</p>
+
+<p>!feels a little difficult, not so?!</p>
+
+<p><a href="../topics/05-programs.md.html#">Next: Programs</a></p>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.3</a></i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

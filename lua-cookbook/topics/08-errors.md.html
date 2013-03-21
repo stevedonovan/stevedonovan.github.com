@@ -1,0 +1,196 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Lua Cookbook</h1>
+
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Return_Errors_with_Multiple_Values_">Return Errors with Multiple Values </a></li>
+<li><a href="#Catching_Errors_with__pcall__">Catching Errors with `pcall` </a></li>
+</ul>
+
+
+<h2>Topics</h2>
+<ul>
+  <li><a href="../topics/00-intro.md.html">00-intro.md</a></li>
+  <li><a href="../topics/01-types.md.html">01-types.md</a></li>
+  <li><a href="../topics/02-strings.md.html">02-strings.md</a></li>
+  <li><a href="../topics/03-tables.md.html">03-tables.md</a></li>
+  <li><a href="../topics/04-coroutines.md.html">04-coroutines.md</a></li>
+  <li><a href="../topics/05-programs.md.html">05-programs.md</a></li>
+  <li><a href="../topics/06-modules.md.html">06-modules.md</a></li>
+  <li><a href="../topics/07-variable-scope.md.html">07-variable-scope.md</a></li>
+  <li><strong>08-errors.md</strong></li>
+  <li><a href="../topics/09-meta.md.html">09-meta.md</a></li>
+</ul>
+<h2>Modules</h2>
+<ul>
+  <li><a href="../index.html">cookbook</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Topic <code>08-errors.md</code></h1>
+
+    <h2>Errors</h2>
+
+<p><a name="Return_Errors_with_Multiple_Values"></a></p>
+
+<h3>Return Errors with Multiple Values</h3>
+
+<p>Because Lua functions may return multiple values, they can return error strings
+together with the status code.  The classic example is <code>io,open</code> which usually
+returns a file object, but will return both a <code>nil</code> and an error message if the file
+cannot be opened:</p>
+
+<pre>
+ &gt; = <span class="global">io</span>.open(<span class="string">"hello.txt"</span>)
+ <span class="keyword">nil</span>    hello.txt: No such file <span class="keyword">or</span> directory    <span class="number">2</span>
+</pre>
+
+
+<p>The convention is that if a function may normally and <em>routinely</em> fail, then it should
+return the error as well.</p>
+
+<p>However, if you pass invalid values to a function, it will throw an error:</p>
+
+<pre>
+ <span class="global">table</span>.insert(<span class="keyword">true</span>,<span class="number">1</span>) <span class="comment">--&gt; error: bad argument #1 to 'insert' (table expected, got boolean)
+</span>
+</pre>
+
+
+<p>Likewise, <a href="http://www.lua.org/manual/5.1/manual.html#pdf-table.concat">table.concat</a>  will <em>raise an error</em> if the table has any element that isn&rsquo;t a
+number or a string.  It demands your immediate attention because it is <em>much</em> easier to fix the error
+than go through hundreds of kB of output text to find some nonsense.</p>
+
+<pre>
+ &gt; t = {<span class="string">'h'</span>,{}}
+ &gt; = <span class="global">table</span>.concat(t)
+ stdin:<span class="number">1</span>: invalid value (<span class="global">table</span>) at index <span class="number">2</span> <span class="keyword">in</span> <span class="global">table</span> <span class="keyword">for</span> <span class="string">'concat'</span>
+ stack traceback:
+     [C]: <span class="keyword">in</span> <span class="keyword">function</span> <span class="string">'concat'</span>
+     stdin:<span class="number">1</span>: <span class="keyword">in</span> main chunk
+</pre>
+
+
+<p><a name="Catching_Errors_with__pcall_"></a></p>
+
+<h3>Catching Errors with <a href="http://www.lua.org/manual/5.1/manual.html#pdf-pcall">pcall</a> </h3>
+
+<p>Even in the most careful programs, something will go wrong, and you do not
+want users to witness a crash with a stack traceback.  Also, it is often possible
+to recover from the situation.  Languages with exception handling
+encourage the &lsquo;throwing&rsquo; or &lsquo;raising&rsquo; of errors because then the error handling
+code is kept away from the &lsquo;normal&rsquo; logic &ndash; what is sometimes called
+&lsquo;the happy path&rsquo;.</p>
+
+<p>There is no <code>try/except</code> statement in Lua, but there is a function <a href="http://www.lua.org/manual/5.1/manual.html#pdf-pcall">pcall</a>
+(or &lsquo;protected call&rsquo;) which will call a Lua function safely. It will return the status
+and anything returned by the function. If the status is <code>false</code>, then the second
+return value is the error message.</p>
+
+<pre>
+ &gt; = <span class="global">pcall</span>(<span class="global">table</span>.concat,t)
+ <span class="keyword">false</span>    invalid value (<span class="global">table</span>) at index <span class="number">2</span> <span class="keyword">in</span> <span class="global">table</span> <span class="keyword">for</span> <span class="string">'concat'</span>
+ &gt; = <span class="global">pcall</span>(<span class="global">table</span>.concat,{<span class="string">'one'</span>,<span class="string">'two'</span>})
+ <span class="keyword">true</span>    onetwo
+</pre>
+
+
+<p>Anonymous functions are useful for blocks that can raise errors:</p>
+
+<pre>
+ <span class="keyword">local</span> status,err = <span class="global">pcall</span>(<span class="keyword">function</span>()
+     do_something()
+     do_another()
+     and_again()
+ <span class="keyword">end</span>)
+ <span class="keyword">if</span> <span class="keyword">not</span> status <span class="keyword">then</span>
+     <span class="global">print</span>(<span class="string">'error'</span>,err)
+ <span class="keyword">end</span>
+</pre>
+
+
+<p>You can raise your own errors, using <code>error</code>. In its simplest form it will indicate
+that the error came from the current line:</p>
+
+<pre>
+ <span class="comment">--&gt; error is reported at this line; program will give a stacktrace
+</span> <span class="keyword">if</span> <span class="keyword">not</span> right <span class="keyword">then</span> error(<span class="string">"was not right!"</span>) <span class="keyword">end</span>
+</pre>
+
+
+<p>There can also be a second parameter that indicates where the error came from:</p>
+
+<pre>
+ <span class="keyword">function</span> not_right_error()
+     error(<span class="string">"was not right"</span>,<span class="number">2</span>) <span class="comment">-- i.e, _calling_ function raised this
+</span> <span class="keyword">end</span>
+
+ <span class="comment">--&gt; error still reported at this line
+</span> <span class="keyword">if</span> <span class="keyword">not</span> right <span class="keyword">then</span> not_right_error() <span class="keyword">end</span>
+</pre>
+
+
+<p>The function <a href="http://www.lua.org/manual/5.1/manual.html#pdf-assert">assert</a>  raises an error if a condition fails; it may be given an optional message.</p>
+
+<pre>
+ <span class="comment">--&gt; message 'assertion failed...."
+</span> <span class="global">assert</span>(n &gt; <span class="number">0</span>)
+ <span class="comment">--&gt; message "size must be positive"
+</span> <span class="global">assert</span>(n &gt; <span class="number">0</span>,<span class="string">"size must be positive"</span>)
+</pre>
+
+
+<p>An equivalent Lua version looks like this:</p>
+
+<pre>
+ <span class="keyword">function</span> <span class="global">assert</span>(value,message)
+     <span class="keyword">if</span> <span class="keyword">not</span> value <span class="keyword">then</span>
+         <span class="keyword">if</span> message == <span class="keyword">nil</span> <span class="keyword">then</span> message = <span class="string">"assertion failed"</span> <span class="keyword">end</span>
+         error(message,<span class="number">2</span>)
+     <span class="keyword">else</span>
+         <span class="keyword">return</span> value
+     <span class="keyword">end</span>
+ <span class="keyword">end</span>
+</pre>
+
+
+<p><a href="../topics/09-meta.md.html#">Next: Metatables</a></p>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.3</a></i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

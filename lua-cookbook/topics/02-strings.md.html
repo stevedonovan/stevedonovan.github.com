@@ -1,0 +1,372 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Lua Cookbook</h1>
+
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Converting_To_and_From_Strings_">Converting To and From Strings </a></li>
+<li><a href="#Concatenation_and_Substrings_">Concatenation and Substrings </a></li>
+<li><a href="#Finding_and_Matching_">Finding and Matching </a></li>
+<li><a href="#Substituting_Strings_">Substituting Strings </a></li>
+</ul>
+
+
+<h2>Topics</h2>
+<ul>
+  <li><a href="../topics/00-intro.md.html">00-intro.md</a></li>
+  <li><a href="../topics/01-types.md.html">01-types.md</a></li>
+  <li><strong>02-strings.md</strong></li>
+  <li><a href="../topics/03-tables.md.html">03-tables.md</a></li>
+  <li><a href="../topics/04-coroutines.md.html">04-coroutines.md</a></li>
+  <li><a href="../topics/05-programs.md.html">05-programs.md</a></li>
+  <li><a href="../topics/06-modules.md.html">06-modules.md</a></li>
+  <li><a href="../topics/07-variable-scope.md.html">07-variable-scope.md</a></li>
+  <li><a href="../topics/08-errors.md.html">08-errors.md</a></li>
+  <li><a href="../topics/09-meta.md.html">09-meta.md</a></li>
+</ul>
+<h2>Modules</h2>
+<ul>
+  <li><a href="../index.html">cookbook</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Topic <code>02-strings.md</code></h1>
+
+    <h2>Strings</h2>
+
+<p><a name="Converting_To_and_From_Strings"></a></p>
+
+<h3>Converting To and From Strings</h3>
+
+<p>The <a href="http://www.lua.org/manual/5.1/manual.html#pdf-tonumber">tonumber</a>  function will explicitly convert a string to a number; it will return
+<code>nil</code> if the conversion is not possible.  It can also be used to convert hexadecimal
+numbers like so:</p>
+
+<pre>
+ val = <span class="global">tonumber</span>(<span class="string">'FF'</span>,<span class="number">16</span>) <span class="comment">-- result is 255
+</span>
+</pre>
+
+
+<p>How about converting numbers to strings? <a href="http://www.lua.org/manual/5.1/manual.html#pdf-tostring">tostring</a>  does the general job of
+converting any Lua value into a string. (The <a href="http://www.lua.org/manual/5.1/manual.html#pdf-print">print</a>  function calls <a href="http://www.lua.org/manual/5.1/manual.html#pdf-tostring">tostring</a>  on
+its arguments.)  If you want more control, then use the <a href="http://www.lua.org/manual/5.1/manual.html#pdf-string.format">string.format</a>  function:</p>
+
+<pre>
+ <span class="global">string</span>.format(<span class="string">"%5.2f"</span>,<span class="global">math</span>.pi) == '<span class="string">"3.14"</span>
+</pre>
+
+
+<p>These <code>%</code> format specifiers will be familiar to C and Python programmers, but basic
+usage is straightforward: the &lsquo;f&rsquo; specifier has a total field with (5) and a number
+of decimal places (2) and gives fixed floating-point format; the &lsquo;e&rsquo; specifier gives
+scientific notation. &rsquo;s' is a string, &lsquo;d&rsquo; is an integer, and &lsquo;x&rsquo; is for outputing
+numbers in hex format.</p>
+
+<pre>
+ <span class="global">print</span>(<span class="global">string</span>.format(<span class="string">"The answer to the %s is %d"</span>, <span class="string">"universe"</span>, <span class="number">42</span>) )
+ <span class="comment">--&gt;
+</span> The answer to the universe is <span class="number">42</span>
+</pre>
+
+
+<p><a name="Concatenation_and_Substrings"></a></p>
+
+<h3>Concatenation and Substrings</h3>
+
+<p>There is a set of standard operations on strings. We saw that &lsquo;adding&rsquo; strings would
+try to treat them as numbers. To join strings together (<em>concatenate</em>) there is the
+<code>..</code> operator:</p>
+
+<pre>
+ <span class="string">"1"</span>..<span class="string">"2"</span> == <span class="string">"12"</span>
+</pre>
+
+
+<p>Most languages use <code>+</code> to mean this, so note the difference. Using a different
+operator makes it clear that <code>1 .. 2</code> results in the <em>string</em> &ldquo;12&rdquo; and not
+the <em>number</em> <code>3</code></p>
+
+<p>As with arrays, <code>#s</code> is the length of the string <code>s</code>. (This is the number of <em>bytes</em>, not the
+number of characters.)</p>
+
+<p>The opposite operation is extracting substrings.</p>
+
+<pre>
+ <span class="global">string</span>.sub(<span class="string">"hello"</span>,<span class="number">1</span>,<span class="number">4</span>) == <span class="string">"hell"</span>
+ <span class="global">string</span>.sub(<span class="string">"hello"</span>,<span class="number">4</span>) == <span class="string">"lo"</span>
+</pre>
+
+
+<p>The first number is the start index (starting at <em>one</em>, as with arrays) and the
+second number is the final index; the result includes the last index, so that
+<code>sub(s,1,1)</code> gives the first &lsquo;character&rsquo; in the string:</p>
+
+<pre>
+ <span class="comment">-- printing out the characters of a string
+</span> <span class="keyword">for</span> i = <span class="number">1</span>,#s <span class="keyword">do</span>
+    <span class="global">print</span>(<span class="global">string</span>.sub(s,i,i))
+ <span class="keyword">end</span>
+</pre>
+
+
+<p><a name="Finding_and_Matching"></a></p>
+
+<h3>Finding and Matching</h3>
+
+<p>It is not possible to treat a string as an array &ndash; <code>s[i]</code> is not meaningful. (It
+will just silently return <code>nil</code>)  A Lua string is not a sequence of characters, but
+a read-only lump of bytes; it is not very efficient to process a string by iterating
+over its bytes and in fact Lua provides much more powerful techniques for string
+manipulation.</p>
+
+<p>For instance, a naive solution to the problem of finding a character in a string
+involves looking at one character at a time; the <a href="http://www.lua.org/manual/5.1/manual.html#pdf-string.find">string.find</a>  function is faster
+and less trouble.</p>
+
+<pre>
+ <span class="global">string</span>.find(<span class="string">'hello'</span>,<span class="string">'e'</span>) == <span class="number">2</span>
+</pre>
+
+
+<p>In general, this function will return <em>two</em> values, the index of the start and the
+finish of the matched substring:</p>
+
+<pre>
+ <span class="global">print</span>(<span class="global">string</span>.find(<span class="string">'hello'</span>,<span class="string">'lo'</span>))
+ <span class="comment">--&gt; 4       5
+</span>
+</pre>
+
+
+<p>(Which are exactly the numbers you need to feed to <a href="http://www.lua.org/manual/5.1/manual.html#pdf-string.sub">string.sub</a> .)</p>
+
+<p>This may not seem so very useful, because we knew the length of the substring.
+However, <a href="http://www.lua.org/manual/5.1/manual.html#pdf-string.find">string.find</a>  is much more powerful than a simple string matcher.</p>
+
+<p>In general, the &lsquo;substring&rsquo; is a Lua string pattern. If you have previously met
+regular expressions, then string patterns will seem familiar. For instance, the
+string pattern &lsquo;l+&rsquo; means &lsquo;one or more&rsquo; repetitions of &lsquo;l&rsquo;.</p>
+
+<pre>
+ <span class="global">print</span>(<span class="global">string</span>.find(<span class="string">'hello'</span>,<span class="string">'l+'</span>))
+ <span class="comment">--&gt; 3       4
+</span>
+</pre>
+
+
+<p>&lsquo;Character classes&rsquo; make string patterns much more powerful. The pattern &lsquo;[a-z]+&rsquo;
+means &lsquo;one or more letter in the range 'a&rsquo; to &lsquo;z&rsquo;:</p>
+
+<pre>
+ <span class="global">print</span>(<span class="global">string</span>.find(<span class="string">'hello'</span>,<span class="string">'[a-z]+'</span>))
+ <span class="comment">--&gt; 1       5
+</span>
+</pre>
+
+
+<p>That is, it matches the whole string. So we could write a function <code>is_lower</code> like so:</p>
+
+<pre>
+ <span class="keyword">function</span> is_lower(s)
+     i1,i2 = <span class="global">string</span>.find(s,<span class="string">'[a-z]+'</span>)
+     <span class="keyword">return</span> i1 == <span class="number">1</span> <span class="keyword">and</span> i2 == #s
+ <span class="keyword">end</span>
+</pre>
+
+
+<p>But there is a neater way. The pattern &lsquo;^[a-z]+$&rsquo; does the job, since it says that
+the sequence of one or more letters must start at the begining (&lsquo;^&rsquo;) and end at the
+finish (&lsquo;$&rsquo;). So <a href="http://www.lua.org/manual/5.1/manual.html#pdf-string.find">string.find</a>  will return <code>nil</code> for &lsquo; hello&rsquo;.</p>
+
+<p>Lua provides names for common character classes; &lsquo;%a&rsquo; is short for &lsquo;[a-zA-Z]&rsquo; and
+&lsquo;%d&rsquo; is short for &lsquo;[0-9]&rsquo;. &lsquo;%s&rsquo; stands for any whitespace, i.e. &lsquo;[ \t\r\n]&rsquo;. The
+capital letter versions stand for any characters <em>not</em> in the set, so &lsquo;%S&rsquo; stands
+for anything that is not a space. So the pattern &lsquo;^%S+$&rsquo; will match any sequence of
+characters that does not contain a space. (These are different from the usual
+regular expression syntax, which is to use a backslash. So Lua patterns tend to be
+easier to read than regular expressions. However, they are more limited.)</p>
+
+<p>String patterns are an important part of learning Lua well, and we will return to
+them in this Cookbook. But you should always be aware of them, because <a href="http://www.lua.org/manual/5.1/manual.html#pdf-string.find">string.find</a>
+normally assumes that the match is a pattern that contains &lsquo;magic&rsquo; characters.  For
+instance, &lsquo;$&rsquo; stands for &lsquo;end of string&rsquo;; if you wanted to find an actual &lsquo;$&rsquo; in a
+string then you have two options:</p>
+
+<ul>
+<li><em>escape</em> the magic character like so: &lsquo;%$&rsquo;</li>
+<li>use <code>string.find(s,sub,1,true)</code>; the last argument means &lsquo;plain match&rsquo;.</li>
+</ul>
+
+
+<p><a href="http://www.lua.org/manual/5.1/manual.html#pdf-string.match">string.match</a>  is similar to <a href="http://www.lua.org/manual/5.1/manual.html#pdf-string.find">string.find</a> , except that it does not return the
+index range, but rather the match itself.</p>
+
+<pre>
+ <span class="global">print</span>(<span class="global">string</span>.match(<span class="string">'hello dolly'</span>,<span class="string">'%a+'</span>))
+ <span class="comment">---&gt;
+</span> hello
+</pre>
+
+
+<p>Here the pattern means &lsquo;one or more alphabetic characters&rsquo;, so the match gives
+us the first word.  You could do this with a combination of <a href="http://www.lua.org/manual/5.1/manual.html#pdf-string.find">string.find</a>  and
+<a href="http://www.lua.org/manual/5.1/manual.html#pdf-string.sub">string.sub</a> , but <a href="http://www.lua.org/manual/5.1/manual.html#pdf-string.match">string.match</a>  is more general and efficient. Consider:</p>
+
+<pre>
+ <span class="global">print</span>(<span class="global">string</span>.match(<span class="string">'hello dolly'</span>,<span class="string">'(%a+)%s+(%a+)'</span>))
+ <span class="comment">---&gt;
+</span> hello     dolly
+</pre>
+
+
+<p>Here <code>match</code> returns <em>two</em> matches, which are indicated using parentheses
+in the string pattern. These are often called <em>captures</em>.  So the pattern
+would read like  this &lsquo;capture some letters, skip some space, and capture
+some more letters&rsquo;.</p>
+
+<p>Finally, there is <a href="http://www.lua.org/manual/5.1/manual.html#pdf-string.gmatch">string.gmatch</a>  which iterates over <em>all</em> the matches in a string.
+A common task is finding all the words in a string, separated by spaces. The
+pattern &lsquo;%S+&rsquo; means &lsquo;one or more non-space character&rsquo;, but <a href="http://www.lua.org/manual/5.1/manual.html#pdf-string.match">string.match</a>  will
+only give you a fixed number of matches; <a href="http://www.lua.org/manual/5.1/manual.html#pdf-string.gmatch">string.gmatch</a>  will find them all.</p>
+
+<pre>
+ <span class="keyword">local</span> str = <span class="string">'one  two   three'</span>
+ <span class="keyword">for</span> s <span class="keyword">in</span> <span class="global">string</span>.gmatch(str,<span class="string">'%S+'</span>) <span class="keyword">do</span>
+     <span class="global">print</span>(<span class="string">'"'</span>..s..<span class="string">'"'</span>)
+ <span class="keyword">end</span>
+ <span class="comment">--&gt;
+</span> <span class="string">"one"</span>
+ <span class="string">"two"</span>
+ <span class="string">"three"</span>
+</pre>
+
+
+<p>This suggests the following useful function, which breaks up a string into a
+table of words:</p>
+
+<pre>
+ <span class="keyword">function</span> split(str)
+     <span class="keyword">local</span> t = {}
+     <span class="keyword">for</span> s <span class="keyword">in</span> <span class="global">string</span>.gmatch(str.<span class="string">'%S+'</span>) <span class="keyword">do</span>
+         t]#+<span class="number">1</span>] = s
+     <span class="keyword">end</span>
+     <span class="keyword">return</span> t
+ <span class="keyword">end</span>
+</pre>
+
+
+<p>To split a string with other delimiters is just a matter of choosing the right
+pattern. For instance, &lsquo;[%S,]+&rsquo; matches
+&lsquo;one or more characters from the set of non-space and comma&rsquo;. You could
+use this to split &lsquo;one, two, three&rsquo; into <code>{'one','two','three'}</code>.</p>
+
+<p>The special pattern &lsquo;.&rsquo; matches <em>one</em> arbitrary byte. So</p>
+
+<pre>
+ <span class="keyword">for</span> c <span class="keyword">in</span> <span class="global">string</span>.gmatch(<span class="string">'.'</span>) <span class="keyword">do</span> <span class="global">print</span>(<span class="global">string</span>.byte(c)) <span class="keyword">end</span>
+</pre>
+
+
+<p>prints all the byte codes in a string.</p>
+
+<p><a name="Substituting_Strings"></a></p>
+
+<h3>Substituting Strings</h3>
+
+<p>A very powerful function for modifying strings is <a href="http://www.lua.org/manual/5.1/manual.html#pdf-string.gsub">string.gsub</a>  (for <em>global
+substitute</em>):</p>
+
+<pre>
+ <span class="global">string</span>.gsub(<span class="string">'hello help'</span>,<span class="string">'e'</span>,<span class="string">'a'</span>)   <span class="comment">--&gt; hallo halp     2
+</span>
+</pre>
+
+
+<p>It replaces <em>each</em> match of the pattern with a given string, and returns the
+resulting string and the number of substitutions.  There can also be a fourth
+argument which lets you set the maximum number of substitutions:</p>
+
+<pre>
+ gsub = <span class="global">string</span>.gsub
+ gsub(<span class="string">'hello help'</span>,<span class="string">'e'</span>,<span class="string">'a'</span>,<span class="number">1</span>) <span class="comment">--&gt; hallo help      1
+</span>
+</pre>
+
+
+<p>There is no form that does a &lsquo;plain match&rsquo; like <a href="http://www.lua.org/manual/5.1/manual.html#pdf-string.find">string.find</a>  so you will have to
+be careful to escape magic characters. So if you wanted to replace &lsquo;[&rsquo; then you would
+have to write it as &lsquo;%[&rsquo;. So the second argument is always a Lua string pattern:</p>
+
+<pre>
+ gsub(<span class="string">'hello help'</span>,<span class="string">'%a+'</span>,<span class="string">'*'</span>) <span class="comment">--&gt; * *     2
+</span>
+</pre>
+
+
+<p>The third substitution argument is very flexible; it can be a string, table or function.
+If it&rsquo;s a string it may refer to captures in the match like <code>%1</code>,
+but apart from having to say &lsquo;%%&rsquo; to mean &lsquo;%&rsquo; it is otherwise a plain string.</p>
+
+<pre>
+ gsub(<span class="string">'hello help'</span>,<span class="string">'%a+'</span>,<span class="string">'[%1]'</span>) <span class="comment">--&gt; [hello] [help]   2
+</span>
+</pre>
+
+
+<p>If the subtitution is a table, then each capture is looked up in the table:</p>
+
+<pre>
+ gsub(<span class="string">'hello $you'</span>,<span class="string">'%$(%a+)'</span>,{you = <span class="string">'help'</span>}) <span class="comment">--&gt; hello help     1
+</span>
+</pre>
+
+
+<p>And if the substitution is a function, the capture is passed to it; if it returns non-nil the
+result will be the substitution:</p>
+
+<pre>
+ gsub(<span class="string">'hello $TMP'</span>,<span class="string">'%$(%a+)'</span>,<span class="global">os</span>.getenv) <span class="comment">--&gt; hello C:\Users\steve\AppData\Local\Temp 1
+</span>
+</pre>
+
+
+<p><a href="../topics/03-tables.md.html#">Next: Tables</a></p>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.3</a></i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

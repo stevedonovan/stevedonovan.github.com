@@ -1,0 +1,363 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Lua Cookbook</h1>
+
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Modules_">Modules </a></li>
+<li><a href="#_module____">`module()` </a></li>
+</ul>
+
+
+<h2>Topics</h2>
+<ul>
+  <li><a href="../topics/00-intro.md.html">00-intro.md</a></li>
+  <li><a href="../topics/01-types.md.html">01-types.md</a></li>
+  <li><a href="../topics/02-strings.md.html">02-strings.md</a></li>
+  <li><a href="../topics/03-tables.md.html">03-tables.md</a></li>
+  <li><a href="../topics/04-coroutines.md.html">04-coroutines.md</a></li>
+  <li><a href="../topics/05-programs.md.html">05-programs.md</a></li>
+  <li><strong>06-modules.md</strong></li>
+  <li><a href="../topics/07-variable-scope.md.html">07-variable-scope.md</a></li>
+  <li><a href="../topics/08-errors.md.html">08-errors.md</a></li>
+  <li><a href="../topics/09-meta.md.html">09-meta.md</a></li>
+</ul>
+<h2>Modules</h2>
+<ul>
+  <li><a href="../index.html">cookbook</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Topic <code>06-modules.md</code></h1>
+
+    <h2>Modules</h2>
+
+<p>The global function <a href="http://www.lua.org/manual/5.1/manual.html#pdf-dofile">dofile</a>  will evaluate a Lua file. However, it is not very useful
+for organizing libraries and large programs. It takes a full path to the Lua file,
+which is a problem for programs that need to be portable, and it will always load
+the source file each time.</p>
+
+<h2>Using <a href="http://www.lua.org/manual/5.1/manual.html#pdf-require">require</a> </h2>
+
+<p><a href="http://www.lua.org/manual/5.1/manual.html#pdf-require">require</a>  solves these problems by looking for
+the Lua file in standard locations, and only loading it once.</p>
+
+<p><a href="http://www.lua.org/manual/5.1/manual.html#pdf-require">require</a>  is given a <em>module name</em>, without an extension. To understand how the
+modules are found, it is useful to look at the error message you get when a module
+is <em>not</em> found:</p>
+
+<pre>
+ <span class="global">require</span> <span class="string">'alice'</span>
+ <span class="comment">---&gt; a Linux machine
+</span> lua: <span class="global">module</span> <span class="string">'alice'</span> <span class="keyword">not</span> found:
+     no field <span class="global">package</span>.preload[<span class="string">'alice'</span>]
+     no file <span class="string">'./alice.lua'</span>
+     no file <span class="string">'/usr/local/share/lua/5.1/alice.lua'</span>
+     no file <span class="string">'/usr/local/share/lua/5.1/alice/init.lua'</span>
+     no file <span class="string">'./alice.so'</span>
+     no file <span class="string">'/usr/local/lib/lua/5.1/alice.so'</span>
+     no file <span class="string">'/usr/local/lib/lua/5.1/loadall.so'</span>
+ <span class="comment">--&gt; a Windows machine
+</span> lua: <span class="global">module</span> <span class="string">'alice'</span> <span class="keyword">not</span> found:
+     no field <span class="global">package</span>.preload[<span class="string">'alice'</span>]
+     no file <span class="string">'.\alice.lua'</span>
+     no file <span class="string">'C:\Program Files\Lua\5.1\lua\alice.lua'</span>
+     no file <span class="string">'C:\Program Files\Lua\5.1\lua\alice\init.lua'</span>
+     no file <span class="string">'C:\Program Files\Lua\5.1\alice.lua'</span>
+     no file <span class="string">'C:\Program Files\Lua\5.1\alice\init.lua'</span>
+     no file <span class="string">'C:\Program Files\Lua\5.1\lua\alice.luac'</span>
+     no file <span class="string">'.\alice.dll'</span>
+     no file <span class="string">'.\alice51.dll'</span>
+     no file <span class="string">'C:\Program Files\Lua\5.1\alice.dll'</span>
+     no file <span class="string">'C:\Program Files\Lua\5.1\clibs\alice.dll'</span>
+     no file <span class="string">'C:\Program Files\Lua\5.1\loadall.dll'</span>
+     no file <span class="string">'C:\Program Files\Lua\5.1\clibs\loadall.dll'</span>
+</pre>
+
+
+<p>The first place where <a href="http://www.lua.org/manual/5.1/manual.html#pdf-require">require</a>  looks is the current directory; if there was a file
+<code>alice.lua</code> in the same directory as this program, it would be loaded. Then it will
+look in a few standard places &ndash; for Unix this is usually the directory
+<code>/usr/local/share/lua/5.1</code> and for Lua for Windows it is the <code>lua</code> subdirectory
+of the installation directory.</p>
+
+<p>Then things get interesting; it starts looking for
+<code>.so</code> files on Unix and <code>.dll</code> files on Windows &ndash; these are <em>binary Lua extensions</em>
+which are shared libraries, usually written in C. So <a href="http://www.lua.org/manual/5.1/manual.html#pdf-require">require</a>  will load both pure
+Lua and binary modules.</p>
+
+<p>How does Lua know which locations to search? The system variable <a href="http://www.lua.org/manual/5.1/manual.html#pdf-package.path">package.path</a>
+contains the locations where Lua modules will be found. it is a string containing
+<em>patterns</em> separated by semi-colons: (I've printed these patterns on separate lines
+for clarity)</p>
+
+<pre>
+ <span class="global">print</span>(<span class="global">package</span>.path)
+ <span class="comment">--&gt;
+</span> ./?.lua;
+ /usr/<span class="keyword">local</span>/share/lua/<span class="number">5.1</span>/?.lua;
+ /usr/<span class="keyword">local</span>/share/lua/<span class="number">5.1</span>/?/init.lua;
+</pre>
+
+
+<p>The procedure to find module <code>alice</code> is simple; take each of these patterns, and
+replace <code>?</code> with &lsquo;alice&rsquo;; if the result is an existing file, load it.</p>
+
+<p>(Remember that Lua has <em>no</em> built-in concept of a file system; this search is done by
+string substitution followed by an attempt to open the result.)</p>
+
+<p>If this search fails, then Lua will use <a href="http://www.lua.org/manual/5.1/manual.html#pdf-package.cpath">package.cpath</a>  to find a binary extension
+in a similar way.  So you can see that the error message is detailing exactly what
+happens in this process.</p>
+
+<p>So, to summarize, <a href="http://www.lua.org/manual/5.1/manual.html#pdf-require">require</a> :</p>
+
+<ul>
+<li>takes a module name, not a file name</li>
+<li>looks for both Lua files and shared libraries (binary extensions)</li>
+<li>only loads the module once</li>
+<li>looks on the Lua and extension paths</li>
+</ul>
+
+
+<p>A simple way to try this out is to create a Lua file <code>mod1.lua</code>:</p>
+
+<pre>
+ <span class="comment">-- mod1.lua
+</span> <span class="global">print</span>(<span class="string">"hello"</span>)
+</pre>
+
+
+<p>and require it from <code>usemod1.lua</code>, in the same directory:</p>
+
+<pre>
+ <span class="comment">-- usemod1.lua
+</span> <span class="global">require</span>(<span class="string">"mod1"</span>)
+ <span class="global">require</span>(<span class="string">"mod1"</span>)
+ <span class="global">print</span>(<span class="string">"dolly"</span>)
+ <span class="comment">--&gt;
+</span> hello
+ dolly
+</pre>
+
+
+<p>Which shows that the file loaded by <a href="http://www.lua.org/manual/5.1/manual.html#pdf-require">require</a>  can be any Lua code, loaded just once.</p>
+
+<p><a name="Modules"></a></p>
+
+<h3>Modules</h3>
+
+<p>Actually, &lsquo;module&rsquo; is just a word we use to describe Lua files that are generally
+useful &ndash; there is no formal concept of &lsquo;module&rsquo; in
+the language itself.</p>
+
+<p>Modules are usually used to make functions and data available to a
+program.  It is better to put these into their own table:</p>
+
+<pre>
+ <span class="comment">-- mod2.lua
+</span> mod2 = {}
+ mod2.answer = <span class="keyword">function</span>()
+     <span class="keyword">return</span> <span class="number">42</span>
+ <span class="keyword">end</span>
+
+ <span class="comment">-- usemod2.lua
+</span> <span class="global">require</span>(<span class="string">"mod2"</span>)
+ <span class="global">print</span>(mod2.answer())
+ <span class="comment">--&gt;
+</span> <span class="number">42</span>
+</pre>
+
+
+<p>Now, after <code>require("mod2")</code> our code can call <code>mod2.answer()</code>. There can now be
+a number of functions called <code>answer</code> in the program and they will not interfere
+with each other. Note how simple this system is; there is no separate data type for modules,
+they are <em>just tables</em>.</p>
+
+<p>If you move <code>mod2.lua</code> to a location on your Lua path (such as
+ &lsquo;/usr/local/share/lua/5.1/&rsquo;) then a Lua program anywhere on the system can load
+the module <code>mod2</code>.</p>
+
+<p>Of course, to copy files into the system-wide directory often requires superuser
+privileges. These standard directories are built into Lua and may not be
+convenient for your purposes.</p>
+
+<p>You can add other directories to the Lua module path by setting the
+environment variable <code>LUA_PATH</code>. For a Bash shell on Unix this would look like:</p>
+
+<pre>
+ export LUA_PATH=<span class="string">";;/home/steve/lualibs/?.lua"</span>
+</pre>
+
+
+<p>On Windows:</p>
+
+<pre>
+ set LUA_PATH=;;c:\lua\lualibs\?.lua
+</pre>
+
+
+<p>Please note that the semi-colon is used to separate patterns on all systems. The double
+semicolon at the start means &ldquo;append this to the existing Lua module path&rdquo; so Lua will
+first look in the system-wide directory for modules.</p>
+
+<p>So, there is nothing special about a Lua file loaded by <a href="http://www.lua.org/manual/5.1/manual.html#pdf-require">require</a> . Generally, it should
+create a table containing the functions. A common pattern looks like this:</p>
+
+<pre>
+ <span class="comment">-- mod3.lua
+</span> <span class="keyword">local</span> mod3 = {}
+
+ <span class="keyword">function</span> mod3.fun1()
+   <span class="keyword">return</span> <span class="number">42</span>
+ <span class="keyword">end</span>
+
+ <span class="keyword">function</span> mod3.fun2()
+   <span class="keyword">return</span> mod3.fun1()
+ <span class="keyword">end</span>
+
+ <span class="keyword">return</span> mod3
+</pre>
+
+
+<p>Note that it <em>returns the table</em>.  A user of the module may now say:</p>
+
+<pre>
+ <span class="keyword">local</span> mod3 = <span class="global">require</span> <span class="string">'mod3'</span>
+</pre>
+
+
+<p>This way of writing modules does not create a global table. Consider the effect of
+leaving out the <code>local</code> when declaring <code>mod3</code>: then the table <em>is</em> available globally.
+You can then use it like follows:</p>
+
+<pre>
+ <span class="global">require</span> <span class="string">'mod3'</span>
+ <span class="global">print</span>(mod3.fun1())
+</pre>
+
+
+<p>It&rsquo;s <em>always</em> a good idea to return the value of a module. If you do not, then
+<a href="http://www.lua.org/manual/5.1/manual.html#pdf-require">require</a>  simply returns <code>true</code>, which is not very useful. Lua programmers expect
+<a href="http://www.lua.org/manual/5.1/manual.html#pdf-require">require</a>  to return a table containing the functions.</p>
+
+<p>Please note that functions in a module may depend on each other, but they must
+reference them using the table explicitly.</p>
+
+<p><a name="_module___"></a></p>
+
+<h3><code>module()</code></h3>
+
+<p>Using global tables of functions is going out of fashion in the Lua world, because
+it leads to the problems discussed in the section on variables and scope. Particularly
+in a big program, the aim is to keep the number of globals floating around to the
+absolute minimum.</p>
+
+<p>There is a common style introduced in Lua 5.1 for creating modules, which
+many libraries use. The <a href="http://www.lua.org/manual/5.1/manual.html#pdf-module">module</a>  function creates a named table of functions and
+sets the environment of the file so that these functions may be declared and without
+explicit reference to the table:</p>
+
+<pre>
+ <span class="comment">-- mod4.lua
+</span> <span class="global">module</span>(<span class="string">"mod4"</span>)
+
+ <span class="keyword">function</span> fun1()
+   <span class="keyword">return</span> <span class="number">42</span>
+ <span class="keyword">end</span>
+
+ <span class="keyword">function</span> fun2()
+   <span class="keyword">return</span> fun1()
+ <span class="keyword">end</span>
+</pre>
+
+
+<p>This has the same affect as <code>mod3</code> without the <code>local</code> declaration; <a href="http://www.lua.org/manual/5.1/manual.html#pdf-require">require</a>  returns
+the table, and a global variable <code>mod4</code> is created which refers to the table.</p>
+
+<p>It is convenient that the module functions can call each other directly, but there
+is a tricky little issue:</p>
+
+<pre>
+ <span class="comment">-- mod5.lua
+</span> <span class="global">module</span>(<span class="string">"mod5"</span>)
+
+ <span class="keyword">function</span> dump(msg)
+   <span class="global">print</span>(msg)
+ <span class="keyword">end</span>
+</pre>
+
+
+<p>Calling <code>mod5.dump</code> leads to a run-time error:</p>
+
+<pre>
+ .\mod5.lua:<span class="number">5</span>: attempt to call global <span class="string">'print'</span> (a <span class="keyword">nil</span> value)
+ stack traceback:
+         .\mod5.lua:<span class="number">5</span>: <span class="keyword">in</span> <span class="keyword">function</span> <span class="string">'dump'</span>
+ ...
+</pre>
+
+
+<p>This is because we are not inside the global environment, but inside the environment
+created by <a href="http://www.lua.org/manual/5.1/manual.html#pdf-module">module</a> . The recommended fix is to insert the following line <em>before</em>
+the call to <a href="http://www.lua.org/manual/5.1/manual.html#pdf-module">module</a> :</p>
+
+<pre>
+ <span class="keyword">local</span> <span class="global">print</span> = <span class="global">print</span>
+</pre>
+
+
+<p>The other fix is to make the module call look like this:</p>
+
+<pre>
+ <span class="global">module</span>(<span class="string">"mod5"</span>,<span class="global">package</span>.seeall)
+</pre>
+
+
+<p>This makes all the global functions available to the module. It&rsquo;s beter however
+to define what you need explicitly at the top of the module, since then readers
+can see at a glance what the dependencies are. (Last, but not least, using locals
+is significantly faster.)</p>
+
+<p>Generally, we would advise you to use the &lsquo;no magic&rsquo; style used in <code>mod3.lua</code>; no globals are
+harmed, and such code will work perfectly on Lua 5.1, 5.2 and LuaJIT.</p>
+
+<p><a href="../topics/07-variable-scope.md.html#">Next: Variable Scope</a></p>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.3</a></i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

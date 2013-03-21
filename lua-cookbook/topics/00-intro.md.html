@@ -1,0 +1,779 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Lua Cookbook</h1>
+
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Expressions_">Expressions </a></li>
+<li><a href="#Variables_and_Assignment_">Variables and Assignment </a></li>
+<li><a href="#Numeric__for__loops_">Numeric `for` loops </a></li>
+<li><a href="#Conditions_">Conditions </a></li>
+<li><a href="#Conditional_Loops_">Conditional Loops </a></li>
+<li><a href="#Tables_">Tables </a></li>
+<li><a href="#Functions_">Functions </a></li>
+</ul>
+
+
+<h2>Topics</h2>
+<ul>
+  <li><strong>00-intro.md</strong></li>
+  <li><a href="../topics/01-types.md.html">01-types.md</a></li>
+  <li><a href="../topics/02-strings.md.html">02-strings.md</a></li>
+  <li><a href="../topics/03-tables.md.html">03-tables.md</a></li>
+  <li><a href="../topics/04-coroutines.md.html">04-coroutines.md</a></li>
+  <li><a href="../topics/05-programs.md.html">05-programs.md</a></li>
+  <li><a href="../topics/06-modules.md.html">06-modules.md</a></li>
+  <li><a href="../topics/07-variable-scope.md.html">07-variable-scope.md</a></li>
+  <li><a href="../topics/08-errors.md.html">08-errors.md</a></li>
+  <li><a href="../topics/09-meta.md.html">09-meta.md</a></li>
+</ul>
+<h2>Modules</h2>
+<ul>
+  <li><a href="../index.html">cookbook</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Topic <code>00-intro.md</code></h1>
+
+    <h2>An Introduction to Lua</h2>
+
+<p>This introduction assumes that you have some familiarity with basic programming.</p>
+
+<p>We recommend that you get a good programmer&rsquo;s editor which understands Lua syntax
+and can highlight it appropriately. This is not just because it&rsquo;s more attractive,
+but such an editor can immediately show you common mistakes like forgetting the
+closing quote on a string.  Such editors can also match up parentheses and braces.
+They will often automatically <em>indent</em> code for you, which is important for
+readability.  Lua support is common these days; <a href="http://scintilla.org">SciTE</a> is a good example of
+a straightforward yet powerful editor, and <a href="http://studio.zerobrane.com/">ZeroBrane Studio</a> is a full IDE
+providing debugger support. See the <a href="http://lua-users.org/wiki/LuaEditorSupport">Lua wiki</a>
+for more options.</p>
+
+<p>It is better to lay out code like this:</p>
+
+<pre>
+ <span class="keyword">for</span> i = <span class="number">1</span>,<span class="number">10</span> <span class="keyword">do</span>
+     <span class="keyword">if</span> i &lt; <span class="number">5</span> <span class="keyword">then</span>
+         <span class="global">print</span>(<span class="string">"lower"</span>,i)
+     <span class="keyword">else</span>
+         <span class="global">print</span>(<span class="string">"upper"</span>,i)
+     <span class="keyword">end</span>
+ <span class="keyword">end</span>
+</pre>
+
+
+<p>Than this:</p>
+
+<pre>
+ <span class="keyword">for</span> i = <span class="number">1</span>,<span class="number">10</span> <span class="keyword">do</span>
+ <span class="keyword">if</span> i &lt; <span class="number">5</span> <span class="keyword">then</span>
+ <span class="global">print</span>(<span class="string">"lower"</span>,i) <span class="keyword">else</span>
+ <span class="global">print</span>(<span class="string">"upper"</span>,i)
+ <span class="keyword">end</span>
+ <span class="keyword">end</span>
+</pre>
+
+
+<p>The logical structure of the code is now harder to see. By making indenting a habit,
+you will write code that will be more readable to another person. (After several
+months, you will be that other person.)</p>
+
+<p><a name="Expressions"></a></p>
+
+<h3>Expressions</h3>
+
+<p>It is traditional to start with &ldquo;Hello, world&rdquo;. Like all scripting languages, this
+is straightforward:</p>
+
+<pre>
+ <span class="global">print</span>(<span class="string">"Hello world"</span>)
+</pre>
+
+
+<p>An important point is that <a href="http://www.lua.org/manual/5.1/manual.html#pdf-print">print</a>  is a function which takes a number of values and
+prints out these values to standard output. It is not a statement, as in Python 2.X
+or Basic.</p>
+
+<p>To run this example, save this line as &lsquo;hello.lua&rsquo; and run from the command line:</p>
+
+<pre>
+ $&gt; lua hello.lua
+ Hello world!
+</pre>
+
+
+<p>(Or, use an editor that knows how to run Lua, like SciTE in Lua for Windows. The F5 key
+will run the current program; it is F6 in ZBStudio)</p>
+
+<p>Arithmetic expressions use standard programming notation:</p>
+
+<pre>
+ <span class="global">print</span>(<span class="string">"result"</span>,<span class="number">2</span> + <span class="number">3</span> * <span class="number">4</span> ^ <span class="number">2</span>)
+</pre>
+
+
+<p>There is an exponentiation (&lsquo;power of&rsquo;) operator <code>^</code>, unlike in C or Java.</p>
+
+<p>The order of evaluation follows the usual rules, and you can use parentheses to group
+expressions &ndash; for example, <code>(1 + 2)*(3 + 4)</code>.  The original expression could be written like:</p>
+
+<pre>
+ (<span class="number">2</span> + (<span class="number">3</span> * (<span class="number">4</span> ^ <span class="number">2</span>))
+</pre>
+
+
+<p>which makes the order obvious. When in doubt, use parentheses, but knowing when you
+have to use them is an important part of learning a programming language.</p>
+
+<p>Operations like <code>+</code> and <code>*</code> are called <em>operators</em>, and the values they operate on are
+called <em>arguments</em>.</p>
+
+<p>There is a remainder operator, <code>%</code> which gives the integer remainder from a division:</p>
+
+<pre>
+ <span class="global">print</span>(<span class="number">1</span> % <span class="number">2</span>) <span class="comment">--&gt; 1
+</span> <span class="global">print</span>(<span class="number">2</span> % <span class="number">2</span>)  <span class="comment">--&gt; 0
+</span> <span class="global">print</span>(<span class="number">3</span> % <span class="number">2</span>) <span class="comment">--&gt; 1
+</span>
+</pre>
+
+
+<p> There are the usual
+standard mathematical functions available in the <a href="http://www.lua.org/manual/5.1/manual.html#5.6">math</a>  namespace (or <em>table</em>) like
+<a href="http://www.lua.org/manual/5.1/manual.html#pdf-math.sin">math.sin</a> , <a href="http://www.lua.org/manual/5.1/manual.html#pdf-math.sqrt">math.sqrt</a> ,etc. The useful constant <a href="http://www.lua.org/manual/5.1/manual.html#pdf-math.pi">math.pi</a>  is also available.</p>
+
+<pre>
+ <span class="global">print</span>(<span class="string">'sin'</span>, <span class="global">math</span>.sin(<span class="number">0.5</span>*<span class="global">math</span>.pi), <span class="string">'cos'</span>, <span class="global">math</span>.cos(<span class="number">0.5</span>*<span class="global">math</span>.pi))
+</pre>
+
+
+<p>This is more readable when spread over two lines using a <em>variable</em> <code>x</code>:</p>
+
+<pre>
+ x = <span class="number">0.5</span>*<span class="global">math</span>.pi
+ <span class="global">print</span>(<span class="string">'sin'</span>,<span class="global">math</span>.sin(x),<span class="string">'cos'</span>,<span class="global">math</span>.sin(x))
+</pre>
+
+
+<p>(Of course, <code>x</code> is not a variable in this case, but Lua does not make any
+distinction between variables and named constants.)</p>
+
+<p>Even if the command-line is not your strong point, I recommend learning Lua interactively.
+!5.1.5!</p>
+
+<pre>
+ $&gt; lua
+ Lua <span class="number">5.1</span>.<span class="number">4</span>  Copyright (C) <span class="number">1994</span>-<span class="number">2008</span> Lua.org, PUC-Rio
+ &gt; <span class="global">print</span>(<span class="number">10</span> + <span class="number">20</span>)
+ <span class="number">30</span>
+ &gt; = <span class="number">10</span> + <span class="number">20</span>
+ <span class="number">30</span>
+ &gt; = <span class="global">math</span>.sin(<span class="number">2.3</span>)
+ <span class="number">0.74570521217672</span>
+ &gt; p = <span class="global">math</span>.pi
+ &gt; = <span class="global">math</span>.cos(p)
+ -<span class="number">1</span>
+</pre>
+
+
+<p>Starting a line with <code>=</code> is a shortcut for <code>return ...</code>.  Interactive Lua is a very
+useful scientific calculator !</p>
+
+<p>!LfW!
+With Lua for Windows, it is not even necessary to open a command prompt. On the
+SciTE toolbar, there is a prompt icon with the tooltip &lsquo;Launch Interactive Lua&rsquo;. It will open
+an interactive session in the output pane, and you can evaluate Lua statements. As with
+a console prompt, the up and down arrows can be used to select and re-evaluate
+previous statements.</p>
+
+<p><a name="Variables_and_Assignment"></a></p>
+
+<h3>Variables and Assignment</h3>
+
+<p>Lua variables may have letters, digits and underscores (&lsquo;_&rsquo;), but they cannot start with
+a digit. So <code>check_number</code>, <code>checkNumber</code>, and <code>catch21</code> are fine, but <code>21catch</code>
+is not. There is no limit to the length of variable names, except the patience of you
+and your readers.</p>
+
+<p>Variables are <em>case-sensitive</em>.  <code>ERROR</code>,<code>Error</code> and <code>error</code> are all different variables.</p>
+
+<p>They may contain any Lua type:</p>
+
+<pre>
+ x = <span class="string">"hello"</span>
+ x = <span class="number">1</span>
+ x = x + <span class="number">1</span>
+</pre>
+
+
+<p>Here, the value of <code>x</code> becomes &ldquo;hello&rdquo;, and then it becomes 1, and finally 2 (which
+is the value of <code>x + 1</code>).  This process is commonly called <em>assignment</em>.</p>
+
+<p>Variables have no fixed type, but always contain a definite type of value,
+even if it is just <code>nil</code>.</p>
+
+<p>Assigning multiple variables works like this:</p>
+
+<pre>
+ x, y = <span class="number">1</span>, <span class="number">2</span>
+</pre>
+
+
+<p>This sets <code>x</code> to 1 and <code>y</code> to 2. This is different from the usual <code>x=1, y=2</code> style in
+other languages. It is possible to swap the values of two variables in one line:</p>
+
+<pre>
+ x, y = y, x
+</pre>
+
+
+<p>The <em>assignment</em> statement <code>x = 1</code> is not an expression &ndash; it does not return a value as in C
+or Java.</p>
+
+<p><a name="Numeric__for__loops"></a></p>
+
+<h3>Numeric <code>for</code> loops</h3>
+
+<p>Programming is more than calculation. The simplest way to do something a number of
+times is the <em>numeric for</em> statement:</p>
+
+<pre>
+ <span class="keyword">for</span> i = <span class="number">1</span>, <span class="number">5</span> <span class="keyword">do</span>
+     <span class="global">print</span>(<span class="string">"hello"</span>,i)
+ <span class="keyword">end</span>
+ <span class="comment">--&gt;
+</span> hello   <span class="number">1</span>
+ hello   <span class="number">2</span>
+ hello   <span class="number">3</span>
+ hello   <span class="number">4</span>
+ hello   <span class="number">5</span>
+</pre>
+
+
+<p>Any statements in the <em>block</em> from <code>do</code> to <code>end</code> are repeated with different values
+of the variable <code>i</code>.</p>
+
+<p>Spacing and line ends (often called &lsquo;whitespace&rsquo;) is usually not important. This
+code could also be written like so:</p>
+
+<pre>
+ <span class="keyword">for</span> i = <span class="number">1</span>, <span class="number">5</span> <span class="keyword">do</span> <span class="global">print</span>(<span class="string">"hello"</span>, i) <span class="keyword">end</span>
+</pre>
+
+
+<p>or</p>
+
+<pre>
+ <span class="keyword">for</span> i = <span class="number">1</span>, <span class="number">5</span>
+ <span class="keyword">do</span>
+ <span class="global">print</span>(<span class="string">"hello"</span>,i)
+ <span class="keyword">end</span>
+</pre>
+
+
+<p>However, the last example would be considered bad style. The logic of a program is
+much easier to follow if statements are laid out at the right columns.</p>
+
+<p>The numeric <code>for</code> statement loops from a start to a final value, inclusive. There can be a
+third number, which is the &lsquo;step&rsquo; used in calculating the next value.  To print the
+greetings out backwards:</p>
+
+<pre>
+ <span class="keyword">for</span> i = <span class="number">5</span>, <span class="number">1</span>, -<span class="number">1</span> <span class="keyword">do</span> <span class="global">print</span>(<span class="string">"hello"</span>,  i) <span class="keyword">end</span>
+</pre>
+
+
+<p>So to print a little table of sine values from 0 to <code>pi</code>; with steps of 0.1:</p>
+
+<pre>
+ <span class="keyword">for</span> x = <span class="number">0</span>, <span class="global">math</span>.pi, <span class="number">0.1</span> <span class="keyword">do</span>
+     <span class="global">print</span>(x, <span class="global">math</span>.sin(x))
+ <span class="keyword">end</span>
+</pre>
+
+
+<p><strong>note</strong></p>
+
+<p>There is something you need to know about <code>for</code> variables; they only exist inside
+the block.</p>
+
+<pre>
+ <span class="keyword">for</span> i = <span class="number">1</span>,<span class="number">10</span> <span class="keyword">do</span> <span class="global">print</span>(i) <span class="keyword">end</span>
+ <span class="global">print</span>(i)
+</pre>
+
+
+<p>You might expect that the last value printed would be 11, but the last <a href="http://www.lua.org/manual/5.1/manual.html#pdf-print">print</a>  will
+show just <code>nil</code>; <code>i</code> is <em>not defined</em> outside the loop.</p>
+
+<p><a name="Conditions"></a></p>
+
+<h3>Conditions</h3>
+
+<p>Programs often have to make choices.</p>
+
+<pre>
+ age = <span class="number">40</span>
+ <span class="keyword">if</span> age &gt; <span class="number">30</span> <span class="keyword">then</span>
+    <span class="global">print</span>(<span class="string">"too old to play games!"</span>)
+ <span class="keyword">end</span>
+</pre>
+
+
+<p>(Well, that&rsquo;s rude, but computers often are. You can&rsquo;t please everyone.)</p>
+
+<p>The expression in the <code>if</code> statement is called a <em>condition</em>. For instance,
+<code>10 == 10</code> is always <code>true</code>; <code>2 &gt;= 3</code> (meaning &lsquo;greater or equal&rsquo;) is always <code>false</code>.</p>
+
+<p>Like Python and the C-like languages <code>==</code> is used for &lsquo;is equal&rsquo;, since a single <code>=</code>
+has a very different meaning. Unlike them, &lsquo;not equal&rsquo; is <code>~=</code> (the tilde <code>~</code> is
+usually the key on the far left side, next to <code>!</code>)</p>
+
+<p>It is common to have two different actions based on the condition:</p>
+
+<pre>
+ <span class="keyword">if</span> age &gt; <span class="number">30</span> <span class="keyword">then</span>
+     <span class="global">print</span>(<span class="string">"still too old"</span>)
+ <span class="keyword">else</span>
+     <span class="global">print</span>(<span class="string">"hello, kiddie!"</span>)
+ <span class="keyword">end</span>
+</pre>
+
+
+<p>And there may be multiple choices:</p>
+
+<pre>
+ age = <span class="number">18</span>
+ <span class="keyword">if</span> age == <span class="number">18</span> <span class="keyword">then</span>
+     <span class="global">print</span>(<span class="string">"just right"</span>)
+ <span class="keyword">else</span>
+     <span class="keyword">if</span> age &gt; <span class="number">30</span> <span class="keyword">then</span>
+         <span class="global">print</span>(<span class="string">"too old"</span>)
+     <span class="keyword">else</span>
+         <span class="global">print</span>(<span class="string">"too young"</span>)
+     <span class="keyword">end</span>
+ <span class="keyword">end</span>
+</pre>
+
+
+<p>This style gets irritating  if there are more than two conditions.
+<code>if-else</code> statements can be combined together using the single word
+<code>elseif</code> (not the two words <code>else if</code>!)</p>
+
+<pre>
+ age = <span class="number">18</span>
+ <span class="keyword">if</span> age == <span class="number">18</span> <span class="keyword">then</span>
+     <span class="global">print</span>(<span class="string">"just right"</span>)
+ <span class="keyword">elseif</span> age &gt; <span class="number">30</span> <span class="keyword">then</span>
+     <span class="global">print</span>(<span class="string">"too old"</span>)
+ <span class="keyword">else</span>
+     <span class="global">print</span>(<span class="string">"too young"</span>)
+ <span class="keyword">end</span>
+</pre>
+
+
+<p>Conditional expressions can be combined with <code>and</code> or <code>or</code>:</p>
+
+<pre>
+ a &gt; <span class="number">0</span> <span class="keyword">and</span> b &gt; <span class="number">0</span> <span class="keyword">or</span> a == <span class="number">0</span> <span class="keyword">and</span> b &lt; <span class="number">0</span>
+</pre>
+
+
+<p>In this expression, <code>&gt;</code> and <code>==</code> evaluate first, followed by <code>and</code>, and then <code>or</code>.
+So the explicit form would be:</p>
+
+<pre>
+ ((a &gt; <span class="number">0</span>) <span class="keyword">and</span> (b &gt; <span class="number">0</span>)) <span class="keyword">or</span> ((a == <span class="number">0</span>) <span class="keyword">and</span> (b &lt; <span class="number">0</span>))
+</pre>
+
+
+<p>The <code>not</code> operator turns <code>true</code> into <code>false</code>, and vice versa. Instead of saying <code>age &gt; 30</code>
+you can say <code>not(age &lt;= 30)</code>. The parenthesis is needed here because <code>not</code> has a
+higher precedence than <code>&lt;=</code>; in fact it has the highest precedence of the logical
+operators.</p>
+
+<p>Lua will &lsquo;short-circuit&rsquo; logical expressions, For example,</p>
+
+<pre>
+ <span class="keyword">if</span> <span class="global">type</span>(n) == <span class="string">'number'</span> <span class="keyword">and</span> n &gt; <span class="number">0</span> <span class="keyword">then</span> .... <span class="keyword">end</span>
+</pre>
+
+
+<p><code>n &gt; 0</code> will give an error if <code>n</code> is not a number, but Lua knows that if the first argument
+of <code>and</code> is <code>false</code>, then there is no point in evaluating the second argument.</p>
+
+<p>In general,
+if a condition is <code>f() and g()</code>, then if the result of calling <code>f</code> is <code>false</code> there is no need to
+call <code>g</code>. Simulary, in <code>f() or g()</code> Lua will not call <code>g</code> if <code>f</code> returns <code>true</code>.</p>
+
+<p><code>and</code> and <code>or</code> in Lua do not only return <code>true</code> or <code>false</code>.  <code>and</code> always returns its
+second argument if both arguments pass, or the argument that does not pass.
+(Only <code>nil</code> and <code>false</code> fail a condition.)</p>
+
+<pre>
+ <span class="global">print</span> (<span class="number">10</span> <span class="keyword">and</span> <span class="string">"hello"</span>) <span class="comment">--&gt; hello
+</span> <span class="global">print</span> (<span class="keyword">false</span> <span class="keyword">and</span> <span class="number">42</span>) <span class="comment">--&gt; false
+</span> <span class="global">print</span> (<span class="number">42</span> <span class="keyword">and</span> <span class="keyword">false</span>) <span class="comment">--&gt; false
+</span> <span class="global">print</span>(<span class="keyword">nil</span> <span class="keyword">and</span> <span class="number">1</span>) <span class="comment">--&gt; nil
+</span>
+</pre>
+
+
+<p><code>or</code> will return the argument that succeeds (i.e not <code>nil</code> or <code>false</code>)</p>
+
+<pre>
+ <span class="global">print</span> (<span class="number">10</span> <span class="keyword">or</span> <span class="string">"hello"</span>) <span class="comment">--&gt; 10
+</span> <span class="global">print</span>(<span class="keyword">false</span> <span class="keyword">or</span> <span class="number">42</span>)  <span class="comment">--&gt; 42
+</span>
+</pre>
+
+
+<p>This leads to some common shortcuts in Lua code. For example,  this explicit statement
+for setting a default value:</p>
+
+<pre>
+ <span class="keyword">if</span> x == <span class="keyword">nil</span> <span class="keyword">then</span>
+     x = <span class="string">'default'</span>
+ <span class="keyword">end</span>
+</pre>
+
+
+<p>is often written like this:</p>
+
+<pre>
+ x = x <span class="keyword">or</span> <span class="string">'default'</span>
+</pre>
+
+
+<p>A common pattern for choosing one of two values looks like this:</p>
+
+<pre>
+ a = <span class="number">2</span>
+ <span class="global">print</span>(a &gt; <span class="number">0</span> <span class="keyword">and</span> <span class="string">'positive'</span> <span class="keyword">or</span> <span class="string">'zero or negative'</span>)  <span class="comment">-- positive
+</span>
+</pre>
+
+
+<p><code>if</code> statements can be used inside the <code>for</code> statement:</p>
+
+<pre>
+ <span class="keyword">for</span> i = <span class="number">1</span>,<span class="number">10</span> <span class="keyword">do</span>
+     <span class="keyword">if</span> i &lt; <span class="number">5</span> <span class="keyword">then</span>
+         <span class="global">print</span>(<span class="string">"lower"</span>,i)
+     <span class="keyword">else</span>
+         <span class="global">print</span>(<span class="string">"upper"</span>,i)
+     <span class="keyword">end</span>
+ <span class="keyword">end</span>
+</pre>
+
+
+<p>Generally any statement can be &lsquo;nested&rsquo; inside any other statement.</p>
+
+<p><a name="Conditional_Loops"></a></p>
+
+<h3>Conditional Loops</h3>
+
+<p>This produces the same output as the simple <code>for</code> statement example:</p>
+
+<pre>
+ i = <span class="number">1</span>
+ <span class="keyword">while</span> i &lt; <span class="number">5</span> <span class="keyword">do</span>
+     <span class="global">print</span>(<span class="string">"hello"</span>,i)
+     i = i + <span class="number">1</span>
+ <span class="keyword">end</span>
+</pre>
+
+
+<p>The body of the <code>while</code> loop is repeatedly executed <em>while</em> a condition is true;
+each time one is added to the variable <code>i</code> , until it becomes 6, and the condition fails.</p>
+
+<p>The other loop statement is <code>repeat</code>, where we loop <em>until</em> a value is true.</p>
+
+<pre>
+ i = <span class="number">1</span>
+ <span class="keyword">repeat</span>
+     <span class="global">print</span>(<span class="string">"hello"</span>,i)
+     i = i + <span class="number">1</span>
+ <span class="keyword">until</span> i &gt; <span class="number">5</span>
+</pre>
+
+
+<p>For these simple tasks, it is better to use a <code>for</code> statement, but the condition in these loops
+can be more complex.</p>
+
+<p><a name="Tables"></a></p>
+
+<h3>Tables</h3>
+
+<p>Often we need to store a number of values in order, usually called arrays or lists.</p>
+
+<p>Arrays in Lua are done using <em>tables</em>, which is a very general data structure. A
+simple array is easy to define:</p>
+
+<pre>
+ arr = {<span class="number">10</span>,<span class="number">20</span>,<span class="number">30</span>,<span class="number">40</span>}
+</pre>
+
+
+<p>and then the first element will be <code>arr[1]</code>, etc; the length of the array is <code>#arr</code>.
+So to print out this array:</p>
+
+<pre>
+ <span class="keyword">for</span> i = <span class="number">1</span>, #arr <span class="keyword">do</span> <span class="global">print</span>(arr[i]) <span class="keyword">end</span>
+</pre>
+
+
+<p>(Arrays start with index 1; it&rsquo;s best to accept this and learn to live with the
+fact; this corresponds with common mathematical notation anyway)</p>
+
+<p>These arrays are resizable; we can add new elements:</p>
+
+<pre>
+ arr[#arr + <span class="number">1</span>] = <span class="number">50</span>
+</pre>
+
+
+<p>and insert elements at some position using the standard function <a href="http://www.lua.org/manual/5.1/manual.html#pdf-table.insert">table.insert</a> ; the
+second argument is the index <em>before</em> where the value is inserted.</p>
+
+<pre>
+ <span class="global">table</span>.insert(arr, <span class="number">1</span>, <span class="number">5</span>)
+</pre>
+
+
+<p>After these two operations the array now looks like <code>{5,10,20,30,50,50}</code>.</p>
+
+<p>Arrays can be constructed efficiently using a for-loop. This creates an array containing
+the squares of the first ten integers:</p>
+
+<pre>
+ arr = {}  <span class="comment">-- an empty table
+</span> <span class="keyword">for</span> i = <span class="number">1</span>, <span class="number">10</span> <span class="keyword">do</span>
+     arr[i] = i ^ <span class="number">2</span>
+ <span class="keyword">end</span>
+</pre>
+
+
+<p>Please notice that it is not necessary to specify the size of the array up front; a table
+will automatically increase in size.</p>
+
+<p>To complete the picture, there is <a href="http://www.lua.org/manual/5.1/manual.html#pdf-table.remove">table.remove</a>  which removes a value at a given
+index.</p>
+
+<p>The function <a href="http://www.lua.org/manual/5.1/manual.html#pdf-table.sort">table.sort</a>  will sort an array of numbers in ascending order.
+!ex!</p>
+
+<p>Lua tables can contain any valid Lua value:</p>
+
+<pre>
+ t = {<span class="number">10</span>,<span class="string">'hello'</span>,{<span class="number">1</span>,<span class="number">2</span>}}
+</pre>
+
+
+<p>So <code>t[1]</code> is a number, <code>t[2]</code> is a string, and <code>t[3]</code> is itself another table. But do not
+expect <a href="http://www.lua.org/manual/5.1/manual.html#pdf-table.sort">table.sort</a>  to know what to do with <code>t</code>; by default it only sorts arrays that contain numbers
+or strings. Later we will see how to do a general sort.</p>
+
+<p>What about trying to access an element that does not exist, e.g. <code>arr[20]</code>? It
+will not raise an error, but return the value <code>nil</code>.  So it is wise to carefully
+check what is returned from an arbitrary table access.  Since <code>nil</code> always indicates
+&lsquo;not found&rsquo;, it follows that you should not put <code>nil</code> into an array.  Consider:</p>
+
+<pre>
+ arr = {<span class="number">1</span>,<span class="number">2</span>,<span class="keyword">nil</span>,<span class="number">3</span>,<span class="number">4</span>}
+</pre>
+
+
+<p>What is <code>#arr</code>? It may be 2, but it will definitely not be 5. In other words,
+it is undefined. Since inserting <code>nil</code> into an array causes such a
+breakdown of expected behavior, it is also called &lsquo;inserting a hole&rsquo;.</p>
+
+<p>The same caution applies to creating arrays that start at 0.</p>
+
+<pre>
+ arr = {}
+ <span class="keyword">for</span> i = <span class="number">0</span>,<span class="number">9</span> <span class="keyword">do</span> arr[i] = i <span class="keyword">end</span>
+</pre>
+
+
+<p>Well, <code>arr[0]</code> will be 0, and <code>arr[9]</code> will be 9, as expected. But <code>#arr</code> will be 9, not 10.
+And <a href="http://www.lua.org/manual/5.1/manual.html#pdf-table.sort">table.sort</a>  will only operate on indexes between 1 and 9.</p>
+
+<p>So yes, it <em>is</em> possible
+to arrange arrays from 0, but the standard table functions will not work as expected.</p>
+
+<p>It is possible to compare tables for equality, as we did above:</p>
+
+<pre>
+ a1 = {<span class="number">10</span>,<span class="number">20</span>}
+ a2 = {<span class="number">10</span>,<span class="number">20</span>}
+ <span class="global">print</span>(a1 == a2) <span class="comment">--&gt; false !
+</span>
+</pre>
+
+
+<p>The result is <code>false</code> because <code>a1</code> and <code>a2</code> are different <em>objects</em>. The Lua
+comparison operator does not compare the elements, it just checks whether the arguments are
+in fact the same tables.</p>
+
+<pre>
+ a1 = {<span class="number">10</span>,<span class="number">20</span>}
+ a2 = a1
+ <span class="global">print</span>(a1 == a2) <span class="comment">--&gt; true !
+</span> a1[<span class="number">2</span>] = <span class="number">2</span>
+ <span class="global">print</span>(a2[<span class="number">2</span>]) <span class="comment">--&gt; 2
+</span>
+</pre>
+
+
+<p><code>a1</code> and <code>a2</code> are merely names for the same thing &ndash; <code>a2</code> is just an <em>alias</em> for <code>a1</code>.</p>
+
+<p>Newcomers to Lua are often surprised by the lack of &lsquo;obvious&rsquo; functionality, like
+how to compare arrays &lsquo;properly&rsquo; or how to print out an array. It helps to think of
+Lua as &lsquo;the C of dynamic languages&rsquo; &ndash; lean and mean. It gives you a powerful core
+and you either build what you need, or reuse what others have provided, just as with
+C.  The whole purpose of this cookbook is to provide good solutions so you do
+not have to reinvent the wheel.</p>
+
+<p>There is another use of Lua tables, constructing &lsquo;dictionaries&rsquo; or &lsquo;maps&rsquo;.  Generally a
+Lua table associates values called  &lsquo;keys&rsquo; with other values:</p>
+
+<pre>
+ M = {one=<span class="number">1</span>,two=<span class="number">2</span>,three=<span class="number">3</span>}
+</pre>
+
+
+<p><code>M</code> operates like an array with string indexes, so that we have:</p>
+
+<pre>
+ <span class="global">print</span>(M[<span class="string">'one'</span>],M[<span class="string">'two'</span>],M[<span class="string">'three'</span>])
+ <span class="comment">--&gt; 1   2   3
+</span>
+</pre>
+
+
+<p>An unknown key always maps to <code>nil</code>, without causing an error.</p>
+
+<p>To iterate over all the keys and values requires the generic <code>for</code> loop:</p>
+
+<pre>
+ <span class="keyword">for</span> key, value <span class="keyword">in</span> <span class="global">pairs</span>(M) <span class="keyword">do</span> <span class="global">print</span>(key, value) <span class="keyword">end</span>
+ <span class="comment">--&gt; one     1
+</span> <span class="comment">--&gt; three   3
+</span> <span class="comment">--&gt; two     2
+</span>
+</pre>
+
+
+<p>The <a href="http://www.lua.org/manual/5.1/manual.html#pdf-pairs">pairs</a>  function creates an <em>iterator</em> over the map key/value pairs which the
+generic <code>for</code> loops over.</p>
+
+<p>This example illustrates an important point; the <em>actual</em> order of iteration is not
+the <em>original</em> order.  (In fact the original order is lost, and extra information
+needs to be stored if you want the keys in a particular order.)</p>
+
+<p><a name="Functions"></a></p>
+
+<h3>Functions</h3>
+
+<p>It is straightforward to create your own functions. Here is a sine function which
+works in degrees, not radians, using the standard function <a href="http://www.lua.org/manual/5.1/manual.html#pdf-math.rad">math.rad</a>  for converting
+degrees to radians:</p>
+
+<pre>
+ <span class="keyword">function</span> sin(x)
+     <span class="keyword">return</span> <span class="global">math</span>.sin(<span class="global">math</span>.rad(x))
+ <span class="keyword">end</span>
+</pre>
+
+
+<p>That is, after the keyword <code>function</code> there is the function name, an <em>argument list</em>
+and a group of statements ending with <code>end</code>. The keyword <code>return</code> takes an
+expression and makes it the value returned by the function.</p>
+
+<p>Functions are the building blocks of programs; any programmer collects useful functions
+like cooks collect tasty recipes.  Lua does not provide a standard function to print
+out arrays, but it is easy to write one:</p>
+
+<pre>
+ <span class="keyword">function</span> dump(t)
+     <span class="keyword">for</span> i = <span class="number">1</span>, #t <span class="keyword">do</span>
+         <span class="global">print</span>( t[i] )
+     <span class="keyword">end</span>
+ <span class="keyword">end</span>
+</pre>
+
+
+<p>A function does not <em>have</em> to return a value; in this case we are not interested in the
+result, but the action.  It is not an error to assign this function to a variable; the
+variable gets a <code>nil</code> value:</p>
+
+<pre>
+ p = dump{<span class="number">10</span>,<span class="number">20</span>,<span class="number">30</span>}  <span class="comment">--&gt; p is now `nil`
+</span> <span class="comment">--&gt;
+</span> <span class="number">10</span>
+ <span class="number">20</span>
+ <span class="number">30</span>
+</pre>
+
+
+<p>This <code>dump</code> is not so good for longer arrays, since each value is on its own line. The
+standard function <a href="http://www.lua.org/manual/5.1/manual.html#pdf-io.write">io.write</a>  writes out text without a line feed:</p>
+
+<pre>
+ <span class="keyword">function</span> dumpline (t)
+     <span class="keyword">for</span> i = <span class="number">1</span>, #t <span class="keyword">do</span>
+         <span class="global">io</span>.write( t[i] )
+         <span class="keyword">if</span> i &lt; #t <span class="keyword">then</span> <span class="global">io</span>.write(<span class="string">","</span>) <span class="keyword">end</span>
+     <span class="keyword">end</span>
+     <span class="global">io</span>.write(<span class="string">"\n"</span>)
+ <span class="keyword">end</span>
+
+ dumpline({<span class="number">10</span>,<span class="number">20</span>,<span class="number">30</span>})
+ <span class="comment">---&gt;
+</span> <span class="number">10</span>,<span class="number">20</span>,<span class="number">30</span>
+</pre>
+
+
+<p>True to its name, most of this Cookbook is dedicated to giving you functions to do
+useful things, or pointing you to existing solutions packaged as easily available modules.</p>
+
+<p><a href="../topics/01-types.md.html#">Next: Types</a></p>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.3</a></i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
