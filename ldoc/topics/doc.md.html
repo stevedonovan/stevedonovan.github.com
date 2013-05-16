@@ -29,26 +29,27 @@
 
 <h2>Contents</h2>
 <ul>
-<li><a href="#Introduction_">Introduction </a></li>
-<li><a href="#Commenting_Conventions_">Commenting Conventions </a></li>
-<li><a href="#See_References_">See References </a></li>
-<li><a href="#Sections_">Sections </a></li>
-<li><a href="#Differences_from_LuaDoc_">Differences from LuaDoc </a></li>
-<li><a href="#Adding_new_Tags_">Adding new Tags </a></li>
-<li><a href="#Inferring_more_from_Code_">Inferring more from Code </a></li>
-<li><a href="#Extension_modules_written_in_C_">Extension modules written in C </a></li>
-<li><a href="#Basic_Usage_">Basic Usage </a></li>
-<li><a href="#Processing_Single_Modules_">Processing Single Modules </a></li>
-<li><a href="#Getting_Help_about_a_Module_">Getting Help about a Module </a></li>
-<li><a href="#Anatomy_of_a_LDoc_generated_Page_">Anatomy of a LDoc-generated Page </a></li>
-<li><a href="#Customizing_the_Page_">Customizing the Page </a></li>
-<li><a href="#Examples_">Examples </a></li>
-<li><a href="#Readme_files_">Readme files </a></li>
-<li><a href="#Tag_Modifiers_">Tag Modifiers </a></li>
-<li><a href="#Fields_allowed_in__config_ld__">Fields allowed in `config.ld` </a></li>
-<li><a href="#Annotations_and_Searching_for_Tags_">Annotations and Searching for Tags </a></li>
-<li><a href="#Generating_HTML_">Generating HTML </a></li>
-<li><a href="#Internal_Data_Representation_">Internal Data Representation </a></li>
+<li><a href="#Introduction">Introduction </a></li>
+<li><a href="#Commenting_Conventions">Commenting Conventions </a></li>
+<li><a href="#See_References">See References </a></li>
+<li><a href="#Sections">Sections </a></li>
+<li><a href="#Differences_from_LuaDoc">Differences from LuaDoc </a></li>
+<li><a href="#Adding_new_Tags">Adding new Tags </a></li>
+<li><a href="#Inferring_more_from_Code">Inferring more from Code </a></li>
+<li><a href="#Extension_modules_written_in_C">Extension modules written in C </a></li>
+<li><a href="#Basic_Usage">Basic Usage </a></li>
+<li><a href="#Markdown_Support">Markdown Support </a></li>
+<li><a href="#Processing_Single_Modules">Processing Single Modules </a></li>
+<li><a href="#Getting_Help_about_a_Module">Getting Help about a Module </a></li>
+<li><a href="#Anatomy_of_a_LDoc_generated_Page">Anatomy of a LDoc-generated Page </a></li>
+<li><a href="#Customizing_the_Page">Customizing the Page </a></li>
+<li><a href="#Examples">Examples </a></li>
+<li><a href="#Readme_files">Readme files </a></li>
+<li><a href="#Tag_Modifiers">Tag Modifiers </a></li>
+<li><a href="#Fields_allowed_in__config_ld_">Fields allowed in `config.ld` </a></li>
+<li><a href="#Annotations_and_Searching_for_Tags">Annotations and Searching for Tags </a></li>
+<li><a href="#Generating_HTML">Generating HTML </a></li>
+<li><a href="#Internal_Data_Representation">Internal Data Representation </a></li>
 </ul>
 
 
@@ -756,11 +757,11 @@ the docs from the separate files.</p>
 
 <pre>
  $ ldoc lua
- output written to docs/
+ output written to doc/
 </pre>
 
 
-<p>Thereafter the <code>docs</code> directory will contain <code>index.html</code> which points to individual modules
+<p>Thereafter the <code>doc</code> directory will contain <code>index.html</code> which points to individual modules
 in the <code>modules</code> subdirectory.  The <code>--dir</code> flag can specify where the output is generated,
 and will ensure that the directory exists. The output structure is like LuaDoc: there is an
 <code>index.html</code> and the individual modules are in the <code>modules</code> subdirectory. This applies to
@@ -785,37 +786,6 @@ modules like <code>luadoc.config</code> will be incorrectly placed in the global
 has an explicit <code>@module PACKAGE.NAME</code>. If it does not, then <a href="../index.html#">ldoc</a>  will still attempt to
 deduce the module name, but may need help with <code>--package/-b</code> as above.</p>
 
-<p><code>format = 'markdown'</code> can be used in your <code>config.ld</code> and will be used to process summaries
-and descriptions. This requires <a href="http://www.frykholm.se/files/markdown.lua">markdown.lua</a> by
-Niklas Frykholm to be installed (this can be most easily done with <code>luarocks install
-markdown</code>.)  A much faster alternative is
-<a href="http://asbradbury.org/projects/lua-discount/">lua-discount</a> which you can use by setting
-<code>format</code> to &lsquo;discount&rsquo; after installing using <code>luarocks install lua-discount</code>)  The
-<a href="http://www.pell.portland.or.us/%7Eorc/Code/discount/">discount</a> Markdown processor
-additionally has more features than the pure Lua version, such as PHP-Extra style tables.
-As a special case, LDoc will fall back to using <code>markdown.lua</code> if it cannot find <code>discount</code>.</p>
-
-<p><code>format = 'markdown'</code> can be used in your <code>config.ld</code> and will be used to process summaries
-and descriptions. This requires a markdown processor.
-LDoc knows how to use:</p>
-
-<ul>
-<li> <a href="http://www.frykholm.se/files/markdown.lua">markdown.lua</a> a pure Lua processor by
-Niklas Frykholm (this can be installed easily with <code>luarocks install markdown</code>.)</li>
-<li><a href="http://asbradbury.org/projects/lua-discount/">lua-discount</a>, a faster alternative
-(installed with <code>luarocks install lua-discount</code>).  lua-discount uses the C
-<a href="http://www.pell.portland.or.us/%7Eorc/Code/discount/">discount</a> Markdown processor which has
-more features than the pure Lua version, such as PHP-Extra style tables.</li>
-<li><a href="http://jgm.github.com/lunamark/">lunamark</a>, another pure Lua processor,  faster than
-markdown, and with extra features (<code>luarocks install lunamark</code>).</li>
-</ul>
-
-
-<p>You can request the processor you like with <code>format = 'markdown|discount|lunamark'</code>, and
-LDoc will attempt to use it.  If it can&rsquo;t find it, it will look for one of the other
-markdown processors.  If it can&rsquo;t find any markdown processer, it will fall back to text
-processing.</p>
-
 <p>A special case is if you simply say &lsquo;ldoc .&rsquo;. Then there <em>must</em> be a <code>config.ld</code> file
 available in the directory, and it can specify the file:</p>
 
@@ -834,6 +804,41 @@ everything explicitly in the configuration.</p>
 an <code>exclude</code> field then that will be used to exclude files from the list, for example
 <code>{'examples', exclude = {'examples/slow.lua'}}</code>.</p>
 
+<p>A particular configuration file can be specified with the <code>-c</code> flag. Configuration files don&rsquo;t
+<em>have</em> to contain a <code>file</code> field, but in that case LDoc does need an explicit file on the command
+line. This is useful if you have some defaults you wish to apply to all of your docs.</p>
+
+<p><a name="Markdown_Support"></a></p>
+
+<h2>Markdown Support</h2>
+
+<p><code>format = 'markdown'</code> can be used in your <code>config.ld</code> and will be used to process summaries
+and descriptions; you can also use the <code>-f</code> flag. This requires a markdown processor.
+LDoc knows how to use:</p>
+
+<ul>
+<li> <a href="http://www.frykholm.se/files/markdown.lua">markdown.lua</a> a pure Lua processor by
+Niklas Frykholm. For convenience, LDoc comes with a copy of markdown.lua.</li>
+<li><a href="http://asbradbury.org/projects/lua-discount/">lua-discount</a>, a faster alternative
+(installed with <code>luarocks install lua-discount</code>).  lua-discount uses the C
+<a href="http://www.pell.portland.or.us/%7Eorc/Code/discount/">discount</a> Markdown processor which has
+more features than the pure Lua version, such as PHP-Extra style tables.</li>
+<li><a href="http://jgm.github.com/lunamark/">lunamark</a>, another pure Lua processor,  faster than
+markdown, and with extra features (<code>luarocks install lunamark</code>).</li>
+</ul>
+
+
+<p>You can request the processor you like with <code>format = 'markdown|discount|lunamark'</code>, and
+LDoc will attempt to use it.  If it can&rsquo;t find it, it will look for one of the other
+markdown processors.</p>
+
+<p>Even with the default of &lsquo;plain&rsquo; some minimal processing takes place, in particular empty lines
+are treated as line breaks.</p>
+
+<p>This formatting applies to all of a project, including any readmes and so forth. You may want
+Markdown for this &lsquo;narrative&rsquo; documentation, but not for your code comments. <code>plain=true</code> will
+switch off formatting for code.</p>
+
 <p><a name="Processing_Single_Modules"></a></p>
 
 <h2>Processing Single Modules</h2>
@@ -843,8 +848,8 @@ special case when a single module file is specified. Here an index would be redu
 the single HTML file generated contains the module documentation.</p>
 
 <pre>
- $ ldoc mylib.lua <span class="comment">--&gt; results in docs/index.html
-</span> $ ldoc <span class="comment">--output mylib mylib.lua --&gt; results in docs/mylib.html
+ $ ldoc mylib.lua <span class="comment">--&gt; results in doc/index.html
+</span> $ ldoc <span class="comment">--output mylib mylib.lua --&gt; results in doc/mylib.html
 </span> $ ldoc <span class="comment">--output mylib --dir html mylib.lua --&gt; results in html/mylib.html
 </span>
 </pre>
@@ -1067,6 +1072,13 @@ resolves to &lsquo;examples/testu.lua.html&rsquo;.</p>
 <p>Examples may link back to the API documentation, for instance the example <code>input.lua</code> has a
 @{spawn_process} inline reference.</p>
 
+<p>By default, LDoc uses a built-in Lua code &lsquo;prettifier&rsquo;. See-references are allowed in comments,
+and also in code if they're enclosed in backticks.</p>
+
+<p><a href="https://github.com/xolox/lua-lxsh">lxsh</a>
+can be used (available from LuaRocks) if you want support for C as well. <code>pretty='lxsh'</code> will
+cause <code>lxsh</code> to be used, if available.</p>
+
 <p><a name="Readme_files"></a></p>
 
 <h2>Readme files</h2>
@@ -1090,7 +1102,7 @@ the first indented line is &lsquo;@plain&rsquo;. (See the source for this readme
 <p>Another name for <code>readme</code> is <code>topics</code>, which is more descriptive. From LDoc 1.2,
 <code>readme/topics</code> can be a list of documents. These act as a top-level table-of-contents for
 your documentation. Currently, if you want them in a particular order, then use names like
-<code>01-introduction.md</code> etc which sort appropriately.</p>
+<code>01-introduction.md</code> etc, which sort appropriately.</p>
 
 <p>The first line of a document may be a Markdown <code>#</code> title. If so, then LDoc will regard the
 next level as the subheadings, normally second-level <code>##</code>. But if the title is already
@@ -1232,27 +1244,33 @@ of files and directories.</li>
 <li><code>all</code> show local functions, etc as well in the docs</li>
 <li><code>format</code> markup processor, can be &lsquo;plain&rsquo; (default), &lsquo;markdown&rsquo; or &lsquo;discount&rsquo;</li>
 <li><code>output</code> output name (default &lsquo;index&rsquo;)</li>
-<li><code>dir</code> directory for output files (default &lsquo;docs&rsquo;)</li>
+<li><code>dir</code> directory for output files (default &lsquo;doc&rsquo;)</li>
+<li><code>colon</code> use colon style, instead of @ tag style</li>
+<li><code>boilerplate</code> ignore first comment in all source files (e.g. license comments)</li>
 <li><code>ext</code> extension for output (default &lsquo;html&rsquo;)</li>
 <li><code>one</code> use a one-column layout</li>
 <li><code>style</code>, <code>template</code>: together these specify the directories for the style and and the
 template. In <code>config.ld</code> they may also be <code>true</code>, meaning use the same directory as the
 configuration file.</li>
-</ul>
-
-
-<p>These only appear in <code>config.ld</code>:</p>
-
-<ul>
-<li><code>description</code> a project description used under the project title</li>
+<li><p><code>merge</code> allow documentation from different files to be merged into modules without
+<pre>
+explicit @submodule tag
+</pre>
+These only appear in <code>config.ld</code>:</p></li>
+<li><p><code>description</code> a project description used under the project title</p></li>
 <li><code>examples</code> a directory or file: can be a table</li>
-<li><code>readme</code> name of readme file (to be processed with Markdown)</li>
+<li><code>readme</code> or <code>topics</code> readme files (to be processed with Markdown)</li>
+<li><code>pretty</code> code prettify &lsquo;lua&rsquo; (default) or &lsquo;lxsh&rsquo;</li>
+<li><code>charset</code> use if you want to override the UTF-8 default (also @charset in files)</li>
 <li><code>no_return_or_parms</code> don&rsquo;t show parameters or return values in output</li>
 <li><code>backtick_references</code> whether references in backticks will be resolved</li>
+<li><code>plain</code> set to true if <code>format</code> is set but you don&rsquo;t want code comments processed</li>
+<li><code>wrap</code> ??</li>
 <li> <code>manual_url</code> point to an alternative or local location for the Lua manual, e.g.
 &lsquo;file:///D:/dev/lua/projects/lua-5.1.4/doc/manual.html&rsquo;</li>
-<li><code>one</code> use a one-column output format</li>
 <li><code>no_summary</code> suppress the Contents summary</li>
+<li><code>custom_see_handler</code> function that filters see-references</li>
+<li><code>not_luadoc</code> set to <code>true</code> if the docs break LuaDoc compatibility</li>
 </ul>
 
 
@@ -1419,7 +1437,7 @@ to their tags.</p>
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.3</a></i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.3.12</a></i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
