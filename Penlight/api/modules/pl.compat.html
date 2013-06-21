@@ -33,6 +33,7 @@
 <h2>Contents</h2>
 <ul>
 <li><a href="#Functions">Functions</a></li>
+<li><a href="#Lua_5_2_Functions_Available_for_Lua_5_1">Lua 5.2 Functions Available for Lua 5.1 </a></li>
 </ul>
 
 
@@ -43,12 +44,12 @@
   <li><a href="../modules/pl.List.html">pl.List</a></li>
   <li><a href="../modules/pl.Map.html">pl.Map</a></li>
   <li><a href="../modules/pl.MultiMap.html">pl.MultiMap</a></li>
-  <li><strong>pl.OrderedMap</strong></li>
+  <li><a href="../modules/pl.OrderedMap.html">pl.OrderedMap</a></li>
   <li><a href="../modules/pl.Set.html">pl.Set</a></li>
   <li><a href="../modules/pl.app.html">pl.app</a></li>
   <li><a href="../modules/pl.array2d.html">pl.array2d</a></li>
   <li><a href="../modules/pl.class.html">pl.class</a></li>
-  <li><a href="../modules/pl.compat.html">pl.compat</a></li>
+  <li><strong>pl.compat</strong></li>
   <li><a href="../modules/pl.comprehension.html">pl.comprehension</a></li>
   <li><a href="../modules/pl.config.html">pl.config</a></li>
   <li><a href="../modules/pl.data.html">pl.data</a></li>
@@ -112,47 +113,45 @@
 
 <div id="content">
 
-<h1>Module <code>pl.OrderedMap</code></h1>
+<h1>Module <code>pl.compat</code></h1>
 
-<p>OrderedMap, a map which preserves ordering.</p>
-<p> Derived from <a href="../modules/pl.Map.html#">pl.Map</a> .</p>
-
-<p> Dependencies: <a href="../modules/pl.utils.html#">pl.utils</a> , <a href="../modules/pl.tablex.html#">pl.tablex</a> , <a href="../modules/pl.List.html#">pl.List</a> </p>
+<p>Lua 5.1/5.2 compatibility
+ Ensures that <a href="../modules/pl.compat.html#table.pack">table.pack</a>  and <a href="../modules/pl.compat.html#package.searchpath">package.searchpath</a>  are available
+ for Lua 5.1 and LuaJIT.</p>
+<p> The exported function <a href="../modules/pl.compat.html#load">load</a>  is Lua 5.2 compatible.
+ <a href="../modules/pl.compat.html#setfenv">compat.setfenv</a>  and <code>compat.getfenv</code> are available for Lua 5.2, although
+ they are not always guaranteed to work.</p>
 
 
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#OrderedMap:_init">OrderedMap:_init&nbsp;(t)</a></td>
-	<td class="summary">construct an OrderedMap.</td>
+	<td class="name" nowrap><a href="#execute">execute&nbsp;(cmd)</a></td>
+	<td class="summary">execute a shell command.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#OrderedMap:update">OrderedMap:update&nbsp;(t)</a></td>
-	<td class="summary">update an OrderedMap using a table.</td>
+	<td class="name" nowrap><a href="#load">load&nbsp;(ld, opt, opt, opt)</a></td>
+	<td class="summary">
+</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#OrderedMap:set">OrderedMap:set&nbsp;(key, val)</a></td>
-	<td class="summary">set the key&rsquo;s value.</td>
+	<td class="name" nowrap><a href="#setfenv">setfenv&nbsp;(f)</a></td>
+	<td class="summary">Get environment of a function.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#OrderedMap:insert">OrderedMap:insert&nbsp;(pos, key, val)</a></td>
-	<td class="summary">insert a key/value pair before a given position.</td>
+	<td class="name" nowrap><a href="#setfenv">setfenv&nbsp;(f, env)</a></td>
+	<td class="summary">Set environment of a function</td>
+	</tr>
+</table>
+<h2><a href="#Lua_5_2_Functions_Available_for_Lua_5_1">Lua 5.2 Functions Available for Lua 5.1 </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#table.pack">table.pack&nbsp;(...)</a></td>
+	<td class="summary">pack an argument list into a table.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#OrderedMap:keys">OrderedMap:keys&nbsp;()</a></td>
-	<td class="summary">return the keys in order.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#OrderedMap:values">OrderedMap:values&nbsp;()</a></td>
-	<td class="summary">return the values in order.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#OrderedMap:sort">OrderedMap:sort&nbsp;(cmp)</a></td>
-	<td class="summary">sort the keys.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#OrderedMap:iter">OrderedMap:iter&nbsp;()</a></td>
-	<td class="summary">iterate over key-value pairs in order.</td>
+	<td class="name" nowrap><a href="#package.searchpath">package.searchpath&nbsp;(mod, path)</a></td>
+	<td class="summary">return the full path where a Lua module name would be matched.</td>
 	</tr>
 </table>
 
@@ -163,46 +162,25 @@
     <h2><a name="Functions"></a>Functions</h2>
     <dl class="function">
     <dt>
-    <a name = "OrderedMap:_init"></a>
-    <strong>OrderedMap:_init&nbsp;(t)</strong>
+    <a name = "execute"></a>
+    <strong>execute&nbsp;(cmd)</strong>
     </dt>
     <dd>
-    construct an OrderedMap.
- Will throw an error if the argument is bad.
+    execute a shell command.
+ This is a compatibility function that returns the same for Lua 5.1 and Lua 5.2
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">t</span>
-         optional initialization table, same as for <a href="../modules/pl.OrderedMap.html#OrderedMap:update">OrderedMap:update</a></li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "OrderedMap:update"></a>
-    <strong>OrderedMap:update&nbsp;(t)</strong>
-    </dt>
-    <dd>
-    update an OrderedMap using a table.
- If the table is itself an OrderedMap, then its entries will be appended. <br>
- if it s a table of the form <code>{{key1=val1},{key2=val2},&hellip;}</code> these will be appended. <br>
- Otherwise, it is assumed to be a map-like table, and order of extra entries is arbitrary.
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">t</span>
-         a table.</li>
+        <li><span class="parameter">cmd</span>
+         a shell command</li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
         <li>
-        the map, or nil in case of error</li>
+        true if successful</li>
         <li>
-        the error message</li>
+        actual return code</li>
     </ol>
 
 
@@ -210,50 +188,23 @@
 
 </dd>
     <dt>
-    <a name = "OrderedMap:set"></a>
-    <strong>OrderedMap:set&nbsp;(key, val)</strong>
+    <a name = "load"></a>
+    <strong>load&nbsp;(ld, opt, opt, opt)</strong>
     </dt>
     <dd>
-    set the key&rsquo;s value.    This key will be appended at the end of the map.</p>
 
-<p> If the value is nil, then the key is removed.
+
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">key</span>
-         the key</li>
-        <li><span class="parameter">val</span>
-         the value</li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-        the map
-    </ol>
-
-
-
-
-</dd>
-    <dt>
-    <a name = "OrderedMap:insert"></a>
-    <strong>OrderedMap:insert&nbsp;(pos, key, val)</strong>
-    </dt>
-    <dd>
-    insert a key/value pair before a given position.
- Note: if the map already contains the key, then this effectively
- moves the item to the new position by first removing at the old position.
- Has no effect if the key does not exist and val is nil
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">pos</span>
-         a position starting at 1</li>
-        <li><span class="parameter">key</span>
-         the key</li>
-        <li><span class="parameter">val</span>
-         the value; if nil use the old value</li>
+        <li><span class="parameter">ld</span>
+         code string or loader</li>
+        <li><span class="parameter">opt</span>
+        ] env environment to load the chunk in</li>
+        <li><span class="parameter">opt</span>
+        ] env environment to load the chunk in</li>
+        <li><span class="parameter">opt</span>
+        ] env environment to load the chunk in</li>
     </ul>
 
 
@@ -262,60 +213,68 @@
 
 </dd>
     <dt>
-    <a name = "OrderedMap:keys"></a>
-    <strong>OrderedMap:keys&nbsp;()</strong>
+    <a name = "setfenv"></a>
+    <strong>setfenv&nbsp;(f)</strong>
     </dt>
     <dd>
-    return the keys in order.
- (Not a copy!)
-
-
-    <h3>Returns:</h3>
-    <ol>
-
-        List
-    </ol>
-
-
-
-
-</dd>
-    <dt>
-    <a name = "OrderedMap:values"></a>
-    <strong>OrderedMap:values&nbsp;()</strong>
-    </dt>
-    <dd>
-    return the values in order.
- this is relatively expensive.
-
-
-    <h3>Returns:</h3>
-    <ol>
-
-        List
-    </ol>
-
-
-
-
-</dd>
-    <dt>
-    <a name = "OrderedMap:sort"></a>
-    <strong>OrderedMap:sort&nbsp;(cmp)</strong>
-    </dt>
-    <dd>
-    sort the keys.
+    Get environment of a function.
+ With Lua 5.2, may return nil for a function with no global references!
+ Based on code by <a href="http://lua-users.org/lists/lua-l/2010-06/msg00313.html">Sergey Rozhenko</a>
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">cmp</span>
-         a comparison function as for <a href="http://www.lua.org/manual/5.1/manual.html#pdf-table.sort">table.sort</a></li>
+        <li><span class="parameter">f</span>
+         a function or a call stack reference</li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "setfenv"></a>
+    <strong>setfenv&nbsp;(f, env)</strong>
+    </dt>
+    <dd>
+    Set environment of a function
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">f</span>
+         a function or a call stack reference</li>
+        <li><span class="parameter">env</span>
+         a table that becomes the new environment of <code>f</code></li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+    <h2><a name="Lua_5_2_Functions_Available_for_Lua_5_1"></a>Lua 5.2 Functions Available for Lua 5.1 </h2>
+        Lua 5.2 Functions Available for Lua 5.1
+    <dl class="function">
+    <dt>
+    <a name = "table.pack"></a>
+    <strong>table.pack&nbsp;(...)</strong>
+    </dt>
+    <dd>
+    pack an argument list into a table.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">...</span>
+         any arguments</li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
-
-        the map
+        <li>
+        a table with field n set to the length</li>
+        <li>
+        the length</li>
     </ol>
 
 
@@ -323,15 +282,26 @@
 
 </dd>
     <dt>
-    <a name = "OrderedMap:iter"></a>
-    <strong>OrderedMap:iter&nbsp;()</strong>
+    <a name = "package.searchpath"></a>
+    <strong>package.searchpath&nbsp;(mod, path)</strong>
     </dt>
     <dd>
-    iterate over key-value pairs in order.
+    return the full path where a Lua module name would be matched.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">mod</span>
+         module name, possibly dotted</li>
+        <li><span class="parameter">path</span>
+         a path in the same form as package.path or package.cpath</li>
+    </ul>
 
 
 
-
+    <h3>see also:</h3>
+    <ul>
+         <a href="../modules/pl.path.html#package_path">path.package_path</a>
+    </ul>
 
 
 </dd>

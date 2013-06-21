@@ -33,13 +33,11 @@
 <h2>Contents</h2>
 <ul>
 <li><a href="#Functions">Functions</a></li>
-<li><a href="#Lua_____Compatible_Functions">Lua 5.2 Compatible Functions</a></li>
 </ul>
 
 
 <h2>Modules</h2>
 <ul>
-  <li><a href="../modules/config.html">config</a></li>
   <li><a href="../modules/pl.html">pl</a></li>
   <li><a href="../modules/pl.Date.html">pl.Date</a></li>
   <li><a href="../modules/pl.List.html">pl.List</a></li>
@@ -50,7 +48,9 @@
   <li><a href="../modules/pl.app.html">pl.app</a></li>
   <li><a href="../modules/pl.array2d.html">pl.array2d</a></li>
   <li><a href="../modules/pl.class.html">pl.class</a></li>
+  <li><a href="../modules/pl.compat.html">pl.compat</a></li>
   <li><a href="../modules/pl.comprehension.html">pl.comprehension</a></li>
+  <li><a href="../modules/pl.config.html">pl.config</a></li>
   <li><a href="../modules/pl.data.html">pl.data</a></li>
   <li><a href="../modules/pl.dir.html">pl.dir</a></li>
   <li><a href="../modules/pl.file.html">pl.file</a></li>
@@ -63,7 +63,6 @@
   <li><a href="../modules/pl.operator.html">pl.operator</a></li>
   <li><a href="../modules/pl.path.html">pl.path</a></li>
   <li><a href="../modules/pl.permute.html">pl.permute</a></li>
-  <li><a href="../modules/pl.platf.luajava.html">pl.platf.luajava</a></li>
   <li><a href="../modules/pl.pretty.html">pl.pretty</a></li>
   <li><a href="../modules/pl.seq.html">pl.seq</a></li>
   <li><a href="../modules/pl.sip.html">pl.sip</a></li>
@@ -170,8 +169,8 @@
 	<td class="summary">convert an array of values to strings.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#execute">execute&nbsp;(cmd)</a></td>
-	<td class="summary">execute a shell command.</td>
+	<td class="name" nowrap><a href="#executeex">executeex&nbsp;(cmd, bin)</a></td>
+	<td class="summary">execute a shell command and return the output.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#memoize">memoize&nbsp;(func)</a></td>
@@ -192,6 +191,10 @@
 	<tr>
 	<td class="name" nowrap><a href="#is_integer">is_integer&nbsp;(x)</a></td>
 	<td class="summary">is this number an integer?</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#is_empty">is_empty&nbsp;(o, ignore_spaces)</a></td>
+	<td class="summary">Check if the object is &ldquo;empty&rdquo;.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#add_function_factory">add_function_factory&nbsp;(mt, fun)</a></td>
@@ -233,16 +236,17 @@
 	<td class="name" nowrap><a href="#load">load&nbsp;(code, name, mode, env)</a></td>
 	<td class="summary">load a code string or bytecode chunk.</td>
 	</tr>
-</table>
-<h2><a href="#Lua_____Compatible_Functions">Lua 5.2 Compatible Functions</a></h2>
-<table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#table.pack">table.pack&nbsp;(...)</a></td>
-	<td class="summary">pack an argument list into a table.</td>
+	<td class="name" nowrap><a href="#setfenv">setfenv&nbsp;(f)</a></td>
+	<td class="summary">Get environment of a function.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#package.searchpath">package.searchpath&nbsp;(mod, path)</a></td>
-	<td class="summary">return the full path where a Lua module name would be matched.</td>
+	<td class="name" nowrap><a href="#setfenv">setfenv&nbsp;(f, env)</a></td>
+	<td class="summary">Set environment of a function</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#execute">execute&nbsp;(cmd)</a></td>
+	<td class="summary">execute a shell command.</td>
 	</tr>
 </table>
 
@@ -251,7 +255,6 @@
 
 
     <h2><a name="Functions"></a>Functions</h2>
-
     <dl class="function">
     <dt>
     <a name = "quit"></a>
@@ -262,10 +265,10 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">code</span>
-       The exit code or a message to be printed</li>
-      <li><span class="parameter">...</span>
-       extra arguments for message&rsquo;s format'</li>
+        <li><span class="parameter">code</span>
+         The exit code or a message to be printed</li>
+        <li><span class="parameter">...</span>
+         extra arguments for message&rsquo;s format'</li>
     </ul>
 
 
@@ -286,10 +289,10 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">fmt</span>
-       The format (see string.format)</li>
-      <li><span class="parameter">...</span>
-       Extra arguments for format</li>
+        <li><span class="parameter">fmt</span>
+         The format (see string.format)</li>
+        <li><span class="parameter">...</span>
+         Extra arguments for format</li>
     </ul>
 
 
@@ -306,12 +309,12 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">f</span>
-       File handle to write to.</li>
-      <li><span class="parameter">fmt</span>
-       The format (see string.format).</li>
-      <li><span class="parameter">...</span>
-       Extra arguments for format</li>
+        <li><span class="parameter">f</span>
+         File handle to write to.</li>
+        <li><span class="parameter">fmt</span>
+         The format (see string.format).</li>
+        <li><span class="parameter">...</span>
+         Extra arguments for format</li>
     </ul>
 
 
@@ -328,10 +331,10 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">t</span>
-       The Table</li>
-      <li><span class="parameter">T</span>
-       An optional destination table (defaults to callers environment)</li>
+        <li><span class="parameter">t</span>
+         The Table</li>
+        <li><span class="parameter">T</span>
+         An optional destination table (defaults to callers environment)</li>
     </ul>
 
 
@@ -348,8 +351,8 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">s</span>
-       The input string</li>
+        <li><span class="parameter">s</span>
+         The input string</li>
     </ul>
 
 
@@ -366,12 +369,12 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">cond</span>
-       A condition</li>
-      <li><span class="parameter">value1</span>
-       Value returned if cond is true</li>
-      <li><span class="parameter">value2</span>
-       Value returned if cond is false (can be optional)</li>
+        <li><span class="parameter">cond</span>
+         A condition</li>
+        <li><span class="parameter">value1</span>
+         Value returned if cond is true</li>
+        <li><span class="parameter">value2</span>
+         Value returned if cond is false (can be optional)</li>
     </ul>
 
 
@@ -388,10 +391,10 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">filename</span>
-       The file path</li>
-      <li><span class="parameter">is_bin</span>
-       open in binary mode</li>
+        <li><span class="parameter">filename</span>
+         The file path</li>
+        <li><span class="parameter">is_bin</span>
+         open in binary mode</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -413,10 +416,10 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">filename</span>
-       The file path</li>
-      <li><span class="parameter">str</span>
-       The string</li>
+        <li><span class="parameter">filename</span>
+         The file path</li>
+        <li><span class="parameter">str</span>
+         The string</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -442,8 +445,8 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">filename</span>
-       The file path</li>
+        <li><span class="parameter">filename</span>
+         The file path</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -467,14 +470,14 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">s</span>
-       The input string</li>
-      <li><span class="parameter">re</span>
-       A Lua string pattern; defaults to &lsquo;%s+&rsquo;</li>
-      <li><span class="parameter">plain</span>
-       don&rsquo;t use Lua patterns</li>
-      <li><span class="parameter">n</span>
-       optional maximum number of splits</li>
+        <li><span class="parameter">s</span>
+         The input string</li>
+        <li><span class="parameter">re</span>
+         A Lua string pattern; defaults to &lsquo;%s+&rsquo;</li>
+        <li><span class="parameter">plain</span>
+         don&rsquo;t use Lua patterns</li>
+        <li><span class="parameter">n</span>
+         optional maximum number of splits</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -498,10 +501,10 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">s</span>
-       the string</li>
-      <li><span class="parameter">re</span>
-       the delimiter, default space</li>
+        <li><span class="parameter">s</span>
+         the string</li>
+        <li><span class="parameter">re</span>
+         the delimiter, default space</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -518,7 +521,7 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">first,next = splitv(&apos;jane:doe&apos;,&apos;:&apos;)</pre>
+        <pre class="example">first,<span class="global">next</span> = splitv(<span class="string">'jane:doe'</span>,<span class="string">':'</span>)</pre>
     </ul>
 
 </dd>
@@ -528,16 +531,16 @@
     </dt>
     <dd>
     convert an array of values to strings.
- Otherwise use <a href="http://www.lua.org/manual/5.1/manual.html#pdf-tostring">tostring</a>
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">t</span>
-       a list-like table</li>
-      <li><span class="parameter">temp</span>
-       buffer to use, otherwise allocate</li>
-      <li><span class="parameter">tostr</span>
-       custom tostring function, called with (value,index).</li>
+        <li><span class="parameter">t</span>
+         a list-like table</li>
+        <li><span class="parameter">temp</span>
+         buffer to use, otherwise allocate</li>
+        <li><span class="parameter">tostr</span>
+         custom tostring function, called with (value,index).
+ Otherwise use <a href="http://www.lua.org/manual/5.1/manual.html#pdf-tostring">tostring</a> </li>
     </ul>
 
     <h3>Returns:</h3>
@@ -551,17 +554,19 @@
 
 </dd>
     <dt>
-    <a name = "execute"></a>
-    <strong>execute&nbsp;(cmd)</strong>
+    <a name = "executeex"></a>
+    <strong>executeex&nbsp;(cmd, bin)</strong>
     </dt>
     <dd>
-    execute a shell command.
- This is a compatibility function that returns the same for Lua 5.1 and Lua 5.2
+    execute a shell command and return the output.
+ This function redirects the output to tempfiles and returns the content of those files.
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">cmd</span>
-       a shell command</li>
+        <li><span class="parameter">cmd</span>
+         a shell command</li>
+        <li><span class="parameter">bin</span>
+         boolean, if true, read output as binary file</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -570,6 +575,10 @@
         true if successful</li>
         <li>
         actual return code</li>
+        <li>
+        stdout output (string)</li>
+        <li>
+        errout output (string)</li>
     </ol>
 
 
@@ -588,8 +597,8 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">func</span>
-       a function of at least one argument</li>
+        <li><span class="parameter">func</span>
+         a function of at least one argument</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -611,8 +620,8 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">obj</span>
-       Object to check.</li>
+        <li><span class="parameter">obj</span>
+         Object to check.</li>
     </ul>
 
 
@@ -630,10 +639,10 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">obj</span>
-       An object to check</li>
-      <li><span class="parameter">tp</span>
-       String of what type it should be</li>
+        <li><span class="parameter">obj</span>
+         An object to check</li>
+        <li><span class="parameter">tp</span>
+         String of what type it should be</li>
     </ul>
 
 
@@ -652,8 +661,8 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">obj</span>
-       an object</li>
+        <li><span class="parameter">obj</span>
+         an object</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -675,13 +684,41 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">x</span>
-       a number</li>
+        <li><span class="parameter">x</span>
+         a number</li>
     </ul>
 
 
     <h3>Raises:</h3>
     error if x is not a number
+
+
+
+</dd>
+    <dt>
+    <a name = "is_empty"></a>
+    <strong>is_empty&nbsp;(o, ignore_spaces)</strong>
+    </dt>
+    <dd>
+    Check if the object is &ldquo;empty&rdquo;.
+ An object is considered empty if it is nil, a table with out any items (key,
+ value pairs or indexes), or a string with no content (&ldquo;&rdquo;).
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">o</span>
+         The object to check if it is empty.</li>
+        <li><span class="parameter">ignore_spaces</span>
+         If the object is a string and this is true the string is
+ considered empty is it only contains spaces.</li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        true if the object is empty, otherwise false.
+    </ol>
+
 
 
 
@@ -697,10 +734,10 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">mt</span>
-       metatable</li>
-      <li><span class="parameter">fun</span>
-       a callable that returns a function</li>
+        <li><span class="parameter">mt</span>
+         metatable</li>
+        <li><span class="parameter">fun</span>
+         a callable that returns a function</li>
     </ul>
 
 
@@ -718,8 +755,8 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">lf</span>
-       function as a string</li>
+        <li><span class="parameter">lf</span>
+         function as a string</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -732,8 +769,8 @@
 
     <h3>Usage:</h3>
     <ul>
-        <li><pre class="example">string_lambda &apos;|x|x+1&apos; (2) == 3</pre></li>
-        <li><pre class="example">string_lambda &apos;_+1 (2) == 3</pre></li>
+        <li><pre class="example">string_lambda <span class="string">'|x|x+1'</span> (<span class="number">2</span>) == <span class="number">3</span></pre></li>
+        <li><pre class="example">string_lambda '_+<span class="number">1</span> (<span class="number">2</span>) == <span class="number">3</span></pre></li>
     </ul>
 
 </dd>
@@ -750,12 +787,12 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">idx</span>
-       argument index</li>
-      <li><span class="parameter">f</span>
-       a function, operator string, or callable object</li>
-      <li><span class="parameter">msg</span>
-       optional error message</li>
+        <li><span class="parameter">idx</span>
+         argument index</li>
+        <li><span class="parameter">f</span>
+         a function, operator string, or callable object</li>
+        <li><span class="parameter">msg</span>
+         optional error message</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -783,10 +820,10 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">fn</span>
-       a function of at least two values (may be an operator string)</li>
-      <li><span class="parameter">p</span>
-       a value</li>
+        <li><span class="parameter">fn</span>
+         a function of at least two values (may be an operator string)</li>
+        <li><span class="parameter">p</span>
+         a value</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -814,10 +851,10 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">fn</span>
-       a function of at least two values (may be an operator string)</li>
-      <li><span class="parameter">p</span>
-       a value</li>
+        <li><span class="parameter">fn</span>
+         a function of at least two values (may be an operator string)</li>
+        <li><span class="parameter">p</span>
+         a value</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -841,18 +878,18 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">n</span>
-       argument index</li>
-      <li><span class="parameter">val</span>
-       the value</li>
-      <li><span class="parameter">tp</span>
-       the type</li>
-      <li><span class="parameter">verify</span>
-       an optional verfication function</li>
-      <li><span class="parameter">msg</span>
-       an optional custom message</li>
-      <li><span class="parameter">lev</span>
-       optional stack position for trace, default 2</li>
+        <li><span class="parameter">n</span>
+         argument index</li>
+        <li><span class="parameter">val</span>
+         the value</li>
+        <li><span class="parameter">tp</span>
+         the type</li>
+        <li><span class="parameter">verify</span>
+         an optional verfication function</li>
+        <li><span class="parameter">msg</span>
+         an optional custom message</li>
+        <li><span class="parameter">lev</span>
+         optional stack position for trace, default 2</li>
     </ul>
 
 
@@ -862,8 +899,8 @@
 
     <h3>Usage:</h3>
     <ul>
-        <li><pre class="example">assert_arg(1,t,&apos;table&apos;)</pre></li>
-        <li><pre class="example">assert_arg(n,val,&apos;string&apos;,path.isdir,&apos;not a directory&apos;)</pre></li>
+        <li><pre class="example">assert_arg(<span class="number">1</span>,t,<span class="string">'table'</span>)</pre></li>
+        <li><pre class="example">assert_arg(n,val,<span class="string">'string'</span>,path.isdir,<span class="string">'not a directory'</span>)</pre></li>
     </ul>
 
 </dd>
@@ -876,10 +913,10 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">n</span>
-       argument index</li>
-      <li><span class="parameter">val</span>
-       a value that must be a string</li>
+        <li><span class="parameter">n</span>
+         argument index</li>
+        <li><span class="parameter">val</span>
+         a value that must be a string</li>
     </ul>
 
 
@@ -902,8 +939,8 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">mode</span>
-      <ul>
+        <li><span class="parameter">mode</span>
+        <ul>
 <li>either &lsquo;default&rsquo;, &lsquo;quit&rsquo;  or &lsquo;error&rsquo;</li>
 </ul>
 
@@ -929,8 +966,8 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">err</span>
-       the error string.</li>
+        <li><span class="parameter">err</span>
+         the error string.</li>
     </ul>
 
 
@@ -951,14 +988,14 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">code</span>
-       Lua code as a string or bytecode</li>
-      <li><span class="parameter">name</span>
-       for source errors</li>
-      <li><span class="parameter">mode</span>
-       kind of chunk, &rsquo;t' for text, &lsquo;b&rsquo; for bytecode, &lsquo;bt&rsquo; for all (default)</li>
-      <li><span class="parameter">env</span>
-        the environment for the new chunk (default nil)</li>
+        <li><span class="parameter">code</span>
+         Lua code as a string or bytecode</li>
+        <li><span class="parameter">name</span>
+         for source errors</li>
+        <li><span class="parameter">mode</span>
+         kind of chunk, &rsquo;t' for text, &lsquo;b&rsquo; for bytecode, &lsquo;bt&rsquo; for all (default)</li>
+        <li><span class="parameter">env</span>
+          the environment for the new chunk (default nil)</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -973,57 +1010,69 @@
 
 
 </dd>
-</dl>
-    <h2><a name="Lua_____Compatible_Functions"></a>Lua 5.2 Compatible Functions</h2>
-
-
-    <dl class="function">
     <dt>
-    <a name = "table.pack"></a>
-    <strong>table.pack&nbsp;(...)</strong>
+    <a name = "setfenv"></a>
+    <strong>setfenv&nbsp;(f)</strong>
     </dt>
     <dd>
-    pack an argument list into a table.
+    Get environment of a function.
+ With Lua 5.2, may return nil for a function with no global references!
+ Based on code by <a href="http://lua-users.org/lists/lua-l/2010-06/msg00313.html">Sergey Rozhenko</a>
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">...</span>
-       any arguments</li>
+        <li><span class="parameter">f</span>
+         a function or a call stack reference</li>
     </ul>
 
-    <h3>Returns:</h3>
-    <ol>
-        <li>
-        a table with field n set to the length</li>
-        <li>
-        the length</li>
-    </ol>
 
 
 
 
 </dd>
     <dt>
-    <a name = "package.searchpath"></a>
-    <strong>package.searchpath&nbsp;(mod, path)</strong>
+    <a name = "setfenv"></a>
+    <strong>setfenv&nbsp;(f, env)</strong>
     </dt>
     <dd>
-    return the full path where a Lua module name would be matched.
+    Set environment of a function
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">mod</span>
-       module name, possibly dotted</li>
-      <li><span class="parameter">path</span>
-       a path in the same form as package.path or package.cpath</li>
+        <li><span class="parameter">f</span>
+         a function or a call stack reference</li>
+        <li><span class="parameter">env</span>
+         a table that becomes the new environment of <code>f</code></li>
     </ul>
 
 
 
-    <h3>see also:</h3>
+
+
+</dd>
+    <dt>
+    <a name = "execute"></a>
+    <strong>execute&nbsp;(cmd)</strong>
+    </dt>
+    <dd>
+    execute a shell command.
+ This is a compatibility function that returns the same for Lua 5.1 and Lua 5.2
+
+    <h3>Parameters:</h3>
     <ul>
-         <a href="../modules/pl.path.html#package_path">path.package_path</a>
+        <li><span class="parameter">cmd</span>
+         a shell command</li>
     </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+        true if successful</li>
+        <li>
+        actual return code</li>
+    </ol>
+
+
 
 
 </dd>
@@ -1033,7 +1082,7 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.3</a></i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.3.12</a></i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

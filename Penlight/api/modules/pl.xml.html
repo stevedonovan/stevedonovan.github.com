@@ -38,7 +38,6 @@
 
 <h2>Modules</h2>
 <ul>
-  <li><a href="../modules/config.html">config</a></li>
   <li><a href="../modules/pl.html">pl</a></li>
   <li><a href="../modules/pl.Date.html">pl.Date</a></li>
   <li><a href="../modules/pl.List.html">pl.List</a></li>
@@ -49,7 +48,9 @@
   <li><a href="../modules/pl.app.html">pl.app</a></li>
   <li><a href="../modules/pl.array2d.html">pl.array2d</a></li>
   <li><a href="../modules/pl.class.html">pl.class</a></li>
+  <li><a href="../modules/pl.compat.html">pl.compat</a></li>
   <li><a href="../modules/pl.comprehension.html">pl.comprehension</a></li>
+  <li><a href="../modules/pl.config.html">pl.config</a></li>
   <li><a href="../modules/pl.data.html">pl.data</a></li>
   <li><a href="../modules/pl.dir.html">pl.dir</a></li>
   <li><a href="../modules/pl.file.html">pl.file</a></li>
@@ -62,7 +63,6 @@
   <li><a href="../modules/pl.operator.html">pl.operator</a></li>
   <li><a href="../modules/pl.path.html">pl.path</a></li>
   <li><a href="../modules/pl.permute.html">pl.permute</a></li>
-  <li><a href="../modules/pl.platf.luajava.html">pl.platf.luajava</a></li>
   <li><a href="../modules/pl.pretty.html">pl.pretty</a></li>
   <li><a href="../modules/pl.seq.html">pl.seq</a></li>
   <li><a href="../modules/pl.sip.html">pl.sip</a></li>
@@ -216,7 +216,7 @@
 	<td class="summary">visit child element  of a node and call a function, possibility modifying the document.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#tostring">tostring&nbsp;(t, idn, indent, attr_indent)</a></td>
+	<td class="name" nowrap><a href="#tostring">tostring&nbsp;(t, idn, indent, attr_indent, xml)</a></td>
 	<td class="summary">pretty-print an XML document</td>
 	</tr>
 	<tr>
@@ -240,7 +240,11 @@
 	<td class="summary">call the desired function recursively over the document.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#basic_parse">basic_parse&nbsp;(s, all_text)</a></td>
+	<td class="name" nowrap><a href="#parsehtml">parsehtml&nbsp;(s)</a></td>
+	<td class="summary">Parse a well-formed HTML file as a string.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#basic_parse">basic_parse&nbsp;(s, all_text, html)</a></td>
 	<td class="summary">Parse a simple XML document using a pure Lua parser based on Robero Ierusalimschy&rsquo;s original version.</td>
 	</tr>
 </table>
@@ -250,7 +254,6 @@
 
 
     <h2><a name="Functions"></a>Functions</h2>
-
     <dl class="function">
     <dt>
     <a name = "new"></a>
@@ -261,10 +264,10 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">tag</span>
-       the tag name</li>
-      <li><span class="parameter">attr</span>
-       optional attributes (table of name-value pairs)</li>
+        <li><span class="parameter">tag</span>
+         the tag name</li>
+        <li><span class="parameter">attr</span>
+         optional attributes (table of name-value pairs)</li>
     </ul>
 
 
@@ -282,12 +285,12 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">text_or_file</span>
-        file or string representation</li>
-      <li><span class="parameter">is_file</span>
-       whether text_or_file is a file name or not</li>
-      <li><span class="parameter">use_basic</span>
-       do a basic parse</li>
+        <li><span class="parameter">text_or_file</span>
+          file or string representation</li>
+        <li><span class="parameter">is_file</span>
+         whether text_or_file is a file name or not</li>
+        <li><span class="parameter">use_basic</span>
+         do a basic parse</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -311,10 +314,10 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">tag</span>
-       a tag name</li>
-      <li><span class="parameter">attrs</span>
-       optional set of attributes (name-string pairs)</li>
+        <li><span class="parameter">tag</span>
+         a tag name</li>
+        <li><span class="parameter">attrs</span>
+         optional set of attributes (name-string pairs)</li>
     </ul>
 
 
@@ -331,8 +334,8 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">text</span>
-       a string</li>
+        <li><span class="parameter">text</span>
+         a string</li>
     </ul>
 
 
@@ -362,8 +365,8 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">child</span>
-       a child node (either text or a document)</li>
+        <li><span class="parameter">child</span>
+         a child node (either text or a document)</li>
     </ul>
 
 
@@ -380,8 +383,8 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">child</span>
-       a child node (either text or a document)</li>
+        <li><span class="parameter">child</span>
+         a child node (either text or a document)</li>
     </ul>
 
 
@@ -398,8 +401,8 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">t</span>
-       a table containing attribute/value pairs</li>
+        <li><span class="parameter">t</span>
+         a table containing attribute/value pairs</li>
     </ul>
 
 
@@ -416,10 +419,10 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">a</span>
-       attribute</li>
-      <li><span class="parameter">v</span>
-       its value</li>
+        <li><span class="parameter">a</span>
+         attribute</li>
+        <li><span class="parameter">v</span>
+         its value</li>
     </ul>
 
 
@@ -449,10 +452,10 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">tag</span>
-       a tag name</li>
-      <li><span class="parameter">items</span>
-       either text or a table where the hash part is the attributes and the list part is the children.</li>
+        <li><span class="parameter">tag</span>
+         a tag name</li>
+        <li><span class="parameter">items</span>
+         either text or a table where the hash part is the attributes and the list part is the children.</li>
     </ul>
 
 
@@ -469,8 +472,8 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">list</span>
-        a list of names, or a comma-separated string.</li>
+        <li><span class="parameter">list</span>
+          a list of names, or a comma-separated string.</li>
     </ul>
 
 
@@ -478,8 +481,8 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">local parent,children = doc.tags &apos;parent,children&apos; &lt;br&gt;
-  doc = parent {child &apos;one&apos;, child &apos;two&apos;}</pre>
+        <pre class="example"><span class="keyword">local</span> parent,children = doc.tags <span class="string">'parent,children'</span> &lt;br&gt;
+  doc = parent {child <span class="string">'one'</span>, child <span class="string">'two'</span>}</pre>
     </ul>
 
 </dd>
@@ -492,10 +495,10 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">templ</span>
-        may be a document or a string representation which will be parsed and cached</li>
-      <li><span class="parameter">data</span>
-        a table of name-value pairs or a list of such tables</li>
+        <li><span class="parameter">templ</span>
+          may be a document or a string representation which will be parsed and cached</li>
+        <li><span class="parameter">data</span>
+          a table of name-value pairs or a list of such tables</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -517,8 +520,8 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">tag</span>
-       the tag name</li>
+        <li><span class="parameter">tag</span>
+         the tag name</li>
     </ul>
 
 
@@ -535,10 +538,10 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">tag</span>
-       a tag name</li>
-      <li><span class="parameter">dont_recurse</span>
-       optionally only return the immediate children with this tag name</li>
+        <li><span class="parameter">tag</span>
+         a tag name</li>
+        <li><span class="parameter">dont_recurse</span>
+         optionally only return the immediate children with this tag name</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -570,12 +573,12 @@
     </dt>
     <dd>
     visit child element  of a node and call a function, possibility modifying the document.
- If it returns a value, that will replace the current node.
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">callback</span>
-        a function passed the node (text or element). If it returns nil, that node will be removed.</li>
+        <li><span class="parameter">callback</span>
+          a function passed the node (text or element). If it returns nil, that node will be removed.
+ If it returns a value, that will replace the current node.</li>
     </ul>
 
 
@@ -585,21 +588,23 @@
 </dd>
     <dt>
     <a name = "tostring"></a>
-    <strong>tostring&nbsp;(t, idn, indent, attr_indent)</strong>
+    <strong>tostring&nbsp;(t, idn, indent, attr_indent, xml)</strong>
     </dt>
     <dd>
     pretty-print an XML document
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">t</span>
-       an XML document</li>
-      <li><span class="parameter">idn</span>
-       an initial indent (indents are all strings)</li>
-      <li><span class="parameter">indent</span>
-       an indent for each level</li>
-      <li><span class="parameter">attr_indent</span>
-       if given, indent each attribute pair and put on a separate line</li>
+        <li><span class="parameter">t</span>
+         an XML document</li>
+        <li><span class="parameter">idn</span>
+         an initial indent (indents are all strings)</li>
+        <li><span class="parameter">indent</span>
+         an indent for each level</li>
+        <li><span class="parameter">attr_indent</span>
+         if given, indent each attribute pair and put on a separate line</li>
+        <li><span class="parameter">xml</span>
+         force prefacing with &lt;?xml&hellip;></li>
     </ul>
 
     <h3>Returns:</h3>
@@ -634,10 +639,10 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">doc</span>
-       the original document</li>
-      <li><span class="parameter">strsubst</span>
-       an optional function for handling string copying which could do substitution, etc.</li>
+        <li><span class="parameter">doc</span>
+         the original document</li>
+        <li><span class="parameter">strsubst</span>
+         an optional function for handling string copying which could do substitution, etc.</li>
     </ul>
 
 
@@ -654,10 +659,10 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">t1</span>
-       any value</li>
-      <li><span class="parameter">t2</span>
-       any value</li>
+        <li><span class="parameter">t1</span>
+         any value</li>
+        <li><span class="parameter">t2</span>
+         any value</li>
     </ul>
 
 
@@ -674,8 +679,8 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">d</span>
-       any value</li>
+        <li><span class="parameter">d</span>
+         any value</li>
     </ul>
 
 
@@ -692,12 +697,31 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">doc</span>
-       the document</li>
-      <li><span class="parameter">depth_first</span>
-        visit child notes first, then the current node</li>
-      <li><span class="parameter">operation</span>
-       a function which will receive the current tag name and current node.</li>
+        <li><span class="parameter">doc</span>
+         the document</li>
+        <li><span class="parameter">depth_first</span>
+          visit child notes first, then the current node</li>
+        <li><span class="parameter">operation</span>
+         a function which will receive the current tag name and current node.</li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "parsehtml"></a>
+    <strong>parsehtml&nbsp;(s)</strong>
+    </dt>
+    <dd>
+    Parse a well-formed HTML file as a string.
+ Tags are case-insenstive, DOCTYPE is ignored, and empty elements can be .. empty.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">s</span>
+         the HTML</li>
     </ul>
 
 
@@ -707,17 +731,19 @@
 </dd>
     <dt>
     <a name = "basic_parse"></a>
-    <strong>basic_parse&nbsp;(s, all_text)</strong>
+    <strong>basic_parse&nbsp;(s, all_text, html)</strong>
     </dt>
     <dd>
     Parse a simple XML document using a pure Lua parser based on Robero Ierusalimschy&rsquo;s original version.
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">s</span>
-       the XML document to be parsed.</li>
-      <li><span class="parameter">all_text</span>
-        if true, preserves all whitespace. Otherwise only text containing non-whitespace is included.</li>
+        <li><span class="parameter">s</span>
+         the XML document to be parsed.</li>
+        <li><span class="parameter">all_text</span>
+          if true, preserves all whitespace. Otherwise only text containing non-whitespace is included.</li>
+        <li><span class="parameter">html</span>
+         if true, uses relaxed HTML rules for parsing</li>
     </ul>
 
 
@@ -731,7 +757,7 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.3</a></i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.3.12</a></i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

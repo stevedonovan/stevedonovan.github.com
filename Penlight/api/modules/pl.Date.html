@@ -38,7 +38,6 @@
 
 <h2>Modules</h2>
 <ul>
-  <li><a href="../modules/config.html">config</a></li>
   <li><a href="../modules/pl.html">pl</a></li>
   <li><strong>pl.Date</strong></li>
   <li><a href="../modules/pl.List.html">pl.List</a></li>
@@ -49,7 +48,9 @@
   <li><a href="../modules/pl.app.html">pl.app</a></li>
   <li><a href="../modules/pl.array2d.html">pl.array2d</a></li>
   <li><a href="../modules/pl.class.html">pl.class</a></li>
+  <li><a href="../modules/pl.compat.html">pl.compat</a></li>
   <li><a href="../modules/pl.comprehension.html">pl.comprehension</a></li>
+  <li><a href="../modules/pl.config.html">pl.config</a></li>
   <li><a href="../modules/pl.data.html">pl.data</a></li>
   <li><a href="../modules/pl.dir.html">pl.dir</a></li>
   <li><a href="../modules/pl.file.html">pl.file</a></li>
@@ -62,7 +63,6 @@
   <li><a href="../modules/pl.operator.html">pl.operator</a></li>
   <li><a href="../modules/pl.path.html">pl.path</a></li>
   <li><a href="../modules/pl.permute.html">pl.permute</a></li>
-  <li><a href="../modules/pl.platf.luajava.html">pl.platf.luajava</a></li>
   <li><a href="../modules/pl.pretty.html">pl.pretty</a></li>
   <li><a href="../modules/pl.seq.html">pl.seq</a></li>
   <li><a href="../modules/pl.sip.html">pl.sip</a></li>
@@ -253,30 +253,29 @@
 
 
     <h2><a name="Functions"></a>Functions</h2>
-
     <dl class="function">
     <dt>
     <a name = "Date"></a>
     <strong>Date&nbsp;(t)</strong>
     </dt>
     <dd>
-    <p>Date constructor. </p>
+    Date constructor.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+        <p> this can be either</p>
 
 <ul>
 <li> <code>nil</code> or empty &ndash; use current date and time</li>
 <li> number &ndash; seconds since epoch (as returned by <a href="http://www.lua.org/manual/5.1/manual.html#pdf-os.time">os.time</a>)</li>
-<li> <a href="../modules/pl.Date.html#pl.Date">Date</a>  &ndash; copy constructor</li>
+<li> <a href="../modules/pl.Date.html">Date</a>  &ndash; copy constructor</li>
 <li> table &ndash; table containing year, month, etc as for <a href="http://www.lua.org/manual/5.1/manual.html#pdf-os.time">os.time</a> . You may leave out year, month or day,
 in which case current values will be used.
 *three to six numbers: year, month, day, hour, min, sec</li>
 </ul>
 
-
-
-    <h3>Parameters:</h3>
-    <ul>
-      <li><span class="parameter">t</span>
-       this can be either</li>
+</li>
     </ul>
 
 
@@ -337,8 +336,8 @@ in which case current values will be used.
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">t</span>
-       seconds since epoch</li>
+        <li><span class="parameter">t</span>
+         seconds since epoch</li>
     </ul>
 
 
@@ -355,8 +354,8 @@ in which case current values will be used.
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">y</span>
-       Four-digit year</li>
+        <li><span class="parameter">y</span>
+         Four-digit year</li>
     </ul>
 
 
@@ -373,8 +372,8 @@ in which case current values will be used.
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">m</span>
-       month</li>
+        <li><span class="parameter">m</span>
+         month</li>
     </ul>
 
 
@@ -391,8 +390,8 @@ in which case current values will be used.
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">d</span>
-       day</li>
+        <li><span class="parameter">d</span>
+         day</li>
     </ul>
 
 
@@ -409,8 +408,8 @@ in which case current values will be used.
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">h</span>
-       hour</li>
+        <li><span class="parameter">h</span>
+         hour</li>
     </ul>
 
 
@@ -427,8 +426,8 @@ in which case current values will be used.
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">min</span>
-       minutes</li>
+        <li><span class="parameter">min</span>
+         minutes</li>
     </ul>
 
 
@@ -445,8 +444,8 @@ in which case current values will be used.
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">sec</span>
-       seconds</li>
+        <li><span class="parameter">sec</span>
+         seconds</li>
     </ul>
 
 
@@ -463,8 +462,8 @@ in which case current values will be used.
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">yday</span>
-       day of year</li>
+        <li><span class="parameter">yday</span>
+         day of year</li>
     </ul>
 
 
@@ -481,8 +480,8 @@ in which case current values will be used.
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">y</span>
-       Four-digit year</li>
+        <li><span class="parameter">y</span>
+         Four-digit year</li>
     </ul>
 
 
@@ -577,8 +576,8 @@ in which case current values will be used.
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">full</span>
-       abbreviated if true, full otherwise.</li>
+        <li><span class="parameter">full</span>
+         abbreviated if true, full otherwise.</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -600,8 +599,8 @@ in which case current values will be used.
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">full</span>
-       abbreviated if true, full otherwise.</li>
+        <li><span class="parameter">full</span>
+         abbreviated if true, full otherwise.</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -633,12 +632,12 @@ in which case current values will be used.
     </dt>
     <dd>
     add to a date object.
- year,month,day,hour,min,sec
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">t</span>
-       a table containing one of the following keys and a value:<br></li>
+        <li><span class="parameter">t</span>
+         a table containing one of the following keys and a value:<br>
+ year,month,day,hour,min,sec</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -675,14 +674,14 @@ in which case current values will be used.
     </dt>
     <dd>
     difference between two Date objects.
- Note: currently the result is a regular <a href="../modules/pl.Date.html#pl.Date">?que</a> object,
+ Note: currently the result is a regular <a href="../modules/pl.Date.html">Date</a> object,
  but also has <code>interval</code> field set, which means a more
  appropriate string rep is used.
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">other</span>
-       Date object</li>
+        <li><span class="parameter">other</span>
+         Date object</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -718,7 +717,7 @@ in which case current values will be used.
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">other</span>
+        <li><span class="parameter">other</span>
 
 </li>
     </ul>
@@ -737,7 +736,7 @@ in which case current values will be used.
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">other</span>
+        <li><span class="parameter">other</span>
 
 </li>
     </ul>
@@ -753,6 +752,11 @@ in which case current values will be used.
     </dt>
     <dd>
     Date.Format constructor.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fmt.</span>
+         A string where the following fields are significant: <ul>
  <li>d day (either d or dd)</li>
  <li>y year (either yy or yyy)</li>
  <li>m month (either m or mm)</li>
@@ -774,12 +778,7 @@ in which case current values will be used.
  here the day will be 1 and the year this current year </li>
  </ol>
  A date in format 3 can be optionally followed by a time in format 2.
- Please see test-date.lua in the tests folder for more examples.
-
-    <h3>Parameters:</h3>
-    <ul>
-      <li><span class="parameter">fmt.</span>
-       A string where the following fields are significant: <ul></li>
+ Please see test-date.lua in the tests folder for more examples.</li>
     </ul>
 
 
@@ -787,7 +786,7 @@ in which case current values will be used.
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">df = Date.Format(&quot;yyyy-mm-dd HH:MM:SS&quot;)</pre>
+        <pre class="example">df = Date.Format(<span class="string">"yyyy-mm-dd HH:MM:SS"</span>)</pre>
     </ul>
 
 </dd>
@@ -800,8 +799,8 @@ in which case current values will be used.
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">str</span>
-       a date string</li>
+        <li><span class="parameter">str</span>
+         a date string</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -823,8 +822,8 @@ in which case current values will be used.
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">d</span>
-       a date object, or a time value as returned by <a href="http://www.lua.org/manual/5.1/manual.html#pdf-os.time">os.time</a></li>
+        <li><span class="parameter">d</span>
+         a date object, or a time value as returned by <a href="http://www.lua.org/manual/5.1/manual.html#pdf-os.time">os.time</a></li>
     </ul>
 
     <h3>Returns:</h3>
@@ -843,7 +842,7 @@ in which case current values will be used.
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.3</a></i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.3.12</a></i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

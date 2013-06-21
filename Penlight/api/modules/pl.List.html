@@ -38,7 +38,6 @@
 
 <h2>Modules</h2>
 <ul>
-  <li><a href="../modules/config.html">config</a></li>
   <li><a href="../modules/pl.html">pl</a></li>
   <li><a href="../modules/pl.Date.html">pl.Date</a></li>
   <li><strong>pl.List</strong></li>
@@ -49,7 +48,9 @@
   <li><a href="../modules/pl.app.html">pl.app</a></li>
   <li><a href="../modules/pl.array2d.html">pl.array2d</a></li>
   <li><a href="../modules/pl.class.html">pl.class</a></li>
+  <li><a href="../modules/pl.compat.html">pl.compat</a></li>
   <li><a href="../modules/pl.comprehension.html">pl.comprehension</a></li>
+  <li><a href="../modules/pl.config.html">pl.config</a></li>
   <li><a href="../modules/pl.data.html">pl.data</a></li>
   <li><a href="../modules/pl.dir.html">pl.dir</a></li>
   <li><a href="../modules/pl.file.html">pl.file</a></li>
@@ -62,7 +63,6 @@
   <li><a href="../modules/pl.operator.html">pl.operator</a></li>
   <li><a href="../modules/pl.path.html">pl.path</a></li>
   <li><a href="../modules/pl.permute.html">pl.permute</a></li>
-  <li><a href="../modules/pl.platf.luajava.html">pl.platf.luajava</a></li>
   <li><a href="../modules/pl.pretty.html">pl.pretty</a></li>
   <li><a href="../modules/pl.seq.html">pl.seq</a></li>
   <li><a href="../modules/pl.sip.html">pl.sip</a></li>
@@ -137,6 +137,10 @@
 	<tr>
 	<td class="name" nowrap><a href="#List.new">List.new&nbsp;(t)</a></td>
 	<td class="summary">Create a new list.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#List:clone">List:clone&nbsp;()</a></td>
+	<td class="summary">Make a copy of an existing list.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#List:append">List:append&nbsp;(i)</a></td>
@@ -294,7 +298,6 @@
 
 
     <h2><a name="Functions"></a>Functions</h2>
-
     <dl class="function">
     <dt>
     <a name = "List.new"></a>
@@ -302,14 +305,15 @@
     </dt>
     <dd>
     Create a new list.  Can optionally pass a table;
- passing another instance of List will cause a copy to be created
+ passing another instance of List will cause a copy to be created;
+ this will return a plain table with an appropriate metatable.
  we pass anything which isn&rsquo;t a simple table to iterate() to work out
- an appropriate iterator  @see List.iterate
+ an appropriate iterator
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">t</span>
-       An optional list-like table</li>
+        <li><span class="parameter">t</span>
+         An optional list-like table</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -319,11 +323,30 @@
     </ol>
 
 
+    <h3>see also:</h3>
+    <ul>
+         <a href="../modules/pl.List.html#List.iterate">List.iterate</a>
+    </ul>
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">ls = List();  ls = List {1,2,3,4}</pre>
+        <pre class="example">ls = List();  ls = List {<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>}</pre>
     </ul>
+
+</dd>
+    <dt>
+    <a name = "List:clone"></a>
+    <strong>List:clone&nbsp;()</strong>
+    </dt>
+    <dd>
+    Make a copy of an existing list.
+ The difference from a plain &lsquo;copy constructor&rsquo; is that this returns
+ the actual List subtype.
+
+
+
+
+
 
 </dd>
     <dt>
@@ -335,8 +358,8 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">i</span>
-       An item</li>
+        <li><span class="parameter">i</span>
+         An item</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -359,8 +382,8 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">L</span>
-       Another List</li>
+        <li><span class="parameter">L</span>
+         Another List</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -383,10 +406,10 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">i</span>
-       index of element before whichh to insert</li>
-      <li><span class="parameter">x</span>
-       A data item</li>
+        <li><span class="parameter">i</span>
+         index of element before whichh to insert</li>
+        <li><span class="parameter">x</span>
+         A data item</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -408,8 +431,8 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">x</span>
-       a data item</li>
+        <li><span class="parameter">x</span>
+         a data item</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -432,8 +455,8 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">i</span>
-       the index</li>
+        <li><span class="parameter">i</span>
+         the index</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -458,8 +481,8 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">x</span>
-       A data value</li>
+        <li><span class="parameter">x</span>
+         A data value</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -483,8 +506,8 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">i</span>
-       An index</li>
+        <li><span class="parameter">i</span>
+         An index</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -507,10 +530,10 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">x</span>
-       A data value</li>
-      <li><span class="parameter">idx</span>
-       where to start search (default 1)</li>
+        <li><span class="parameter">x</span>
+         A data value</li>
+        <li><span class="parameter">idx</span>
+         where to start search (default 1)</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -532,8 +555,8 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">x</span>
-       A data value</li>
+        <li><span class="parameter">x</span>
+         A data value</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -555,8 +578,8 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">x</span>
-       A data value</li>
+        <li><span class="parameter">x</span>
+         A data value</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -578,8 +601,8 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">cmp</span>
-       an optional comparison function, default &lsquo;&lt;&rsquo;</li>
+        <li><span class="parameter">cmp</span>
+         an optional comparison function, default &lsquo;&lt;&rsquo;</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -601,8 +624,8 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">cmp</span>
-       an optional comparison function, default &lsquo;&lt;&rsquo;</li>
+        <li><span class="parameter">cmp</span>
+         an optional comparison function, default &lsquo;&lt;&rsquo;</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -665,10 +688,10 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">first</span>
-       An index</li>
-      <li><span class="parameter">last</span>
-       An index</li>
+        <li><span class="parameter">first</span>
+         An index</li>
+        <li><span class="parameter">last</span>
+         An index</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -709,13 +732,13 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">start</span>
-       A number</li>
-      <li><span class="parameter">finish</span>
-       A number greater than start; if absent,
+        <li><span class="parameter">start</span>
+         A number</li>
+        <li><span class="parameter">finish</span>
+         A number greater than start; if absent,
  then start is 1 and finish is start</li>
-      <li><span class="parameter">incr</span>
-       an optional increment (may be less than 1)</li>
+        <li><span class="parameter">incr</span>
+         an optional increment (may be less than 1)</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -728,9 +751,9 @@
 
     <h3>Usage:</h3>
     <ul>
-        <li><pre class="example">List.range(0,3) == List{0,1,2,3}</pre></li>
-        <li><pre class="example">List.range(4) = List{1,2,3,4}</pre></li>
-        <li><pre class="example">List.range(5,1,-1) == List{5,4,3,2,1}</pre></li>
+        <li><pre class="example">List.range(<span class="number">0</span>,<span class="number">3</span>) == List{<span class="number">0</span>,<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>}</pre></li>
+        <li><pre class="example">List.range(<span class="number">4</span>) = List{<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>}</pre></li>
+        <li><pre class="example">List.range(<span class="number">5</span>,<span class="number">1</span>,-<span class="number">1</span>) == List{<span class="number">5</span>,<span class="number">4</span>,<span class="number">3</span>,<span class="number">2</span>,<span class="number">1</span>}</pre></li>
     </ul>
 
 </dd>
@@ -757,10 +780,10 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">i1</span>
-       start of range</li>
-      <li><span class="parameter">i2</span>
-       end of range</li>
+        <li><span class="parameter">i1</span>
+         start of range</li>
+        <li><span class="parameter">i2</span>
+         end of range</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -783,10 +806,10 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">idx</span>
-       index</li>
-      <li><span class="parameter">list</span>
-       list to insert</li>
+        <li><span class="parameter">idx</span>
+         index</li>
+        <li><span class="parameter">list</span>
+         list to insert</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -799,7 +822,7 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">l = List{10,20}; l:splice(2,{21,22});  assert(l == List{10,21,22,20})</pre>
+        <pre class="example">l = List{<span class="number">10</span>,<span class="number">20</span>}; l:splice(<span class="number">2</span>,{<span class="number">21</span>,<span class="number">22</span>});  <span class="global">assert</span>(l == List{<span class="number">10</span>,<span class="number">21</span>,<span class="number">22</span>,<span class="number">20</span>})</pre>
     </ul>
 
 </dd>
@@ -812,12 +835,12 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">i1</span>
-        start index</li>
-      <li><span class="parameter">i2</span>
-        end index</li>
-      <li><span class="parameter">seq</span>
-       a list</li>
+        <li><span class="parameter">i1</span>
+          start index</li>
+        <li><span class="parameter">i2</span>
+          end index</li>
+        <li><span class="parameter">seq</span>
+         a list</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -839,8 +862,8 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">L</span>
-       another List</li>
+        <li><span class="parameter">L</span>
+         another List</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -862,8 +885,8 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">L</span>
-       another List</li>
+        <li><span class="parameter">L</span>
+         another List</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -886,8 +909,8 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">delim</span>
-       a delimiter string, can be empty.</li>
+        <li><span class="parameter">delim</span>
+         a delimiter string, can be empty.</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -910,8 +933,8 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">delim</span>
-       a delimiter</li>
+        <li><span class="parameter">delim</span>
+         a delimiter</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -950,10 +973,10 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">fun</span>
-       a function or callable object</li>
-      <li><span class="parameter">...</span>
-       optional values to pass to function</li>
+        <li><span class="parameter">fun</span>
+         a function or callable object</li>
+        <li><span class="parameter">...</span>
+         optional values to pass to function</li>
     </ul>
 
 
@@ -970,10 +993,10 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">fun</span>
-       a boolean function</li>
-      <li><span class="parameter">arg</span>
-       optional argument to be passed as second argument of the predicate</li>
+        <li><span class="parameter">fun</span>
+         a boolean function</li>
+        <li><span class="parameter">arg</span>
+         optional argument to be passed as second argument of the predicate</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -995,10 +1018,10 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">s</span>
-       the string</li>
-      <li><span class="parameter">delim</span>
-       the delimiter (default spaces)</li>
+        <li><span class="parameter">s</span>
+         the string</li>
+        <li><span class="parameter">delim</span>
+         the delimiter (default spaces)</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -1021,16 +1044,14 @@
     </dt>
     <dd>
     apply a function to all elements.
- Any extra arguments will be passed to the function; if the function
- is <code>nil</code> then <code>map</code> returns a mapper object that maps over a method
- of the items
+ Any extra arguments will be passed to the function.
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">fun</span>
-       a function of at least one argument</li>
-      <li><span class="parameter">...</span>
-       arbitrary extra arguments.</li>
+        <li><span class="parameter">fun</span>
+         a function of at least one argument</li>
+        <li><span class="parameter">...</span>
+         arbitrary extra arguments.</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -1047,8 +1068,7 @@
 
     <h3>Usage:</h3>
     <ul>
-        <li><pre class="example">List{&apos;one&apos;,&apos;two&apos;}:map(string.upper) == {&apos;ONE&apos;,&apos;TWO&apos;}</pre></li>
-        <li><pre class="example">List{&apos;one&apos;,&apos;two&apos;}:map():sub(1,2) == {&apos;on&apos;,&apos;tw&apos;}</pre></li>
+        <pre class="example">List{<span class="string">'one'</span>,<span class="string">'two'</span>}:map(<span class="global">string</span>.upper) == {<span class="string">'ONE'</span>,<span class="string">'TWO'</span>}</pre>
     </ul>
 
 </dd>
@@ -1062,10 +1082,10 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">fun</span>
-       A function that takes at least one argument</li>
-      <li><span class="parameter">...</span>
-       arbitrary extra arguments.</li>
+        <li><span class="parameter">fun</span>
+         A function that takes at least one argument</li>
+        <li><span class="parameter">...</span>
+         arbitrary extra arguments.</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -1088,12 +1108,12 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">fun</span>
-       a function of at least two arguments</li>
-      <li><span class="parameter">ls</span>
-       another list</li>
-      <li><span class="parameter">...</span>
-       arbitrary extra arguments.</li>
+        <li><span class="parameter">fun</span>
+         a function of at least two arguments</li>
+        <li><span class="parameter">ls</span>
+         another list</li>
+        <li><span class="parameter">...</span>
+         arbitrary extra arguments.</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -1120,10 +1140,10 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">name</span>
-       name of method</li>
-      <li><span class="parameter">...</span>
-       extra arguments</li>
+        <li><span class="parameter">name</span>
+         name of method</li>
+        <li><span class="parameter">...</span>
+         extra arguments</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -1149,8 +1169,8 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">fun</span>
-       a function of two arguments</li>
+        <li><span class="parameter">fun</span>
+         a function of two arguments</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -1174,20 +1194,20 @@
     <dd>
     partition a list using a classifier function.
  The function may return nil, but this will be converted to the string key &lsquo;<nil>&rsquo;.
- of values where the function returned that key. It is given the type of Multimap.
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">fun</span>
-       a function of at least one argument</li>
-      <li><span class="parameter">...</span>
-       will also be passed to the function</li>
+        <li><span class="parameter">fun</span>
+         a function of at least one argument</li>
+        <li><span class="parameter">...</span>
+         will also be passed to the function</li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
         a table where the keys are the returned values, and the values are Lists
+ of values where the function returned that key. It is given the type of Multimap.
     </ol>
 
 
@@ -1222,8 +1242,8 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">seq</span>
-       a sequence; a string (over characters), a table, a file object (over lines) or an iterator function</li>
+        <li><span class="parameter">seq</span>
+         a sequence; a string (over characters), a table, a file object (over lines) or an iterator function</li>
     </ul>
 
 
@@ -1231,8 +1251,8 @@
 
     <h3>Usage:</h3>
     <ul>
-        <li><pre class="example">for x in iterate {1,10,22,55} do io.write(x,&apos;,&apos;) end ==&gt; 1,10,22,55</pre></li>
-        <li><pre class="example">for ch in iterate &apos;help&apos; do do io.write(ch,&apos; &apos;) end ==&gt; h e l p</pre></li>
+        <li><pre class="example"><span class="keyword">for</span> x <span class="keyword">in</span> iterate {<span class="number">1</span>,<span class="number">10</span>,<span class="number">22</span>,<span class="number">55</span>} <span class="keyword">do</span> <span class="global">io</span>.write(x,<span class="string">','</span>) <span class="keyword">end</span> ==&gt; <span class="number">1</span>,<span class="number">10</span>,<span class="number">22</span>,<span class="number">55</span></pre></li>
+        <li><pre class="example"><span class="keyword">for</span> ch <span class="keyword">in</span> iterate <span class="string">'help'</span> <span class="keyword">do</span> <span class="keyword">do</span> <span class="global">io</span>.write(ch,<span class="string">' '</span>) <span class="keyword">end</span> ==&gt; h e l p</pre></li>
     </ul>
 
 </dd>
@@ -1242,7 +1262,7 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.3</a></i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.3.12</a></i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

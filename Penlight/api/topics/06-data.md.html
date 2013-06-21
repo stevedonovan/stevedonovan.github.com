@@ -32,12 +32,12 @@
 
 <h2>Contents</h2>
 <ul>
-<li><a href="#Reading_Data_Files">Reading Data Files</a></li>
-<li><a href="#Reading_Unstructured_Text_Data">Reading Unstructured Text Data</a></li>
-<li><a href="#Reading_Columnar_Data">Reading Columnar Data</a></li>
-<li><a href="#Reading_Configuration_Files">Reading Configuration Files</a></li>
-<li><a href="#Lexical_Scanning">Lexical Scanning</a></li>
-<li><a href="#XML">XML</a></li>
+<li><a href="#Reading_Data_Files">Reading Data Files </a></li>
+<li><a href="#Reading_Unstructured_Text_Data">Reading Unstructured Text Data </a></li>
+<li><a href="#Reading_Columnar_Data">Reading Columnar Data </a></li>
+<li><a href="#Reading_Configuration_Files">Reading Configuration Files </a></li>
+<li><a href="#Lexical_Scanning">Lexical Scanning </a></li>
+<li><a href="#XML">XML </a></li>
 </ul>
 
 
@@ -55,7 +55,6 @@
 </ul>
 <h2>Modules</h2>
 <ul>
-  <li><a href="../modules/config.html">config</a></li>
   <li><a href="../modules/pl.html">pl</a></li>
   <li><a href="../modules/pl.Date.html">pl.Date</a></li>
   <li><a href="../modules/pl.List.html">pl.List</a></li>
@@ -66,7 +65,9 @@
   <li><a href="../modules/pl.app.html">pl.app</a></li>
   <li><a href="../modules/pl.array2d.html">pl.array2d</a></li>
   <li><a href="../modules/pl.class.html">pl.class</a></li>
+  <li><a href="../modules/pl.compat.html">pl.compat</a></li>
   <li><a href="../modules/pl.comprehension.html">pl.comprehension</a></li>
+  <li><a href="../modules/pl.config.html">pl.config</a></li>
   <li><a href="../modules/pl.data.html">pl.data</a></li>
   <li><a href="../modules/pl.dir.html">pl.dir</a></li>
   <li><a href="../modules/pl.file.html">pl.file</a></li>
@@ -79,7 +80,6 @@
   <li><a href="../modules/pl.operator.html">pl.operator</a></li>
   <li><a href="../modules/pl.path.html">pl.path</a></li>
   <li><a href="../modules/pl.permute.html">pl.permute</a></li>
-  <li><a href="../modules/pl.platf.luajava.html">pl.platf.luajava</a></li>
   <li><a href="../modules/pl.pretty.html">pl.pretty</a></li>
   <li><a href="../modules/pl.seq.html">pl.seq</a></li>
   <li><a href="../modules/pl.sip.html">pl.sip</a></li>
@@ -623,7 +623,7 @@ arbitrary queries.</p>
 
 <h3>Reading Configuration Files</h3>
 
-<p>The <a href="../modules/config.html#">config</a>  module provides a simple way to convert several kinds of
+<p>The <a href="../modules/pl.config.html#">config</a>  module provides a simple way to convert several kinds of
 configuration files into a Lua table. Consider the simple example:</p>
 
 <pre>
@@ -639,7 +639,7 @@ configuration files into a Lua table. Consider the simple example:</p>
 </pre>
 
 
-<p>This can be easily brought in using <a href="../modules/config.html#read">config.read</a>  and the result shown using
+<p>This can be easily brought in using <a href="../modules/pl.config.html#read">config.read</a>  and the result shown using
 <a href="../modules/pl.pretty.html#write">pretty.write</a> :</p>
 
 <pre>
@@ -667,7 +667,7 @@ configuration files into a Lua table. Consider the simple example:</p>
 </pre>
 
 
-<p>That is, <a href="../modules/config.html#read">config.read</a>  will bring in all key/value pairs, ignore # comments, and
+<p>That is, <a href="../modules/pl.config.html#read">config.read</a>  will bring in all key/value pairs, ignore # comments, and
 ensure that the key names are proper Lua identifiers by replacing non-identifier
 characters with &lsquo;_&rsquo;. If the values are numbers, then they will be converted. (So
 the value of <code>t.write_timeout</code> is the number 5). In addition, any values which
@@ -717,7 +717,7 @@ translates naturally to nested tables in Lua:</p>
 
 <p>You can now refer to the write timeout as <code>t.timeouts.write</code>.</p>
 
-<p>As a final example of the flexibility of <a href="../modules/config.html#read">config.read</a> , if passed this simple
+<p>As a final example of the flexibility of <a href="../modules/pl.config.html#read">config.read</a> , if passed this simple
 comma-delimited file</p>
 
 <pre>
@@ -740,7 +740,7 @@ comma-delimited file</p>
 </pre>
 
 
-<p><a href="../modules/config.html#read">config.read</a>  isn&rsquo;t designed to read all CSV files in general, but intended to
+<p><a href="../modules/pl.config.html#read">config.read</a>  isn&rsquo;t designed to read all CSV files in general, but intended to
 support some Unix configuration files not structured as key-value pairs, such as
 &lsquo;/etc/passwd&rsquo;.</p>
 
@@ -808,7 +808,7 @@ split a value up into a list (it may be a Lua string pattern such as &lsquo;%s+&
 
 
 <p>You can get this into a more sensible format, where the usernames are the keys,
-with:</p>
+with this (the <a href="../modules/pl.tablex.html#pairmap">tablex.pairmap</a>  function must return value, key!)</p>
 
 <pre>
  t = tablex.pairmap(<span class="keyword">function</span>(k,v) <span class="keyword">return</span> v,v[<span class="number">1</span>] <span class="keyword">end</span>,t)
@@ -837,7 +837,7 @@ with:</p>
 For <code>/etc/fstab</code>, the options <code>{list_delim='%s+',ignore_assign=true}</code> will
 correctly separate the columns.  It&rsquo;s common to find &lsquo;KEY VALUE&rsquo; assignments in
 files such as <code>/etc/ssh/ssh_config</code>; the options <code>{keysep=' '}</code> make
-<a href="../modules/config.html#read">config.read</a>  return a table where each KEY has a value VALUE.</p>
+<a href="../modules/pl.config.html#read">config.read</a>  return a table where each KEY has a value VALUE.</p>
 
 <p>Files in the Linux <code>procfs</code> usually use &lsquo;:<code>as the field delimiter:</code></p>
 
@@ -871,12 +871,12 @@ parentheses are necessary so that <a href="http://www.lua.org/manual/5.1/manual.
 </pre>
 
 
-<p>The <code>smart</code> option lets <a href="../modules/config.html#read">config.read</a>  make a reasonable guess for you; there
+<p>The <code>smart</code> option lets <a href="../modules/pl.config.html#read">config.read</a>  make a reasonable guess for you; there
 are examples in <code>tests/test-config.lua</code>, but basically these common file
 formats (and those following the same pattern) can be processed directly in
 smart mode: &lsquo;etc/fstab&rsquo;, &lsquo;/proc/XXXX/status&rsquo;, &lsquo;ssh_config&rsquo; and &lsquo;pdatedb.conf&rsquo;.</p>
 
-<p>Please note that <a href="../modules/config.html#read">config.read</a>  can be passed a <em>file-like object</em>; if it&rsquo;s not a
+<p>Please note that <a href="../modules/pl.config.html#read">config.read</a>  can be passed a <em>file-like object</em>; if it&rsquo;s not a
 string and supports the <a href="../modules/pl.data.html#read">read</a>  method, then that will be used. For instance, to
 read a configuration from a string, use <a href="../modules/pl.stringio.html#open">stringio.open</a> .</p>
 
@@ -1150,7 +1150,8 @@ the initial indent and the per-element indent:</p>
 <h4>Parsing and Working with Configuration Files</h4>
 
 <p>It&rsquo;s common to find configurations expressed with XML these days. It&rsquo;s
-straightforward to &lsquo;walk&rsquo; the LOM data and extract the data in the form you want:</p>
+straightforward to &lsquo;walk&rsquo; the <a href="http://matthewwild.co.uk/projects/luaexpat/lom.html">LOM</a>
+data and extract the data in the form you want:</p>
 
 <pre>
  <span class="global">require</span> <span class="string">'pl'</span>
@@ -1303,13 +1304,75 @@ variables. Note how the parent tag name is specified:</p>
 </pre>
 
 
+<p>Substitution is very related to <em>filtering</em> documents. One of the annoying things
+about XML is that it is a document markup language first, and a data language
+second. Standard parsers will assume you really care about all those extra
+text elements. Consider this fragment, which has been changed by a five-year old:</p>
+
+<pre>
+ T = <span class="string">[[
+   &lt;weather&gt;
+     boops!
+     &lt;current_conditions&gt;
+       &lt;condition data='$condition'/&gt;
+       &lt;temp_c data='$temp'/&gt;
+       &lt;bo&gt;whoops!&lt;/bo&gt;
+     &lt;/current_conditions&gt;
+   &lt;/weather&gt;
+ ]]</span>
+</pre>
+
+
+<p>Conformant parsers will give you text elements with the line feed after <code>&lt;current_conditions&gt;</code>
+although it makes handling the data more irritating.</p>
+
+<pre>
+ <span class="keyword">local</span> <span class="keyword">function</span> parse (str)
+     <span class="keyword">return</span> xml.parse(str,<span class="keyword">false</span>,<span class="keyword">true</span>)
+ <span class="keyword">end</span>
+</pre>
+
+
+<p>Second argument means &lsquo;string, not file&rsquo; and third argument means use the built-in
+Lua parser (instead of LuaExpat if available) which <em>by default</em> is not interested in
+keeping such strings.</p>
+
+<p>How to remove the string <code>boops!</code>?  <code>clone</code> (also called <a href="../modules/pl.data.html#filter">filter</a>  when called as a
+method) copies a LOM document. It can be passed a filter function, which is applied
+to each string found. The powerful thing about this is that this function receives
+structural information &ndash; the parent node, and whether this was a tag name, a text
+element or a attribute name:</p>
+
+<pre>
+ d = parse (T)
+ c = d:filter(<span class="keyword">function</span>(s,kind,parent)
+     <span class="global">print</span>(stringx.strip(s),kind,parent <span class="keyword">and</span> parent.tag <span class="keyword">or</span> <span class="string">'?'</span>)
+     <span class="keyword">if</span> kind == <span class="string">'*TEXT'</span> <span class="keyword">and</span> #parent &gt; <span class="number">1</span> <span class="keyword">then</span> <span class="keyword">return</span> <span class="keyword">nil</span> <span class="keyword">end</span>
+     <span class="keyword">return</span> s
+ <span class="keyword">end</span>)
+ <span class="comment">---&gt;
+</span> weather    *TAG    ?
+ boops!    *TEXT    weather
+ current_conditions    *TAG    weather
+ condition    *TAG    current_conditions
+ $condition    data    condition
+ temp_c    *TAG    current_conditions
+ $temp    data    temp_c
+ bo    *TAG    current_conditions
+ whoops!    *TEXT    bo
+</pre>
+
+
+<p>We can pull out &lsquo;boops&rsquo; and not &lsquo;whoops&rsquo; by discarding text elements which are not
+the single child of an element.</p>
+
 <h4>Extracting Data using Templates</h4>
 
 <p>Matching goes in the opposite direction.  We have a document, and would like to
 extract values from it using a pattern.</p>
 
 <p>A common use of this is parsing the XML result of API queries.  The
-<a href="http://blog.programmableweb.com/2010/02/08/googles-secret-weather-api/">(undocumented) Google Weather
+<a href="http://blog.programmableweb.com/2010/02/08/googles-secret-weather-api/">(undocumented and subsequently discontinued) Google Weather
 API</a> is a
 good example. Grabbing the result of
 <code>http://www.google.com/ig/api?weather=Johannesburg,ZA" we get something like
@@ -1379,18 +1442,168 @@ pattern looking like a template, and use it to extract some values of interest:<
 
 
 <p>The <code>match</code> method can be passed a LOM document or some text, which will be
-parsed first. Note that <code>$NUMBER</code> is treated specially as a numerical index, so
-that <code>$1</code> is the first element of the resulting array, etc.</p>
+parsed first.</p>
+
+<p>But what if we need to extract values from repeated elements? Match templates may
+contain &lsquo;array matches&rsquo; which are enclosed in &lsquo;{{..}}&rsquo;:</p>
+
+<pre>
+ &lt;weather&gt;
+   {{&lt;forecast_conditions&gt;
+     &lt;day_of_week data=<span class="string">'$day'</span>/&gt;
+     &lt;low data=<span class="string">'$low'</span>/&gt;
+     &lt;high data=<span class="string">'$high'</span>/&gt;
+     &lt;condition data=<span class="string">'$condition'</span>/&gt;
+   &lt;/forecast_conditions&gt;}}
+ &lt;/weather&gt;
+</pre>
+
+
+<p>And the match result is:</p>
+
+<pre>
+ {
+   {
+     low = <span class="string">"60"</span>,
+     high = <span class="string">"89"</span>,
+     day = <span class="string">"Sat"</span>,
+     condition = <span class="string">"Clear"</span>,
+   },
+   {
+     low = <span class="string">"53"</span>,
+     high = <span class="string">"86"</span>,
+     day = <span class="string">"Sun"</span>,
+     condition = <span class="string">"Clear"</span>,
+   },
+   {
+     low = <span class="string">"57"</span>,
+     high = <span class="string">"87"</span>,
+     day = <span class="string">"Mon"</span>,
+     condition = <span class="string">"Clear"</span>,
+   },
+   {
+     low = <span class="string">"60"</span>,
+     high = <span class="string">"84"</span>,
+     day = <span class="string">"Tue"</span>,
+     condition = <span class="string">"Clear"</span>,
+   }
+ }
+</pre>
+
+
+<p>With this array of tables, you can use <a href="../modules/pl.tablex.html#">tablex</a>  or <a href="../modules/pl.List.html#">List</a>
+to reshape into the desired form, if you choose.  Just as with reading a Unix password
+file with <a href="../modules/pl.config.html#">config</a> , you can make the array into a map of days to conditions using:</p>
+
+<pre>
+ <span class="backtick"><a href="../modules/pl.tablex.html#pairmap">tablex.pairmap</a> </span>(<span class="string">'|k,v| v,v.day'</span>,conditions)
+</pre>
+
+
+<p>(Here using the alternative string lambda option)</p>
+
+<p>However, xml matches can shape the structure of the output. By replacing the <code>day_of_week</code>
+line of the template with <code>&lt;day_of_week data='$_'/&gt;</code> we get the same effect; <code>$_</code> is
+a special symbol that means that this captured value (or simply <em>capture</em>) becomes the key.</p>
+
+<p>Note that <code>$NUMBER</code> means a numerical index, so
+that <code>$1</code> is the first element of the resulting array, and so forth. You can mix
+numbered and named captures, but it&rsquo;s strongly advised to make the numbered captures
+form a proper array sequence (everything from <code>1</code> to <code>n</code> inclusive). <code>$0</code> has a
+special meaning; if it is the only capture (<code>{[0]='foo'}</code>) then the table is
+collapsed into &lsquo;foo&rsquo;.</p>
+
+<pre>
+ &lt;weather&gt;
+   {{&lt;forecast_conditions&gt;
+     &lt;day_of_week data=<span class="string">'$_'</span>/&gt;
+     &lt;low data=<span class="string">'$1'</span>/&gt;
+     &lt;high data=<span class="string">'$2'</span>/&gt;
+     &lt;condition data=<span class="string">'$3'</span>/&gt;
+   &lt;/forecast_conditions&gt;}}
+ &lt;/weather&gt;
+</pre>
+
+
+<p>Now the result is:</p>
+
+<pre>
+ {
+   Tue = {
+     <span class="string">"60"</span>,
+     <span class="string">"84"</span>,
+     <span class="string">"Clear"</span>
+   },
+   Sun = {
+     <span class="string">"53"</span>,
+     <span class="string">"86"</span>,
+     <span class="string">"Clear"</span>
+   },
+   Sat = {
+     <span class="string">"60"</span>,
+     <span class="string">"89"</span>,
+     <span class="string">"Clear"</span>
+   },
+   Mon = {
+     <span class="string">"57"</span>,
+     <span class="string">"87"</span>,
+     <span class="string">"Clear"</span>
+   }
+ }
+</pre>
+
+
+<p>Applying matches to this config file poses another problem, because the actual
+tags matched are themselves meaningful.</p>
+
+<pre>
+ &lt;config&gt;
+     &lt;alpha&gt;<span class="number">1.3</span>&lt;/alpha&gt;
+     &lt;beta&gt;<span class="number">10</span>&lt;/beta&gt;
+     &lt;name&gt;bozo&lt;/name&gt;
+ &lt;/config&gt;
+</pre>
+
+
+<p>So there are tag &lsquo;wildcards&rsquo; which are element names ending with a hyphen.</p>
+
+<pre>
+ &lt;config&gt;
+     {{&lt;key-&gt;$value&lt;/key-&gt;}}
+ &lt;/config&gt;
+</pre>
+
+
+<p>You will then get <code>{{alpha='1.3'},...}</code>. The most convenient format would be
+returned by this (note that <code>_-</code> behaves just like <code>$_</code>):</p>
+
+<pre>
+ &lt;config&gt;
+     {{&lt;_-&gt;$<span class="number">0</span>&lt;/_-&gt;}}
+ &lt;/config&gt;
+</pre>
+
+
+<p>which would return <code>{alpha='1.3',beta='10',name='bozo'}</code>.</p>
+
+<p>We could play this game endlessly, and encode ways of converting captures, but
+the scheme is complex enough, and it&rsquo;s easy to do the conversion later</p>
+
+<pre>
+ <span class="keyword">local</span> numbers = {alpha=<span class="keyword">true</span>,beta=<span class="keyword">true</span>}
+ <span class="keyword">for</span> k,v <span class="keyword">in</span> <span class="global">pairs</span>(res) <span class="keyword">do</span>
+     <span class="keyword">if</span> numbers[v] <span class="keyword">then</span> res[k] = <span class="global">tonumber</span>(v) <span class="keyword">end</span>
+ <span class="keyword">end</span>
+</pre>
+
 
 <h4>HTML Parsing</h4>
 
-<p>HTML is an ususally slack dialect of XML, and Dennis Schridde has contributed
+<p>HTML is an unusually degenerate form of XML, and Dennis Schridde has contributed
 a feature which makes parsing it easier.  For instance, from the tests:</p>
 
 <pre>
- xml.parsehtml = <span class="keyword">true</span>
-
- doc = xml.parse <span class="string">[[
+ doc = xml.parsehtml <span class="string">[[
  &lt;BODY&gt;
  Hello dolly&lt;br&gt;
  HTML is &lt;b&gt;slack&lt;/b&gt;&lt;br&gt;
@@ -1404,14 +1617,17 @@ a feature which makes parsing it easier.  For instance, from the tests:</p>
 </pre>
 
 
-<p>That is, all tags are converted to lowercase, and some elements like <code>br</code>
-are properly closed.</p>
+<p>That is, all tags are converted to lowercase, and empty HTML elements like <code>br</code>
+are properly closed; attributes do not need to be quoted.</p>
+
+<p>Also, DOCTYPE directives and comments are skipped. For truly badly formed HTML,
+this is not the tool for you!</p>
 
 
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.3</a></i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.3.12</a></i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

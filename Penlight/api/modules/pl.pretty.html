@@ -38,7 +38,6 @@
 
 <h2>Modules</h2>
 <ul>
-  <li><a href="../modules/config.html">config</a></li>
   <li><a href="../modules/pl.html">pl</a></li>
   <li><a href="../modules/pl.Date.html">pl.Date</a></li>
   <li><a href="../modules/pl.List.html">pl.List</a></li>
@@ -49,7 +48,9 @@
   <li><a href="../modules/pl.app.html">pl.app</a></li>
   <li><a href="../modules/pl.array2d.html">pl.array2d</a></li>
   <li><a href="../modules/pl.class.html">pl.class</a></li>
+  <li><a href="../modules/pl.compat.html">pl.compat</a></li>
   <li><a href="../modules/pl.comprehension.html">pl.comprehension</a></li>
+  <li><a href="../modules/pl.config.html">pl.config</a></li>
   <li><a href="../modules/pl.data.html">pl.data</a></li>
   <li><a href="../modules/pl.dir.html">pl.dir</a></li>
   <li><a href="../modules/pl.file.html">pl.file</a></li>
@@ -62,7 +63,6 @@
   <li><a href="../modules/pl.operator.html">pl.operator</a></li>
   <li><a href="../modules/pl.path.html">pl.path</a></li>
   <li><a href="../modules/pl.permute.html">pl.permute</a></li>
-  <li><a href="../modules/pl.platf.luajava.html">pl.platf.luajava</a></li>
   <li><strong>pl.pretty</strong></li>
   <li><a href="../modules/pl.seq.html">pl.seq</a></li>
   <li><a href="../modules/pl.sip.html">pl.sip</a></li>
@@ -150,7 +150,6 @@
 
 
     <h2><a name="Functions"></a>Functions</h2>
-
     <dl class="function">
     <dt>
     <a name = "read"></a>
@@ -164,12 +163,12 @@
  An empty environment is used, and
  any occurance of the keyword &lsquo;function&rsquo; will be considered a problem.
  in the given environment &ndash; the return value may be <code>nil</code>.
- before or after the curly braces.
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">s</span>
-       {string} string of the form &lsquo;{&hellip;}&rsquo;, with perhaps some whitespace</li>
+        <li><span class="parameter">s</span>
+         {string} string of the form &lsquo;{&hellip;}&rsquo;, with perhaps some whitespace
+ before or after the curly braces.</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -191,12 +190,12 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">s</span>
-       Lua code</li>
-      <li><span class="parameter">env</span>
-       optional environment</li>
-      <li><span class="parameter">paranoid</span>
-       prevent any looping constructs and disable string methods</li>
+        <li><span class="parameter">s</span>
+         Lua code</li>
+        <li><span class="parameter">env</span>
+         optional environment</li>
+        <li><span class="parameter">paranoid</span>
+         prevent any looping constructs and disable string methods</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -214,28 +213,28 @@
     <strong>write&nbsp;(tbl, space, not_clever)</strong>
     </dt>
     <dd>
-    <p>Create a string representation of a Lua table.
+    Create a string representation of a Lua table.
   This function never fails, but may complain by returning an
   extra value. Normally puts out one item per line, using
   the provided indent; set the second parameter to &lsquo;&rsquo; if
-  you want output on one line.</p>
-
-<pre><code>Defaults to false.
-</code></pre>
-
+  you want output on one line.
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">tbl</span>
-       {table} Table to serialize to a string.</li>
-      <li><span class="parameter">space</span>
-      <p> {string} (optional) The indent to use.</p>
+        <li><span class="parameter">tbl</span>
+         {table} Table to serialize to a string.</li>
+        <li><span class="parameter">space</span>
+        <p> {string} (optional) The indent to use.</p>
 
 <pre><code>Defaults to two spaces; make it the empty string for no indentation
 </code></pre>
 </li>
-      <li><span class="parameter">not_clever</span>
-       {bool} (optional) Use for plain output, e.g {[&lsquo;key&rsquo;]=1}.</li>
+        <li><span class="parameter">not_clever</span>
+        <p> {bool} (optional) Use for plain output, e.g {[&lsquo;key&rsquo;]=1}.</p>
+
+<pre><code>Defaults to false.
+</code></pre>
+</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -255,18 +254,18 @@
     <strong>dump&nbsp;(t, ...)</strong>
     </dt>
     <dd>
-    <p>Dump a Lua table out to a file or stdout. </p>
-
-<pre><code>to stdout.
-</code></pre>
-
+    Dump a Lua table out to a file or stdout.
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">t</span>
-       {table} The table to write to a file or stdout.</li>
-      <li><span class="parameter">...</span>
-       {string} (optional) File name to write too. Defaults to writing</li>
+        <li><span class="parameter">t</span>
+         {table} The table to write to a file or stdout.</li>
+        <li><span class="parameter">...</span>
+        <p> {string} (optional) File name to write too. Defaults to writing</p>
+
+<pre><code>to stdout.
+</code></pre>
+</li>
     </ul>
 
 
@@ -283,13 +282,13 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">num</span>
-       a number</li>
-      <li><span class="parameter">kind</span>
-       one of &lsquo;M&rsquo; (memory in KiB etc), &lsquo;N&rsquo; (postfixes are &lsquo;K&rsquo;,&lsquo;M&rsquo; and &lsquo;B&rsquo;)
+        <li><span class="parameter">num</span>
+         a number</li>
+        <li><span class="parameter">kind</span>
+         one of &lsquo;M&rsquo; (memory in KiB etc), &lsquo;N&rsquo; (postfixes are &lsquo;K&rsquo;,&lsquo;M&rsquo; and &lsquo;B&rsquo;)
  and &rsquo;T' (use commas as thousands separator)</li>
-      <li><span class="parameter">prec</span>
-       number of digits to use for &lsquo;M&rsquo; and &lsquo;N&rsquo; (default 1)</li>
+        <li><span class="parameter">prec</span>
+         number of digits to use for &lsquo;M&rsquo; and &lsquo;N&rsquo; (default 1)</li>
     </ul>
 
 
@@ -303,7 +302,7 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.3</a></i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.3.12</a></i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

@@ -38,7 +38,6 @@
 
 <h2>Modules</h2>
 <ul>
-  <li><a href="../modules/config.html">config</a></li>
   <li><a href="../modules/pl.html">pl</a></li>
   <li><a href="../modules/pl.Date.html">pl.Date</a></li>
   <li><a href="../modules/pl.List.html">pl.List</a></li>
@@ -49,7 +48,9 @@
   <li><a href="../modules/pl.app.html">pl.app</a></li>
   <li><a href="../modules/pl.array2d.html">pl.array2d</a></li>
   <li><a href="../modules/pl.class.html">pl.class</a></li>
+  <li><a href="../modules/pl.compat.html">pl.compat</a></li>
   <li><a href="../modules/pl.comprehension.html">pl.comprehension</a></li>
+  <li><a href="../modules/pl.config.html">pl.config</a></li>
   <li><a href="../modules/pl.data.html">pl.data</a></li>
   <li><a href="../modules/pl.dir.html">pl.dir</a></li>
   <li><a href="../modules/pl.file.html">pl.file</a></li>
@@ -62,7 +63,6 @@
   <li><a href="../modules/pl.operator.html">pl.operator</a></li>
   <li><a href="../modules/pl.path.html">pl.path</a></li>
   <li><a href="../modules/pl.permute.html">pl.permute</a></li>
-  <li><a href="../modules/pl.platf.luajava.html">pl.platf.luajava</a></li>
   <li><a href="../modules/pl.pretty.html">pl.pretty</a></li>
   <li><a href="../modules/pl.seq.html">pl.seq</a></li>
   <li><a href="../modules/pl.sip.html">pl.sip</a></li>
@@ -287,6 +287,18 @@
 	<td class="name" nowrap><a href="#search">search&nbsp;(t, value, exclude)</a></td>
 	<td class="summary">find a value in a table by recursive search.</td>
 	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#sort">sort&nbsp;(t, f)</a></td>
+	<td class="summary">return an iterator to a table sorted by its keys</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#sortv">sortv&nbsp;(t, f)</a></td>
+	<td class="summary">return an iterator to a table sorted by its values</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#readonly">readonly&nbsp;(t)</a></td>
+	<td class="summary">modifies a table to be read only.</td>
+	</tr>
 </table>
 
 <br/>
@@ -294,7 +306,6 @@
 
 
     <h2><a name="Functions"></a>Functions</h2>
-
     <dl class="function">
     <dt>
     <a name = "update"></a>
@@ -305,10 +316,10 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">t1</span>
-       destination table</li>
-      <li><span class="parameter">t2</span>
-       source (any iterable object)</li>
+        <li><span class="parameter">t1</span>
+         destination table</li>
+        <li><span class="parameter">t2</span>
+         source (any iterable object)</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -335,8 +346,8 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">t</span>
-       a table</li>
+        <li><span class="parameter">t</span>
+         a table</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -358,8 +369,8 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">t</span>
-       an iterable source</li>
+        <li><span class="parameter">t</span>
+         an iterable source</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -382,8 +393,8 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">t</span>
-       A table</li>
+        <li><span class="parameter">t</span>
+         A table</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -406,14 +417,14 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">t1</span>
-       A value</li>
-      <li><span class="parameter">t2</span>
-       A value</li>
-      <li><span class="parameter">ignore_mt</span>
-       if true, ignore __eq metamethod (default false)</li>
-      <li><span class="parameter">eps</span>
-       if defined, then used for any number comparisons</li>
+        <li><span class="parameter">t1</span>
+         A value</li>
+        <li><span class="parameter">t2</span>
+         A value</li>
+        <li><span class="parameter">ignore_mt</span>
+         if true, ignore __eq metamethod (default false)</li>
+        <li><span class="parameter">eps</span>
+         if defined, then used for any number comparisons</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -435,12 +446,12 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">t1</span>
-       an array</li>
-      <li><span class="parameter">t2</span>
-       an array</li>
-      <li><span class="parameter">cmp</span>
-       A comparison function</li>
+        <li><span class="parameter">t1</span>
+         an array</li>
+        <li><span class="parameter">t2</span>
+         an array</li>
+        <li><span class="parameter">cmp</span>
+         A comparison function</li>
     </ul>
 
 
@@ -457,12 +468,12 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">t1</span>
-       a list-like table</li>
-      <li><span class="parameter">t2</span>
-       a list-like table</li>
-      <li><span class="parameter">cmp</span>
-       A comparison function (may be nil)</li>
+        <li><span class="parameter">t1</span>
+         a list-like table</li>
+        <li><span class="parameter">t2</span>
+         a list-like table</li>
+        <li><span class="parameter">cmp</span>
+         A comparison function (may be nil)</li>
     </ul>
 
 
@@ -481,12 +492,12 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">t</span>
-       A list-like table (i.e. with numerical indices)</li>
-      <li><span class="parameter">val</span>
-       A value</li>
-      <li><span class="parameter">idx</span>
-       index to start; -1 means last element,etc (default 1)</li>
+        <li><span class="parameter">t</span>
+         A list-like table (i.e. with numerical indices)</li>
+        <li><span class="parameter">val</span>
+         A value</li>
+        <li><span class="parameter">idx</span>
+         index to start; -1 means last element,etc (default 1)</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -499,8 +510,8 @@
 
     <h3>Usage:</h3>
     <ul>
-        <li><pre class="example">find({10,20,30},20) == 2</pre></li>
-        <li><pre class="example">find({&apos;a&apos;,&apos;b&apos;,&apos;a&apos;,&apos;c&apos;},&apos;a&apos;,2) == 3</pre></li>
+        <li><pre class="example">find({<span class="number">10</span>,<span class="number">20</span>,<span class="number">30</span>},<span class="number">20</span>) == <span class="number">2</span></pre></li>
+        <li><pre class="example">find({<span class="string">'a'</span>,<span class="string">'b'</span>,<span class="string">'a'</span>,<span class="string">'c'</span>},<span class="string">'a'</span>,<span class="number">2</span>) == <span class="number">3</span></pre></li>
     </ul>
 
 </dd>
@@ -515,12 +526,12 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">t</span>
-       A list-like table (i.e. with numerical indices)</li>
-      <li><span class="parameter">val</span>
-       A value</li>
-      <li><span class="parameter">idx</span>
-       index to start; -1 means last element,etc (default 1)</li>
+        <li><span class="parameter">t</span>
+         A list-like table (i.e. with numerical indices)</li>
+        <li><span class="parameter">val</span>
+         A value</li>
+        <li><span class="parameter">idx</span>
+         index to start; -1 means last element,etc (default 1)</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -533,7 +544,7 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">rfind({10,10,10},10) == 3</pre>
+        <pre class="example">rfind({<span class="number">10</span>,<span class="number">10</span>,<span class="number">10</span>},<span class="number">10</span>) == <span class="number">3</span></pre>
     </ul>
 
 </dd>
@@ -546,12 +557,12 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">t</span>
-       A table</li>
-      <li><span class="parameter">cmp</span>
-       A comparison function</li>
-      <li><span class="parameter">arg</span>
-       an optional second argument to the function</li>
+        <li><span class="parameter">t</span>
+         A table</li>
+        <li><span class="parameter">cmp</span>
+         A comparison function</li>
+        <li><span class="parameter">arg</span>
+         an optional second argument to the function</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -575,10 +586,10 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">tbl</span>
-       a table</li>
-      <li><span class="parameter">idx</span>
-       an index table (a list of keys)</li>
+        <li><span class="parameter">tbl</span>
+         a table</li>
+        <li><span class="parameter">idx</span>
+         an index table (a list of keys)</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -591,8 +602,8 @@
 
     <h3>Usage:</h3>
     <ul>
-        <li><pre class="example">index_by({10,20,30,40},{2,4}) == {20,40}</pre></li>
-        <li><pre class="example">index_by({one=1,two=2,three=3},{&apos;one&apos;,&apos;three&apos;}) == {1,3}</pre></li>
+        <li><pre class="example">index_by({<span class="number">10</span>,<span class="number">20</span>,<span class="number">30</span>,<span class="number">40</span>},{<span class="number">2</span>,<span class="number">4</span>}) == {<span class="number">20</span>,<span class="number">40</span>}</pre></li>
+        <li><pre class="example">index_by({one=<span class="number">1</span>,two=<span class="number">2</span>,three=<span class="number">3</span>},{<span class="string">'one'</span>,<span class="string">'three'</span>}) == {<span class="number">1</span>,<span class="number">3</span>}</pre></li>
     </ul>
 
 </dd>
@@ -607,12 +618,12 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">fun</span>
-       A function that takes at least one argument</li>
-      <li><span class="parameter">t</span>
-       A table</li>
-      <li><span class="parameter">...</span>
-       optional arguments</li>
+        <li><span class="parameter">fun</span>
+         A function that takes at least one argument</li>
+        <li><span class="parameter">t</span>
+         A table</li>
+        <li><span class="parameter">...</span>
+         optional arguments</li>
     </ul>
 
 
@@ -620,7 +631,7 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">map(function(v) return v*v end, {10,20,30,fred=2}) is {100,400,900,fred=4}</pre>
+        <pre class="example">map(<span class="keyword">function</span>(v) <span class="keyword">return</span> v*v <span class="keyword">end</span>, {<span class="number">10</span>,<span class="number">20</span>,<span class="number">30</span>,fred=<span class="number">2</span>}) is {<span class="number">100</span>,<span class="number">400</span>,<span class="number">900</span>,fred=<span class="number">4</span>}</pre>
     </ul>
 
 </dd>
@@ -635,12 +646,12 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">fun</span>
-       A function that takes at least one argument</li>
-      <li><span class="parameter">t</span>
-       a table (applies to array part)</li>
-      <li><span class="parameter">...</span>
-       optional arguments</li>
+        <li><span class="parameter">fun</span>
+         A function that takes at least one argument</li>
+        <li><span class="parameter">t</span>
+         a table (applies to array part)</li>
+        <li><span class="parameter">...</span>
+         optional arguments</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -653,7 +664,7 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">imap(function(v) return v*v end, {10,20,30,fred=2}) is {100,400,900}</pre>
+        <pre class="example">imap(<span class="keyword">function</span>(v) <span class="keyword">return</span> v*v <span class="keyword">end</span>, {<span class="number">10</span>,<span class="number">20</span>,<span class="number">30</span>,fred=<span class="number">2</span>}) is {<span class="number">100</span>,<span class="number">400</span>,<span class="number">900</span>}</pre>
     </ul>
 
 </dd>
@@ -666,12 +677,12 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">name</span>
-       the method name</li>
-      <li><span class="parameter">t</span>
-       a list-like table</li>
-      <li><span class="parameter">...</span>
-       any extra arguments to the method</li>
+        <li><span class="parameter">name</span>
+         the method name</li>
+        <li><span class="parameter">t</span>
+         a list-like table</li>
+        <li><span class="parameter">...</span>
+         any extra arguments to the method</li>
     </ul>
 
 
@@ -689,12 +700,12 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">fun</span>
-       A function that takes at least one argument</li>
-      <li><span class="parameter">t</span>
-       a table</li>
-      <li><span class="parameter">...</span>
-       extra arguments</li>
+        <li><span class="parameter">fun</span>
+         A function that takes at least one argument</li>
+        <li><span class="parameter">t</span>
+         a table</li>
+        <li><span class="parameter">...</span>
+         extra arguments</li>
     </ul>
 
 
@@ -711,12 +722,12 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">start</span>
-        number</li>
-      <li><span class="parameter">finish</span>
-       number</li>
-      <li><span class="parameter">step</span>
-       optional increment (default 1 for increasing, -1 for decreasing)</li>
+        <li><span class="parameter">start</span>
+          number</li>
+        <li><span class="parameter">finish</span>
+         number</li>
+        <li><span class="parameter">step</span>
+         optional increment (default 1 for increasing, -1 for decreasing)</li>
     </ul>
 
 
@@ -733,14 +744,14 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">fun</span>
-       a function of at least two arguments</li>
-      <li><span class="parameter">t1</span>
-       a table</li>
-      <li><span class="parameter">t2</span>
-       a table</li>
-      <li><span class="parameter">...</span>
-       extra arguments</li>
+        <li><span class="parameter">fun</span>
+         a function of at least two arguments</li>
+        <li><span class="parameter">t1</span>
+         a table</li>
+        <li><span class="parameter">t2</span>
+         a table</li>
+        <li><span class="parameter">...</span>
+         extra arguments</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -753,7 +764,7 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">map2(&apos;+&apos;,{1,2,3,m=4},{10,20,30,m=40}) is {11,22,23,m=44}</pre>
+        <pre class="example">map2(<span class="string">'+'</span>,{<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,m=<span class="number">4</span>},{<span class="number">10</span>,<span class="number">20</span>,<span class="number">30</span>,m=<span class="number">40</span>}) is {<span class="number">11</span>,<span class="number">22</span>,<span class="number">23</span>,m=<span class="number">44</span>}</pre>
     </ul>
 
 </dd>
@@ -767,14 +778,14 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">fun</span>
-       a function of at least two arguments</li>
-      <li><span class="parameter">t1</span>
-       a list-like table</li>
-      <li><span class="parameter">t2</span>
-       a list-like table</li>
-      <li><span class="parameter">...</span>
-       extra arguments</li>
+        <li><span class="parameter">fun</span>
+         a function of at least two arguments</li>
+        <li><span class="parameter">t1</span>
+         a list-like table</li>
+        <li><span class="parameter">t2</span>
+         a list-like table</li>
+        <li><span class="parameter">...</span>
+         extra arguments</li>
     </ul>
 
 
@@ -782,7 +793,7 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">imap2(&apos;+&apos;,{1,2,3,m=4},{10,20,30,m=40}) is {11,22,23}</pre>
+        <pre class="example">imap2(<span class="string">'+'</span>,{<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,m=<span class="number">4</span>},{<span class="number">10</span>,<span class="number">20</span>,<span class="number">30</span>,m=<span class="number">40</span>}) is {<span class="number">11</span>,<span class="number">22</span>,<span class="number">23</span>}</pre>
     </ul>
 
 </dd>
@@ -795,10 +806,10 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">fun</span>
-       a function of two arguments</li>
-      <li><span class="parameter">t</span>
-       a list-like table</li>
+        <li><span class="parameter">fun</span>
+         a function of two arguments</li>
+        <li><span class="parameter">t</span>
+         a list-like table</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -811,7 +822,7 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">reduce(&apos;+&apos;,{1,2,3,4}) == 10</pre>
+        <pre class="example">reduce(<span class="string">'+'</span>,{<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>}) == <span class="number">10</span></pre>
     </ul>
 
 </dd>
@@ -827,12 +838,12 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">t</span>
-       a table</li>
-      <li><span class="parameter">fun</span>
-       a function with at least one argument</li>
-      <li><span class="parameter">...</span>
-       extra arguments</li>
+        <li><span class="parameter">t</span>
+         a table</li>
+        <li><span class="parameter">fun</span>
+         a function with at least one argument</li>
+        <li><span class="parameter">...</span>
+         extra arguments</li>
     </ul>
 
 
@@ -851,12 +862,12 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">t</span>
-       a table</li>
-      <li><span class="parameter">fun</span>
-       a function with at least one argument</li>
-      <li><span class="parameter">...</span>
-       optional arguments</li>
+        <li><span class="parameter">t</span>
+         a table</li>
+        <li><span class="parameter">fun</span>
+         a function with at least one argument</li>
+        <li><span class="parameter">...</span>
+         optional arguments</li>
     </ul>
 
 
@@ -876,12 +887,12 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">fun</span>
-       A function that takes as many arguments as there are tables</li>
-      <li><span class="parameter">...</span>
-       n tables</li>
-      <li><span class="parameter">fun</span>
-       A function that takes as many arguments as there are tables</li>
+        <li><span class="parameter">fun</span>
+         A function that takes as many arguments as there are tables</li>
+        <li><span class="parameter">...</span>
+         n tables</li>
+        <li><span class="parameter">fun</span>
+         A function that takes as many arguments as there are tables</li>
     </ul>
 
 
@@ -889,8 +900,8 @@
 
     <h3>Usage:</h3>
     <ul>
-        <li><pre class="example">mapn(function(x,y,z) return x+y+z end, {1,2,3},{10,20,30},{100,200,300}) is {111,222,333}</pre></li>
-        <li><pre class="example">mapn(math.max, {1,20,300},{10,2,3},{100,200,100}) is	{100,200,300}</pre></li>
+        <li><pre class="example">mapn(<span class="keyword">function</span>(x,y,z) <span class="keyword">return</span> x+y+z <span class="keyword">end</span>, {<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>},{<span class="number">10</span>,<span class="number">20</span>,<span class="number">30</span>},{<span class="number">100</span>,<span class="number">200</span>,<span class="number">300</span>}) is {<span class="number">111</span>,<span class="number">222</span>,<span class="number">333</span>}</pre></li>
+        <li><pre class="example">mapn(<span class="global">math</span>.max, {<span class="number">1</span>,<span class="number">20</span>,<span class="number">300</span>},{<span class="number">10</span>,<span class="number">2</span>,<span class="number">3</span>},{<span class="number">100</span>,<span class="number">200</span>,<span class="number">100</span>}) is	{<span class="number">100</span>,<span class="number">200</span>,<span class="number">300</span>}</pre></li>
     </ul>
 
 </dd>
@@ -906,12 +917,12 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">fun</span>
-       A function which will be passed each key and value as arguments, plus any extra arguments to pairmap.</li>
-      <li><span class="parameter">t</span>
-       A table</li>
-      <li><span class="parameter">...</span>
-       optional arguments</li>
+        <li><span class="parameter">fun</span>
+         A function which will be passed each key and value as arguments, plus any extra arguments to pairmap.</li>
+        <li><span class="parameter">t</span>
+         A table</li>
+        <li><span class="parameter">...</span>
+         optional arguments</li>
     </ul>
 
 
@@ -919,8 +930,8 @@
 
     <h3>Usage:</h3>
     <ul>
-        <li><pre class="example">pairmap(function(k,v) return v end,{fred=10,bonzo=20}) is {10,20} _or_ {20,10}</pre></li>
-        <li><pre class="example">pairmap(function(k,v) return {k,v},k end,{one=1,two=2}) is {one={&apos;one&apos;,1},two={&apos;two&apos;,2}}</pre></li>
+        <li><pre class="example">pairmap(<span class="keyword">function</span>(k,v) <span class="keyword">return</span> v <span class="keyword">end</span>,{fred=<span class="number">10</span>,bonzo=<span class="number">20</span>}) is {<span class="number">10</span>,<span class="number">20</span>} _or_ {<span class="number">20</span>,<span class="number">10</span>}</pre></li>
+        <li><pre class="example">pairmap(<span class="keyword">function</span>(k,v) <span class="keyword">return</span> {k,v},k <span class="keyword">end</span>,{one=<span class="number">1</span>,two=<span class="number">2</span>}) is {one={<span class="string">'one'</span>,<span class="number">1</span>},two={<span class="string">'two'</span>,<span class="number">2</span>}}</pre></li>
     </ul>
 
 </dd>
@@ -933,8 +944,8 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">t</span>
-       A table</li>
+        <li><span class="parameter">t</span>
+         A table</li>
     </ul>
 
 
@@ -951,8 +962,8 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">t</span>
-       A table</li>
+        <li><span class="parameter">t</span>
+         A table</li>
     </ul>
 
 
@@ -970,8 +981,8 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">t</span>
-       a list-like table</li>
+        <li><span class="parameter">t</span>
+         a list-like table</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -994,8 +1005,8 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">t</span>
-       a list-like table</li>
+        <li><span class="parameter">t</span>
+         a list-like table</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -1019,12 +1030,12 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">t1</span>
-       a table</li>
-      <li><span class="parameter">t2</span>
-       a table</li>
-      <li><span class="parameter">dup</span>
-       true for a union, false for an intersection.</li>
+        <li><span class="parameter">t1</span>
+         a table</li>
+        <li><span class="parameter">t2</span>
+         a table</li>
+        <li><span class="parameter">dup</span>
+         true for a union, false for an intersection.</li>
     </ul>
 
 
@@ -1036,8 +1047,8 @@
 
     <h3>Usage:</h3>
     <ul>
-        <li><pre class="example">merge({alice=23,fred=34},{bob=25,fred=34}) is {fred=34}</pre></li>
-        <li><pre class="example">merge({alice=23,fred=34},{bob=25,fred=34},true) is {bob=25,fred=34,alice=23}</pre></li>
+        <li><pre class="example">merge({alice=<span class="number">23</span>,fred=<span class="number">34</span>},{bob=<span class="number">25</span>,fred=<span class="number">34</span>}) is {fred=<span class="number">34</span>}</pre></li>
+        <li><pre class="example">merge({alice=<span class="number">23</span>,fred=<span class="number">34</span>},{bob=<span class="number">25</span>,fred=<span class="number">34</span>},<span class="keyword">true</span>) is {bob=<span class="number">25</span>,fred=<span class="number">34</span>,alice=<span class="number">23</span>}</pre></li>
     </ul>
 
 </dd>
@@ -1052,12 +1063,12 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">s1</span>
-       a map-like table or set</li>
-      <li><span class="parameter">s2</span>
-       a map-like table or set</li>
-      <li><span class="parameter">symm</span>
-       symmetric difference (default false)</li>
+        <li><span class="parameter">s1</span>
+         a map-like table or set</li>
+        <li><span class="parameter">s2</span>
+         a map-like table or set</li>
+        <li><span class="parameter">symm</span>
+         symmetric difference (default false)</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -1079,10 +1090,10 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">t</span>
-       a list-like table</li>
-      <li><span class="parameter">cmp</span>
-       a function that defines equality (otherwise uses ==)</li>
+        <li><span class="parameter">t</span>
+         a list-like table</li>
+        <li><span class="parameter">cmp</span>
+         a function that defines equality (otherwise uses ==)</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -1108,12 +1119,12 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">t</span>
-       a list-like table</li>
-      <li><span class="parameter">pred</span>
-       a boolean function</li>
-      <li><span class="parameter">arg</span>
-       optional argument to be passed as second argument of the predicate</li>
+        <li><span class="parameter">t</span>
+         a list-like table</li>
+        <li><span class="parameter">pred</span>
+         a boolean function</li>
+        <li><span class="parameter">arg</span>
+         optional argument to be passed as second argument of the predicate</li>
     </ul>
 
 
@@ -1131,7 +1142,7 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">...</span>
+        <li><span class="parameter">...</span>
 
 </li>
     </ul>
@@ -1141,7 +1152,7 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">zip({10,20,30},{100,200,300}) is {{10,100},{20,200},{30,300}}</pre>
+        <pre class="example">zip({<span class="number">10</span>,<span class="number">20</span>,<span class="number">30</span>},{<span class="number">100</span>,<span class="number">200</span>,<span class="number">300</span>}) is {{<span class="number">10</span>,<span class="number">100</span>},{<span class="number">20</span>,<span class="number">200</span>},{<span class="number">30</span>,<span class="number">300</span>}}</pre>
     </ul>
 
 </dd>
@@ -1154,16 +1165,16 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">dest</span>
-       a list-like table</li>
-      <li><span class="parameter">src</span>
-       a list-like table</li>
-      <li><span class="parameter">idest</span>
-       where to start copying values from source (default 1)</li>
-      <li><span class="parameter">isrc</span>
-       where to start copying values into destination (default 1)</li>
-      <li><span class="parameter">nsrc</span>
-       number of elements to copy from source (default source size)</li>
+        <li><span class="parameter">dest</span>
+         a list-like table</li>
+        <li><span class="parameter">src</span>
+         a list-like table</li>
+        <li><span class="parameter">idest</span>
+         where to start copying values from source (default 1)</li>
+        <li><span class="parameter">isrc</span>
+         where to start copying values into destination (default 1)</li>
+        <li><span class="parameter">nsrc</span>
+         number of elements to copy from source (default source size)</li>
     </ul>
 
 
@@ -1180,16 +1191,16 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">dest</span>
-       a list-like table</li>
-      <li><span class="parameter">src</span>
-       a list-like table</li>
-      <li><span class="parameter">idest</span>
-       where to start copying values from source (default 1)</li>
-      <li><span class="parameter">isrc</span>
-       where to start copying values into destination (default 1)</li>
-      <li><span class="parameter">nsrc</span>
-       number of elements to copy from source (default source size)</li>
+        <li><span class="parameter">dest</span>
+         a list-like table</li>
+        <li><span class="parameter">src</span>
+         a list-like table</li>
+        <li><span class="parameter">idest</span>
+         where to start copying values from source (default 1)</li>
+        <li><span class="parameter">isrc</span>
+         where to start copying values into destination (default 1)</li>
+        <li><span class="parameter">nsrc</span>
+         number of elements to copy from source (default source size)</li>
     </ul>
 
 
@@ -1209,12 +1220,12 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">t</span>
-       a list-like table</li>
-      <li><span class="parameter">first</span>
-       An index</li>
-      <li><span class="parameter">last</span>
-       An index</li>
+        <li><span class="parameter">t</span>
+         a list-like table</li>
+        <li><span class="parameter">first</span>
+         An index</li>
+        <li><span class="parameter">last</span>
+         An index</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -1237,14 +1248,14 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">t</span>
-       a list-like table</li>
-      <li><span class="parameter">val</span>
-       a value</li>
-      <li><span class="parameter">i1</span>
-       start range (default 1)</li>
-      <li><span class="parameter">i2</span>
-       end range (default table size)</li>
+        <li><span class="parameter">t</span>
+         a list-like table</li>
+        <li><span class="parameter">val</span>
+         a value</li>
+        <li><span class="parameter">i1</span>
+         start range (default 1)</li>
+        <li><span class="parameter">i2</span>
+         end range (default table size)</li>
     </ul>
 
 
@@ -1261,10 +1272,10 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">n</span>
-       size</li>
-      <li><span class="parameter">val</span>
-       initial value (can be nil, but don&rsquo;t expect # to work!)</li>
+        <li><span class="parameter">n</span>
+         size</li>
+        <li><span class="parameter">val</span>
+         initial value (can be nil, but don&rsquo;t expect # to work!)</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -1286,10 +1297,10 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">t</span>
-       a table</li>
-      <li><span class="parameter">istart</span>
-       optional start position</li>
+        <li><span class="parameter">t</span>
+         a table</li>
+        <li><span class="parameter">istart</span>
+         optional start position</li>
     </ul>
 
 
@@ -1309,10 +1320,10 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">t</span>
+        <li><span class="parameter">t</span>
 
 </li>
-      <li><span class="parameter">...</span>
+        <li><span class="parameter">...</span>
 
 </li>
     </ul>
@@ -1331,12 +1342,12 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">t</span>
-       a list-like table</li>
-      <li><span class="parameter">i1</span>
-       start index</li>
-      <li><span class="parameter">i2</span>
-       end index</li>
+        <li><span class="parameter">t</span>
+         a list-like table</li>
+        <li><span class="parameter">i1</span>
+         start index</li>
+        <li><span class="parameter">i2</span>
+         end index</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -1358,12 +1369,12 @@
 
     <h3>Parameters:</h3>
     <ul>
-      <li><span class="parameter">t</span>
-       the table</li>
-      <li><span class="parameter">value</span>
-       the value</li>
-      <li><span class="parameter">exclude</span>
-       any tables to avoid searching</li>
+        <li><span class="parameter">t</span>
+         the table</li>
+        <li><span class="parameter">value</span>
+         the value</li>
+        <li><span class="parameter">exclude</span>
+         any tables to avoid searching</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -1376,8 +1387,91 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">search(_G,math.sin,{package.path}) == &apos;math.sin&apos;</pre>
+        <pre class="example">search(_G,<span class="global">math</span>.sin,{<span class="global">package</span>.path}) == <span class="string">'math.sin'</span></pre>
     </ul>
+
+</dd>
+    <dt>
+    <a name = "sort"></a>
+    <strong>sort&nbsp;(t, f)</strong>
+    </dt>
+    <dd>
+    return an iterator to a table sorted by its keys
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+         the table</li>
+        <li><span class="parameter">f</span>
+         an optional comparison function (f(x,y) is true if x &lt; y)</li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        an iterator to traverse elements sorted by the keys
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">for</span> k,v <span class="keyword">in</span> tablex.sort(t) <span class="keyword">do</span> <span class="global">print</span>(k,v) <span class="keyword">end</span></pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "sortv"></a>
+    <strong>sortv&nbsp;(t, f)</strong>
+    </dt>
+    <dd>
+    return an iterator to a table sorted by its values
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+         the table</li>
+        <li><span class="parameter">f</span>
+         an optional comparison function (f(x,y) is true if x &lt; y)</li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        an iterator to traverse elements sorted by the values
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">for</span> k,v <span class="keyword">in</span> tablex.sortv(t) <span class="keyword">do</span> <span class="global">print</span>(k,v) <span class="keyword">end</span></pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "readonly"></a>
+    <strong>readonly&nbsp;(t)</strong>
+    </dt>
+    <dd>
+    modifies a table to be read only.
+ This only offers weak protection. Tables can still be modified with
+ table.insert and rawset.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+         the table</li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        the table read only.
+    </ol>
+
+
+
 
 </dd>
 </dl>
@@ -1386,7 +1480,7 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.3</a></i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.3.12</a></i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
