@@ -1,0 +1,331 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>lake</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Tables">Tables</a></li>
+</ul>
+
+
+<h2>Scripts</h2>
+<ul>
+  <li><strong>lake</strong></li>
+</ul>
+<h2>Modules</h2>
+<ul>
+  <li><a href="../modules/lakelibs.html">lakelibs</a></li>
+</ul>
+<h2>Topics</h2>
+<ul>
+  <li><a href="../topics/index.md.html">index.md</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Script <code>lake</code></h1>
+
+<p>Lake &ndash; a build framework in Lua.</p>
+<p>Freely distributable for any purpose, as long as copyright notice is retained.</p>
+
+<pre><code>Lake version 1.4  A Lua-based Build Engine
+  lake &lt;flags&gt; &lt;assigments&gt; &lt;target(s)&gt;
+  flags:
+    -v verbose
+    -t test (show but don't execute commands)
+    -n don't synthesize target
+    -d initial directory
+    -b basic print (don't show full commands)
+    -s don't compile strictly
+    -g debug build  (also DEBUG=1)
+    -j N run jobs in parallel where possible. (requires winapi or luaposix)
+    -f FILE read a named lakefile
+    -e EXPR evaluate a lakefile expression
+    -l FILE build a shared library/DLL
+    -lua FILE build a Lua C extension
+    -p FILE build a program
+    -w write out unsatisfied needs to lakeconfig.lua
+    -lua FILE build a Lua binary extension
+    -install FILE install a new need or language
+    -C really clean a directory tree!
+
+  assignments: arguments of the form VAR=STRING assign the string
+    to the global VAR. The env variable LAKE_PARMS may contain
+    extra assignments, which occur before any other configuration file is loaded.
+
+  target(s): any targets of the lakefile; if a file with a recognized
+    extension, build and run, passing any remaining arguments, unless -n
+    is specified. Lua scripts are run directly using Lake and have access
+    to all defined libraries.
+
+Without target arguments, use a file called 'lakefile' or 'lakefile.lua'
+</code></pre>
+
+<p><strong>configuration</strong>: loads &lsquo;~/.lake/config.lua&rsquo; and &lsquo;./lakeconfig.lua&rsquo; if it exists.
+Will then load <code>LAKE_CONFIG_FILE</code> if defined. <a href="http://www.lua.org/manual/5.1/manual.html#pdf-require">require</a>  path is extended to
+also start at <code>~/.lake</code>. Plugins are loaded into this module path:</p>
+
+<ul>
+<li><code>lake.lang.FOO</code> defines a new language <code>FOO</code></li>
+<li><code>lake.needs.BOO</code> defines a new need <code>BOO</code></li>
+</ul>
+
+
+<p>Installing a language plugin causes it to be required from <code>~/.lake/config.lua</code>; needs plugins
+are loaded when resolving unknown needs.</p>
+    <h3>Info:</h3>
+    <ul>
+        <li><strong>Copyright</strong>: Steve Donovan, 2007-2013</li>
+        <li><strong>License</strong>: X11/MIT (And remember my dog did not eat your homework)</li>
+    </ul>
+
+
+<h2><a href="#Tables">Tables</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#configuration_globals">configuration_globals</a></td>
+	<td class="summary">Globals understood by Lake</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#globals">globals</a></td>
+	<td class="summary">Globals provided by Lake</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#program_fields">program_fields</a></td>
+	<td class="summary">Fields understood by <code>library</code> and <code>program</code>, etc.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2><a name="Tables"></a>Tables</h2>
+    <dl class="function">
+    <dt>
+    <a name = "configuration_globals"></a>
+    <strong>configuration_globals</strong>
+    </dt>
+    <dd>
+    Globals understood by Lake
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">LAKE_CONFIG_FILE</span>
+        extra configuration file</li>
+        <li><span class="parameter">CC</span>
+        the C compiler (gcc unless cl is available)</li>
+        <li><span class="parameter">CXX</span>
+        the C++ compiler (g++ unless cl is available)</li>
+        <li><span class="parameter">OPTIMIZE</span>
+        (O2)</li>
+        <li><span class="parameter">STRICT</span>
+        do <em>not</em> compile strictly (also <code>-s</code> command-line flag)</li>
+        <li><span class="parameter">DEBUG</span>
+        debug build (also <code>-g</code> command-line flag)</li>
+        <li><span class="parameter">PREFIX</span>
+        (empty string). e.g. PREFIX=arm-linux makes CC become arm-linux-gcc etc</li>
+        <li><span class="parameter">NEEDS</span>
+        (nil) any additional needs for the build</li>
+        <li><span class="parameter">M32</span>
+        (false) do a 32-bit build on 64-bit platform if possible (<code>-m32</code>)</li>
+        <li><span class="parameter">FULL_OUTPUTNAME</span>
+        (false) build a unique output name for targets from their name and dir</li>
+        <li><span class="parameter">LUA_INCLUDE_DIR</span>
+        (deduced) Lua include directory for &lsquo;lua&rsquo; need</li>
+        <li><span class="parameter">IGNORE_LUAROCKS</span>
+        (false) don&rsquo;t use Lua configuration from luarocks if installed.</li>
+        <li><span class="parameter">LUA_LIB_DIR</span>
+        (deduced) Lua library directory</li>
+        <li><span class="parameter">WINDOWS</span>
+        true for Windows builds</li>
+        <li><span class="parameter">BUILD_PLAT</span>
+        build platform deduced from <code>uname</code> if not windows, &lsquo;Windows&rsquo; otherwise</li>
+        <li><span class="parameter">PLAT</span>
+        actual target platform, usually the same as <code>BUILD_PLAT</code></li>
+        <li><span class="parameter">MSVC</span>
+        true if we're using cl.exe</li>
+        <li><span class="parameter">COMBINE</span>
+        allow the compiler to compile multiple files at once (if it is capable)</li>
+        <li><span class="parameter">NODEPS</span>
+        don&rsquo;t do automatic dependency generation or checking</li>
+        <li><span class="parameter">REMOTE_LAKE_URL</span>
+        Default download location for &lsquo;get&rsquo; pseudo-protocol</li>
+        <li><span class="parameter">NEW_HOME</span>
+        (nil) overrides default for <a href="../modules/lakelibs.html#path.expanduser">path.expanduser</a>  &lsquo;~&rsquo;</li>
+        <li><span class="parameter">_DEBUG</span>
+        (false) don&rsquo;t suppress Lua stack trace &ndash; useful for debugging Lake.</li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "globals"></a>
+    <strong>globals</strong>
+    </dt>
+    <dd>
+    Globals provided by Lake
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">PWD</span>
+        current working directory</li>
+        <li><span class="parameter">LOCAL_EXEC</span>
+        how to execute local programs (is ./ on Unix)</li>
+        <li><span class="parameter">EXE_EXT</span>
+        extension of programs on this platform</li>
+        <li><span class="parameter">DLL_EXT</span>
+        extension of shared libraries on this platform</li>
+        <li><span class="parameter">DIRSEP</span>
+        directory separator on this platform</li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "program_fields"></a>
+    <strong>program_fields</strong>
+    </dt>
+    <dd>
+    Fields understood by <code>library</code> and <code>program</code>, etc.
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">name</span>
+        name of target (or first value of table)</li>
+        <li><span class="parameter">lua</span>
+        build against Lua libs (rather use <code>needs='lua'</code>)</li>
+        <li><span class="parameter">args</span>
+        any default arguments (works like lang.defaults, doesn&rsquo;t override)</li>
+        <li><span class="parameter">needs</span>
+        higher-level specification of target link requirements</li>
+        <li><span class="parameter">libdir</span>
+        list of lib directories</li>
+        <li><span class="parameter">libs</span>
+        list of libraries</li>
+        <li><span class="parameter">libflags</span>
+        list of flags for linking</li>
+        <li><span class="parameter">subsystem</span>
+        (Windows) GUI application (default <code>false</code>)</li>
+        <li><span class="parameter">def</span>
+        (Windows) explicit .def file</li>
+        <li><span class="parameter">strip</span>
+        strip symbols from output (default <code>true</code>)</li>
+        <li><span class="parameter">inputs</span>
+        explicit set of compile targets</li>
+        <li><span class="parameter">shared</span>
+        a DLL or .so (with lang.library)</li>
+        <li><span class="parameter">dll</span>
+        a DLL or .so (with lang.library)</li>
+        <li><span class="parameter">deps</span>
+        explicit dependencies of a target (or subsequent values in table)</li>
+        <li><span class="parameter">compile_deps</span>
+        explicit dependencies of source files</li>
+        <li><span class="parameter">export</span>
+        this executable exports its symbols</li>
+        <li><span class="parameter">dynamic</span>
+        link dynamically against runtime (default <code>true</code> for GCC, override for MSVC)</li>
+        <li><span class="parameter">static</span>
+        statically link this target</li>
+        <li><span class="parameter">headers</span>
+        explicit list of header files (not usually needed with auto deps)</li>
+        <li><span class="parameter">odir</span>
+        output directory; if true then use &lsquo;debug&rsquo; or &lsquo;release&rsquo;; if non-nil use it as output directory directly; prepends PREFIX</li>
+        <li><span class="parameter">output_directory</span>
+        same as <code>odir</code></li>
+        <li><span class="parameter">src</span>
+        src files, may contain directories or wildcards (extension deduced from lang or <code>ext</code>)</li>
+        <li><span class="parameter">exclude</span>
+        a similar list that should be excluded from the source list (e.g. when <code>src='*'</code>)</li>
+        <li><span class="parameter">recurse</span>
+        recursively find source files specified in <code>src=wildcard</code></li>
+        <li><span class="parameter">ext</span>
+        extension of source, if not the usual. E.g. <code>ext='.cxx'</code></li>
+        <li><span class="parameter">defines</span>
+        C preprocessor defines</li>
+        <li><span class="parameter">incdir</span>
+        list of include directories</li>
+        <li><span class="parameter">flags</span>
+        extra compile flags</li>
+        <li><span class="parameter">cflags</span>
+        same as <code>flags</code></li>
+        <li><span class="parameter">cdir</span>
+        run tool in this directory</li>
+        <li><span class="parameter">compile_directory</span>
+        same as <code>cdir</code></li>
+        <li><span class="parameter">debug</span>
+        override global default set by <code>-g</code> or <code>DEBUG</code> variable</li>
+        <li><span class="parameter">optimize</span>
+        override global default set by <code>OPTIMIZE</code> variable</li>
+        <li><span class="parameter">strict</span>
+        strict compilation of files (default <code>true</code>)</li>
+        <li><span class="parameter">base</span>
+        base directory for source and includes</li>
+        <li><span class="parameter">precompiled_header</span>
+        provide a header to be precompiled and used</li>
+        <li><span class="parameter">llua</span>
+        name of Lua module being built</li>
+        <li><span class="parameter">m32</span>
+        32-bit build on 64-bit platform</li>
+        <li><span class="parameter">framework</span>
+        (OS X) link against framework</li>
+        <li><span class="parameter">framework_dir</span>
+        (OS X) provide framework path</li>
+        <li><span class="parameter">universal</span>
+        (OS X) universal 32bit/64bit Intel binary</li>
+        <li><span class="parameter">min_version</span>
+        (OS X) minimum OS X version (default 10.5)</li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.3.12</a></i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

@@ -72,10 +72,15 @@ body {
 }
 
 code, tt { font-family: monospace; }
+span.parameter { font-family:monospace; }
+span.parameter:after { content:":"; }
+span.types:before { content:"("; }
+span.types:after { content:")"; }
+.type { font-weight: bold; font-style:italic }
 
 body, p, td, th { font-size: .95em; line-height: 1.2em;}
 
-p, ul { margin: 10px 0 0 10px;}
+p, ul { margin: 10px 0 0 0px;}
 
 strong { font-weight: bold;}
 
@@ -119,8 +124,8 @@ pre.example {
 }
 
 pre {
-    background-color: rgb(245, 245, 245);
-    border: 1px solid silver;
+    background-color: rgb(245,245,255); // rgb(245, 245, 245);
+    border: 1px solid #cccccc; //silver;
     padding: 10px;
     margin: 10px 0 10px 0;
     overflow: auto;
@@ -148,25 +153,25 @@ table.index td { text-align: left; vertical-align: top; }
 }
 
 #main {
-    background-color: #f0f0f0;
-    border-left: 2px solid #cccccc;
+    background-color:#FFFFFF; // #f0f0f0;
+    //border-left: 2px solid #cccccc;
 }
 
 #navigation {
     float: left;
-    width: 18em;
+    width: 14em;
     vertical-align: top;
-    background-color: #f0f0f0;
+    background-color:#FFFFFF; // #f0f0f0;
     overflow: visible;
 }
 
 #navigation h2 {
-    background-color:#e7e7e7;
+    background-color:#FFFFFF;//:#e7e7e7;
     font-size:1.1em;
     color:#000000;
     text-align: left;
     padding:0.2em;
-    border-top:1px solid #dddddd;
+    //border-top:1px solid #dddddd;
     border-bottom:1px solid #dddddd;
 }
 
@@ -188,10 +193,11 @@ table.index td { text-align: left; vertical-align: top; }
 }
 
 #content {
-    margin-left: 18em;
+    margin-left: 14em;
     padding: 1em;
+    width: 700px;
     border-left: 2px solid #cccccc;
-    border-right: 2px solid #cccccc;
+   // border-right: 2px solid #cccccc;
     background-color: #ffffff;
 }
 
@@ -249,7 +255,6 @@ table.module_list td {
 table.module_list td.name { background-color: #f0f0f0; ; min-width: 200px; }
 table.module_list td.summary { width: 100%; }
 
-
 table.function_list {
     border-width: 1px;
     border-style: solid;
@@ -262,7 +267,7 @@ table.function_list td {
     border-style: solid;
     border-color: #cccccc;
 }
-table.function_list td.name { background-color: #f0f0f0; ; min-width: 200px; }
+table.function_list td.name { background-color: #f6f6ff; ; min-width: 200px; }
 table.function_list td.summary { width: 100%; }
 
 dl.table dt, dl.function dt {border-top: 1px solid #ccc; padding-top: 1em;}
@@ -276,9 +281,16 @@ ol ol { margin-top: 0px; }
 ul ol { margin-top: 0px; }
 
 /* styles for prettification of source */
-.keyword {font-weight: bold; color: #6666AA; }
-.number  { color: #AA6666; }
-.string  { color: #8888AA; }
-.comment { color: #666600; }
-.prepro { color: #006666; }
-.global { color: #800080; }
+pre .comment { color: #558817; }
+pre .constant { color: #a8660d; }
+pre .escape { color: #844631; }
+pre .keyword { color: #2239a8; font-weight: bold; }
+pre .library { color: #0e7c6b; }
+pre .marker { color: #512b1e; background: #fedc56; font-weight: bold; }
+pre .string { color: #a8660d; }
+pre .number { color: #f8660d; }
+pre .operator { color: #2239a8; font-weight: bold; }
+pre .preprocessor, pre .prepro { color: #a33243; }
+pre .global { color: #800080; }
+pre .prompt { color: #558817; }
+pre .url { color: #272fc2; text-decoration: underline; }

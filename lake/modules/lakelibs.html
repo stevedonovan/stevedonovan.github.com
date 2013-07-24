@@ -1,0 +1,1702 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>lake</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+<li><a href="#Tables">Tables</a></li>
+<li><a href="#Functions_operating_on_files">Functions operating on files </a></li>
+<li><a href="#Path_manipulation_functions">Path manipulation functions </a></li>
+<li><a href="#General_Utilities">General Utilities </a></li>
+<li><a href="#List_manipulation_functions">List manipulation functions </a></li>
+<li><a href="#Access_to_internal_Lake_functionality">Access to internal Lake functionality </a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul>
+  <li><strong>lakelibs</strong></li>
+</ul>
+<h2>Scripts</h2>
+<ul>
+  <li><a href="../scripts/lake.html">lake</a></li>
+</ul>
+<h2>Topics</h2>
+<ul>
+  <li><a href="../topics/index.md.html">index.md</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>lakelibs</code></h1>
+
+<p>Global functions available with Lake.</p>
+<p>
+</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#warning">warning&nbsp;(reason, ...)</a></td>
+	<td class="summary">write out a warning message, where <code>reason</code> is a <a href="http://www.lua.org/manual/5.1/manual.html#pdf-string.format">string.format</a>  string.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#quit">quit&nbsp;(reason, ...)</a></td>
+	<td class="summary">put out a warning and quit the script immediately, after finalization.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#choose">choose&nbsp;(cond, v1, v2)</a></td>
+	<td class="summary">return either <code>v1</code> or <code>v2</code> depending on <code>cond</code>.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#pick">pick&nbsp;(a, b)</a></td>
+	<td class="summary">return <code>a</code> if it isn&rsquo;t <code>nil</code>, otherwise <code>b</code></td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#L">L&nbsp;(t)</a></td>
+	<td class="summary">expands sublists and removes holes.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#dump">dump&nbsp;(t, msg)</a></td>
+	<td class="summary">for debug purposes: dump out a table with optional message</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#target">target&nbsp;(name, deps, cmd, upfront)</a></td>
+	<td class="summary">create a target with dependencies and a command or action.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#action">action&nbsp;(name, f, ...)</a></td>
+	<td class="summary">a target with no dependencies and a function action.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#default">default&nbsp;(targets)</a></td>
+	<td class="summary">defines the default target for this lakefile.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#rule">rule&nbsp;(out_ext, in_ext, cmd, label)</a></td>
+	<td class="summary">create a rule object for generating targets.</td>
+	</tr>
+</table>
+<h2><a href="#Tables">Tables</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#ENV">ENV</a></td>
+	<td class="summary">Pseudo-table for getting and setting environment variables.</td>
+	</tr>
+</table>
+<h2><a href="#Functions_operating_on_files">Functions operating on files </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#file.time">file.time&nbsp;(fname)</a></td>
+	<td class="summary">get the modification time of a file <code>fname</code>.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#file.copy">file.copy&nbsp;(src, dest)</a></td>
+	<td class="summary">copy <code>src</code> to <code>dest</code>, creating destination path if needed.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#file.write">file.write&nbsp;(name, text)</a></td>
+	<td class="summary">write <code>text</code> to a file <code>name</code></td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#file.read">file.read&nbsp;(name)</a></td>
+	<td class="summary">read contents of <code>name</code></td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#file.touch">file.touch&nbsp;(name)</a></td>
+	<td class="summary">update the timestamp of <code>name</code> &ndash; create if necessary.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#file.temp">file.temp&nbsp;()</a></td>
+	<td class="summary">create a new temporary file</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#file.temp_copy">file.temp_copy&nbsp;(s, ext)</a></td>
+	<td class="summary">write <code>s</code> to a temporary file, returning the filename.</td>
+	</tr>
+</table>
+<h2><a href="#Path_manipulation_functions">Path manipulation functions </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#path.isdir">path.isdir&nbsp;(P)</a></td>
+	<td class="summary">is <code>P</code> a directory?</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#path.isfile">path.isfile&nbsp;(P)</a></td>
+	<td class="summary">is <code>P</code> a file?</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#path.isabs">path.isabs&nbsp;(P)</a></td>
+	<td class="summary">is <code>P</code> an absolute path?</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#path.abs">path.abs&nbsp;(...)</a></td>
+	<td class="summary">make an absolute path</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#path.get_files">path.get_files&nbsp;(files, dir, pat, recurse)</a></td>
+	<td class="summary">update an input table <code>files</code> with all files from <code>dir</code> that match <code>pat</code>.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#path.is_mask">path.is_mask&nbsp;(pat)</a></td>
+	<td class="summary">is <code>pat</code> a file mask?</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#path.files_from_mask">path.files_from_mask&nbsp;(mask, recurse)</a></td>
+	<td class="summary">given a file mask, grab all the matching files.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#path.get_directories">path.get_directories&nbsp;(dir)</a></td>
+	<td class="summary">get all the directories in <code>dir</code></td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#path.mask">path.mask&nbsp;(mask)</a></td>
+	<td class="summary">iterator over <a href="../modules/lakelibs.html#path.files_from_mask">path.files_from_mask</a> </td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#path.dirs">path.dirs&nbsp;(dir)</a></td>
+	<td class="summary">iterator over <a href="../modules/lakelibs.html#path.get_directories">path.get_directories</a> </td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#path.splitpath">path.splitpath&nbsp;(path)</a></td>
+	<td class="summary">given <code>path</code>, return the directory part and a file part.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#path.splitext">path.splitext&nbsp;(path)</a></td>
+	<td class="summary">given <code>path</code>, return the root part and the extension part
+ if there&rsquo;s no extension part, the second value will be empty</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#path.dirname">path.dirname&nbsp;(P, strict)</a></td>
+	<td class="summary">return the directory part of <code>P</code>.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#path.basename">path.basename&nbsp;(path)</a></td>
+	<td class="summary">return the file part of <code>path</code></td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#path.extension_of">path.extension_of&nbsp;(path)</a></td>
+	<td class="summary">return the extension of <code>path</code></td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#path.expanduser">path.expanduser&nbsp;(path)</a></td>
+	<td class="summary">expand initial &lsquo;~&rsquo; to user&rsquo;s home path</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#path.replace_extension">path.replace_extension&nbsp;(path, ext)</a></td>
+	<td class="summary">given a file, replace its extension with <code>ext</code></td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#path.mkdir">path.mkdir&nbsp;(p)</a></td>
+	<td class="summary">make a directory, making any subdirs as necessary.</td>
+	</tr>
+</table>
+<h2><a href="#General_Utilities">General Utilities </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#utils.clock">utils.clock&nbsp;()</a></td>
+	<td class="summary">wall clock time since start of session.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#utils.split">utils.split&nbsp;(s, re)</a></td>
+	<td class="summary">split a string using a delimiter (default spaces).</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#utils.split2">utils.split2&nbsp;(s, delim)</a></td>
+	<td class="summary">split a string into two parts with a delimiter.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#utils.split_list">utils.split_list&nbsp;(s)</a></td>
+	<td class="summary">split a string with items separated by commas or spaces.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#utils.copy_table">utils.copy_table&nbsp;(t)</a></td>
+	<td class="summary">make a shallow copy of a table.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#utils.append_table">utils.append_table&nbsp;(t1, t2)</a></td>
+	<td class="summary">update first table using key/val pairs from second table.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#utils.execute">utils.execute&nbsp;(cmd, quiet)</a></td>
+	<td class="summary">compatible wrapper over <a href="http://www.lua.org/manual/5.1/manual.html#pdf-os.execute">os.execute</a> .</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#utils.subst">utils.subst&nbsp;(str, exclude, T)</a></td>
+	<td class="summary">this expands any <code>$(VAR)</code> occurances in <code>s</code> (where <code>VAR</code> is a global varialable).</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#utils.substitute">utils.substitute&nbsp;(str, T)</a></td>
+	<td class="summary">like <a href="../modules/lakelibs.html#utils.subst">utils.subst</a> , but no exclude list.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#utils.shell_nl">utils.shell_nl&nbsp;(cmd, ...)</a></td>
+	<td class="summary">this executes a shell command <code>cmd</code>, which may contain % string.format specifiers,
+ in which case any extra arguments are used.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#utils.shell">utils.shell&nbsp;(cmd, ...)</a></td>
+	<td class="summary">a convenient function which gets rid of the trailing line-feed from <a href="../modules/lakelibs.html#utils.shell_nl">utils.shell_nl</a> .</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#utils.forall">utils.forall&nbsp;(ls, action)</a></td>
+	<td class="summary">calls <a href="../modules/lakelibs.html#action">action</a>  on all elements of <code>ls</code>.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#utils.remove">utils.remove&nbsp;(items)</a></td>
+	<td class="summary">delete a list of files.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#utils.remove_files">utils.remove_files&nbsp;(mask)</a></td>
+	<td class="summary">uses system file remove command on a file mask.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#utils.make_callable">utils.make_callable&nbsp;(obj, fun)</a></td>
+	<td class="summary">make a table callable with a supplied function.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#utils.which">utils.which&nbsp;(prog)</a></td>
+	<td class="summary">return full path of program on path if it exists.</td>
+	</tr>
+</table>
+<h2><a href="#List_manipulation_functions">List manipulation functions </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#list.extend">list.extend&nbsp;(l1, l2)</a></td>
+	<td class="summary">append elements of <code>l2</code> to &lsquo;l1<code>.</code></td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list.extend_unique">list.extend_unique&nbsp;(l1, l2)</a></td>
+	<td class="summary">append elements of <code>l2</code> to &lsquo;l1<code>uniquely.</code></td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list.append_unique">list.append_unique&nbsp;(l, v)</a></td>
+	<td class="summary">only append if <code>v</code> is not already in <code>l</code></td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list.copy">list.copy&nbsp;(l1)</a></td>
+	<td class="summary">shallow copy.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list.erase">list.erase&nbsp;(l1, l2)</a></td>
+	<td class="summary">erase elements of <code>l1</code> equal to any of <code>l2</code></td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list.index">list.index&nbsp;(ls, val)</a></td>
+	<td class="summary">return the index of <code>val</code> in the list.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list.find">list.find&nbsp;(ls, field, value)</a></td>
+	<td class="summary">find an element where the <code>field</code> is <code>value</code>.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list">list&nbsp;(ls)</a></td>
+	<td class="summary">used to iterate over a list, which may be given as a string.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list.column">list.column&nbsp;(ls, f)</a></td>
+	<td class="summary">extract a column from a list of tables using an index <code>f</code>.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list.parm_concat">list.parm_concat&nbsp;(ls, istart)</a></td>
+	<td class="summary">build a quoted string suitable for a shell command.</td>
+	</tr>
+</table>
+<h2><a href="#Access_to_internal_Lake_functionality">Access to internal Lake functionality </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#lake.set_log">lake.set_log&nbsp;(f)</a></td>
+	<td class="summary">redirect logging.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#lake.register">lake.register&nbsp;(lang, extra)</a></td>
+	<td class="summary">register a new language.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#lake.deps_arg">lake.deps_arg&nbsp;(deps, base, returns_strings)</a></td>
+	<td class="summary">any string separated with &lsquo; &rsquo; or &lsquo;,&rsquo; will be converted into an appropriate list.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#lake.expand_args">lake.expand_args&nbsp;(src, ext, recurse, base)</a></td>
+	<td class="summary">like <code>deps_arg</code> but will expand a wildcard expression into a list of files.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#lake.phony">lake.phony&nbsp;(deps, cmd)</a></td>
+	<td class="summary">a phony target with dependecies <code>deps</code> and command <code>cmd</code>.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#lake.all_targets">lake.all_targets&nbsp;()</a></td>
+	<td class="summary">a copy of all the targets.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#lake.is_remote">lake.is_remote&nbsp;(file)</a></td>
+	<td class="summary">is a file remote?</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#lake.download">lake.download&nbsp;(url, pathname)</a></td>
+	<td class="summary">download <code>url</code> into an optional local <code>pathname</code>.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#lake.install_plugin">lake.install_plugin&nbsp;(parm)</a></td>
+	<td class="summary">Install a need, language or general plugin.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#lake.chdir">lake.chdir&nbsp;(path)</a></td>
+	<td class="summary">change Lake directory to <code>path</code>.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#lake.concurrent_jobs">lake.concurrent_jobs&nbsp;(nj)</a></td>
+	<td class="summary">set the number of threads to use when building.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#lake.on_exit">lake.on_exit&nbsp;(hook)</a></td>
+	<td class="summary"><code>hook</code> will be called when Lake finalizes.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#lake.go">lake.go&nbsp;()</a></td>
+	<td class="summary">start evaluating dependencies.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#lake.run">lake.run&nbsp;(prog, args, istart)</a></td>
+	<td class="summary">run a program or a target, given some arguments.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#lake.set_flags">lake.set_flags&nbsp;(parms)</a></td>
+	<td class="summary">set global flags <em>properly</em>.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#lake.output_filter">lake.output_filter&nbsp;(lang, filter)</a></td>
+	<td class="summary">set a compiler output filter.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#lake.define_need">lake.define_need&nbsp;(name, callback)</a></td>
+	<td class="summary">provide a definition for a need.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#lake.define_pkg_need">lake.define_pkg_need&nbsp;(name, package)</a></td>
+	<td class="summary">specify a need to be satisfied with <code>pkg-config</code>.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#lake.append_to_field">lake.append_to_field&nbsp;(t, name, value)</a></td>
+	<td class="summary">append the list <code>value</code> to <code>t[name]</code>.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#lake.add_program_option">lake.add_program_option&nbsp;(options)</a></td>
+	<td class="summary">add new program options.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#lake.add_prog">lake.add_prog&nbsp;(lang)</a></td>
+	<td class="summary">create lang.program</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#lake.add_shared">lake.add_shared&nbsp;(lang)</a></td>
+	<td class="summary">create lang.shared</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#lake.add_library">lake.add_library&nbsp;(lang)</a></td>
+	<td class="summary">create lang.lib</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#lake.add_group">lake.add_group&nbsp;(lang)</a></td>
+	<td class="summary">create lang.group</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#lake.compiler_version">lake.compiler_version&nbsp;(cc)</a></td>
+	<td class="summary">version of current compiler.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2><a name="Functions"></a>Functions</h2>
+    <dl class="function">
+    <dt>
+    <a name = "warning"></a>
+    <strong>warning&nbsp;(reason, ...)</strong>
+    </dt>
+    <dd>
+    write out a warning message, where <code>reason</code> is a <a href="http://www.lua.org/manual/5.1/manual.html#pdf-string.format">string.format</a>  string.
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "quit"></a>
+    <strong>quit&nbsp;(reason, ...)</strong>
+    </dt>
+    <dd>
+    put out a warning and quit the script immediately, after finalization.
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "choose"></a>
+    <strong>choose&nbsp;(cond, v1, v2)</strong>
+    </dt>
+    <dd>
+    return either <code>v1</code> or <code>v2</code> depending on <code>cond</code>.
+ alias <code>IF</code>
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "pick"></a>
+    <strong>pick&nbsp;(a, b)</strong>
+    </dt>
+    <dd>
+    return <code>a</code> if it isn&rsquo;t <code>nil</code>, otherwise <code>b</code>
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "L"></a>
+    <strong>L&nbsp;(t)</strong>
+    </dt>
+    <dd>
+    expands sublists and removes holes.
+ Any strings delimited with spaces or commas are also split into lists using <a href="../modules/lakelibs.html#lake.deps_arg">lake.deps_arg</a> .
+
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <li><pre class="example">L<span class="string">'one two'</span> == {<span class="string">'one'</span>,<span class="string">'two'</span>}</pre></li>
+        <li><pre class="example">L{IF(X,<span class="string">'a'</span>),IF(Y,{<span class="string">'one'</span>,<span class="string">'two'</span>}} == {<span class="string">'one'</span>,<span class="string">'two'</span>} <span class="keyword">if</span> X is <span class="keyword">true</span>, Y is <span class="keyword">false</span></pre></li>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "dump"></a>
+    <strong>dump&nbsp;(t, msg)</strong>
+    </dt>
+    <dd>
+    for debug purposes: dump out a table with optional message
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "target"></a>
+    <strong>target&nbsp;(name, deps, cmd, upfront)</strong>
+    </dt>
+    <dd>
+    create a target with dependencies and a command or action.
+ <code>deps</code> is a list as defined by <code>lake.deps_args</code>, and <code>cmd</code>
+ may be a string (a command to be executed) or a Lua function.
+ <code>target.boo(deps,cmd)</code> is another way of writing <code>target('boo',deps,cmd)</code>
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "action"></a>
+    <strong>action&nbsp;(name, f, ...)</strong>
+    </dt>
+    <dd>
+    a target with no dependencies and a function action.
+ <code>name</code> may be omitted, for a target with autogenerated name.
+ Extra arguments will be passed to the function.
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "default"></a>
+    <strong>default&nbsp;(targets)</strong>
+    </dt>
+    <dd>
+    defines the default target for this lakefile.
+ It is passed a list of targets as dependencies.
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "rule"></a>
+    <strong>rule&nbsp;(out_ext, in_ext, cmd, label)</strong>
+    </dt>
+    <dd>
+    create a rule object for generating targets.
+ This maps input files with extension <code>in_ext</code> to
+ output files with extension <code>out_ext</code>, using an action <code>cmd</code>
+ Most of the customization of rules comes from setting a <code>lang</code> field.
+
+
+
+
+
+
+</dd>
+</dl>
+    <h2><a name="Tables"></a>Tables</h2>
+    <dl class="function">
+    <dt>
+    <a name = "ENV"></a>
+    <strong>ENV</strong>
+    </dt>
+    <dd>
+    Pseudo-table for getting and setting environment variables.
+
+
+
+
+
+
+</dd>
+</dl>
+    <h2><a name="Functions_operating_on_files"></a>Functions operating on files </h2>
+        Functions operating on files.
+    <dl class="function">
+    <dt>
+    <a name = "file.time"></a>
+    <strong>file.time&nbsp;(fname)</strong>
+    </dt>
+    <dd>
+    get the modification time of a file <code>fname</code>.
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "file.copy"></a>
+    <strong>file.copy&nbsp;(src, dest)</strong>
+    </dt>
+    <dd>
+    copy <code>src</code> to <code>dest</code>, creating destination path if needed.
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "file.write"></a>
+    <strong>file.write&nbsp;(name, text)</strong>
+    </dt>
+    <dd>
+    write <code>text</code> to a file <code>name</code>
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "file.read"></a>
+    <strong>file.read&nbsp;(name)</strong>
+    </dt>
+    <dd>
+    read contents of <code>name</code>
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "file.touch"></a>
+    <strong>file.touch&nbsp;(name)</strong>
+    </dt>
+    <dd>
+    update the timestamp of <code>name</code> &ndash; create if necessary.
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "file.temp"></a>
+    <strong>file.temp&nbsp;()</strong>
+    </dt>
+    <dd>
+    create a new temporary file
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "file.temp_copy"></a>
+    <strong>file.temp_copy&nbsp;(s, ext)</strong>
+    </dt>
+    <dd>
+    write <code>s</code> to a temporary file, returning the filename.
+ Will apply the extension <code>ext</code> to the file if supplied.
+
+
+
+
+
+
+</dd>
+</dl>
+    <h2><a name="Path_manipulation_functions"></a>Path manipulation functions </h2>
+        Path manipulation functions
+    <dl class="function">
+    <dt>
+    <a name = "path.isdir"></a>
+    <strong>path.isdir&nbsp;(P)</strong>
+    </dt>
+    <dd>
+    is <code>P</code> a directory?
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "path.isfile"></a>
+    <strong>path.isfile&nbsp;(P)</strong>
+    </dt>
+    <dd>
+    is <code>P</code> a file?
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "path.isabs"></a>
+    <strong>path.isabs&nbsp;(P)</strong>
+    </dt>
+    <dd>
+    is <code>P</code> an absolute path?
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "path.abs"></a>
+    <strong>path.abs&nbsp;(...)</strong>
+    </dt>
+    <dd>
+    make an absolute path
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "path.get_files"></a>
+    <strong>path.get_files&nbsp;(files, dir, pat, recurse)</strong>
+    </dt>
+    <dd>
+    update an input table <code>files</code> with all files from <code>dir</code> that match <code>pat</code>.
+ Here <code>pat</code> is a Lua string pattern, and <code>recurse</code> means follow directories.
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "path.is_mask"></a>
+    <strong>path.is_mask&nbsp;(pat)</strong>
+    </dt>
+    <dd>
+    is <code>pat</code> a file mask?
+ Note: only &lsquo;*&rsquo; is understood!
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "path.files_from_mask"></a>
+    <strong>path.files_from_mask&nbsp;(mask, recurse)</strong>
+    </dt>
+    <dd>
+    given a file mask, grab all the matching files.
+ <code>mask</code> may contain a directory part, and <code>recurse</code> means follow directories.
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "path.get_directories"></a>
+    <strong>path.get_directories&nbsp;(dir)</strong>
+    </dt>
+    <dd>
+    get all the directories in <code>dir</code>
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "path.mask"></a>
+    <strong>path.mask&nbsp;(mask)</strong>
+    </dt>
+    <dd>
+    iterator over <a href="../modules/lakelibs.html#path.files_from_mask">path.files_from_mask</a><br/>
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "path.dirs"></a>
+    <strong>path.dirs&nbsp;(dir)</strong>
+    </dt>
+    <dd>
+    iterator over <a href="../modules/lakelibs.html#path.get_directories">path.get_directories</a><br/>
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "path.splitpath"></a>
+    <strong>path.splitpath&nbsp;(path)</strong>
+    </dt>
+    <dd>
+    given <code>path</code>, return the directory part and a file part.
+ if there&rsquo;s no directory part, the first value will be empty
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "path.splitext"></a>
+    <strong>path.splitext&nbsp;(path)</strong>
+    </dt>
+    <dd>
+    given <code>path</code>, return the root part and the extension part
+ if there&rsquo;s no extension part, the second value will be empty
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "path.dirname"></a>
+    <strong>path.dirname&nbsp;(P, strict)</strong>
+    </dt>
+    <dd>
+    return the directory part of <code>P</code>.
+ If <code>strict</code> and the path is already a directory, return that
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "path.basename"></a>
+    <strong>path.basename&nbsp;(path)</strong>
+    </dt>
+    <dd>
+    return the file part of <code>path</code>
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "path.extension_of"></a>
+    <strong>path.extension_of&nbsp;(path)</strong>
+    </dt>
+    <dd>
+    return the extension of <code>path</code>
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "path.expanduser"></a>
+    <strong>path.expanduser&nbsp;(path)</strong>
+    </dt>
+    <dd>
+    expand initial &lsquo;~&rsquo; to user&rsquo;s home path
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "path.replace_extension"></a>
+    <strong>path.replace_extension&nbsp;(path, ext)</strong>
+    </dt>
+    <dd>
+    given a file, replace its extension with <code>ext</code>
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "path.mkdir"></a>
+    <strong>path.mkdir&nbsp;(p)</strong>
+    </dt>
+    <dd>
+    make a directory, making any subdirs as necessary.
+
+
+
+
+
+
+</dd>
+</dl>
+    <h2><a name="General_Utilities"></a>General Utilities </h2>
+        General Utilities.
+    <dl class="function">
+    <dt>
+    <a name = "utils.clock"></a>
+    <strong>utils.clock&nbsp;()</strong>
+    </dt>
+    <dd>
+    wall clock time since start of session.
+ (This requires <code>luaposix</code> on Unix systems)
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "utils.split"></a>
+    <strong>utils.split&nbsp;(s, re)</strong>
+    </dt>
+    <dd>
+    split a string using a delimiter (default spaces).
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "utils.split2"></a>
+    <strong>utils.split2&nbsp;(s, delim)</strong>
+    </dt>
+    <dd>
+    split a string into two parts with a delimiter.
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "utils.split_list"></a>
+    <strong>utils.split_list&nbsp;(s)</strong>
+    </dt>
+    <dd>
+    split a string with items separated by commas or spaces.
+ This honours \ escapes on Unix and double-quotes on Windows.
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "utils.copy_table"></a>
+    <strong>utils.copy_table&nbsp;(t)</strong>
+    </dt>
+    <dd>
+    make a shallow copy of a table.
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "utils.append_table"></a>
+    <strong>utils.append_table&nbsp;(t1, t2)</strong>
+    </dt>
+    <dd>
+    update first table using key/val pairs from second table.
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "utils.execute"></a>
+    <strong>utils.execute&nbsp;(cmd, quiet)</strong>
+    </dt>
+    <dd>
+    compatible wrapper over <a href="http://www.lua.org/manual/5.1/manual.html#pdf-os.execute">os.execute</a> .
+ <code>quiet</code> prevents any console output.
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "utils.subst"></a>
+    <strong>utils.subst&nbsp;(str, exclude, T)</strong>
+    </dt>
+    <dd>
+    this expands any <code>$(VAR)</code> occurances in <code>s</code> (where <code>VAR</code> is a global varialable).
+ If VAR is not present, then the expansion is just the empty string, unless
+ it is on the <code>exclude</code> list, where it remains unchanged, ready for further
+ expansion at a later stage.
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "utils.substitute"></a>
+    <strong>utils.substitute&nbsp;(str, T)</strong>
+    </dt>
+    <dd>
+    like <a href="../modules/lakelibs.html#utils.subst">utils.subst</a> , but no exclude list.
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "utils.shell_nl"></a>
+    <strong>utils.shell_nl&nbsp;(cmd, ...)</strong>
+    </dt>
+    <dd>
+    this executes a shell command <code>cmd</code>, which may contain % string.format specifiers,
+ in which case any extra arguments are used.  It may contain ${VAR} which will
+ be substituted
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "utils.shell"></a>
+    <strong>utils.shell&nbsp;(cmd, ...)</strong>
+    </dt>
+    <dd>
+    a convenient function which gets rid of the trailing line-feed from <a href="../modules/lakelibs.html#utils.shell_nl">utils.shell_nl</a> .
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "utils.forall"></a>
+    <strong>utils.forall&nbsp;(ls, action)</strong>
+    </dt>
+    <dd>
+    calls <a href="../modules/lakelibs.html#action">action</a>  on all elements of <code>ls</code>.
+ <code>ls</code> is expanded using <a href="../modules/lakelibs.html#lake.expand_args">lake.expand_args</a>
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "utils.remove"></a>
+    <strong>utils.remove&nbsp;(items)</strong>
+    </dt>
+    <dd>
+    delete a list of files.
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "utils.remove_files"></a>
+    <strong>utils.remove_files&nbsp;(mask)</strong>
+    </dt>
+    <dd>
+    uses system file remove command on a file mask.
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "utils.make_callable"></a>
+    <strong>utils.make_callable&nbsp;(obj, fun)</strong>
+    </dt>
+    <dd>
+    make a table callable with a supplied function.
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "utils.which"></a>
+    <strong>utils.which&nbsp;(prog)</strong>
+    </dt>
+    <dd>
+    return full path of program on path if it exists.
+
+
+
+
+
+
+</dd>
+</dl>
+    <h2><a name="List_manipulation_functions"></a>List manipulation functions </h2>
+        List manipulation functions
+    <dl class="function">
+    <dt>
+    <a name = "list.extend"></a>
+    <strong>list.extend&nbsp;(l1, l2)</strong>
+    </dt>
+    <dd>
+    append elements of <code>l2</code> to &lsquo;l1<code>. </code>
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list.extend_unique"></a>
+    <strong>list.extend_unique&nbsp;(l1, l2)</strong>
+    </dt>
+    <dd>
+    append elements of <code>l2</code> to &lsquo;l1<code>uniquely. </code>
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list.append_unique"></a>
+    <strong>list.append_unique&nbsp;(l, v)</strong>
+    </dt>
+    <dd>
+    only append if <code>v</code> is not already in <code>l</code>
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list.copy"></a>
+    <strong>list.copy&nbsp;(l1)</strong>
+    </dt>
+    <dd>
+    shallow copy.
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list.erase"></a>
+    <strong>list.erase&nbsp;(l1, l2)</strong>
+    </dt>
+    <dd>
+    erase elements of <code>l1</code> equal to any of <code>l2</code>
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list.index"></a>
+    <strong>list.index&nbsp;(ls, val)</strong>
+    </dt>
+    <dd>
+    return the index of <code>val</code> in the list.
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list.find"></a>
+    <strong>list.find&nbsp;(ls, field, value)</strong>
+    </dt>
+    <dd>
+    find an element where the <code>field</code> is <code>value</code>.
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list"></a>
+    <strong>list&nbsp;(ls)</strong>
+    </dt>
+    <dd>
+    <p>used to iterate over a list, which may be given as a string. </p>
+
+<pre><code>for val in list(ls) do ... end
+for val in list 'one two three' do .. end
+</code></pre>
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list.column"></a>
+    <strong>list.column&nbsp;(ls, f)</strong>
+    </dt>
+    <dd>
+    extract a column from a list of tables using an index <code>f</code>.
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list.parm_concat"></a>
+    <strong>list.parm_concat&nbsp;(ls, istart)</strong>
+    </dt>
+    <dd>
+    build a quoted string suitable for a shell command.
+ Can start at the indicated index <code>istart</code>.
+
+
+
+
+
+
+</dd>
+</dl>
+    <h2><a name="Access_to_internal_Lake_functionality"></a>Access to internal Lake functionality </h2>
+        Access to internal Lake functionality.
+    <dl class="function">
+    <dt>
+    <a name = "lake.set_log"></a>
+    <strong>lake.set_log&nbsp;(f)</strong>
+    </dt>
+    <dd>
+    redirect logging.
+ <code>f</code> is a function that writes to log with a newline assumed.
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "lake.register"></a>
+    <strong>lake.register&nbsp;(lang, extra)</strong>
+    </dt>
+    <dd>
+    register a new language.
+ <code>extra</code> may be a list of extra extensions.
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "lake.deps_arg"></a>
+    <strong>lake.deps_arg&nbsp;(deps, base, returns_strings)</strong>
+    </dt>
+    <dd>
+    any string separated with &lsquo; &rsquo; or &lsquo;,&rsquo; will be converted into an appropriate list.
+ This function is guaranteed to return a plain list, and will wrap other objects like
+ targets and rules appropriately. Strings, targets, rules and target lists are
+ allowed. <code>returns_strings</code> determines whether the result must be reduced to strings.
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "lake.expand_args"></a>
+    <strong>lake.expand_args&nbsp;(src, ext, recurse, base)</strong>
+    </dt>
+    <dd>
+    like <code>deps_arg</code> but will expand a wildcard expression into a list of files.
+ Also expands lists as strings. If the argument is a table, it will attempt
+ to expand each string &ndash; e.g. <code>{'a','b c'} =&gt; {'a','b','c'}</code>
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "lake.phony"></a>
+    <strong>lake.phony&nbsp;(deps, cmd)</strong>
+    </dt>
+    <dd>
+    a phony target with dependecies <code>deps</code> and command <code>cmd</code>.
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "lake.all_targets"></a>
+    <strong>lake.all_targets&nbsp;()</strong>
+    </dt>
+    <dd>
+    a copy of all the targets.  The variable <code>ALL_TARGETS</code> is
+ predefined with a copy
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "lake.is_remote"></a>
+    <strong>lake.is_remote&nbsp;(file)</strong>
+    </dt>
+    <dd>
+    is a file remote?
+ Currently, only if it starts with &lsquo;get:&rsquo; or &lsquo;http:&rsquo;
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "lake.download"></a>
+    <strong>lake.download&nbsp;(url, pathname)</strong>
+    </dt>
+    <dd>
+    download <code>url</code> into an optional local <code>pathname</code>.
+ If <code>pathname</code> isn&rsquo;t present, use the basename of <code>url</code>.
+ Currrently only understands <code>get:</code> or <code>http:</code> and requires
+ either <code>wget</code> or <code>curl</code> to be installed.
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "lake.install_plugin"></a>
+    <strong>lake.install_plugin&nbsp;(parm)</strong>
+    </dt>
+    <dd>
+    Install a need, language or general plugin.  A file defining a need, like &lsquo;foo.need.lua&rsquo;
+ or one defining a language like &lsquo;boo.lang.lua&rsquo;; general packages are &lsquo;foo.lake.lua&rsquo;
+ Language plugins are thereafter automatically required in <code>config.lua</code>.
+ The &lsquo;.lua&rsquo; extension is not necessary and the file may be remote (<a href="../modules/lakelibs.html#lake.is_remote">lake.is_remote</a> )
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "lake.chdir"></a>
+    <strong>lake.chdir&nbsp;(path)</strong>
+    </dt>
+    <dd>
+    change Lake directory to <code>path</code>.
+ <code>path</code> may be &lsquo;!&rsquo; or &lsquo;&lt;&rsquo; to pop the directory stack like &lsquo;popd&rsquo;
+ Outputs to log.
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "lake.concurrent_jobs"></a>
+    <strong>lake.concurrent_jobs&nbsp;(nj)</strong>
+    </dt>
+    <dd>
+    set the number of threads to use when building.
+ Equivalent to &lsquo;-j&rsquo; command-line flag &ndash; note the flag overrides this function.
+ You will need either winapi or luaposix for this functionality.
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "lake.on_exit"></a>
+    <strong>lake.on_exit&nbsp;(hook)</strong>
+    </dt>
+    <dd>
+    <code>hook</code> will be called when Lake finalizes.
+ This will happen if you call <a href="../modules/lakelibs.html#quit">quit</a>  as well.
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "lake.go"></a>
+    <strong>lake.go&nbsp;()</strong>
+    </dt>
+    <dd>
+    start evaluating dependencies.
+ This is implicitly called after loading a lakefile.
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "lake.run"></a>
+    <strong>lake.run&nbsp;(prog, args, istart)</strong>
+    </dt>
+    <dd>
+    run a program or a target, given some arguments.  It will
+ only include arguments starting at <code>istart</code>, if defined. If it is a target,
+ the target&rsquo;s language may define a runner; otherwise we look for an interpreter
+ or default to local execution of the program.
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "lake.set_flags"></a>
+    <strong>lake.set_flags&nbsp;(parms)</strong>
+    </dt>
+    <dd>
+    set global flags <em>properly</em>.
+ <code>parms</code> is a table of key-value pairs which will be put into <code>_G</code>, and
+ then any depenedent flags will be generated. For instance, setting <code>PREFIX</code>
+ will cause the C compiler to become <code>PREFIX..'gcc'</code>.
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "lake.output_filter"></a>
+    <strong>lake.output_filter&nbsp;(lang, filter)</strong>
+    </dt>
+    <dd>
+    set a compiler output filter.
+ Here <code>lang</code> is either a language and applies to all such targets, or just a target.
+ The <code>filter</code> is initially called with args <code>({target,input,rule},'start')</code> and thereafter
+ is passed each line of output; if it returns a line, output that. Finally it is
+ called with args <code>(base,'end')</code>.
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "lake.define_need"></a>
+    <strong>lake.define_need&nbsp;(name, callback)</strong>
+    </dt>
+    <dd>
+    provide a definition for a need.
+ This is a callback which must return a table containing any or all of:</p>
+
+<ul>
+<li> &lsquo;libs&rsquo;</li>
+<li> &lsquo;incdir<code></code></li>
+<li> <code>defines</code></li>
+<li> <code>libdir</code></li>
+</ul>
+
+
+<p> it will be passed the name of the need, the arguments to <code>program</code>, and whether we
+ want to link against the need statically
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "lake.define_pkg_need"></a>
+    <strong>lake.define_pkg_need&nbsp;(name, package)</strong>
+    </dt>
+    <dd>
+    specify a need to be satisfied with <code>pkg-config</code>.
+ if an alias <code>name</code> for <a href="http://www.lua.org/manual/5.1/manual.html#5.3">package</a>  is provided,
+ then this package is available using the alias (e.g. &lsquo;gtk&rsquo;) and <em>must</em> be handled by
+ pkg-config.
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "lake.append_to_field"></a>
+    <strong>lake.append_to_field&nbsp;(t, name, value)</strong>
+    </dt>
+    <dd>
+    append the list <code>value</code> to <code>t[name]</code>.
+ If <code>t[name]</code> does not exist, make it a table first; if <code>value</code> is a string,
+ then make it into a list.
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "lake.add_program_option"></a>
+    <strong>lake.add_program_option&nbsp;(options)</strong>
+    </dt>
+    <dd>
+    add new program options.
+ (<code>program</code> always checks its arguments, so this is needed to keep the check happy.)
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "lake.add_prog"></a>
+    <strong>lake.add_prog&nbsp;(lang)</strong>
+    </dt>
+    <dd>
+    create lang.program
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "lake.add_shared"></a>
+    <strong>lake.add_shared&nbsp;(lang)</strong>
+    </dt>
+    <dd>
+    create lang.shared
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "lake.add_library"></a>
+    <strong>lake.add_library&nbsp;(lang)</strong>
+    </dt>
+    <dd>
+    create lang.lib
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "lake.add_group"></a>
+    <strong>lake.add_group&nbsp;(lang)</strong>
+    </dt>
+    <dd>
+    create lang.group
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "lake.compiler_version"></a>
+    <strong>lake.compiler_version&nbsp;(cc)</strong>
+    </dt>
+    <dd>
+    version of current compiler.
+ returns a table with fields <code>MAJOR</code>, <code>MINOR</code> and <code>REV</code>.
+ If <code>cc</code> is not specified, use the global <code>CC</code>.
+
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.3.12</a></i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
