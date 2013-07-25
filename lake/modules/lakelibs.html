@@ -230,6 +230,10 @@
 	<td class="summary">wall clock time since start of session.</td>
 	</tr>
 	<tr>
+	<td class="name" nowrap><a href="#utils.sleep">utils.sleep&nbsp;(msec)</a></td>
+	<td class="summary">pause the process for a given number of millisecs.</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#utils.split">utils.split&nbsp;(s, re)</a></td>
 	<td class="summary">split a string using a delimiter (default spaces).</td>
 	</tr>
@@ -512,7 +516,7 @@
     <h3>Usage:</h3>
     <ul>
         <li><pre class="example">L<span class="string">'one two'</span> == {<span class="string">'one'</span>,<span class="string">'two'</span>}</pre></li>
-        <li><pre class="example">L{IF(X,<span class="string">'a'</span>),IF(Y,{<span class="string">'one'</span>,<span class="string">'two'</span>}} == {<span class="string">'one'</span>,<span class="string">'two'</span>} <span class="keyword">if</span> X is <span class="keyword">true</span>, Y is <span class="keyword">false</span></pre></li>
+        <li><pre class="example">L{IF(X,<span class="string">'a'</span>),IF(Y,{<span class="string">'one'</span>,<span class="string">'two'</span>}} == {<span class="string">'one'</span>,<span class="string">'two'</span>} <span class="keyword">if</span> X is <span class="keyword">false</span>, Y is <span class="keyword">true</span></pre></li>
     </ul>
 
 </dd>
@@ -599,6 +603,7 @@
     </dt>
     <dd>
     Pseudo-table for getting and setting environment variables.
+ Note that <em>setting</em> environment variables requires either winapi or luaposix.
 
 
 
@@ -958,7 +963,21 @@
     </dt>
     <dd>
     wall clock time since start of session.
- (This requires <code>luaposix</code> on Unix systems)
+ (This requires <code>posix</code> on Unix systems)
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "utils.sleep"></a>
+    <strong>utils.sleep&nbsp;(msec)</strong>
+    </dt>
+    <dd>
+    pause the process for a given number of millisecs.
+ (Requires <code>posix' or</code>winapi<code>)</code>
 
 
 

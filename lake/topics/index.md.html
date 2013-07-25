@@ -730,6 +730,75 @@ parallel.</p>
 
 <p>You can name the Moonscript file <code>lakefile.moon</code>, and then the output will be <code>lakefile.lua</code> and be accepted directly by Lake.</p>
 
+<h3>Dependency-Based Programming with Objects</h3>
+
+<p>New with 1.4 is the capability to use <em>objects</em> as targets. To be acceptable as a target, an object must
+be a table with a <code>time</code> field which behaves like a timestamp, and have no array items.</p>
+
+<p>Here is a suitable &lsquo;class&rsquo; definition for such an object:</p>
+
+<pre>
+ <span class="comment">-- dobject.lua
+</span> <span class="comment">-- classic Lua OOP boilerplate
+</span> <span class="keyword">local</span> TO = {}
+ TO.__index = TO
+ TO._NOW = <span class="number">1</span>
+ TO._objects = {} <span class="comment">-- keep a list of these guys
+</span>
+ <span class="comment">-- objects can show themselves as a string
+</span> <span class="keyword">function</span> TO:__tostring()
+     <span class="keyword">return</span> <span class="string">"["</span>..self.name..<span class="string">':'</span>..self.time..<span class="string">"]"</span>
+ <span class="keyword">end</span>
+
+ <span class="comment">-- they may have a method for updating - basically this is 'touch'
+</span> <span class="keyword">function</span> TO:update()
+     <span class="global">print</span>(<span class="string">'updating '</span>..<span class="global">tostring</span>(self))
+     self.time = TO._NOW
+ <span class="keyword">end</span>
+
+ <span class="comment">-- by default, objects have time 0!
+</span> <span class="keyword">local</span> <span class="keyword">function</span> T(name,time)
+     <span class="keyword">local</span> obj = <span class="global">setmetatable</span>({name=name,time=time <span class="keyword">or</span> <span class="number">0</span>},TO)
+     <span class="global">table</span>.insert(TO._objects, obj)
+     <span class="keyword">return</span> obj
+ <span class="keyword">end</span>
+</pre>
+
+
+<p>Given this class, we can do dependency-based programming.</p>
+
+<pre>
+ <span class="comment">-- lazy global object generation - unknown uppercase vars become target objects
+</span> <span class="global">setmetatable</span>(_G,{
+     __index = <span class="keyword">function</span>(self,key)
+         <span class="keyword">if</span> key:match <span class="string">'^%u+$'</span> <span class="keyword">then</span>
+             <span class="keyword">local</span> obj = T(key)
+             <span class="global">rawset</span>(_G,key,obj)
+             <span class="keyword">return</span> obj
+         <span class="keyword">end</span>
+     <span class="keyword">end</span>
+ })
+
+ <span class="keyword">local</span> <span class="keyword">function</span> touch(t)
+     t.target:update()
+ <span class="keyword">end</span>
+
+ <span class="comment">-- B is younger than A, so A is updated
+</span> <span class="comment">-- (comment this out and nothing happens)
+</span> B.time = <span class="number">1</span>
+
+ tA = target(A, {B, C},touch)
+
+ <span class="comment">-- which in turn forces action on D (but it is not updated)
+</span> tB = target(D, A, <span class="keyword">function</span>(t)  <span class="comment">-- could also have tA as dep..
+</span>     <span class="global">print</span>(<span class="string">'D action!'</span>)
+     <span class="keyword">for</span> o <span class="keyword">in</span> list(TO._objects) <span class="keyword">do</span> <span class="global">print</span>(o) <span class="keyword">end</span>
+ <span class="keyword">end</span>)
+
+ default{ tB }
+</pre>
+
+
 <h3>How Lake is Configured</h3>
 
 <p>The command Lake will load configuration files, if it can find them. It will first try load
@@ -1531,7 +1600,16 @@ confuse and irritate the newcomer.</p>
 the <code>CL</code> compiler output has to be filtered for dependency information to be extracted.
 <a href="../modules/lakelibs.html#lake.output_filter">lake.output_filter</a>  is a bonus that came from that basic functionality.)</p>
 
-<p>(Look at the example lakefile in <code>examples/errors</code> for a version that handles both compilers.)</p>
+<p>Look at the example lakefile in <code>examples/errors</code> for a version that handles both compilers.
+This organizes the filter as an installable plugin which can be fetched remotely with:</p>
+
+<pre>
+ $ lake -install get:cpp.filter.lua
+</pre>
+
+
+<p>In that more elaborate C++ example, I get 125 lines of raw output using mingw, which is filtered
+to 9 much shorter lines.</p>
 
 <h3>Adding a New Language</h3>
 
@@ -1906,7 +1984,33 @@ into directories, if the third parameter is <code>true</code>.</p>
 <p>Note that all of these libraries are available when a script is invoked with <code>lake script.lua</code>.</p>
 
 <p>You may use <a href="../scripts/lake.html#">lake</a>  as a regular Lua library using <a href="http://www.lua.org/manual/5.1/manual.html#pdf-require">require</a>  if a copy (or preferrably a symlink) called <code>lake.lua</code> is
-on your Lua module path.</p>
+on your Lua module path. The default operation using <code>lakefile</code> is equivalent to the following script:</p>
+
+<pre>
+ <span class="global">require</span> <span class="string">'lake'</span> <span class="comment">--&gt; assuming it's on the module path
+</span> <span class="global">dofile</span> <span class="string">'lakefile'</span>
+ lake.go()
+</pre>
+
+
+<p>By using Lake in this way, you can control when the dependencies are resolved.
+Have a look at <code>examples/objects.lua</code>, which is a script version of <code>examples/objects/lakefile</code>.
+It ends with these lines:</p>
+
+<pre>
+ <span class="global">print</span> <span class="string">'go 1'</span>
+ lake.go()
+ <span class="global">print</span> <span class="string">'go 2'</span>
+ B.time = <span class="number">11</span>
+ lake.go()
+</pre>
+
+
+<p><a href="../modules/lakelibs.html#utils.sleep">utils.sleep</a>  is available in a full Lake installation, so you can pause your script. It&rsquo;s possible
+to recheck on file changes. On Windows, you
+can use <a href="http://stevedonovan.github.io/winapi/api.html#watch_for_file_changes">winapi.watch_for_file_changes</a>;
+there is no POSIX equivalent, but on Linux you can use <a href="https://github.com/hoelzro/linotify">linotify</a> which
+is available through LuaRocks.</p>
 
 <p>The <a href="../modules/lakelibs.html#list">list</a>  table provides some useful functions for operating on array-like tables.  It is callable,
 and acts as an iterator:</p>
