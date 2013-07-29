@@ -3,7 +3,7 @@ package = 'lake'
 version = '1.4.1-1'
 
 source = {
-    url = "http://stevedonovan.github.com/files/lake-1.4.1-core.zip",
+    url = "http://stevedonovan.github.com/files/lake1.4.1-core.zip",
     dir = 'Lake'
 }
 
