@@ -32,18 +32,23 @@
 
 <h2>Contents</h2>
 <ul>
-<li><a href="#Functions">Functions</a></li>
+<li><a href="#Methods">Methods </a></li>
+<li><a href="#metamethods">metamethods</a></li>
 </ul>
 
 
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/pl.Date.html">pl.Date</a></li>
+  <li><a href="../classes/pl.List.html">pl.List</a></li>
+  <li><a href="../classes/pl.Map.html">pl.Map</a></li>
+  <li><a href="../classes/pl.MultiMap.html">pl.MultiMap</a></li>
+  <li><a href="../classes/pl.OrderedMap.html">pl.OrderedMap</a></li>
+  <li><strong>pl.Set</strong></li>
+</ul>
 <h2>Modules</h2>
 <ul class="nowrap">
   <li><a href="../modules/pl.html">pl</a></li>
-  <li><a href="../modules/pl.Date.html">Date</a></li>
-  <li><a href="../modules/pl.Map.html">Map</a></li>
-  <li><a href="../modules/pl.MultiMap.html">MultiMap</a></li>
-  <li><a href="../modules/pl.OrderedMap.html">OrderedMap</a></li>
-  <li><strong>Set</strong></li>
   <li><a href="../modules/pl.app.html">app</a></li>
   <li><a href="../modules/pl.array2d.html">array2d</a></li>
   <li><a href="../modules/pl.class.html">class</a></li>
@@ -75,10 +80,6 @@
   <li><a href="../modules/pl.types.html">types</a></li>
   <li><a href="../modules/pl.utils.html">utils</a></li>
   <li><a href="../modules/pl.xml.html">xml</a></li>
-</ul>
-<h2>Classes</h2>
-<ul class="nowrap">
-  <li><a href="../classes/pl.List.html">pl.List</a></li>
 </ul>
 <h2>Topics</h2>
 <ul class="nowrap">
@@ -116,7 +117,7 @@
 
 <div id="content">
 
-<h1>Module <code>pl.Set</code></h1>
+<h1>Class <code>pl.Set</code></h1>
 
 <p>A Set class.</p>
 <p><pre><code> &gt; Set = require 'pl.Set'
@@ -140,47 +141,82 @@
 </p>
 
 
-<h2><a href="#Functions">Functions</a></h2>
+<h2><a href="#Methods">Methods </a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#Set">Set (t)</a></td>
+	<td class="name" nowrap><a href="#pl.Set:Set">pl.Set:Set (t)</a></td>
 	<td class="summary">create a set.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#values">values (self)</a></td>
+	<td class="name" nowrap><a href="#Set.values">Set.values (self)</a></td>
 	<td class="summary">get a list of the values in a set.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#map">map (self, fn, ...)</a></td>
+	<td class="name" nowrap><a href="#Set.map">Set.map (self, fn, ...)</a></td>
 	<td class="summary">map a function over the values of a set.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#union">union (self, set)</a></td>
+	<td class="name" nowrap><a href="#Set.union">Set.union (self, set)</a></td>
 	<td class="summary">union of two sets (also +).</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#intersection">intersection (self, set)</a></td>
+	<td class="name" nowrap><a href="#Set.intersection">Set.intersection (self, set)</a></td>
 	<td class="summary">intersection of two sets (also *).</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#difference">difference (self, set)</a></td>
+	<td class="name" nowrap><a href="#Set.difference">Set.difference (self, set)</a></td>
 	<td class="summary">new set with elements in the set that are not in the other (also &ndash;).</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#issubset">issubset (self, set)</a></td>
+	<td class="name" nowrap><a href="#Set.issubset">Set.issubset (self, set)</a></td>
 	<td class="summary">is the first set a subset of the second (also &lt;)?.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#isempty">isempty (self)</a></td>
+	<td class="name" nowrap><a href="#Set.isempty">Set.isempty (self)</a></td>
 	<td class="summary">is the set empty?.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#isdisjoint">isdisjoint (s1, s2)</a></td>
+	<td class="name" nowrap><a href="#Set.isdisjoint">Set.isdisjoint (s1, s2)</a></td>
 	<td class="summary">are the sets disjoint?</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#len">len (s)</a></td>
+	<td class="name" nowrap><a href="#Set.len">Set.len (s)</a></td>
 	<td class="summary">size of this set (also # for 5.2).</td>
+	</tr>
+</table>
+<h2><a href="#metamethods">metamethods</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#Set:__tostring">Set:__tostring ()</a></td>
+	<td class="summary">string representation of a set.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Set.__add">Set.__add ()</a></td>
+	<td class="summary">union of sets.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Set.__mul">Set.__mul ()</a></td>
+	<td class="summary">intersection of sets.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Set.__sub">Set.__sub ()</a></td>
+	<td class="summary">difference of sets.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Set.__pow">Set.__pow ()</a></td>
+	<td class="summary">symmetric difference of sets.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Set.__lt">Set.__lt ()</a></td>
+	<td class="summary">first set subset of second?</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Set.__len">Set.__len ()</a></td>
+	<td class="summary">cardinality of set (5.2).</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Set.__eq">Set.__eq (s1, s2)</a></td>
+	<td class="summary">equality between sets.</td>
 	</tr>
 </table>
 
@@ -188,11 +224,13 @@
 <br/>
 
 
-    <h2><a name="Functions"></a>Functions</h2>
+    <h2><a name="Methods"></a>Methods </h2>
+
+
     <dl class="function">
     <dt>
-    <a name = "Set"></a>
-    <strong>Set (t)</strong>
+    <a name = "pl.Set:Set"></a>
+    <strong>pl.Set:Set (t)</strong>
     </dt>
     <dd>
     create a set.  <br>
@@ -210,8 +248,8 @@
 
 </dd>
     <dt>
-    <a name = "values"></a>
-    <strong>values (self)</strong>
+    <a name = "Set.values"></a>
+    <strong>Set.values (self)</strong>
     </dt>
     <dd>
     get a list of the values in a set.
@@ -229,8 +267,8 @@
 
 </dd>
     <dt>
-    <a name = "map"></a>
-    <strong>map (self, fn, ...)</strong>
+    <a name = "Set.map"></a>
+    <strong>Set.map (self, fn, ...)</strong>
     </dt>
     <dd>
     map a function over the values of a set.
@@ -259,8 +297,8 @@
 
 </dd>
     <dt>
-    <a name = "union"></a>
-    <strong>union (self, set)</strong>
+    <a name = "Set.union"></a>
+    <strong>Set.union (self, set)</strong>
     </dt>
     <dd>
     union of two sets (also +).
@@ -286,8 +324,8 @@
 
 </dd>
     <dt>
-    <a name = "intersection"></a>
-    <strong>intersection (self, set)</strong>
+    <a name = "Set.intersection"></a>
+    <strong>Set.intersection (self, set)</strong>
     </dt>
     <dd>
     intersection of two sets (also *).
@@ -313,8 +351,8 @@
 
 </dd>
     <dt>
-    <a name = "difference"></a>
-    <strong>difference (self, set)</strong>
+    <a name = "Set.difference"></a>
+    <strong>Set.difference (self, set)</strong>
     </dt>
     <dd>
     new set with elements in the set that are not in the other (also &ndash;).
@@ -340,8 +378,8 @@
 
 </dd>
     <dt>
-    <a name = "issubset"></a>
-    <strong>issubset (self, set)</strong>
+    <a name = "Set.issubset"></a>
+    <strong>Set.issubset (self, set)</strong>
     </dt>
     <dd>
     is the first set a subset of the second (also &lt;)?.
@@ -367,8 +405,8 @@
 
 </dd>
     <dt>
-    <a name = "isempty"></a>
-    <strong>isempty (self)</strong>
+    <a name = "Set.isempty"></a>
+    <strong>Set.isempty (self)</strong>
     </dt>
     <dd>
     is the set empty?.
@@ -391,8 +429,8 @@
 
 </dd>
     <dt>
-    <a name = "isdisjoint"></a>
-    <strong>isdisjoint (s1, s2)</strong>
+    <a name = "Set.isdisjoint"></a>
+    <strong>Set.isdisjoint (s1, s2)</strong>
     </dt>
     <dd>
     are the sets disjoint?  (no elements in common).
@@ -419,8 +457,8 @@
 
 </dd>
     <dt>
-    <a name = "len"></a>
-    <strong>len (s)</strong>
+    <a name = "Set.len"></a>
+    <strong>Set.len (s)</strong>
     </dt>
     <dd>
     size of this set (also # for 5.2).
@@ -437,6 +475,124 @@
 
         size
     </ol>
+
+
+
+
+</dd>
+</dl>
+    <h2><a name="metamethods"></a>metamethods</h2>
+    <dl class="function">
+    <dt>
+    <a name = "Set:__tostring"></a>
+    <strong>Set:__tostring ()</strong>
+    </dt>
+    <dd>
+    string representation of a set.
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Set.__add"></a>
+    <strong>Set.__add ()</strong>
+    </dt>
+    <dd>
+    union of sets.
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Set.__mul"></a>
+    <strong>Set.__mul ()</strong>
+    </dt>
+    <dd>
+    intersection of sets.
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Set.__sub"></a>
+    <strong>Set.__sub ()</strong>
+    </dt>
+    <dd>
+    difference of sets.
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Set.__pow"></a>
+    <strong>Set.__pow ()</strong>
+    </dt>
+    <dd>
+    symmetric difference of sets.
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Set.__lt"></a>
+    <strong>Set.__lt ()</strong>
+    </dt>
+    <dd>
+    first set subset of second?
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Set.__len"></a>
+    <strong>Set.__len ()</strong>
+    </dt>
+    <dd>
+    cardinality of set (5.2).
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Set.__eq"></a>
+    <strong>Set.__eq (s1, s2)</strong>
+    </dt>
+    <dd>
+    equality between sets.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">s1</span>
+
+
+        </li>
+        <li><span class="parameter">s2</span>
+
+
+        </li>
+    </ul>
+
 
 
 

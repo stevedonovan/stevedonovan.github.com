@@ -33,18 +33,12 @@
 <h2>Contents</h2>
 <ul>
 <li><a href="#Functions">Functions</a></li>
-<li><a href="#Fields">Fields</a></li>
 </ul>
 
 
 <h2>Modules</h2>
 <ul class="nowrap">
   <li><a href="../modules/pl.html">pl</a></li>
-  <li><a href="../modules/pl.Date.html">Date</a></li>
-  <li><strong>Map</strong></li>
-  <li><a href="../modules/pl.MultiMap.html">MultiMap</a></li>
-  <li><a href="../modules/pl.OrderedMap.html">OrderedMap</a></li>
-  <li><a href="../modules/pl.Set.html">Set</a></li>
   <li><a href="../modules/pl.app.html">app</a></li>
   <li><a href="../modules/pl.array2d.html">array2d</a></li>
   <li><a href="../modules/pl.class.html">class</a></li>
@@ -73,13 +67,18 @@
   <li><a href="../modules/pl.template.html">template</a></li>
   <li><a href="../modules/pl.test.html">test</a></li>
   <li><a href="../modules/pl.text.html">text</a></li>
-  <li><a href="../modules/pl.types.html">types</a></li>
+  <li><strong>types</strong></li>
   <li><a href="../modules/pl.utils.html">utils</a></li>
   <li><a href="../modules/pl.xml.html">xml</a></li>
 </ul>
 <h2>Classes</h2>
 <ul class="nowrap">
+  <li><a href="../classes/pl.Date.html">pl.Date</a></li>
   <li><a href="../classes/pl.List.html">pl.List</a></li>
+  <li><a href="../classes/pl.Map.html">pl.Map</a></li>
+  <li><a href="../classes/pl.MultiMap.html">pl.MultiMap</a></li>
+  <li><a href="../classes/pl.OrderedMap.html">pl.OrderedMap</a></li>
+  <li><a href="../classes/pl.Set.html">pl.Set</a></li>
 </ul>
 <h2>Topics</h2>
 <ul class="nowrap">
@@ -117,60 +116,50 @@
 
 <div id="content">
 
-<h1>Module <code>pl.Map</code></h1>
+<h1>Module <code>pl.types</code></h1>
 
-<p>A Map class.</p>
-<p><pre><code>&gt; Map = require 'pl.Map'
-&gt; m = Map{one=1,two=2}
-&gt; m:update {three=3,four=4,two=20}
-&gt; = m == M{one=1,two=20,three=3,four=4}
-true
-</code></pre>
-
-<p> Dependencies: <a href="../modules/pl.utils.html#">pl.utils</a> , <a href="../modules/pl.class.html#">pl.class</a> , <a href="../modules/pl.tablex.html#">pl.tablex</a> , <a href="../modules/pl.pretty.html#">pl.pretty</a> </p>
+<p>Dealing with Detailed Type Information</p>
+<p>
 </p>
 
 
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#Map:iter">Map:iter ()</a></td>
-	<td class="summary">return an iterator over all key-value pairs.</td>
+	<td class="name" nowrap><a href="#is_callable">is_callable (obj)</a></td>
+	<td class="summary">is the object either a function or a callable object?.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Map:items">Map:items ()</a></td>
-	<td class="summary">return a List of all key-value pairs, sorted by the keys.</td>
+	<td class="name" nowrap><a href="#is_type">is_type (obj, tp)</a></td>
+	<td class="summary">is the object of the specified type?.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Map:len">Map:len ()</a></td>
-	<td class="summary">size of map.</td>
+	<td class="name" nowrap><a href="#type">type (obj)</a></td>
+	<td class="summary">a string representation of a type.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Map:set">Map:set (key, val)</a></td>
-	<td class="summary">put a value into the map.</td>
+	<td class="name" nowrap><a href="#is_integer">is_integer (x)</a></td>
+	<td class="summary">is this number an integer?</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Map:get">Map:get (key)</a></td>
-	<td class="summary">get a value from the map.</td>
+	<td class="name" nowrap><a href="#is_empty">is_empty (o, ignore_spaces)</a></td>
+	<td class="summary">Check if the object is &ldquo;empty&rdquo;.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Map:getvalues">Map:getvalues (keys)</a></td>
-	<td class="summary">get a list of values indexed by a list of keys.</td>
+	<td class="name" nowrap><a href="#is_indexable">is_indexable (val)</a></td>
+	<td class="summary">is an object &lsquo;array-like&rsquo;?</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Map:update">Map:update (table)</a></td>
-	<td class="summary">update the map using key/value pairs from another table.</td>
-	</tr>
-</table>
-<h2><a href="#Fields">Fields</a></h2>
-<table class="function_list">
-	<tr>
-	<td class="name" nowrap><a href="#keys">keys</a></td>
-	<td class="summary">list of keys.</td>
+	<td class="name" nowrap><a href="#is_iterable">is_iterable (val)</a></td>
+	<td class="summary">can an object be iterated over with <a href="http://www.lua.org/manual/5.1/manual.html#pdf-ipairs">ipairs</a> ?</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#values">values</a></td>
-	<td class="summary">list of values.</td>
+	<td class="name" nowrap><a href="#is_writeable">is_writeable (val)</a></td>
+	<td class="summary">can an object accept new key/pair values?</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#to_bool">to_bool (o[, true_strs[, check_objs]])</a></td>
+	<td class="summary">Convert to a boolean value.</td>
 	</tr>
 </table>
 
@@ -181,59 +170,135 @@ true
     <h2><a name="Functions"></a>Functions</h2>
     <dl class="function">
     <dt>
-    <a name = "Map:iter"></a>
-    <strong>Map:iter ()</strong>
+    <a name = "is_callable"></a>
+    <strong>is_callable (obj)</strong>
     </dt>
     <dd>
-    return an iterator over all key-value pairs.
-
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "Map:items"></a>
-    <strong>Map:items ()</strong>
-    </dt>
-    <dd>
-    return a List of all key-value pairs, sorted by the keys.
-
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "Map:len"></a>
-    <strong>Map:len ()</strong>
-    </dt>
-    <dd>
-    size of map.
- note: this is a relatively expensive operation!
-
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "Map:set"></a>
-    <strong>Map:set (key, val)</strong>
-    </dt>
-    <dd>
-    put a value into the map.
+    is the object either a function or a callable object?.
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">key</span>
-         the key
+        <li><span class="parameter">obj</span>
+         Object to check.
         </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "is_type"></a>
+    <strong>is_type (obj, tp)</strong>
+    </dt>
+    <dd>
+    is the object of the specified type?.
+ If the type is a string, then use type, otherwise compare with metatable
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">obj</span>
+         An object to check
+        </li>
+        <li><span class="parameter">tp</span>
+         String of what type it should be
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "type"></a>
+    <strong>type (obj)</strong>
+    </dt>
+    <dd>
+    a string representation of a type.
+ For tables with metatables, we assume that the metatable has a <code>_name</code>
+ field. Knows about Lua file objects.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">obj</span>
+         an object
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        a string like &lsquo;number&rsquo;, &lsquo;table&rsquo; or &lsquo;List&rsquo;
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "is_integer"></a>
+    <strong>is_integer (x)</strong>
+    </dt>
+    <dd>
+    is this number an integer?
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+         a number
+        </li>
+    </ul>
+
+
+    <h3>Raises:</h3>
+    error if x is not a number
+
+
+
+</dd>
+    <dt>
+    <a name = "is_empty"></a>
+    <strong>is_empty (o, ignore_spaces)</strong>
+    </dt>
+    <dd>
+    Check if the object is &ldquo;empty&rdquo;.
+ An object is considered empty if it is nil, a table with out any items (key,
+ value pairs or indexes), or a string with no content (&ldquo;&rdquo;).
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">o</span>
+         The object to check if it is empty.
+        </li>
+        <li><span class="parameter">ignore_spaces</span>
+         If the object is a string and this is true the string is
+ considered empty is it only contains spaces.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        true if the object is empty, otherwise false.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "is_indexable"></a>
+    <strong>is_indexable (val)</strong>
+    </dt>
+    <dd>
+    is an object &lsquo;array-like&rsquo;?
+
+    <h3>Parameters:</h3>
+    <ul>
         <li><span class="parameter">val</span>
-         the value
+         any value.
         </li>
     </ul>
 
@@ -243,97 +308,81 @@ true
 
 </dd>
     <dt>
-    <a name = "Map:get"></a>
-    <strong>Map:get (key)</strong>
+    <a name = "is_iterable"></a>
+    <strong>is_iterable (val)</strong>
     </dt>
     <dd>
-    get a value from the map.
+    can an object be iterated over with <a href="http://www.lua.org/manual/5.1/manual.html#pdf-ipairs">ipairs</a> ?
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">key</span>
-         the key
+        <li><span class="parameter">val</span>
+         any value.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "is_writeable"></a>
+    <strong>is_writeable (val)</strong>
+    </dt>
+    <dd>
+    can an object accept new key/pair values?
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">val</span>
+         any value.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "to_bool"></a>
+    <strong>to_bool (o[, true_strs[, check_objs]])</strong>
+    </dt>
+    <dd>
+    <p>Convert to a boolean value.
+ True values are:</p>
+
+<ul>
+<li>boolean: true.</li>
+<li>string: &lsquo;yes&rsquo;, &lsquo;y&rsquo;, &lsquo;true&rsquo;, &rsquo;t', &lsquo;1&rsquo; or additional strings specified by <code>true_strs</code>.</li>
+<li>number: Any non-zero value.</li>
+<li>table: Is not empty and <code>check_objs</code> is true.</li>
+<li>object: Is not <code>nil</code> and <code>check_objs</code> is true.</li>
+</ul>
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">o</span>
+         The object to evaluate.
+        </li>
+        <li><span class="parameter">true_strs</span>
+         optional Additional strings that when matched should evaluate to true. Comparison is case insensitive.
+ This should be a List of strings. E.g. &ldquo;ja&rdquo; to support German.
+        </li>
+        <li><span class="parameter">check_objs</span>
+         True if objects should be evaluated. Default is to evaluate objects as true if not nil
+ or if it is a table and it is not empty.
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-        the value, or nil if not found.
+        true if the input evaluates to true, otherwise false.
     </ol>
-
-
-
-
-</dd>
-    <dt>
-    <a name = "Map:getvalues"></a>
-    <strong>Map:getvalues (keys)</strong>
-    </dt>
-    <dd>
-    get a list of values indexed by a list of keys.
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">keys</span>
-         a list-like table of keys
-        </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-        a new list
-    </ol>
-
-
-
-
-</dd>
-    <dt>
-    <a name = "Map:update"></a>
-    <strong>Map:update (table)</strong>
-    </dt>
-    <dd>
-    update the map using key/value pairs from another table.
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">table</span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-</dl>
-    <h2><a name="Fields"></a>Fields</h2>
-    <dl class="function">
-    <dt>
-    <a name = "keys"></a>
-    <strong>keys</strong>
-    </dt>
-    <dd>
-    list of keys.
-
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "values"></a>
-    <strong>values</strong>
-    </dt>
-    <dd>
-    list of values.
-
-
 
 
 
