@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
     <title>LDoc documentation</title>
-    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+    <link rel="stylesheet" href="../ldoc_pale.css" type="text/css" />
 </head>
 <body>
 
@@ -30,7 +30,7 @@
 
 
 <h2>Examples</h2>
-<ul>
+<ul class="nowrap">
   <li><a href="../examples/colon.lua.html">colon.lua</a></li>
   <li><a href="../examples/four.lua.html">four.lua</a></li>
   <li><a href="../examples/list.moon.html">list.moon</a></li>
@@ -39,11 +39,11 @@
   <li><a href="../examples/three.lua.html">three.lua</a></li>
 </ul>
 <h2>Scripts</h2>
-<ul>
+<ul class="nowrap">
   <li><a href="../index.html">ldoc</a></li>
 </ul>
 <h2>Topics</h2>
-<ul>
+<ul class="nowrap">
   <li><a href="../topics/doc.md.html">doc.md</a></li>
 </ul>
 
@@ -72,11 +72,33 @@
 </span><span class="keyword">function</span> mul2 () <span class="keyword">end</span>
 
 <span class="comment">-----
+</span><span class="comment">-- function with multiple error tags
+</span><span class="comment">-- @return  result
+</span><span class="comment">-- @error not found
+</span><span class="comment">-- @error bad format
+</span><span class="keyword">function</span> mul3 () <span class="keyword">end</span>
+
+<span class="comment">----
+</span><span class="comment">-- function with inline return and errors
+</span><span class="comment">-- @string name
+</span><span class="keyword">function</span> mul4 (name)
+    <span class="keyword">if</span> <span class="global">type</span>(name) ~= <span class="string">'string'</span> <span class="keyword">then</span>
+        <span class="comment">--- @error[1] not a string
+</span>        <span class="keyword">return</span> <span class="keyword">nil</span>, <span class="string">'not a string'</span>
+    <span class="keyword">end</span>
+    <span class="keyword">if</span> #name == <span class="number">0</span> <span class="keyword">then</span>
+        <span class="comment">--- @error[2] zero-length string
+</span>        <span class="keyword">return</span> <span class="keyword">nil</span>, <span class="string">'zero-length string'</span>
+    <span class="keyword">end</span>
+    <span class="comment">--- @treturn string converted to uppercase
+</span>    <span class="keyword">return</span> name:upper()
+<span class="keyword">end</span>
+<span class="comment">-----
 </span><span class="comment">-- function that raises an error.
 </span><span class="comment">-- @string filename
 </span><span class="comment">-- @treturn string result
 </span><span class="comment">-- @raise 'file not found'
-</span><span class="keyword">function</span> mul3(filename) <span class="keyword">end</span></pre>
+</span><span class="keyword">function</span> mul5(filename) <span class="keyword">end</span></pre>
 
 
 </div> <!-- id="content" -->

@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
     <title>LDoc documentation</title>
-    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+    <link rel="stylesheet" href="../ldoc_pale.css" type="text/css" />
 </head>
 <body>
 
@@ -56,15 +56,15 @@
 
 
 <h2>Topics</h2>
-<ul>
+<ul class="nowrap">
   <li><strong>doc.md</strong></li>
 </ul>
 <h2>Scripts</h2>
-<ul>
+<ul class="nowrap">
   <li><a href="../index.html">ldoc</a></li>
 </ul>
 <h2>Examples</h2>
-<ul>
+<ul class="nowrap">
   <li><a href="../examples/colon.lua.html">colon.lua</a></li>
   <li><a href="../examples/four.lua.html">four.lua</a></li>
   <li><a href="../examples/list.moon.html">list.moon</a></li>
@@ -523,7 +523,8 @@ function as well.)</p>
 <p><code>@set</code> is a powerful tag which assigns a configuration variable to a value <em>just for this module</em>.
 Saying <code>@set no_summary=true</code> in a module comment will temporarily disable summary generation when
 the template is expanded. Generally configuration variables that effect template expansion
-are modifiable in this way.</p>
+are modifiable in this way.  For instance, if you wish that the contents of a particular module
+be sorted, then <code>@set sort=true</code> will do it <em>just</em> for that module.</p>
 
 <p><a name="Sections"></a></p>
 
@@ -1066,8 +1067,11 @@ description. There are then sections for the following tags: &lsquo;param&rsquo;
 &lsquo;see&rsquo; in that order. (For tables, &lsquo;Fields&rsquo; is used instead of &lsquo;Parameters&rsquo; but internally
 fields of a table are stored as the &lsquo;param&rsquo; tag.)</p>
 
+<p>By default, the items appear in the order of declaration within their section. If <code>sort=true</code>
+then they will be sorted alphabetically. (This can be set per-module with <a href="../topics/doc.md.html#Module_Tags">@set</a>.)</p>
+
 <p>You can of course customize the default template, but there are some parameters that can
-control what the template will generate. Setting <code>one</code> to <code>true</code> in your configuration file
+control what the template will generate. Setting <code>one=true</code> in your configuration file
 will give a <em>one-column</em> layout, which can be easier to use as a programming reference.  You
 can suppress the contents summary with <code>no_summary</code>.</p>
 
@@ -1370,7 +1374,7 @@ explicit @submodule tag</li>
 </ul>
 
 
-<p>_These only appear in config.ld:_</p>
+<p>_These only appear in the configuration file:_</p>
 
 <ul>
 <li><code>description</code> a short project description used under the project title</li>
