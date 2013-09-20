@@ -2,7 +2,7 @@ package = "ldoc"
 version = "1.4.0-1"
 
 source = {
-  dir="ldoc",
+  dir="ldoc-1.4.0",
   url = "http://stevedonovan.github.com/files/ldoc-1.4.0.zip"
 }
 
