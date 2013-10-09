@@ -1,0 +1,802 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>ldoc</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/file.html">file</a></li>
+  <li><a href="../modules/list.html">list</a></li>
+  <li><a href="../modules/map.html">map</a></li>
+  <li><strong>obj</strong></li>
+  <li><a href="../modules/scan.html">scan</a></li>
+  <li><a href="../modules/str.html">str</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>obj</code></h1>
+
+<p>Support for refcounted objects.</p>
+<p>These are (currently) allocated with <code>malloc</code> and freed with <code>free</code>, but in addition always
+carry a refcount (see <a href="../modules/obj.html#obj_refcount">obj_refcount</a> ).  <a href="../modules/obj.html#obj_ref">obj_ref</a>  increments this count, and <a href="../modules/obj.html#obj_unref">obj_unref</a>
+decrements this count; when the count becomes zero, the object is freed.  If the object
+has an associated dispose function specified in <a href="../modules/obj.html#obj_new">obj_new</a> , then this will be called first.</p>
+
+<p>Unless <code>OBJ<em>REF</em>ABBREV</code> is defined, these are also defined as <code>ref</code> and <code>unref</code>; there is
+a bulk <code>dispose</code> for multiple objects.</p>
+
+<p><em>Arrays</em> are refcounted <em>containers</em>;  if created with <code>array<em>new</em>ref</code>, they will unref
+their elements when disposed.  They carry their own size, accessible with <code>array_size</code>.</p>
+
+<p><em>Sequences</em> are a wrapper around arrays, and are resizeable. <a href="../modules/obj.html#seq_add">seq_add</a>  appends new values
+to a sequence. A sequence <code>s</code> has the type <code>T**</code>; it is a pointer to an array of T.  The underlying
+array can always be accessed with <code>*s</code>.</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#obj_refcount">obj_refcount (p)</a></td>
+	<td class="summary">refcount of an object.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#obj_new">obj_new (T, optional)</a></td>
+	<td class="summary">allocate a new refcounted object.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#obj_ref">obj_ref (object)</a></td>
+	<td class="summary">increase reference count (<code>ref</code>).</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#obj_unref">obj_unref (P)</a></td>
+	<td class="summary">decrease reference count (<code>unref</code>).</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#obj_unref_v">obj_unref_v (...)</a></td>
+	<td class="summary">decrease ref count for multiple values (<code>dispose</code>).</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#obj_apply_varargs">obj_apply_varargs (o, fn, ...)</a></td>
+	<td class="summary">apply a function to all arguments.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#new_array">new_array (T, size)</a></td>
+	<td class="summary">create an array.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#new_array_ref">new_array_ref (T, size)</a></td>
+	<td class="summary">create an array of refcounted objects.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#array_len">array_len ()</a></td>
+	<td class="summary">length of an array.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#array_resize">array_resize (P, newsz)</a></td>
+	<td class="summary">resize an array.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#str_new">str_new (s)</a></td>
+	<td class="summary">create a refcounted string copy.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#str_new_size">str_new_size (sz)</a></td>
+	<td class="summary">create a refcounted string of given size</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#str_ref">str_ref (s)</a></td>
+	<td class="summary">increase the refcount of a string.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#str_cpy">str_cpy (s)</a></td>
+	<td class="summary">make a refcounted string from an arbitrary string.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#array_sort">array_sort (P, kind, ofs)</a></td>
+	<td class="summary">sort an array.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#array_sort_struct_ptr">array_sort_struct_ptr (A, T, fieldname)</a></td>
+	<td class="summary">sort an array of structs by integer/pointer field</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#array_sort_struct_str">array_sort_struct_str (A, T, fieldname)</a></td>
+	<td class="summary">sort an array of structs by string field</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#obj_apply">obj_apply (dest, setter, src, getter)</a></td>
+	<td class="summary">get from a source and put to a destination.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#seq_new">seq_new (T)</a></td>
+	<td class="summary">create a plain sequence of a type</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#seq_new_ref">seq_new_ref (T)</a></td>
+	<td class="summary">create a sequence of a refcounted type</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#seq_add">seq_add (s, v)</a></td>
+	<td class="summary">add an arbitrary value to a sequence</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#seq_add_ptr">seq_add_ptr (sp, p)</a></td>
+	<td class="summary">add a pointer value to a sequence.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#seq_array_ref">seq_array_ref (sp)</a></td>
+	<td class="summary">get the array from a sequence.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2><a name="Functions"></a>Functions</h2>
+    <dl class="function">
+    <dt>
+    <a name = "obj_refcount"></a>
+    <strong>obj_refcount (p)</strong>
+    </dt>
+    <dd>
+    refcount of an object.
+ Will return -1 if it isn't one of ours!
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">p</span>
+            <span class="types"><span class="type">void *</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "obj_new"></a>
+    <strong>obj_new (T, optional)</strong>
+    </dt>
+    <dd>
+    allocate a new refcounted object.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">T</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#pdf-type">type</a></span>
+
+
+
+        </li>
+        <li><span class="parameter">optional</span>
+            <span class="types"><span class="type">DisposeFn</span></span>
+         destructior
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">T*</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "obj_ref"></a>
+    <strong>obj_ref (object)</strong>
+    </dt>
+    <dd>
+    increase reference count (<code>ref</code>).
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">object</span>
+            <span class="types"><span class="type">T</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">T</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "obj_unref"></a>
+    <strong>obj_unref (P)</strong>
+    </dt>
+    <dd>
+    decrease reference count (<code>unref</code>).
+ When this goes to zero, free the object and call the
+ dispose function, if any.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">P</span>
+            <span class="types"><span class="type">const void *</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "obj_unref_v"></a>
+    <strong>obj_unref_v (...)</strong>
+    </dt>
+    <dd>
+    decrease ref count for multiple values (<code>dispose</code>).
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">...</span>
+         objects
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "obj_apply_varargs"></a>
+    <strong>obj_apply_varargs (o, fn, ...)</strong>
+    </dt>
+    <dd>
+    apply a function to all arguments.
+ If <code>o</code> is not <code>NULL</code>, then call <code>fn(o,arg)</code>, otherwise
+ call <code>fn(arg)</code>.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">o</span>
+            <span class="types"><span class="type">void *</span></span>
+         optional object
+        </li>
+        <li><span class="parameter">fn</span>
+            <span class="types"><span class="type">PFun</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">...</span>
+         extra arguments, ending with <code>NULL</code>.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "new_array"></a>
+    <strong>new_array (T, size)</strong>
+    </dt>
+    <dd>
+    create an array.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">T</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#pdf-type">type</a></span>
+
+
+
+        </li>
+        <li><span class="parameter">size</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "new_array_ref"></a>
+    <strong>new_array_ref (T, size)</strong>
+    </dt>
+    <dd>
+    create an array of refcounted objects.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">T</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#pdf-type">type</a></span>
+
+
+
+        </li>
+        <li><span class="parameter">size</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "array_len"></a>
+    <strong>array_len ()</strong>
+    </dt>
+    <dd>
+    length of an array.
+ tparam type* array
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "array_resize"></a>
+    <strong>array_resize (P, newsz)</strong>
+    </dt>
+    <dd>
+    resize an array.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">P</span>
+            <span class="types"><span class="type">void *</span></span>
+         the array
+        </li>
+        <li><span class="parameter">newsz</span>
+            <span class="types"><span class="type">int</span></span>
+         the new size
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">void *</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "str_new"></a>
+    <strong>str_new (s)</strong>
+    </dt>
+    <dd>
+    create a refcounted string copy.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">s</span>
+            <span class="types"><span class="type">const char *</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">char *</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "str_new_size"></a>
+    <strong>str_new_size (sz)</strong>
+    </dt>
+    <dd>
+    create a refcounted string of given size
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">sz</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">char *</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "str_ref"></a>
+    <strong>str_ref (s)</strong>
+    </dt>
+    <dd>
+    increase the refcount of a string.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">s</span>
+            <span class="types"><span class="type">char *</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">char *</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "str_cpy"></a>
+    <strong>str_cpy (s)</strong>
+    </dt>
+    <dd>
+    make a refcounted string from an arbitrary string.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">s</span>
+            <span class="types"><span class="type">char *</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">char *</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "array_sort"></a>
+    <strong>array_sort (P, kind, ofs)</strong>
+    </dt>
+    <dd>
+    sort an array.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">P</span>
+            <span class="types"><span class="type">void *</span></span>
+         the array
+        </li>
+        <li><span class="parameter">kind</span>
+            <span class="types"><span class="type">ElemKind</span></span>
+          either <code>ARRAY_INT</code> or <code>ARRAY_STR</code>
+        </li>
+        <li><span class="parameter">ofs</span>
+            <span class="types"><span class="type">int</span></span>
+         offset into each item
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "array_sort_struct_ptr"></a>
+    <strong>array_sort_struct_ptr (A, T, fieldname)</strong>
+    </dt>
+    <dd>
+    sort an array of structs by integer/pointer field
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">A</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#pdf-type">type*</a></span>
+         the array
+        </li>
+        <li><span class="parameter">T</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#pdf-type">type</a></span>
+         the struct type
+        </li>
+        <li><span class="parameter">fieldname</span>
+         the name of the struct field
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "array_sort_struct_str"></a>
+    <strong>array_sort_struct_str (A, T, fieldname)</strong>
+    </dt>
+    <dd>
+    sort an array of structs by string field
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">A</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#pdf-type">type*</a></span>
+         the array
+        </li>
+        <li><span class="parameter">T</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#pdf-type">type</a></span>
+         the struct type
+        </li>
+        <li><span class="parameter">fieldname</span>
+         the name of the struct field
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "obj_apply"></a>
+    <strong>obj_apply (dest, setter, src, getter)</strong>
+    </dt>
+    <dd>
+    get from a source and put to a destination.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">dest</span>
+         destination object
+        </li>
+        <li><span class="parameter">setter</span>
+         function of dest and the gotten object
+        </li>
+        <li><span class="parameter">src</span>
+         source object
+        </li>
+        <li><span class="parameter">getter</span>
+         function of <code>src</code> to call repeatedly until it returns <code>NULL</code>
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "seq_new"></a>
+    <strong>seq_new (T)</strong>
+    </dt>
+    <dd>
+    create a plain sequence of a type
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">T</span>
+         type
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "seq_new_ref"></a>
+    <strong>seq_new_ref (T)</strong>
+    </dt>
+    <dd>
+    create a sequence of a refcounted type
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">T</span>
+         type
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "seq_add"></a>
+    <strong>seq_add (s, v)</strong>
+    </dt>
+    <dd>
+    add an arbitrary value to a sequence
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">s</span>
+         the sequence
+        </li>
+        <li><span class="parameter">v</span>
+         the value
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "seq_add_ptr"></a>
+    <strong>seq_add_ptr (sp, p)</strong>
+    </dt>
+    <dd>
+    add a pointer value to a sequence.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">sp</span>
+            <span class="types"><span class="type">void *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">p</span>
+            <span class="types"><span class="type">void *</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "seq_array_ref"></a>
+    <strong>seq_array_ref (sp)</strong>
+    </dt>
+    <dd>
+    get the array from a sequence.
+ (This will transfer ownership )
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">sp</span>
+            <span class="types"><span class="type">void *</span></span>
+         the sequence
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">void *</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.0</a></i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

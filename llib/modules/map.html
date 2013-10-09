@@ -1,0 +1,902 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>ldoc</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Making_New_Maps">Making New Maps </a></li>
+<li><a href="#Insertion__removal_and_retrieval">Insertion, removal and retrieval </a></li>
+<li><a href="#Iterating_over_maps">Iterating over maps </a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/file.html">file</a></li>
+  <li><a href="../modules/list.html">list</a></li>
+  <li><strong>map</strong></li>
+  <li><a href="../modules/obj.html">obj</a></li>
+  <li><a href="../modules/scan.html">scan</a></li>
+  <li><a href="../modules/str.html">str</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>map</code></h1>
+
+<p>Associative arrays implemented as binary trees.</p>
+<p>Maps use the same basic structure as lists, since most of the requirements are similar:
+comparison functions (which are like <code>strcmp</code>) and key allocation. The nodes have the same
+structure, so structs with <code>LIST_HEADER</code> can be also put into maps, provided the next
+field is the key.</p>
+
+<p>Keys are always pointers, but like with string lists char pointers are a special case.</p>
+
+<p>If the keys aren't strings, then the comparison function is simply the less-than operator.
+This will work fine if simple equality defines a match, as with pointers and integers.</p>
+
+
+<h2><a href="#Making_New_Maps">Making New Maps </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#map_new_node">map_new_node (strkey)</a></td>
+	<td class="summary">make a new struct map.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#map_new_str_ptr">map_new_str_ptr ()</a></td>
+	<td class="summary">make a new map with string keys and pointer values.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#map_new_str_ref">map_new_str_ref ()</a></td>
+	<td class="summary">make a new map with string keys and refcounted values</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#map_new_str_str">map_new_str_str ()</a></td>
+	<td class="summary">make a new map with string keys and string values.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#map_new_ptr_ptr">map_new_ptr_ptr ()</a></td>
+	<td class="summary">make a new map with pointer keys and pointer values.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#map_new_ptr_ref">map_new_ptr_ref ()</a></td>
+	<td class="summary">make a new map with pointer keys and refcounted values.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#map_new_ptr_str">map_new_ptr_str ()</a></td>
+	<td class="summary">make a new map with pointer keys and string values.</td>
+	</tr>
+</table>
+<h2><a href="#Insertion__removal_and_retrieval">Insertion, removal and retrieval </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#map_value_data">map_value_data (m, item)</a></td>
+	<td class="summary">get the data associated with this tree node.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#map_first">map_first (m)</a></td>
+	<td class="summary">get the root map node.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#map_put_struct">map_put_struct (m, data)</a></td>
+	<td class="summary">insert a map struct.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#map_put_structs">map_put_structs (param)</a></td>
+	<td class="summary">insert a number of map structs, ending in NULL.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#map_put">map_put (m, key, data)</a></td>
+	<td class="summary">insert pointer data using a pointer key.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#map_put_keyvalues">map_put_keyvalues (m, mkv)</a></td>
+	<td class="summary">insert an array of key/value pairs.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#map_get">map_get (m, key)</a></td>
+	<td class="summary">get the value associated with a key.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#map_geti">map_geti (m, key)</a></td>
+	<td class="summary">get an integer value from a map.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#map_puti">map_puti (m, key, cast)</a></td>
+	<td class="summary">put an integer value into a map.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#map_contains">map_contains (m, key)</a></td>
+	<td class="summary">does the map contain this key?</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#map_remove">map_remove (m, key)</a></td>
+	<td class="summary">remove the key and value from the map.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#map_delete">map_delete (m, key)</a></td>
+	<td class="summary">remove key/value, freeing any allocated memory.</td>
+	</tr>
+</table>
+<h2><a href="#Iterating_over_maps">Iterating over maps </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#map_visit">map_visit (data, node, fun, order)</a></td>
+	<td class="summary">in-order traversal of a map.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#map_to_array">map_to_array (m)</a></td>
+	<td class="summary">Get the key/value pairs of a map as an array.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#MapKeyValue">MapKeyValue</a></td>
+	<td class="summary">convenient struct for initializing maps.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#MapIter">MapIter</a></td>
+	<td class="summary">map iterator type.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#map_iter_new">map_iter_new (m, pkey, pvalue)</a></td>
+	<td class="summary">create a new map iterator positioned on the mininum node.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#map_iter_next">map_iter_next (iter)</a></td>
+	<td class="summary">advance the map iterator to the next node.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2><a name="Making_New_Maps"></a>Making New Maps </h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "map_new_node"></a>
+    <strong>map_new_node (strkey)</strong>
+    </dt>
+    <dd>
+    make a new struct map.
+ Like lists, such maps own the objects.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">strkey</span>
+            <span class="types"><span class="type">bool</span></span>
+         whether the key is a string or not
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">Map *</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "map_new_str_ptr"></a>
+    <strong>map_new_str_ptr ()</strong>
+    </dt>
+    <dd>
+    make a new map with string keys and pointer values.
+ Such keys are treated as in string lists; they are allocated and owned
+ by the map; the values are always pointers.
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "map_new_str_ref"></a>
+    <strong>map_new_str_ref ()</strong>
+    </dt>
+    <dd>
+    make a new map with string keys and refcounted values
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "map_new_str_str"></a>
+    <strong>map_new_str_str ()</strong>
+    </dt>
+    <dd>
+    make a new map with string keys and string values.
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "map_new_ptr_ptr"></a>
+    <strong>map_new_ptr_ptr ()</strong>
+    </dt>
+    <dd>
+    make a new map with pointer keys and pointer values.
+ It's possible to use integers up to uintptr_t size as well.
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "map_new_ptr_ref"></a>
+    <strong>map_new_ptr_ref ()</strong>
+    </dt>
+    <dd>
+    make a new map with pointer keys and refcounted values.
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "map_new_ptr_str"></a>
+    <strong>map_new_ptr_str ()</strong>
+    </dt>
+    <dd>
+    make a new map with pointer keys and string values.
+
+
+
+
+
+
+</dd>
+</dl>
+    <h2><a name="Insertion__removal_and_retrieval"></a>Insertion, removal and retrieval </h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "map_value_data"></a>
+    <strong>map_value_data (m, item)</strong>
+    </dt>
+    <dd>
+    get the data associated with this tree node.
+ if it's a container, then we return the node's data,
+ otherwise the node itself is the data
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">m</span>
+            <span class="types"><span class="type">Map *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">item</span>
+            <span class="types"><span class="type">PEntry</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">void *</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "map_first"></a>
+    <strong>map_first (m)</strong>
+    </dt>
+    <dd>
+    get the root map node.
+ You will need this for <a href="../modules/map.html#map_visit">map_visit</a> .
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">m</span>
+            <span class="types"><span class="type">Map *</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">PEntry</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "map_put_struct"></a>
+    <strong>map_put_struct (m, data)</strong>
+    </dt>
+    <dd>
+    insert a map struct.
+ That is, it is 'derived' from the MAP_HEADER type.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">m</span>
+            <span class="types"><span class="type">Map *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">data</span>
+            <span class="types"><span class="type">void *</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">PEntry</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "map_put_structs"></a>
+    <strong>map_put_structs (param)</strong>
+    </dt>
+    <dd>
+    insert a number of map structs, ending in NULL.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">param</span>
+            <span class="types"><span class="type">Map*</span></span>
+         ...  the struct pointers
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "map_put"></a>
+    <strong>map_put (m, key, data)</strong>
+    </dt>
+    <dd>
+    insert pointer data using a pointer key.
+ String and pointer/integer keys are handled differently.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">m</span>
+            <span class="types"><span class="type">Map *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">key</span>
+            <span class="types"><span class="type">void *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">data</span>
+            <span class="types"><span class="type">void *</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">PEntry</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "map_put_keyvalues"></a>
+    <strong>map_put_keyvalues (m, mkv)</strong>
+    </dt>
+    <dd>
+    insert an array of key/value pairs.
+ Use <a href="../modules/map.html#map_put_structs">map<em>put</em>structs</a>  for struct maps.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">m</span>
+            <span class="types"><span class="type">Map *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">mkv</span>
+            <span class="types"><a class="type" href="../modules/map.html#MapKeyValue">MapKeyValue *</a></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "map_get"></a>
+    <strong>map_get (m, key)</strong>
+    </dt>
+    <dd>
+    get the value associated with a key.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">m</span>
+            <span class="types"><span class="type">Map *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">key</span>
+            <span class="types"><span class="type">void *</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">void *</span></span>
+        the value, or NULL if not found, or the value was NULL.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "map_geti"></a>
+    <strong>map_geti (m, key)</strong>
+    </dt>
+    <dd>
+    get an integer value from a map.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">m</span>
+            <span class="types"><span class="type">Map*</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">key</span>
+         cast to void*
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "map_puti"></a>
+    <strong>map_puti (m, key, cast)</strong>
+    </dt>
+    <dd>
+    put an integer value into a map.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">m</span>
+            <span class="types"><span class="type">Map*</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">key</span>
+         cast to void*
+        </li>
+        <li><span class="parameter">cast</span>
+            <span class="types"><span class="type">value</span></span>
+         to void*
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "map_contains"></a>
+    <strong>map_contains (m, key)</strong>
+    </dt>
+    <dd>
+    does the map contain this key?
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">m</span>
+            <span class="types"><span class="type">Map *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">key</span>
+            <span class="types"><span class="type">void *</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">bool</span></span>
+        <code>true</code> if the key is found, even if the value was NULL.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "map_remove"></a>
+    <strong>map_remove (m, key)</strong>
+    </dt>
+    <dd>
+    remove the key and value from the map.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">m</span>
+            <span class="types"><span class="type">Map *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">key</span>
+            <span class="types"><span class="type">void *</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">PEntry</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "map_delete"></a>
+    <strong>map_delete (m, key)</strong>
+    </dt>
+    <dd>
+    remove key/value, freeing any allocated memory.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">m</span>
+            <span class="types"><span class="type">Map *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">key</span>
+            <span class="types"><span class="type">void *</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">bool</span></span>
+        true if the key was found.
+    </ol>
+
+
+
+
+</dd>
+</dl>
+    <h2><a name="Iterating_over_maps"></a>Iterating over maps </h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "map_visit"></a>
+    <strong>map_visit (data, node, fun, order)</strong>
+    </dt>
+    <dd>
+    in-order traversal of a map.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">data</span>
+            <span class="types"><span class="type">void *</span></span>
+         arbitrary data for callback
+        </li>
+        <li><span class="parameter">node</span>
+            <span class="types"><span class="type">PEntry</span></span>
+         where to start (use <a href="../modules/map.html#map_first">map_first</a>  for all)
+        </li>
+        <li><span class="parameter">fun</span>
+            <span class="types"><span class="type">MapCallback</span></span>
+         callback which will receive data and current node
+        </li>
+        <li><span class="parameter">order</span>
+            <span class="types"><span class="type">int</span></span>
+         -1 for pre-order, 0 for in-order, +1 for post-order
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "map_to_array"></a>
+    <strong>map_to_array (m)</strong>
+    </dt>
+    <dd>
+    Get the key/value pairs of a map as an array.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">m</span>
+            <span class="types"><span class="type">Map *</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../modules/map.html#MapKeyValue">MapKeyValue *</a></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "MapKeyValue"></a>
+    <strong>MapKeyValue</strong>
+    </dt>
+    <dd>
+    convenient struct for initializing maps.
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">key</span>
+            <span class="types"><span class="type">void*</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">value</span>
+            <span class="types"><span class="type">void*</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "MapIter"></a>
+    <strong>MapIter</strong>
+    </dt>
+    <dd>
+    map iterator type.
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">key</span>
+            <span class="types"><span class="type">void*</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">value</span>
+            <span class="types"><span class="type">void*</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "map_iter_new"></a>
+    <strong>map_iter_new (m, pkey, pvalue)</strong>
+    </dt>
+    <dd>
+    create a new map iterator positioned on the mininum node.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">m</span>
+            <span class="types"><span class="type">Map *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">pkey</span>
+            <span class="types"><span class="type">void *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">pvalue</span>
+            <span class="types"><span class="type">void *</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../modules/map.html#MapIter">MapIter</a></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "map_iter_next"></a>
+    <strong>map_iter_next (iter)</strong>
+    </dt>
+    <dd>
+    advance the map iterator to the next node.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">iter</span>
+            <span class="types"><a class="type" href="../modules/map.html#MapIter">MapIter</a></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../modules/map.html#MapIter">MapIter</a></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.0</a></i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

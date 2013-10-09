@@ -1,0 +1,752 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>ldoc</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#String_buffers">String buffers </a></li>
+<li><a href="#Extra_string_functions">Extra string functions </a></li>
+<li><a href="#Class_template">Class template </a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/file.html">file</a></li>
+  <li><a href="../modules/list.html">list</a></li>
+  <li><a href="../modules/map.html">map</a></li>
+  <li><a href="../modules/obj.html">obj</a></li>
+  <li><a href="../modules/scan.html">scan</a></li>
+  <li><strong>str</strong></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>str</code></h1>
+
+<p>string manipulation.</p>
+<p>
+
+</p>
+
+
+<h2><a href="#String_buffers">String buffers </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#strbuf_new">strbuf_new (void)</a></td>
+	<td class="summary">new string buffer</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#strbuf_adds">strbuf_adds (sp, ss)</a></td>
+	<td class="summary">append a string to a string buffer.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#strbuf_addf">strbuf_addf (sp, fmt, ...)</a></td>
+	<td class="summary">append formatted results to a string buffer.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#strbuf_insert_at">strbuf_insert_at (sp, pos, src, sz)</a></td>
+	<td class="summary">insert a string into a string buffer at <code>pos</code>.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#strbuf_erase">strbuf_erase (sp, pos, len)</a></td>
+	<td class="summary">erase <code>len</code> chars from <code>pos</code>.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#strbuf_replace">strbuf_replace (sp, pos, len, s)</a></td>
+	<td class="summary">replace <code>len</code> chars from <code>pos</code> with the string <code>s</code>.</td>
+	</tr>
+</table>
+<h2><a href="#Extra_string_functions">Extra string functions </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#str_fmt">str_fmt (fmt, ...)</a></td>
+	<td class="summary">safe verson of <code>sprintf</code> which returns an allocated string.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#str_findstr">str_findstr (s, sub)</a></td>
+	<td class="summary">find substring <code>sub</code> in the string.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#str_findch">str_findch (s, ch)</a></td>
+	<td class="summary">find character <code>ch</code> in the string.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#str_find_first_of">str_find_first_of (s, ps)</a></td>
+	<td class="summary">find first character that is in the string <code>ps</code></td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#str_find_first_not_of">str_find_first_not_of (s, ps)</a></td>
+	<td class="summary">find first character that is <em>not</em> in the string <code>ps</code></td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#str_split">str_split (s, delim)</a></td>
+	<td class="summary">split a string using a set of delimiters.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#str_concat">str_concat (ss, delim)</a></td>
+	<td class="summary">concatenate an array of strings.</td>
+	</tr>
+</table>
+<h2><a href="#Class_template">Class template </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#template:str_templ_new">template:str_templ_new (templ)</a></td>
+	<td class="summary">new template from string with <code>$(var)</code> variables</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#template:str_templ_subst_using">template:str_templ_subst_using (stl, lookup, data)</a></td>
+	<td class="summary">substitute variables in template using a lookup function.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#template:str_templ_subst">template:str_templ_subst (stl, substs)</a></td>
+	<td class="summary">substitute the variables using an array of keys and pairs.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2><a name="String_buffers"></a>String buffers </h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "strbuf_new"></a>
+    <strong>strbuf_new (void)</strong>
+    </dt>
+    <dd>
+    new string buffer
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">void</span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">char * *</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "strbuf_adds"></a>
+    <strong>strbuf_adds (sp, ss)</strong>
+    </dt>
+    <dd>
+    append a string to a string buffer.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">sp</span>
+            <span class="types"><span class="type">char * *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">ss</span>
+            <span class="types"><span class="type">const char *</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "strbuf_addf"></a>
+    <strong>strbuf_addf (sp, fmt, ...)</strong>
+    </dt>
+    <dd>
+    append formatted results to a string buffer.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">sp</span>
+            <span class="types"><span class="type">char * *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">fmt</span>
+            <span class="types"><span class="type">const char *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">...</span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "strbuf_insert_at"></a>
+    <strong>strbuf_insert_at (sp, pos, src, sz)</strong>
+    </dt>
+    <dd>
+    insert a string into a string buffer at <code>pos</code>.
+ May specify the number of characters to be copied <code>sz</code>; if this is -1
+ then use the ordinary length of the string.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">sp</span>
+            <span class="types"><span class="type">char * *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">pos</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">src</span>
+            <span class="types"><span class="type">const char *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">sz</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">char *</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "strbuf_erase"></a>
+    <strong>strbuf_erase (sp, pos, len)</strong>
+    </dt>
+    <dd>
+    erase <code>len</code> chars from <code>pos</code>.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">sp</span>
+            <span class="types"><span class="type">char * *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">pos</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">len</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">char *</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "strbuf_replace"></a>
+    <strong>strbuf_replace (sp, pos, len, s)</strong>
+    </dt>
+    <dd>
+    replace <code>len</code> chars from <code>pos</code> with the string <code>s</code>.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">sp</span>
+            <span class="types"><span class="type">char * *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">pos</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">len</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">s</span>
+            <span class="types"><span class="type">const char *</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">char *</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+</dl>
+    <h2><a name="Extra_string_functions"></a>Extra string functions </h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "str_fmt"></a>
+    <strong>str_fmt (fmt, ...)</strong>
+    </dt>
+    <dd>
+    safe verson of <code>sprintf</code> which returns an allocated string.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fmt</span>
+            <span class="types"><span class="type">const char *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">...</span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">char *</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "str_findstr"></a>
+    <strong>str_findstr (s, sub)</strong>
+    </dt>
+    <dd>
+    find substring <code>sub</code> in the string.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">s</span>
+            <span class="types"><span class="type">const char *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">sub</span>
+            <span class="types"><span class="type">const char *</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "str_findch"></a>
+    <strong>str_findch (s, ch)</strong>
+    </dt>
+    <dd>
+    find character <code>ch</code> in the string.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">s</span>
+            <span class="types"><span class="type">const char *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">ch</span>
+            <span class="types"><span class="type">char</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "str_find_first_of"></a>
+    <strong>str_find_first_of (s, ps)</strong>
+    </dt>
+    <dd>
+    find first character that is in the string <code>ps</code>
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">s</span>
+            <span class="types"><span class="type">const char *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">ps</span>
+            <span class="types"><span class="type">const char *</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "str_find_first_not_of"></a>
+    <strong>str_find_first_not_of (s, ps)</strong>
+    </dt>
+    <dd>
+    find first character that is <em>not</em> in the string <code>ps</code>
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">s</span>
+            <span class="types"><span class="type">const char *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">ps</span>
+            <span class="types"><span class="type">const char *</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "str_split"></a>
+    <strong>str_split (s, delim)</strong>
+    </dt>
+    <dd>
+    split a string using a set of delimiters.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">s</span>
+            <span class="types"><span class="type">const char *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">delim</span>
+            <span class="types"><span class="type">const char *</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">char * *</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "str_concat"></a>
+    <strong>str_concat (ss, delim)</strong>
+    </dt>
+    <dd>
+    concatenate an array of strings.
+ Asummes that the array is refcounted
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ss</span>
+            <span class="types"><span class="type">char * *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">delim</span>
+            <span class="types"><span class="type">const char *</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">char *</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+</dl>
+    <h2><a name="Class_template"></a>Class template </h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "template:str_templ_new"></a>
+    <strong>template:str_templ_new (templ)</strong>
+    </dt>
+    <dd>
+    new template from string with <code>$(var)</code> variables
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">templ</span>
+            <span class="types"><span class="type">const char *</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">StrTempl</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "template:str_templ_subst_using"></a>
+    <strong>template:str_templ_subst_using (stl, lookup, data)</strong>
+    </dt>
+    <dd>
+    substitute variables in template using a lookup function.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">stl</span>
+            <span class="types"><span class="type">StrTempl</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">lookup</span>
+            <span class="types"><span class="type">StrLookup</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">data</span>
+            <span class="types"><span class="type">void *</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">char *</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "template:str_templ_subst"></a>
+    <strong>template:str_templ_subst (stl, substs)</strong>
+    </dt>
+    <dd>
+    substitute the variables using an array of keys and pairs.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">stl</span>
+            <span class="types"><span class="type">StrTempl</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">substs</span>
+            <span class="types"><span class="type">char * *</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">char *</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.0</a></i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

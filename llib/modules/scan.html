@@ -1,0 +1,994 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>ldoc</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/file.html">file</a></li>
+  <li><a href="../modules/list.html">list</a></li>
+  <li><a href="../modules/map.html">map</a></li>
+  <li><a href="../modules/obj.html">obj</a></li>
+  <li><strong>scan</strong></li>
+  <li><a href="../modules/str.html">str</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>scan</code></h1>
+
+<p>A lexical scanner.</p>
+<p>Lexical scanners are a smarter and cleaner alternative to the primitive <code>strtok</code> function.
+Each time you call <a href="../modules/scan.html#scan_next">scan_next</a> , the scanner finds the next <em>token</em>,</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#scan_set_str">scan_set_str (ts, str)</a></td>
+	<td class="summary">intialize the scanner with a text buffer.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#scan_set_flags">scan_set_flags (ts, flags)</a></td>
+	<td class="summary">set flags.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#scan_set_line_comment">scan_set_line_comment (ts, cc)</a></td>
+	<td class="summary">line comment (either one or two characters).</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#scan_free">scan_free (ts)</a></td>
+	<td class="summary">perform any cleanup.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#scan_new_from_string">scan_new_from_string (str)</a></td>
+	<td class="summary">scanner from a string.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#scan_new_from_file">scan_new_from_file (fname)</a></td>
+	<td class="summary">scanner from a file.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#scan_new_from_stream">scan_new_from_stream (stream)</a></td>
+	<td class="summary">scanner from an existing file stream.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#scan_fetch_line">scan_fetch_line (ts, skipws)</a></td>
+	<td class="summary">fetch a new line from the stream, if defined.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#scan_getch">scan_getch (ts)</a></td>
+	<td class="summary">get the next character.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#scan_force_line_mode">scan_force_line_mode (ts)</a></td>
+	<td class="summary">tell the scanner not to grab the next line automatically.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#scan_skip_whitespace">scan_skip_whitespace (ts)</a></td>
+	<td class="summary">skip white space, reading new lines if necessary.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#scan_skip_space">scan_skip_space (ts)</a></td>
+	<td class="summary">skip white space and single-line comments.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#scan_skip_digits">scan_skip_digits (ts)</a></td>
+	<td class="summary">skip digits.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#scan_push_back">scan_push_back (ts)</a></td>
+	<td class="summary">tell the scanner not to advance on following <a href="../modules/scan.html#scan_next">scan_next</a>.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#scan_next">scan_next (ts)</a></td>
+	<td class="summary">advance to the next token.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#scan_get_tok">scan_get_tok (ts, tok, len)</a></td>
+	<td class="summary">copy the current token to a buff.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#scan_get_str">scan_get_str (ts)</a></td>
+	<td class="summary">get current token as string.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#scan_get_line">scan_get_line (ts, buff, len)</a></td>
+	<td class="summary">get the rest of the current line.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#scan_next_line">scan_next_line (ts)</a></td>
+	<td class="summary">fetch the next line and force line mode.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#scan_get_number">scan_get_number (ts)</a></td>
+	<td class="summary">get the current token as a number.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#scan_skip_until">scan_skip_until (ts, type)</a></td>
+	<td class="summary">skip until a token is found with <a href="http://www.lua.org/manual/5.1/manual.html#pdf-type">type</a> .</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#scan_next_number">scan_next_number (ts, val)</a></td>
+	<td class="summary">fetch the next number, skipping any other tokens.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#scan_next_iden">scan_next_iden (ts, buff, len)</a></td>
+	<td class="summary">fetch the next word, skipping other tokens.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#scan_next_item">scan_next_item (ts, type, buff, sz)</a></td>
+	<td class="summary">fetch the next item, skipping other tokens.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#scan_numbers">scan_numbers (ts, values, sz)</a></td>
+	<td class="summary">grab up to <code>sz</code> numbers from the stream.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2><a name="Functions"></a>Functions</h2>
+    <dl class="function">
+    <dt>
+    <a name = "scan_set_str"></a>
+    <strong>scan_set_str (ts, str)</strong>
+    </dt>
+    <dd>
+    intialize the scanner with a text buffer.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ts</span>
+            <span class="types"><span class="type">ScanState *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">str</span>
+            <span class="types"><span class="type">const char *</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "scan_set_flags"></a>
+    <strong>scan_set_flags (ts, flags)</strong>
+    </dt>
+    <dd>
+
+<p>set flags. </p>
+
+<ul>
+    <li><code>C_IDEN</code> words may contain underscores</li>
+    <li><code>C_NUMBER</code> instead of <code>T_NUMBER</code>, return <code>T_INT</code>,<code>T_HEX</code> and <code>T_DOUBLE</code></li>
+    <li><code>C_STRING</code> parse C string escapes</li>
+    <li><code>C_WSPACE</code> don't skip whitespace</li>
+</ul>
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ts</span>
+            <span class="types"><span class="type">ScanState *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">flags</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "scan_set_line_comment"></a>
+    <strong>scan_set_line_comment (ts, cc)</strong>
+    </dt>
+    <dd>
+    line comment (either one or two characters).
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ts</span>
+            <span class="types"><span class="type">ScanState *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">cc</span>
+            <span class="types"><span class="type">const char *</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "scan_free"></a>
+    <strong>scan_free (ts)</strong>
+    </dt>
+    <dd>
+    perform any cleanup.
+ Will close the stream if the scanner owned it.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ts</span>
+            <span class="types"><span class="type">ScanState *</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">static void</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "scan_new_from_string"></a>
+    <strong>scan_new_from_string (str)</strong>
+    </dt>
+    <dd>
+    scanner from a string.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">str</span>
+            <span class="types"><span class="type">const char *</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">ScanState *</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "scan_new_from_file"></a>
+    <strong>scan_new_from_file (fname)</strong>
+    </dt>
+    <dd>
+    scanner from a file.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fname</span>
+            <span class="types"><span class="type">const char *</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">ScanState *</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "scan_new_from_stream"></a>
+    <strong>scan_new_from_stream (stream)</strong>
+    </dt>
+    <dd>
+    scanner from an existing file stream.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">stream</span>
+            <span class="types"><span class="type">FILE *</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">ScanState *</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "scan_fetch_line"></a>
+    <strong>scan_fetch_line (ts, skipws)</strong>
+    </dt>
+    <dd>
+    fetch a new line from the stream, if defined.
+ Advances the line count - not used if the scanner has
+ been given a string directly.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ts</span>
+            <span class="types"><span class="type">ScanState *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">skipws</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">BOOL</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "scan_getch"></a>
+    <strong>scan_getch (ts)</strong>
+    </dt>
+    <dd>
+    get the next character.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ts</span>
+            <span class="types"><span class="type">ScanState *</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">char</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "scan_force_line_mode"></a>
+    <strong>scan_force_line_mode (ts)</strong>
+    </dt>
+    <dd>
+    tell the scanner not to grab the next line automatically.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ts</span>
+            <span class="types"><span class="type">ScanState *</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "scan_skip_whitespace"></a>
+    <strong>scan_skip_whitespace (ts)</strong>
+    </dt>
+    <dd>
+    skip white space, reading new lines if necessary.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ts</span>
+            <span class="types"><span class="type">ScanState *</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">BOOL</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "scan_skip_space"></a>
+    <strong>scan_skip_space (ts)</strong>
+    </dt>
+    <dd>
+    skip white space and single-line comments.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ts</span>
+            <span class="types"><span class="type">ScanState *</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "scan_skip_digits"></a>
+    <strong>scan_skip_digits (ts)</strong>
+    </dt>
+    <dd>
+    skip digits.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ts</span>
+            <span class="types"><span class="type">ScanState *</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "scan_push_back"></a>
+    <strong>scan_push_back (ts)</strong>
+    </dt>
+    <dd>
+    tell the scanner not to advance on following <a href="../modules/scan.html#scan_next">scan_next</a>.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ts</span>
+            <span class="types"><span class="type">ScanState *</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "scan_next"></a>
+    <strong>scan_next (ts)</strong>
+    </dt>
+    <dd>
+    advance to the next token.
+ Usually this skips whitespace, and single-line comments if defined.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ts</span>
+            <span class="types"><span class="type">ScanState *</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">ScanTokenType</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "scan_get_tok"></a>
+    <strong>scan_get_tok (ts, tok, len)</strong>
+    </dt>
+    <dd>
+    copy the current token to a buff.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ts</span>
+            <span class="types"><span class="type">ScanState *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">tok</span>
+            <span class="types"><span class="type">char *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">len</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">char *</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "scan_get_str"></a>
+    <strong>scan_get_str (ts)</strong>
+    </dt>
+    <dd>
+    get current token as string.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ts</span>
+            <span class="types"><span class="type">ScanState *</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">char *</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "scan_get_line"></a>
+    <strong>scan_get_line (ts, buff, len)</strong>
+    </dt>
+    <dd>
+    get the rest of the current line.
+ This trims any leading and following whitespace.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ts</span>
+            <span class="types"><span class="type">ScanState *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">buff</span>
+            <span class="types"><span class="type">char *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">len</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">char *</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "scan_next_line"></a>
+    <strong>scan_next_line (ts)</strong>
+    </dt>
+    <dd>
+    fetch the next line and force line mode.
+ After this, the scanner will regard end-of-line as end of input.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ts</span>
+            <span class="types"><span class="type">ScanState *</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">const char *</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "scan_get_number"></a>
+    <strong>scan_get_number (ts)</strong>
+    </dt>
+    <dd>
+    get the current token as a number.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ts</span>
+            <span class="types"><span class="type">ScanState *</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">double</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "scan_skip_until"></a>
+    <strong>scan_skip_until (ts, type)</strong>
+    </dt>
+    <dd>
+    skip until a token is found with <a href="http://www.lua.org/manual/5.1/manual.html#pdf-type">type</a> .
+ May return <code>FALSE</code> if the scanner ran out.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ts</span>
+            <span class="types"><span class="type">ScanState *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">type</span>
+            <span class="types"><span class="type">ScanTokenType</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">BOOL</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "scan_next_number"></a>
+    <strong>scan_next_number (ts, val)</strong>
+    </dt>
+    <dd>
+    fetch the next number, skipping any other tokens.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ts</span>
+            <span class="types"><span class="type">ScanState *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">val</span>
+            <span class="types"><span class="type">double *</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">BOOL</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "scan_next_iden"></a>
+    <strong>scan_next_iden (ts, buff, len)</strong>
+    </dt>
+    <dd>
+    fetch the next word, skipping other tokens.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ts</span>
+            <span class="types"><span class="type">ScanState *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">buff</span>
+            <span class="types"><span class="type">char *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">len</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">char *</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "scan_next_item"></a>
+    <strong>scan_next_item (ts, type, buff, sz)</strong>
+    </dt>
+    <dd>
+    fetch the next item, skipping other tokens.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ts</span>
+            <span class="types"><span class="type">ScanState *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">type</span>
+            <span class="types"><span class="type">ScanTokenType</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">buff</span>
+            <span class="types"><span class="type">char *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">sz</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">BOOL</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "scan_numbers"></a>
+    <strong>scan_numbers (ts, values, sz)</strong>
+    </dt>
+    <dd>
+    grab up to <code>sz</code> numbers from the stream.
+ <a href="../modules/scan.html#scan_next_line">scan_next_line</a> can be used to limit this to the current line only.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ts</span>
+            <span class="types"><span class="type">ScanState *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">values</span>
+            <span class="types"><span class="type">double *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">sz</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.0</a></i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

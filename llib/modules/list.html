@@ -1,0 +1,1443 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>ldoc</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/file.html">file</a></li>
+  <li><strong>list</strong></li>
+  <li><a href="../modules/map.html">map</a></li>
+  <li><a href="../modules/obj.html">obj</a></li>
+  <li><a href="../modules/scan.html">scan</a></li>
+  <li><a href="../modules/str.html">str</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>list</code></h1>
+
+<p>Doubly-linked lists.</p>
+<p> A list is either a container (has pointer or integer values) stored inside
+<code>ListEntry</code> nodes as the <code>data</code> field, or the objects themselves are nodes (declared with
+LIST_HEADER up front in the struct).</p>
+
+<p>The nodes of a container list are not ref-counted and are simply freed.
+The contained values may be ref-counted and will then be unref'd when the
+container is disposed.</p>
+
+<p>Container lists are either pointer-like or string-like; if LIST_STRING flag bit
+is set then we'll use <code>strcmp</code> for ordering and finding, otherwise simple ordering
+is used, which is also fine for integer values (up to intptr<em>t or uintptr</em>t in
+ size)</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#list_new_ptr">list_new_ptr ()</a></td>
+	<td class="summary">simple list containing pointers or integers.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list_new_str">list_new_str ()</a></td>
+	<td class="summary">list containing refcounted strings.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list_new_ref">list_new_ref ()</a></td>
+	<td class="summary">list containing any other refcounted objects.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list_new_node">list_new_node (str)</a></td>
+	<td class="summary">list made of suitable structs with <code>LIST_HEADER</code>.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list_size">list_size (ls)</a></td>
+	<td class="summary">size of list.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list_item_data">list_item_data (ls, item)</a></td>
+	<td class="summary">data of list item.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list_start">list_start (ls)</a></td>
+	<td class="summary">first list item.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list_end">list_end (ls)</a></td>
+	<td class="summary">last list item.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list_iter_next">list_iter_next (le)</a></td>
+	<td class="summary">advance to next item.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list_iter_prev">list_iter_prev (le)</a></td>
+	<td class="summary">move to previous item.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list_add">list_add (ls, data)</a></td>
+	<td class="summary">add data to the end of the list.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list_add_items">list_add_items (the, ...)</a></td>
+	<td class="summary">append a number of data items to a list.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list_insert">list_insert (ls, before, data)</a></td>
+	<td class="summary">inserts data <em>before</em> <code>before</code></td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list_insert_front">list_insert_front (ls, data)</a></td>
+	<td class="summary">insert data at the start of the list.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list_add_sorted">list_add_sorted (ls, data)</a></td>
+	<td class="summary">add data in sorted order.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list_remove">list_remove (ls, item)</a></td>
+	<td class="summary">removes item from list.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list_delete">list_delete (ls, item)</a></td>
+	<td class="summary">remove item from list, deleting node data if needed.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list_pop">list_pop (ls)</a></td>
+	<td class="summary">remove the last item and return its value.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list_find">list_find (ls, data)</a></td>
+	<td class="summary">return an iterator to a given data value.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list_iter">list_iter (ls, idx)</a></td>
+	<td class="summary">get iter at index.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list_get">list_get (ls, idx)</a></td>
+	<td class="summary">get data at index.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list_filter">list_filter (other, fun)</a></td>
+	<td class="summary">make a new list containing list data that match a predicate.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list_filter_if">list_filter_if (other, fun, data)</a></td>
+	<td class="summary">make a new list of the list items that match a predicate.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list_copy">list_copy (other)</a></td>
+	<td class="summary">make a copy of another list.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list_extend_move">list_extend_move (ls, other)</a></td>
+	<td class="summary">extend a list by appending another list's contents, emptying it.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list_extend_copy">list_extend_copy (ls, other)</a></td>
+	<td class="summary">extend a list by appending another list's contents, copying it.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list_advance">list_advance (ls, iter, len)</a></td>
+	<td class="summary">move a list iterator along a given number of times.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list_slice">list_slice (other, begin, end)</a></td>
+	<td class="summary">create a new list from another between two iterators.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list_slice_n">list_slice_n (other, begin, len)</a></td>
+	<td class="summary">extract a new list from a start iterator for a given number of items.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list_erase">list_erase (ls, begin, end)</a></td>
+	<td class="summary">erase items between two iterators.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list_erase_n">list_erase_n (ls, begin, n)</a></td>
+	<td class="summary">erase n items from an iterator.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list_item_compare">list_item_compare (ls, cmp)</a></td>
+	<td class="summary">set the comparison operation for the objects in this list.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list_item_equals">list_item_equals (ls, cmp)</a></td>
+	<td class="summary">set the equality operation for the objects in this list.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list_remove_value">list_remove_value (ls, data)</a></td>
+	<td class="summary">remove an item by data value, dispoing it.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list_to_array">list_to_array (ls)</a></td>
+	<td class="summary">make an array out of a list.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list_new_from_array">list_new_from_array (type, arr, sz)</a></td>
+	<td class="summary">make a list out of an array of pointers or strings.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#LWrap_dispose">LWrap_dispose (lw)</a></td>
+	<td class="summary">List Wrappers //////</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2><a name="Functions"></a>Functions</h2>
+    <dl class="function">
+    <dt>
+    <a name = "list_new_ptr"></a>
+    <strong>list_new_ptr ()</strong>
+    </dt>
+    <dd>
+    simple list containing pointers or integers.
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list_new_str"></a>
+    <strong>list_new_str ()</strong>
+    </dt>
+    <dd>
+    list containing refcounted strings.
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list_new_ref"></a>
+    <strong>list_new_ref ()</strong>
+    </dt>
+    <dd>
+    list containing any other refcounted objects.
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list_new_node"></a>
+    <strong>list_new_node (str)</strong>
+    </dt>
+    <dd>
+    list made of suitable structs with <code>LIST_HEADER</code>.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">str</span>
+            <span class="types"><span class="type">bool</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">List *</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list_size"></a>
+    <strong>list_size (ls)</strong>
+    </dt>
+    <dd>
+    size of list.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ls</span>
+            <span class="types"><span class="type">List *</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list_item_data"></a>
+    <strong>list_item_data (ls, item)</strong>
+    </dt>
+    <dd>
+    data of list item.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ls</span>
+            <span class="types"><span class="type">List *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">item</span>
+            <span class="types"><span class="type">void *</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">void *</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list_start"></a>
+    <strong>list_start (ls)</strong>
+    </dt>
+    <dd>
+    first list item.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ls</span>
+            <span class="types"><span class="type">List *</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">ListIter</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list_end"></a>
+    <strong>list_end (ls)</strong>
+    </dt>
+    <dd>
+    last list item.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ls</span>
+            <span class="types"><span class="type">List *</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">ListIter</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list_iter_next"></a>
+    <strong>list_iter_next (le)</strong>
+    </dt>
+    <dd>
+    advance to next item.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">le</span>
+            <span class="types"><span class="type">ListIter</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">ListIter</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list_iter_prev"></a>
+    <strong>list_iter_prev (le)</strong>
+    </dt>
+    <dd>
+    move to previous item.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">le</span>
+            <span class="types"><span class="type">ListIter</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">ListIter</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list_add"></a>
+    <strong>list_add (ls, data)</strong>
+    </dt>
+    <dd>
+    add data to the end of the list.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ls</span>
+            <span class="types"><span class="type">List *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">data</span>
+            <span class="types"><span class="type">void *</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">ListIter</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list_add_items"></a>
+    <strong>list_add_items (the, ...)</strong>
+    </dt>
+    <dd>
+    append a number of data items to a list.
+ Assumes that the last argument is NULL, so not so
+ useful for lists of arbitrary integers.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">the</span>
+            <span class="types"><span class="type">List*</span></span>
+         list
+        </li>
+        <li><span class="parameter">...</span>
+         values (must be pointer sized!)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list_insert"></a>
+    <strong>list_insert (ls, before, data)</strong>
+    </dt>
+    <dd>
+    inserts data <em>before</em> <code>before</code>
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ls</span>
+            <span class="types"><span class="type">List *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">before</span>
+            <span class="types"><span class="type">ListIter</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">data</span>
+            <span class="types"><span class="type">void *</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">ListIter</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list_insert_front"></a>
+    <strong>list_insert_front (ls, data)</strong>
+    </dt>
+    <dd>
+    insert data at the start of the list.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ls</span>
+            <span class="types"><span class="type">List *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">data</span>
+            <span class="types"><span class="type">void *</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">ListIter</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list_add_sorted"></a>
+    <strong>list_add_sorted (ls, data)</strong>
+    </dt>
+    <dd>
+    add data in sorted order.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ls</span>
+            <span class="types"><span class="type">List *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">data</span>
+            <span class="types"><span class="type">void *</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">ListIter</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list_remove"></a>
+    <strong>list_remove (ls, item)</strong>
+    </dt>
+    <dd>
+    removes item from list.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ls</span>
+            <span class="types"><span class="type">List *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">item</span>
+            <span class="types"><span class="type">ListIter</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">ListIter</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list_delete"></a>
+    <strong>list_delete (ls, item)</strong>
+    </dt>
+    <dd>
+    remove item from list, deleting node data if needed.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ls</span>
+            <span class="types"><span class="type">List *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">item</span>
+            <span class="types"><span class="type">ListIter</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">void *</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list_pop"></a>
+    <strong>list_pop (ls)</strong>
+    </dt>
+    <dd>
+    remove the last item and return its value.
+ For container lists, this frees the item.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ls</span>
+            <span class="types"><span class="type">List *</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">void *</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list_find"></a>
+    <strong>list_find (ls, data)</strong>
+    </dt>
+    <dd>
+    return an iterator to a given data value.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ls</span>
+            <span class="types"><span class="type">List *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">data</span>
+            <span class="types"><span class="type">void *</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">ListIter</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list_iter"></a>
+    <strong>list_iter (ls, idx)</strong>
+    </dt>
+    <dd>
+    get iter at index.
+ Negative indices count from the back, so -1 is the last entry, etc.
+ Not particularly efficient for arbitrary indexing since this is O(N).
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ls</span>
+            <span class="types"><span class="type">List *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">idx</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">ListIter</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list_get"></a>
+    <strong>list_get (ls, idx)</strong>
+    </dt>
+    <dd>
+    get data at index.
+ This is only different from <a href="../modules/list.html#list_iter">list_iter</a> when it's a container list.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ls</span>
+            <span class="types"><span class="type">List *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">idx</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">void *</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list_filter"></a>
+    <strong>list_filter (other, fun)</strong>
+    </dt>
+    <dd>
+    make a new list containing list data that match a predicate.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">other</span>
+            <span class="types"><span class="type">List *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">fun</span>
+            <span class="types"><span class="type">ListPred</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">List *</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list_filter_if"></a>
+    <strong>list_filter_if (other, fun, data)</strong>
+    </dt>
+    <dd>
+    make a new list of the list items that match a predicate.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">other</span>
+            <span class="types"><span class="type">List *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">fun</span>
+            <span class="types"><span class="type">ListSearchFn</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">data</span>
+            <span class="types"><span class="type">void *</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">List *</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list_copy"></a>
+    <strong>list_copy (other)</strong>
+    </dt>
+    <dd>
+    make a copy of another list.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">other</span>
+            <span class="types"><span class="type">List *</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">List *</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list_extend_move"></a>
+    <strong>list_extend_move (ls, other)</strong>
+    </dt>
+    <dd>
+    extend a list by appending another list's contents, emptying it.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ls</span>
+            <span class="types"><span class="type">List *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">other</span>
+            <span class="types"><span class="type">List *</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">ListIter</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list_extend_copy"></a>
+    <strong>list_extend_copy (ls, other)</strong>
+    </dt>
+    <dd>
+    extend a list by appending another list's contents, copying it.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ls</span>
+            <span class="types"><span class="type">List *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">other</span>
+            <span class="types"><span class="type">List *</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">ListIter</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list_advance"></a>
+    <strong>list_advance (ls, iter, len)</strong>
+    </dt>
+    <dd>
+    move a list iterator along a given number of times.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ls</span>
+            <span class="types"><span class="type">List *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">iter</span>
+            <span class="types"><span class="type">ListIter *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">len</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">bool</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list_slice"></a>
+    <strong>list_slice (other, begin, end)</strong>
+    </dt>
+    <dd>
+    create a new list from another between two iterators.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">other</span>
+            <span class="types"><span class="type">List *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">begin</span>
+            <span class="types"><span class="type">ListIter</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">end</span>
+            <span class="types"><span class="type">ListIter</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">List *</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list_slice_n"></a>
+    <strong>list_slice_n (other, begin, len)</strong>
+    </dt>
+    <dd>
+    extract a new list from a start iterator for a given number of items.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">other</span>
+            <span class="types"><span class="type">List *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">begin</span>
+            <span class="types"><span class="type">ListIter</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">len</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">List *</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list_erase"></a>
+    <strong>list_erase (ls, begin, end)</strong>
+    </dt>
+    <dd>
+    erase items between two iterators.
+ Opposite operation to <a href="../modules/list.html#list_slice">list_slice</a>
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ls</span>
+            <span class="types"><span class="type">List *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">begin</span>
+            <span class="types"><span class="type">ListIter</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">end</span>
+            <span class="types"><span class="type">ListIter</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list_erase_n"></a>
+    <strong>list_erase_n (ls, begin, n)</strong>
+    </dt>
+    <dd>
+    erase n items from an iterator.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ls</span>
+            <span class="types"><span class="type">List *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">begin</span>
+            <span class="types"><span class="type">ListIter</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">n</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list_item_compare"></a>
+    <strong>list_item_compare (ls, cmp)</strong>
+    </dt>
+    <dd>
+    set the comparison operation for the objects in this list.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ls</span>
+            <span class="types"><span class="type">List *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">cmp</span>
+            <span class="types"><span class="type">ListCmpFun</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list_item_equals"></a>
+    <strong>list_item_equals (ls, cmp)</strong>
+    </dt>
+    <dd>
+    set the equality operation for the objects in this list.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ls</span>
+            <span class="types"><span class="type">List *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">cmp</span>
+            <span class="types"><span class="type">ListEqualsFun</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list_remove_value"></a>
+    <strong>list_remove_value (ls, data)</strong>
+    </dt>
+    <dd>
+    remove an item by data value, dispoing it.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ls</span>
+            <span class="types"><span class="type">List *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">data</span>
+            <span class="types"><span class="type">void *</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">bool</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list_to_array"></a>
+    <strong>list_to_array (ls)</strong>
+    </dt>
+    <dd>
+    make an array out of a list.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ls</span>
+            <span class="types"><span class="type">List *</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">void * *</span></span>
+        an array of  data objects
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list_new_from_array"></a>
+    <strong>list_new_from_array (type, arr, sz)</strong>
+    </dt>
+    <dd>
+    make a list out of an array of pointers or strings.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">type</span>
+            <span class="types"><span class="type">int</span></span>
+         either LIST<em>POINTER or LIST</em>STRING
+        </li>
+        <li><span class="parameter">arr</span>
+            <span class="types"><span class="type">void * *</span></span>
+         the array
+        </li>
+        <li><span class="parameter">sz</span>
+            <span class="types"><span class="type">int</span></span>
+         size of array; if -1 then assume this is a NULL-terminated array
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">List *</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "LWrap_dispose"></a>
+    <strong>LWrap_dispose (lw)</strong>
+    </dt>
+    <dd>
+    List Wrappers //////
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">lw</span>
+            <span class="types"><span class="type">LWrap *</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">typedef struct LWrap_ { void * data ; List * ls ; } LWrap ; static void</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.0</a></i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
