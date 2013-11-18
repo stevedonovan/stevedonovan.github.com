@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
     <title>Penlight Documentation</title>
-    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+    <link rel="stylesheet" href="../ldoc_pale.css" type="text/css" />
 </head>
 <body>
 
@@ -37,20 +37,19 @@
 
 
 <h2>Topics</h2>
-<ul class="nowrap">
-  <li><a href="../topics/01-introduction.md.html">01-introduction.md</a></li>
-  <li><a href="../topics/02-arrays.md.html">02-arrays.md</a></li>
-  <li><a href="../topics/03-strings.md.html">03-strings.md</a></li>
-  <li><a href="../topics/04-paths.md.html">04-paths.md</a></li>
-  <li><strong>05-dates.md</strong></li>
-  <li><a href="../topics/06-data.md.html">06-data.md</a></li>
-  <li><a href="../topics/07-functional.md.html">07-functional.md</a></li>
-  <li><a href="../topics/08-additional.md.html">08-additional.md</a></li>
-  <li><a href="../topics/09-discussion.md.html">09-discussion.md</a></li>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../topics/01-introduction.md.html">Introduction</a></li>
+  <li><a href="../topics/02-arrays.md.html">Tables and Arrays</a></li>
+  <li><a href="../topics/03-strings.md.html">Strings. Higher-level operations on strings.</a></li>
+  <li><a href="../topics/04-paths.md.html">Paths and Directories</a></li>
+  <li><strong>Date and Time</strong></li>
+  <li><a href="../topics/06-data.md.html">Data</a></li>
+  <li><a href="../topics/07-functional.md.html">Functional Programming</a></li>
+  <li><a href="../topics/08-additional.md.html">Additional Libraries</a></li>
+  <li><a href="../topics/09-discussion.md.html">Technical Choices</a></li>
 </ul>
 <h2>Modules</h2>
-<ul class="nowrap">
-  <li><a href="../modules/pl.html">pl</a></li>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
   <li><a href="../modules/pl.app.html">app</a></li>
   <li><a href="../modules/pl.array2d.html">array2d</a></li>
   <li><a href="../modules/pl.class.html">class</a></li>
@@ -58,10 +57,12 @@
   <li><a href="../modules/pl.comprehension.html">comprehension</a></li>
   <li><a href="../modules/pl.config.html">config</a></li>
   <li><a href="../modules/pl.data.html">data</a></li>
+  <li><a href="../modules/pl.Date.html">Date</a></li>
   <li><a href="../modules/pl.dir.html">dir</a></li>
   <li><a href="../modules/pl.file.html">file</a></li>
   <li><a href="../modules/pl.func.html">func</a></li>
   <li><a href="../modules/pl.import_into.html">import_into</a></li>
+  <li><a href="../modules/pl.html">pl</a></li>
   <li><a href="../modules/pl.input.html">input</a></li>
   <li><a href="../modules/pl.lapp.html">lapp</a></li>
   <li><a href="../modules/pl.lexer.html">lexer</a></li>
@@ -84,8 +85,7 @@
   <li><a href="../modules/pl.xml.html">xml</a></li>
 </ul>
 <h2>Classes</h2>
-<ul class="nowrap">
-  <li><a href="../classes/pl.Date.html">pl.Date</a></li>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
   <li><a href="../classes/pl.List.html">pl.List</a></li>
   <li><a href="../classes/pl.Map.html">pl.Map</a></li>
   <li><a href="../classes/pl.MultiMap.html">pl.MultiMap</a></li>
@@ -93,12 +93,11 @@
   <li><a href="../classes/pl.Set.html">pl.Set</a></li>
 </ul>
 <h2>Examples</h2>
-<ul class="nowrap">
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
   <li><a href="../examples/seesubst.lua.html">seesubst.lua</a></li>
   <li><a href="../examples/sipscan.lua.html">sipscan.lua</a></li>
   <li><a href="../examples/symbols.lua.html">symbols.lua</a></li>
   <li><a href="../examples/test-cmp.lua.html">test-cmp.lua</a></li>
-  <li><a href="../examples/test-data.lua.html">test-data.lua</a></li>
   <li><a href="../examples/test-listcallbacks.lua.html">test-listcallbacks.lua</a></li>
   <li><a href="../examples/test-pretty.lua.html">test-pretty.lua</a></li>
   <li><a href="../examples/test-symbols.lua.html">test-symbols.lua</a></li>
@@ -110,13 +109,12 @@
   <li><a href="../examples/testinputfields2.lua.html">testinputfields2.lua</a></li>
   <li><a href="../examples/testxml.lua.html">testxml.lua</a></li>
   <li><a href="../examples/which.lua.html">which.lua</a></li>
+  <li><a href="../examples/test-data.lua.html">test-data.lua</a></li>
 </ul>
 
 </div>
 
 <div id="content">
-
-<h1>Topic <code>05-dates.md</code></h1>
 
     <h2>Date and Time</h2>
 
@@ -126,11 +124,11 @@
 
 <h3>Creating and Displaying Dates</h3>
 
-<p>The <a href="../classes/pl.Date.html#">Date</a>  class provides a simplified way to work with <a href="http://www.lua.org/pil/22.1.html">date and
+<p>The <a href="../modules/pl.Date.html#">Date</a>  class provides a simplified way to work with <a href="http://www.lua.org/pil/22.1.html">date and
 time</a> in Lua; it leans heavily on the functions
 <a href="http://www.lua.org/manual/5.1/manual.html#pdf-os.date">os.date</a>  and <a href="http://www.lua.org/manual/5.1/manual.html#pdf-os.time">os.time</a> .</p>
 
-<p>A <a href="../classes/pl.Date.html#">Date</a>  object can be constructed from a table, just like with <a href="http://www.lua.org/manual/5.1/manual.html#pdf-os.time">os.time</a> .
+<p>A <a href="../modules/pl.Date.html#">Date</a>  object can be constructed from a table, just like with <a href="http://www.lua.org/manual/5.1/manual.html#pdf-os.time">os.time</a> .
 Methods are provided to get and set the various parts of the date.</p>
 
 <pre>
@@ -172,7 +170,7 @@ you full control of the format for both parsing and displaying dates:</p>
 </pre>
 
 
-<p>With the 0.9.7 relase, the <a href="../classes/pl.Date.html#">Date</a>  constructor has become more flexible. You may
+<p>With the 0.9.7 relase, the <a href="../modules/pl.Date.html#">Date</a>  constructor has become more flexible. You may
 omit any of the &lsquo;year&rsquo;, &lsquo;month&rsquo; or &lsquo;day&rsquo; fields:</p>
 
 <pre>
@@ -199,7 +197,7 @@ methods return the date object and so you can &lsquo;chain&rsquo; these methods.
 </pre>
 
 
-<p>Finally, <a href="../classes/pl.Date.html#">Date</a>  also now accepts positional arguments:</p>
+<p>Finally, <a href="../modules/pl.Date.html#">Date</a>  also now accepts positional arguments:</p>
 
 <pre>
  &gt; = Date(<span class="number">2011</span>,<span class="number">10</span>,<span class="number">3</span>)

@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
     <title>Penlight Documentation</title>
-    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+    <link rel="stylesheet" href="../ldoc_pale.css" type="text/css" />
 </head>
 <body>
 
@@ -42,20 +42,19 @@
 
 
 <h2>Topics</h2>
-<ul class="nowrap">
-  <li><a href="../topics/01-introduction.md.html">01-introduction.md</a></li>
-  <li><a href="../topics/02-arrays.md.html">02-arrays.md</a></li>
-  <li><a href="../topics/03-strings.md.html">03-strings.md</a></li>
-  <li><a href="../topics/04-paths.md.html">04-paths.md</a></li>
-  <li><a href="../topics/05-dates.md.html">05-dates.md</a></li>
-  <li><strong>06-data.md</strong></li>
-  <li><a href="../topics/07-functional.md.html">07-functional.md</a></li>
-  <li><a href="../topics/08-additional.md.html">08-additional.md</a></li>
-  <li><a href="../topics/09-discussion.md.html">09-discussion.md</a></li>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../topics/01-introduction.md.html">Introduction</a></li>
+  <li><a href="../topics/02-arrays.md.html">Tables and Arrays</a></li>
+  <li><a href="../topics/03-strings.md.html">Strings. Higher-level operations on strings.</a></li>
+  <li><a href="../topics/04-paths.md.html">Paths and Directories</a></li>
+  <li><a href="../topics/05-dates.md.html">Date and Time</a></li>
+  <li><strong>Data</strong></li>
+  <li><a href="../topics/07-functional.md.html">Functional Programming</a></li>
+  <li><a href="../topics/08-additional.md.html">Additional Libraries</a></li>
+  <li><a href="../topics/09-discussion.md.html">Technical Choices</a></li>
 </ul>
 <h2>Modules</h2>
-<ul class="nowrap">
-  <li><a href="../modules/pl.html">pl</a></li>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
   <li><a href="../modules/pl.app.html">app</a></li>
   <li><a href="../modules/pl.array2d.html">array2d</a></li>
   <li><a href="../modules/pl.class.html">class</a></li>
@@ -63,10 +62,12 @@
   <li><a href="../modules/pl.comprehension.html">comprehension</a></li>
   <li><a href="../modules/pl.config.html">config</a></li>
   <li><a href="../modules/pl.data.html">data</a></li>
+  <li><a href="../modules/pl.Date.html">Date</a></li>
   <li><a href="../modules/pl.dir.html">dir</a></li>
   <li><a href="../modules/pl.file.html">file</a></li>
   <li><a href="../modules/pl.func.html">func</a></li>
   <li><a href="../modules/pl.import_into.html">import_into</a></li>
+  <li><a href="../modules/pl.html">pl</a></li>
   <li><a href="../modules/pl.input.html">input</a></li>
   <li><a href="../modules/pl.lapp.html">lapp</a></li>
   <li><a href="../modules/pl.lexer.html">lexer</a></li>
@@ -89,8 +90,7 @@
   <li><a href="../modules/pl.xml.html">xml</a></li>
 </ul>
 <h2>Classes</h2>
-<ul class="nowrap">
-  <li><a href="../classes/pl.Date.html">pl.Date</a></li>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
   <li><a href="../classes/pl.List.html">pl.List</a></li>
   <li><a href="../classes/pl.Map.html">pl.Map</a></li>
   <li><a href="../classes/pl.MultiMap.html">pl.MultiMap</a></li>
@@ -98,12 +98,11 @@
   <li><a href="../classes/pl.Set.html">pl.Set</a></li>
 </ul>
 <h2>Examples</h2>
-<ul class="nowrap">
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
   <li><a href="../examples/seesubst.lua.html">seesubst.lua</a></li>
   <li><a href="../examples/sipscan.lua.html">sipscan.lua</a></li>
   <li><a href="../examples/symbols.lua.html">symbols.lua</a></li>
   <li><a href="../examples/test-cmp.lua.html">test-cmp.lua</a></li>
-  <li><a href="../examples/test-data.lua.html">test-data.lua</a></li>
   <li><a href="../examples/test-listcallbacks.lua.html">test-listcallbacks.lua</a></li>
   <li><a href="../examples/test-pretty.lua.html">test-pretty.lua</a></li>
   <li><a href="../examples/test-symbols.lua.html">test-symbols.lua</a></li>
@@ -115,13 +114,12 @@
   <li><a href="../examples/testinputfields2.lua.html">testinputfields2.lua</a></li>
   <li><a href="../examples/testxml.lua.html">testxml.lua</a></li>
   <li><a href="../examples/which.lua.html">which.lua</a></li>
+  <li><a href="../examples/test-data.lua.html">test-data.lua</a></li>
 </ul>
 
 </div>
 
 <div id="content">
-
-<h1>Topic <code>06-data.md</code></h1>
 
     <h2>Data</h2>
 
@@ -152,8 +150,8 @@ systems. This format is often called a <em>property</em> file in the Java world.
  <span class="comment">-- property file parsing with Lua string patterns
 </span> props = []
  <span class="keyword">for</span> line <span class="keyword">in</span> <span class="global">io</span>.lines() <span class="keyword">do</span>
-     <span class="keyword">if</span> line:find(<span class="string">'#,1,true) ~= 1 and not line:find('</span>^%s*$<span class="string">') then
-         local var,value = line:match('</span>([^=]+)=(.*)')
+     <span class="keyword">if</span> line:find(<span class="string">'#'</span>,<span class="number">1</span>,<span class="keyword">true</span>) ~= <span class="number">1</span> <span class="keyword">and</span> <span class="keyword">not</span> line:find(<span class="string">'^%s*$'</span>) <span class="keyword">then</span>
+         <span class="keyword">local</span> var,value = line:match(<span class="string">'([^=]+)=(.*)'</span>)
          props[var] = value
      <span class="keyword">end</span>
  <span class="keyword">end</span>
@@ -486,7 +484,7 @@ convert the string to a number first.)</p>
 </pre>
 
 
-<p>This gives us a two-column dataset, where the first column contains <a href="../classes/pl.Date.html#">Date</a>  objects
+<p>This gives us a two-column dataset, where the first column contains <a href="../modules/pl.Date.html#">Date</a>  objects
 and the second column contains the rest of the line. Queries can then easily
 pick out events on a day of the week:</p>
 
@@ -590,40 +588,34 @@ using code generation, we can get pretty much optimal performance out of
 arbitrary queries.</p>
 
 <pre>
- &gt; lua -lpl -e <span class="string">"_DEBUG=true"</span> -e <span class="string">"data.filter 'x,y where x &gt; 4 sort by x'"</span> &lt;
-</pre>
+ &gt; lua -lpl -e <span class="string">"_DEBUG=true"</span> -e <span class="string">"data.filter 'x,y where x &gt; 4 sort by x'"</span> &lt; test.txt
+ <span class="keyword">return</span> <span class="keyword">function</span> (t)
+         <span class="keyword">local</span> i = <span class="number">0</span>
+         <span class="keyword">local</span> v
+         <span class="keyword">local</span> ls = {}
+         <span class="keyword">for</span> i,v <span class="keyword">in</span> <span class="global">ipairs</span>(t) <span class="keyword">do</span>
+             <span class="keyword">if</span> v[<span class="number">1</span>] &gt; <span class="number">4</span>  <span class="keyword">then</span>
+                     ls[#ls+<span class="number">1</span>] = v
+             <span class="keyword">end</span>
+         <span class="keyword">end</span>
+         <span class="global">table</span>.sort(ls,<span class="keyword">function</span>(v1,v2)
+             <span class="keyword">return</span> v1[<span class="number">1</span>] &lt; v2[<span class="number">1</span>]
+         <span class="keyword">end</span>)
+         <span class="keyword">local</span> n = #ls
+         <span class="keyword">return</span> <span class="keyword">function</span>()
+             i = i + <span class="number">1</span>
+             v = ls[i]
+             <span class="keyword">if</span> i &gt; n <span class="keyword">then</span> <span class="keyword">return</span> <span class="keyword">end</span>
+             <span class="keyword">return</span> v[<span class="number">1</span>],v[<span class="number">2</span>]
+         <span class="keyword">end</span>
+ <span class="keyword">end</span>
 
-
-<p>test.txt
-<pre>
- <span class="keyword">return</span> <span class="keyword">function</span> (t)</p>
-
-<pre><code>     &lt;span class="keyword"&gt;local&lt;/span&gt; i = &lt;span class="number"&gt;0&lt;/span&gt;
-     &lt;span class="keyword"&gt;local&lt;/span&gt; v
-     &lt;span class="keyword"&gt;local&lt;/span&gt; ls = {}
-     &lt;span class="keyword"&gt;for&lt;/span&gt; i,v &lt;span class="keyword"&gt;in&lt;/span&gt; &lt;span class="global"&gt;ipairs&lt;/span&gt;(t) &lt;span class="keyword"&gt;do&lt;/span&gt;
-         &lt;span class="keyword"&gt;if&lt;/span&gt; v[&lt;span class="number"&gt;1&lt;/span&gt;] &amp;gt; &lt;span class="number"&gt;4&lt;/span&gt;  &lt;span class="keyword"&gt;then&lt;/span&gt;
-                 ls[#ls+&lt;span class="number"&gt;1&lt;/span&gt;] = v
-         &lt;span class="keyword"&gt;end&lt;/span&gt;
-     &lt;span class="keyword"&gt;end&lt;/span&gt;
-     &lt;span class="global"&gt;table&lt;/span&gt;.sort(ls,&lt;span class="keyword"&gt;function&lt;/span&gt;(v1,v2)
-         &lt;span class="keyword"&gt;return&lt;/span&gt; v1[&lt;span class="number"&gt;1&lt;/span&gt;] &amp;lt; v2[&lt;span class="number"&gt;1&lt;/span&gt;]
-     &lt;span class="keyword"&gt;end&lt;/span&gt;)
-     &lt;span class="keyword"&gt;local&lt;/span&gt; n = #ls
-     &lt;span class="keyword"&gt;return&lt;/span&gt; &lt;span class="keyword"&gt;function&lt;/span&gt;()
-         i = i + &lt;span class="number"&gt;1&lt;/span&gt;
-         v = ls[i]
-         &lt;span class="keyword"&gt;if&lt;/span&gt; i &amp;gt; n &lt;span class="keyword"&gt;then&lt;/span&gt; &lt;span class="keyword"&gt;return&lt;/span&gt; &lt;span class="keyword"&gt;end&lt;/span&gt;
-         &lt;span class="keyword"&gt;return&lt;/span&gt; v[&lt;span class="number"&gt;1&lt;/span&gt;],v[&lt;span class="number"&gt;2&lt;/span&gt;]
-     &lt;span class="keyword"&gt;end&lt;/span&gt;
-</code></pre>
-
-<p> <span class="keyword">end</span></p>
-
-<p> <span class="number">10</span>,<span class="number">20</span>
+ <span class="number">10</span>,<span class="number">20</span>
  <span class="number">40</span>,<span class="number">50</span>
 </pre>
-<a name="Reading_Configuration_Files"></a></p>
+
+
+<p><a name="Reading_Configuration_Files"></a></p>
 
 <h3>Reading Configuration Files</h3>
 
@@ -892,7 +884,7 @@ read a configuration from a string, use <a href="../modules/pl.stringio.html#ope
 
 <p>Although Lua&rsquo;s string pattern matching is very powerful, there are times when
 something more powerful is needed.  <a href="../modules/pl.lexer.html#scan">pl.lexer.scan</a>  provides lexical scanners
-which <em>tokenizes</em> a string, classifying tokens into numbers, strings, etc.</p>
+which <em>tokenize</em> a string, classifying tokens into numbers, strings, etc.</p>
 
 <pre>
  &gt; lua -lpl
