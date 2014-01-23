@@ -55,11 +55,11 @@
 </ul>
 
 
-<h2>Topics</h2>
+<h2>Manual</h2>
 <ul class="$(kind=='Topics' and '' or 'nowrap'">
   <li><strong>doc</strong></li>
 </ul>
-<h2>Scripts</h2>
+<h2>Programs</h2>
 <ul class="$(kind=='Topics' and '' or 'nowrap'">
   <li><a href="../index.html">ldoc</a></li>
 </ul>
@@ -115,7 +115,7 @@ end-users to build your documentation using this simple command.</p>
 <h2>Commenting Conventions</h2>
 
 <p>LDoc follows the conventions established by Javadoc and later by LuaDoc to document the
-modules, functions, types (=classes) and so forth of your API.</p>
+modules, functions, tables and types (&ldquo;classes&rdquo;) of your API.</p>
 
 <h3>Doc comments</h3>
 
@@ -150,6 +150,9 @@ statement.</p>
 <p>If your coding standards require a boilerplate copyright notice, then the <code>-B</code> flag or
 <code>boilerplate=true</code> will make LDoc ignore the first comment of each module.</p>
 
+<p>Common commenting patterns like &lsquo;&mdash;&mdash; (text) &mdash;&mdash;&ndash;&rsquo; are exempted, since they are often used
+for programmer-facing documentation.</p>
+
 <h3>Tags</h3>
 
 <p>All doc comments start with a summary sentence, that ends with a period or a question mark.
@@ -168,6 +171,32 @@ These follow the convention established by Javadoc and widely used in tools for 
 
 
 <p>The order of tags is not important, but as always, consistency is useful.</p>
+
+<p>Here are all the tags known to LDoc:</p>
+
+<ul>
+<li><strong>@module</strong>  A Lua module containing functions and tables, which may be inside sections</li>
+<li><strong>@classmod</strong> Like <strong>@module</strong> but describing a class</li>
+<li><strong>@submodule</strong> A file containing definitions that you wish to put into the named <em>master</em> module</li>
+<li><strong>@script</strong>  A Lua program</li>
+<li><strong>@author</strong> (multiple), <strong>copyright</strong>, <strong>@license</strong>, <strong>@release</strong> only used for <em>project-level</em> tags like <strong>@module</strong></li>
+<li><strong>@function</strong>, <strong>@lfunction</strong>. Functions inside a module</li>
+<li><strong>@param</strong>  formal arguments of a function (multiple)</li>
+<li><strong>@return</strong> returned values of a function (multiple)</li>
+<li><strong>@raise</strong> unhandled error thrown by this function</li>
+<li><strong>@local</strong> explicitly marks a function as not being exported (unless <code>--all</code>)</li>
+<li><strong>@see</strong> reference other documented items</li>
+<li><strong>@usage</strong> give an example of a function&rsquo;s use. (Has a somewhat different meaning when used
+with <strong>@module</strong>)</li>
+<li><strong>@table</strong> a Lua table</li>
+<li><strong>@field</strong> a named member of a table</li>
+<li><strong>@section</strong> starting a named section for grouping functions or tables together</li>
+<li><strong>@type</strong> a section which describes a class</li>
+<li><strong>@within</strong> puts the function or table into an implicit section</li>
+<li><strong>@fixme</strong>, <strong>@todo</strong> and <strong>@warning</strong> are <em>annotations</em>, which are doc comments that
+occur inside a function body.</li>
+</ul>
+
 
 <p>The first important tag to know is the module tag:</p>
 
@@ -459,7 +488,7 @@ items like functions, tables, sections, and so forth.</p>
 
 <h2>See References</h2>
 
-<p>The tag &lsquo;see&rsquo; is used to reference other parts of the documentation, and &lsquo;usage&rsquo; can provide
+<p><strong>@see</strong> is used to reference other parts of the documentation, and <strong>@usage</strong> can provide
 examples of use; there can be multiple such tags:</p>
 
 <pre>
@@ -570,9 +599,9 @@ custom_see_handler(<span class="string">'^([%w_]+)%((%d)%)$'</span>,<span class=
 </pre>
 
 
-<p>&lsquo;^([%w<em>]+)%((%d)%)$&rsquo; both matches the pattern and extracts the name and its section. Then it&rsquo;s
+<p><code>^([%w_]+)%((%d)%)$</code> both matches the pattern and extracts the name and its section. Then it&rsquo;s
 a simple matter of building up the appropriate URL.  The function is expected to
-return </em>link text<em> and </em>link source_ and the patterns are checked before LDoc tries to resolve
+return <em>link text</em> and <em>link source</em> and the patterns are checked before LDoc tries to resolve
 project references. So it is best to make them match as exactly as possible.</p>
 
 <p><a name="Module_Tags"></a></p>
@@ -623,7 +652,7 @@ be sorted, then <code>@set sort=true</code> will do it <em>just</em> for that mo
 <p>LDoc supports <em>explicit</em> sections. By default, the implicit sections correspond to the pre-existing
 types in a module: &lsquo;Functions&rsquo;, &lsquo;Tables&rsquo; and &lsquo;Fields&rsquo; (There is another default section
 &lsquo;Local Functions&rsquo; which only appears if LDoc is invoked with the <code>--all</code> flag.) But new
-sections can be added; the first mechanism is when you <a href="../topics/doc.md.html#Adding_new_Tags">define a new type</a>
+sections can be added; the first mechanism is when you <a href="../manual/doc.md.html#Adding_new_Tags">define a new type</a>
 (say &lsquo;macro&rsquo;). Then a new section (&lsquo;Macros&rsquo;) is created to contain these types.</p>
 
 <p>There is also a way to declare ad-hoc sections using the <strong>@section</strong> tag.
@@ -681,7 +710,7 @@ with the LuaDoc <code>class</code> tag.)</p>
 
 <p>A section continues until the next section is found, <code>@section end</code>, or end of file.</p>
 
-<p>You can put items into an implicit section using the <strong>@within tag</strong>. This allows you to put
+<p>You can put items into an implicit section using <strong>@within</strong>. This allows you to put
 adjacent functions in different sections, so that you are not forced to order your code
 in a particular way.</p>
 
@@ -1119,10 +1148,10 @@ module that uses extended LDoc features.</p>
 <p>The <em>navigation section</em> down the left has several parts:</p>
 
 <ul>
-<li>The project name (&lsquo;project&rsquo; in the config)</li>
-<li>A project description (&lsquo;description&rsquo;)</li>
-<li>&lsquo;'Contents&rsquo;&lsquo; of the current page</li>
-<li>'&lsquo;Modules&rsquo;&lsquo; listing all the modules in this project</li>
+<li>The project name (<code>project</code> in the config)</li>
+<li>A project description (<code>description</code>)</li>
+<li><strong>Contents</strong> of the current page</li>
+<li><strong>Modules</strong> listing all the modules in this project</li>
 </ul>
 
 
@@ -1130,15 +1159,16 @@ module that uses extended LDoc features.</p>
 project. This gives you an opportunity to make lists of links, etc; any &lsquo;##&rsquo; headers will be
 formatted like the other top-level items on the navigation bar.</p>
 
-<p>&lsquo;Contents&rsquo; is automatically generated. It will contain any explicit sections, if they have
-been used. Otherwise you will get the usual categories: &lsquo;Functions&rsquo;, &lsquo;Tables&rsquo; and &lsquo;Fields&rsquo;.</p>
+<p><strong>Contents</strong> is automatically generated. It will contain any explicit sections
+as well as the usual categories: &lsquo;Functions&rsquo;, &lsquo;Tables&rsquo; and &lsquo;Fields&rsquo;.  For a documentation page,
+the subtitles become the sections shown here.</p>
 
-<p>&lsquo;Modules&rsquo; will appear for any project providing Lua libraries; there may also be a &lsquo;Scripts&rsquo;
+<p><strong>Modules</strong> will appear for any project providing Lua libraries; there may also be a &lsquo;Scripts&rsquo;
 section if the project contains Lua scripts. For example,
 <a href="http://stevedonovan.github.com/LuaMacro/docs/api.html">LuaMacro</a> has a driver script <code>luam</code>
 in this section. The
 <a href="http://stevedonovan.github.com/LuaMacro/docs/modules/macro.builtin.html">builtin</a> module
-only defines macros, which are defined as a <em>custom tag type</em>.</p>
+only defines macros, which are defined as a <em>custom tag type[?]</em>.</p>
 
 <p>The <em>content section</em> on the right shows:</p>
 
@@ -1158,7 +1188,7 @@ description. There are then sections for the following tags: &lsquo;param&rsquo;
 fields of a table are stored as the &lsquo;param&rsquo; tag.)</p>
 
 <p>By default, the items appear in the order of declaration within their section. If <code>sort=true</code>
-then they will be sorted alphabetically. (This can be set per-module with <a href="../topics/doc.md.html#Module_Tags">@set</a>.)</p>
+then they will be sorted alphabetically. (This can be set per-module with <a href="../manual/doc.md.html#Module_Tags">@set</a>.)</p>
 
 <p>You can of course customize the default template, but there are some parameters that can
 control what the template will generate. Setting <code>one=true</code> in your configuration file
@@ -1288,19 +1318,19 @@ For instance, if I am talking about <code>pl.utils</code>, then I can say <code>
 thereafter references like <code>@{printf}</code> will resolve correctly.</p>
 
 <p>If you look at the source for this document, you will see a <code>@lookup doc.md</code> which allows
-direct references to sections like <a href="../topics/doc.md.html#Readme_files">this</a> with <code>@{Readme_files|this}</code>.</p>
+direct references to sections like <a href="../manual/doc.md.html#Readme_files">this</a> with <code>@{Readme_files|this}</code>.</p>
 
 <p>Remember that the default is for references in backticks to be resolved; unlike @
 references, it is not an error if the reference cannot be found.</p>
 
 <p>The <em>sections</em> of a document (the second-level headings) are also references. This
-particular section can be refered to as <code>@{doc.md.Resolving_References_in_Documents}</code> &ndash; the
+particular section you are reading can be refered to as <code>@{doc.md.Readme_files}</code> &ndash; the
 rule is that any non-alphabetic character is replaced by an underscore.</p>
 
 <p>Any indented blocks are assumed to be Lua, unless their first line is <code>@plain</code>. New
 with 1.4 is github-markdown-style fenced code blocks, which start with three backticks
 optionally followed by a language. The code continues until another three backticks
-is found: the language can be <code>c</code>,&lsquo;cpp&rsquo; or <code>cxx</code> for C/C++, anything else is Lua.</p>
+is found: the language can be <code>c</code>, <code>cpp</code> or <code>cxx</code> for C/C++, anything else is Lua.</p>
 
 <p><a name="Tag_Modifiers"></a></p>
 
@@ -1688,7 +1718,7 @@ to their tags.</p>
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.0</a></i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.2</a></i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
