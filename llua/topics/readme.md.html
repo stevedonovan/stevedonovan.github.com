@@ -1,0 +1,255 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>llua</h1>
+
+
+
+
+<h2>Topics</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><strong>readme</strong></li>
+</ul>
+<h2>Modules</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../index.html">llua</a></li>
+</ul>
+<h2>Examples</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../examples/test-llua.c.html">test-llua.c</a></li>
+  <li><a href="../examples/strfind.c.html">strfind.c</a></li>
+  <li><a href="../examples/file-size.c.html">file-size.c</a></li>
+  <li><a href="../examples/errors.c.html">errors.c</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+    <h2>Rationale</h2>
+
+<p>llua is a higher-level C API for Lua, organized around reference objects.
+It was inspired by <a href="http://github.com/stevedonovan/luar">luar</a> and
+<a href="https://github.com/jasonsantos/luajava">LuaJava</a> which
+provide similar operations when using Lua with Go and Java. The idea
+is to encapsulate a Lua reference as an object which supports general
+operations such as indexing (setting and getting), size, pushing on
+the Lua stack and calling.</p>
+
+<p>For instance, a common use of Lua is to load configuration files:</p>
+
+<pre>
+<span class="comment">-- config.lua
+</span>alpha = <span class="number">1</span>
+beta = <span class="number">2</span>
+gammon = <span class="string">'pork'</span>
+</pre>
+
+
+<p>Here is how this file can be loaded into a custom environment:</p>
+
+<pre>
+    llua_t *env = llua_newtable(L);
+    err_t err = llua_evalfile(L,<span class="string">"config.lua"</span>,<span class="string">""</span>,env);
+    <span class="keyword">if</span> (err) {
+        fprintf(stderr,<span class="string">"could not load config.lua: %s\n"</span>,err);
+    } <span class="keyword">else</span> {
+        av = llua_gets(env,<span class="string">"gammon"</span>);
+        printf(<span class="string">"gammon was %s\n"</span>,av);
+    }
+    //<span class="comment">--&gt; gammon was pork
+</span>
+</pre>
+
+
+<p>This example also works with both Lua 5.1 and 5.2, by hiding the
+difference in how &lsquo;environments&rsquo; work with the API.</p>
+
+<h2>References, Objects and Strings</h2>
+
+<p>llua references are llib objects; to free the reference use <code>unref</code>. If given
+an arbitrary object, <code>llua_is_lua_object(obj)</code> will be true if a Lua reference.</p>
+
+<p> <code>llua_t</code> has the Lua state <code>L</code>, the reference
+as <code>ref</code> (which is index into registry) and <code>type</code>.</p>
+
+<p><code>llua_new(L,idx)</code> will wrap a value on the stack as a reference; <code>llua_newtable(L)</code>
+will make a reference to a new table, and <code>llua_global(L)</code> is the global state.
+These operations don&rsquo;t effect the stack; <code>llua_push(o)</code> will make the reference
+available on the stack.</p>
+
+<p>In general, all
+objects returned by llua will be allocated by llib, with the exception of strings
+returned by <a href="../index.html#llua_tostring">llua_tostring</a>  where you get the underlying
+char pointer managed by Lua.  This should be safe, since we're guaranteed
+to have a reference to the string.  Lua strings can contain nuls, so to be
+safe use <code>array_len(s)</code> rather than <code>strlen(s)</code> to determine length.</p>
+
+<p>For accessing a large Lua string without wanting a copy, the special type
+specifier &lsquo;L&rsquo; will force all Lua values (including strings) to be reference
+objects. Once you have the string reference, <a href="../index.html#llua_tostring">llua_tostring</a>  gives you
+the managed pointer and <a href="../index.html#llua_len">llua_len</a>  gives you its actual length.</p>
+
+<h2>Calling Lua Functions</h2>
+
+<p>llua conceals tedious and error-prone Lua stack operations when calling
+Lua functions from C:</p>
+
+<pre>
+    llua_t *G = llua_global(L);
+    llua_t *strfind = llua_gets(G,<span class="string">"string.find"</span>);
+    int i1,i2;
+
+    llua_callf(strfind,<span class="string">"ssi"</span>,<span class="string">"hello dolly"</span>,<span class="string">"doll"</span>,<span class="number">1</span>,<span class="string">"ii"</span>,&amp;i1,&amp;i2);
+
+    printf(<span class="string">"i1 %d i2 %d\n"</span>,i1,i2);
+    //<span class="comment">--&gt; i1 7 i2 10
+</span>
+</pre>
+
+
+<p><a href="../index.html#llua_callf">llua_callf</a>  takes a callable reference (a function or something which
+has a <code>__call</code> metamethod), passes arguments specified by a type string,
+and can return a number of values. The &lsquo;type string&rsquo; is akin to <code>printf</code>
+style formats: &lsquo;i&rsquo; &ndash;> <code>int</code>, <code>f</code> &ndash;> <code>double</code>, <code>s</code> &ndash;> <code>string</code>, <code>b</code> &ndash;>
+<code>boolean</code> (integer value either 0 or 1), &lsquo;o&rsquo; &ndash;> <code>object</code>, &lsquo;v&rsquo; &ndash;> &ldquo;value on stack&rdquo;,
+and &lsquo;x&rsquo; &ndash;> <code>C function</code>.</p>
+
+<p>In the above example, there
+are three arguments, two strings and a integer, and the result is two integers,
+which are returned by reference.</p>
+
+<p><a href="../index.html#llua_callf">llua_callf</a>  can return a single value, by using the special type &ldquo;r&rdquo;.
+Because llib objects have run-time info, the return value can always be distinguished
+from an error, which is llib&rsquo;s solution to C&rsquo;s single-value-return problem.</p>
+
+<pre>
+    const char *res = llua_callf(my_tostring,<span class="string">"o"</span>,obj,<span class="string">"r"</span>);
+    <span class="keyword">if</span> (value_is_error(res)) {
+        fprintf(stderr,<span class="string">"my_tostring failed: %s\n"</span>,res);
+    } <span class="keyword">else</span> {
+        // ok!
+    }
+</pre>
+
+
+<p>Since this little &ldquo;r&rdquo; can be hard to see in code, it&rsquo;s given a name L_VAL.
+As a special case, <a href="../index.html#llua_callf">llua_callf</a>  can call methods. The pseudo-type &lsquo;m&rsquo; means
+&ldquo;call the named method of the given object&rdquo;:</p>
+
+<pre>
+    llua_t *out = llua_gets(G,<span class="string">"io.stdout"</span>);
+    llua_callf(out,<span class="string">"ms"</span>,<span class="string">"write"</span>,<span class="string">"hello dolly!\n"</span>,L_NONE);
+</pre>
+
+
+<h2>Accessing Lua Tables</h2>
+
+<p>We've already seen <a href="../index.html#llua_gets">llua_gets</a>  for indexing tables and userdata; it will return
+an object as above; numbers will be returned as llib boxed values, which is not so
+very convenient.  <a href="../index.html#llua_gets_v">llua_gets_v</a>  allows multiple key lookups with type specified as
+with <a href="../index.html#llua_callf">llua_callf</a> .</p>
+
+<pre>
+    char *av, *bv;
+    int cv;
+    double dv = <span class="number">23.5</span>;
+    err_t *err;
+    // <span class="global">load</span> a <span class="global">table</span>...
+    llua_t *res = llua_eval(L,<span class="string">"return {a = 'one', b = 'two', c=66}"</span>,L_VAL);
+    err = llua_gets_v(res,
+        <span class="string">"a"</span>,<span class="string">"s"</span>,&amp;av,
+        <span class="string">"b"</span>,<span class="string">"s"</span>,&amp;bv,
+        <span class="string">"c"</span>,<span class="string">"i"</span>,&amp;cv,
+        <span class="string">"d"</span>,<span class="string">"?f"</span>,&amp;dv, // no error <span class="keyword">if</span> <span class="keyword">not</span> defined, use default!
+    NULL);
+    printf(<span class="string">"got a='%s' b='%s' c=%d d=%f\n"</span>,av,bv,cv,dv);
+    //<span class="comment">--&gt; got a='one' b='two' c=66 d=23.500000
+</span>
+</pre>
+
+
+<p>Note the special &lsquo;?&rsquo; which allows the existing value to pass through unchanged
+if the key does not exist.  If there was no default, then the returned error will
+be non-NULL.</p>
+
+<p>There is also <a href="../index.html#llua_geti">llua_geti</a>  and <a href="../index.html#llua_rawgeti">llua_rawgeti</a> , which also return objects.</p>
+
+<pre>
+    llua_t *res = llua_eval(L,<span class="string">"return {10,20,30}"</span>,L_VAL);
+    void *obj = llua_geti(res,<span class="number">1</span>);  // always returns an object
+    <span class="keyword">if</span> (value_is_float(obj))   // paranoid!
+        printf(<span class="string">"value was %f\n"</span>,value_as_float(obj)); // unbox
+
+     // <span class="keyword">or</span> we can convert the <span class="global">table</span> to an array of ints
+    llua_push(res);
+    int *arr = llua_tointarray(L,-<span class="number">1</span>);
+    int i;
+    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; array_len(arr); i++)
+        printf(<span class="string">"%d\n"</span>,arr[i]);
+</pre>
+
+
+<p>There are three table-to-array functions, <a href="../index.html#llua_tointarray">llua_tointarray</a> , <a href="../index.html#llua_tonumarray">llua_tonumarray</a>  and
+<a href="../index.html#llua_tostrarray">llua_tostrarray</a>  which return llib arrays. Again, using llib means that these
+arrays know how long they are!</p>
+
+<p>A particularly intense one-liner implicitly uses this table-to-int-array conversion:
+you may force the return type with a type specifier after &lsquo;r&rsquo;.</p>
+
+<pre><code>  int* arr = llua_eval(L,"return {10,20,30}","rI");
+</code></pre>
+
+<p>Trying to index a non-indexable object will cause a Lua panic, so <a href="../index.html#llua_gettable">llua_gettable</a>  and
+<a href="../index.html#llua_settable">llua_settable</a>  are defined so you can program defensively.</p>
+
+<p>Iterating over a table is fairly straightforward using the usual API but I usually
+have to look it up each time.  So llua provides a <code>FOR_TABLE</code> macro:</p>
+
+<pre>
+    FOR_TABLE(G) { // all <span class="global">table</span> keys matching <span class="string">"^s"</span>
+        void *obj = llua_callf(strfind,<span class="string">"vs"</span>,L_TKEY,<span class="string">"^s"</span>,L_VAL);
+        <span class="keyword">if</span> (obj)
+            printf(<span class="string">"match %s\n"</span>,lua_tostring(L,L_TKEY));
+    }
+</pre>
+
+
+<p>Like the explicit version, this requires stack discipline!  L_TKEY is (-2) and
+L_TVAL is (-1); the &lsquo;v&rsquo; type specifier expects a stack index.</p>
+
+<p>If you do need to break out of this loop, use the <code>llua_table_break</code>
+macro which does the necessary key-popping.</p>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.2</a></i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

@@ -1,0 +1,167 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>llua</h1>
+
+
+
+
+<h2>Examples</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><strong>test-llua.c</strong></li>
+  <li><a href="../examples/strfind.c.html">strfind.c</a></li>
+  <li><a href="../examples/file-size.c.html">file-size.c</a></li>
+  <li><a href="../examples/errors.c.html">errors.c</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../index.html">llua</a></li>
+</ul>
+<h2>Topics</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../topics/readme.md.html">readme</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+    <pre>
+#include &lt;stdio.h&gt;
+#include "llua.h"
+
+<span class="keyword">int</span> main (<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)
+{
+    lua_State *L = luaL_newstate();
+    <span class="keyword">char</span> *expr = <span class="string">"print(10+20)"</span>;
+
+    luaL_openlibs(L);
+    <span class="keyword">if</span> (argc &gt; <span class="number">1</span>)
+        expr = argv[<span class="number">1</span>];
+
+    <span class="comment">// lower-level llua functions are similar to corresponding Lua API calls,
+</span>    <span class="comment">// except that llua_t objects carry the references, and we can
+</span>    <span class="comment">// always distinguish valid results from errors by llib runtime type info
+</span>    llua_t *chunk = llua_load(L,expr, <span class="string">"line"</span>);
+    <span class="keyword">if</span> (value_is_error(chunk)) {
+        fprintf(stderr,<span class="string">"compile %s\n"</span>,value_as_string(chunk));
+        <span class="keyword">return</span> <span class="number">1</span>;
+    }
+    err_t err = llua_callf(chunk,<span class="string">""</span>,<span class="string">""</span>);
+    <span class="keyword">if</span> (err) {
+        fprintf(stderr, <span class="string">"run %s\n"</span>, err);
+        <span class="keyword">return</span> <span class="number">1</span>;
+    }
+
+    <span class="keyword">const</span> <span class="keyword">char</span> *code = <span class="string">"return {10,20,30}"</span>;
+
+    <span class="comment">// compile the cunk
+</span>    chunk = llua_load(L,code,<span class="string">"tmp"</span>);
+
+    <span class="comment">// callf allows values to be returned directly...("" means 'no arguments' here)
+</span>    llua_t *res = llua_callf(chunk,<span class="string">""</span>,<span class="string">"r"</span>);
+
+    <span class="comment">// we get back a Lua table
+</span>    printf(<span class="string">"type '%s', length %d\n"</span>,llua_typename(res),llua_len(res));
+
+    <span class="comment">// llua_geti, gets always returns objects.
+</span>    <span class="keyword">void</span> *obj = llua_geti(res,<span class="number">1</span>);
+    printf(<span class="string">"value was %f\n"</span>,value_as_float(obj));
+
+    <span class="comment">// or we can convert the table to an array of ints
+</span>    llua_push(res);
+    <span class="keyword">int</span> *arr = llua_tointarray(L,-<span class="number">1</span>);
+    <span class="keyword">int</span> i;
+    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; array_len(arr); i++)
+        printf(<span class="string">"%d\n"</span>,arr[i]);
+    lua_pop(L,<span class="number">1</span>);
+
+    <span class="comment">// Take 2. Compile &amp; run, and return explicitly as int array
+</span>    arr = llua_eval(L,code,<span class="string">"rI"</span>);
+    printf(<span class="string">"size %d type %s\n"</span>,array_len(arr),obj_type(arr)-&gt;name);
+
+    llua_t *G = llua_global(L);
+    <span class="comment">// straightforward to call standard Lua functions ("" means 'no returns')
+</span>    res = llua_gets(G,<span class="string">"print"</span>);
+    llua_callf(res,<span class="string">"ssi"</span>,<span class="string">"one"</span>,<span class="string">"two"</span>,<span class="number">42</span>,<span class="string">""</span>);
+
+    <span class="comment">// llua_gets will work with one extra level of lookup...
+</span>    <span class="keyword">const</span> <span class="keyword">char</span> *ppath = llua_gets(G,<span class="string">"package.path"</span>);
+    llua_t* sub = llua_gets(G,<span class="string">"string.sub"</span>);
+    res = llua_callf(sub,<span class="string">"sii"</span>,ppath,<span class="number">1</span>,<span class="number">10</span>,<span class="string">"r"</span>);
+    printf(<span class="string">"first part of package.path '%s'\n"</span>,res);
+
+    <span class="comment">// load a table...
+</span>    res = llua_eval(L,<span class="string">"return {a = 'one', b = 'two', c=66}"</span>,<span class="string">"r"</span>);
+    <span class="keyword">char</span> *av, *bv;
+    <span class="keyword">int</span> cv;
+    <span class="keyword">double</span> dv = <span class="number">23.5</span>;
+    llua_gets_v(res,
+        <span class="string">"a"</span>,<span class="string">"s"</span>,&amp;av,
+        <span class="string">"b"</span>,<span class="string">"s"</span>,&amp;bv,
+        <span class="string">"c"</span>,<span class="string">"i"</span>,&amp;cv,
+        <span class="string">"d"</span>,<span class="string">"?f"</span>,&amp;dv, <span class="comment">// no error if not defined, use default!
+</span>    NULL);
+    printf(<span class="string">"got a='%s' b='%s' c=%d d=%f\n"</span>,av,bv,cv,dv);
+
+    res = llua_newtable(L);
+
+    <span class="comment">// two ways to set values: first uses _dynamic_ type of
+</span>    <span class="comment">// value
+</span>    <span class="comment">//llua_sets(res,"one","hello");
+</span>    <span class="comment">//llua_sets(res,"two",value_float(1.4));
+</span>    <span class="comment">// and second works like gets_v, using explicit format.
+</span>    llua_sets_v(res,
+        <span class="string">"one"</span>,<span class="string">"s"</span>,<span class="string">"hello"</span>,
+        <span class="string">"two"</span>,<span class="string">"f"</span>,<span class="number">1.4</span>,
+    NULL);
+
+    av = llua_gets(res,<span class="string">"one"</span>);
+    printf(<span class="string">"got %s\n"</span>,av);
+
+    llua_t *env = llua_newtable(L);
+    err = llua_evalfile(L,<span class="string">"config.lua"</span>,<span class="string">""</span>,env);
+    <span class="keyword">if</span> (err) {
+        fprintf(stderr,<span class="string">"could not load config.lua: %s\n"</span>,err);
+    } <span class="keyword">else</span> {
+        av = llua_gets(env,<span class="string">"gammon"</span>);
+        printf(<span class="string">"gammon was %s\n"</span>,av);
+    }
+
+
+    lua_close(L);
+    <span class="keyword">return</span> <span class="number">0</span>;
+}</pre>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.2</a></i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
