@@ -1,0 +1,1550 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>llua</h1>
+
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+<li><a href="#Properties">Properties</a></li>
+<li><a href="#Creating">Creating</a></li>
+<li><a href="#Converting">Converting</a></li>
+<li><a href="#LoadingAndEvaluating">LoadingAndEvaluating</a></li>
+<li><a href="#Calling">Calling</a></li>
+<li><a href="#GettingAndSetting">GettingAndSetting</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><strong>llua</strong></li>
+</ul>
+<h2>Topics</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="topics/readme.md.html">readme</a></li>
+</ul>
+<h2>Examples</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="examples/test-llua.c.html">test-llua.c</a></li>
+  <li><a href="examples/strfind.c.html">strfind.c</a></li>
+  <li><a href="examples/file-size.c.html">file-size.c</a></li>
+  <li><a href="examples/errors.c.html">errors.c</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>llua</code></h1>
+<p>llua provides a higher-level way to integrate Lua into C projects,
+by defining reference objects and providing operations like calling,
+accessing, etc on them.</p>
+<p>  Most explicit manipulation of the Lua
+stack becomes unnecessary.</p>
+    <h3>Info:</h3>
+    <ul>
+        <li><strong>Copyright</strong>: Steve Donovan,2014</li>
+        <li><strong>License</strong>: BSD</li>
+    </ul>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#llua_assert">llua_assert ()</a></td>
+	<td class="summary">raise an error when the argument is an error.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#llua_verbose">llua_verbose (f)</a></td>
+	<td class="summary">report whenever a Lua reference is freed</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#llua_setmetatable">llua_setmetatable (o, mt)</a></td>
+	<td class="summary">set the metatable of <code>o</code></td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#llua_push">llua_push (o)</a></td>
+	<td class="summary">push the reference on the stack.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#llua_push_object">llua_push_object (L, value)</a></td>
+	<td class="summary">push an llib object.</td>
+	</tr>
+</table>
+<h2><a href="#Properties">Properties</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#llua_is_lua_object">llua_is_lua_object (o)</a></td>
+	<td class="summary">is this a Lua reference?</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#llua_getmetatable">llua_getmetatable (o)</a></td>
+	<td class="summary">get the metatable of <code>o</code></td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#llua_typename">llua_typename (o)</a></td>
+	<td class="summary">type name of the reference.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#llua_len">llua_len (o)</a></td>
+	<td class="summary">length of Lua reference, if a table or userdata.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#llua_tostring">llua_tostring (o)</a></td>
+	<td class="summary">this returns the <em>original</em> raw C string.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#llua_tonumber">llua_tonumber (o)</a></td>
+	<td class="summary">the Lua reference as a number.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#llua_gettable">llua_gettable (o)</a></td>
+	<td class="summary">can we get a field of this object?</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#llua_settable">llua_settable (o)</a></td>
+	<td class="summary">can we set a field of this object?</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#llua_callable">llua_callable (o)</a></td>
+	<td class="summary">can we call this object?</td>
+	</tr>
+</table>
+<h2><a href="#Creating">Creating</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#llua_new">llua_new (L, idx)</a></td>
+	<td class="summary">new Lua reference to value on stack.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#llua_global">llua_global (L)</a></td>
+	<td class="summary">get the global state as a reference.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#llua_newtable">llua_newtable (L)</a></td>
+	<td class="summary">a reference to a new Lua table.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#llua_cfunction">llua_cfunction (L, f)</a></td>
+	<td class="summary">a reference to a C function.</td>
+	</tr>
+</table>
+<h2><a href="#Converting">Converting</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#llua_to_obj">llua_to_obj (L, idx)</a></td>
+	<td class="summary">value on stack as a llib object, or Lua reference.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#llua_to_obj_pop">llua_to_obj_pop (L, idx)</a></td>
+	<td class="summary">convenient way to call <a href="index.html#llua_to_obj">llua_to_obj</a>  which pops the stack.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#llua_tonumarray">llua_tonumarray (L, idx)</a></td>
+	<td class="summary">Lua table as an array of doubles.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#llua_tointarray">llua_tointarray (L, idx)</a></td>
+	<td class="summary">Lua table as an array of ints.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#llua_tostrarray">llua_tostrarray (L, idx)</a></td>
+	<td class="summary">Lua table as an array of strings.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#llua_convert">llua_convert (L, kind, P, idx)</a></td>
+	<td class="summary">Read a value on the stack into a variable.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#llua_pop_vars">llua_pop_vars (L, fmt, ...)</a></td>
+	<td class="summary">pop some values off the Lua stack.</td>
+	</tr>
+</table>
+<h2><a href="#LoadingAndEvaluating">LoadingAndEvaluating</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#llua_load">llua_load (L, code, name)</a></td>
+	<td class="summary">load a code string and return the compiled chunk as a reference.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#llua_loadfile">llua_loadfile (L, filename)</a></td>
+	<td class="summary">load a file and return the compiled chunk as a reference.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#llua_eval">llua_eval (L, expr, fret)</a></td>
+	<td class="summary">load and evaluate an expression.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#llua_evalfile">llua_evalfile (L, file, fret, env)</a></td>
+	<td class="summary">load and evaluate a file in an environment
+ <code>env</code> may be NULL.</td>
+	</tr>
+</table>
+<h2><a href="#Calling">Calling</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#llua_callf">llua_callf (o, fmt, ...)</a></td>
+	<td class="summary">call the reference, passing a number of arguments.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#llua_call_or_die">llua_call_or_die ()</a></td>
+	<td class="summary">call a function, raising an error.</td>
+	</tr>
+</table>
+<h2><a href="#GettingAndSetting">GettingAndSetting</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#llua_gets">llua_gets (o, key)</a></td>
+	<td class="summary">index the reference with a string key, returning an object.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#llua_gets_v">llua_gets_v (o, key, ...)</a></td>
+	<td class="summary">index the reference with multiple string keys and type-specifiers.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#llua_geti">llua_geti (o, key)</a></td>
+	<td class="summary">index the reference with an integer key.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#llua_rawgeti">llua_rawgeti (o, key)</a></td>
+	<td class="summary">raw indexing with an integer key.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#llua_seti">llua_seti (o, key, value)</a></td>
+	<td class="summary">set value using integer key.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#llua_sets">llua_sets (o, key, value)</a></td>
+	<td class="summary">set value using integer key.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#llua_sets_v">llua_sets_v (o, key, ...)</a></td>
+	<td class="summary">set multiple keys and values on the reference.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2><a name="Functions"></a>Functions</h2>
+    <dl class="function">
+    <dt>
+    <a name = "llua_assert"></a>
+    <strong>llua_assert ()</strong>
+    </dt>
+    <dd>
+    raise an error when the argument is an error.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "llua_verbose"></a>
+    <strong>llua_verbose (f)</strong>
+    </dt>
+    <dd>
+    report whenever a Lua reference is freed
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">f</span>
+            <span class="types"><span class="type">FILE *</span></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "llua_setmetatable"></a>
+    <strong>llua_setmetatable (o, mt)</strong>
+    </dt>
+    <dd>
+    set the metatable of <code>o</code>
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">o</span>
+            <span class="types"><span class="type">llua_t *</span></span>
+
+
+        </li>
+        <li><span class="parameter">mt</span>
+            <span class="types"><span class="type">llua_t *</span></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "llua_push"></a>
+    <strong>llua_push (o)</strong>
+    </dt>
+    <dd>
+    push the reference on the stack.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">o</span>
+            <span class="types"><span class="type">llua_t *</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">lua_State *</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "llua_push_object"></a>
+    <strong>llua_push_object (L, value)</strong>
+    </dt>
+    <dd>
+    push an llib object.
+ equivalent to <a href="index.html#llua_push">llua_push</a>  if it&rsquo;s a llua ref, otherwise
+ uses llib type. If there&rsquo;s no type it assumes a plain
+ string literal.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">L</span>
+            <span class="types"><span class="type">lua_State *</span></span>
+
+
+        </li>
+        <li><span class="parameter">value</span>
+            <span class="types"><span class="type">void *</span></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+    <h2><a name="Properties"></a>Properties</h2>
+    <dl class="function">
+    <dt>
+    <a name = "llua_is_lua_object"></a>
+    <strong>llua_is_lua_object (o)</strong>
+    </dt>
+    <dd>
+    is this a Lua reference?
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">o</span>
+            <span class="types"><span class="type">llua_t *</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">bool</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "llua_getmetatable"></a>
+    <strong>llua_getmetatable (o)</strong>
+    </dt>
+    <dd>
+    get the metatable of <code>o</code>
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">o</span>
+            <span class="types"><span class="type">llua_t *</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">llua_t *</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "llua_typename"></a>
+    <strong>llua_typename (o)</strong>
+    </dt>
+    <dd>
+    type name of the reference.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">o</span>
+            <span class="types"><span class="type">llua_t *</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">const char *</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "llua_len"></a>
+    <strong>llua_len (o)</strong>
+    </dt>
+    <dd>
+    length of Lua reference, if a table or userdata.
+ Note that we are specifically not using <code>lua_rawlen</code> here!
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">o</span>
+            <span class="types"><span class="type">llua_t *</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "llua_tostring"></a>
+    <strong>llua_tostring (o)</strong>
+    </dt>
+    <dd>
+    this returns the <em>original</em> raw C string.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">o</span>
+            <span class="types"><span class="type">llua_t *</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">const char *</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "llua_tonumber"></a>
+    <strong>llua_tonumber (o)</strong>
+    </dt>
+    <dd>
+    the Lua reference as a number.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">o</span>
+            <span class="types"><span class="type">llua_t *</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">lua_Number</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "llua_gettable"></a>
+    <strong>llua_gettable (o)</strong>
+    </dt>
+    <dd>
+    can we get a field of this object?
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">o</span>
+            <span class="types"><span class="type">llua_t *</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">bool</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "llua_settable"></a>
+    <strong>llua_settable (o)</strong>
+    </dt>
+    <dd>
+    can we set a field of this object?
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">o</span>
+            <span class="types"><span class="type">llua_t *</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">bool</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "llua_callable"></a>
+    <strong>llua_callable (o)</strong>
+    </dt>
+    <dd>
+    can we call this object?
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">o</span>
+            <span class="types"><span class="type">llua_t *</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">bool</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+</dl>
+    <h2><a name="Creating"></a>Creating</h2>
+    <dl class="function">
+    <dt>
+    <a name = "llua_new"></a>
+    <strong>llua_new (L, idx)</strong>
+    </dt>
+    <dd>
+    new Lua reference to value on stack.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">L</span>
+            <span class="types"><span class="type">lua_State *</span></span>
+
+
+        </li>
+        <li><span class="parameter">idx</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">llua_t *</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "llua_global"></a>
+    <strong>llua_global (L)</strong>
+    </dt>
+    <dd>
+    get the global state as a reference.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">L</span>
+            <span class="types"><span class="type">lua_State *</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">llua_t *</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "llua_newtable"></a>
+    <strong>llua_newtable (L)</strong>
+    </dt>
+    <dd>
+    a reference to a new Lua table.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">L</span>
+            <span class="types"><span class="type">lua_State *</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">llua_t *</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "llua_cfunction"></a>
+    <strong>llua_cfunction (L, f)</strong>
+    </dt>
+    <dd>
+    a reference to a C function.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">L</span>
+            <span class="types"><span class="type">lua_State *</span></span>
+
+
+        </li>
+        <li><span class="parameter">f</span>
+            <span class="types"><span class="type">lua_CFunction</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">llua_t *</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+</dl>
+    <h2><a name="Converting"></a>Converting</h2>
+    <dl class="function">
+    <dt>
+    <a name = "llua_to_obj"></a>
+    <strong>llua_to_obj (L, idx)</strong>
+    </dt>
+    <dd>
+    value on stack as a llib object, or Lua reference.
+ Result can be NULL, a string, a llib boxed value,
+ or a <code>llua_t</code> reference.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">L</span>
+            <span class="types"><span class="type">lua_State *</span></span>
+
+
+        </li>
+        <li><span class="parameter">idx</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">void *</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "llua_to_obj_pop"></a>
+    <strong>llua_to_obj_pop (L, idx)</strong>
+    </dt>
+    <dd>
+    convenient way to call <a href="index.html#llua_to_obj">llua_to_obj</a>  which pops the stack.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">L</span>
+            <span class="types"><span class="type">lua_State *</span></span>
+
+
+        </li>
+        <li><span class="parameter">idx</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">void *</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "llua_tonumarray"></a>
+    <strong>llua_tonumarray (L, idx)</strong>
+    </dt>
+    <dd>
+    Lua table as an array of doubles.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">L</span>
+            <span class="types"><span class="type">lua_State *</span></span>
+
+
+        </li>
+        <li><span class="parameter">idx</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">double *</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "llua_tointarray"></a>
+    <strong>llua_tointarray (L, idx)</strong>
+    </dt>
+    <dd>
+    Lua table as an array of ints.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">L</span>
+            <span class="types"><span class="type">lua_State *</span></span>
+
+
+        </li>
+        <li><span class="parameter">idx</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int *</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "llua_tostrarray"></a>
+    <strong>llua_tostrarray (L, idx)</strong>
+    </dt>
+    <dd>
+    Lua table as an array of strings.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">L</span>
+            <span class="types"><span class="type">lua_State *</span></span>
+
+
+        </li>
+        <li><span class="parameter">idx</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">char * *</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "llua_convert"></a>
+    <strong>llua_convert (L, kind, P, idx)</strong>
+    </dt>
+    <dd>
+    <p>Read a value on the stack into a variable.
+ <code>kind</code> is a  <em>type specifier</em></p>
+
+<ul>
+<li>&lsquo;i&rsquo; integer</li>
+<li>'b' boolean</li>
+<li>'f' double</li>
+<li>&rsquo;s' string</li>
+<li>'o' object (as in <a href="index.html#llua_to_obj">llua_to_obj</a> )</li>
+<li>&lsquo;L&rsquo; llua reference</li>
+<li>'I' array of integers</li>
+<li>'F' array of doubles</li>
+<li>&rsquo;S' array of strings</li>
+</ul>
+
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">L</span>
+            <span class="types"><span class="type">lua_State *</span></span>
+
+
+        </li>
+        <li><span class="parameter">kind</span>
+            <span class="types"><span class="type">char</span></span>
+
+
+        </li>
+        <li><span class="parameter">P</span>
+            <span class="types"><span class="type">void *</span></span>
+
+
+        </li>
+        <li><span class="parameter">idx</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">err_t</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "llua_pop_vars"></a>
+    <strong>llua_pop_vars (L, fmt, ...)</strong>
+    </dt>
+    <dd>
+    pop some values off the Lua stack.
+ Uses <a href="index.html#llua_convert">llua_convert</a>
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">L</span>
+            <span class="types"><span class="type">lua_State *</span></span>
+
+
+        </li>
+        <li><span class="parameter">fmt</span>
+            <span class="types"><span class="type">const char *</span></span>
+
+
+        </li>
+        <li><span class="parameter">...</span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">err_t</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+</dl>
+    <h2><a name="LoadingAndEvaluating"></a>LoadingAndEvaluating</h2>
+    <dl class="function">
+    <dt>
+    <a name = "llua_load"></a>
+    <strong>llua_load (L, code, name)</strong>
+    </dt>
+    <dd>
+    load a code string and return the compiled chunk as a reference.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">L</span>
+            <span class="types"><span class="type">lua_State *</span></span>
+
+
+        </li>
+        <li><span class="parameter">code</span>
+            <span class="types"><span class="type">const char *</span></span>
+
+
+        </li>
+        <li><span class="parameter">name</span>
+            <span class="types"><span class="type">const char *</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">llua_t *</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "llua_loadfile"></a>
+    <strong>llua_loadfile (L, filename)</strong>
+    </dt>
+    <dd>
+    load a file and return the compiled chunk as a reference.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">L</span>
+            <span class="types"><span class="type">lua_State *</span></span>
+
+
+        </li>
+        <li><span class="parameter">filename</span>
+            <span class="types"><span class="type">const char *</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">llua_t *</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "llua_eval"></a>
+    <strong>llua_eval (L, expr, fret)</strong>
+    </dt>
+    <dd>
+    load and evaluate an expression.
+ <code>fret</code> is a type specifier for the result, like <a href="index.html#llua_callf">llua_callf</a> .
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">L</span>
+            <span class="types"><span class="type">lua_State *</span></span>
+
+
+        </li>
+        <li><span class="parameter">expr</span>
+            <span class="types"><span class="type">const char *</span></span>
+
+
+        </li>
+        <li><span class="parameter">fret</span>
+            <span class="types"><span class="type">const char *</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">void *</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "llua_evalfile"></a>
+    <strong>llua_evalfile (L, file, fret, env)</strong>
+    </dt>
+    <dd>
+    load and evaluate a file in an environment
+ <code>env</code> may be NULL.
+ <code>fret</code> is a type specifier for the result, like <a href="index.html#llua_callf">llua_callf</a> .
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">L</span>
+            <span class="types"><span class="type">lua_State *</span></span>
+
+
+        </li>
+        <li><span class="parameter">file</span>
+            <span class="types"><span class="type">const char *</span></span>
+
+
+        </li>
+        <li><span class="parameter">fret</span>
+            <span class="types"><span class="type">const char *</span></span>
+
+
+        </li>
+        <li><span class="parameter">env</span>
+            <span class="types"><span class="type">llua_t *</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">void *</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+</dl>
+    <h2><a name="Calling"></a>Calling</h2>
+    <dl class="function">
+    <dt>
+    <a name = "llua_callf"></a>
+    <strong>llua_callf (o, fmt, ...)</strong>
+    </dt>
+    <dd>
+    <p>call the reference, passing a number of arguments.
+ These are specified by a set of <em>type specifiers</em> <code>fmt</code>. Apart
+ from the usual ones, we have &lsquo;m&rsquo; (which must be first) which
+ means &ldquo;call the method by name&rdquo; where <code>o</code> must be an object,
+ &lsquo;v&rsquo; which means &ldquo;push the value at the index&rdquo;, and &lsquo;x&rsquo; which
+ means &ldquo;C function&rdquo;.</p>
+
+<p> May optionally capture multiple return values with <a href="index.html#llua_convert">llua_convert</a> .
+ There are some common cases that have symbolic names:</p>
+
+<ul>
+<li><code>L_NONE</code> call doesn&rsquo;t return anything</li>
+<li><code>L_VAL</code>  we return a single value</li>
+<li><code>L_REF</code>  we always return result as a llua reference</li>
+<li><code>L_ERR</code>  Lua error convention, either <value> or <nil> &lt;error-string></li>
+</ul>
+
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">o</span>
+            <span class="types"><span class="type">llua_t *</span></span>
+
+
+        </li>
+        <li><span class="parameter">fmt</span>
+            <span class="types"><span class="type">const char *</span></span>
+
+
+        </li>
+        <li><span class="parameter">...</span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">void *</span></span>
+
+
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <li><pre class="example">llua_callf(strfind,<span class="string">"ss"</span>,str,<span class="string">";$"</span>,<span class="string">"i"</span>,&amp;i);</pre></li>
+        <li><pre class="example">llua_callf(open,<span class="string">"s"</span>,<span class="string">"test.txt"</span>,L_ERR)</pre></li>
+        <li><pre class="example">llua_callf(file,<span class="string">"ms"</span>,<span class="string">"write"</span>,<span class="string">"hello there\n"</span>,L_NONE);</pre></li>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "llua_call_or_die"></a>
+    <strong>llua_call_or_die ()</strong>
+    </dt>
+    <dd>
+    call a function, raising an error.
+ A useful combination of <a href="index.html#llua_callf">llua_callf</a>  and <a href="index.html#llua_assert">llua_assert</a>
+
+
+
+
+
+
+
+</dd>
+</dl>
+    <h2><a name="GettingAndSetting"></a>GettingAndSetting</h2>
+    <dl class="function">
+    <dt>
+    <a name = "llua_gets"></a>
+    <strong>llua_gets (o, key)</strong>
+    </dt>
+    <dd>
+    index the reference with a string key, returning an object.
+ &lsquo;object&rsquo; defined as with <a href="index.html#llua_to_obj">llua_to_obj</a>
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">o</span>
+            <span class="types"><span class="type">llua_t *</span></span>
+
+
+        </li>
+        <li><span class="parameter">key</span>
+            <span class="types"><span class="type">const char *</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">void *</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "llua_gets_v"></a>
+    <strong>llua_gets_v (o, key, ...)</strong>
+    </dt>
+    <dd>
+    index the reference with multiple string keys and type-specifiers.
+ Type specifiers are as with <a href="index.html#llua_convert">llua_convert</a>
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">o</span>
+            <span class="types"><span class="type">llua_t *</span></span>
+
+
+        </li>
+        <li><span class="parameter">key</span>
+            <span class="types"><span class="type">const char *</span></span>
+
+
+        </li>
+        <li><span class="parameter">...</span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">err_t</span></span>
+
+
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">llua_gets_v(T,<span class="string">"key1"</span>,<span class="string">"s"</span>,&amp;str,NULL);</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "llua_geti"></a>
+    <strong>llua_geti (o, key)</strong>
+    </dt>
+    <dd>
+    index the reference with an integer key.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">o</span>
+            <span class="types"><span class="type">llua_t *</span></span>
+
+
+        </li>
+        <li><span class="parameter">key</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">void *</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "llua_rawgeti"></a>
+    <strong>llua_rawgeti (o, key)</strong>
+    </dt>
+    <dd>
+    raw indexing with an integer key.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">o</span>
+            <span class="types"><span class="type">llua_t *</span></span>
+
+
+        </li>
+        <li><span class="parameter">key</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">void *</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "llua_seti"></a>
+    <strong>llua_seti (o, key, value)</strong>
+    </dt>
+    <dd>
+    set value using integer key.
+ uses <a href="index.html#llua_push_object">llua_push_object</a>
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">o</span>
+            <span class="types"><span class="type">llua_t *</span></span>
+
+
+        </li>
+        <li><span class="parameter">key</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+        </li>
+        <li><span class="parameter">value</span>
+            <span class="types"><span class="type">void *</span></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "llua_sets"></a>
+    <strong>llua_sets (o, key, value)</strong>
+    </dt>
+    <dd>
+    set value using integer key.
+ uses <a href="index.html#llua_push_object">llua_push_object</a>
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">o</span>
+            <span class="types"><span class="type">llua_t *</span></span>
+
+
+        </li>
+        <li><span class="parameter">key</span>
+            <span class="types"><span class="type">const char *</span></span>
+
+
+        </li>
+        <li><span class="parameter">value</span>
+            <span class="types"><span class="type">void *</span></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "llua_sets_v"></a>
+    <strong>llua_sets_v (o, key, ...)</strong>
+    </dt>
+    <dd>
+    set multiple keys and values on the reference.
+ uses type specifiers like <a href="index.html#llua_callf">llua_callf</a>
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">o</span>
+            <span class="types"><span class="type">llua_t *</span></span>
+
+
+        </li>
+        <li><span class="parameter">key</span>
+            <span class="types"><span class="type">const char *</span></span>
+
+
+        </li>
+        <li><span class="parameter">...</span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">err_t</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.2</a></i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
