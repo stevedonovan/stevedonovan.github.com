@@ -1,0 +1,245 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>llib Documentation</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>llib</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../modules/obj.html">obj</a></li>
+  <li><a href="../modules/str.html">str</a></li>
+  <li><a href="../modules/scan.html">scan</a></li>
+  <li><a href="../modules/template.html">template</a></li>
+  <li><a href="../modules/list.html">list</a></li>
+  <li><a href="../modules/map.html">map</a></li>
+  <li><a href="../modules/file.html">file</a></li>
+  <li><a href="../modules/value.html">value</a></li>
+  <li><strong>json</strong></li>
+  <li><a href="../modules/xml.html">xml</a></li>
+  <li><a href="../modules/farr.html">farr</a></li>
+  <li><a href="../modules/array.html">array</a></li>
+  <li><a href="../modules/table.html">table</a></li>
+  <li><a href="../modules/config.html">config</a></li>
+  <li><a href="../modules/arg.html">arg</a></li>
+</ul>
+<h2>Examples</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../examples/test-config.c.html">test-config.c</a></li>
+  <li><a href="../examples/test-file.c.html">test-file.c</a></li>
+  <li><a href="../examples/test-json.c.html">test-json.c</a></li>
+  <li><a href="../examples/test-list.c.html">test-list.c</a></li>
+  <li><a href="../examples/test-map.c.html">test-map.c</a></li>
+  <li><a href="../examples/test-obj.c.html">test-obj.c</a></li>
+  <li><a href="../examples/test-scan.c.html">test-scan.c</a></li>
+  <li><a href="../examples/test-seq.c.html">test-seq.c</a></li>
+  <li><a href="../examples/test-str.c.html">test-str.c</a></li>
+  <li><a href="../examples/test-table.c.html">test-table.c</a></li>
+  <li><a href="../examples/test-sqlite3-table.c.html">test-sqlite3-table.c</a></li>
+  <li><a href="../examples/test-template.c.html">test-template.c</a></li>
+  <li><a href="../examples/test-xml.c.html">test-xml.c</a></li>
+  <li><a href="../examples/cmd.c.html">cmd.c</a></li>
+  <li><a href="../examples/testa.c.html">testa.c</a></li>
+  <li><a href="../examples/config.c.html">config.c</a></li>
+  <li><a href="../examples/words.c.html">words.c</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>json</code></h1>
+<p><h3>Generating and Reading JSON.</h3>
+</p>
+<p><a href="../modules/json.html#json_parse_string">json_parse_string</a>  and <a href="../modules/json.html#json_parse_file">json_parse_file</a>  will return an llib object, with maps as
+&lsquo;simple maps&rsquo; (arrays where a string key is followed by a value), and
+arrays containing values.</p>
+
+<p><a href="../modules/json.html#json_tostring">json_tostring</a>  will convert llib values into JSON format.</p>
+
+<p>This interface also defines convenient constructors for generating dynamic data
+in the correct form for conversion to JSON:</p>
+
+<pre><code>#ifndef LLIB_NO_VALUE_ABBREV
+#define VM value_map_of_values
+#define VMS value_map_of_str
+#define VI value_int
+#define VS str_ref
+#define VF value_float
+#define VB value_bool
+#define VA value_array_of_values
+#define VAS value_array_of_str
+#endif
+</code></pre>
+
+<p>This header brings in these abbreviations, unless you explicitly define <code>LLIB_NO_VALUE_ABBREV</code>.</p>
+
+<p>Constructing JSON data then is straightforward (note how primitive values need to be boxed):</p>
+
+<pre><code>PValue v = VM(
+    "one",VI(10),
+    "two",VM("float",VF(1.2)),
+    "three",VA(VI(1),VI(2),VI(3)),
+    "four",VB(true)
+);
+</code></pre>
+
+<p>Look at <a href="../modules/value.html#">value</a>  for boxing support.  See <a href="../examples/test-json.c.html#">test-json.c</a> .</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#json_tostring">json_tostring (v)</a></td>
+	<td class="summary">convert an llib value rep into a JSON string.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#json_parse_string">json_parse_string (str)</a></td>
+	<td class="summary">convert a string to JSON data.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#json_parse_file">json_parse_file (file)</a></td>
+	<td class="summary">convert a file to JSON data.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "json_tostring"></a>
+    <strong>json_tostring (v)</strong>
+    </dt>
+    <dd>
+    convert an llib value rep into a JSON string.
+ Lists, Maps, Simple Maps and Arrays are understood as containers.
+ Arrays of primitives are properly handled.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">v</span>
+            <span class="types"><span class="type">PValue</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">char *</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "json_parse_string"></a>
+    <strong>json_parse_string (str)</strong>
+    </dt>
+    <dd>
+    convert a string to JSON data.
+ As a special optimization, arrays consisting only of numbers
+ will be read in as primitive arrays of <code>double</code>.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">str</span>
+            <span class="types"><span class="type">const char *</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">PValue</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "json_parse_file"></a>
+    <strong>json_parse_file (file)</strong>
+    </dt>
+    <dd>
+    convert a file to JSON data.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">file</span>
+            <span class="types"><span class="type">const char *</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">PValue</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.2</a></i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

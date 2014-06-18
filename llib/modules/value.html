@@ -1,0 +1,579 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>llib Documentation</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>llib</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Querying_Type">Querying Type </a></li>
+<li><a href="#Boxing_Values">Boxing Values </a></li>
+<li><a href="#Converting_to_and_from_Strings">Converting to and from Strings </a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../modules/obj.html">obj</a></li>
+  <li><a href="../modules/str.html">str</a></li>
+  <li><a href="../modules/scan.html">scan</a></li>
+  <li><a href="../modules/template.html">template</a></li>
+  <li><a href="../modules/list.html">list</a></li>
+  <li><a href="../modules/map.html">map</a></li>
+  <li><a href="../modules/file.html">file</a></li>
+  <li><strong>value</strong></li>
+  <li><a href="../modules/json.html">json</a></li>
+  <li><a href="../modules/xml.html">xml</a></li>
+  <li><a href="../modules/farr.html">farr</a></li>
+  <li><a href="../modules/array.html">array</a></li>
+  <li><a href="../modules/table.html">table</a></li>
+  <li><a href="../modules/config.html">config</a></li>
+  <li><a href="../modules/arg.html">arg</a></li>
+</ul>
+<h2>Examples</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../examples/test-config.c.html">test-config.c</a></li>
+  <li><a href="../examples/test-file.c.html">test-file.c</a></li>
+  <li><a href="../examples/test-json.c.html">test-json.c</a></li>
+  <li><a href="../examples/test-list.c.html">test-list.c</a></li>
+  <li><a href="../examples/test-map.c.html">test-map.c</a></li>
+  <li><a href="../examples/test-obj.c.html">test-obj.c</a></li>
+  <li><a href="../examples/test-scan.c.html">test-scan.c</a></li>
+  <li><a href="../examples/test-seq.c.html">test-seq.c</a></li>
+  <li><a href="../examples/test-str.c.html">test-str.c</a></li>
+  <li><a href="../examples/test-table.c.html">test-table.c</a></li>
+  <li><a href="../examples/test-sqlite3-table.c.html">test-sqlite3-table.c</a></li>
+  <li><a href="../examples/test-template.c.html">test-template.c</a></li>
+  <li><a href="../examples/test-xml.c.html">test-xml.c</a></li>
+  <li><a href="../examples/cmd.c.html">cmd.c</a></li>
+  <li><a href="../examples/testa.c.html">testa.c</a></li>
+  <li><a href="../examples/config.c.html">config.c</a></li>
+  <li><a href="../examples/words.c.html">words.c</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>value</code></h1>
+<p><h3>Boxing and Unboxing Primitive Types.</h3>
+</p>
+<p>All llib objects are by defiintion <em>values</em>;  primitive types like ints (<code>long long</code>) ,
+floats (<code>double</code>) and bools must be <em>boxed</em> first.  Boxed types are pointers-to-primitive,
+which are not arrays; <a href="../modules/value.html#value_is_box">value_is_box</a>  becomes true.  To box a value use <a href="../modules/value.html#value_int">value_int</a> ,
+<a href="../modules/value.html#value_float">value_float</a>  and <a href="../modules/value.html#value_bool">value_bool</a> ;  to check the type use the equivalent <code>value_is<em></code>
+functions, and to extract the value use <code>value_as</em></code>.</p>
+
+<p>Error values are strings with a distinct type, so we have <a href="../modules/value.html#value_error">value_error</a>  and  <a href="../modules/value.html#value_is_error">value_is_error</a> .</p>
+
+<p><a href="../modules/value.html#value_parse">value_parse</a>  converts strings to values using a known value type; <a href="../modules/value.html#value_tostring">value_tostring</a>  will
+convert a value to a default string representation.  More complicated value types like arrays
+don&rsquo;t have a unique representation as strings, so see <code>json_tostring</code> and <code>xml_tostring</code>.</p>
+
+<p>See <a href="../examples/test-json.c.html#">test-json.c</a>  for how values are used in practice.</p>
+
+
+<h2><a href="#Querying_Type">Querying Type </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#value_is_box">value_is_box (v)</a></td>
+	<td class="summary">is this a boxed value?</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#value_is_string">value_is_string (v)</a></td>
+	<td class="summary">is this value a string?</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#value_is_error">value_is_error (v)</a></td>
+	<td class="summary">is this value an error string?</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#value_is_float">value_is_float (v)</a></td>
+	<td class="summary">does this value contain a <code>double</code>?</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#value_is_int">value_is_int (v)</a></td>
+	<td class="summary">does this value contain a <code>long long</code>?</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#value_is_bool">value_is_bool (v)</a></td>
+	<td class="summary">does this value contain a <code>bool</code>?</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#value_is_simple_map">value_is_simple_map (v)</a></td>
+	<td class="summary">does this value represent a <em>simple map</em>?</td>
+	</tr>
+</table>
+<h2><a href="#Boxing_Values">Boxing Values </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#value_error">value_error (msg)</a></td>
+	<td class="summary">make a error value.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#value_float">value_float (x)</a></td>
+	<td class="summary">box a <code>double</code>.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#value_int">value_int (i)</a></td>
+	<td class="summary">box a <code>long long</code>.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#value_bool">value_bool (i)</a></td>
+	<td class="summary">box a <code>bool</code>.</td>
+	</tr>
+</table>
+<h2><a href="#Converting_to_and_from_Strings">Converting to and from Strings </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#value_parse">value_parse (str, type)</a></td>
+	<td class="summary">convert a string into a value of the desired type.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#value_tostring">value_tostring (v)</a></td>
+	<td class="summary">Default representation of a value as a string.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2><a name="Querying_Type"></a>Querying Type </h2>
+    Querying Type
+
+
+    <dl class="function">
+    <dt>
+    <a name = "value_is_box"></a>
+    <strong>value_is_box (v)</strong>
+    </dt>
+    <dd>
+    is this a boxed value?
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">v</span>
+            <span class="types"><span class="type">PValue</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">bool</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "value_is_string"></a>
+    <strong>value_is_string (v)</strong>
+    </dt>
+    <dd>
+    is this value a string?
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">v</span>
+            <span class="types"><span class="type">PValue</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">bool</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "value_is_error"></a>
+    <strong>value_is_error (v)</strong>
+    </dt>
+    <dd>
+    is this value an error string?
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">v</span>
+            <span class="types"><span class="type">PValue</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">bool</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "value_is_float"></a>
+    <strong>value_is_float (v)</strong>
+    </dt>
+    <dd>
+    does this value contain a <code>double</code>?
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">v</span>
+            <span class="types"><span class="type">PValue</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">bool</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "value_is_int"></a>
+    <strong>value_is_int (v)</strong>
+    </dt>
+    <dd>
+    does this value contain a <code>long long</code>?
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">v</span>
+            <span class="types"><span class="type">PValue</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">bool</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "value_is_bool"></a>
+    <strong>value_is_bool (v)</strong>
+    </dt>
+    <dd>
+    does this value contain a <code>bool</code>?
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">v</span>
+            <span class="types"><span class="type">PValue</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">bool</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "value_is_simple_map"></a>
+    <strong>value_is_simple_map (v)</strong>
+    </dt>
+    <dd>
+    does this value represent a <em>simple map</em>?
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">v</span>
+            <span class="types"><span class="type">PValue</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">bool</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+</dl>
+    <h2><a name="Boxing_Values"></a>Boxing Values </h2>
+    Boxing Values
+
+
+    <dl class="function">
+    <dt>
+    <a name = "value_error"></a>
+    <strong>value_error (msg)</strong>
+    </dt>
+    <dd>
+    make a error value.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">msg</span>
+            <span class="types"><span class="type">const char *</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">PValue</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "value_float"></a>
+    <strong>value_float (x)</strong>
+    </dt>
+    <dd>
+    box a <code>double</code>.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+            <span class="types"><span class="type">double</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">PValue</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "value_int"></a>
+    <strong>value_int (i)</strong>
+    </dt>
+    <dd>
+    box a <code>long long</code>.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">i</span>
+            <span class="types"><span class="type">long long</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">PValue</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "value_bool"></a>
+    <strong>value_bool (i)</strong>
+    </dt>
+    <dd>
+    box a <code>bool</code>.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">i</span>
+            <span class="types"><span class="type">bool</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">PValue</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+</dl>
+    <h2><a name="Converting_to_and_from_Strings"></a>Converting to and from Strings </h2>
+    Converting to and from Strings
+
+
+    <dl class="function">
+    <dt>
+    <a name = "value_parse"></a>
+    <strong>value_parse (str, type)</strong>
+    </dt>
+    <dd>
+    convert a string into a value of the desired type.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">str</span>
+            <span class="types"><span class="type">const char *</span></span>
+
+
+        </li>
+        <li><span class="parameter">type</span>
+            <span class="types"><span class="type">ValueType</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">PValue</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "value_tostring"></a>
+    <strong>value_tostring (v)</strong>
+    </dt>
+    <dd>
+    Default representation of a value as a string.
+ Only applies to scalar values (if you want to show arrays &amp; maps
+ use json module).
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">v</span>
+            <span class="types"><span class="type">PValue</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">const char *</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.2</a></i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

@@ -1,0 +1,182 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>llib Documentation</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>llib</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+
+
+<h2>Examples</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../examples/test-config.c.html">test-config.c</a></li>
+  <li><a href="../examples/test-file.c.html">test-file.c</a></li>
+  <li><strong>test-json.c</strong></li>
+  <li><a href="../examples/test-list.c.html">test-list.c</a></li>
+  <li><a href="../examples/test-map.c.html">test-map.c</a></li>
+  <li><a href="../examples/test-obj.c.html">test-obj.c</a></li>
+  <li><a href="../examples/test-scan.c.html">test-scan.c</a></li>
+  <li><a href="../examples/test-seq.c.html">test-seq.c</a></li>
+  <li><a href="../examples/test-str.c.html">test-str.c</a></li>
+  <li><a href="../examples/test-table.c.html">test-table.c</a></li>
+  <li><a href="../examples/test-sqlite3-table.c.html">test-sqlite3-table.c</a></li>
+  <li><a href="../examples/test-template.c.html">test-template.c</a></li>
+  <li><a href="../examples/test-xml.c.html">test-xml.c</a></li>
+  <li><a href="../examples/cmd.c.html">cmd.c</a></li>
+  <li><a href="../examples/testa.c.html">testa.c</a></li>
+  <li><a href="../examples/config.c.html">config.c</a></li>
+  <li><a href="../examples/words.c.html">words.c</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../modules/obj.html">obj</a></li>
+  <li><a href="../modules/str.html">str</a></li>
+  <li><a href="../modules/scan.html">scan</a></li>
+  <li><a href="../modules/template.html">template</a></li>
+  <li><a href="../modules/list.html">list</a></li>
+  <li><a href="../modules/map.html">map</a></li>
+  <li><a href="../modules/file.html">file</a></li>
+  <li><a href="../modules/value.html">value</a></li>
+  <li><a href="../modules/json.html">json</a></li>
+  <li><a href="../modules/xml.html">xml</a></li>
+  <li><a href="../modules/farr.html">farr</a></li>
+  <li><a href="../modules/array.html">array</a></li>
+  <li><a href="../modules/table.html">table</a></li>
+  <li><a href="../modules/config.html">config</a></li>
+  <li><a href="../modules/arg.html">arg</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+    <pre>
+<span class="comment">/*
+* llib little C library
+* BSD licence
+* Copyright Steve Donovan, 2013
+*/</span>
+
+#include &lt;stdio.h&gt;
+#include &lt;llib/list.h&gt;
+#include &lt;llib/map.h&gt;
+#include &lt;llib/json.h&gt;
+
+<span class="comment">//const char *js = "{'one':[10,100], 'two':2, 'three':'hello'}";
+</span><span class="comment">//const char *js = "{'one':1, 'two':2, 'three':'hello'}";
+</span><span class="comment">//const char *js = "[10,20,30]";
+</span>
+<span class="comment">//const char *js = "[{'zwei':2.'twee':2},10,{'A':10,'B':[1,2]}]";
+</span>
+<span class="keyword">const</span> <span class="keyword">char</span> *js = <span class="string">"[{'zwei':2,'twee':2},10,{'A':10,'B':[2,20]},[]]"</span>;
+
+<span class="keyword">int</span> main(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)
+{
+    PValue v;
+    <span class="keyword">char</span> *s;
+    <span class="keyword">if</span> (argc &gt; <span class="number">1</span>) {
+        v = json_parse_string(argv[<span class="number">1</span>]);
+        s = json_tostring(v);
+        puts(s);
+        dispose(s,v);
+        printf(<span class="string">"count = %d\n"</span>,obj_kount());
+        <span class="keyword">return</span> <span class="number">0</span>;
+    }
+
+    PValue *va = array_new_ref(PValue,<span class="number">7</span>);
+    va[<span class="number">0</span>] = str_new(<span class="string">"hello dolly"</span>);
+    va[<span class="number">1</span>] = value_float(<span class="number">4.2</span>);
+
+    List *ls = list_new_str();
+    list_add_items(ls, <span class="string">"bonzo"</span>,<span class="string">"dog"</span>);
+
+    va[<span class="number">2</span>] = ls;
+
+    List *li = list_new_ptr();
+    list_add(li,(<span class="keyword">void</span>*)<span class="number">103</span>);
+    list_add(li,(<span class="keyword">void</span>*)<span class="number">20</span>);
+    va[<span class="number">3</span>] = li;
+
+    Map *m = map_new_str_ptr();
+    map_puti(m,<span class="string">"frodo"</span>,<span class="number">54</span>);
+    map_puti(m,<span class="string">"bilbo"</span>,<span class="number">112</span>);
+    va[<span class="number">4</span>] = m;
+
+    <span class="keyword">double</span> *ai = array_new(<span class="keyword">double</span>,<span class="number">2</span>);
+    ai[<span class="number">0</span>] = <span class="number">10.0</span>;
+    ai[<span class="number">1</span>] = <span class="number">20</span>;
+    va[<span class="number">5</span>] = ai;
+
+    <span class="keyword">short</span> *si = array_new(<span class="keyword">short</span>,<span class="number">3</span>);
+    si[<span class="number">0</span>] = <span class="number">10</span>;
+    si[<span class="number">1</span>] = <span class="number">100</span>;
+    si[<span class="number">2</span>] = <span class="number">1000</span>;
+    va[<span class="number">6</span>] = si;
+
+    s = json_tostring(va);
+
+    printf(<span class="string">"got '%s'\n"</span>,s);
+
+    PValue e = value_error(<span class="string">"completely borked"</span>);
+    <span class="keyword">if</span> (value_is_error(e)) {
+        printf(<span class="string">"here is an error: %s\n"</span>,e);
+    }
+    dispose(va,s, e);
+
+    v = VM(
+        <span class="string">"one"</span>,VI(<span class="number">10</span>),
+        <span class="string">"two"</span>,VM(<span class="string">"float"</span>,VF(<span class="number">1.2</span>)),
+        <span class="string">"three"</span>,VA(VI(<span class="number">1</span>),VI(<span class="number">2</span>),VI(<span class="number">3</span>)),
+        <span class="string">"four"</span>,VB(<span class="keyword">true</span>)
+    );
+    s = json_tostring(v);
+
+    printf(<span class="string">"got '%s'\n"</span>,s);
+
+    dispose(s,v);
+
+    printf(<span class="string">"count = %d\n"</span>,obj_kount());
+
+    v = json_parse_string(js);
+    s = json_tostring(v);
+    puts(s);
+    dispose(s,v);
+
+    printf(<span class="string">"count = %d\n"</span>,obj_kount());
+    <span class="keyword">return</span> <span class="number">0</span>;
+}</pre>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.2</a></i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

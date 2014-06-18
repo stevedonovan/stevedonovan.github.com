@@ -1,0 +1,292 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>llib Documentation</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>llib</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+
+
+<h2>Examples</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../examples/test-config.c.html">test-config.c</a></li>
+  <li><a href="../examples/test-file.c.html">test-file.c</a></li>
+  <li><a href="../examples/test-json.c.html">test-json.c</a></li>
+  <li><strong>test-list.c</strong></li>
+  <li><a href="../examples/test-map.c.html">test-map.c</a></li>
+  <li><a href="../examples/test-obj.c.html">test-obj.c</a></li>
+  <li><a href="../examples/test-scan.c.html">test-scan.c</a></li>
+  <li><a href="../examples/test-seq.c.html">test-seq.c</a></li>
+  <li><a href="../examples/test-str.c.html">test-str.c</a></li>
+  <li><a href="../examples/test-table.c.html">test-table.c</a></li>
+  <li><a href="../examples/test-sqlite3-table.c.html">test-sqlite3-table.c</a></li>
+  <li><a href="../examples/test-template.c.html">test-template.c</a></li>
+  <li><a href="../examples/test-xml.c.html">test-xml.c</a></li>
+  <li><a href="../examples/cmd.c.html">cmd.c</a></li>
+  <li><a href="../examples/testa.c.html">testa.c</a></li>
+  <li><a href="../examples/config.c.html">config.c</a></li>
+  <li><a href="../examples/words.c.html">words.c</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../modules/obj.html">obj</a></li>
+  <li><a href="../modules/str.html">str</a></li>
+  <li><a href="../modules/scan.html">scan</a></li>
+  <li><a href="../modules/template.html">template</a></li>
+  <li><a href="../modules/list.html">list</a></li>
+  <li><a href="../modules/map.html">map</a></li>
+  <li><a href="../modules/file.html">file</a></li>
+  <li><a href="../modules/value.html">value</a></li>
+  <li><a href="../modules/json.html">json</a></li>
+  <li><a href="../modules/xml.html">xml</a></li>
+  <li><a href="../modules/farr.html">farr</a></li>
+  <li><a href="../modules/array.html">array</a></li>
+  <li><a href="../modules/table.html">table</a></li>
+  <li><a href="../modules/config.html">config</a></li>
+  <li><a href="../modules/arg.html">arg</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+    <pre>
+<span class="comment">/*
+* llib little C library
+* BSD licence
+* Copyright Steve Donovan, 2013
+*/</span>
+
+#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+#include &lt;assert.h&gt;
+#include &lt;llib/list.h&gt;
+
+<span class="keyword">typedef</span> <span class="keyword">const</span> <span class="keyword">char</span> *Str;
+
+<span class="comment">// any struct we want to link in a list needs to start with LIST_HEADER
+</span>
+<span class="keyword">typedef</span> <span class="keyword">struct</span> {
+    LIST_HEADER;
+    Str name;
+    <span class="keyword">int</span> age;
+} Person;
+
+<span class="keyword">void</span> Person_dispose (Person *p) {
+    printf(<span class="string">"disposing %s\n"</span>,p-&gt;name);
+    obj_unref((<span class="keyword">void</span> *)p-&gt;name);
+}
+
+Person *Person_new (Str name, <span class="keyword">int</span> age) {
+    Person *p = obj_new (Person,Person_dispose);
+    p-&gt;name = str_new(name);
+    p-&gt;age = age;
+    <span class="keyword">return</span> p;
+}
+
+#define list_get_cast(T,ls,idx) ((T*)list_get(ls,idx))
+#define EQ(s1,s2) (strcmp((s1),(s2))==0)
+
+<span class="keyword">void</span> test_person_list() {
+    List *pl = list_new_node (<span class="keyword">true</span>);
+    list_add (pl, Person_new (<span class="string">"bill"</span>,<span class="number">20</span>));
+    list_add (pl, Person_new (<span class="string">"jane"</span>,<span class="number">22</span>));
+
+    <span class="global">assert</span> (EQ(list_get_cast(Person,pl,-<span class="number">2</span>)-&gt;name,<span class="string">"bill"</span>));
+
+    Person *pbill = (Person*)list_find(pl,<span class="string">"bill"</span>);
+    <span class="global">assert</span> (pbill-&gt;age == <span class="number">20</span>);
+
+    FOR_LIST_ITEM(Person,p,pl)
+        printf(<span class="string">"person %s %d\n"</span>,p-&gt;name,p-&gt;age);
+
+    Person **ppl = (Person **)list_to_array(pl);
+    printf(<span class="string">"%s %d ?\n"</span>,ppl[<span class="number">0</span>]-&gt;name,ppl[<span class="number">0</span>]-&gt;age);
+    obj_unref(ppl);
+    obj_unref(pl);
+}
+
+<span class="keyword">void</span> compare_int_list(List *ls, <span class="keyword">int</span> *arr) {
+    <span class="keyword">int</span> n;
+    FOR_LIST_T(intptr,n,ls)
+        <span class="global">assert</span>(n == *arr++);
+}
+
+<span class="keyword">void</span> dump_int_list(List *ls) {
+    <span class="keyword">int</span> n;
+    FOR_LIST_T(intptr,n,ls)
+        printf(<span class="string">"%d "</span>,(<span class="keyword">int</span>)n);
+    printf(<span class="string">"\n"</span>);
+}
+
+<span class="keyword">void</span> test_int_list() {
+    List *li  = list_new_ptr();
+    #define D (void *)
+    list_add(li, D <span class="number">10</span>);
+    list_add(li, D <span class="number">20</span>);
+    list_add(li, D <span class="number">30</span>);
+    <span class="comment">// intended for pointers, works with non-zero integers as well
+</span>    <span class="comment">// the casts to void * is needed for this to work on 64-bit
+</span>    <span class="comment">// systems where the default int is smaller than a pointer.
+</span>    list_add_items(li,D <span class="number">40</span>,D <span class="number">50</span>,D <span class="number">60</span>);
+
+    <span class="comment">// indexing is slow in general, unless we're close to one of the ends
+</span>    <span class="global">assert</span> ( (intptr)list_get(li,-<span class="number">1</span>) == <span class="number">60</span> );
+    <span class="global">assert</span> ( (intptr)list_get(li,<span class="number">1</span>) == <span class="number">20</span> );
+
+    <span class="keyword">int</span> o1[] = {<span class="number">10</span>,<span class="number">20</span>,<span class="number">30</span>,<span class="number">40</span>,<span class="number">50</span>,<span class="number">60</span>};
+    compare_int_list(li,o1);
+
+    list_remove_value(li,D <span class="number">20</span>);
+    list_remove_value(li,D <span class="number">22</span>); <span class="comment">// fails harmlessly
+</span>
+    List *l2 = list_new_ptr();
+    list_add_items(l2,<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>);
+
+    <span class="comment">// moves all items over to new list
+</span>    list_extend_move(li,l2);
+    <span class="global">assert</span>(list_size(l2)==<span class="number">0</span>);
+
+    <span class="keyword">int</span> o2[] = {<span class="number">10</span>,<span class="number">30</span>,<span class="number">40</span>,<span class="number">50</span>,<span class="number">60</span>,<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>};
+    compare_int_list(li,o2);
+
+    <span class="comment">// equivalent to li[1:-2] in Python
+</span>    List *sub = list_slice(li,list_iter(li,<span class="number">1</span>),list_iter(li,-<span class="number">2</span>));
+
+    <span class="comment">// would not be a list if we could not insert stuff arbitrarily!
+</span>    list_insert(sub,list_start(sub),D <span class="number">555</span>);
+
+    <span class="comment">// insert 44 before 40
+</span>    list_insert(sub,list_find(sub,D <span class="number">40</span>),D <span class="number">44</span>);
+
+    <span class="keyword">int</span> o3[] = {<span class="number">555</span>,<span class="number">30</span>,<span class="number">44</span>,<span class="number">40</span>,<span class="number">50</span>,<span class="number">60</span>,<span class="number">1</span>,<span class="number">2</span>};
+    compare_int_list(sub,o3);
+
+    List *s = list_new_ptr();
+    #define add(v) list_add_sorted(s,D v)
+    add(<span class="number">3</span>);
+    add(<span class="number">10</span>);
+    add(<span class="number">2</span>);
+    add(<span class="number">5</span>);
+    add(<span class="number">6</span>);
+    add(<span class="number">1</span>);
+    #undef add
+
+    <span class="keyword">int</span> o4[] = {<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">5</span>,<span class="number">6</span>,<span class="number">10</span>};
+    compare_int_list(s,o4);
+
+    <span class="comment">// it's safe to remove items with this statement,
+</span>    <span class="comment">// but you do need to know the magic 'p_' name of the iterator
+</span>    intptr n;
+    FOR_LIST_T(intptr,n,s)
+        <span class="keyword">if</span> (n == <span class="number">3</span> || n == <span class="number">6</span>)
+            list_delete(s,p_);
+    dump_int_list(s);
+
+    dispose(li,l2,s,sub);
+}
+
+<span class="comment">// big difference between this and the Person example is that
+</span><span class="comment">// this is a plain refcounted object which is _contained_ in the list.
+</span>
+<span class="keyword">int</span> fook = <span class="number">0</span>;
+
+<span class="keyword">typedef</span> <span class="keyword">struct</span> {
+    Str name;
+} Foo;
+
+<span class="keyword">void</span> Foo_dispose(Foo *p)
+{
+    --fook;
+    unref(p-&gt;name);
+}
+
+Foo *Foo_new(Str name)
+{
+    Foo * f = obj_new(Foo,Foo_dispose);
+    f-&gt;name = str_ref((<span class="keyword">char</span>*)name);
+    printf(<span class="string">"ref %d\n"</span>,obj_refcount((<span class="keyword">void</span>*)f-&gt;name));
+
+    ++fook;
+    <span class="keyword">return</span> f;
+}
+
+<span class="keyword">void</span> test_ref_list()
+{
+    List *ff = list_new_ref();
+    Foo *f1 = Foo_new(<span class="string">"one"</span>);
+    Foo *f2 = Foo_new(<span class="string">"two"</span>);
+    list_add_items(ff,f1,f2);
+    unref(ff);
+    <span class="global">assert</span>(fook == <span class="number">0</span>);
+}
+
+<span class="comment">// list wrappers allow floating-point numbers to be safely put in lists.
+</span><span class="comment">// (Otherwise, conversions to void* mess them up)
+</span><span class="keyword">void</span> test_wrapper()
+{
+    <span class="keyword">float</span> ** pw = (<span class="keyword">float</span>**)listw_new();
+    listw_add(pw, <span class="number">10</span>);
+    listw_add(pw, <span class="number">20</span>);
+    listw_add(pw, <span class="number">30</span>);
+    listw_add(pw, <span class="number">40</span>);
+    listw_insert(pw, listw_first(pw), <span class="number">5</span>);
+    printf(<span class="string">"first %f\n"</span>,listw_get(pw,<span class="number">0</span>));
+    printf(<span class="string">"last %f\n"</span>,listw_get(pw,-<span class="number">1</span>));
+    FOR_LISTW(p, pw)
+        printf(<span class="string">"%f\n"</span>,**pw);
+    unref(pw);
+}
+
+
+<span class="keyword">int</span> main() {
+
+    printf(<span class="string">"int lists\n"</span>);
+    test_int_list();
+
+    printf(<span class="string">"Person lists\n"</span>);
+    test_person_list();
+
+    printf(<span class="string">"lists of references\n"</span>);
+    test_ref_list();
+
+    printf(<span class="string">"wrapper lists\n"</span>);
+    test_wrapper();
+    printf(<span class="string">"kount %d\n"</span>,obj_kount());
+    <span class="keyword">return</span> <span class="number">0</span>;
+}</pre>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.2</a></i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

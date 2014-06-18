@@ -1,0 +1,222 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>llib Documentation</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>llib</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+
+
+<h2>Examples</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../examples/test-config.c.html">test-config.c</a></li>
+  <li><a href="../examples/test-file.c.html">test-file.c</a></li>
+  <li><a href="../examples/test-json.c.html">test-json.c</a></li>
+  <li><a href="../examples/test-list.c.html">test-list.c</a></li>
+  <li><a href="../examples/test-map.c.html">test-map.c</a></li>
+  <li><a href="../examples/test-obj.c.html">test-obj.c</a></li>
+  <li><strong>test-scan.c</strong></li>
+  <li><a href="../examples/test-seq.c.html">test-seq.c</a></li>
+  <li><a href="../examples/test-str.c.html">test-str.c</a></li>
+  <li><a href="../examples/test-table.c.html">test-table.c</a></li>
+  <li><a href="../examples/test-sqlite3-table.c.html">test-sqlite3-table.c</a></li>
+  <li><a href="../examples/test-template.c.html">test-template.c</a></li>
+  <li><a href="../examples/test-xml.c.html">test-xml.c</a></li>
+  <li><a href="../examples/cmd.c.html">cmd.c</a></li>
+  <li><a href="../examples/testa.c.html">testa.c</a></li>
+  <li><a href="../examples/config.c.html">config.c</a></li>
+  <li><a href="../examples/words.c.html">words.c</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../modules/obj.html">obj</a></li>
+  <li><a href="../modules/str.html">str</a></li>
+  <li><a href="../modules/scan.html">scan</a></li>
+  <li><a href="../modules/template.html">template</a></li>
+  <li><a href="../modules/list.html">list</a></li>
+  <li><a href="../modules/map.html">map</a></li>
+  <li><a href="../modules/file.html">file</a></li>
+  <li><a href="../modules/value.html">value</a></li>
+  <li><a href="../modules/json.html">json</a></li>
+  <li><a href="../modules/xml.html">xml</a></li>
+  <li><a href="../modules/farr.html">farr</a></li>
+  <li><a href="../modules/array.html">array</a></li>
+  <li><a href="../modules/table.html">table</a></li>
+  <li><a href="../modules/config.html">config</a></li>
+  <li><a href="../modules/arg.html">arg</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+    <pre>
+<span class="comment">/*
+* llib little C library
+* BSD licence
+* Copyright Steve Donovan, 2013
+*/</span>
+
+#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+#include &lt;assert.h&gt;
+#include &lt;llib/scan.h&gt;
+#include &lt;llib/value.h&gt;
+
+<span class="keyword">void</span> dump(<span class="keyword">void</span> *d, <span class="keyword">double</span> x) { printf(<span class="string">"%f\n"</span>,x); }
+
+<span class="keyword">void</span> dumpall(<span class="keyword">double</span> *x, <span class="keyword">int</span> len) {
+    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; len; ++i)
+        printf(<span class="string">"%f "</span>,x[i]);
+    printf(<span class="string">"\n"</span>);
+}
+
+#define BUFSZ 128
+
+#define set(var,value) (obj_unref(var),var = value)
+
+<span class="keyword">int</span> main() {
+    ScanState *ts;
+    <span class="keyword">char</span> buff[BUFSZ];
+    <span class="keyword">double</span> values[<span class="number">100</span>];
+    ts = scan_new_from_file(<span class="string">"test1.dat"</span>);
+    scan_numbers_fun(ts,dump,NULL);
+    <span class="comment">// scan_numbers goes over the whole stream;
+</span>    <span class="comment">// using scan_next_line can make it work over current line
+</span>    set (ts,scan_new_from_file(<span class="string">"test1.dat"</span>));
+    <span class="keyword">while</span> (scan_next_line(ts)) {
+        <span class="keyword">int</span> n = scan_numbers(ts,values,<span class="number">100</span>);
+        dumpall(values,n);
+    }
+
+    set(ts,scan_new_from_string(<span class="string">"hello = (10,20,30)"</span>));
+    puts(scan_next_iden(ts,buff,BUFSZ));
+    printf(<span class="string">"%c \n"</span>,scan_next(ts));
+    <span class="comment">// after this, next call to scan_next will return this token again
+</span>    <span class="keyword">if</span> (scan_next(ts) == '(') {
+        scan_push_back(ts);
+    }
+    <span class="keyword">while</span> (scan_next(ts)) {
+        printf(<span class="string">"%d \n"</span>,ts-&gt;<span class="global">type</span>);
+    }
+
+    <span class="comment">// words, strings and numbers
+</span>    set(ts,scan_new_from_string(<span class="string">"here 'we go' again 10 "</span>));
+    <span class="keyword">while</span> (scan_next(ts)) {
+        <span class="comment">// this gives us a properly ref-counted string...
+</span>        <span class="keyword">char</span> *str = scan_get_str(ts);
+        printf(<span class="string">"%d '%s'\n"</span>,ts-&gt;<span class="global">type</span>,str);
+        unref(str);
+    }
+
+    <span class="comment">// extracting C strings from this file
+</span>    set(ts,scan_new_from_file(<span class="string">"test-scan.c"</span>));
+   <span class="comment">// set this if you want to decode C string escapes
+</span>   <span class="comment">// scan_set_flags(ts,C_STRING);
+</span>    <span class="keyword">if</span> (ts) {
+        <span class="keyword">while</span> (scan_next(ts)) {
+            <span class="keyword">if</span> (ts-&gt;<span class="global">type</span> == T_STRING) {
+                scan_get_tok(ts,buff,BUFSZ);
+                printf(<span class="string">"string '%s'\n"</span>,buff);
+            }
+        }
+    }
+
+    set(ts,scan_new_from_file(<span class="string">"test.cfg"</span>));
+    scan_set_line_comment(ts,<span class="string">"#"</span>);
+    <span class="keyword">while</span> (scan_next(ts)) {
+        scan_get_tok(ts,buff,BUFSZ);
+        printf(<span class="string">"key %s "</span>,buff);
+        scan_next(ts);
+        scan_get_line(ts,buff,BUFSZ);
+        printf(<span class="string">"value '%s'\n"</span>,buff);
+    }
+
+    <span class="comment">////// scan_scanf //////
+</span>
+    <span class="keyword">const</span> <span class="keyword">char</span> *xml = <span class="string">"&lt;boo a='woo' b='doll'&gt;bonzo dog &lt;(10,20,30),(1,2,3);"</span>;
+
+    set(ts, scan_new_from_string(xml));
+    <span class="comment">//scan_set_flags(ts,C_NUMBER) is currently not consistent with scan_scanf!
+</span>    <span class="keyword">char</span> *tag, *attrib, *value;
+    scan_scanf(ts,<span class="string">"&lt;%s"</span>,&amp;tag);
+    <span class="comment">// %s is any iden, and %q is a _quoted_ string
+</span>    <span class="keyword">while</span> (scan_scanf(ts,<span class="string">"%s=%q"</span>,&amp;attrib,&amp;value)) {
+        printf(<span class="string">"tag '%s' attrib '%s' value '%s'\n"</span>,tag,attrib,value);
+        dispose(attrib,value);
+    }
+    dispose(tag);
+    <span class="global">assert</span>(ts-&gt;<span class="global">type</span> == '&gt;');
+
+    scan_get_upto(ts,<span class="string">"&lt;"</span>,buff,BUFSZ);
+    scan_advance(ts,-<span class="number">1</span>);
+    printf(<span class="string">"got '%s' (%c)\n"</span>,buff,scan_getch(ts));
+
+    <span class="keyword">int</span> i,j,k;
+    <span class="keyword">char</span> ch;
+    <span class="comment">// %d, %f and %c are what you expect...
+</span>    <span class="keyword">while</span> (scan_scanf(ts,<span class="string">"(%d,%d,%d)%c"</span>,&amp;i,&amp;j,&amp;k,&amp;ch) &amp;&amp; (ch == ',' || ch == ';'))
+        printf(<span class="string">"values %d %d %d\n"</span>,i,j,k);
+
+    <span class="global">assert</span>(ts-&gt;<span class="global">type</span> == ';');
+
+    <span class="comment">// %l means rest of current line...
+</span>    <span class="keyword">const</span> <span class="keyword">char</span> *config_data = <span class="string">"A=cool stuff\nB=necessary nonsense\nC=10,20\n"</span>;
+    set(ts,scan_new_from_string(config_data));
+    <span class="keyword">char</span> *key, *v;
+    <span class="keyword">while</span> (scan_scanf(ts,<span class="string">"%s=%l"</span>,&amp;key,&amp;v)) {
+        printf(<span class="string">"%s='%s'\n"</span>,key,v);
+        dispose(key,v);
+    }
+
+    <span class="comment">// %v means read next token as a Value
+</span>    config_data = <span class="string">"alpha=1 beta=2 gamma=hello delta='frodo'"</span>;
+    PValue val;
+    set(ts,scan_new_from_string(config_data));
+    <span class="keyword">while</span> (scan_scanf(ts,<span class="string">"%s=%v"</span>,&amp;key,&amp;val)) {
+        printf(<span class="string">"%s="</span>,key);
+        <span class="keyword">if</span> (value_is_string(val))
+            printf(<span class="string">"'%s'\n"</span>,(<span class="keyword">char</span>*)val);
+        <span class="keyword">else</span> <span class="keyword">if</span> (value_is_int(val))
+            printf(<span class="string">"%d\n"</span>,*(intptr*)val);
+        dispose(key,val);
+    }
+    unref(ts);
+    printf(<span class="string">"kount = %d\n"</span>,obj_kount());
+
+}</pre>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.2</a></i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

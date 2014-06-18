@@ -1,0 +1,224 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>llib Documentation</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>llib</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+
+
+<h2>Examples</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../examples/test-config.c.html">test-config.c</a></li>
+  <li><a href="../examples/test-file.c.html">test-file.c</a></li>
+  <li><a href="../examples/test-json.c.html">test-json.c</a></li>
+  <li><a href="../examples/test-list.c.html">test-list.c</a></li>
+  <li><a href="../examples/test-map.c.html">test-map.c</a></li>
+  <li><a href="../examples/test-obj.c.html">test-obj.c</a></li>
+  <li><a href="../examples/test-scan.c.html">test-scan.c</a></li>
+  <li><a href="../examples/test-seq.c.html">test-seq.c</a></li>
+  <li><a href="../examples/test-str.c.html">test-str.c</a></li>
+  <li><a href="../examples/test-table.c.html">test-table.c</a></li>
+  <li><a href="../examples/test-sqlite3-table.c.html">test-sqlite3-table.c</a></li>
+  <li><strong>test-template.c</strong></li>
+  <li><a href="../examples/test-xml.c.html">test-xml.c</a></li>
+  <li><a href="../examples/cmd.c.html">cmd.c</a></li>
+  <li><a href="../examples/testa.c.html">testa.c</a></li>
+  <li><a href="../examples/config.c.html">config.c</a></li>
+  <li><a href="../examples/words.c.html">words.c</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../modules/obj.html">obj</a></li>
+  <li><a href="../modules/str.html">str</a></li>
+  <li><a href="../modules/scan.html">scan</a></li>
+  <li><a href="../modules/template.html">template</a></li>
+  <li><a href="../modules/list.html">list</a></li>
+  <li><a href="../modules/map.html">map</a></li>
+  <li><a href="../modules/file.html">file</a></li>
+  <li><a href="../modules/value.html">value</a></li>
+  <li><a href="../modules/json.html">json</a></li>
+  <li><a href="../modules/xml.html">xml</a></li>
+  <li><a href="../modules/farr.html">farr</a></li>
+  <li><a href="../modules/array.html">array</a></li>
+  <li><a href="../modules/table.html">table</a></li>
+  <li><a href="../modules/config.html">config</a></li>
+  <li><a href="../modules/arg.html">arg</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+    <pre>
+<span class="comment">/*
+* llib little C library
+* BSD licence
+* Copyright Steve Donovan, 2013
+*/</span>
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;assert.h&gt;
+#include &lt;llib/template.h&gt;
+#include &lt;llib/str.h&gt;
+#include &lt;llib/list.h&gt;
+#include &lt;llib/map.h&gt;
+#include &lt;llib/json.h&gt;
+
+<span class="keyword">const</span> <span class="keyword">char</span> *tpl = <span class="string">"Hello $(P)$(name), how is $(home)?"</span>;
+
+<span class="keyword">void</span> simple_case()
+{
+    StrTempl st = str_templ_new(tpl,NULL);
+    <span class="keyword">char</span> *tbl1[] = {<span class="string">"name"</span>,<span class="string">"Dolly"</span>,<span class="string">"home"</span>,<span class="string">"here"</span>,<span class="string">"P"</span>,<span class="string">"X"</span>,NULL};
+    <span class="keyword">char</span> *S = str_templ_subst(st,tbl1);
+    <span class="global">assert</span>(str_eq(S,<span class="string">"Hello XDolly, how is here?"</span>));
+    unref(S);
+
+    <span class="keyword">char</span> **tbl2 = str_strings(<span class="string">"name"</span>,<span class="string">"Jim"</span>,<span class="string">"home"</span>,<span class="string">"joburg"</span>,<span class="string">"P"</span>,<span class="string">"Y"</span>,NULL);
+    S = str_templ_subst(st,tbl2);
+    <span class="global">assert</span>(str_eq(S,<span class="string">"Hello YJim, how is joburg?"</span>));
+    dispose(S,tbl2);
+
+    Map *m = map_new_str_str();
+    map_put(m,<span class="string">"name"</span>,<span class="string">"Monique"</span>);
+    map_put(m,<span class="string">"home"</span>,<span class="string">"Paris"</span>);
+    map_put(m,<span class="string">"P"</span>,<span class="string">"!"</span>);
+    S = str_templ_subst_using(st,(StrLookup)map_get,m);
+    <span class="global">assert</span>(str_eq(S,<span class="string">"Hello !Monique, how is Paris?"</span>));
+    dispose(S,m,st);
+}
+
+<span class="keyword">static</span> <span class="keyword">char</span> *l_getenv (<span class="keyword">void</span> *data, <span class="keyword">char</span> *key) {
+    <span class="keyword">return</span> getenv(key);
+}
+
+<span class="keyword">void</span> using_environment()
+{
+    StrTempl st = str_templ_new(<span class="string">"@{ROME} and @{PATH}"</span>,<span class="string">"@{}"</span>);
+    <span class="keyword">char</span> *S = str_templ_subst_using(st, (StrLookup)l_getenv, NULL);
+    printf(<span class="string">"got '%s'\n"</span>,S);
+    dispose(st,S);
+}
+
+<span class="keyword">const</span> <span class="keyword">char</span> *Tp =
+<span class="string">"&lt;h2&gt;$(title)&lt;/h2&gt;\n"</span>
+<span class="string">"&lt;ul&gt;\n$(for items |"</span>
+<span class="string">"&lt;li&gt;&lt;a src='$(url)'&gt;$(title)&lt;/a&gt;&lt;/li&gt;\n"</span>
+<span class="string">"|)&lt;/ul&gt;\n"</span>;
+
+<span class="keyword">const</span> <span class="keyword">char</span> *js = <span class="string">"{'title':'Pages','items':[{'url':'index.html','title':'Home'},"</span>
+    <span class="string">"{'url':'catalog.html','title':'Links'}]}"</span>;
+
+<span class="keyword">void</span> using_json()
+{
+    PValue v = VM(
+        <span class="string">"title"</span>,VS(<span class="string">"Pages"</span>),
+        <span class="string">"items"</span>,VA(
+            VMS(<span class="string">"url"</span>,<span class="string">"index.html"</span>,<span class="string">"title"</span>,<span class="string">"Home"</span>),
+            VMS(<span class="string">"url"</span>,<span class="string">"catalog.html"</span>,<span class="string">"title"</span>,<span class="string">"Links"</span>)
+        )
+    );
+    StrTempl st = str_templ_new(Tp,NULL);
+    <span class="keyword">char</span> *s = str_templ_subst_values(st,v);
+    puts(s);
+    dispose(s,v);
+    v = json_parse_string(js);
+    <span class="keyword">if</span> (value_is_error(v)) {
+        fprintf(stderr,<span class="string">"error '%s'\n"</span>,(<span class="keyword">char</span>*)v);
+    } <span class="keyword">else</span> {
+        s = str_templ_subst_values(st,v);
+        puts(s);
+        unref(s);
+    }
+    dispose(st,v);
+}
+
+<span class="keyword">const</span> <span class="keyword">char</span> *templ = <span class="string">"Hello $(name), how is $(home) at $(i age) ?\n"</span>
+    <span class="string">"$(with sub| $(A)=$(B)|)$(name)\n"</span>
+    <span class="string">"$(for items | hello $(X)|)\n"</span>
+    <span class="string">"$(for ls | $(X) is here |) thanks!\n"</span>
+    <span class="string">"$(if es |Hola|)$(else |Hello $(home)|) $(name)"</span>;
+
+<span class="keyword">typedef</span> <span class="keyword">char</span> *Str;
+
+<span class="keyword">int</span> main()
+{
+    using_json();
+    using_environment();
+    simple_case();
+
+    <span class="comment">// NULL means we are happy with $() escapes
+</span>    StrTempl st = str_templ_new(templ,NULL);
+    Str sbl[] = {
+        <span class="string">"A"</span>,<span class="string">"alpha"</span>,
+        <span class="string">"B"</span>,<span class="string">"beta"</span>,
+        NULL
+    };
+
+    Str **smap = array_new_ref(Str*,<span class="number">2</span>);
+    smap[<span class="number">0</span>] = str_strings(<span class="string">"X"</span>,<span class="string">"vex"</span>,NULL);
+    smap[<span class="number">1</span>] = str_strings(<span class="string">"X"</span>,<span class="string">"hex"</span>,NULL);
+
+    List *ls = list_new_ref();
+    Map *m = map_new_str_str();
+    map_put(m,<span class="string">"X"</span>,<span class="string">"vex"</span>);
+    list_add(ls,m);
+    m = map_new_str_str();
+    map_put(m,<span class="string">"X"</span>,<span class="string">"hex"</span>);
+    list_add(ls,m);
+
+    Str tbl[] = {
+        <span class="string">"name"</span>,<span class="string">"Dolly"</span>,
+        <span class="string">"home"</span>,<span class="string">"here"</span>,
+        <span class="string">"age"</span>,(<span class="keyword">char</span>*)<span class="number">42</span>,
+        <span class="string">"sub"</span>,(<span class="keyword">char</span>*)sbl,
+        <span class="string">"items"</span>,(<span class="keyword">char</span>*)smap,
+        <span class="string">"ls"</span>,(<span class="keyword">char</span>*)ls,
+       <span class="comment">// "es","si",
+</span>        NULL
+    };
+
+    Str S1 = str_templ_subst(st,tbl);
+    printf(<span class="string">"got '%s'\n"</span>,S1);
+    Str S2 = str_templ_subst(st,tbl);
+    <span class="global">assert</span>(str_eq(S1,S2));
+    dispose(S1,S2,st,smap,ls);
+    printf(<span class="string">"kount = %d\n"</span>,obj_kount());
+    <span class="keyword">return</span> <span class="number">0</span>;
+}</pre>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.2</a></i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

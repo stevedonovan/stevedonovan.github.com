@@ -1,0 +1,505 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>llib Documentation</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>llib</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Sampling_Arrays">Sampling Arrays </a></li>
+<li><a href="#Creating_and_Transforming">Creating and Transforming </a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../modules/obj.html">obj</a></li>
+  <li><a href="../modules/str.html">str</a></li>
+  <li><a href="../modules/scan.html">scan</a></li>
+  <li><a href="../modules/template.html">template</a></li>
+  <li><a href="../modules/list.html">list</a></li>
+  <li><a href="../modules/map.html">map</a></li>
+  <li><a href="../modules/file.html">file</a></li>
+  <li><a href="../modules/value.html">value</a></li>
+  <li><a href="../modules/json.html">json</a></li>
+  <li><a href="../modules/xml.html">xml</a></li>
+  <li><strong>farr</strong></li>
+  <li><a href="../modules/array.html">array</a></li>
+  <li><a href="../modules/table.html">table</a></li>
+  <li><a href="../modules/config.html">config</a></li>
+  <li><a href="../modules/arg.html">arg</a></li>
+</ul>
+<h2>Examples</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../examples/test-config.c.html">test-config.c</a></li>
+  <li><a href="../examples/test-file.c.html">test-file.c</a></li>
+  <li><a href="../examples/test-json.c.html">test-json.c</a></li>
+  <li><a href="../examples/test-list.c.html">test-list.c</a></li>
+  <li><a href="../examples/test-map.c.html">test-map.c</a></li>
+  <li><a href="../examples/test-obj.c.html">test-obj.c</a></li>
+  <li><a href="../examples/test-scan.c.html">test-scan.c</a></li>
+  <li><a href="../examples/test-seq.c.html">test-seq.c</a></li>
+  <li><a href="../examples/test-str.c.html">test-str.c</a></li>
+  <li><a href="../examples/test-table.c.html">test-table.c</a></li>
+  <li><a href="../examples/test-sqlite3-table.c.html">test-sqlite3-table.c</a></li>
+  <li><a href="../examples/test-template.c.html">test-template.c</a></li>
+  <li><a href="../examples/test-xml.c.html">test-xml.c</a></li>
+  <li><a href="../examples/cmd.c.html">cmd.c</a></li>
+  <li><a href="../examples/testa.c.html">testa.c</a></li>
+  <li><a href="../examples/config.c.html">config.c</a></li>
+  <li><a href="../examples/words.c.html">words.c</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>farr</code></h1>
+<p><h3>Functions operating on arrays of floating-point values.</h3>
+</p>
+<p> <a href="../modules/farr.html#farr_sample_int">farr_sample_int</a>  and <a href="../modules/farr.html#farr_sample_float">farr_sample_float</a>  can be used to convert
+ arrays of ints and floats to arrays of doubles.</p>
+
+
+<h2><a href="#Sampling_Arrays">Sampling Arrays </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#farr_sample">farr_sample (A, i1, i2, istep)</a></td>
+	<td class="summary">sample an array of doubles.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#farr_sample_float">farr_sample_float (A, i1, i2, istep)</a></td>
+	<td class="summary">sample an array of floats</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#farr_sample_int">farr_sample_int (A, i1, i2, istep)</a></td>
+	<td class="summary">sample an array of ints</td>
+	</tr>
+</table>
+<h2><a href="#Creating_and_Transforming">Creating and Transforming </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#farr_range">farr_range (x1, x2, dx)</a></td>
+	<td class="summary">an array generated between <code>x1</code> and <code>x2</code>, with delta <code>dx</code>.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#farr_map">farr_map (a, f)</a></td>
+	<td class="summary">create a new array by applying a function to each value of  an array.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#farr_scale">farr_scale (A, m, c)</a></td>
+	<td class="summary">transform an array by multipying its values by <code>m</code> and adding <code>c</code>.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#farr_from_seq">farr_from_seq ()</a></td>
+	<td class="summary">array of doubles from a sequence</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#farr_copy">farr_copy ()</a></td>
+	<td class="summary">create dynanic array from a statically declared array of doubles.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#farr_2">farr_2 (x1, x2)</a></td>
+	<td class="summary">double array of two elements.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#farr_4">farr_4 (x1, x2, x3, x4)</a></td>
+	<td class="summary">double array of four elements.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2><a name="Sampling_Arrays"></a>Sampling Arrays </h2>
+    Sampling Arrays.
+
+
+    <dl class="function">
+    <dt>
+    <a name = "farr_sample"></a>
+    <strong>farr_sample (A, i1, i2, istep)</strong>
+    </dt>
+    <dd>
+    sample an array of doubles.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">A</span>
+            <span class="types"><span class="type">double *</span></span>
+
+
+        </li>
+        <li><span class="parameter">i1</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+        </li>
+        <li><span class="parameter">i2</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+        </li>
+        <li><span class="parameter">istep</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">double *</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "farr_sample_float"></a>
+    <strong>farr_sample_float (A, i1, i2, istep)</strong>
+    </dt>
+    <dd>
+    sample an array of floats
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">A</span>
+            <span class="types"><span class="type">float *</span></span>
+
+
+        </li>
+        <li><span class="parameter">i1</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+        </li>
+        <li><span class="parameter">i2</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+        </li>
+        <li><span class="parameter">istep</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">double *</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "farr_sample_int"></a>
+    <strong>farr_sample_int (A, i1, i2, istep)</strong>
+    </dt>
+    <dd>
+    sample an array of ints
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">A</span>
+            <span class="types"><span class="type">int *</span></span>
+
+
+        </li>
+        <li><span class="parameter">i1</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+        </li>
+        <li><span class="parameter">i2</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+        </li>
+        <li><span class="parameter">istep</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">double *</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+</dl>
+    <h2><a name="Creating_and_Transforming"></a>Creating and Transforming </h2>
+    Creating and Transforming
+
+
+    <dl class="function">
+    <dt>
+    <a name = "farr_range"></a>
+    <strong>farr_range (x1, x2, dx)</strong>
+    </dt>
+    <dd>
+    an array generated between <code>x1</code> and <code>x2</code>, with delta <code>dx</code>.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x1</span>
+            <span class="types"><span class="type">double</span></span>
+
+
+        </li>
+        <li><span class="parameter">x2</span>
+            <span class="types"><span class="type">double</span></span>
+
+
+        </li>
+        <li><span class="parameter">dx</span>
+            <span class="types"><span class="type">double</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">double *</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "farr_map"></a>
+    <strong>farr_map (a, f)</strong>
+    </dt>
+    <dd>
+    create a new array by applying a function to each value of  an array.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">a</span>
+            <span class="types"><span class="type">double *</span></span>
+
+
+        </li>
+        <li><span class="parameter">f</span>
+            <span class="types"><span class="type">FarrMapFun</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">double *</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "farr_scale"></a>
+    <strong>farr_scale (A, m, c)</strong>
+    </dt>
+    <dd>
+    transform an array by multipying its values by <code>m</code> and adding <code>c</code>.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">A</span>
+            <span class="types"><span class="type">double *</span></span>
+
+
+        </li>
+        <li><span class="parameter">m</span>
+            <span class="types"><span class="type">double</span></span>
+
+
+        </li>
+        <li><span class="parameter">c</span>
+            <span class="types"><span class="type">double</span></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "farr_from_seq"></a>
+    <strong>farr_from_seq ()</strong>
+    </dt>
+    <dd>
+    array of doubles from a sequence
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "farr_copy"></a>
+    <strong>farr_copy ()</strong>
+    </dt>
+    <dd>
+    create dynanic array from a statically declared array of doubles.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "farr_2"></a>
+    <strong>farr_2 (x1, x2)</strong>
+    </dt>
+    <dd>
+    double array of two elements.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x1</span>
+            <span class="types"><span class="type">double</span></span>
+
+
+        </li>
+        <li><span class="parameter">x2</span>
+            <span class="types"><span class="type">double</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">double *</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "farr_4"></a>
+    <strong>farr_4 (x1, x2, x3, x4)</strong>
+    </dt>
+    <dd>
+    double array of four elements.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x1</span>
+            <span class="types"><span class="type">double</span></span>
+
+
+        </li>
+        <li><span class="parameter">x2</span>
+            <span class="types"><span class="type">double</span></span>
+
+
+        </li>
+        <li><span class="parameter">x3</span>
+            <span class="types"><span class="type">double</span></span>
+
+
+        </li>
+        <li><span class="parameter">x4</span>
+            <span class="types"><span class="type">double</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">double *</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.2</a></i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

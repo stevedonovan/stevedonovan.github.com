@@ -1,0 +1,175 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>llib Documentation</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>llib</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+
+
+<h2>Examples</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../examples/test-config.c.html">test-config.c</a></li>
+  <li><a href="../examples/test-file.c.html">test-file.c</a></li>
+  <li><a href="../examples/test-json.c.html">test-json.c</a></li>
+  <li><a href="../examples/test-list.c.html">test-list.c</a></li>
+  <li><a href="../examples/test-map.c.html">test-map.c</a></li>
+  <li><a href="../examples/test-obj.c.html">test-obj.c</a></li>
+  <li><a href="../examples/test-scan.c.html">test-scan.c</a></li>
+  <li><a href="../examples/test-seq.c.html">test-seq.c</a></li>
+  <li><strong>test-str.c</strong></li>
+  <li><a href="../examples/test-table.c.html">test-table.c</a></li>
+  <li><a href="../examples/test-sqlite3-table.c.html">test-sqlite3-table.c</a></li>
+  <li><a href="../examples/test-template.c.html">test-template.c</a></li>
+  <li><a href="../examples/test-xml.c.html">test-xml.c</a></li>
+  <li><a href="../examples/cmd.c.html">cmd.c</a></li>
+  <li><a href="../examples/testa.c.html">testa.c</a></li>
+  <li><a href="../examples/config.c.html">config.c</a></li>
+  <li><a href="../examples/words.c.html">words.c</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../modules/obj.html">obj</a></li>
+  <li><a href="../modules/str.html">str</a></li>
+  <li><a href="../modules/scan.html">scan</a></li>
+  <li><a href="../modules/template.html">template</a></li>
+  <li><a href="../modules/list.html">list</a></li>
+  <li><a href="../modules/map.html">map</a></li>
+  <li><a href="../modules/file.html">file</a></li>
+  <li><a href="../modules/value.html">value</a></li>
+  <li><a href="../modules/json.html">json</a></li>
+  <li><a href="../modules/xml.html">xml</a></li>
+  <li><a href="../modules/farr.html">farr</a></li>
+  <li><a href="../modules/array.html">array</a></li>
+  <li><a href="../modules/table.html">table</a></li>
+  <li><a href="../modules/config.html">config</a></li>
+  <li><a href="../modules/arg.html">arg</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+    <pre>
+<span class="comment">/*
+* llib little C library
+* BSD licence
+* Copyright Steve Donovan, 2013
+*/</span>
+
+#include &lt;stdio.h&gt;
+#include &lt;assert.h&gt;
+#include &lt;llib/str.h&gt;
+
+<span class="keyword">typedef</span> <span class="keyword">char</span> *Str;
+
+<span class="keyword">void</span> test_concat()
+{
+    Str** sseq = seq_new_str();
+    seq_add_str(sseq,<span class="string">"hello "</span>);
+    seq_add_str(sseq,<span class="string">"dolly"</span>);
+    seq_add_str(sseq,str_fmt(<span class="string">" it's so %d"</span>,<span class="number">42</span>));
+    <span class="keyword">char</span> *res = str_concat(*sseq,<span class="string">","</span>);
+    <span class="global">assert</span>(str_eq(res,<span class="string">"hello ,dolly, it's so 42"</span>));
+    dispose(sseq,res);
+}
+
+<span class="keyword">void</span> test_split()
+{
+    Str* words = str_split(<span class="string">"alpha, beta, gamma"</span>,<span class="string">", "</span>);
+    <span class="global">assert</span>(array_len(words) == <span class="number">3</span>);
+    <span class="global">assert</span>(str_eq(words[<span class="number">0</span>],<span class="string">"alpha"</span>));
+    <span class="global">assert</span>(str_eq(words[<span class="number">1</span>],<span class="string">"beta"</span>));
+    <span class="global">assert</span>(str_eq(words[<span class="number">2</span>],<span class="string">"gamma"</span>));
+    dispose(words);
+}
+
+<span class="keyword">int</span> main()
+{
+    <span class="comment">// building up strings
+</span>    Str* ss = strbuf_new();
+    strbuf_adds(ss,<span class="string">"hello"</span>);
+    strbuf_adds(ss,<span class="string">"dolly"</span>);
+    strbuf_addf(ss,<span class="string">" the answer is %d"</span>,<span class="number">42</span>);
+    <span class="global">assert</span>(str_eq(*ss,<span class="string">"hellodolly the answer is 42"</span>));
+
+    <span class="comment">// inserting and removing
+</span>    strbuf_insert_at(ss,<span class="number">2</span>,<span class="string">"woo"</span>,-<span class="number">1</span>);
+    <span class="global">assert</span>(str_eq(*ss,<span class="string">"hewoollodolly the answer is 42"</span>));
+    strbuf_erase(ss,<span class="number">2</span>,<span class="number">3</span>);
+    <span class="global">assert</span>(str_eq(*ss,<span class="string">"hellodolly the answer is 42"</span>));
+    strbuf_replace(ss,<span class="number">1</span>,<span class="number">3</span>,<span class="string">"foobar"</span>);
+    <span class="global">assert</span>(str_eq(*ss,<span class="string">"hfoobarodolly the answer is 42"</span>));
+
+    <span class="keyword">char</span> *s = str_fmt(<span class="string">"we got '%s'"</span>,*ss);
+    <span class="global">assert</span>(str_eq(s,<span class="string">"we got 'hfoobarodolly the answer is 42'"</span>));
+
+    test_concat();
+
+    <span class="keyword">int</span> p = str_findstr(*ss,<span class="string">"doll"</span>);
+    <span class="global">assert</span>(p == <span class="number">8</span>);
+    <span class="keyword">const</span> <span class="keyword">char</span> *S = <span class="string">"hello dolly"</span>;
+    p = str_findch(S,'d');
+    <span class="global">assert</span>(p == <span class="number">6</span>);
+    p = str_find_first_of(S,<span class="string">" "</span>);
+    <span class="global">assert</span>(p == <span class="number">5</span>);
+
+    <span class="global">assert</span>(str_starts_with(S,<span class="string">"hell"</span>));
+    <span class="global">assert</span>(str_ends_with(S,<span class="string">"dolly"</span>));
+    <span class="global">assert</span>(! str_starts_with(S,<span class="string">"llo"</span>));
+    unref(s);
+    s = strbuf_tostring(ss);
+    unref(s);
+    <span class="comment">//unref(ss);
+</span>
+    test_split();
+
+    s = str_new(<span class="string">"  hello dolly "</span>);
+    str_trim(s);
+    <span class="global">assert</span>(str_eq(s,<span class="string">"hello dolly"</span>));
+
+    Str s1 = str_sub(s,<span class="number">0</span>,<span class="number">2</span>), s2 = str_sub(s,<span class="number">2</span>,-<span class="number">1</span>);
+    <span class="comment">//printf("substr (0,2) '%s' (3,-1) '%s'\n",s1,s2);
+</span>    <span class="global">assert</span>(str_eq(s1,<span class="string">"he"</span>));
+    <span class="global">assert</span>(str_eq(s2,<span class="string">"llo dolly"</span>));
+
+    dispose(s,s1,s2 );
+
+    printf(<span class="string">"kount %d\n"</span>,obj_kount());
+    <span class="keyword">return</span> <span class="number">0</span>;
+}</pre>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.2</a></i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

@@ -1,0 +1,241 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>llib Documentation</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>llib</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+
+
+<h2>Examples</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../examples/test-config.c.html">test-config.c</a></li>
+  <li><a href="../examples/test-file.c.html">test-file.c</a></li>
+  <li><a href="../examples/test-json.c.html">test-json.c</a></li>
+  <li><a href="../examples/test-list.c.html">test-list.c</a></li>
+  <li><strong>test-map.c</strong></li>
+  <li><a href="../examples/test-obj.c.html">test-obj.c</a></li>
+  <li><a href="../examples/test-scan.c.html">test-scan.c</a></li>
+  <li><a href="../examples/test-seq.c.html">test-seq.c</a></li>
+  <li><a href="../examples/test-str.c.html">test-str.c</a></li>
+  <li><a href="../examples/test-table.c.html">test-table.c</a></li>
+  <li><a href="../examples/test-sqlite3-table.c.html">test-sqlite3-table.c</a></li>
+  <li><a href="../examples/test-template.c.html">test-template.c</a></li>
+  <li><a href="../examples/test-xml.c.html">test-xml.c</a></li>
+  <li><a href="../examples/cmd.c.html">cmd.c</a></li>
+  <li><a href="../examples/testa.c.html">testa.c</a></li>
+  <li><a href="../examples/config.c.html">config.c</a></li>
+  <li><a href="../examples/words.c.html">words.c</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../modules/obj.html">obj</a></li>
+  <li><a href="../modules/str.html">str</a></li>
+  <li><a href="../modules/scan.html">scan</a></li>
+  <li><a href="../modules/template.html">template</a></li>
+  <li><a href="../modules/list.html">list</a></li>
+  <li><a href="../modules/map.html">map</a></li>
+  <li><a href="../modules/file.html">file</a></li>
+  <li><a href="../modules/value.html">value</a></li>
+  <li><a href="../modules/json.html">json</a></li>
+  <li><a href="../modules/xml.html">xml</a></li>
+  <li><a href="../modules/farr.html">farr</a></li>
+  <li><a href="../modules/array.html">array</a></li>
+  <li><a href="../modules/table.html">table</a></li>
+  <li><a href="../modules/config.html">config</a></li>
+  <li><a href="../modules/arg.html">arg</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+    <pre>
+<span class="comment">/*
+* llib little C library
+* BSD licence
+* Copyright Steve Donovan, 2013
+*/</span>
+
+#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+#include &lt;llib/map.h&gt;
+
+<span class="keyword">typedef</span> <span class="keyword">struct</span> {
+    LIST_HEADER;
+    <span class="keyword">const</span> <span class="keyword">char</span> *name;  <span class="comment">// this must be the key!
+</span>    <span class="keyword">int</span> age;
+    <span class="keyword">bool</span> mf;
+} Data;
+
+<span class="keyword">void</span> Data_dispose(Data *d)
+{
+    printf(<span class="string">"data dispose '%s'\n"</span>,d-&gt;name);
+    unref((<span class="keyword">char</span>*)d-&gt;name);
+}
+
+Data *Data_new(<span class="keyword">const</span> <span class="keyword">char</span> *name, <span class="keyword">int</span> age, <span class="keyword">bool</span> mf)
+{
+    Data *obj = obj_new(Data,Data_dispose);
+    obj-&gt;name = str_ref((<span class="keyword">char</span>*)name);
+    obj-&gt;age = age;
+    obj-&gt;mf = mf;
+    <span class="keyword">return</span> obj;
+}
+
+<span class="keyword">void</span> dump(Data* d) {
+    <span class="keyword">if</span> (d == NULL) { printf(<span class="string">"result was NULL\n"</span>); <span class="keyword">return</span>; }
+    printf(<span class="string">"%s (%d) %s\n"</span>,d-&gt;name,d-&gt;age, d-&gt;mf ? <span class="string">"male"</span> : <span class="string">"female"</span>);
+}
+
+<span class="keyword">void</span> dumpi(<span class="keyword">void</span> *k, <span class="keyword">void</span> *v) {
+    printf(<span class="string">"%d:%d "</span>,(intptr)k,(intptr)v);
+}
+
+#define P (void *)
+#define D (Data*)
+#define S (const char*)
+
+<span class="keyword">void</span> struct_maps()
+{
+    <span class="comment">// here we have a custom type which has a LIST_HEADER and a string key
+</span>    <span class="comment">// <code>true</code> indicates that we should use string ordering.
+</span>    Map *map = map_new_node(<span class="keyword">true</span>);
+
+    <span class="comment">// since the key is part of the data we don't use <code>map_put</code>. <code>map_put_struct</code> is used
+</span>    <span class="comment">// for inserting single values.
+</span>    map_put_structs(map,
+        Data_new(<span class="string">"bob"</span>,<span class="number">22</span>,<span class="number">1</span>),
+        Data_new(<span class="string">"alice"</span>,<span class="number">21</span>,<span class="number">0</span>),
+        Data_new(<span class="string">"roger"</span>,<span class="number">40</span>,<span class="number">1</span>),
+        Data_new(<span class="string">"liz"</span>,<span class="number">16</span>,<span class="number">0</span>),
+        NULL
+    );
+    printf(<span class="string">"size was %d\n"</span>,map_size(map));
+
+    <span class="comment">// you can now look up data using the key
+</span>    dump(D map_get(map,<span class="string">"alice"</span>));
+    dump(D map_get(map,<span class="string">"roger"</span>));
+
+    Data *rog = (Data*)map_remove(map,<span class="string">"roger"</span>);
+    printf(<span class="string">"size was %d\n"</span>,map_size(map));
+
+    FOR_MAP(iter,map) {
+        printf(<span class="string">"[%s]=%d,"</span>,(<span class="keyword">char</span>*)iter-&gt;key,((Data*)(iter-&gt;value))-&gt;age );
+    }
+    printf(<span class="string">"\n"</span>);
+
+    <span class="comment">// basic FOR_MAP has two problems:
+</span>    <span class="comment">// (1) key and value fields are plain void*
+</span>    <span class="comment">// (2) if you break out of the loop the iterator won't be cleared.
+</span>    <span class="comment">// Here is an explicit use of MapIter which sets typed variables
+</span>    <span class="keyword">char</span> *key;
+    Data *d;
+    MapIter iter = map_iter_new (map,&amp;key,&amp;d);
+    <span class="keyword">do</span> {
+        <span class="keyword">if</span> (d-&gt;age == <span class="number">16</span>) {
+            unref(iter);
+            <span class="keyword">break</span>;
+        }
+        printf(<span class="string">"[%s]=%d,"</span>,key,d-&gt;age);
+    } <span class="keyword">while</span> (map_iter_next(iter));
+     printf(<span class="string">"\n"</span>);
+
+    dispose(map,rog);
+}
+
+<span class="keyword">void</span> count() {
+    printf(<span class="string">"kount %d\n"</span>,obj_kount());
+}
+
+<span class="comment">// string maps own both the key and the value; the MapKeyValue
+</span><span class="comment">// struct can always be used to initialize maps and as a
+</span><span class="comment">// convenient array representation.
+</span><span class="keyword">void</span> string_maps()
+{
+    MapKeyValue mk[] = {
+        {<span class="string">"alpha"</span>,<span class="string">"A"</span>},
+        {<span class="string">"beta"</span>,<span class="string">"B"</span>},
+        {<span class="string">"gamma"</span>,<span class="string">"C"</span>},
+        {NULL,NULL}
+    };
+    Map *m = map_new_str_str();
+    map_put_keyvalues(m,mk);
+
+    MapKeyValue *pkv = map_to_array(m);
+
+    <span class="keyword">for</span> (MapKeyValue *p = pkv; p-&gt;key; ++p)
+        printf(<span class="string">"%s='%s' "</span>,(<span class="keyword">char</span>*)p-&gt;key,(<span class="keyword">char</span>*)p-&gt;value);
+    printf(<span class="string">"\n"</span>);
+
+    unref(m);
+    unref(pkv);
+}
+
+<span class="keyword">void</span> int_maps()
+{
+    <span class="comment">// we put integers into a 'pointer' map
+</span>    Map *m = map_new_ptr_ptr();
+    #define puti(i) map_puti(m,i,i)
+    puti(<span class="number">10</span>);
+    puti(<span class="number">5</span>);
+    puti(<span class="number">7</span>);
+    puti(<span class="number">4</span>);
+    puti(<span class="number">2</span>);
+    puti(<span class="number">3</span>);
+    puti(<span class="number">8</span>);
+    puti(<span class="number">6</span>);
+    puti(<span class="number">20</span>);
+    puti(<span class="number">8</span>);
+    #undef puti
+
+    map_remove(m,P <span class="number">5</span>);
+    FOR_MAP(iter,m) {
+        printf(<span class="string">"[%d]=%d,"</span>,(intptr)iter-&gt;key,(intptr)iter-&gt;value);
+    }
+    printf(<span class="string">"\n"</span>);
+    unref(m);
+}
+
+<span class="keyword">int</span> main () {
+    struct_maps();
+    int_maps();
+    string_maps();
+    printf(<span class="string">"kount %d\n"</span>,obj_kount());
+    <span class="keyword">return</span> <span class="number">0</span>;
+}</pre>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.2</a></i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

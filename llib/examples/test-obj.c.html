@@ -1,0 +1,165 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>llib Documentation</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>llib</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+
+
+<h2>Examples</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../examples/test-config.c.html">test-config.c</a></li>
+  <li><a href="../examples/test-file.c.html">test-file.c</a></li>
+  <li><a href="../examples/test-json.c.html">test-json.c</a></li>
+  <li><a href="../examples/test-list.c.html">test-list.c</a></li>
+  <li><a href="../examples/test-map.c.html">test-map.c</a></li>
+  <li><strong>test-obj.c</strong></li>
+  <li><a href="../examples/test-scan.c.html">test-scan.c</a></li>
+  <li><a href="../examples/test-seq.c.html">test-seq.c</a></li>
+  <li><a href="../examples/test-str.c.html">test-str.c</a></li>
+  <li><a href="../examples/test-table.c.html">test-table.c</a></li>
+  <li><a href="../examples/test-sqlite3-table.c.html">test-sqlite3-table.c</a></li>
+  <li><a href="../examples/test-template.c.html">test-template.c</a></li>
+  <li><a href="../examples/test-xml.c.html">test-xml.c</a></li>
+  <li><a href="../examples/cmd.c.html">cmd.c</a></li>
+  <li><a href="../examples/testa.c.html">testa.c</a></li>
+  <li><a href="../examples/config.c.html">config.c</a></li>
+  <li><a href="../examples/words.c.html">words.c</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../modules/obj.html">obj</a></li>
+  <li><a href="../modules/str.html">str</a></li>
+  <li><a href="../modules/scan.html">scan</a></li>
+  <li><a href="../modules/template.html">template</a></li>
+  <li><a href="../modules/list.html">list</a></li>
+  <li><a href="../modules/map.html">map</a></li>
+  <li><a href="../modules/file.html">file</a></li>
+  <li><a href="../modules/value.html">value</a></li>
+  <li><a href="../modules/json.html">json</a></li>
+  <li><a href="../modules/xml.html">xml</a></li>
+  <li><a href="../modules/farr.html">farr</a></li>
+  <li><a href="../modules/array.html">array</a></li>
+  <li><a href="../modules/table.html">table</a></li>
+  <li><a href="../modules/config.html">config</a></li>
+  <li><a href="../modules/arg.html">arg</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+    <pre>
+<span class="comment">/*
+* llib little C library
+* BSD licence
+* Copyright Steve Donovan, 2013
+*/</span>
+
+#include &lt;stdio.h&gt;
+#include &lt;llib/obj.h&gt;
+
+<span class="keyword">typedef</span> <span class="keyword">struct</span> {
+    <span class="keyword">int</span> *ages;
+} Bonzo;
+
+<span class="keyword">void</span> Bonzo_dispose(Bonzo *self) {
+    printf(<span class="string">"disposing Bonzo\n"</span>);
+    unref(self-&gt;ages);
+}
+
+Bonzo *Bonzo_new(<span class="keyword">int</span> *ages) {
+    Bonzo *self = obj_new(Bonzo,Bonzo_dispose);
+    self-&gt;ages = ref(ages);
+    <span class="keyword">return</span> self;
+}
+
+<span class="keyword">void</span> test_bonzo() {
+    <span class="keyword">int</span> AGES[] = {<span class="number">45</span>,<span class="number">42</span>,<span class="number">30</span>,<span class="number">16</span>,<span class="number">17</span>};
+    <span class="keyword">int</span> *ages = array_new(<span class="keyword">int</span>,<span class="number">5</span>);
+    FOR(i,<span class="number">5</span>) ages[i] = AGES[i];
+    Bonzo *b = Bonzo_new(ages);
+    unref(ages);
+    printf(<span class="string">"%d %d\n"</span>,b-&gt;ages[<span class="number">0</span>],b-&gt;ages[<span class="number">1</span>]);
+    unref(b);
+}
+
+<span class="keyword">typedef</span> <span class="keyword">char</span> *Str;
+
+#define discard obj_unref_v
+
+<span class="keyword">void</span> test_string() {
+    Str s = str_new(<span class="string">"hello dolly"</span>);
+    printf(<span class="string">"s '%s' length %d\n"</span>,s,str_len(s));
+    Str slong = str_new(<span class="string">"hello dammit"</span>);
+    FOR_PTRZ(<span class="keyword">char</span>,p,slong) printf(<span class="string">"%c "</span>,*p);
+    printf(<span class="string">"\n"</span>);
+    discard(s,slong);
+}
+
+<span class="keyword">void</span> test_strings() {
+    Str *strs = array_new_ref(Str,<span class="number">4</span>);
+    #define S str_new
+    strs[<span class="number">0</span>] = S(<span class="string">"hello"</span>);
+    strs[<span class="number">1</span>] = S(<span class="string">"dolly"</span>);
+    strs[<span class="number">2</span>] = S(<span class="string">"so"</span>);
+    strs[<span class="number">3</span>] = S(<span class="string">"fine"</span>);
+    FOR_PTRZ(Str,p,strs) printf(<span class="string">"%s\n"</span>,*p);
+    unref(strs);
+}
+
+<span class="keyword">int</span> main() {
+    <span class="keyword">int</span> *pa = array_new(<span class="keyword">int</span>,<span class="number">10</span>);
+    <span class="keyword">int</span> *pb = ref(pa);
+    <span class="keyword">double</span> *p = array_new(<span class="keyword">double</span>,<span class="number">40</span>);
+    <span class="keyword">long</span> vals[] = {<span class="number">10</span>,<span class="number">2</span>,<span class="number">5</span>,<span class="number">11</span>,<span class="number">6</span>};
+    <span class="keyword">long</span> *sl = array_new_copy(<span class="keyword">long</span>,vals,<span class="number">5</span>);
+    array_sort(sl,ARRAY_INT,<span class="keyword">false</span>, <span class="number">0</span>);
+    FOR(i,array_len(sl)) {
+        printf(<span class="string">"%d "</span>,(<span class="keyword">int</span>)sl[i]);
+    }
+    printf(<span class="string">"\n"</span>);
+    printf(<span class="string">"len %d\n"</span>,array_len(pa));
+    test_bonzo();
+    test_string();
+    test_strings();
+    discard(pb,pa,p,sl);
+    printf(<span class="string">"kount %d\n"</span>,obj_kount());
+    <span class="keyword">return</span> <span class="number">0</span>;
+}</pre>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.2</a></i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

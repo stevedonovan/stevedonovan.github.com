@@ -1,0 +1,386 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>llib Documentation</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>llib</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../modules/obj.html">obj</a></li>
+  <li><a href="../modules/str.html">str</a></li>
+  <li><a href="../modules/scan.html">scan</a></li>
+  <li><a href="../modules/template.html">template</a></li>
+  <li><a href="../modules/list.html">list</a></li>
+  <li><a href="../modules/map.html">map</a></li>
+  <li><a href="../modules/file.html">file</a></li>
+  <li><a href="../modules/value.html">value</a></li>
+  <li><a href="../modules/json.html">json</a></li>
+  <li><a href="../modules/xml.html">xml</a></li>
+  <li><a href="../modules/farr.html">farr</a></li>
+  <li><a href="../modules/array.html">array</a></li>
+  <li><a href="../modules/table.html">table</a></li>
+  <li><a href="../modules/config.html">config</a></li>
+  <li><strong>arg</strong></li>
+</ul>
+<h2>Examples</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../examples/test-config.c.html">test-config.c</a></li>
+  <li><a href="../examples/test-file.c.html">test-file.c</a></li>
+  <li><a href="../examples/test-json.c.html">test-json.c</a></li>
+  <li><a href="../examples/test-list.c.html">test-list.c</a></li>
+  <li><a href="../examples/test-map.c.html">test-map.c</a></li>
+  <li><a href="../examples/test-obj.c.html">test-obj.c</a></li>
+  <li><a href="../examples/test-scan.c.html">test-scan.c</a></li>
+  <li><a href="../examples/test-seq.c.html">test-seq.c</a></li>
+  <li><a href="../examples/test-str.c.html">test-str.c</a></li>
+  <li><a href="../examples/test-table.c.html">test-table.c</a></li>
+  <li><a href="../examples/test-sqlite3-table.c.html">test-sqlite3-table.c</a></li>
+  <li><a href="../examples/test-template.c.html">test-template.c</a></li>
+  <li><a href="../examples/test-xml.c.html">test-xml.c</a></li>
+  <li><a href="../examples/cmd.c.html">cmd.c</a></li>
+  <li><a href="../examples/testa.c.html">testa.c</a></li>
+  <li><a href="../examples/config.c.html">config.c</a></li>
+  <li><a href="../examples/words.c.html">words.c</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>arg</code></h1>
+<p><h3>Command-line Argument Parser.</h3>
+</p>
+<p>This allows you to bind variables to command-line arguments, providing
+the flag name/type, a shortcut, a pointer to the variable, and some help text.
+For this we write <em>specifications</em> (which are strings containing pseudo-C declarations
+followed by a comment, which may specify a shortcut).</p>
+
+<p>The argument parser follows GNU conventions; long flags with double-hyphen,
+which may have short single-letter forms with a single-hyphen. Short flags may
+be combined (&ldquo;-abc&rdquo;) and may be followed immediately by their value (&ldquo;-n10&rdquo;).</p>
+
+<pre><code>int lines;
+FILE *file;
+bool verbose, print_lines;
+
+PValue args[] = {
+    "int lines=10; // -n number of lines to print",&amp;lines,
+    "bool verbose=false; // -v controls verbosity",&amp;verbose,
+    "bool lineno; // -l output line numbers",&amp;print_lines,
+    {"infile #1=stdin; // file to dump",&amp;file,
+    NULL
+};
+</code></pre>
+
+<p>If you now call <code>arg_command_line(args,argv)</code> these variables will be
+bound; note how both type and optional default value are specified. Names like &lsquo;#1&rsquo;
+refer to the first non-flag argument and so forth.  Both &lsquo;&mdash;lines&rsquo; and &lsquo;-n&rsquo; can be
+used to set the integer variable <code>lines</code>.  If a flag has no default, then it is an error.
+Plain boolean flags have an implicit default of <code>false</code>.</p>
+
+<p>Help usage is automatically generated from these specifications.</p>
+
+<p>If a conversion is not possible (not a integer, file cannot be opened, etc)
+then the program will exit, showing the help.</p>
+
+<p><a href="../examples/cmd.c.html#">cmd.c</a> is a basic example; <a href="../examples/testa.c.html#">testa.c</a> shows how to
+define flags and commands as functions.</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#arg_get_values">arg_get_values (vals, ...)</a></td>
+	<td class="summary">extract raw values from args array.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#arg_parse_spec">arg_parse_spec (flagspec)</a></td>
+	<td class="summary">parse flag specification array.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#arg_bind_values">arg_bind_values (cmds, sm)</a></td>
+	<td class="summary">Bind a set of variables to their values, using a simple map of name/value pairs.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#arg_reset_used">arg_reset_used (cmds)</a></td>
+	<td class="summary">reset used state of flags, needed to reparse commands.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#arg_process">arg_process (cmds, argv)</a></td>
+	<td class="summary">parse the given command-line args, given the processed state.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#arg_quit">arg_quit (cmds, msg, show_help)</a></td>
+	<td class="summary">quit the application with a message, optionally showing help.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#arg_command_line">arg_command_line (argspec, argv)</a></td>
+	<td class="summary">parse command-line arguments, binding flags to their values.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "arg_get_values"></a>
+    <strong>arg_get_values (vals, ...)</strong>
+    </dt>
+    <dd>
+    extract raw values from args array.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">vals</span>
+            <span class="types"><span class="type">PValue *</span></span>
+
+
+        </li>
+        <li><span class="parameter">...</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "arg_parse_spec"></a>
+    <strong>arg_parse_spec (flagspec)</strong>
+    </dt>
+    <dd>
+    parse flag specification array.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">flagspec</span>
+            <span class="types"><span class="type">PValue *</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">ArgState *</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "arg_bind_values"></a>
+    <strong>arg_bind_values (cmds, sm)</strong>
+    </dt>
+    <dd>
+    Bind a set of variables to their values, using a simple map of name/value pairs.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">cmds</span>
+            <span class="types"><span class="type">ArgState *</span></span>
+
+
+        </li>
+        <li><span class="parameter">sm</span>
+            <span class="types"><span class="type">SMap</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">PValue</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "arg_reset_used"></a>
+    <strong>arg_reset_used (cmds)</strong>
+    </dt>
+    <dd>
+    reset used state of flags, needed to reparse commands.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">cmds</span>
+            <span class="types"><span class="type">ArgState *</span></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "arg_process"></a>
+    <strong>arg_process (cmds, argv)</strong>
+    </dt>
+    <dd>
+    parse the given command-line args, given the processed state.
+ Call <a href="../modules/arg.html#arg_parse_spec">arg_parse_spec</a>  first to call this directly.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">cmds</span>
+            <span class="types"><span class="type">ArgState *</span></span>
+
+
+        </li>
+        <li><span class="parameter">argv</span>
+            <span class="types"><span class="type">const char * *</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">PValue</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "arg_quit"></a>
+    <strong>arg_quit (cmds, msg, show_help)</strong>
+    </dt>
+    <dd>
+    quit the application with a message, optionally showing help.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">cmds</span>
+            <span class="types"><span class="type">ArgState *</span></span>
+
+
+        </li>
+        <li><span class="parameter">msg</span>
+            <span class="types"><span class="type">str_t</span></span>
+
+
+        </li>
+        <li><span class="parameter">show_help</span>
+            <span class="types"><span class="type">bool</span></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "arg_command_line"></a>
+    <strong>arg_command_line (argspec, argv)</strong>
+    </dt>
+    <dd>
+    parse command-line arguments, binding flags to their values.
+ It assumes that <code>argv</code> terminates in <code>NULL</code>, which is
+ according to the C specification. Any error will cause the
+ application to quit, showing help.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">argspec</span>
+            <span class="types"><span class="type">void * *</span></span>
+
+
+        </li>
+        <li><span class="parameter">argv</span>
+            <span class="types"><span class="type">const char * *</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">ArgState *</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.2</a></i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

@@ -1,0 +1,187 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>llib Documentation</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>llib</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+
+
+<h2>Examples</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../examples/test-config.c.html">test-config.c</a></li>
+  <li><a href="../examples/test-file.c.html">test-file.c</a></li>
+  <li><a href="../examples/test-json.c.html">test-json.c</a></li>
+  <li><a href="../examples/test-list.c.html">test-list.c</a></li>
+  <li><a href="../examples/test-map.c.html">test-map.c</a></li>
+  <li><a href="../examples/test-obj.c.html">test-obj.c</a></li>
+  <li><a href="../examples/test-scan.c.html">test-scan.c</a></li>
+  <li><a href="../examples/test-seq.c.html">test-seq.c</a></li>
+  <li><a href="../examples/test-str.c.html">test-str.c</a></li>
+  <li><a href="../examples/test-table.c.html">test-table.c</a></li>
+  <li><a href="../examples/test-sqlite3-table.c.html">test-sqlite3-table.c</a></li>
+  <li><a href="../examples/test-template.c.html">test-template.c</a></li>
+  <li><a href="../examples/test-xml.c.html">test-xml.c</a></li>
+  <li><a href="../examples/cmd.c.html">cmd.c</a></li>
+  <li><strong>testa.c</strong></li>
+  <li><a href="../examples/config.c.html">config.c</a></li>
+  <li><a href="../examples/words.c.html">words.c</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../modules/obj.html">obj</a></li>
+  <li><a href="../modules/str.html">str</a></li>
+  <li><a href="../modules/scan.html">scan</a></li>
+  <li><a href="../modules/template.html">template</a></li>
+  <li><a href="../modules/list.html">list</a></li>
+  <li><a href="../modules/map.html">map</a></li>
+  <li><a href="../modules/file.html">file</a></li>
+  <li><a href="../modules/value.html">value</a></li>
+  <li><a href="../modules/json.html">json</a></li>
+  <li><a href="../modules/xml.html">xml</a></li>
+  <li><a href="../modules/farr.html">farr</a></li>
+  <li><a href="../modules/array.html">array</a></li>
+  <li><a href="../modules/table.html">table</a></li>
+  <li><a href="../modules/config.html">config</a></li>
+  <li><a href="../modules/arg.html">arg</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+    <pre>
+<span class="comment">// The llib command-line parser also allows flags to be implemented as functions.
+</span><span class="comment">// It is then a small step towards providing an interactive command-line.
+</span>#include &lt;stdio.h&gt;
+#include &lt;llib/file.h&gt;
+#include &lt;llib/str.h&gt;
+#include &lt;llib/value.h&gt;
+#include &lt;llib/arg.h&gt;
+
+<span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">char</span> **incdirs;
+<span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">char</span> **string_args;
+<span class="keyword">static</span> <span class="keyword">int</span> a;
+<span class="keyword">static</span> <span class="keyword">bool</span> interactive;
+
+PValue test(PValue *args) {
+    printf(<span class="string">"gotcha! %d %d\n"</span>,value_as_int(args[<span class="number">1</span>]),a);
+    printf(<span class="string">"the include paths\n"</span>);
+    FOR_ARR (str_t,P,incdirs)
+        printf(<span class="string">"'%s'\n"</span>,*P);
+    <span class="keyword">return</span> NULL;
+}
+
+PValue two(PValue *args) {
+    <span class="keyword">double</span> x;
+    <span class="keyword">char</span> *name;
+    arg_get_values(args,&amp;x,&amp;name);
+    printf(<span class="string">"x = %f, name = '%s'\n"</span>,x,name);
+    <span class="keyword">return</span> NULL;
+}
+
+PValue kount(PValue *args) {
+    <span class="comment">// the llib debug options
+</span>    printf(<span class="string">"kount %d\n"</span>,obj_kount());
+#ifdef LLIB_DEBUG
+    <span class="comment">// this tells you what was created/destroyed by type and number
+</span>    obj_snapshot_dump();
+    obj_snapshot_create();
+#endif
+#ifdef LLIB_PTR_LIST
+    <span class="comment">// if llib is managing an explicit list of used pointers, can tell us exactly what they are
+</span>    obj_snap_ptrs_dump();
+    obj_snap_ptrs_create();
+#endif
+    <span class="keyword">return</span> NULL;
+}
+
+PValue flag(PValue *args) {
+    printf(<span class="string">"flag %f\n"</span>,value_as_float(args[<span class="number">1</span>]));
+    <span class="keyword">return</span> NULL;
+}
+
+PValue args[] = {
+    <span class="comment">// commands
+</span>    <span class="string">"cmd test(int i=0); // -T test command"</span>,test,
+    <span class="string">"cmd two(float x,string name); // -2 test cmd_get_values"</span>,two,
+    <span class="comment">// flags implemented with functions
+</span>    <span class="string">"void kount(); // -k referenced object count flag"</span>,kount,
+    <span class="string">"float flag(); // -f function flag taking float.."</span>,flag,
+    <span class="comment">// regular bound flags
+</span>    <span class="string">"string include[]; // -I include directories"</span>, &amp;incdirs,
+    <span class="string">"int a=0; // flag value"</span>,&amp;a,
+    <span class="string">"bool interactive=false; // -i interactive mode"</span>,&amp;interactive,
+    <span class="comment">// other arguments, as string array
+</span>    <span class="string">"string #1[]; // array of string args"</span>,&amp;string_args,
+    NULL
+};
+
+<span class="keyword">int</span> main(<span class="keyword">int</span> argc,  <span class="keyword">const</span> <span class="keyword">char</span> **argv)
+{
+    ArgState *state = arg_command_line(args,argv);
+    <span class="keyword">if</span> (! interactive) {
+        <span class="keyword">if</span> (array_len(incdirs) &gt; <span class="number">0</span>) {
+            printf(<span class="string">"the include paths\n"</span>);
+            FOR_ARR (str_t,P,incdirs)
+                printf(<span class="string">"'%s'\n"</span>,*P);
+        }
+        <span class="keyword">if</span> (array_len(string_args) &gt; <span class="number">0</span>) {
+            printf(<span class="string">"the string args\n"</span>);
+            FOR_ARR (str_t,P,string_args)
+                printf(<span class="string">"'%s'\n"</span>,*P);
+        }
+        printf(<span class="string">"flag a is %d\n"</span>,a);
+    } <span class="keyword">else</span> {
+        <span class="keyword">char</span> *line;
+            printf(<span class="string">"&gt; "</span>);
+        <span class="keyword">while</span> ((line = file_getline(stdin)) != NULL) {
+            <span class="keyword">char</span> **parts = str_split(line,<span class="string">" "</span>);
+            <span class="comment">// args_process assumes args start at second element, hence -1 here
+</span>            PValue v = arg_process(state,(<span class="keyword">const</span> <span class="keyword">char</span>**)parts-<span class="number">1</span>);
+            <span class="keyword">if</span> (v != NULL) {
+                printf(<span class="string">"%s\n"</span>,value_tostring(v));
+                unref(v);
+            }
+            dispose(parts,line);
+            printf(<span class="string">"&gt; "</span>);
+            arg_reset_used(state);
+        }
+    }
+    <span class="keyword">return</span> <span class="number">0</span>;
+}</pre>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.2</a></i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

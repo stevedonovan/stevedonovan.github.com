@@ -1,0 +1,330 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>llib Documentation</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>llib</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../modules/obj.html">obj</a></li>
+  <li><a href="../modules/str.html">str</a></li>
+  <li><a href="../modules/scan.html">scan</a></li>
+  <li><a href="../modules/template.html">template</a></li>
+  <li><a href="../modules/list.html">list</a></li>
+  <li><a href="../modules/map.html">map</a></li>
+  <li><a href="../modules/file.html">file</a></li>
+  <li><a href="../modules/value.html">value</a></li>
+  <li><a href="../modules/json.html">json</a></li>
+  <li><strong>xml</strong></li>
+  <li><a href="../modules/farr.html">farr</a></li>
+  <li><a href="../modules/array.html">array</a></li>
+  <li><a href="../modules/table.html">table</a></li>
+  <li><a href="../modules/config.html">config</a></li>
+  <li><a href="../modules/arg.html">arg</a></li>
+</ul>
+<h2>Examples</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../examples/test-config.c.html">test-config.c</a></li>
+  <li><a href="../examples/test-file.c.html">test-file.c</a></li>
+  <li><a href="../examples/test-json.c.html">test-json.c</a></li>
+  <li><a href="../examples/test-list.c.html">test-list.c</a></li>
+  <li><a href="../examples/test-map.c.html">test-map.c</a></li>
+  <li><a href="../examples/test-obj.c.html">test-obj.c</a></li>
+  <li><a href="../examples/test-scan.c.html">test-scan.c</a></li>
+  <li><a href="../examples/test-seq.c.html">test-seq.c</a></li>
+  <li><a href="../examples/test-str.c.html">test-str.c</a></li>
+  <li><a href="../examples/test-table.c.html">test-table.c</a></li>
+  <li><a href="../examples/test-sqlite3-table.c.html">test-sqlite3-table.c</a></li>
+  <li><a href="../examples/test-template.c.html">test-template.c</a></li>
+  <li><a href="../examples/test-xml.c.html">test-xml.c</a></li>
+  <li><a href="../examples/cmd.c.html">cmd.c</a></li>
+  <li><a href="../examples/testa.c.html">testa.c</a></li>
+  <li><a href="../examples/config.c.html">config.c</a></li>
+  <li><a href="../examples/words.c.html">words.c</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>xml</code></h1>
+<p><h3>A simple XML Parser and Pretty-printer.</h3>
+</p>
+<p> Intended as a small portable way to access common configuration file formats.
+ not for heavy lifting!</p>
+
+<p> See <a href="../examples/test-xml.c.html#">test-xml.c</a> </p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#xml_parse_string">xml_parse_string (str, is_data)</a></td>
+	<td class="summary">convert an XML string to data.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#xml_parse_file">xml_parse_file (file, is_data)</a></td>
+	<td class="summary">convert an XML file to data.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#xml_tag">xml_tag (doc)</a></td>
+	<td class="summary">tag name of an element.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#xml_attribs">xml_attribs (doc)</a></td>
+	<td class="summary">attributes of an element (as an SMap).</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#xml_children">xml_children (doc, plen)</a></td>
+	<td class="summary">children nodes of an element; returns length in <code>plen</code>.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#xml_tostring">xml_tostring (doc, indent)</a></td>
+	<td class="summary">Pretty-print an XML document</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "xml_parse_string"></a>
+    <strong>xml_parse_string (str, is_data)</strong>
+    </dt>
+    <dd>
+    convert an XML string to data.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">str</span>
+            <span class="types"><span class="type">const char *</span></span>
+
+
+        </li>
+        <li><span class="parameter">is_data</span>
+            <span class="types"><span class="type">bool</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">PValue</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "xml_parse_file"></a>
+    <strong>xml_parse_file (file, is_data)</strong>
+    </dt>
+    <dd>
+    convert an XML file to data.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">file</span>
+            <span class="types"><span class="type">const char *</span></span>
+
+
+        </li>
+        <li><span class="parameter">is_data</span>
+            <span class="types"><span class="type">bool</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">PValue</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "xml_tag"></a>
+    <strong>xml_tag (doc)</strong>
+    </dt>
+    <dd>
+    tag name of an element.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">doc</span>
+            <span class="types"><span class="type">PValue *</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">const char *</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "xml_attribs"></a>
+    <strong>xml_attribs (doc)</strong>
+    </dt>
+    <dd>
+    attributes of an element (as an SMap).
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">doc</span>
+            <span class="types"><span class="type">PValue *</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">char * *</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "xml_children"></a>
+    <strong>xml_children (doc, plen)</strong>
+    </dt>
+    <dd>
+    children nodes of an element; returns length in <code>plen</code>.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">doc</span>
+            <span class="types"><span class="type">PValue *</span></span>
+
+
+        </li>
+        <li><span class="parameter">plen</span>
+            <span class="types"><span class="type">int *</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">PValue *</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "xml_tostring"></a>
+    <strong>xml_tostring (doc, indent)</strong>
+    </dt>
+    <dd>
+    Pretty-print an XML document
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">doc</span>
+            <span class="types"><span class="type">PValue</span></span>
+
+
+        </li>
+        <li><span class="parameter">indent</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">char *</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.2</a></i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

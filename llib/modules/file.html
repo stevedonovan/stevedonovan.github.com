@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>Reference</title>
+    <title>llib Documentation</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,7 @@
 
 <div id="navigation">
 <br/>
-<h1>ldoc</h1>
+<h1>llib</h1>
 
 <ul>
   <li><a href="../index.html">Index</a></li>
@@ -33,17 +33,47 @@
 <h2>Contents</h2>
 <ul>
 <li><a href="#Functions">Functions</a></li>
+<li><a href="#Operations_on_File_paths">Operations on File paths </a></li>
 </ul>
 
 
 <h2>Modules</h2>
-<ul class="nowrap">
-  <li><strong>file</strong></li>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../modules/obj.html">obj</a></li>
+  <li><a href="../modules/str.html">str</a></li>
+  <li><a href="../modules/scan.html">scan</a></li>
+  <li><a href="../modules/template.html">template</a></li>
   <li><a href="../modules/list.html">list</a></li>
   <li><a href="../modules/map.html">map</a></li>
-  <li><a href="../modules/obj.html">obj</a></li>
-  <li><a href="../modules/scan.html">scan</a></li>
-  <li><a href="../modules/str.html">str</a></li>
+  <li><strong>file</strong></li>
+  <li><a href="../modules/value.html">value</a></li>
+  <li><a href="../modules/json.html">json</a></li>
+  <li><a href="../modules/xml.html">xml</a></li>
+  <li><a href="../modules/farr.html">farr</a></li>
+  <li><a href="../modules/array.html">array</a></li>
+  <li><a href="../modules/table.html">table</a></li>
+  <li><a href="../modules/config.html">config</a></li>
+  <li><a href="../modules/arg.html">arg</a></li>
+</ul>
+<h2>Examples</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../examples/test-config.c.html">test-config.c</a></li>
+  <li><a href="../examples/test-file.c.html">test-file.c</a></li>
+  <li><a href="../examples/test-json.c.html">test-json.c</a></li>
+  <li><a href="../examples/test-list.c.html">test-list.c</a></li>
+  <li><a href="../examples/test-map.c.html">test-map.c</a></li>
+  <li><a href="../examples/test-obj.c.html">test-obj.c</a></li>
+  <li><a href="../examples/test-scan.c.html">test-scan.c</a></li>
+  <li><a href="../examples/test-seq.c.html">test-seq.c</a></li>
+  <li><a href="../examples/test-str.c.html">test-str.c</a></li>
+  <li><a href="../examples/test-table.c.html">test-table.c</a></li>
+  <li><a href="../examples/test-sqlite3-table.c.html">test-sqlite3-table.c</a></li>
+  <li><a href="../examples/test-template.c.html">test-template.c</a></li>
+  <li><a href="../examples/test-xml.c.html">test-xml.c</a></li>
+  <li><a href="../examples/cmd.c.html">cmd.c</a></li>
+  <li><a href="../examples/testa.c.html">testa.c</a></li>
+  <li><a href="../examples/config.c.html">config.c</a></li>
+  <li><a href="../examples/words.c.html">words.c</a></li>
 </ul>
 
 </div>
@@ -51,26 +81,33 @@
 <div id="content">
 
 <h1>Module <code>file</code></h1>
-
-<p>Extended file handling.</p>
-<p>
-
+<p><h3>Extended file handling.</h3>
 </p>
+<p>Mostly wrappers around familar functions; <a href="../modules/file.html#file_gets">file_gets</a>  is a <code>fgets</code> that strips the line feed;
+The other functions return a refcounted string, or array of strings (like with <a href="../modules/file.html#file_getlines">file_getlines</a> )</p>
+
+<p>There are functions that work with parts of filenames which don&rsquo;t have the limitations and gotchas
+of the libc equivalents.</p>
+
+<p>Finally, <a href="../modules/file.html#file_fopen">file_fopen</a>  provides a file wrapper <code>FILE**</code>. It returns an actual error string if it fails,
+and disposing this file object will close the underlying stream.</p>
+
+<p>See <a href="../examples/test-file.c.html#">test-file.c</a> </p>
 
 
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
+	<td class="name" nowrap><a href="#file_exists">file_exists (path, rw)</a></td>
+	<td class="summary">does the path exist and is accessible?</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#file_gets">file_gets (f, buff, bufsize)</a></td>
-	<td class="summary">like fgets, except trims \n.</td>
+	<td class="summary">like fgets, except trims (\r)\n.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#file_getline">file_getline (f)</a></td>
 	<td class="summary">like <a href="../modules/file.html#file_gets">file_gets</a>  but returns a refcounted string.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#fopen_or_die">fopen_or_die (file, mode)</a></td>
-	<td class="summary">old friend <code>fopen</code> with dignified suicide.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#file_size">file_size (file)</a></td>
@@ -85,6 +122,14 @@
 	<td class="summary">all the files from a file.</td>
 	</tr>
 	<tr>
+	<td class="name" nowrap><a href="#file_fopen">file_fopen (file, how)</a></td>
+	<td class="summary">Open a file, wrapping <code>FILE*</code> in an llib object.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#file_command">file_command (cmd)</a></td>
+	<td class="summary">output of a command as text.</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#file_command_lines">file_command_lines (cmd)</a></td>
 	<td class="summary">output of a command as lines.</td>
 	</tr>
@@ -93,19 +138,79 @@
 	<td class="summary">all the files matching a mask.</td>
 	</tr>
 </table>
+<h2><a href="#Operations_on_File_paths">Operations on File paths </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#file_basename">file_basename (path)</a></td>
+	<td class="summary">file part of a path.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#file_dirname">file_dirname (path)</a></td>
+	<td class="summary">file part of a path.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#file_extension">file_extension (path)</a></td>
+	<td class="summary">extension of a path.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#file_replace_extension">file_replace_extension (path, ext)</a></td>
+	<td class="summary">replace existing extension of path.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#file_expand_user">file_expand_user (path)</a></td>
+	<td class="summary">expand initial tilde into user&rsquo;s home directory.</td>
+	</tr>
+</table>
 
 <br/>
 <br/>
 
 
     <h2><a name="Functions"></a>Functions</h2>
+
     <dl class="function">
+    <dt>
+    <a name = "file_exists"></a>
+    <strong>file_exists (path, rw)</strong>
+    </dt>
+    <dd>
+    does the path exist and is accessible?
+ <code>rw</code> is a string containing any of &lsquo;r&rsquo;, &lsquo;w&rsquo; and &lsquo;x&rsquo;
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">path</span>
+            <span class="types"><span class="type">const char *</span></span>
+
+
+        </li>
+        <li><span class="parameter">rw</span>
+            <span class="types"><span class="type">const char *</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">bool</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
     <dt>
     <a name = "file_gets"></a>
     <strong>file_gets (f, buff, bufsize)</strong>
     </dt>
     <dd>
-    like fgets, except trims \n.
+    like fgets, except trims (\r)\n.
+
 
     <h3>Parameters:</h3>
     <ul>
@@ -113,17 +218,14 @@
             <span class="types"><span class="type">FILE *</span></span>
 
 
-
         </li>
         <li><span class="parameter">buff</span>
             <span class="types"><span class="type">char *</span></span>
 
 
-
         </li>
         <li><span class="parameter">bufsize</span>
             <span class="types"><span class="type">int</span></span>
-
 
 
         </li>
@@ -133,7 +235,6 @@
     <ol>
 
            <span class="types"><span class="type">char *</span></span>
-
 
 
     </ol>
@@ -149,11 +250,11 @@
     <dd>
     like <a href="../modules/file.html#file_gets">file_gets</a>  but returns a refcounted string.
 
+
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">f</span>
             <span class="types"><span class="type">FILE *</span></span>
-
 
 
         </li>
@@ -163,43 +264,6 @@
     <ol>
 
            <span class="types"><span class="type">char *</span></span>
-
-
-
-    </ol>
-
-
-
-
-</dd>
-    <dt>
-    <a name = "fopen_or_die"></a>
-    <strong>fopen_or_die (file, mode)</strong>
-    </dt>
-    <dd>
-    old friend <code>fopen</code> with dignified suicide.
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">file</span>
-            <span class="types"><span class="type">const char *</span></span>
-
-
-
-        </li>
-        <li><span class="parameter">mode</span>
-            <span class="types"><span class="type">const char *</span></span>
-
-
-
-        </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-           <span class="types"><span class="type">FILE *</span></span>
-
 
 
     </ol>
@@ -214,12 +278,13 @@
     </dt>
     <dd>
     size of a file.
+ Will return -1 if the file cannot be opened for reading.
+
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">file</span>
             <span class="types"><span class="type">const char *</span></span>
-
 
 
         </li>
@@ -229,7 +294,6 @@
     <ol>
 
            <span class="types"><span class="type">int</span></span>
-
 
 
     </ol>
@@ -244,6 +308,8 @@
     </dt>
     <dd>
     read the contents of a file.
+ If <code>text</code> is true, will also strip any \r\n at the end.
+
 
     <h3>Parameters:</h3>
     <ul>
@@ -251,11 +317,9 @@
             <span class="types"><span class="type">const char *</span></span>
 
 
-
         </li>
         <li><span class="parameter">text</span>
             <span class="types"><span class="type">bool</span></span>
-
 
 
         </li>
@@ -265,7 +329,6 @@
     <ol>
 
            <span class="types"><span class="type">char *</span></span>
-
 
 
     </ol>
@@ -281,11 +344,11 @@
     <dd>
     all the files from a file.
 
+
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">f</span>
             <span class="types"><span class="type">FILE *</span></span>
-
 
 
         </li>
@@ -296,6 +359,68 @@
 
            <span class="types"><span class="type">char * *</span></span>
 
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "file_fopen"></a>
+    <strong>file_fopen (file, how)</strong>
+    </dt>
+    <dd>
+    Open a file, wrapping <code>FILE*</code> in an llib object.
+ On error, will return an error value, not <code>NULL</code>!
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">file</span>
+            <span class="types"><span class="type">char*</span></span>
+         the file path
+        </li>
+        <li><span class="parameter">how</span>
+            <span class="types"><span class="type">char*</span></span>
+          same as <code>fopen</code>
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">FILE**</span></span>
+        a pointer to the stream
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "file_command"></a>
+    <strong>file_command (cmd)</strong>
+    </dt>
+    <dd>
+    output of a command as text.
+ Will return &ldquo;&rdquo; if the command does not return anything
+ Only first line! Use file_command_lines for the rest!
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">cmd</span>
+            <span class="types"><span class="type">const char *</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">char *</span></span>
 
 
     </ol>
@@ -312,11 +437,11 @@
     output of a command as lines.
  Will capture stderr as well.
 
+
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">cmd</span>
             <span class="types"><span class="type">const char *</span></span>
-
 
 
         </li>
@@ -326,7 +451,6 @@
     <ol>
 
            <span class="types"><span class="type">char * *</span></span>
-
 
 
     </ol>
@@ -342,17 +466,16 @@
     <dd>
     all the files matching a mask.
 
+
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">mask</span>
             <span class="types"><span class="type">const char *</span></span>
 
 
-
         </li>
         <li><span class="parameter">abs</span>
             <span class="types"><span class="type">int</span></span>
-
 
 
         </li>
@@ -363,6 +486,172 @@
 
            <span class="types"><span class="type">char * *</span></span>
 
+
+    </ol>
+
+
+
+
+</dd>
+</dl>
+    <h2><a name="Operations_on_File_paths"></a>Operations on File paths </h2>
+    Operations on File paths.
+ Unlike the POSIX functions basename and dirname,
+ these functions are guaranteed not to touch the passed string,
+ and will always return a refcounted string.
+         Unlike the POSIX functions basename and dirname,
+ these functions are guaranteed not to touch the passed string,
+ and will always return a refcounted string.
+    <dl class="function">
+    <dt>
+    <a name = "file_basename"></a>
+    <strong>file_basename (path)</strong>
+    </dt>
+    <dd>
+    file part of a path.
+ E.g. &lsquo;/my/path/bonzo.dog&rsquo; => &lsquo;bonzo.dog&rsquo;
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">path</span>
+            <span class="types"><span class="type">const char *</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">char *</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "file_dirname"></a>
+    <strong>file_dirname (path)</strong>
+    </dt>
+    <dd>
+    file part of a path.
+ E.g. &lsquo;/my/path/bonzo.dog&rsquo; => &lsquo;/my/path&rsquo;
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">path</span>
+            <span class="types"><span class="type">const char *</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">char *</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "file_extension"></a>
+    <strong>file_extension (path)</strong>
+    </dt>
+    <dd>
+    extension of a path.
+ Note: this will ignore any periods in the path itself.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">path</span>
+            <span class="types"><span class="type">const char *</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">char *</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "file_replace_extension"></a>
+    <strong>file_replace_extension (path, ext)</strong>
+    </dt>
+    <dd>
+    replace existing extension of path.
+ <code>ext</code> may be the empty string, and <code>path</code> may not have
+ a extension.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">path</span>
+            <span class="types"><span class="type">const char *</span></span>
+
+
+        </li>
+        <li><span class="parameter">ext</span>
+            <span class="types"><span class="type">const char *</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">char *</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "file_expand_user"></a>
+    <strong>file_expand_user (path)</strong>
+    </dt>
+    <dd>
+    expand initial tilde into user&rsquo;s home directory.
+ Always returns a ref-counted string, even if path doesn&rsquo;t
+ begin with &lsquo;~&rsquo;
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">path</span>
+            <span class="types"><span class="type">const char *</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">char *</span></span>
 
 
     </ol>
@@ -377,7 +666,7 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.0</a></i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.2</a></i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
