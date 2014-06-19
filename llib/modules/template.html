@@ -62,11 +62,12 @@
   <li><a href="../examples/test-list.c.html">test-list.c</a></li>
   <li><a href="../examples/test-map.c.html">test-map.c</a></li>
   <li><a href="../examples/test-obj.c.html">test-obj.c</a></li>
+  <li><a href="../examples/test-pool.c.html">test-pool.c</a></li>
   <li><a href="../examples/test-scan.c.html">test-scan.c</a></li>
   <li><a href="../examples/test-seq.c.html">test-seq.c</a></li>
+  <li><a href="../examples/test-sqlite3-table.c.html">test-sqlite3-table.c</a></li>
   <li><a href="../examples/test-str.c.html">test-str.c</a></li>
   <li><a href="../examples/test-table.c.html">test-table.c</a></li>
-  <li><a href="../examples/test-sqlite3-table.c.html">test-sqlite3-table.c</a></li>
   <li><a href="../examples/test-template.c.html">test-template.c</a></li>
   <li><a href="../examples/test-xml.c.html">test-xml.c</a></li>
   <li><a href="../examples/cmd.c.html">cmd.c</a></li>
@@ -87,10 +88,28 @@
 defined as a function plus an object. The placeholders can be changed
 if the default clashes with the target language syntax.</p>
 
+<pre>
+StrTempl st = <a href="../modules/template.html#str_templ_new">str_templ_new</a> (<span class="string">"Hello $(P)$(name), how is $(home)?"</span>,NULL);
+<span class="comment">// using an array of key/value pairs...(uses <a href="../modules/str.html#str_lookup">str_lookup</a> )
+</span><span class="keyword">char</span> *tbl1[] = {<span class="string">"name"</span>,<span class="string">"Dolly"</span>,<span class="string">"home"</span>,<span class="string">"here"</span>,<span class="string">"P"</span>,<span class="string">"X"</span>,NULL};
+<span class="keyword">char</span> *S = <a href="../modules/template.html#str_templ_subst">str_templ_subst</a> (st,tbl1);
+<span class="global">assert</span>(<a href="../modules/str.html#str_eq">str_eq</a> (S,<span class="string">"Hello XDolly, how is here?"</span>));
+<span class="comment">// using a map
+</span>Map *m = <a href="../modules/map.html#map_new_str_str">map_new_str_str</a> ();
+<a href="../modules/map.html#map_put">map_put</a> (m,<span class="string">"name"</span>,<span class="string">"Monique"</span>);
+<a href="../modules/map.html#map_put">map_put</a> (m,<span class="string">"home"</span>,<span class="string">"Paris"</span>);
+<a href="../modules/map.html#map_put">map_put</a> (m,<span class="string">"P"</span>,<span class="string">"!"</span>);
+S = <a href="../modules/template.html#str_templ_subst_using">str_templ_subst_using</a> (st,(StrLookup)map_get,m);
+<span class="global">assert</span>(<a href="../modules/str.html#str_eq">str_eq</a> (S,<span class="string">"Hello !Monique, how is Paris?"</span>));
+</pre>
+
+
 <p>Subtemplates can be defined; for instance this template generates an HTML list:</p>
 
-<pre><code>"&lt;ul&gt;$(for ls |&lt;li&gt;_&lt;/li&gt;)&lt;/ul&gt;"
-</code></pre>
+<pre>
+<span class="string">"&lt;ul&gt;$(for ls |&lt;li&gt;_&lt;/li&gt;)&lt;/ul&gt;"</span>
+</pre>
+
 
 <p>The special <code>for</code> form iterates over a List or an array. The special variable <code>_</code> means
 &ldquo;use each value of the array&rdquo;;  otherwise the <em>iterable</em> must be a map-like object.</p>
@@ -172,7 +191,7 @@ or an array of key/value pairs (a <em>simple map</em>).</p>
     <dd>
     substitute variables in template using a lookup function.
  <code>lookup</code> works with <code>data</code>, so that to use a Map you can pass
- <code>map_get</code> together with the map.
+ <a href="../modules/map.html#map_get">map_get</a>  together with the map.
 
 
     <h3>Parameters:</h3>

@@ -68,11 +68,12 @@
   <li><a href="../examples/test-list.c.html">test-list.c</a></li>
   <li><a href="../examples/test-map.c.html">test-map.c</a></li>
   <li><a href="../examples/test-obj.c.html">test-obj.c</a></li>
+  <li><a href="../examples/test-pool.c.html">test-pool.c</a></li>
   <li><a href="../examples/test-scan.c.html">test-scan.c</a></li>
   <li><a href="../examples/test-seq.c.html">test-seq.c</a></li>
+  <li><a href="../examples/test-sqlite3-table.c.html">test-sqlite3-table.c</a></li>
   <li><a href="../examples/test-str.c.html">test-str.c</a></li>
   <li><a href="../examples/test-table.c.html">test-table.c</a></li>
-  <li><a href="../examples/test-sqlite3-table.c.html">test-sqlite3-table.c</a></li>
   <li><a href="../examples/test-template.c.html">test-template.c</a></li>
   <li><a href="../examples/test-xml.c.html">test-xml.c</a></li>
   <li><a href="../examples/cmd.c.html">cmd.c</a></li>
@@ -91,16 +92,19 @@
 <p>Lexical scanners are a smarter and cleaner alternative to the primitive <code>strtok</code> function.
 Each time you call <a href="../modules/scan.html#scan_next">scan_next</a> , the scanner finds the next <em>token</em>,</p>
 
-<pre><code>ScanState *ts = scan_new_from_string("hello = (10,20,30)"));
-scan_next(ts);
-char *name = scan_get_str(ts);  // will be "hello"
-char ch = scan_next(ts);  // will be '='
-scan_next(ts);  // skip '('
-scan_next(ts);
-double val1 = scan_get_number(ts);  // 10
-scan_next(ts); // skip ','
-double val2 = scan_get_number(ts); // 20
-</code></pre>
+<pre>
+ScanState *ts = <a href="../modules/scan.html#scan_new_from_string">scan_new_from_string</a> (<span class="string">"hello = (10,20,30)"</span>));
+<a href="../modules/scan.html#scan_next">scan_next</a> (ts);
+<span class="keyword">char</span> *name = <code>scan_get_str</code>(ts);  <span class="comment">// will be "hello"
+</span><span class="keyword">char</span> ch = <a href="../modules/scan.html#scan_next">scan_next</a> (ts);  <span class="comment">// will be '='
+</span><a href="../modules/scan.html#scan_next">scan_next</a> (ts);  <span class="comment">// skip '('
+</span><a href="../modules/scan.html#scan_next">scan_next</a> (ts);
+<span class="keyword">double</span> val1 = <a href="../modules/scan.html#scan_get_number">scan_get_number</a> (ts);  <span class="comment">// 10
+</span><a href="../modules/scan.html#scan_next">scan_next</a> (ts); <span class="comment">// skip ','
+</span><span class="keyword">double</span> val2 = <a href="../modules/scan.html#scan_get_number">scan_get_number</a> (ts); <span class="comment">// 20
+</span>
+</pre>
+
 
 <p>At any point, <code>ts->type</code> tells you the next available token.</p>
 

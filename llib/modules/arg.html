@@ -62,11 +62,12 @@
   <li><a href="../examples/test-list.c.html">test-list.c</a></li>
   <li><a href="../examples/test-map.c.html">test-map.c</a></li>
   <li><a href="../examples/test-obj.c.html">test-obj.c</a></li>
+  <li><a href="../examples/test-pool.c.html">test-pool.c</a></li>
   <li><a href="../examples/test-scan.c.html">test-scan.c</a></li>
   <li><a href="../examples/test-seq.c.html">test-seq.c</a></li>
+  <li><a href="../examples/test-sqlite3-table.c.html">test-sqlite3-table.c</a></li>
   <li><a href="../examples/test-str.c.html">test-str.c</a></li>
   <li><a href="../examples/test-table.c.html">test-table.c</a></li>
-  <li><a href="../examples/test-sqlite3-table.c.html">test-sqlite3-table.c</a></li>
   <li><a href="../examples/test-template.c.html">test-template.c</a></li>
   <li><a href="../examples/test-xml.c.html">test-xml.c</a></li>
   <li><a href="../examples/cmd.c.html">cmd.c</a></li>
@@ -91,18 +92,39 @@ followed by a comment, which may specify a shortcut).</p>
 which may have short single-letter forms with a single-hyphen. Short flags may
 be combined (&ldquo;-abc&rdquo;) and may be followed immediately by their value (&ldquo;-n10&rdquo;).</p>
 
-<pre><code>int lines;
+<pre>
+#include &lt;stdio.h&gt;
+#include &lt;llib/arg.h&gt;
+
+<span class="keyword">int</span> lines;
 FILE *file;
-bool verbose, print_lines;
+<span class="keyword">bool</span> print_lines;
 
 PValue args[] = {
-    "int lines=10; // -n number of lines to print",&amp;lines,
-    "bool verbose=false; // -v controls verbosity",&amp;verbose,
-    "bool lineno; // -l output line numbers",&amp;print_lines,
-    {"infile #1=stdin; // file to dump",&amp;file,
+    <span class="string">"int lines=10; // -n number of lines to print"</span>,&amp;lines,
+    <span class="string">"bool lineno; // -l output line numbers"</span>,&amp;print_lines,
+    <span class="string">"infile #1=stdin; // file to dump"</span>,&amp;file,
     NULL
 };
-</code></pre>
+
+<span class="keyword">int</span> main(<span class="keyword">int</span> argc,  <span class="keyword">const</span> <span class="keyword">char</span> **argv)
+{
+    <a href="../modules/arg.html#arg_command_line">arg_command_line</a> (args,argv);
+    <span class="keyword">char</span> buff[<span class="number">512</span>];
+    <span class="keyword">int</span> i = <span class="number">1</span>;
+    <span class="keyword">while</span> (fgets(buff,<span class="keyword">sizeof</span>(buff),file)) {
+        <span class="keyword">if</span> (print_lines)
+            printf(<span class="string">"%03d\t%s"</span>,i,buff);
+        <span class="keyword">else</span>
+            printf(<span class="string">"%s"</span>,buff);
+        <span class="keyword">if</span> (i++ == lines)
+            <span class="keyword">break</span>;
+    }
+    fclose(file);
+    <span class="keyword">return</span> <span class="number">0</span>;
+}
+</pre>
+
 
 <p>If you now call <code>arg_command_line(args,argv)</code> these variables will be
 bound; note how both type and optional default value are specified. Names like &lsquo;#1&rsquo;
@@ -116,7 +138,10 @@ Plain boolean flags have an implicit default of <code>false</code>.</p>
 then the program will exit, showing the help.</p>
 
 <p><a href="../examples/cmd.c.html#">cmd.c</a> is a basic example; <a href="../examples/testa.c.html#">testa.c</a> shows how to
-define flags and commands as functions.</p>
+define flags and commands as functions, as well as defining a simple REPL.</p>
+
+<p><a href="../modules/arg.html#arg_bind_values">arg_bind_values</a>  may be used directly to process an array of name/value
+pairs, for instance in <a href="../examples/config.c.html#">config.c</a> </p>
 
 
 <h2><a href="#Functions">Functions</a></h2>
@@ -164,6 +189,7 @@ define flags and commands as functions.</p>
     </dt>
     <dd>
     extract raw values from args array.
+ Convenient way to unpack the array of values passed to commands and function flags.
 
 
     <h3>Parameters:</h3>
@@ -182,6 +208,10 @@ define flags and commands as functions.</p>
 
 
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">PValue two(PValue *args) {  double x;  char *name;  arg_get_values(args,&amp;x,&amp;name); ...</pre>
+    </ul>
 
 </dd>
     <dt>

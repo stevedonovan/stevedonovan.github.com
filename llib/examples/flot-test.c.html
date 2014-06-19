@@ -1,0 +1,124 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>llib Documentation</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>llib</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+
+
+<h2>Examples</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../examples/cmd.c.html">cmd.c</a></li>
+  <li><a href="../examples/config.c.html">config.c</a></li>
+  <li><a href="../examples/flot-anot.c.html">flot-anot.c</a></li>
+  <li><a href="../examples/flot-error.c.html">flot-error.c</a></li>
+  <li><a href="../examples/flot-norm-sample.c.html">flot-norm-sample.c</a></li>
+  <li><a href="../examples/flot-norm.c.html">flot-norm.c</a></li>
+  <li><a href="../examples/flot-sine.c.html">flot-sine.c</a></li>
+  <li><a href="../examples/flot-table.c.html">flot-table.c</a></li>
+  <li><strong>flot-test.c</strong></li>
+  <li><a href="../examples/flot.c.html">flot.c</a></li>
+  <li><a href="../examples/make-ex.c.html">make-ex.c</a></li>
+  <li><a href="../examples/select.c.html">select.c</a></li>
+  <li><a href="../examples/select.h.html">select.h</a></li>
+  <li><a href="../examples/test-select.c.html">test-select.c</a></li>
+  <li><a href="../examples/tempx.c.html">tempx.c</a></li>
+  <li><a href="../examples/testa.c.html">testa.c</a></li>
+  <li><a href="../examples/txt2c.c.html">txt2c.c</a></li>
+  <li><a href="../examples/words.c.html">words.c</a></li>
+  <li><a href="../examples/cmd.c.html">cmd.c</a></li>
+  <li><a href="../examples/testa.c.html">testa.c</a></li>
+  <li><a href="../examples/config.c.html">config.c</a></li>
+  <li><a href="../examples/words.c.html">words.c</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../modules/obj.html">obj</a></li>
+  <li><a href="../modules/str.html">str</a></li>
+  <li><a href="../modules/scan.html">scan</a></li>
+  <li><a href="../modules/template.html">template</a></li>
+  <li><a href="../modules/list.html">list</a></li>
+  <li><a href="../modules/map.html">map</a></li>
+  <li><a href="../modules/file.html">file</a></li>
+  <li><a href="../modules/value.html">value</a></li>
+  <li><a href="../modules/json.html">json</a></li>
+  <li><a href="../modules/xml.html">xml</a></li>
+  <li><a href="../modules/farr.html">farr</a></li>
+  <li><a href="../modules/array.html">array</a></li>
+  <li><a href="../modules/table.html">table</a></li>
+  <li><a href="../modules/config.html">config</a></li>
+  <li><a href="../modules/arg.html">arg</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+    <pre>
+#include "flot.c"
+
+<span class="keyword">int</span> main()
+{
+    <span class="comment">// apply gradient from top to bottom as background, and move legend
+</span>    Flot *P = flot_new(<span class="string">"caption"</span>, <span class="string">"First Test"</span>,
+        <span class="string">"grid.backgroundColor"</span>,flot_gradient(<span class="string">"#FFF"</span>,<span class="string">"#EEE"</span>),
+        <span class="comment">// 'nw' is short for North West, i.e. top-left
+</span>        <span class="string">"legend.position"</span>,<span class="string">"nw"</span>
+    );
+
+    <span class="comment">// Series data must be llib arrays of doubles
+</span>    <span class="keyword">double</span> X[] = {<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>};
+    <span class="keyword">double</span> Y1[] = {<span class="number">10</span>,<span class="number">15</span>,<span class="number">23</span>,<span class="number">29</span>,<span class="number">31</span>};
+    <span class="keyword">double</span> Y2[] = {<span class="number">9.0</span>,<span class="number">9.0</span>,<span class="number">25.0</span>,<span class="number">28.0</span>,<span class="number">32.0</span>};
+    <span class="keyword">double</span> *xv = farr_copy(X);
+    <span class="keyword">double</span> *yv1 = farr_copy(Y1), *yv2 = farr_copy(Y2);
+
+    <span class="comment">// fill underneath this series
+</span>    flot_series_new(P,xv,yv1, FlotLines,<span class="string">"label"</span>,<span class="string">"cats"</span>,
+        <span class="string">"lines.fill"</span>,VF(<span class="number">0.2</span>)  <span class="comment">// specified as an alpha to be applied to line colour
+</span>    );
+
+    <span class="comment">// override point colour
+</span>    flot_series_new(P,xv,yv2, FlotPoints,<span class="string">"label"</span>,<span class="string">"dogs"</span>,<span class="string">"color"</span>,<span class="string">"#F00"</span>);
+
+    <span class="comment">// will generate test.html
+</span>    flot_render(<span class="string">"test"</span>);
+    <span class="keyword">return</span> <span class="number">0</span>;
+
+}</pre>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.2</a></i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

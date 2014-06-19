@@ -1,0 +1,135 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>llib Documentation</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>llib</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+
+
+<h2>Examples</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../examples/cmd.c.html">cmd.c</a></li>
+  <li><a href="../examples/config.c.html">config.c</a></li>
+  <li><a href="../examples/flot-anot.c.html">flot-anot.c</a></li>
+  <li><a href="../examples/flot-error.c.html">flot-error.c</a></li>
+  <li><a href="../examples/flot-norm-sample.c.html">flot-norm-sample.c</a></li>
+  <li><a href="../examples/flot-norm.c.html">flot-norm.c</a></li>
+  <li><a href="../examples/flot-sine.c.html">flot-sine.c</a></li>
+  <li><a href="../examples/flot-table.c.html">flot-table.c</a></li>
+  <li><a href="../examples/flot-test.c.html">flot-test.c</a></li>
+  <li><a href="../examples/flot.c.html">flot.c</a></li>
+  <li><a href="../examples/make-ex.c.html">make-ex.c</a></li>
+  <li><a href="../examples/select.c.html">select.c</a></li>
+  <li><strong>select.h</strong></li>
+  <li><a href="../examples/test-select.c.html">test-select.c</a></li>
+  <li><a href="../examples/tempx.c.html">tempx.c</a></li>
+  <li><a href="../examples/testa.c.html">testa.c</a></li>
+  <li><a href="../examples/txt2c.c.html">txt2c.c</a></li>
+  <li><a href="../examples/words.c.html">words.c</a></li>
+  <li><a href="../examples/cmd.c.html">cmd.c</a></li>
+  <li><a href="../examples/testa.c.html">testa.c</a></li>
+  <li><a href="../examples/config.c.html">config.c</a></li>
+  <li><a href="../examples/words.c.html">words.c</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../modules/obj.html">obj</a></li>
+  <li><a href="../modules/str.html">str</a></li>
+  <li><a href="../modules/scan.html">scan</a></li>
+  <li><a href="../modules/template.html">template</a></li>
+  <li><a href="../modules/list.html">list</a></li>
+  <li><a href="../modules/map.html">map</a></li>
+  <li><a href="../modules/file.html">file</a></li>
+  <li><a href="../modules/value.html">value</a></li>
+  <li><a href="../modules/json.html">json</a></li>
+  <li><a href="../modules/xml.html">xml</a></li>
+  <li><a href="../modules/farr.html">farr</a></li>
+  <li><a href="../modules/array.html">array</a></li>
+  <li><a href="../modules/table.html">table</a></li>
+  <li><a href="../modules/config.html">config</a></li>
+  <li><a href="../modules/arg.html">arg</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+    <pre>
+#ifndef LLIB_SELECT_H
+#define LLIB_SELECT_H
+
+<span class="keyword">typedef</span> <span class="keyword">bool</span> (*SelectTimerProc)(<span class="keyword">void</span> *data);
+<span class="keyword">typedef</span> <span class="keyword">int</span> (*SelectReadProc)(<span class="keyword">const</span> <span class="keyword">char</span> *line,...);
+
+<span class="keyword">typedef</span> <span class="keyword">struct</span> Select_ Select;
+<span class="keyword">typedef</span> <span class="keyword">struct</span> SelectTimer_ SelectTimer;
+<span class="keyword">typedef</span> <span class="keyword">struct</span> SelectFile_ SelectFile;
+<span class="keyword">typedef</span> <span class="keyword">struct</span> Pipe_ Pipe;
+
+<span class="keyword">enum</span> {
+    SelectRead = <span class="number">1</span>,
+    SelectWrite = <span class="number">2</span>,
+    SelectReadWrite = <span class="number">4</span>,
+    SelectNonBlock = <span class="number">8</span>,
+    SelectReOpen = <span class="number">16</span>
+};
+
+Select *select_new();
+<span class="keyword">int</span> select_thread(SelectTimerProc callback, <span class="keyword">void</span> *data);
+<span class="keyword">void</span> select_sleep(<span class="keyword">int</span> msec);
+SelectFile *select_add_read(Select *s, <span class="keyword">int</span> fd);
+<span class="keyword">int</span> select_open(Select *s, <span class="keyword">const</span> <span class="keyword">char</span> *str, <span class="keyword">int</span> flags);
+<span class="keyword">bool</span> select_remove_read(Select *s, <span class="keyword">int</span> fd);
+<span class="keyword">bool</span> select_can_read(Select *s, <span class="keyword">int</span> fd);
+<span class="keyword">bool</span> select_can_read_pipe(Select *s, Pipe *pipe);
+<span class="keyword">int</span> *select_read_fds(Select *s);
+
+<span class="keyword">void</span> select_add_reader(Select *s, <span class="keyword">int</span> fd, <span class="keyword">bool</span> close, SelectReadProc reader, <span class="keyword">void</span> *data);
+
+<span class="keyword">void</span> select_timer_kill(SelectTimer *st);
+SelectTimer *select_add_timer(Select *s, <span class="keyword">int</span> secs, SelectTimerProc callback, <span class="keyword">void</span> *data);
+<span class="keyword">bool</span> select_do_later(Select *s, <span class="keyword">int</span> msec, SelectTimerProc callback, <span class="keyword">void</span> *data);
+<span class="keyword">int</span> select_select(Select *s);
+
+Pipe *pipe_new();
+<span class="keyword">int</span> pipe_write(Pipe *pipe, <span class="keyword">void</span> *buff, <span class="keyword">int</span> sz);
+<span class="keyword">int</span> pipe_read(Pipe *pipe, <span class="keyword">void</span> *buff, <span class="keyword">int</span> sz);
+
+#endif
+</pre>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.2</a></i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

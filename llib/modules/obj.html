@@ -68,11 +68,12 @@
   <li><a href="../examples/test-list.c.html">test-list.c</a></li>
   <li><a href="../examples/test-map.c.html">test-map.c</a></li>
   <li><a href="../examples/test-obj.c.html">test-obj.c</a></li>
+  <li><a href="../examples/test-pool.c.html">test-pool.c</a></li>
   <li><a href="../examples/test-scan.c.html">test-scan.c</a></li>
   <li><a href="../examples/test-seq.c.html">test-seq.c</a></li>
+  <li><a href="../examples/test-sqlite3-table.c.html">test-sqlite3-table.c</a></li>
   <li><a href="../examples/test-str.c.html">test-str.c</a></li>
   <li><a href="../examples/test-table.c.html">test-table.c</a></li>
-  <li><a href="../examples/test-sqlite3-table.c.html">test-sqlite3-table.c</a></li>
   <li><a href="../examples/test-template.c.html">test-template.c</a></li>
   <li><a href="../examples/test-xml.c.html">test-xml.c</a></li>
   <li><a href="../examples/cmd.c.html">cmd.c</a></li>
@@ -96,12 +97,40 @@ has an associated dispose function specified in <a href="../modules/obj.html#obj
 <p>Unless <code>OBJ_REF_ABBREV</code> is defined, these are also defined as <code>ref</code> and <code>unref</code>; there is
 a bulk <code>dispose</code> for multiple objects.</p>
 
+<p>llib objects may specify a <em>dispose</em> function:</p>
+
+<pre>
+<span class="keyword">typedef</span> <span class="keyword">struct</span> {
+    <span class="keyword">int</span> age;
+    <span class="keyword">char</span> *name;
+} Person;
+
+<span class="keyword">static</span> <span class="keyword">void</span> Person_dispose(Person *p) {
+    <a href="../modules/obj.html#obj_unref">obj_unref</a> (p-&gt;name);
+}
+
+Person *person_new(<span class="keyword">int</span> age, <span class="keyword">char</span> *name) {
+    Person *p = <a href="../modules/obj.html#obj_new">obj_new</a> (Person,Person_dispose);
+    p-&gt;age = age;
+    p-&gt;name = <a href="../modules/obj.html#str_ref">str_ref</a> (name);
+    <span class="keyword">return</span> p;
+}
+</pre>
+
+
+<p>In this typical scenario, the dispose function decrements the reference
+count of the <code>name</code> field when the <code>Person</code> is disposed;  this will of course
+only dispose the string if it hasn&rsquo;t already been referenced elsewhere, which
+permits flexible sharing of data.  (We use <a href="../modules/obj.html#str_ref">str_ref</a>  specifically here because the
+argument <code>name</code> may not be already a ref-counted string.)</p>
+
 <p><em>Arrays</em> carry their own size, accessible with <a href="../modules/obj.html#array_len">array_len</a> ;
 if created with <a href="../modules/obj.html#array_new_ref">array_new_ref</a> , they will unref their elements when disposed.</p>
 
-<p><em>Sequences</em> are wrappers around arrays, and are resizeable. <a href="../modules/obj.html#seq_add">seq_add</a>  appends new values
+<p><em>Sequences</em> are resizeable arrays. <a href="../modules/obj.html#seq_add">seq_add</a>  appends a new value
 to a sequence. A sequence <code>s</code> is a pointer to an array of T.  The underlying
-array can always be accessed with <code>*s</code>.</p>
+array can always be accessed with <code>*s</code>, and the array will be sized-to-fit when
+<a href="../modules/obj.html#seq_array_ref">seq_array_ref</a>  is called.</p>
 
 <p>See <a href="../examples/test-obj.c.html#">test-obj.c</a>  and <a href="../examples/test-seq.c.html#">test-seq.c</a> </p>
 
@@ -849,6 +878,9 @@ array can always be accessed with <code>*s</code>.</p>
     </dt>
     <dd>
     increase the refcount of a string.
+ If this is <em>not</em> one of &ldquo;our strings&rdquo;, we
+ create a new refcounted string, otherwise
+ proceed as with <a href="../modules/obj.html#obj_ref">obj_ref</a> .
 
 
     <h3>Parameters:</h3>

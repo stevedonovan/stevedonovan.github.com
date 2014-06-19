@@ -40,12 +40,12 @@
   <li><a href="../examples/test-list.c.html">test-list.c</a></li>
   <li><a href="../examples/test-map.c.html">test-map.c</a></li>
   <li><a href="../examples/test-obj.c.html">test-obj.c</a></li>
-  <li><a href="../examples/test-pool.c.html">test-pool.c</a></li>
+  <li><strong>test-pool.c</strong></li>
   <li><a href="../examples/test-scan.c.html">test-scan.c</a></li>
   <li><a href="../examples/test-seq.c.html">test-seq.c</a></li>
   <li><a href="../examples/test-sqlite3-table.c.html">test-sqlite3-table.c</a></li>
   <li><a href="../examples/test-str.c.html">test-str.c</a></li>
-  <li><strong>test-table.c</strong></li>
+  <li><a href="../examples/test-table.c.html">test-table.c</a></li>
   <li><a href="../examples/test-template.c.html">test-template.c</a></li>
   <li><a href="../examples/test-xml.c.html">test-xml.c</a></li>
   <li><a href="../examples/cmd.c.html">cmd.c</a></li>
@@ -77,40 +77,40 @@
 <div id="content">
 
     <pre>
-<span class="comment">/*
-* llib little C library
-* BSD licence
-* Copyright Steve Donovan, 2013
-*/</span>
+#include &lt;stdio.h&gt;
+#include &lt;llib/str.h&gt;
+#include &lt;llib/dbg.h&gt;
 
-#include &lt;llib/table.h&gt;
-
-<span class="keyword">typedef</span> <span class="keyword">char</span> *Str;
-
-<span class="keyword">int</span> main(<span class="keyword">int</span> argc, <span class="keyword">char</span>**argv)
+<span class="keyword">void</span> throw_away_loads_of_objects()
 {
-    Str file = argv[<span class="number">1</span>] ? argv[<span class="number">1</span>] : <span class="string">"test.csv"</span>;
-    Table *t = table_new_from_file(file, TableCsv | TableAll);
-    <span class="keyword">if</span> (t-&gt;error) {
-        fprintf(stderr,<span class="string">"%s\n"</span>,t-&gt;error);
-        <span class="keyword">return</span> <span class="number">1</span>;
-    }
-    table_convert_cols(t,<span class="number">0</span>,TableString,<span class="number">1</span>,TableInt,-<span class="number">1</span>);
-    table_generate_columns(t);
+    scoped_pool;
+    <span class="keyword">void</span> **arr = array_new(<span class="keyword">void</span>*,<span class="number">12</span>);
+    FOR(i,array_len(arr))
+        arr[i] = str_fmt(<span class="string">"and %d ..."</span>,i);
+}
 
-    Str *R = t-&gt;rows[<span class="number">0</span>];
-    <span class="keyword">for</span> (Str *P = t-&gt;col_names; *P; ++P,++R)
-        printf(<span class="string">"'%s' (%s),"</span>,*P,*R);
-    printf(<span class="string">"\n"</span>);
+<span class="keyword">void</span> be_irresponsible_with_strings()
+{
+    scoped_pool;
+    printf(<span class="string">"%s %s\n"</span>,str_new(<span class="string">"hello"</span>),str_new(<span class="string">"dolly"</span>));
+}
 
-    <span class="keyword">int</span> *ages = (<span class="keyword">int</span>*)t-&gt;cols[<span class="number">1</span>];
-    <span class="keyword">char</span> **names = (<span class="keyword">char</span>**)t-&gt;cols[<span class="number">0</span>];
-    FOR(i,array_len(ages))   printf(<span class="string">"%d "</span>,ages[i]);
-    printf(<span class="string">"\n"</span>);
-    FOR(i,array_len(names))   printf(<span class="string">"%s "</span>,names[i]);
-    printf(<span class="string">"\n"</span>);
-    unref(t);
+<span class="keyword">void</span> make_orphans_freely()
+{
+    scoped_pool;
+    <span class="keyword">double</span> *p = array_new(<span class="keyword">double</span>,<span class="number">10</span>);
+    be_irresponsible_with_strings();
+    <span class="keyword">char</span> **ss = strbuf_new();
+    strbuf_adds(ss,<span class="string">"one"</span>);
+    strbuf_adds(ss,<span class="string">"two"</span>);
+    DS(strbuf_tostring(ss));
+    throw_away_loads_of_objects();
+}
 
+<span class="keyword">int</span> main()
+{
+    make_orphans_freely();
+    DI(obj_kount());
     <span class="keyword">return</span> <span class="number">0</span>;
 }</pre>
 

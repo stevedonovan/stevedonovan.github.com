@@ -1,0 +1,156 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>llib Documentation</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>llib</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+
+
+<h2>Examples</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../examples/cmd.c.html">cmd.c</a></li>
+  <li><a href="../examples/config.c.html">config.c</a></li>
+  <li><strong>flot-anot.c</strong></li>
+  <li><a href="../examples/flot-error.c.html">flot-error.c</a></li>
+  <li><a href="../examples/flot-norm-sample.c.html">flot-norm-sample.c</a></li>
+  <li><a href="../examples/flot-norm.c.html">flot-norm.c</a></li>
+  <li><a href="../examples/flot-sine.c.html">flot-sine.c</a></li>
+  <li><a href="../examples/flot-table.c.html">flot-table.c</a></li>
+  <li><a href="../examples/flot-test.c.html">flot-test.c</a></li>
+  <li><a href="../examples/flot.c.html">flot.c</a></li>
+  <li><a href="../examples/make-ex.c.html">make-ex.c</a></li>
+  <li><a href="../examples/select.c.html">select.c</a></li>
+  <li><a href="../examples/select.h.html">select.h</a></li>
+  <li><a href="../examples/test-select.c.html">test-select.c</a></li>
+  <li><a href="../examples/tempx.c.html">tempx.c</a></li>
+  <li><a href="../examples/testa.c.html">testa.c</a></li>
+  <li><a href="../examples/txt2c.c.html">txt2c.c</a></li>
+  <li><a href="../examples/words.c.html">words.c</a></li>
+  <li><a href="../examples/cmd.c.html">cmd.c</a></li>
+  <li><a href="../examples/testa.c.html">testa.c</a></li>
+  <li><a href="../examples/config.c.html">config.c</a></li>
+  <li><a href="../examples/words.c.html">words.c</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../modules/obj.html">obj</a></li>
+  <li><a href="../modules/str.html">str</a></li>
+  <li><a href="../modules/scan.html">scan</a></li>
+  <li><a href="../modules/template.html">template</a></li>
+  <li><a href="../modules/list.html">list</a></li>
+  <li><a href="../modules/map.html">map</a></li>
+  <li><a href="../modules/file.html">file</a></li>
+  <li><a href="../modules/value.html">value</a></li>
+  <li><a href="../modules/json.html">json</a></li>
+  <li><a href="../modules/xml.html">xml</a></li>
+  <li><a href="../modules/farr.html">farr</a></li>
+  <li><a href="../modules/array.html">array</a></li>
+  <li><a href="../modules/table.html">table</a></li>
+  <li><a href="../modules/config.html">config</a></li>
+  <li><a href="../modules/arg.html">arg</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+    <pre>
+#include "flot.c"
+
+<span class="keyword">int</span> main()
+{
+    Flot *P = flot_new(<span class="string">"caption"</span>, <span class="string">"First Test"</span>,
+        <span class="string">"grid.backgroundColor"</span>,flot_gradient(<span class="string">"#FFF"</span>,<span class="string">"#EEE"</span>),
+        <span class="comment">// 'nw' is short for North West, i.e. top-left
+</span>        <span class="string">"legend.position"</span>,<span class="string">"nw"</span>
+    );
+
+    <span class="comment">// Series data must be llib arrays of doubles
+</span>    <span class="keyword">double</span> X[] = {<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>};
+    <span class="keyword">double</span> Y1[] = {<span class="number">10</span>,<span class="number">15</span>,<span class="number">23</span>,<span class="number">29</span>,<span class="number">31</span>};
+    <span class="keyword">double</span> Y2[] = {<span class="number">9.0</span>,<span class="number">9.0</span>,<span class="number">25.0</span>,<span class="number">28.0</span>,<span class="number">32.0</span>};
+    <span class="keyword">double</span> *xv = array_new_copy(<span class="keyword">double</span>,X,<span class="number">5</span>);
+    <span class="keyword">double</span> *yv1 = array_new_copy(<span class="keyword">double</span>,Y1,<span class="number">5</span>);
+    <span class="keyword">double</span> *yv2 = farr_copy(Y2);
+
+    <span class="keyword">const</span> <span class="keyword">char</span> *gray = <span class="string">"#f6f6f6"</span>;
+
+    flot_series_new(P,xv,yv1, FlotLines,<span class="string">"label"</span>,<span class="string">"cats"</span>,
+        <span class="string">"lines.lineWidth"</span>,VF(<span class="number">1</span>),
+        <span class="string">"lines.fill"</span>,VF(<span class="number">0.2</span>)  <span class="comment">// specified as an alpha to be applied to line colour
+</span>    );
+    flot_series_new(P,xv,yv2, FlotPoints,<span class="string">"label"</span>,<span class="string">"dogs"</span>,<span class="string">"color"</span>,<span class="string">"#F00"</span>);
+    flot_series_new(P,farr_4(<span class="number">2</span>,<span class="number">12</span>,<span class="number">4</span>,<span class="number">25</span>),NULL,FlotLines,<span class="string">"label"</span>,<span class="string">"lizards"</span>);
+
+    <span class="comment">// this is based on the Flot annotations example
+</span>
+    Flot *P2 = flot_new(<span class="string">"caption"</span>,<span class="string">"Second Test"</span>,
+        <span class="string">"legend.show"</span>,False, <span class="comment">// no legend
+</span>        <span class="comment">// and explicitly give ourselves some more vertical room
+</span>        <span class="string">"yaxis.min"</span>,VF(-<span class="number">2</span>),<span class="string">"yaxis.max"</span>,VF(<span class="number">2</span>),
+        flot_markings (
+            flot_horz_region(<span class="number">1</span>,FlotMax,gray),
+            flot_horz_region(FlotMin,-<span class="number">1</span>,gray),
+            flot_vert_line(<span class="number">2</span>,<span class="string">"#000"</span>,<span class="number">1</span>),
+            flot_vert_line(<span class="number">10</span>,<span class="string">"red"</span>,<span class="number">1</span>)
+        ),
+        <span class="comment">// grid lines switched off by making them white and the border explicitly black
+</span>        <span class="string">"grid.color"</span>,<span class="string">"#FFF"</span>,<span class="string">"grid.borderColor"</span>,<span class="string">"#000"</span>,
+        <span class="comment">// switch off ticks with an empty list/array
+</span>        <span class="string">"xaxis.ticks"</span>,flot_empty()
+    );
+
+    flot_text_mark(P2,<span class="number">2</span>,-<span class="number">1.2</span>,<span class="string">"Warming up"</span>);
+
+    <span class="comment">// can pack X and Y as even and odd values in a single array
+</span>    <span class="keyword">double</span> *vv = array_new(<span class="keyword">double</span>,<span class="number">40</span>);
+    <span class="keyword">int</span> k = <span class="number">0</span>;
+    FOR(i,<span class="number">20</span>) {
+        vv[k++] = i;
+        vv[k++] = sin(i);
+    }
+
+    flot_series_new(P2,vv,NULL,FlotBars,
+       <span class="string">"color"</span>,<span class="string">"#333"</span>, <span class="string">"bars.barWidth"</span>,VF(<span class="number">0.5</span>),<span class="string">"bars.fill"</span>,VF(<span class="number">0.6</span>)
+    );
+
+    flot_render(<span class="string">"markings"</span>);
+
+    <span class="keyword">return</span> <span class="number">0</span>;
+}</pre>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.2</a></i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

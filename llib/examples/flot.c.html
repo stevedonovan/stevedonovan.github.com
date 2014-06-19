@@ -1,0 +1,419 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>llib Documentation</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>llib</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+
+
+<h2>Examples</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../examples/cmd.c.html">cmd.c</a></li>
+  <li><a href="../examples/config.c.html">config.c</a></li>
+  <li><a href="../examples/flot-anot.c.html">flot-anot.c</a></li>
+  <li><a href="../examples/flot-error.c.html">flot-error.c</a></li>
+  <li><a href="../examples/flot-norm-sample.c.html">flot-norm-sample.c</a></li>
+  <li><a href="../examples/flot-norm.c.html">flot-norm.c</a></li>
+  <li><a href="../examples/flot-sine.c.html">flot-sine.c</a></li>
+  <li><a href="../examples/flot-table.c.html">flot-table.c</a></li>
+  <li><a href="../examples/flot-test.c.html">flot-test.c</a></li>
+  <li><strong>flot.c</strong></li>
+  <li><a href="../examples/make-ex.c.html">make-ex.c</a></li>
+  <li><a href="../examples/select.c.html">select.c</a></li>
+  <li><a href="../examples/select.h.html">select.h</a></li>
+  <li><a href="../examples/test-select.c.html">test-select.c</a></li>
+  <li><a href="../examples/tempx.c.html">tempx.c</a></li>
+  <li><a href="../examples/testa.c.html">testa.c</a></li>
+  <li><a href="../examples/txt2c.c.html">txt2c.c</a></li>
+  <li><a href="../examples/words.c.html">words.c</a></li>
+  <li><a href="../examples/cmd.c.html">cmd.c</a></li>
+  <li><a href="../examples/testa.c.html">testa.c</a></li>
+  <li><a href="../examples/config.c.html">config.c</a></li>
+  <li><a href="../examples/words.c.html">words.c</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../modules/obj.html">obj</a></li>
+  <li><a href="../modules/str.html">str</a></li>
+  <li><a href="../modules/scan.html">scan</a></li>
+  <li><a href="../modules/template.html">template</a></li>
+  <li><a href="../modules/list.html">list</a></li>
+  <li><a href="../modules/map.html">map</a></li>
+  <li><a href="../modules/file.html">file</a></li>
+  <li><a href="../modules/value.html">value</a></li>
+  <li><a href="../modules/json.html">json</a></li>
+  <li><a href="../modules/xml.html">xml</a></li>
+  <li><a href="../modules/farr.html">farr</a></li>
+  <li><a href="../modules/array.html">array</a></li>
+  <li><a href="../modules/table.html">table</a></li>
+  <li><a href="../modules/config.html">config</a></li>
+  <li><a href="../modules/arg.html">arg</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+    <pre>
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;llib/file.h&gt;
+#include &lt;llib/list.h&gt;
+#include &lt;llib/map.h&gt;
+#include &lt;llib/str.h&gt;
+#include &lt;llib/template.h&gt;
+#define LLIB_JSON_EASY
+#include &lt;llib/json.h&gt;
+#include &lt;llib/farr.h&gt;
+
+#ifndef STANDALONE_FLOT
+#define FLOT_CDN "file:///home/steve/projects/flot"
+#define JQUERY_CDN FLOT_CDN "/jquery.min.js"
+#else
+#define FLOT_CDN "http://www.flotcharts.org/flot/"
+#define JQUERY_CDN "http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"
+#endif
+
+#define FlotMax 1e100
+#define FlotMin -FlotMax
+
+<span class="keyword">typedef</span> <span class="keyword">struct</span> flot_ {
+    List *series;
+    <span class="keyword">const</span> <span class="keyword">char</span>* caption;
+    <span class="keyword">const</span> <span class="keyword">char</span> *id;
+    <span class="keyword">const</span> <span class="keyword">char</span>* xtitle;
+    <span class="keyword">const</span> <span class="keyword">char</span>* ytitle;
+    <span class="keyword">int</span> width;
+    <span class="keyword">int</span> height;
+    Map *map;
+    List *text_marks;
+} Flot;
+
+<span class="keyword">typedef</span> <span class="keyword">struct</span> Series_ {
+    <span class="keyword">const</span> <span class="keyword">char</span> *name;
+    <span class="keyword">double</span> *X;
+    <span class="keyword">double</span> *Y;
+    Flot *plot;
+    Map *map;
+} Series;
+
+<span class="keyword">typedef</span> <span class="keyword">char</span> *Str;
+<span class="keyword">typedef</span> <span class="keyword">const</span> <span class="keyword">char</span> *CStr;
+
+<span class="keyword">static</span> List *plugins = NULL;
+
+<span class="keyword">static</span> <span class="keyword">double</span> **interleave(<span class="keyword">double</span> *X, <span class="keyword">double</span> *Y) {
+    <span class="keyword">int</span> n = array_len(X);
+    <span class="keyword">double</span> **pnts = array_new_ref(<span class="keyword">double</span>*,n);
+    FOR(i,n) {
+        pnts[i] = farr_2(X[i],Y[i]);
+    }
+    <span class="keyword">return</span> pnts;
+}
+
+<span class="keyword">static</span> <span class="keyword">void</span> flot_dispose(Flot *P) {
+    obj_unref_v(P-&gt;series, P-&gt;caption, P-&gt;xtitle, P-&gt;ytitle);
+}
+
+PValue True = NULL, False = NULL;
+<span class="keyword">static</span> List *plots = NULL;
+<span class="keyword">static</span> <span class="keyword">int</span> kount = <span class="number">1</span>;
+
+<span class="keyword">static</span> <span class="keyword">char</span> *splitdot(<span class="keyword">char</span> *key) {
+    <span class="keyword">char</span> *p = strchr(key,'.');
+    <span class="keyword">if</span> (p) { <span class="comment">// sub.key
+</span>        *p = '\0';
+        <span class="keyword">return</span> p+<span class="number">1</span>;
+    } <span class="keyword">else</span>
+        <span class="keyword">return</span> NULL;
+}
+
+#define MAX_KEY 128
+
+<span class="comment">// key may be in dotted form, e.g. "points.show" - in this case 'points' refers to a submap
+</span><span class="comment">// and 'show' is the subkey into that submap.
+</span><span class="keyword">static</span> <span class="keyword">void</span> put_submap(Map *map, CStr ckey, <span class="keyword">const</span> <span class="keyword">void</span>* value) {
+    <span class="keyword">char</span> key[MAX_KEY];
+    strcpy(key,ckey);
+    <span class="keyword">char</span> *subkey = splitdot(key);
+    <span class="keyword">if</span> (! subkey) {
+        map_puts(map,key,value);
+    } <span class="keyword">else</span> {
+        Map *sub = map_gets(map,key);
+        <span class="keyword">if</span> (! sub) {
+            sub = map_new_str_ref();
+            map_puts(map,key,sub);
+        }
+        put_submap(sub,subkey,value);
+    }
+}
+
+<span class="keyword">static</span> PValue get_submap(Map *map, CStr ckey) {
+    <span class="keyword">char</span> key[MAX_KEY];
+    strcpy(key,ckey);
+    <span class="keyword">char</span> *subkey = splitdot(key);
+    <span class="keyword">if</span> (! subkey) {
+        <span class="keyword">return</span> map_gets(map,key);
+    } <span class="keyword">else</span> {
+        Map *sub = map_gets(map,key);
+        <span class="keyword">if</span> (! sub)
+            <span class="keyword">return</span> NULL;
+        <span class="keyword">return</span> get_submap(sub,subkey);
+    }
+}
+
+<span class="keyword">static</span> <span class="keyword">void</span> update_options(Map *map, PValue options) {
+    <span class="keyword">if</span> (! options) <span class="keyword">return</span>;
+    <span class="keyword">if</span> (options) {
+        <span class="keyword">char</span> **omap = (<span class="keyword">char</span>**)options;
+        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>, n = array_len(omap); i &lt; n; i+=<span class="number">2</span>) {
+            <span class="keyword">char</span> *key = omap[i];
+            <span class="keyword">void</span> *value = omap[i+<span class="number">1</span>];
+            put_submap(map,key,value);
+        }
+    }
+}
+
+#define flot_new(...) flot_new_(value_map_of_str(__VA_ARGS__))
+
+Flot *flot_new_(PValue options)  {
+    Flot *P = obj_new(Flot,flot_dispose);
+    <span class="keyword">if</span> (! True) {
+        True = VB(<span class="keyword">true</span>);
+        False = VB(<span class="keyword">false</span>);
+        plots = list_new_ptr();
+        plugins = list_new_str();
+    }
+    P-&gt;xtitle = NULL;
+    P-&gt;ytitle = NULL;
+    P-&gt;text_marks = NULL;
+    P-&gt;width = <span class="number">600</span>;
+    P-&gt;height = <span class="number">300</span>;
+    P-&gt;series = list_new_ref();
+    P-&gt;map = map_new_str_ref();
+    P-&gt;id = str_fmt(<span class="string">"placeholder%d"</span>,kount++);
+    update_options(P-&gt;map,options);
+    P-&gt;caption = map_get(P-&gt;map,<span class="string">"caption"</span>);
+    <span class="keyword">if</span> (get_submap(P-&gt;map,<span class="string">"xaxis.mode"</span>)) {
+        list_add_unique(plugins,<span class="string">"time"</span>);
+    }
+    list_add(plots,P);
+    <span class="keyword">return</span> P;
+}
+
+<span class="keyword">void</span> flot_option(Flot *P, CStr key, <span class="keyword">const</span> <span class="keyword">void</span>* value) {
+    put_submap(P-&gt;map,key,value);
+}
+
+<span class="keyword">typedef</span> <span class="keyword">struct</span> TextMark_ {
+    <span class="keyword">double</span> x,y;
+    <span class="keyword">const</span> <span class="keyword">char</span> *text;
+} TextMark;
+
+<span class="keyword">void</span> flot_text_mark(Flot *P, <span class="keyword">double</span> x, <span class="keyword">double</span> y, <span class="keyword">const</span> <span class="keyword">char</span> *text) {
+    <span class="keyword">if</span> (! P-&gt;text_marks)
+        P-&gt;text_marks = list_new_ref();
+    TextMark *mark = obj_new(TextMark,NULL);
+    mark-&gt;x = x;
+    mark-&gt;y = y;
+    mark-&gt;text = text;
+    list_add(P-&gt;text_marks, mark);
+}
+
+<span class="keyword">static</span> <span class="keyword">void</span> Series_dispose(Series *S) {
+    obj_unref_v(S-&gt;X, S-&gt;Y);
+}
+
+<span class="keyword">enum</span> {
+    FlotLines = <span class="number">1</span>,
+    FlotPoints = <span class="number">2</span>,
+    FlotBars = <span class="number">4</span>,
+    FlotFill = <span class="number">8</span>
+};
+
+#define flot_series_new(p,x,y,flags,...) flot_series_new_(p,x,y,flags,value_map_of_str(__VA_ARGS__))
+
+Series *flot_series_new_(Flot *p, <span class="keyword">double</span> *X, <span class="keyword">double</span> *Y, <span class="keyword">int</span> flags, PValue options) {
+    Series *s = obj_new(Series,Series_dispose);
+    s-&gt;plot = p;
+    s-&gt;map = map_new_str_ref();
+    <span class="keyword">if</span> (flags == FlotBars) {
+        put_submap(s-&gt;map,<span class="string">"bars.show"</span>,True);
+    } <span class="keyword">else</span> {
+        <span class="keyword">if</span> (flags &amp; FlotLines) {
+            put_submap(s-&gt;map,<span class="string">"lines.show"</span>,True);
+            <span class="keyword">if</span> (flags &amp; FlotFill) {
+                put_submap(s-&gt;map,<span class="string">"lines.fill"</span>,VF(<span class="number">0.5</span>));
+            }
+        }
+        <span class="keyword">if</span> (flags &amp; FlotPoints) {
+            put_submap(s-&gt;map,<span class="string">"points.show"</span>,True);
+        }
+    }
+    update_options(s-&gt;map,options);
+    <span class="keyword">double</span> **xydata = NULL;
+    <span class="keyword">if</span> (! Y) {
+        <span class="comment">// might already be an array in the correct form!
+</span>        <span class="keyword">void</span> **D = (<span class="keyword">void</span>*)X;
+        <span class="keyword">if</span> (obj_refcount(D[<span class="number">0</span>]) != -<span class="number">1</span> &amp;&amp; array_len(D[<span class="number">0</span>]) &gt; <span class="number">0</span>) {
+            xydata = (<span class="keyword">double</span>**)X;
+        } <span class="keyword">else</span> { <span class="comment">// even values are X, odd values are Y
+</span>            <span class="keyword">double</span> *vv = X;
+            <span class="keyword">int</span> n = array_len(vv);
+            <span class="keyword">double</span> *X = array_new(<span class="keyword">double</span>,n/<span class="number">2</span>), *Y = array_new(<span class="keyword">double</span>,n/<span class="number">2</span>);
+            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>, k = <span class="number">0</span>; i &lt; n; i+=<span class="number">2</span>,k++) {
+                X[k] = vv[i];
+                Y[k] = vv[i+<span class="number">1</span>];
+            }
+            s-&gt;X = X;
+            s-&gt;Y = Y;
+            obj_unref(vv);
+        }
+    } <span class="keyword">else</span> {
+        s-&gt;X = obj_ref(X);
+        s-&gt;Y = obj_ref(Y);
+    }
+    <span class="keyword">if</span> (! xydata)
+        xydata = interleave(s-&gt;X,s-&gt;Y);
+    map_puts(s-&gt;map,<span class="string">"data"</span>,xydata);
+    <span class="keyword">if</span> (get_submap(s-&gt;map,<span class="string">"points.errorbars"</span>)) {
+        list_add_unique(plugins,<span class="string">"errorbars"</span>);
+    }
+    list_add(p-&gt;series,s);
+    <span class="keyword">return</span> s;
+}
+
+<span class="keyword">void</span> flot_series_option(Series *S, CStr key, <span class="keyword">const</span> <span class="keyword">void</span>* value) {
+    put_submap(S-&gt;map,key,value);
+}
+
+<span class="keyword">void</span> flot_render(CStr name) {
+    <span class="comment">// load the template...
+</span>    <span class="keyword">char</span> *tpl = file_read_all(<span class="string">"flot.tpl"</span>,<span class="keyword">false</span>);
+    <span class="keyword">if</span> (! tpl) {
+        perror(<span class="string">"template read"</span>);
+        exit(<span class="number">1</span>);
+    }
+
+    List *plist = list_new_ref();
+    FOR_LIST(iter,plots) {
+        Map *pd = map_new_str_ref();
+        Flot *P = iter-&gt;data;
+        map_puts(pd,<span class="string">"title"</span>,VS(P-&gt;caption));
+        map_puts(pd,<span class="string">"width"</span>,VI(P-&gt;width));
+        map_puts(pd,<span class="string">"height"</span>,VI(P-&gt;height));
+        map_puts(pd,<span class="string">"div"</span>,VS(P-&gt;id));
+
+        <span class="keyword">if</span> (P-&gt;text_marks) {
+            <span class="keyword">char</span> **out = strbuf_new();
+            FOR_LIST(p,P-&gt;text_marks) {
+                TextMark *m = p-&gt;data;
+                strbuf_addf(out,<span class="string">"text_marking(plot_%s,'%s',%f,%f,'%s')\n"</span>,P-&gt;id,P-&gt;id,m-&gt;x,m-&gt;y,m-&gt;text);
+            }
+            map_puts(pd,<span class="string">"textmarks"</span>,strbuf_tostring(out));
+        }
+
+        <span class="comment">// an array of all the data objects of the series
+</span>        PValue *series = array_new_ref(PValue,list_size(P-&gt;series));
+        <span class="keyword">int</span> i = <span class="number">0</span>;
+        FOR_LIST(p,P-&gt;series) {
+            Series *S = p-&gt;data;
+            series[i++] = S-&gt;map;
+        }
+
+        map_puts(pd,<span class="string">"data"</span>,json_tostring(series));
+        map_puts(pd,<span class="string">"options"</span>,json_tostring(P-&gt;map));
+        list_add(plist,pd);
+    }
+
+    <span class="comment">// and write the substitution out to the HTML output...
+</span>    StrTempl st = str_templ_new(tpl,<span class="string">"@()"</span>);
+    Map *data = map_new_str_ref();
+    map_puts(data,<span class="string">"flot"</span>,FLOT_CDN);
+    map_puts(data,<span class="string">"jquery"</span>,JQUERY_CDN);
+    map_puts(data,<span class="string">"title"</span>,name); <span class="comment">// for now...
+</span>    map_puts(data,<span class="string">"plots"</span>,plist);
+    map_puts(data,<span class="string">"plugins"</span>,plugins);
+
+    <span class="keyword">char</span> *res = str_templ_subst_values(st,data);
+    <span class="keyword">char</span> *html = str_fmt(<span class="string">"%s.html"</span>,name);
+    FILE *out = fopen(html,<span class="string">"w"</span>);
+    fputs(res,out);
+    fclose(out);
+    printf(<span class="string">"output written to %s\n"</span>,html);
+}
+
+<span class="keyword">char</span> *flot_rgba(<span class="keyword">int</span> r, <span class="keyword">int</span> g, <span class="keyword">int</span> b,<span class="keyword">int</span> a) {
+    <span class="keyword">return</span> str_fmt(<span class="string">"rgba(%d,%d,%d,%d)"</span>,r,g,b,a);
+}
+
+PValue flot_gradient(<span class="keyword">const</span> <span class="keyword">char</span> *start, <span class="keyword">const</span> <span class="keyword">char</span> *finish) {
+    <span class="keyword">return</span> VMS(<span class="string">"colors"</span>,VAS(start,finish));
+}
+
+#define flot_markings(...) "grid.markings",VA(__VA_ARGS__)
+
+#define flot_line(axis,x,colour,line_width) VMS("color",colour,"lineWidth",VF(line_width), axis,VMS("from",VF(x),"to",VF(x)))
+#define flot_vert_line(x,c,w) flot_line("xaxis",x,c,w)
+#define flot_horz_line(x,c,w) flot_line("xaxis",x,c,w)
+
+<span class="comment">// does not work for flot -run:  undefined symbol 'value_map_of_str'
+</span><span class="comment">//~ PValue flot_line(const char *axis, double x, const char *colour, int line_width) {
+</span>    <span class="comment">//~ return VMS("color",colour,"lineWidth",VF(line_width), axis,VMS("from",VF(x),"to",VF(x)));
+</span><span class="comment">//~ }
+</span>
+
+PValue flot_region(<span class="keyword">const</span> <span class="keyword">char</span> *axis, <span class="keyword">double</span> x1, <span class="keyword">double</span> x2, <span class="keyword">const</span> <span class="keyword">char</span> *colour) {
+    Map *m = map_new_str_ref();
+    Map *s = map_new_str_ref();
+    map_puts(m,<span class="string">"color"</span>,VS(colour));
+    map_puts(m,axis,s);
+    <span class="keyword">if</span> (x1 &gt; FlotMin)
+        map_puts(s,<span class="string">"from"</span>,VF(x1));
+    <span class="keyword">if</span> (x2 &lt; FlotMax)
+        map_puts(s,<span class="string">"to"</span>,VF(x2));
+    <span class="keyword">return</span> m;
+    <span class="comment">//return value_array_values_(3,"color","#f6f6f6","yaxis",value_array_values_(3,"to",VF(x),NULL),NULL);
+</span>}
+
+#define flot_vert_region(x1,x2,c) flot_region("xaxis",x1,x2,c)
+#define flot_horz_region(x1,x2,c) flot_region("yaxis",x1,x2,c)
+
+#define flot_empty list_new_ptr
+</pre>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.2</a></i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

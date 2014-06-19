@@ -34,20 +34,24 @@
 
 <h2>Examples</h2>
 <ul class="$(kind=='Topics' and '' or 'nowrap'">
-  <li><strong>test-config.c</strong></li>
-  <li><a href="../examples/test-file.c.html">test-file.c</a></li>
-  <li><a href="../examples/test-json.c.html">test-json.c</a></li>
-  <li><a href="../examples/test-list.c.html">test-list.c</a></li>
-  <li><a href="../examples/test-map.c.html">test-map.c</a></li>
-  <li><a href="../examples/test-obj.c.html">test-obj.c</a></li>
-  <li><a href="../examples/test-pool.c.html">test-pool.c</a></li>
-  <li><a href="../examples/test-scan.c.html">test-scan.c</a></li>
-  <li><a href="../examples/test-seq.c.html">test-seq.c</a></li>
-  <li><a href="../examples/test-sqlite3-table.c.html">test-sqlite3-table.c</a></li>
-  <li><a href="../examples/test-str.c.html">test-str.c</a></li>
-  <li><a href="../examples/test-table.c.html">test-table.c</a></li>
-  <li><a href="../examples/test-template.c.html">test-template.c</a></li>
-  <li><a href="../examples/test-xml.c.html">test-xml.c</a></li>
+  <li><a href="../examples/cmd.c.html">cmd.c</a></li>
+  <li><a href="../examples/config.c.html">config.c</a></li>
+  <li><a href="../examples/flot-anot.c.html">flot-anot.c</a></li>
+  <li><a href="../examples/flot-error.c.html">flot-error.c</a></li>
+  <li><a href="../examples/flot-norm-sample.c.html">flot-norm-sample.c</a></li>
+  <li><a href="../examples/flot-norm.c.html">flot-norm.c</a></li>
+  <li><a href="../examples/flot-sine.c.html">flot-sine.c</a></li>
+  <li><a href="../examples/flot-table.c.html">flot-table.c</a></li>
+  <li><a href="../examples/flot-test.c.html">flot-test.c</a></li>
+  <li><a href="../examples/flot.c.html">flot.c</a></li>
+  <li><a href="../examples/make-ex.c.html">make-ex.c</a></li>
+  <li><a href="../examples/select.c.html">select.c</a></li>
+  <li><a href="../examples/select.h.html">select.h</a></li>
+  <li><strong>test-select.c</strong></li>
+  <li><a href="../examples/tempx.c.html">tempx.c</a></li>
+  <li><a href="../examples/testa.c.html">testa.c</a></li>
+  <li><a href="../examples/txt2c.c.html">txt2c.c</a></li>
+  <li><a href="../examples/words.c.html">words.c</a></li>
   <li><a href="../examples/cmd.c.html">cmd.c</a></li>
   <li><a href="../examples/testa.c.html">testa.c</a></li>
   <li><a href="../examples/config.c.html">config.c</a></li>
@@ -78,30 +82,23 @@
 
     <pre>
 #include &lt;stdio.h&gt;
-#include &lt;llib/config.h&gt;
-#include &lt;llib/array.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;unistd.h&gt;
+#include "select.h"
 
-<span class="keyword">void</span> test (str_t file) {
-    scoped_pool;
-    <span class="keyword">char</span> **S = config_read(file);
-    FOR_SMAP(key,val,S) {
-        printf(<span class="string">"%s:'%s'\n"</span>,key,val);
-    }
+#define LINE_SIZE 256
 
-    printf(<span class="string">"name %s\n"</span>,config_gets(S,<span class="string">"name"</span>,<span class="string">"?"</span>));
-    printf(<span class="string">"a %d\n"</span>,config_geti(S,<span class="string">"a"</span>,-<span class="number">1</span>));
-
-    <span class="keyword">int</span>* ids = config_geti_arr(S,<span class="string">"ids"</span>);
-    FORA(ids,printf(<span class="string">"%d "</span>,_));
-    printf(<span class="string">"\n"</span>);
-}
-
-
-<span class="keyword">int</span> main(<span class="keyword">int</span> argc,  <span class="keyword">const</span> <span class="keyword">char</span> **argv)
+<span class="keyword">int</span> main()
 {
-    test(argv[<span class="number">1</span>] ? argv[<span class="number">1</span>] : <span class="string">"config.cfg"</span>);
-    printf(<span class="string">"kount = %d\n"</span>,obj_kount());
+
+    <span class="keyword">int</span> pid =  select_thread(callback,NULL);
+
+
+    wait(pid);
+
     <span class="keyword">return</span> <span class="number">0</span>;
+
+
 }</pre>
 
 

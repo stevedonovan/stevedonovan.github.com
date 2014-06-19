@@ -1,0 +1,494 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>llib Documentation</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>llib</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+
+
+<h2>Examples</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../examples/cmd.c.html">cmd.c</a></li>
+  <li><a href="../examples/config.c.html">config.c</a></li>
+  <li><a href="../examples/flot-anot.c.html">flot-anot.c</a></li>
+  <li><a href="../examples/flot-error.c.html">flot-error.c</a></li>
+  <li><a href="../examples/flot-norm-sample.c.html">flot-norm-sample.c</a></li>
+  <li><a href="../examples/flot-norm.c.html">flot-norm.c</a></li>
+  <li><a href="../examples/flot-sine.c.html">flot-sine.c</a></li>
+  <li><a href="../examples/flot-table.c.html">flot-table.c</a></li>
+  <li><a href="../examples/flot-test.c.html">flot-test.c</a></li>
+  <li><a href="../examples/flot.c.html">flot.c</a></li>
+  <li><a href="../examples/make-ex.c.html">make-ex.c</a></li>
+  <li><strong>select.c</strong></li>
+  <li><a href="../examples/select.h.html">select.h</a></li>
+  <li><a href="../examples/test-select.c.html">test-select.c</a></li>
+  <li><a href="../examples/tempx.c.html">tempx.c</a></li>
+  <li><a href="../examples/testa.c.html">testa.c</a></li>
+  <li><a href="../examples/txt2c.c.html">txt2c.c</a></li>
+  <li><a href="../examples/words.c.html">words.c</a></li>
+  <li><a href="../examples/cmd.c.html">cmd.c</a></li>
+  <li><a href="../examples/testa.c.html">testa.c</a></li>
+  <li><a href="../examples/config.c.html">config.c</a></li>
+  <li><a href="../examples/words.c.html">words.c</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../modules/obj.html">obj</a></li>
+  <li><a href="../modules/str.html">str</a></li>
+  <li><a href="../modules/scan.html">scan</a></li>
+  <li><a href="../modules/template.html">template</a></li>
+  <li><a href="../modules/list.html">list</a></li>
+  <li><a href="../modules/map.html">map</a></li>
+  <li><a href="../modules/file.html">file</a></li>
+  <li><a href="../modules/value.html">value</a></li>
+  <li><a href="../modules/json.html">json</a></li>
+  <li><a href="../modules/xml.html">xml</a></li>
+  <li><a href="../modules/farr.html">farr</a></li>
+  <li><a href="../modules/array.html">array</a></li>
+  <li><a href="../modules/table.html">table</a></li>
+  <li><a href="../modules/config.html">config</a></li>
+  <li><a href="../modules/arg.html">arg</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+    <pre>
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;string.h&gt;
+#include &lt;unistd.h&gt;
+#include &lt;sys/select.h&gt;
+#include &lt;signal.h&gt;
+#include &lt;sys/stat.h&gt;
+#include &lt;sys/time.h&gt;
+#include &lt;fcntl.h&gt;
+
+#include &lt;llib/list.h&gt;
+
+#include "select.h"
+
+<span class="keyword">typedef</span> <span class="keyword">unsigned</span> <span class="keyword">char</span> byte;
+
+<span class="keyword">struct</span> Pipe_ {
+    <span class="keyword">int</span> twrite;
+    <span class="keyword">int</span> tread;
+};
+
+<span class="keyword">struct</span> SelectTimer_;
+
+<span class="keyword">struct</span> Select_ {
+    fd_set fdset;
+    <span class="keyword">int</span> nfds;
+    List *fds;  <span class="comment">// (SelectFile) we are waiting on these for reading
+</span>    <span class="keyword">bool</span> error;
+    <span class="comment">// timer support
+</span>    Pipe *tpipe;
+    List *timers; <span class="comment">//(SelectTimer)
+</span>    <span class="comment">// once-off millisecond timer
+</span>    <span class="keyword">struct</span> SelectTimer_ *milli_timer;
+    <span class="keyword">struct</span> timeval *p_timeval;
+};
+
+<span class="keyword">struct</span> SelectTimer_ {
+    SelectTimerProc callback;
+    <span class="keyword">void</span> *data;
+    Pipe *tpipe;
+    byte id;
+    <span class="keyword">int</span> secs;
+    <span class="keyword">int</span> pid;
+    Select *s;
+};
+
+<span class="keyword">struct</span> SelectFile_ {
+    <span class="keyword">int</span> fd;
+    <span class="keyword">int</span> flags;
+    <span class="keyword">const</span> <span class="keyword">char</span> *name;
+    SelectReadProc handler;
+    <span class="keyword">void</span> *handler_data;
+    <span class="keyword">bool</span> exit_on_close;
+};
+
+<span class="keyword">int</span> select_thread(SelectTimerProc callback, <span class="keyword">void</span> *data) {
+    pid_t pid = fork();
+    <span class="keyword">if</span> (pid == <span class="number">0</span>) { <span class="comment">// child
+</span>        callback(data);
+        _exit(<span class="number">0</span>);
+    } <span class="comment">// parent...
+</span>    <span class="keyword">return</span> pid;
+}
+
+<span class="keyword">void</span> select_sleep(<span class="keyword">int</span> msec) {
+    <span class="keyword">struct</span> timeval tv;
+    tv.tv_sec = <span class="number">0</span>;
+    tv.tv_usec = <span class="number">1000</span>*msec;
+    <span class="global">select</span>(<span class="number">0</span>,NULL,NULL,NULL,&amp;tv);
+}
+
+<span class="keyword">static</span> <span class="keyword">void</span> timer_thread(SelectTimer *st) {
+    <span class="keyword">while</span> (<span class="number">1</span>) {
+        sleep(st-&gt;secs);
+        pipe_write(st-&gt;tpipe,&amp;st-&gt;id,<span class="number">1</span>);
+    }
+}
+
+<span class="keyword">static</span> Pipe *timer_pipe(Select *s) {
+    <span class="keyword">return</span> s-&gt;tpipe;
+}
+
+<span class="keyword">static</span> <span class="keyword">void</span> Select_dispose(Select *s) {
+    obj_unref(s-&gt;fds);
+    <span class="keyword">if</span> (s-&gt;timers) {
+        obj_unref(timer_pipe(s));
+        <span class="comment">// this stops the timers from removing themselves from the list!
+</span>        List *timers = s-&gt;timers;
+        s-&gt;timers = NULL;
+        obj_unref(timers);
+    }
+}
+
+Select *select_new() {
+    Select *me = obj_new(Select,Select_dispose);
+    me-&gt;nfds = <span class="number">0</span>;
+    me-&gt;fds = list_new_ref();
+    me-&gt;timers = NULL;
+    me-&gt;p_timeval = NULL;
+    me-&gt;milli_timer = NULL;
+    <span class="keyword">return</span> me;
+}
+
+<span class="keyword">void</span> SelectFile_dispose(SelectFile *sf) {
+    <span class="keyword">if</span> (sf-&gt;name)
+        obj_unref(sf-&gt;name);
+    <span class="comment">//printf("disposing %d\n",sf-&gt;fd);
+</span>}
+
+#define SFILE(item) ((SelectFile*)((item)-&gt;data))
+
+SelectFile *select_add_read(Select *s, <span class="keyword">int</span> fd) {
+    SelectFile *sf;
+    FOR_LIST_T(SelectFile*,sf,s-&gt;fds) {
+        <span class="keyword">if</span> (sf-&gt;fd == fd)
+            <span class="keyword">return</span> sf;
+    }
+
+    sf = obj_new(SelectFile,SelectFile_dispose);
+    sf-&gt;fd = fd;
+    sf-&gt;name = NULL;
+    sf-&gt;handler = NULL;
+    sf-&gt;handler_data = NULL;
+    sf-&gt;exit_on_close = <span class="keyword">false</span>;
+    list_add(s-&gt;fds,sf);
+    <span class="keyword">if</span> (fd &gt;= s-&gt;nfds)
+        s-&gt;nfds = fd + <span class="number">1</span>;
+    <span class="keyword">return</span> sf;
+}
+
+<span class="keyword">static</span> <span class="keyword">int</span> select_open_file(<span class="keyword">const</span> <span class="keyword">char</span> *str, <span class="keyword">int</span> flags) {
+    <span class="keyword">int</span> oflags = <span class="number">0</span>;
+    <span class="keyword">if</span> (flags &amp; SelectReadWrite)
+        oflags = O_RDWR;
+    <span class="keyword">else</span> <span class="keyword">if</span> (flags &amp; SelectRead)
+        oflags = O_RDONLY;
+    <span class="keyword">else</span> <span class="keyword">if</span> (flags &amp; SelectWrite)
+        oflags = O_WRONLY;
+    <span class="keyword">if</span> (flags &amp; SelectNonBlock)
+         oflags |= O_NONBLOCK;
+
+    <span class="keyword">return</span> open(str,oflags);
+}
+
+<span class="keyword">int</span> select_open(Select *s, <span class="keyword">const</span> <span class="keyword">char</span> *str, <span class="keyword">int</span> flags) {
+    <span class="keyword">int</span> fd = select_open_file(str,flags);
+    <span class="keyword">if</span> (fd == -<span class="number">1</span>) {
+        perror(<span class="string">"open"</span>);
+        <span class="keyword">return</span> -<span class="number">1</span>;
+    }
+    SelectFile *sf = select_add_read(s, fd);
+    sf-&gt;name = str_ref(str);
+    sf-&gt;flags = flags;
+    <span class="keyword">return</span> fd;
+}
+
+<span class="keyword">int</span> *select_read_fds(Select *s) {
+    <span class="keyword">int</span> *res = array_new(<span class="keyword">int</span>,list_size(s-&gt;fds)), i = <span class="number">0</span>;
+    FOR_LIST(item,s-&gt;fds) {
+        res[i++] = SFILE(item)-&gt;fd;
+    }
+    <span class="keyword">return</span> res;
+}
+
+#define FOR_LIST_NEXT(var,list) for (ListIter var = (list)-&gt;first, _next=var-&gt;_next; \
+var != NULL; var=_next,_next=var ? var-&gt;_next : NULL)
+
+<span class="keyword">bool</span> select_remove_read(Select *s, <span class="keyword">int</span> fd) {
+    <span class="keyword">int</span> mfd = <span class="number">0</span>;
+    FOR_LIST_NEXT(item,s-&gt;fds) {
+        SelectFile *sf = SFILE(item);
+        <span class="keyword">if</span> (sf-&gt;fd == fd) {
+            obj_unref(list_delete(s-&gt;fds,item));
+        } <span class="keyword">else</span>
+        <span class="keyword">if</span> (fd &gt; mfd) {
+            mfd = fd;
+        }
+    }
+    s-&gt;nfds = mfd + <span class="number">1</span>;
+    <span class="keyword">return</span> <span class="keyword">true</span>;
+}
+
+<span class="keyword">bool</span> select_can_read(Select *s, <span class="keyword">int</span> fd) {
+    <span class="keyword">return</span> FD_ISSET(fd,&amp;s-&gt;fdset);
+}
+
+<span class="keyword">void</span> select_add_reader(Select *s, <span class="keyword">int</span> fd, <span class="keyword">bool</span> close, SelectReadProc reader, <span class="keyword">void</span> *data) {
+    <span class="keyword">if</span> (fd == <span class="number">0</span>)
+        fd = STDIN_FILENO;
+    SelectFile *sf = select_add_read(s,fd);
+    sf-&gt;handler = reader;
+    sf-&gt;handler_data = data;
+    sf-&gt;exit_on_close = close;
+}
+
+<span class="keyword">static</span> <span class="keyword">void</span> SelectTimer_dispose(SelectTimer *st) {
+    <span class="comment">// this is the crucial thing!
+</span>    kill(st-&gt;pid,<span class="number">9</span>);
+    <span class="comment">// the rest is bookkeeping
+</span>    List *timers = st-&gt;s-&gt;timers;
+    <span class="keyword">if</span> (! timers) <span class="comment">// because the select state is shutting down!
+</span>        <span class="keyword">return</span>;
+    ListIter iter = list_find(timers,st);
+    <span class="keyword">if</span> (! iter) {
+        printf(<span class="string">"cannot find the timer in list?\n"</span>);
+    } <span class="keyword">else</span> {
+        list_delete(timers,iter);
+    }
+}
+
+<span class="keyword">void</span> select_timer_kill(SelectTimer *st) {
+    obj_unref(st);
+}
+
+<span class="keyword">static</span> <span class="keyword">void</span> Chan_dispose(Pipe *pipe) {
+    close(pipe-&gt;tread);
+    close(pipe-&gt;twrite);
+}
+
+Pipe *pipe_new() {
+     <span class="keyword">int</span> pipefd[<span class="number">2</span>];
+     <span class="keyword">int</span> res = pipe(pipefd);
+    <span class="keyword">if</span> (res != <span class="number">0</span>)
+        <span class="keyword">return</span> NULL;
+    Pipe *pipe = obj_new(Pipe,Chan_dispose);
+    pipe-&gt;tread = pipefd[<span class="number">0</span>];
+    pipe-&gt;twrite = pipefd[<span class="number">1</span>];
+    <span class="keyword">return</span> pipe;
+}
+
+<span class="keyword">int</span> pipe_write(Pipe *pipe, <span class="keyword">void</span> *buff, <span class="keyword">int</span> sz) {
+    <span class="keyword">int</span> n = write(pipe-&gt;twrite,buff,sz);
+    <span class="keyword">if</span> (n != <span class="number">1</span>) {
+        fprintf(stderr,<span class="string">"wanted to write %d, wrote %d\n"</span>,sz,n);
+    }
+    <span class="keyword">return</span> n;
+}
+
+<span class="keyword">int</span> pipe_read(Pipe *pipe, <span class="keyword">void</span> *buff, <span class="keyword">int</span> sz) {
+    <span class="keyword">return</span> read(pipe-&gt;tread,buff,sz);
+}
+
+<span class="comment">/// fire a timer <code>callback</code> every <code>secs</code> seconds, passing it <code>data</code>.
+</span>SelectTimer *select_add_timer(Select *s, <span class="keyword">int</span> secs, SelectTimerProc callback, <span class="keyword">void</span> *data) {
+    Pipe *pipe;
+    <span class="keyword">if</span> (s-&gt;timers == NULL) {
+        pipe = pipe_new(); <span class="comment">// timers need a pipenel
+</span>        <span class="keyword">if</span> (pipe == NULL) {
+            perror(<span class="string">"timer setup"</span>);
+            <span class="keyword">return</span> NULL;
+        }
+         <span class="comment">// and we will watch the read end...
+</span>        select_add_read(s,pipe-&gt;tread);
+        s-&gt;timers = list_new_ref();
+        s-&gt;tpipe = pipe;
+    } <span class="keyword">else</span> { <span class="comment">// timers share the same pipenel
+</span>        pipe = timer_pipe(s);
+    }
+
+    SelectTimer *st = obj_new(SelectTimer,SelectTimer_dispose);
+    st-&gt;s = s;
+    st-&gt;callback = callback;
+    st-&gt;data = data;
+    st-&gt;secs = secs;
+    st-&gt;tpipe = pipe;
+    st-&gt;id = list_size(s-&gt;timers);
+    st-&gt;pid = select_thread((SelectTimerProc)timer_thread,st);
+    list_add(s-&gt;timers,st);
+    <span class="keyword">return</span> st;
+}
+
+<span class="keyword">bool</span> select_do_later(Select *s, <span class="keyword">int</span> msecs, SelectTimerProc callback, <span class="keyword">void</span> *data) {
+    <span class="keyword">if</span> (s-&gt;milli_timer != NULL) <span class="comment">// we're already waiting...
+</span>        <span class="keyword">return</span> <span class="keyword">false</span>;
+    SelectTimer *st = obj_new(SelectTimer,NULL);
+    st-&gt;s = s;
+    s-&gt;milli_timer = st;
+    st-&gt;callback = callback;
+    st-&gt;data = data;
+    s-&gt;p_timeval = obj_new(<span class="keyword">struct</span> timeval,NULL);
+    s-&gt;p_timeval-&gt;tv_sec = <span class="number">0</span>; <span class="comment">// no seconds
+</span>    s-&gt;p_timeval-&gt;tv_usec =  <span class="number">1000</span>*msecs;  <span class="comment">// microseconds
+</span>    <span class="keyword">return</span> <span class="keyword">true</span>;
+}
+
+<span class="keyword">static</span> <span class="keyword">void</span> handle_timeout(Select *s) {
+    s-&gt;milli_timer-&gt;callback(s-&gt;milli_timer-&gt;data);
+    obj_unref(s-&gt;milli_timer);
+    obj_unref(s-&gt;p_timeval);
+    s-&gt;p_timeval = NULL;
+    s-&gt;milli_timer = NULL;
+}
+
+
+#define LINE_SIZE 256
+
+<span class="keyword">int</span> select_select(Select *s) {
+    fd_set *fds = &amp;s-&gt;fdset;
+    s-&gt;error = <span class="keyword">false</span>;
+
+top:
+
+    FD_ZERO(fds);
+    FOR_LIST(item,s-&gt;fds) {
+        FD_SET(SFILE(item)-&gt;fd,fds);
+    }
+
+    <span class="keyword">int</span> res = <span class="global">select</span>(s-&gt;nfds,fds,NULL,NULL,s-&gt;p_timeval);
+    <span class="keyword">if</span> (res &lt; <span class="number">0</span>) {
+        s-&gt;error = <span class="keyword">true</span>;
+        <span class="keyword">return</span> -<span class="number">1</span>;
+    }
+
+    <span class="keyword">if</span> (res == <span class="number">0</span>) { <span class="comment">// timeout
+</span>        handle_timeout(s);
+        <span class="keyword">goto</span> top;
+    }
+
+    FOR_LIST(item,s-&gt;fds) {
+        SelectFile *sf = SFILE(item);
+        <span class="keyword">if</span> (sf-&gt;handler &amp;&amp; select_can_read(s,sf-&gt;fd)) {
+            <span class="keyword">char</span> buff[LINE_SIZE];
+            <span class="keyword">int</span> len = read(sf-&gt;fd,buff,LINE_SIZE);
+            <span class="keyword">if</span> (len == <span class="number">0</span>) { <span class="comment">// ctrl+D
+</span>                <span class="keyword">if</span> (sf-&gt;exit_on_close) {
+                    <span class="keyword">return</span> -<span class="number">1</span>;
+                } <span class="keyword">else</span> { <span class="comment">// otherwise we'll just remove the file and close it
+</span>                    close(sf-&gt;fd);
+                    <span class="keyword">if</span> (sf-&gt;flags &amp; SelectReOpen) { <span class="comment">// unless we want to simply re-open it
+</span>                        sf-&gt;fd = select_open_file(sf-&gt;name,sf-&gt;flags);
+                    } <span class="keyword">else</span> {
+                        select_remove_read(s,sf-&gt;fd);
+                    }
+                    <span class="keyword">break</span>;
+                }
+            }
+            buff[len-<span class="number">1</span>] = '\0'; <span class="comment">// strip \n
+</span>            <span class="keyword">int</span> res = sf-&gt;handler(buff,sf-&gt;handler_data);
+            <span class="keyword">if</span> (sf-&gt;exit_on_close &amp;&amp; res != <span class="number">0</span>)
+                <span class="keyword">return</span> -<span class="number">1</span>;
+            <span class="keyword">goto</span> top;
+        }
+    }
+
+    <span class="keyword">if</span> (s-&gt;timers &amp;&amp; list_size(s-&gt;timers) &gt; <span class="number">0</span> &amp;&amp; select_can_read_pipe(s,s-&gt;tpipe)) {
+        byte id;
+        SelectTimer *finis = NULL;
+        pipe_read(s-&gt;tpipe,&amp;id,<span class="number">1</span>);
+        FOR_LIST(item,s-&gt;timers) {
+            SelectTimer *st = (SelectTimer*)item-&gt;data;
+            <span class="keyword">if</span> (id == st-&gt;id) {
+                <span class="keyword">if</span> (! st-&gt;callback(st-&gt;data))
+                    finis = st;
+            }
+        }
+        <span class="keyword">if</span> (finis)
+            select_timer_kill(finis);
+        <span class="keyword">goto</span> top;
+    }
+    <span class="keyword">return</span> res;
+}
+
+<span class="keyword">bool</span> select_can_read_pipe(Select *s, Pipe *pipe) {
+    <span class="keyword">return</span> select_can_read(s,pipe-&gt;tread);
+}
+
+<span class="keyword">int</span> pipe_puts(Pipe *p, <span class="keyword">const</span> <span class="keyword">char</span> *str) {
+    <span class="keyword">return</span> pipe_write(p,str,strlen(str)+<span class="number">1</span>);
+}
+
+#define LINE_SIZE 256
+<span class="keyword">static</span> <span class="keyword">char</span> buff[LINE_SIZE];
+
+<span class="keyword">bool</span> callback(Pipe *P) {
+    close(P-&gt;twrite);
+    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>;  i &lt; <span class="number">2</span>; ++i) {
+        <span class="keyword">int</span> n = pipe_read(P,buff,LINE_SIZE);
+        printf(<span class="string">"got '%s' (%d)\n"</span>,buff,n);
+    }
+    <span class="keyword">return</span> <span class="keyword">true</span>;
+}
+
+<span class="keyword">int</span> main()
+{
+    Pipe *P = pipe_new();
+
+    <span class="keyword">int</span> pid =  select_thread((SelectTimerProc)callback,P);
+
+    close(P-&gt;tread);
+
+    printf(<span class="string">"here we go\n"</span>);
+    pipe_puts(P,<span class="string">"hello there!"</span>);
+    sleep(<span class="number">0</span>);
+    pipe_puts(P,<span class="string">"from us all"</span>);
+
+    wait(pid);
+
+    <span class="keyword">return</span> <span class="number">0</span>;
+
+
+}</pre>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.2</a></i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

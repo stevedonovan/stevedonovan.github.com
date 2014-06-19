@@ -62,11 +62,12 @@
   <li><a href="../examples/test-list.c.html">test-list.c</a></li>
   <li><a href="../examples/test-map.c.html">test-map.c</a></li>
   <li><a href="../examples/test-obj.c.html">test-obj.c</a></li>
+  <li><a href="../examples/test-pool.c.html">test-pool.c</a></li>
   <li><a href="../examples/test-scan.c.html">test-scan.c</a></li>
   <li><a href="../examples/test-seq.c.html">test-seq.c</a></li>
+  <li><a href="../examples/test-sqlite3-table.c.html">test-sqlite3-table.c</a></li>
   <li><a href="../examples/test-str.c.html">test-str.c</a></li>
   <li><a href="../examples/test-table.c.html">test-table.c</a></li>
-  <li><a href="../examples/test-sqlite3-table.c.html">test-sqlite3-table.c</a></li>
   <li><a href="../examples/test-template.c.html">test-template.c</a></li>
   <li><a href="../examples/test-xml.c.html">test-xml.c</a></li>
   <li><a href="../examples/cmd.c.html">cmd.c</a></li>
@@ -91,39 +92,45 @@ which will be converted into <code>float</code> arrays if they appear to be numb
 With <a href="../modules/table.html#table_convert_cols">table_convert_cols</a>  you can customize this conversion, and even
 provide your own conversion functions.  These look like this:</p>
 
-<pre><code>const char *int_convert(const char *str, void *res) {
-    \*((int*)res) = strtol(str,&amp;endptr,10);
-    return *endptr ? endptr : NULL;
+<pre>
+<span class="keyword">const</span> <span class="keyword">char</span> *int_convert(<span class="keyword">const</span> <span class="keyword">char</span> *str, <span class="keyword">void</span> *res) {
+    \*((<span class="keyword">int</span>*)res) = strtol(str,&amp;endptr,<span class="number">10</span>);
+    <span class="keyword">return</span> *endptr ? endptr : NULL;
 }
-</code></pre>
+</pre>
+
 
 <p>That is, they set the value and return an <em>error</em> if conversion is impossible.</p>
 
 <p>Given a simple CSV file like this:</p>
 
-<pre><code>Name,Age
-Bonzo,12
-Alice,16
-Frodo,46
-Bilbo,144
-</code></pre>
+<pre>
+Name,Age
+Bonzo,<span class="number">12</span>
+Alice,<span class="number">16</span>
+Frodo,<span class="number">46</span>
+Bilbo,<span class="number">144</span>
+</pre>
+
 
 <p>then the most straightforward way to read it would be:</p>
 
-<pre><code>Table *t = table_new_from_file("test.csv", TableCsv | TableAll);
-if (t-&gt;error) { // note how you handle errors: file not found, conversion failed
-    fprintf(stderr,"%s\n",t-&gt;error);
-    return 1;
+<pre>
+Table *t = <a href="../modules/table.html#table_new_from_file">table_new_from_file</a> (<span class="string">"test.csv"</span>, TableCsv | TableAll);
+<span class="keyword">if</span> (t-&gt;error) { <span class="comment">// note how you handle errors: file not found, conversion failed
+</span>    fprintf(stderr,<span class="string">"%s\n"</span>,t-&gt;error);
+    <span class="keyword">return</span> <span class="number">1</span>;
 }
-// printing out first row together with column names
-char **R = t-&gt;rows[0];
-for (char **P = t-&gt;col_names; *P; ++P,++R)
-    printf("'%s' (%s),",*P,*R);
-printf("\n");
+<span class="comment">// printing out first row together with column names
+</span><span class="keyword">char</span> **R = t-&gt;rows[<span class="number">0</span>];
+<span class="keyword">for</span> (<span class="keyword">char</span> **P = t-&gt;col_names; *P; ++P,++R)
+    printf(<span class="string">"'%s' (%s),"</span>,*P,*R);
+printf(<span class="string">"\n"</span>);
 
-// getting the second column with default conversion (float)
-float *ages = (float*)t-&gt;cols[1];
-</code></pre>
+<span class="comment">// getting the second column with default conversion (float)
+</span><span class="keyword">float</span> *ages = (<span class="keyword">float</span>*)t-&gt;cols[<span class="number">1</span>];
+</pre>
+
 
 <p>See <a href="../examples/test-table.c.html#">test-table.c</a>  for an example with custom conversions, and
 <a href="../examples/test-sqlite3-table.c.html#">test-sqlite3-table.c</a>  for a case where the table is built up

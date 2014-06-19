@@ -34,20 +34,24 @@
 
 <h2>Examples</h2>
 <ul class="$(kind=='Topics' and '' or 'nowrap'">
-  <li><a href="../examples/test-config.c.html">test-config.c</a></li>
-  <li><a href="../examples/test-file.c.html">test-file.c</a></li>
-  <li><a href="../examples/test-json.c.html">test-json.c</a></li>
-  <li><a href="../examples/test-list.c.html">test-list.c</a></li>
-  <li><a href="../examples/test-map.c.html">test-map.c</a></li>
-  <li><a href="../examples/test-obj.c.html">test-obj.c</a></li>
-  <li><a href="../examples/test-pool.c.html">test-pool.c</a></li>
-  <li><a href="../examples/test-scan.c.html">test-scan.c</a></li>
-  <li><a href="../examples/test-seq.c.html">test-seq.c</a></li>
-  <li><strong>test-sqlite3-table.c</strong></li>
-  <li><a href="../examples/test-str.c.html">test-str.c</a></li>
-  <li><a href="../examples/test-table.c.html">test-table.c</a></li>
-  <li><a href="../examples/test-template.c.html">test-template.c</a></li>
-  <li><a href="../examples/test-xml.c.html">test-xml.c</a></li>
+  <li><a href="../examples/cmd.c.html">cmd.c</a></li>
+  <li><a href="../examples/config.c.html">config.c</a></li>
+  <li><a href="../examples/flot-anot.c.html">flot-anot.c</a></li>
+  <li><a href="../examples/flot-error.c.html">flot-error.c</a></li>
+  <li><a href="../examples/flot-norm-sample.c.html">flot-norm-sample.c</a></li>
+  <li><a href="../examples/flot-norm.c.html">flot-norm.c</a></li>
+  <li><strong>flot-sine.c</strong></li>
+  <li><a href="../examples/flot-table.c.html">flot-table.c</a></li>
+  <li><a href="../examples/flot-test.c.html">flot-test.c</a></li>
+  <li><a href="../examples/flot.c.html">flot.c</a></li>
+  <li><a href="../examples/make-ex.c.html">make-ex.c</a></li>
+  <li><a href="../examples/select.c.html">select.c</a></li>
+  <li><a href="../examples/select.h.html">select.h</a></li>
+  <li><a href="../examples/test-select.c.html">test-select.c</a></li>
+  <li><a href="../examples/tempx.c.html">tempx.c</a></li>
+  <li><a href="../examples/testa.c.html">testa.c</a></li>
+  <li><a href="../examples/txt2c.c.html">txt2c.c</a></li>
+  <li><a href="../examples/words.c.html">words.c</a></li>
   <li><a href="../examples/cmd.c.html">cmd.c</a></li>
   <li><a href="../examples/testa.c.html">testa.c</a></li>
   <li><a href="../examples/config.c.html">config.c</a></li>
@@ -77,45 +81,25 @@
 <div id="content">
 
     <pre>
-<span class="comment">/*
-* llib little C library
-* BSD licence
-* Copyright Steve Donovan, 2013
-*/</span>
+#include "flot.c"
 
-#include &lt;sqlite3.h&gt;
-#include &lt;llib/table.h&gt;
-#include &lt;llib/dbg.h&gt;
-
-<span class="keyword">typedef</span> <span class="keyword">char</span> *Str;
-
-<span class="keyword">int</span> main(<span class="keyword">int</span> argc, <span class="keyword">char</span>**argv)
+<span class="keyword">int</span> main()
 {
-    <span class="keyword">int</span> err;
-    sqlite3 *conn;
-    <span class="keyword">char</span> *errmsg;
+    Flot *P = flot_new(<span class="string">"caption"</span>, <span class="string">"Trig Functions"</span>);
 
-    err = sqlite3_open(<span class="string">"test.sl3"</span>,&amp;conn);
-
-    Table *t = table_new(TableCsv | TableColumns);
-
-    err = sqlite3_exec(conn,<span class="string">"select * from test"</span>,
-        table_add_row,t,&amp;errmsg);
-
-    <span class="keyword">if</span> (err) {
-        printf(<span class="string">"err '%s'\n"</span>,errmsg);
-        <span class="keyword">return</span> <span class="number">1</span>;
+    <span class="keyword">double</span> **vsin = seq_new(<span class="keyword">double</span>);
+    <span class="keyword">double</span> **vcos = seq_new(<span class="keyword">double</span>);
+    <span class="keyword">for</span> (<span class="keyword">double</span> x = <span class="number">0</span>; x &lt; <span class="number">2</span>*M_PI; x += <span class="number">0.1</span>)  {
+        seq_add2(vsin,x,sin(x));
+        seq_add2(vcos,x,cos(x));
     }
 
-    table_finish_rows(t);
+    flot_series_new(P,farr_from_seq(vsin), NULL,FlotLines,<span class="string">"label"</span>,<span class="string">"sine"</span>);
+    flot_series_new(P,farr_from_seq(vcos), NULL,FlotLines,<span class="string">"label"</span>,<span class="string">"cosine"</span>);
 
-    DUMPA(<span class="keyword">float</span>,(<span class="keyword">float</span>*)t-&gt;cols[<span class="number">1</span>],<span class="string">"%f"</span>);
-
-    sqlite3_close(conn);
-    unref(t);
-
-    DI(obj_kount());
+    flot_render(<span class="string">"sine"</span>);
     <span class="keyword">return</span> <span class="number">0</span>;
+
 }</pre>
 
 

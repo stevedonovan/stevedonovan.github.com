@@ -62,11 +62,12 @@
   <li><a href="../examples/test-list.c.html">test-list.c</a></li>
   <li><a href="../examples/test-map.c.html">test-map.c</a></li>
   <li><a href="../examples/test-obj.c.html">test-obj.c</a></li>
+  <li><a href="../examples/test-pool.c.html">test-pool.c</a></li>
   <li><a href="../examples/test-scan.c.html">test-scan.c</a></li>
   <li><a href="../examples/test-seq.c.html">test-seq.c</a></li>
+  <li><a href="../examples/test-sqlite3-table.c.html">test-sqlite3-table.c</a></li>
   <li><a href="../examples/test-str.c.html">test-str.c</a></li>
   <li><a href="../examples/test-table.c.html">test-table.c</a></li>
-  <li><a href="../examples/test-sqlite3-table.c.html">test-sqlite3-table.c</a></li>
   <li><a href="../examples/test-template.c.html">test-template.c</a></li>
   <li><a href="../examples/test-xml.c.html">test-xml.c</a></li>
   <li><a href="../examples/cmd.c.html">cmd.c</a></li>
@@ -91,7 +92,8 @@ arrays containing values.</p>
 <p>This interface also defines convenient constructors for generating dynamic data
 in the correct form for conversion to JSON:</p>
 
-<pre><code>#ifndef LLIB_NO_VALUE_ABBREV
+<pre>
+#ifndef LLIB_NO_VALUE_ABBREV
 #define VM value_map_of_values
 #define VMS value_map_of_str
 #define VI value_int
@@ -101,19 +103,22 @@ in the correct form for conversion to JSON:</p>
 #define VA value_array_of_values
 #define VAS value_array_of_str
 #endif
-</code></pre>
+</pre>
+
 
 <p>This header brings in these abbreviations, unless you explicitly define <code>LLIB_NO_VALUE_ABBREV</code>.</p>
 
 <p>Constructing JSON data then is straightforward (note how primitive values need to be boxed):</p>
 
-<pre><code>PValue v = VM(
-    "one",VI(10),
-    "two",VM("float",VF(1.2)),
-    "three",VA(VI(1),VI(2),VI(3)),
-    "four",VB(true)
+<pre>
+PValue v = VM(
+    <span class="string">"one"</span>,VI(<span class="number">10</span>),
+    <span class="string">"two"</span>,VM(<span class="string">"float"</span>,VF(<span class="number">1.2</span>)),
+    <span class="string">"three"</span>,VA(VI(<span class="number">1</span>),VI(<span class="number">2</span>),VI(<span class="number">3</span>)),
+    <span class="string">"four"</span>,VB(<span class="keyword">true</span>)
 );
-</code></pre>
+</pre>
+
 
 <p>Look at <a href="../modules/value.html#">value</a>  for boxing support.  See <a href="../examples/test-json.c.html#">test-json.c</a> .</p>
 
