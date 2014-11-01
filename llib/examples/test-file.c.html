@@ -34,8 +34,10 @@
 
 <h2>Examples</h2>
 <ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../examples/test-array.c.html">test-array.c</a></li>
   <li><a href="../examples/test-config.c.html">test-config.c</a></li>
   <li><strong>test-file.c</strong></li>
+  <li><a href="../examples/test-interface.c.html">test-interface.c</a></li>
   <li><a href="../examples/test-json.c.html">test-json.c</a></li>
   <li><a href="../examples/test-list.c.html">test-list.c</a></li>
   <li><a href="../examples/test-map.c.html">test-map.c</a></li>
@@ -48,6 +50,8 @@
   <li><a href="../examples/test-table.c.html">test-table.c</a></li>
   <li><a href="../examples/test-template.c.html">test-template.c</a></li>
   <li><a href="../examples/test-xml.c.html">test-xml.c</a></li>
+  <li><a href="../examples/testa.c.html">testa.c</a></li>
+  <li><a href="../examples/testing.c.html">testing.c</a></li>
   <li><a href="../examples/cmd.c.html">cmd.c</a></li>
   <li><a href="../examples/testa.c.html">testa.c</a></li>
   <li><a href="../examples/config.c.html">config.c</a></li>
@@ -70,19 +74,27 @@
   <li><a href="../modules/table.html">table</a></li>
   <li><a href="../modules/config.html">config</a></li>
   <li><a href="../modules/arg.html">arg</a></li>
+  <li><a href="../modules/flot.html">flot</a></li>
+</ul>
+<h2>Topics</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../topics/readme.md.html">readme</a></li>
 </ul>
 
 </div>
 
 <div id="content">
 
-    <pre>
+    <h2>test-file.c</h2>
+<pre>
 <span class="comment">/*
 * llib little C library
 * BSD licence
 * Copyright Steve Donovan, 2013
 */</span>
 
+#include &lt;assert.h&gt;
+#include &lt;string.h&gt;
 #include &lt;llib/file.h&gt;
 
 <span class="keyword">typedef</span> <span class="keyword">char</span> *Str;
@@ -90,7 +102,7 @@
 <span class="keyword">void</span> reading_lines(Str file)
 {
     FILE *f = fopen(file,<span class="string">"r"</span>);
-    printf(<span class="string">"size was %d bytes\n"</span>,file_size(file));
+    printf(<span class="string">"size was %d bytes\n"</span>,(<span class="keyword">int</span>)file_size(file));
     Str *lines = file_getlines(f);
     printf(<span class="string">"no of lines %d \n"</span>,array_len(lines));
     fclose(f);
@@ -99,7 +111,8 @@
 
 <span class="keyword">void</span> getting_files(<span class="keyword">char</span> *ext)
 {
-    Str *lines = file_files_in_dir(ext,<span class="number">1</span>);
+    Str *lines = file_files_in_dir(ext,<span class="keyword">false</span>);
+    array_sort(lines,ARRAY_STRING,<span class="keyword">false</span>,<span class="number">0</span>);
     FOR_ARR(Str,p,lines)
         printf(<span class="string">"'%s'\n"</span>,*p);
     unref(lines);
@@ -117,33 +130,51 @@
 
 #define DUMPS(expr) printf("%s = '%s'\n",#expr,expr)
 
-<span class="keyword">void</span> path_manipulation(<span class="keyword">const</span> <span class="keyword">char</span> *path)
-{
-    <span class="keyword">if</span> (! path)
 #ifdef _WIN32
-        path = <span class="string">"c:\\users\\steve\\myfiles\\bonzo.txt"</span>;
+Str paths[] = {
+    <span class="string">"c:\\users\\steve\\myfiles\\bonzo.txt"</span>,
+    <span class="string">"bonzo.txt"</span>,
+    <span class="string">"c:\\users\\steve\\myfiles\\",
+    "</span>.txt<span class="string">",
+    "</span>c:\\users\\steve\\myfiles\\bonzo.tmp<span class="string">"
+};
 #else
-        path = <span class="string">"/home/steve/myfiles/bonzo.txt"</span>;
+Str paths[] = {
+    "</span>/home/steve/myfiles/bonzo.txt<span class="string">",
+    "</span>bonzo.txt<span class="string">",
+    "</span>/home/steve/myfiles/<span class="string">",
+    "</span>.txt<span class="string">",
+    "</span>/home/steve/myfiles/bonzo.tmp<span class="string">"
+};
 #endif
-    DUMPS(file_basename(path));
-    DUMPS(file_dirname(path));
-    DUMPS(file_extension(path));
-    DUMPS(file_replace_extension(path,<span class="string">".tmp"</span>));
-    DUMPS(file_expand_user(<span class="string">"~/myfile"</span>));
+
+int eq(const char *s1, const char *s2) {
+    //printf("</span>'%s' == '%s'?\n<span class="string">",s1,s2);
+    return strcmp(s1,s2) == 0;
 }
 
-<span class="keyword">int</span> main(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)
+void path_manipulation()
 {
-    <span class="keyword">if</span> (file_exists(<span class="string">"test-file.c"</span>,<span class="string">"r"</span>))
-        puts(<span class="string">"file exists"</span>);
-    printf(<span class="string">"makefile was '%s'\n"</span>,file_exists_any(<span class="string">"r"</span>,<span class="string">"Makefile"</span>,<span class="string">"makefile"</span>));
+    Str path = paths[0];
+    assert(eq(file_basename(path),paths[1]));
+    assert(eq(file_dirname(path),paths[2]));
+    assert(eq(file_extension(path),paths[3]));
+    assert(eq(file_replace_extension(path,"</span>.tmp<span class="string">"),paths[4]));
+    //DUMPS(file_expand_user("</span>~/myfile<span class="string">"));
+}
+
+int main(int argc, char **argv)
+{
+    if (file_exists("</span>test-file.c<span class="string">","</span>r<span class="string">"))
+        puts("</span>file exists<span class="string">");
+    printf("</span>makefile was '%s'\n<span class="string">",file_exists_any("</span>r<span class="string">","</span>proj.mak<span class="string">","</span>makefile<span class="string">"));
     text_from_file();
-    reading_lines(<span class="string">"test-file.c"</span>);
-    getting_files(<span class="string">"*.c"</span>);
-    printf(<span class="string">"remaining %d\n"</span>,obj_kount());
-    path_manipulation(NULL);
-    <span class="keyword">char</span> *res = file_command(<span class="string">"which test-file.exe"</span>);
-    printf(<span class="string">"[%s]\n"</span>,res);
+    reading_lines("</span>test-file.c<span class="string">");
+    getting_files("</span>*.c<span class="string">");
+    printf("</span>remaining %d\n<span class="string">",obj_kount());
+    path_manipulation();
+//    char *res = file_command("</span>which test-file.exe<span class="string">");
+//    printf("</span>[%s]\n",res);
     <span class="keyword">return</span> <span class="number">0</span>;
 }</pre>
 
@@ -151,7 +182,8 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.2</a></i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
+<i style="float:right;">Last updated 2014-11-01 16:41:56 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

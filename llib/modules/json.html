@@ -33,6 +33,7 @@
 <h2>Contents</h2>
 <ul>
 <li><a href="#Functions">Functions</a></li>
+<li><a href="#json_parse_Functions">json-parse Functions</a></li>
 </ul>
 
 
@@ -53,11 +54,18 @@
   <li><a href="../modules/table.html">table</a></li>
   <li><a href="../modules/config.html">config</a></li>
   <li><a href="../modules/arg.html">arg</a></li>
+  <li><a href="../modules/flot.html">flot</a></li>
+</ul>
+<h2>Topics</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../topics/readme.md.html">readme</a></li>
 </ul>
 <h2>Examples</h2>
 <ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../examples/test-array.c.html">test-array.c</a></li>
   <li><a href="../examples/test-config.c.html">test-config.c</a></li>
   <li><a href="../examples/test-file.c.html">test-file.c</a></li>
+  <li><a href="../examples/test-interface.c.html">test-interface.c</a></li>
   <li><a href="../examples/test-json.c.html">test-json.c</a></li>
   <li><a href="../examples/test-list.c.html">test-list.c</a></li>
   <li><a href="../examples/test-map.c.html">test-map.c</a></li>
@@ -70,6 +78,8 @@
   <li><a href="../examples/test-table.c.html">test-table.c</a></li>
   <li><a href="../examples/test-template.c.html">test-template.c</a></li>
   <li><a href="../examples/test-xml.c.html">test-xml.c</a></li>
+  <li><a href="../examples/testa.c.html">testa.c</a></li>
+  <li><a href="../examples/testing.c.html">testing.c</a></li>
   <li><a href="../examples/cmd.c.html">cmd.c</a></li>
   <li><a href="../examples/testa.c.html">testa.c</a></li>
   <li><a href="../examples/config.c.html">config.c</a></li>
@@ -81,16 +91,18 @@
 <div id="content">
 
 <h1>Module <code>json</code></h1>
-<p><h3>Generating and Reading JSON.</h3>
+<p>
+<h3>Generating and Reading JSON.</h3>
 </p>
-<p><a href="../modules/json.html#json_parse_string">json_parse_string</a>  and <a href="../modules/json.html#json_parse_file">json_parse_file</a>  will return an llib object, with maps as
-&lsquo;simple maps&rsquo; (arrays where a string key is followed by a value), and
+<p><a href="../modules/json.html#json_parse_string">json_parse_string</a> and <a href="../modules/json.html#json_parse_file">json_parse_file</a> will return an llib object, with maps as
+'simple maps' (arrays where a string key is followed by a value), and
 arrays containing values.</p>
 
-<p><a href="../modules/json.html#json_tostring">json_tostring</a>  will convert llib values into JSON format.</p>
+<p><a href="../modules/json.html#json_tostring">json_tostring</a> will convert llib values into JSON format.</p>
 
 <p>This interface also defines convenient constructors for generating dynamic data
 in the correct form for conversion to JSON:</p>
+
 
 <pre>
 #ifndef LLIB_NO_VALUE_ABBREV
@@ -105,10 +117,10 @@ in the correct form for conversion to JSON:</p>
 #endif
 </pre>
 
-
 <p>This header brings in these abbreviations, unless you explicitly define <code>LLIB_NO_VALUE_ABBREV</code>.</p>
 
 <p>Constructing JSON data then is straightforward (note how primitive values need to be boxed):</p>
+
 
 <pre>
 PValue v = VM(
@@ -119,8 +131,7 @@ PValue v = VM(
 );
 </pre>
 
-
-<p>Look at <a href="../modules/value.html#">value</a>  for boxing support.  See <a href="../examples/test-json.c.html#">test-json.c</a> .</p>
+<p>Look at <a href="../modules/value.html#">value</a> for boxing support.  See <a href="../examples/test-json.c.html#">test-json.c</a>.</p>
 
 
 <h2><a href="#Functions">Functions</a></h2>
@@ -129,6 +140,9 @@ PValue v = VM(
 	<td class="name" nowrap><a href="#json_tostring">json_tostring (v)</a></td>
 	<td class="summary">convert an llib value rep into a JSON string.</td>
 	</tr>
+</table>
+<h2><a href="#json_parse_Functions">json-parse Functions</a></h2>
+<table class="function_list">
 	<tr>
 	<td class="name" nowrap><a href="#json_parse_string">json_parse_string (str)</a></td>
 	<td class="summary">convert a string to JSON data.</td>
@@ -162,6 +176,7 @@ PValue v = VM(
             <span class="types"><span class="type">PValue</span></span>
 
 
+
         </li>
     </ul>
 
@@ -171,12 +186,17 @@ PValue v = VM(
            <span class="types"><span class="type">char *</span></span>
 
 
+
     </ol>
 
 
 
 
 </dd>
+</dl>
+    <h2><a name="json_parse_Functions"></a>json-parse Functions</h2>
+
+    <dl class="function">
     <dt>
     <a name = "json_parse_string"></a>
     <strong>json_parse_string (str)</strong>
@@ -193,6 +213,7 @@ PValue v = VM(
             <span class="types"><span class="type">const char *</span></span>
 
 
+
         </li>
     </ul>
 
@@ -200,6 +221,7 @@ PValue v = VM(
     <ol>
 
            <span class="types"><span class="type">PValue</span></span>
+
 
 
     </ol>
@@ -222,6 +244,7 @@ PValue v = VM(
             <span class="types"><span class="type">const char *</span></span>
 
 
+
         </li>
     </ul>
 
@@ -229,6 +252,7 @@ PValue v = VM(
     <ol>
 
            <span class="types"><span class="type">PValue</span></span>
+
 
 
     </ol>
@@ -243,7 +267,8 @@ PValue v = VM(
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.2</a></i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
+<i style="float:right;">Last updated 2014-11-01 16:41:56 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

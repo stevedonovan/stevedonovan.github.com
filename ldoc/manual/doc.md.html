@@ -96,9 +96,14 @@ For instance, it is not so married to the idea that Lua modules should be define
 
 <p>Otherwise, the output is very similar, which is no accident since the HTML templates are
 based directly on LuaDoc. You can ship your own customized templates and style sheets with
-your <a href="http://nilnor.github.com/textui/docs/">own project</a>, however. You have an option to
-use Markdown to process the documentation, which means no ugly HTML is needed in doc
-comments.  C/C++ extension modules may be documented in a similar way, although function
+your <a href="http://nilnor.github.com/textui/docs/">own project</a> (also see Graham Hannington&rsquo;s
+documentation for <a href="lua4z.com/doc/">Lua for z/OS</a>). LDoc comes with three extra themes; &lsquo;pale&rsquo;
+for those who like whitespace, &lsquo;one&rsquo; for one-column output, and &lsquo;fixed&rsquo; for a fixed navigation
+bar down the left side.</p>
+
+<p>You have an option to use Markdown to process the documentation, which means no ugly HTML
+is needed in doc comments.
+C/C++ extension modules may be documented in a similar way, although function
 names cannot be inferred from the code itself.</p>
 
 <p>LDoc can provide integrated documentation, with traditional function comments, any documents
@@ -244,10 +249,10 @@ This is a simple example of a documented function:</p>
 which is especially useful when documenting a Lua api exported by C code:</p>
 
 <pre>
-/// A C <span class="keyword">function</span> which is exported to Lua with another name,
-// because the ways of C can be mysterious!
-// @<span class="keyword">function</span> our_nice_function
-int _some_function_for_lua(lua_State* l) {
+<span class="comment">/// A C function which is exported to Lua with another name,
+</span><span class="comment">// because the ways of C can be mysterious!
+</span><span class="comment">// @function our_nice_function
+</span><span class="keyword">int</span> _some_function_for_lua(lua_State* l) {
     ....
 }
 </pre>
@@ -304,8 +309,6 @@ function. For Lua, there can also be multiple &lsquo;return&rsquo; tags</p>
 </pre>
 
 
-<p>Of course there is also the &lsquo;module&rsquo; tag which you have already seen.</p>
-
 <h4>Tables and constant values (fields)</h4>
 
 <p>Modules can of course export tables and other values. The classic way to document a table
@@ -338,7 +341,8 @@ way as functions have parameters.</p>
 
 <p>The rule followed here is <code>NAME = &lt;table-constructor&gt;</code>. If LDoc can&rsquo;t work out the name and
 type from the following code, then a warning will be issued, pointing to the file and
-location.</p>
+location.  Only single-level tables are currently supported, and the fields must be valid
+identifiers.</p>
 
 <p>Another kind of module-level type is &lsquo;field&rsquo;, such as follows:</p>
 
@@ -367,9 +371,8 @@ location.</p>
 </pre>
 
 
-<p>As mentioned before, this is often especially useful in C where things
-may look different in the C code than they will in the final Lua api which
-you want to document.</p>
+<p>This is especially useful in C where the function declarations
+are different from final Lua api which you are documenting.</p>
 
 <h3>Doing modules the Lua 5.1 way</h3>
 
@@ -430,7 +433,8 @@ explicit assignment to a variable:</p>
 <h3>Local functions</h3>
 
 <p>Apart from exported functions, a module usually contains local functions. By default, LDoc
-does not include these in the documentation, but they can be enabled using the <code>--all</code> flag.
+does not include these in the documentation, but they can be enabled using the <code>--all</code> flag,
+or <code>all=true</code> in <code>config.ld</code>.
 They can be documented just like &lsquo;public&rsquo; functions:</p>
 
 <pre>
@@ -561,8 +565,12 @@ type of a parameter or return value when that type has a particular structure:</
 <p>The link text can be changed from the default by the extended syntax <code>@{ref|text}.</code></p>
 
 <p>You can also put references in backticks, like <code>\`stdvars\`</code>. This is commonly used in
-Markdown to indicate code, so it comes naturally when writing documents. It is controlled by
-the configuration variable <code>backtick_references</code> or the <code>backtick</code> format;
+Markdown to indicate code, so it comes naturally when writing documents. The difference
+is that the backticked expression does not have to be a reference and then will appear
+in code style; with @ references you will get a warning for unrecognized symbols
+and the result will be rendered as &lsquo;???&rsquo;.</p>
+
+<p>It is controlled by the configuration variable <code>backtick_references</code> or the <code>backtick</code> format;
 the default is <code>true</code> if you use Markdown in your project, but can be specified explicitly
 in <code>config.ld</code>.</p>
 
@@ -872,7 +880,7 @@ doc comment. LDoc goes further with this kind of code analysis, however.</p>
 </pre>
 
 
-<p>Simularly, function parameter comments can be directly used:</p>
+<p>Similarly, function parameter comments can be directly used:</p>
 
 <pre>
 <span class="comment">------------
@@ -1001,7 +1009,7 @@ and descriptions; you can also use the <code>-f</code> flag. This requires a mar
 LDoc knows how to use:</p>
 
 <ul>
-<li> <a href="http://www.frykholm.se/files/markdown.lua">markdown.lua</a> a pure Lua processor by
+<li><a href="http://www.frykholm.se/files/markdown.lua">markdown.lua</a> a pure Lua processor by
 Niklas Frykholm. For convenience, LDoc comes with a copy of markdown.lua.</li>
 <li><a href="http://asbradbury.org/projects/lua-discount/">lua-discount</a>, a faster alternative
 (installed with <code>luarocks install lua-discount</code>).  lua-discount uses the C
@@ -1019,9 +1027,9 @@ for larger documents.</p>
 
 <p>Even with the default of &lsquo;plain&rsquo; some minimal processing takes place, in particular empty lines
 are treated as line breaks. If the &lsquo;backticks&rsquo; formatter is used, then it&rsquo;s equivalent to
-using &lsquo;process_backticks=true<code>in</code>config.ld<code>and backticks will be
-expanded into documentation links like</code>@{ref}<code>and converted into</code><code>ref</code><code>
-otherwise.</code></p>
+using <code>process_backticks=true</code> in <code>config.ld</code> and backticks will be
+expanded into documentation links like <code>@{ref}</code> and converted into <code>&lt;code&gt;ref&lt;/code&gt;</code>
+otherwise.</p>
 
 <p>This formatting applies to all of a project, including any readmes and so forth. You may want
 Markdown for this &lsquo;narrative&rsquo; documentation, but not for your code comments. <code>plain=true</code> will
@@ -1195,6 +1203,9 @@ control what the template will generate. Setting <code>one=true</code> in your c
 will give a <em>one-column</em> layout, which can be easier to use as a programming reference.  You
 can suppress the contents summary with <code>no_summary</code>.</p>
 
+<p>If you don&rsquo;t like the usual top-level names, like &lsquo;Module&rsquo; and &lsquo;Topics&rsquo;, you can override these
+with <code>kind_names</code> in <code>config.ld</code>. For instance, in Penlight I use <code>kind_names={topic='Manual',module='Libraries'}</code></p>
+
 <p><a name="Customizing_the_Page"></a></p>
 
 <h2>Customizing the Page</h2>
@@ -1275,6 +1286,9 @@ and also in code if they're enclosed in backticks. Lua and C are known languages
 <p><a href="https://github.com/xolox/lua-lxsh">lxsh</a>
 can be used (available from LuaRocks) if you want something more powerful. <code>pretty='lxsh'</code> will
 cause <code>lxsh</code> to be used, if available.</p>
+
+<p>Sometimes the best examples you have are your source files. <code>prettify_files=true</code> will prettify
+all sources, and generate per-function links to the source.</p>
 
 <p><a name="Readme_files"></a></p>
 
@@ -1407,15 +1421,35 @@ possible to use type aliases like <strong>@string</strong> to describe fields, s
 </span><span class="comment">-- @param[opt] two
 </span><span class="comment">-- @param three
 </span><span class="comment">-- @param[opt] four
-</span><span class="keyword">function</span> two (one,two,three,four)
+</span><span class="keyword">function</span> fun (one,two,three,four)
 <span class="keyword">end</span>
-<span class="comment">----&gt; displayed as: two (one [, two], three [, four])
+<span class="comment">----&gt; displayed as: fun (one [, two], three [, four])
 </span>
 </pre>
 
 
-<p>This modifier can also be used with type aliases. If a value is given for <code>opt</code>
-then LDoc can present this as the default value for this optional argument.</p>
+<p>A more typical Lua API would have a chain of optional arguments, like so:</p>
+
+<pre>
+<span class="comment">---- a chain of options
+</span><span class="comment">-- @param one
+</span><span class="comment">-- @param[opt] two
+</span><span class="comment">-- @param[optchain] three
+</span><span class="comment">-- @param[optchain] four
+</span><span class="keyword">function</span> fun (one,two,three,four)
+<span class="keyword">end</span>
+<span class="comment">----&gt; displayed as: fun (one [, two [, three [, four]]])
+</span>
+</pre>
+
+
+<p>This is a bit tedious to type, so the rule is that a series of &lsquo;opt&rsquo; modifiers will be interpreted
+as &lsquo;opt&rsquo;,&lsquo;optchain&rsquo;&hellip;. .   If you want to be explicit, then do <code>convert_opt=true</code> in your
+<code>config.ld</code>.</p>
+
+<p>If a value is given for <code>opt</code>then LDoc can present this as the default value for this optional argument.</p>
+
+<p>This modifier can also be used with typed param aliases.</p>
 
 <pre>
 <span class="comment">--- a function with typed args.
@@ -1502,40 +1536,52 @@ explicit <strong>@submodule</strong> tag</li>
 <li><code>examples</code> a directory or file: can be a table</li>
 <li><code>readme</code> or <code>topics</code> readme files (to be processed with Markdown)</li>
 <li><code>pretty</code> code prettify &lsquo;lua&rsquo; (default) or &lsquo;lxsh&rsquo;</li>
+<li><code>prettify_files</code> prettify the source as well and make links to it; if its value is &ldquo;show&rdquo;
+then also index the source files.</li>
 <li><code>charset</code> use if you want to override the UTF-8 default (also <strong>@charset</strong> in files)</li>
 <li><code>sort</code> set if you want all items in alphabetical order</li>
 <li><code>no_return_or_parms</code> don&rsquo;t show parameters or return values in output</li>
+<li><code>no_lua_ref</code> stop obsessively trying to create references to standard Lua libraries</li>
 <li><code>backtick_references</code> whether references in backticks will be resolved. Happens by default
 when using Markdown. When explicit will expand non-references in backticks into <code>&lt;code&gt;</code> elements</li>
 <li><code>plain</code> set to true if <code>format</code> is set but you don&rsquo;t want code comments processed</li>
-<li><code>wrap</code> ??</li>
+<li><code>wrap</code> set to true if you want to allow long names to wrap in the summaries</li>
 <li> <code>manual_url</code> point to an alternative or local location for the Lua manual, e.g.
 &lsquo;file:///D:/dev/lua/projects/lua-5.1.4/doc/manual.html&rsquo;</li>
 <li><code>no_summary</code> suppress the Contents summary</li>
+<li> <code>custom_tags</code> define some new tags, which will be presented after the function description.
+The format is <code>{&lt;name&gt;,[title=&lt;name&gt;,}{hidden=false,}{format=nil}}</code>.  For instance
+<code>custom_tags={'remark',title='Remarks'}</code> will add a little <code>Remarks</code> section to the docs for any function
+containing this tag.  <code>format</code> can be a function &ndash; if not present the default formatter will be used,
+e.g. Markdown</li>
 <li><code>custom_see_handler</code> function that filters see-references</li>
 <li><code>custom_display_name_handler</code> function that formats an item&rsquo;s name. The arguments are the item
 and the default function used to format the name. For example, to show an icon or label beside any
-function tagged with a certain tag:
-<pre>
-<span class="comment">&mdash; define a @callback tag:
-</span>custom_tags = { { <span class="string">&lsquo;callback&rsquo;</span>, hidden = <span class="keyword">true</span> } }</li>
+function tagged with a certain tag:</li>
 </ul>
 
 
-<p><span class="comment">&mdash; show a label beside functions tagged with @callback.
+<pre>
+<span class="comment">-- define a @callback tag:
+</span>custom_tags = { { <span class="string">'callback'</span>, hidden = <span class="keyword">true</span> } }
+
+<span class="comment">-- show a label beside functions tagged with @callback.
 </span>custom_display_name_handler = <span class="keyword">function</span>(item, default_handler)
-  <span class="keyword">if</span> item.<span class="global">type</span> == <span class="string">&lsquo;function&rsquo;</span> <span class="keyword">and</span> item.tags.callback <span class="keyword">then</span></p>
-
-<pre><code>&lt;span class="keyword"&gt;return&lt;/span&gt; item.name .. &lt;span class="string"&gt;' [callback]'&lt;/span&gt;
-</code></pre>
-
-<p>  <span class="keyword">end</span>
+  <span class="keyword">if</span> item.<span class="global">type</span> == <span class="string">'function'</span> <span class="keyword">and</span> item.tags.callback <span class="keyword">then</span>
+    <span class="keyword">return</span> item.name .. <span class="string">' [callback]'</span>
+  <span class="keyword">end</span>
   <span class="keyword">return</span> default_handler(item)
 <span class="keyword">end</span>
 </pre>
-  &ndash; <code>not_luadoc</code> set to <code>true</code> if the docs break LuaDoc compatibility
-  &ndash; <code>no_space_before_args</code> set to <code>true</code> if you do not want a space between a function&rsquo;s name and its arguments.
-  &ndash; <code>template_escape</code> overrides the usual &lsquo;#&rsquo; used for Lua code in templates. This needs to be changed if the output format is Markdown, for instance.</p>
+
+
+<ul>
+<li><code>not_luadoc</code> set to <code>true</code> if the docs break LuaDoc compatibility</li>
+<li><code>no_space_before_args</code> set to <code>true</code> if you do not want a space between a function&rsquo;s name and its arguments.</li>
+<li><code>template_escape</code> overrides the usual &lsquo;#&rsquo; used for Lua code in templates.
+This needs to be changed if the output format is Markdown, for instance.</li>
+</ul>
+
 
 <p><em>Available functions are:</em></p>
 
@@ -1627,12 +1673,14 @@ could call &lsquo;minimal Markdown style&rsquo; where there is no attempt to tag
 emphasizing parameter names). The narrative alone <em>can</em> to be sufficient, if it is written
 well.</p>
 
-<p>There are two other stylesheets available in LDoc since 1.4; the first is <code>ldoc_one.css</code> which is what
+<p>There are three other stylesheets available in LDoc since 1.4; the first is <code>ldoc_one.css</code> which is what
 you get from <code>one=true</code> and the second is <code>ldoc_pale.css</code>. This is a lighter theme which
 might give some relief from the heavier colours of the default. You can use this style with
 <code>style="!pale"</code> or <code>-s !pale</code>.
 See the <a href="http://stevedonovan.github.io/lake/modules/lakelibs.html">Lake</a> documentation
-as an example of its use.</p>
+as an example of its use.  With 1.4.3 there is also the <code>style='!fixed'</code> where the
+left navigation panel is fixed and does not scroll with the rest of the document;
+you may find this assists navigation in complex modules and documents.</p>
 
 <p>Of course, there&rsquo;s no reason why LDoc must always generate HTML. <code>--ext</code> defines what output
 extension to use; this can also be set in the configuration file. So it&rsquo;s possible to write
@@ -1718,7 +1766,8 @@ to their tags.</p>
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.2</a></i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
+<i style="float:right;">Last updated 2014-11-01 18:26:03 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

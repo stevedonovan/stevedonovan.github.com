@@ -55,11 +55,18 @@
   <li><a href="../modules/table.html">table</a></li>
   <li><a href="../modules/config.html">config</a></li>
   <li><a href="../modules/arg.html">arg</a></li>
+  <li><a href="../modules/flot.html">flot</a></li>
+</ul>
+<h2>Topics</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../topics/readme.md.html">readme</a></li>
 </ul>
 <h2>Examples</h2>
 <ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../examples/test-array.c.html">test-array.c</a></li>
   <li><a href="../examples/test-config.c.html">test-config.c</a></li>
   <li><a href="../examples/test-file.c.html">test-file.c</a></li>
+  <li><a href="../examples/test-interface.c.html">test-interface.c</a></li>
   <li><a href="../examples/test-json.c.html">test-json.c</a></li>
   <li><a href="../examples/test-list.c.html">test-list.c</a></li>
   <li><a href="../examples/test-map.c.html">test-map.c</a></li>
@@ -72,6 +79,8 @@
   <li><a href="../examples/test-table.c.html">test-table.c</a></li>
   <li><a href="../examples/test-template.c.html">test-template.c</a></li>
   <li><a href="../examples/test-xml.c.html">test-xml.c</a></li>
+  <li><a href="../examples/testa.c.html">testa.c</a></li>
+  <li><a href="../examples/testing.c.html">testing.c</a></li>
   <li><a href="../examples/cmd.c.html">cmd.c</a></li>
   <li><a href="../examples/testa.c.html">testa.c</a></li>
   <li><a href="../examples/config.c.html">config.c</a></li>
@@ -83,21 +92,22 @@
 <div id="content">
 
 <h1>Module <code>value</code></h1>
-<p><h3>Boxing and Unboxing Primitive Types.</h3>
+<p>
+<h3>Boxing and Unboxing Primitive Types.</h3>
 </p>
 <p>All llib objects are by defiintion <em>values</em>;  primitive types like ints (<code>long long</code>) ,
 floats (<code>double</code>) and bools must be <em>boxed</em> first.  Boxed types are pointers-to-primitive,
-which are not arrays; <a href="../modules/value.html#value_is_box">value_is_box</a>  becomes true.  To box a value use <a href="../modules/value.html#value_int">value_int</a> ,
-<a href="../modules/value.html#value_float">value_float</a>  and <a href="../modules/value.html#value_bool">value_bool</a> ;  to check the type use the equivalent <code>value_is_TYPE</code>
+which are not arrays; <a href="../modules/value.html#value_is_box">value_is_box</a> becomes true.  To box a value use <a href="../modules/value.html#value_int">value_int</a>,
+<a href="../modules/value.html#value_float">value_float</a> and <a href="../modules/value.html#value_bool">value_bool</a>;  to check the type use the equivalent <code>value_is_TYPE</code>
 functions, and to extract the value use <code>value_as_TYPE</code>.</p>
 
-<p>Error values are strings with a distinct type, so we have <a href="../modules/value.html#value_error">value_error</a>  and  <a href="../modules/value.html#value_is_error">value_is_error</a> .</p>
+<p>Error values are strings with a distinct type, so we have <a href="../modules/value.html#value_error">value_error</a> and  <a href="../modules/value.html#value_is_error">value_is_error</a>.</p>
 
-<p><a href="../modules/value.html#value_parse">value_parse</a>  converts strings to values using a known value type; <a href="../modules/value.html#value_tostring">value_tostring</a>  will
+<p><a href="../modules/value.html#value_parse">value_parse</a> converts strings to values using a known value type; <a href="../modules/value.html#value_tostring">value_tostring</a> will
 convert a value to a default string representation.  More complicated value types like arrays
-don&rsquo;t have a unique representation as strings, so see <a href="../modules/json.html#json_tostring">json_tostring</a>  and <a href="../modules/xml.html#xml_tostring">xml_tostring</a> .</p>
+don't have a unique representation as strings, so see <a href="../modules/json.html#json_tostring">json_tostring</a> and <a href="../modules/xml.html#xml_tostring">xml_tostring</a>.</p>
 
-<p>See <a href="../examples/test-json.c.html#">test-json.c</a>  for how values are used in practice.</p>
+<p>See <a href="../examples/test-json.c.html#">test-json.c</a> for how values are used in practice.</p>
 
 
 <h2><a href="#Querying_Type">Querying Type </a></h2>
@@ -167,7 +177,6 @@ don&rsquo;t have a unique representation as strings, so see <a href="../modules/
 
 
     <h2><a name="Querying_Type"></a>Querying Type </h2>
-    Querying Type
 
 
     <dl class="function">
@@ -185,6 +194,7 @@ don&rsquo;t have a unique representation as strings, so see <a href="../modules/
             <span class="types"><span class="type">PValue</span></span>
 
 
+
         </li>
     </ul>
 
@@ -192,6 +202,7 @@ don&rsquo;t have a unique representation as strings, so see <a href="../modules/
     <ol>
 
            <span class="types"><span class="type">bool</span></span>
+
 
 
     </ol>
@@ -214,6 +225,7 @@ don&rsquo;t have a unique representation as strings, so see <a href="../modules/
             <span class="types"><span class="type">PValue</span></span>
 
 
+
         </li>
     </ul>
 
@@ -221,6 +233,7 @@ don&rsquo;t have a unique representation as strings, so see <a href="../modules/
     <ol>
 
            <span class="types"><span class="type">bool</span></span>
+
 
 
     </ol>
@@ -243,6 +256,7 @@ don&rsquo;t have a unique representation as strings, so see <a href="../modules/
             <span class="types"><span class="type">PValue</span></span>
 
 
+
         </li>
     </ul>
 
@@ -250,6 +264,7 @@ don&rsquo;t have a unique representation as strings, so see <a href="../modules/
     <ol>
 
            <span class="types"><span class="type">bool</span></span>
+
 
 
     </ol>
@@ -272,6 +287,7 @@ don&rsquo;t have a unique representation as strings, so see <a href="../modules/
             <span class="types"><span class="type">PValue</span></span>
 
 
+
         </li>
     </ul>
 
@@ -279,6 +295,7 @@ don&rsquo;t have a unique representation as strings, so see <a href="../modules/
     <ol>
 
            <span class="types"><span class="type">bool</span></span>
+
 
 
     </ol>
@@ -301,6 +318,7 @@ don&rsquo;t have a unique representation as strings, so see <a href="../modules/
             <span class="types"><span class="type">PValue</span></span>
 
 
+
         </li>
     </ul>
 
@@ -308,6 +326,7 @@ don&rsquo;t have a unique representation as strings, so see <a href="../modules/
     <ol>
 
            <span class="types"><span class="type">bool</span></span>
+
 
 
     </ol>
@@ -330,6 +349,7 @@ don&rsquo;t have a unique representation as strings, so see <a href="../modules/
             <span class="types"><span class="type">PValue</span></span>
 
 
+
         </li>
     </ul>
 
@@ -337,6 +357,7 @@ don&rsquo;t have a unique representation as strings, so see <a href="../modules/
     <ol>
 
            <span class="types"><span class="type">bool</span></span>
+
 
 
     </ol>
@@ -359,6 +380,7 @@ don&rsquo;t have a unique representation as strings, so see <a href="../modules/
             <span class="types"><span class="type">PValue</span></span>
 
 
+
         </li>
     </ul>
 
@@ -366,6 +388,7 @@ don&rsquo;t have a unique representation as strings, so see <a href="../modules/
     <ol>
 
            <span class="types"><span class="type">bool</span></span>
+
 
 
     </ol>
@@ -376,7 +399,6 @@ don&rsquo;t have a unique representation as strings, so see <a href="../modules/
 </dd>
 </dl>
     <h2><a name="Boxing_Values"></a>Boxing Values </h2>
-    Boxing Values
 
 
     <dl class="function">
@@ -394,6 +416,7 @@ don&rsquo;t have a unique representation as strings, so see <a href="../modules/
             <span class="types"><span class="type">const char *</span></span>
 
 
+
         </li>
     </ul>
 
@@ -401,6 +424,7 @@ don&rsquo;t have a unique representation as strings, so see <a href="../modules/
     <ol>
 
            <span class="types"><span class="type">PValue</span></span>
+
 
 
     </ol>
@@ -423,6 +447,7 @@ don&rsquo;t have a unique representation as strings, so see <a href="../modules/
             <span class="types"><span class="type">double</span></span>
 
 
+
         </li>
     </ul>
 
@@ -430,6 +455,7 @@ don&rsquo;t have a unique representation as strings, so see <a href="../modules/
     <ol>
 
            <span class="types"><span class="type">PValue</span></span>
+
 
 
     </ol>
@@ -452,6 +478,7 @@ don&rsquo;t have a unique representation as strings, so see <a href="../modules/
             <span class="types"><span class="type">long long</span></span>
 
 
+
         </li>
     </ul>
 
@@ -459,6 +486,7 @@ don&rsquo;t have a unique representation as strings, so see <a href="../modules/
     <ol>
 
            <span class="types"><span class="type">PValue</span></span>
+
 
 
     </ol>
@@ -481,6 +509,7 @@ don&rsquo;t have a unique representation as strings, so see <a href="../modules/
             <span class="types"><span class="type">bool</span></span>
 
 
+
         </li>
     </ul>
 
@@ -488,6 +517,7 @@ don&rsquo;t have a unique representation as strings, so see <a href="../modules/
     <ol>
 
            <span class="types"><span class="type">PValue</span></span>
+
 
 
     </ol>
@@ -498,7 +528,6 @@ don&rsquo;t have a unique representation as strings, so see <a href="../modules/
 </dd>
 </dl>
     <h2><a name="Converting_to_and_from_Strings"></a>Converting to and from Strings </h2>
-    Converting to and from Strings
 
 
     <dl class="function">
@@ -516,9 +545,11 @@ don&rsquo;t have a unique representation as strings, so see <a href="../modules/
             <span class="types"><span class="type">const char *</span></span>
 
 
+
         </li>
         <li><span class="parameter">type</span>
             <span class="types"><span class="type">ValueType</span></span>
+
 
 
         </li>
@@ -528,6 +559,7 @@ don&rsquo;t have a unique representation as strings, so see <a href="../modules/
     <ol>
 
            <span class="types"><span class="type">PValue</span></span>
+
 
 
     </ol>
@@ -552,6 +584,7 @@ don&rsquo;t have a unique representation as strings, so see <a href="../modules/
             <span class="types"><span class="type">PValue</span></span>
 
 
+
         </li>
     </ul>
 
@@ -559,6 +592,7 @@ don&rsquo;t have a unique representation as strings, so see <a href="../modules/
     <ol>
 
            <span class="types"><span class="type">const char *</span></span>
+
 
 
     </ol>
@@ -573,7 +607,8 @@ don&rsquo;t have a unique representation as strings, so see <a href="../modules/
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.2</a></i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
+<i style="float:right;">Last updated 2014-11-01 16:41:56 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

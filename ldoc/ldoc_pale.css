@@ -71,7 +71,7 @@ body {
     background-color: #ffffff; margin: 0px;
 }
 
-code, tt { font-family: monospace; }
+code, tt { font-family: monospace; font-size: 1.1em; }
 span.parameter { font-family:monospace; }
 span.parameter:after { content:":"; }
 span.types:before { content:"("; }
@@ -139,7 +139,7 @@ table.index td { text-align: left; vertical-align: top; }
 #container {
     margin-left: 1em;
     margin-right: 1em;
-    background-color: #f0f0f0;
+    background-color: #ffffff;
 }
 
 #product {
@@ -162,6 +162,7 @@ table.index td { text-align: left; vertical-align: top; }
     width: 14em;
     vertical-align: top;
     background-color:#FFFFFF; // #f0f0f0;
+    border-right: 2px solid #cccccc;
     overflow: visible;
 }
 
@@ -285,14 +286,19 @@ ol ul { margin-top: 0px; }
 ol ol { margin-top: 0px; }
 ul ol { margin-top: 0px; }
 
+/* make the target distinct; helps when we're navigating to a function */
+a:target + * {
+  background-color: #FF9;
+}
+
 /* styles for prettification of source */
 pre .comment { color: #558817; }
 pre .constant { color: #a8660d; }
 pre .escape { color: #844631; }
-pre .keyword { color: #2239a8; font-weight: bold; }
+pre .keyword { color: #aa5050; font-weight: bold; }
 pre .library { color: #0e7c6b; }
 pre .marker { color: #512b1e; background: #fedc56; font-weight: bold; }
-pre .string { color: #a8660d; }
+pre .string { color: #8080ff; }
 pre .number { color: #f8660d; }
 pre .operator { color: #2239a8; font-weight: bold; }
 pre .preprocessor, pre .prepro { color: #a33243; }

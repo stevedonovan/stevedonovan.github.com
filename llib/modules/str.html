@@ -57,11 +57,18 @@
   <li><a href="../modules/table.html">table</a></li>
   <li><a href="../modules/config.html">config</a></li>
   <li><a href="../modules/arg.html">arg</a></li>
+  <li><a href="../modules/flot.html">flot</a></li>
+</ul>
+<h2>Topics</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../topics/readme.md.html">readme</a></li>
 </ul>
 <h2>Examples</h2>
 <ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../examples/test-array.c.html">test-array.c</a></li>
   <li><a href="../examples/test-config.c.html">test-config.c</a></li>
   <li><a href="../examples/test-file.c.html">test-file.c</a></li>
+  <li><a href="../examples/test-interface.c.html">test-interface.c</a></li>
   <li><a href="../examples/test-json.c.html">test-json.c</a></li>
   <li><a href="../examples/test-list.c.html">test-list.c</a></li>
   <li><a href="../examples/test-map.c.html">test-map.c</a></li>
@@ -74,6 +81,8 @@
   <li><a href="../examples/test-table.c.html">test-table.c</a></li>
   <li><a href="../examples/test-template.c.html">test-template.c</a></li>
   <li><a href="../examples/test-xml.c.html">test-xml.c</a></li>
+  <li><a href="../examples/testa.c.html">testa.c</a></li>
+  <li><a href="../examples/testing.c.html">testing.c</a></li>
   <li><a href="../examples/cmd.c.html">cmd.c</a></li>
   <li><a href="../examples/testa.c.html">testa.c</a></li>
   <li><a href="../examples/config.c.html">config.c</a></li>
@@ -85,19 +94,27 @@
 <div id="content">
 
 <h1>Module <code>str</code></h1>
-<p><h3>String Manipulation.</h3>
+<p>
+<h3>String Manipulation.</h3>
 </p>
 <p> When building up strings use a <em>strbuf</em>, which is a sequence of chars; can add characters
- and strings, formatted strings (like <a href="../modules/str.html#str_fmt">str_fmt</a> ) and also insert and remove substrings.
- The actual string is always <code>*S</code> but use <code>strbuf_tostring(S)</code> to properly clean up and
+ and strings, formatted strings (like <a href="../modules/str.html#str_fmt">str_fmt</a>) and also insert and remove substrings.
+ The actual string is always <code>*S</code> but use <a href="../modules/str.html#strbuf_tostring">strbuf_tostring</a> to properly clean up and
  dispose of the sequence.</p>
 
-<p> <a href="../modules/str.html#str_split">str_split</a>  creates a refcounted array of strings, splitting using a delimiter. <a href="../modules/str.html#str_concat">str_concat</a>
+<p> <a href="../modules/str.html#str_split">str_split</a> creates a refcounted array of strings, splitting using a delimiter. <a href="../modules/str.html#str_concat">str_concat</a>
  works the other way, joining an array of strings with a separator.</p>
 
-<p> Then there are searching operations which return a boolean or integer index.</p>
+<p> There are searching operations which return a boolean or integer index,
+ loosely based on C++'s <code>std::string</code> methods.</p>
 
-<p> See <a href="../examples/test-str.c.html#">test-str.c</a> </p>
+<p> <em>smaps</em> ('simple maps') are arrays of strings where the odd indices
+ are keys and the even indices are values. <a href="../modules/str.html#str_lookup">str_lookup</a> does a
+ linear search, which is simple and sufficient for small maps. A convenient
+ way to build these maps is to start with <a href="../modules/str.html#smap_new">smap_new</a> and use either <a href="../modules/str.html#smap_add">smap_add</a>
+ to simply add, or <a href="../modules/str.html#smap_put">smap_put</a> to update/add, key/value pairs.</p>
+
+<p> See <a href="../examples/test-str.c.html#">test-str.c</a></p>
 
 
 <h2><a href="#String_buffers">String buffers </a></h2>
@@ -156,6 +173,10 @@
 </table>
 <h2><a href="#Finding_things_in_strings">Finding things in strings </a></h2>
 <table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#str_end">str_end (s)</a></td>
+	<td class="summary">get pointer to last char of string.</td>
+	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#str_eq">str_eq (a, b)</a></td>
 	<td class="summary">are these strings equal?</td>
@@ -257,7 +278,6 @@
 
 
     <h2><a name="String_buffers"></a>String buffers </h2>
-    String buffers.
 
 
     <dl class="function">
@@ -275,6 +295,7 @@
         <li><span class="parameter">void</span>
 
 
+
         </li>
     </ul>
 
@@ -282,6 +303,7 @@
     <ol>
 
            <span class="types"><span class="type">char * *</span></span>
+
 
 
     </ol>
@@ -304,6 +326,7 @@
             <span class="types"><span class="type">char**</span></span>
 
 
+
         </li>
     </ul>
 
@@ -311,6 +334,7 @@
     <ol>
 
            <span class="types"><span class="type">char*</span></span>
+
 
 
     </ol>
@@ -333,9 +357,11 @@
             <span class="types"><span class="type">char**</span></span>
 
 
+
         </li>
         <li><span class="parameter">ch</span>
             <span class="types"><span class="type">char</span></span>
+
 
 
         </li>
@@ -360,9 +386,11 @@
             <span class="types"><span class="type">char * *</span></span>
 
 
+
         </li>
         <li><span class="parameter">ss</span>
             <span class="types"><span class="type">str_t</span></span>
+
 
 
         </li>
@@ -388,13 +416,16 @@
             <span class="types"><span class="type">char * *</span></span>
 
 
+
         </li>
         <li><span class="parameter">fmt</span>
             <span class="types"><span class="type">str_t</span></span>
 
 
+
         </li>
         <li><span class="parameter">...</span>
+
 
 
         </li>
@@ -419,9 +450,11 @@
             <span class="types"><span class="type">char * *</span></span>
 
 
+
         </li>
         <li><span class="parameter">s</span>
             <span class="types"><span class="type">str_t</span></span>
+
 
 
         </li>
@@ -429,9 +462,11 @@
             <span class="types"><span class="type">int</span></span>
 
 
+
         </li>
         <li><span class="parameter">i2</span>
             <span class="types"><span class="type">int</span></span>
+
 
 
         </li>
@@ -458,9 +493,11 @@
             <span class="types"><span class="type">char * *</span></span>
 
 
+
         </li>
         <li><span class="parameter">pos</span>
             <span class="types"><span class="type">int</span></span>
+
 
 
         </li>
@@ -468,9 +505,11 @@
             <span class="types"><span class="type">str_t</span></span>
 
 
+
         </li>
         <li><span class="parameter">sz</span>
             <span class="types"><span class="type">int</span></span>
+
 
 
         </li>
@@ -480,6 +519,7 @@
     <ol>
 
            <span class="types"><span class="type">char *</span></span>
+
 
 
     </ol>
@@ -502,14 +542,17 @@
             <span class="types"><span class="type">char * *</span></span>
 
 
+
         </li>
         <li><span class="parameter">pos</span>
             <span class="types"><span class="type">int</span></span>
 
 
+
         </li>
         <li><span class="parameter">len</span>
             <span class="types"><span class="type">int</span></span>
+
 
 
         </li>
@@ -519,6 +562,7 @@
     <ol>
 
            <span class="types"><span class="type">char *</span></span>
+
 
 
     </ol>
@@ -541,9 +585,11 @@
             <span class="types"><span class="type">char * *</span></span>
 
 
+
         </li>
         <li><span class="parameter">pos</span>
             <span class="types"><span class="type">int</span></span>
+
 
 
         </li>
@@ -551,9 +597,11 @@
             <span class="types"><span class="type">int</span></span>
 
 
+
         </li>
         <li><span class="parameter">s</span>
             <span class="types"><span class="type">str_t</span></span>
+
 
 
         </li>
@@ -565,6 +613,7 @@
            <span class="types"><span class="type">char *</span></span>
 
 
+
     </ol>
 
 
@@ -573,7 +622,6 @@
 </dd>
 </dl>
     <h2><a name="Extra_string_functions"></a>Extra string functions </h2>
-    Extra string functions.
 
 
     <dl class="function">
@@ -591,8 +639,10 @@
             <span class="types"><span class="type">str_t</span></span>
 
 
+
         </li>
         <li><span class="parameter">...</span>
+
 
 
         </li>
@@ -602,6 +652,7 @@
     <ol>
 
            <span class="types"><span class="type">char *</span></span>
+
 
 
     </ol>
@@ -624,14 +675,17 @@
             <span class="types"><span class="type">str_t</span></span>
 
 
+
         </li>
         <li><span class="parameter">i1</span>
             <span class="types"><span class="type">int</span></span>
 
 
+
         </li>
         <li><span class="parameter">i2</span>
             <span class="types"><span class="type">int</span></span>
+
 
 
         </li>
@@ -641,6 +695,7 @@
     <ol>
 
            <span class="types"><span class="type">char *</span></span>
+
 
 
     </ol>
@@ -663,6 +718,7 @@
             <span class="types"><span class="type">char *</span></span>
 
 
+
         </li>
     </ul>
 
@@ -673,10 +729,40 @@
 </dd>
 </dl>
     <h2><a name="Finding_things_in_strings"></a>Finding things in strings </h2>
-    Finding things in strings.
 
 
     <dl class="function">
+    <dt>
+    <a name = "str_end"></a>
+    <strong>str_end (s)</strong>
+    </dt>
+    <dd>
+    get pointer to last char of string.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">s</span>
+            <span class="types"><span class="type">str_t</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">str_t</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
     <dt>
     <a name = "str_eq"></a>
     <strong>str_eq (a, b)</strong>
@@ -691,9 +777,11 @@
             <span class="types"><span class="type">str_t</span></span>
 
 
+
         </li>
         <li><span class="parameter">b</span>
             <span class="types"><span class="type">str_t</span></span>
+
 
 
         </li>
@@ -718,9 +806,11 @@
             <span class="types"><span class="type">str_t</span></span>
 
 
+
         </li>
         <li><span class="parameter">prefix</span>
             <span class="types"><span class="type">str_t</span></span>
+
 
 
         </li>
@@ -730,6 +820,7 @@
     <ol>
 
            <span class="types"><span class="type">bool</span></span>
+
 
 
     </ol>
@@ -752,9 +843,11 @@
             <span class="types"><span class="type">str_t</span></span>
 
 
+
         </li>
         <li><span class="parameter">postfix</span>
             <span class="types"><span class="type">str_t</span></span>
+
 
 
         </li>
@@ -764,6 +857,7 @@
     <ol>
 
            <span class="types"><span class="type">bool</span></span>
+
 
 
     </ol>
@@ -786,6 +880,7 @@
             <span class="types"><span class="type">str_t</span></span>
 
 
+
         </li>
     </ul>
 
@@ -793,6 +888,7 @@
     <ol>
 
            <span class="types"><span class="type">bool</span></span>
+
 
 
     </ol>
@@ -815,9 +911,11 @@
             <span class="types"><span class="type">str_t</span></span>
 
 
+
         </li>
         <li><span class="parameter">sub</span>
             <span class="types"><span class="type">str_t</span></span>
+
 
 
         </li>
@@ -827,6 +925,7 @@
     <ol>
 
            <span class="types"><span class="type">int</span></span>
+
 
 
     </ol>
@@ -849,9 +948,11 @@
             <span class="types"><span class="type">str_t</span></span>
 
 
+
         </li>
         <li><span class="parameter">ch</span>
             <span class="types"><span class="type">char</span></span>
+
 
 
         </li>
@@ -861,6 +962,7 @@
     <ol>
 
            <span class="types"><span class="type">int</span></span>
+
 
 
     </ol>
@@ -883,9 +985,11 @@
             <span class="types"><span class="type">str_t</span></span>
 
 
+
         </li>
         <li><span class="parameter">ps</span>
             <span class="types"><span class="type">str_t</span></span>
+
 
 
         </li>
@@ -895,6 +999,7 @@
     <ol>
 
            <span class="types"><span class="type">int</span></span>
+
 
 
     </ol>
@@ -917,9 +1022,11 @@
             <span class="types"><span class="type">str_t</span></span>
 
 
+
         </li>
         <li><span class="parameter">ps</span>
             <span class="types"><span class="type">str_t</span></span>
+
 
 
         </li>
@@ -931,6 +1038,7 @@
            <span class="types"><span class="type">int</span></span>
 
 
+
     </ol>
 
 
@@ -939,7 +1047,6 @@
 </dd>
 </dl>
     <h2><a name="Splitting_and_Concatention"></a>Splitting and Concatention </h2>
-    Splitting and Concatention
 
 
     <dl class="function">
@@ -958,9 +1065,11 @@
             <span class="types"><span class="type">str_t</span></span>
 
 
+
         </li>
         <li><span class="parameter">delim</span>
             <span class="types"><span class="type">str_t</span></span>
+
 
 
         </li>
@@ -970,6 +1079,7 @@
     <ol>
 
            <span class="types"><span class="type">char * *</span></span>
+
 
 
     </ol>
@@ -993,9 +1103,11 @@
             <span class="types"><span class="type">char * *</span></span>
 
 
+
         </li>
         <li><span class="parameter">delim</span>
             <span class="types"><span class="type">str_t</span></span>
+
 
 
         </li>
@@ -1005,6 +1117,7 @@
     <ol>
 
            <span class="types"><span class="type">char *</span></span>
+
 
 
     </ol>
@@ -1029,8 +1142,10 @@
             <span class="types"><span class="type">char *</span></span>
 
 
+
         </li>
         <li><span class="parameter">...</span>
+
 
 
         </li>
@@ -1040,6 +1155,7 @@
     <ol>
 
            <span class="types"><span class="type">char * *</span></span>
+
 
 
     </ol>
@@ -1088,9 +1204,11 @@
             <span class="types"><span class="type">char * *</span></span>
 
 
+
         </li>
         <li><span class="parameter">name</span>
             <span class="types"><span class="type">const char *</span></span>
+
 
 
         </li>
@@ -1100,6 +1218,7 @@
     <ol>
 
            <span class="types"><span class="type">char * *</span></span>
+
 
 
     </ol>
@@ -1122,9 +1241,11 @@
             <span class="types"><span class="type">char * *</span></span>
 
 
+
         </li>
         <li><span class="parameter">name</span>
             <span class="types"><span class="type">const char *</span></span>
+
 
 
         </li>
@@ -1134,6 +1255,7 @@
     <ol>
 
            <span class="types"><span class="type">char *</span></span>
+
 
 
     </ol>
@@ -1156,6 +1278,7 @@
             <span class="types"><span class="type">bool</span></span>
 
 
+
         </li>
     </ul>
 
@@ -1163,6 +1286,7 @@
     <ol>
 
            <span class="types"><span class="type">char * * *</span></span>
+
 
 
     </ol>
@@ -1185,14 +1309,17 @@
             <span class="types"><span class="type">char * * *</span></span>
 
 
+
         </li>
         <li><span class="parameter">name</span>
             <span class="types"><span class="type">const char *</span></span>
 
 
+
         </li>
         <li><span class="parameter">data</span>
             <span class="types"><span class="type">const void *</span></span>
+
 
 
         </li>
@@ -1217,14 +1344,17 @@
             <span class="types"><span class="type">char * * *</span></span>
 
 
+
         </li>
         <li><span class="parameter">name</span>
             <span class="types"><span class="type">const char *</span></span>
 
 
+
         </li>
         <li><span class="parameter">data</span>
             <span class="types"><span class="type">const void *</span></span>
+
 
 
         </li>
@@ -1249,9 +1379,11 @@
             <span class="types"><span class="type">char * * *</span></span>
 
 
+
         </li>
         <li><span class="parameter">name</span>
             <span class="types"><span class="type">const char *</span></span>
+
 
 
         </li>
@@ -1261,6 +1393,7 @@
     <ol>
 
            <span class="types"><span class="type">void *</span></span>
+
 
 
     </ol>
@@ -1283,6 +1416,7 @@
             <span class="types"><span class="type">char * * *</span></span>
 
 
+
         </li>
     </ul>
 
@@ -1290,6 +1424,7 @@
     <ol>
 
            <span class="types"><span class="type">char * *</span></span>
+
 
 
     </ol>
@@ -1312,6 +1447,7 @@
             <span class="types"><span class="type">char * * *</span></span>
 
 
+
         </li>
     </ul>
 
@@ -1319,6 +1455,7 @@
     <ol>
 
            <span class="types"><span class="type">int</span></span>
+
 
 
     </ol>
@@ -1341,9 +1478,11 @@
             <span class="types"><span class="type">str_t</span></span>
 
 
+
         </li>
         <li><span class="parameter">data</span>
             <span class="types"><span class="type">str_t</span></span>
+
 
 
         </li>
@@ -1368,9 +1507,11 @@
             <span class="types"><span class="type">str_t</span></span>
 
 
+
         </li>
         <li><span class="parameter">data</span>
             <span class="types"><span class="type">str_t</span></span>
+
 
 
         </li>
@@ -1387,7 +1528,8 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.2</a></i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
+<i style="float:right;">Last updated 2014-11-01 16:41:56 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

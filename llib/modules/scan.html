@@ -59,11 +59,18 @@
   <li><a href="../modules/table.html">table</a></li>
   <li><a href="../modules/config.html">config</a></li>
   <li><a href="../modules/arg.html">arg</a></li>
+  <li><a href="../modules/flot.html">flot</a></li>
+</ul>
+<h2>Topics</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../topics/readme.md.html">readme</a></li>
 </ul>
 <h2>Examples</h2>
 <ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../examples/test-array.c.html">test-array.c</a></li>
   <li><a href="../examples/test-config.c.html">test-config.c</a></li>
   <li><a href="../examples/test-file.c.html">test-file.c</a></li>
+  <li><a href="../examples/test-interface.c.html">test-interface.c</a></li>
   <li><a href="../examples/test-json.c.html">test-json.c</a></li>
   <li><a href="../examples/test-list.c.html">test-list.c</a></li>
   <li><a href="../examples/test-map.c.html">test-map.c</a></li>
@@ -76,6 +83,8 @@
   <li><a href="../examples/test-table.c.html">test-table.c</a></li>
   <li><a href="../examples/test-template.c.html">test-template.c</a></li>
   <li><a href="../examples/test-xml.c.html">test-xml.c</a></li>
+  <li><a href="../examples/testa.c.html">testa.c</a></li>
+  <li><a href="../examples/testing.c.html">testing.c</a></li>
   <li><a href="../examples/cmd.c.html">cmd.c</a></li>
   <li><a href="../examples/testa.c.html">testa.c</a></li>
   <li><a href="../examples/config.c.html">config.c</a></li>
@@ -87,32 +96,38 @@
 <div id="content">
 
 <h1>Module <code>scan</code></h1>
-<p><h3>A Lexical Scanner.</h3>
+<p>
+<h3>A Lexical Scanner.</h3>
 </p>
 <p>Lexical scanners are a smarter and cleaner alternative to the primitive <code>strtok</code> function.
-Each time you call <a href="../modules/scan.html#scan_next">scan_next</a> , the scanner finds the next <em>token</em>,</p>
+Each time you call <a href="../modules/scan.html#scan_next">scan_next</a>, the scanner finds the next <em>token</em>,</p>
+
 
 <pre>
-ScanState *ts = <a href="../modules/scan.html#scan_new_from_string">scan_new_from_string</a> (<span class="string">"hello = (10,20,30)"</span>));
-<a href="../modules/scan.html#scan_next">scan_next</a> (ts);
-<span class="keyword">char</span> *name = <code>scan_get_str</code>(ts);  <span class="comment">// will be "hello"
-</span><span class="keyword">char</span> ch = <a href="../modules/scan.html#scan_next">scan_next</a> (ts);  <span class="comment">// will be '='
-</span><a href="../modules/scan.html#scan_next">scan_next</a> (ts);  <span class="comment">// skip '('
-</span><a href="../modules/scan.html#scan_next">scan_next</a> (ts);
-<span class="keyword">double</span> val1 = <a href="../modules/scan.html#scan_get_number">scan_get_number</a> (ts);  <span class="comment">// 10
-</span><a href="../modules/scan.html#scan_next">scan_next</a> (ts); <span class="comment">// skip ','
-</span><span class="keyword">double</span> val2 = <a href="../modules/scan.html#scan_get_number">scan_get_number</a> (ts); <span class="comment">// 20
+ScanState *ts = <a href="../modules/scan.html#scan_new_from_string">scan_new_from_string</a>(<span class="string">"hello = (10,20,30)"</span>));
+<a href="../modules/scan.html#scan_next">scan_next</a>(ts);
+<span class="keyword">char</span> *name = <a href="../modules/scan.html#scan_get_str">scan_get_str</a>(ts);  <span class="comment">// will be "hello"
+</span><span class="keyword">char</span> ch = <a href="../modules/scan.html#scan_next">scan_next</a>(ts);  <span class="comment">// will be '='
+</span><a href="../modules/scan.html#scan_next">scan_next</a>(ts);  <span class="comment">// skip '('
+</span><a href="../modules/scan.html#scan_next">scan_next</a>(ts);
+<span class="keyword">double</span> val1 = <a href="../modules/scan.html#scan_get_number">scan_get_number</a>(ts);  <span class="comment">// 10
+</span><a href="../modules/scan.html#scan_next">scan_next</a>(ts); <span class="comment">// skip ','
+</span><span class="keyword">double</span> val2 = <a href="../modules/scan.html#scan_get_number">scan_get_number</a>(ts); <span class="comment">// 20
 </span>
 </pre>
 
+<p>At any point, <code>ts-&gt;type</code> tells you the next available token.
+Note that by default this scanner ignores space.</p>
 
-<p>At any point, <code>ts->type</code> tells you the next available token.</p>
+<p>A convenient higher-level function is <a href="../modules/scan.html#scan_scanf">scan_scanf</a>;  the equivalent of above code is
+simply:</p>
 
-<p>A convenient higher-level function is <code>scan_scanf</code>;  the equivalent of above code is
-simply <code>scan_scanf(ts,&ldquo;%s %c (%f,%f&rdquo;,&amp;name,&amp;ch,&amp;val1,&amp;val2)</code>.  Note that
-by default this scanner ignores space.</p>
 
-<p>See <a href="../examples/test-scan.c.html#">test-scan.c</a>  for examples of various uses.</p>
+<pre>
+<a href="../modules/scan.html#scan_scanf">scan_scanf</a>(ts,<span class="string">"%s %c (%f,%f"</span>,&amp;name,&amp;ch,&amp;val1,&amp;val2).
+</pre>
+
+<p>See <a href="../examples/test-scan.c.html#">test-scan.c</a> for examples of various uses.</p>
 
 
 <h2><a href="#Tables">Tables</a></h2>
@@ -224,6 +239,18 @@ by default this scanner ignores space.</p>
 <h2><a href="#Getting">Getting</a></h2>
 <table class="function_list">
 	<tr>
+	<td class="name" nowrap><a href="#scan_get_tok">scan_get_tok (ts, tok, len)</a></td>
+	<td class="summary">copy the current token to a buff.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#scan_get_str">scan_get_str (ts)</a></td>
+	<td class="summary">get current token as string.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#scan_scanf">scan_scanf (ts, fmt, ...)</a></td>
+	<td class="summary">Formatted reading from the scanner, like <code>scanf</code>.</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#scan_get_line">scan_get_line (ts, buff, len)</a></td>
 	<td class="summary">get the rest of the current line.</td>
 	</tr>
@@ -262,21 +289,21 @@ by default this scanner ignores space.</p>
             <span class="types"><span class="type">int</span></span>
          One of the following:</p>
 
-<p>   T_END, T_EOF=0,
-   T_TOKEN, T_IDEN=1,
-   T_NUMBER,
-   T_STRING,
-   T_CHAR,
-   T_NADA
+<p>   T<em>END, T</em>EOF=0,
+   T<em>TOKEN, T</em>IDEN=1,
+   T<em>NUMBER,
+   T</em>STRING,
+   T<em>CHAR,
+   T</em>NADA
         </li>
         <li><span class="parameter">int_type</span>
             <span class="types"><span class="type">int</span></span>
          One of</p>
 
-<p>   T_DOUBLE,
-   T_INT,
-   T_HEX,
-   T_OCT,
+<p>   T<em>DOUBLE,
+   T</em>INT,
+   T<em>HEX,
+   T</em>OCT,
         </li>
     </ul>
 
@@ -294,13 +321,14 @@ by default this scanner ignores space.</p>
     <strong>scan_set_flags (ts, flags)</strong>
     </dt>
     <dd>
-    <p>set flags. </p>
+
+<p>set flags. </p>
 
 <ul>
-<li><code>C_IDEN</code> words may contain underscores</li>
-<li><code>C_NUMBER</code> instead of <code>T_NUMBER</code>, return <code>T_INT</code>,<code>T_HEX</code> and <code>T_DOUBLE</code></li>
-<li><code>C_STRING</code> parse C string escapes</li>
-<li><code>C_WSPACE</code> don&rsquo;t skip whitespace</li>
+    <li><code>C_IDEN</code> words may contain underscores</li>
+    <li><code>C_NUMBER</code> instead of <code>T_NUMBER</code>, return <code>T_INT</code>,<code>T_HEX</code> and <code>T_DOUBLE</code></li>
+    <li><code>C_STRING</code> parse C string escapes</li>
+    <li><code>C_WSPACE</code> don't skip whitespace</li>
 </ul>
 
 
@@ -312,9 +340,11 @@ by default this scanner ignores space.</p>
             <span class="types"><a class="type" href="../modules/scan.html#ScanState">ScanState *</a></span>
 
 
+
         </li>
         <li><span class="parameter">flags</span>
             <span class="types"><span class="type">int</span></span>
+
 
 
         </li>
@@ -339,9 +369,11 @@ by default this scanner ignores space.</p>
             <span class="types"><a class="type" href="../modules/scan.html#ScanState">ScanState *</a></span>
 
 
+
         </li>
         <li><span class="parameter">cc</span>
             <span class="types"><span class="type">const char *</span></span>
+
 
 
         </li>
@@ -366,6 +398,7 @@ by default this scanner ignores space.</p>
             <span class="types"><a class="type" href="../modules/scan.html#ScanState">ScanState *</a></span>
 
 
+
         </li>
     </ul>
 
@@ -386,6 +419,7 @@ by default this scanner ignores space.</p>
     <ul>
         <li><span class="parameter">ts</span>
             <span class="types"><a class="type" href="../modules/scan.html#ScanState">ScanState *</a></span>
+
 
 
         </li>
@@ -414,6 +448,7 @@ by default this scanner ignores space.</p>
             <span class="types"><span class="type">const char *</span></span>
 
 
+
         </li>
     </ul>
 
@@ -421,6 +456,7 @@ by default this scanner ignores space.</p>
     <ol>
 
            <span class="types"><a class="type" href="../modules/scan.html#ScanState">ScanState *</a></span>
+
 
 
     </ol>
@@ -443,6 +479,7 @@ by default this scanner ignores space.</p>
             <span class="types"><span class="type">const char *</span></span>
 
 
+
         </li>
     </ul>
 
@@ -450,6 +487,7 @@ by default this scanner ignores space.</p>
     <ol>
 
            <span class="types"><a class="type" href="../modules/scan.html#ScanState">ScanState *</a></span>
+
 
 
     </ol>
@@ -472,6 +510,7 @@ by default this scanner ignores space.</p>
             <span class="types"><span class="type">FILE *</span></span>
 
 
+
         </li>
     </ul>
 
@@ -479,6 +518,7 @@ by default this scanner ignores space.</p>
     <ol>
 
            <span class="types"><a class="type" href="../modules/scan.html#ScanState">ScanState *</a></span>
+
 
 
     </ol>
@@ -497,7 +537,7 @@ by default this scanner ignores space.</p>
     </dt>
     <dd>
     fetch a new line from the stream, if defined.
- Advances the line count &ndash; not used if the scanner has
+ Advances the line count - not used if the scanner has
  been given a string directly.
 
 
@@ -507,9 +547,11 @@ by default this scanner ignores space.</p>
             <span class="types"><a class="type" href="../modules/scan.html#ScanState">ScanState *</a></span>
 
 
+
         </li>
         <li><span class="parameter">skipws</span>
             <span class="types"><span class="type">int</span></span>
+
 
 
         </li>
@@ -519,6 +561,7 @@ by default this scanner ignores space.</p>
     <ol>
 
            <span class="types"><span class="type">bool</span></span>
+
 
 
     </ol>
@@ -541,6 +584,7 @@ by default this scanner ignores space.</p>
             <span class="types"><a class="type" href="../modules/scan.html#ScanState">ScanState *</a></span>
 
 
+
         </li>
     </ul>
 
@@ -548,6 +592,7 @@ by default this scanner ignores space.</p>
     <ol>
 
            <span class="types"><span class="type">char</span></span>
+
 
 
     </ol>
@@ -570,9 +615,11 @@ by default this scanner ignores space.</p>
             <span class="types"><a class="type" href="../modules/scan.html#ScanState">ScanState *</a></span>
 
 
+
         </li>
         <li><span class="parameter">offs</span>
             <span class="types"><span class="type">int</span></span>
+
 
 
         </li>
@@ -597,9 +644,11 @@ by default this scanner ignores space.</p>
             <span class="types"><a class="type" href="../modules/scan.html#ScanState">ScanState *</a></span>
 
 
+
         </li>
         <li><span class="parameter">offs</span>
             <span class="types"><span class="type">int</span></span>
+
 
 
         </li>
@@ -609,6 +658,7 @@ by default this scanner ignores space.</p>
     <ol>
 
            <span class="types"><span class="type">char</span></span>
+
 
 
     </ol>
@@ -623,7 +673,7 @@ by default this scanner ignores space.</p>
     </dt>
     <dd>
     grab a string upto (but not including) a final target string.
- Advances the scanner (use <a href="../modules/scan.html#scan_advance">scan_advance</a>  with negative offset to back off)
+ Advances the scanner (use <a href="../modules/scan.html#scan_advance">scan_advance</a> with negative offset to back off)
 
 
     <h3>Parameters:</h3>
@@ -632,9 +682,11 @@ by default this scanner ignores space.</p>
             <span class="types"><a class="type" href="../modules/scan.html#ScanState">ScanState *</a></span>
 
 
+
         </li>
         <li><span class="parameter">target</span>
             <span class="types"><span class="type">const char *</span></span>
+
 
 
         </li>
@@ -642,9 +694,11 @@ by default this scanner ignores space.</p>
             <span class="types"><span class="type">char *</span></span>
 
 
+
         </li>
         <li><span class="parameter">bufsz</span>
             <span class="types"><span class="type">int</span></span>
+
 
 
         </li>
@@ -654,6 +708,7 @@ by default this scanner ignores space.</p>
     <ol>
 
            <span class="types"><span class="type">int</span></span>
+
 
 
     </ol>
@@ -677,14 +732,17 @@ by default this scanner ignores space.</p>
             <span class="types"><a class="type" href="../modules/scan.html#ScanState">ScanState *</a></span>
 
 
+
         </li>
         <li><span class="parameter">values</span>
             <span class="types"><span class="type">double *</span></span>
 
 
+
         </li>
         <li><span class="parameter">sz</span>
             <span class="types"><span class="type">int</span></span>
+
 
 
         </li>
@@ -694,6 +752,7 @@ by default this scanner ignores space.</p>
     <ol>
 
            <span class="types"><span class="type">int</span></span>
+
 
 
     </ol>
@@ -720,6 +779,7 @@ by default this scanner ignores space.</p>
             <span class="types"><a class="type" href="../modules/scan.html#ScanState">ScanState *</a></span>
 
 
+
         </li>
     </ul>
 
@@ -727,6 +787,7 @@ by default this scanner ignores space.</p>
     <ol>
 
            <span class="types"><span class="type">bool</span></span>
+
 
 
     </ol>
@@ -749,6 +810,7 @@ by default this scanner ignores space.</p>
             <span class="types"><a class="type" href="../modules/scan.html#ScanState">ScanState *</a></span>
 
 
+
         </li>
     </ul>
 
@@ -769,6 +831,7 @@ by default this scanner ignores space.</p>
     <ul>
         <li><span class="parameter">ts</span>
             <span class="types"><a class="type" href="../modules/scan.html#ScanState">ScanState *</a></span>
+
 
 
         </li>
@@ -794,9 +857,11 @@ by default this scanner ignores space.</p>
             <span class="types"><a class="type" href="../modules/scan.html#ScanState">ScanState *</a></span>
 
 
+
         </li>
         <li><span class="parameter">type</span>
             <span class="types"><span class="type">ScanTokenType</span></span>
+
 
 
         </li>
@@ -806,6 +871,7 @@ by default this scanner ignores space.</p>
     <ol>
 
            <span class="types"><span class="type">bool</span></span>
+
 
 
     </ol>
@@ -828,9 +894,11 @@ by default this scanner ignores space.</p>
             <span class="types"><a class="type" href="../modules/scan.html#ScanState">ScanState *</a></span>
 
 
+
         </li>
         <li><span class="parameter">val</span>
             <span class="types"><span class="type">double *</span></span>
+
 
 
         </li>
@@ -840,6 +908,7 @@ by default this scanner ignores space.</p>
     <ol>
 
            <span class="types"><span class="type">bool</span></span>
+
 
 
     </ol>
@@ -862,14 +931,17 @@ by default this scanner ignores space.</p>
             <span class="types"><a class="type" href="../modules/scan.html#ScanState">ScanState *</a></span>
 
 
+
         </li>
         <li><span class="parameter">buff</span>
             <span class="types"><span class="type">char *</span></span>
 
 
+
         </li>
         <li><span class="parameter">len</span>
             <span class="types"><span class="type">int</span></span>
+
 
 
         </li>
@@ -879,6 +951,7 @@ by default this scanner ignores space.</p>
     <ol>
 
            <span class="types"><span class="type">char *</span></span>
+
 
 
     </ol>
@@ -901,9 +974,11 @@ by default this scanner ignores space.</p>
             <span class="types"><a class="type" href="../modules/scan.html#ScanState">ScanState *</a></span>
 
 
+
         </li>
         <li><span class="parameter">type</span>
             <span class="types"><span class="type">ScanTokenType</span></span>
+
 
 
         </li>
@@ -911,9 +986,11 @@ by default this scanner ignores space.</p>
             <span class="types"><span class="type">char *</span></span>
 
 
+
         </li>
         <li><span class="parameter">sz</span>
             <span class="types"><span class="type">int</span></span>
+
 
 
         </li>
@@ -923,6 +1000,7 @@ by default this scanner ignores space.</p>
     <ol>
 
            <span class="types"><span class="type">bool</span></span>
+
 
 
     </ol>
@@ -950,6 +1028,7 @@ by default this scanner ignores space.</p>
             <span class="types"><a class="type" href="../modules/scan.html#ScanState">ScanState *</a></span>
 
 
+
         </li>
     </ul>
 
@@ -957,6 +1036,7 @@ by default this scanner ignores space.</p>
     <ol>
 
            <span class="types"><span class="type">ScanTokenType</span></span>
+
 
 
     </ol>
@@ -969,6 +1049,137 @@ by default this scanner ignores space.</p>
     <h2><a name="Getting"></a>Getting</h2>
 
     <dl class="function">
+    <dt>
+    <a name = "scan_get_tok"></a>
+    <strong>scan_get_tok (ts, tok, len)</strong>
+    </dt>
+    <dd>
+    copy the current token to a buff.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ts</span>
+            <span class="types"><a class="type" href="../modules/scan.html#ScanState">ScanState *</a></span>
+
+
+
+        </li>
+        <li><span class="parameter">tok</span>
+            <span class="types"><span class="type">char *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">len</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">char *</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "scan_get_str"></a>
+    <strong>scan_get_str (ts)</strong>
+    </dt>
+    <dd>
+    get current token as string.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ts</span>
+            <span class="types"><a class="type" href="../modules/scan.html#ScanState">ScanState *</a></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">char *</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "scan_scanf"></a>
+    <strong>scan_scanf (ts, fmt, ...)</strong>
+    </dt>
+    <dd>
+
+<p>Formatted reading from the scanner, like <code>scanf</code>.
+ Flags start with '%', and '%%' encodes a literal '%'.</p>
+
+<ul>
+    <li><code>v</code> value</li>
+    <li><code>s</code> identifier</li>
+    <li><code>l</code> rest of line</li>
+    <li><code>q</code> quoted string</li>
+    <li><code>i</code> int</li>
+    <li><code>f</code> double</li>
+    <li><code>c</code> char</li>
+    <li><code>.</code> don't care!</li>
+</ul>
+
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ts</span>
+            <span class="types"><a class="type" href="../modules/scan.html#ScanState">ScanState *</a></span>
+
+
+
+        </li>
+        <li><span class="parameter">fmt</span>
+            <span class="types"><span class="type">const char *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">...</span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">bool</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
     <dt>
     <a name = "scan_get_line"></a>
     <strong>scan_get_line (ts, buff, len)</strong>
@@ -984,14 +1195,17 @@ by default this scanner ignores space.</p>
             <span class="types"><a class="type" href="../modules/scan.html#ScanState">ScanState *</a></span>
 
 
+
         </li>
         <li><span class="parameter">buff</span>
             <span class="types"><span class="type">char *</span></span>
 
 
+
         </li>
         <li><span class="parameter">len</span>
             <span class="types"><span class="type">int</span></span>
+
 
 
         </li>
@@ -1001,6 +1215,7 @@ by default this scanner ignores space.</p>
     <ol>
 
            <span class="types"><span class="type">char *</span></span>
+
 
 
     </ol>
@@ -1024,6 +1239,7 @@ by default this scanner ignores space.</p>
             <span class="types"><a class="type" href="../modules/scan.html#ScanState">ScanState *</a></span>
 
 
+
         </li>
     </ul>
 
@@ -1031,6 +1247,7 @@ by default this scanner ignores space.</p>
     <ol>
 
            <span class="types"><span class="type">const char *</span></span>
+
 
 
     </ol>
@@ -1053,6 +1270,7 @@ by default this scanner ignores space.</p>
             <span class="types"><a class="type" href="../modules/scan.html#ScanState">ScanState *</a></span>
 
 
+
         </li>
     </ul>
 
@@ -1060,6 +1278,7 @@ by default this scanner ignores space.</p>
     <ol>
 
            <span class="types"><span class="type">double</span></span>
+
 
 
     </ol>
@@ -1074,7 +1293,8 @@ by default this scanner ignores space.</p>
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.2</a></i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
+<i style="float:right;">Last updated 2014-11-01 16:41:56 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

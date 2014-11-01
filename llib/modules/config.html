@@ -53,11 +53,18 @@
   <li><a href="../modules/table.html">table</a></li>
   <li><strong>config</strong></li>
   <li><a href="../modules/arg.html">arg</a></li>
+  <li><a href="../modules/flot.html">flot</a></li>
+</ul>
+<h2>Topics</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../topics/readme.md.html">readme</a></li>
 </ul>
 <h2>Examples</h2>
 <ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../examples/test-array.c.html">test-array.c</a></li>
   <li><a href="../examples/test-config.c.html">test-config.c</a></li>
   <li><a href="../examples/test-file.c.html">test-file.c</a></li>
+  <li><a href="../examples/test-interface.c.html">test-interface.c</a></li>
   <li><a href="../examples/test-json.c.html">test-json.c</a></li>
   <li><a href="../examples/test-list.c.html">test-list.c</a></li>
   <li><a href="../examples/test-map.c.html">test-map.c</a></li>
@@ -70,6 +77,8 @@
   <li><a href="../examples/test-table.c.html">test-table.c</a></li>
   <li><a href="../examples/test-template.c.html">test-template.c</a></li>
   <li><a href="../examples/test-xml.c.html">test-xml.c</a></li>
+  <li><a href="../examples/testa.c.html">testa.c</a></li>
+  <li><a href="../examples/testing.c.html">testing.c</a></li>
   <li><a href="../examples/cmd.c.html">cmd.c</a></li>
   <li><a href="../examples/testa.c.html">testa.c</a></li>
   <li><a href="../examples/config.c.html">config.c</a></li>
@@ -81,19 +90,20 @@
 <div id="content">
 
 <h1>Module <code>config</code></h1>
-<p><h3>Reading Simple Configuration Files.</h3>
+<p>
+<h3>Reading Simple Configuration Files.</h3>
 </p>
-<p><a href="../modules/config.html#config_read">config_read</a>  will read a configuration file in so-called property format;
-Blank lines and comments beginning with &lsquo;#&rsquo; are ignored; otherwise lines
-are in the form &ldquo;key=value&rdquo;.  It returns the result as a simple map.</p>
+<p><a href="../modules/config.html#config_read">config_read</a> will read a configuration file in so-called property format;
+Blank lines and comments beginning with '#' are ignored; otherwise lines
+are in the form "key=value".  It returns the result as a simple map.</p>
 
 <p>The various <code>config_gets*</code> functions will look up and convert values,
 returning a default if the key is not found.  The <code>_arr</code> variants will
 return an array, where values are delimited by commas; the default is
 the empty array.</p>
 
-<p><a href="../examples/test-config.c.html#">test-config.c</a>  shows the usage; <a href="../examples/config.c.html#">config.c</a>  shows an alternative way
-using the <a href="../modules/arg.html#">arg</a>  module where variables are bound directly to properties.</p>
+<p><a href="../examples/test-config.c.html#">test-config.c</a> shows the usage; <a href="../examples/config.c.html#">config.c</a> shows an alternative way
+using the <a href="../modules/arg.html#">arg</a> module where variables are bound directly to properties.</p>
 
 
 <h2><a href="#Functions">Functions</a></h2>
@@ -112,15 +122,15 @@ using the <a href="../modules/arg.html#">arg</a>  module where variables are bou
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#config_gets_arr">config_gets_arr (m, key)</a></td>
-	<td class="summary">get an array of strings, with default.</td>
+	<td class="summary">get an array of strings.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#config_geti_arr">config_geti_arr (m, key)</a></td>
-	<td class="summary">get an array of ints, with default.</td>
+	<td class="summary">get an array of ints.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#config_getf_arr">config_getf_arr (m, key)</a></td>
-	<td class="summary">get an array of double, with default.</td>
+	<td class="summary">get an array of double.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#config_read">config_read (file)</a></td>
@@ -149,14 +159,17 @@ using the <a href="../modules/arg.html#">arg</a>  module where variables are bou
             <span class="types"><span class="type">SMap</span></span>
 
 
+
         </li>
         <li><span class="parameter">key</span>
             <span class="types"><span class="type">str_t</span></span>
 
 
+
         </li>
         <li><span class="parameter">def</span>
             <span class="types"><span class="type">str_t</span></span>
+
 
 
         </li>
@@ -166,6 +179,7 @@ using the <a href="../modules/arg.html#">arg</a>  module where variables are bou
     <ol>
 
            <span class="types"><span class="type">str_t</span></span>
+
 
 
     </ol>
@@ -188,14 +202,17 @@ using the <a href="../modules/arg.html#">arg</a>  module where variables are bou
             <span class="types"><span class="type">SMap</span></span>
 
 
+
         </li>
         <li><span class="parameter">key</span>
             <span class="types"><span class="type">str_t</span></span>
 
 
+
         </li>
         <li><span class="parameter">def</span>
             <span class="types"><span class="type">int</span></span>
+
 
 
         </li>
@@ -205,6 +222,7 @@ using the <a href="../modules/arg.html#">arg</a>  module where variables are bou
     <ol>
 
            <span class="types"><span class="type">int</span></span>
+
 
 
     </ol>
@@ -227,14 +245,17 @@ using the <a href="../modules/arg.html#">arg</a>  module where variables are bou
             <span class="types"><span class="type">SMap</span></span>
 
 
+
         </li>
         <li><span class="parameter">key</span>
             <span class="types"><span class="type">str_t</span></span>
 
 
+
         </li>
         <li><span class="parameter">def</span>
             <span class="types"><span class="type">double</span></span>
+
 
 
         </li>
@@ -244,6 +265,7 @@ using the <a href="../modules/arg.html#">arg</a>  module where variables are bou
     <ol>
 
            <span class="types"><span class="type">double</span></span>
+
 
 
     </ol>
@@ -257,7 +279,7 @@ using the <a href="../modules/arg.html#">arg</a>  module where variables are bou
     <strong>config_gets_arr (m, key)</strong>
     </dt>
     <dd>
-    get an array of strings, with default.
+    get an array of strings.
 
 
     <h3>Parameters:</h3>
@@ -266,9 +288,11 @@ using the <a href="../modules/arg.html#">arg</a>  module where variables are bou
             <span class="types"><span class="type">SMap</span></span>
 
 
+
         </li>
         <li><span class="parameter">key</span>
             <span class="types"><span class="type">str_t</span></span>
+
 
 
         </li>
@@ -278,6 +302,7 @@ using the <a href="../modules/arg.html#">arg</a>  module where variables are bou
     <ol>
 
            <span class="types"><span class="type">char * *</span></span>
+
 
 
     </ol>
@@ -291,7 +316,7 @@ using the <a href="../modules/arg.html#">arg</a>  module where variables are bou
     <strong>config_geti_arr (m, key)</strong>
     </dt>
     <dd>
-    get an array of ints, with default.
+    get an array of ints.
 
 
     <h3>Parameters:</h3>
@@ -300,9 +325,11 @@ using the <a href="../modules/arg.html#">arg</a>  module where variables are bou
             <span class="types"><span class="type">SMap</span></span>
 
 
+
         </li>
         <li><span class="parameter">key</span>
             <span class="types"><span class="type">str_t</span></span>
+
 
 
         </li>
@@ -312,6 +339,7 @@ using the <a href="../modules/arg.html#">arg</a>  module where variables are bou
     <ol>
 
            <span class="types"><span class="type">int *</span></span>
+
 
 
     </ol>
@@ -325,7 +353,7 @@ using the <a href="../modules/arg.html#">arg</a>  module where variables are bou
     <strong>config_getf_arr (m, key)</strong>
     </dt>
     <dd>
-    get an array of double, with default.
+    get an array of double.
 
 
     <h3>Parameters:</h3>
@@ -334,9 +362,11 @@ using the <a href="../modules/arg.html#">arg</a>  module where variables are bou
             <span class="types"><span class="type">SMap</span></span>
 
 
+
         </li>
         <li><span class="parameter">key</span>
             <span class="types"><span class="type">str_t</span></span>
+
 
 
         </li>
@@ -346,6 +376,7 @@ using the <a href="../modules/arg.html#">arg</a>  module where variables are bou
     <ol>
 
            <span class="types"><span class="type">double *</span></span>
+
 
 
     </ol>
@@ -368,6 +399,7 @@ using the <a href="../modules/arg.html#">arg</a>  module where variables are bou
             <span class="types"><span class="type">str_t</span></span>
 
 
+
         </li>
     </ul>
 
@@ -375,6 +407,7 @@ using the <a href="../modules/arg.html#">arg</a>  module where variables are bou
     <ol>
 
            <span class="types"><span class="type">char * *</span></span>
+
 
 
     </ol>
@@ -389,7 +422,8 @@ using the <a href="../modules/arg.html#">arg</a>  module where variables are bou
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.2</a></i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
+<i style="float:right;">Last updated 2014-11-01 16:41:56 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

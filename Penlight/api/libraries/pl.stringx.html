@@ -1,0 +1,1156 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Penlight Documentation</title>
+    <link rel="stylesheet" href="../ldoc_fixed.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Penlight</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#String_Predicates">String Predicates </a></li>
+<li><a href="#Strings_and_Lists">Strings and Lists </a></li>
+<li><a href="#Finding_and_Replacing">Finding and Replacing </a></li>
+<li><a href="#Stripping_and_Justifying">Stripping and Justifying </a></li>
+<li><a href="#Partioning_Strings">Partioning Strings </a></li>
+<li><a href="#Miscelaneous">Miscelaneous </a></li>
+</ul>
+
+
+<h2>Libraries</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../libraries/pl.html">pl</a></li>
+  <li><a href="../libraries/pl.app.html">pl.app</a></li>
+  <li><a href="../libraries/pl.array2d.html">pl.array2d</a></li>
+  <li><a href="../libraries/pl.class.html">pl.class</a></li>
+  <li><a href="../libraries/pl.compat.html">pl.compat</a></li>
+  <li><a href="../libraries/pl.comprehension.html">pl.comprehension</a></li>
+  <li><a href="../libraries/pl.config.html">pl.config</a></li>
+  <li><a href="../libraries/pl.data.html">pl.data</a></li>
+  <li><a href="../libraries/pl.dir.html">pl.dir</a></li>
+  <li><a href="../libraries/pl.file.html">pl.file</a></li>
+  <li><a href="../libraries/pl.func.html">pl.func</a></li>
+  <li><a href="../libraries/pl.import_into.html">pl.import_into</a></li>
+  <li><a href="../libraries/pl.input.html">pl.input</a></li>
+  <li><a href="../libraries/pl.lapp.html">pl.lapp</a></li>
+  <li><a href="../libraries/pl.lexer.html">pl.lexer</a></li>
+  <li><a href="../libraries/pl.luabalanced.html">pl.luabalanced</a></li>
+  <li><a href="../libraries/pl.operator.html">pl.operator</a></li>
+  <li><a href="../libraries/pl.path.html">pl.path</a></li>
+  <li><a href="../libraries/pl.permute.html">pl.permute</a></li>
+  <li><a href="../libraries/pl.pretty.html">pl.pretty</a></li>
+  <li><a href="../libraries/pl.seq.html">pl.seq</a></li>
+  <li><a href="../libraries/pl.sip.html">pl.sip</a></li>
+  <li><a href="../libraries/pl.strict.html">pl.strict</a></li>
+  <li><a href="../libraries/pl.stringio.html">pl.stringio</a></li>
+  <li><strong>pl.stringx</strong></li>
+  <li><a href="../libraries/pl.tablex.html">pl.tablex</a></li>
+  <li><a href="../libraries/pl.template.html">pl.template</a></li>
+  <li><a href="../libraries/pl.test.html">pl.test</a></li>
+  <li><a href="../libraries/pl.text.html">pl.text</a></li>
+  <li><a href="../libraries/pl.types.html">pl.types</a></li>
+  <li><a href="../libraries/pl.url.html">pl.url</a></li>
+  <li><a href="../libraries/pl.utils.html">pl.utils</a></li>
+  <li><a href="../libraries/pl.xml.html">pl.xml</a></li>
+</ul>
+<h2>Classes</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../classes/pl.Date.html">pl.Date</a></li>
+  <li><a href="../classes/pl.List.html">pl.List</a></li>
+  <li><a href="../classes/pl.Map.html">pl.Map</a></li>
+  <li><a href="../classes/pl.MultiMap.html">pl.MultiMap</a></li>
+  <li><a href="../classes/pl.OrderedMap.html">pl.OrderedMap</a></li>
+  <li><a href="../classes/pl.Set.html">pl.Set</a></li>
+</ul>
+<h2>Manual</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../manual/01-introduction.md.html">Introduction</a></li>
+  <li><a href="../manual/02-arrays.md.html">Tables and Arrays</a></li>
+  <li><a href="../manual/03-strings.md.html">Strings. Higher-level operations on strings.</a></li>
+  <li><a href="../manual/04-paths.md.html">Paths and Directories</a></li>
+  <li><a href="../manual/05-dates.md.html">Date and Time</a></li>
+  <li><a href="../manual/06-data.md.html">Data</a></li>
+  <li><a href="../manual/07-functional.md.html">Functional Programming</a></li>
+  <li><a href="../manual/08-additional.md.html">Additional Libraries</a></li>
+  <li><a href="../manual/09-discussion.md.html">Technical Choices</a></li>
+</ul>
+<h2>Examples</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../examples/seesubst.lua.html">seesubst.lua</a></li>
+  <li><a href="../examples/sipscan.lua.html">sipscan.lua</a></li>
+  <li><a href="../examples/symbols.lua.html">symbols.lua</a></li>
+  <li><a href="../examples/test-cmp.lua.html">test-cmp.lua</a></li>
+  <li><a href="../examples/test-data.lua.html">test-data.lua</a></li>
+  <li><a href="../examples/test-listcallbacks.lua.html">test-listcallbacks.lua</a></li>
+  <li><a href="../examples/test-pretty.lua.html">test-pretty.lua</a></li>
+  <li><a href="../examples/test-symbols.lua.html">test-symbols.lua</a></li>
+  <li><a href="../examples/testapp.lua.html">testapp.lua</a></li>
+  <li><a href="../examples/testclone.lua.html">testclone.lua</a></li>
+  <li><a href="../examples/testconfig.lua.html">testconfig.lua</a></li>
+  <li><a href="../examples/testglobal.lua.html">testglobal.lua</a></li>
+  <li><a href="../examples/testinputfields.lua.html">testinputfields.lua</a></li>
+  <li><a href="../examples/testinputfields2.lua.html">testinputfields2.lua</a></li>
+  <li><a href="../examples/testxml.lua.html">testxml.lua</a></li>
+  <li><a href="../examples/which.lua.html">which.lua</a></li>
+</ul>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>pl.stringx</code></h1>
+<p>Python-style extended string library.</p>
+<p> see 3.6.1 of the Python reference.
+ If you want to make these available as string methods, then say
+ <code>stringx.import()</code> to bring them into the standard <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a> table.</p>
+
+<p> See <a href="../manual/03-strings.md.html#">the Guide</a></p>
+
+<p> Dependencies: <a href="../libraries/pl.utils.html#">pl.utils</a></p>
+
+
+<h2><a href="#String_Predicates">String Predicates </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#isalpha">isalpha (s)</a></td>
+	<td class="summary">does s only contain alphabetic characters?.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#isdigit">isdigit (s)</a></td>
+	<td class="summary">does s only contain digits?.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#isalnum">isalnum (s)</a></td>
+	<td class="summary">does s only contain alphanumeric characters?.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#isspace">isspace (s)</a></td>
+	<td class="summary">does s only contain spaces?.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#islower">islower (s)</a></td>
+	<td class="summary">does s only contain lower case characters?.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#isupper">isupper (s)</a></td>
+	<td class="summary">does s only contain upper case characters?.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#startswith">startswith (self, s2)</a></td>
+	<td class="summary">does string start with the substring?.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#endswith">endswith (s, send)</a></td>
+	<td class="summary">does string end with the given substring?.</td>
+	</tr>
+</table>
+<h2><a href="#Strings_and_Lists">Strings and Lists </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#join">join (self, seq)</a></td>
+	<td class="summary">concatenate the strings using this string as a delimiter.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#splitlines">splitlines (self, keepends)</a></td>
+	<td class="summary">break string into a list of lines</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#split">split (self[, re], n)</a></td>
+	<td class="summary">split a string into a list of strings using a delimiter.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#expandtabs">expandtabs (self, n)</a></td>
+	<td class="summary">replace all tabs in s with n spaces.</td>
+	</tr>
+</table>
+<h2><a href="#Finding_and_Replacing">Finding and Replacing </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#lfind">lfind (self, sub, i1)</a></td>
+	<td class="summary">find index of first instance of sub in s from the left.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#rfind">rfind (self, sub, first, last)</a></td>
+	<td class="summary">find index of first instance of sub in s from the right.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#replace">replace (s, old, new[, n])</a></td>
+	<td class="summary">replace up to n instances of old by new in the string s.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#count">count (self, sub)</a></td>
+	<td class="summary">count all instances of substring in string.</td>
+	</tr>
+</table>
+<h2><a href="#Stripping_and_Justifying">Stripping and Justifying </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#ljust">ljust (self, w[, ch=''])</a></td>
+	<td class="summary">left-justify s with width w.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#rjust">rjust (s, w[, ch=''])</a></td>
+	<td class="summary">right-justify s with width w.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#center">center (s, w[, ch=''])</a></td>
+	<td class="summary">center-justify s with width w.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#lstrip">lstrip (self[, chrs='%x'])</a></td>
+	<td class="summary">trim any whitespace on the left of s.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#rstrip">rstrip (s[, chrs='%x'])</a></td>
+	<td class="summary">trim any whitespace on the right of s.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#strip">strip (self[, chrs='%x'])</a></td>
+	<td class="summary">trim any whitespace on both left and right of s.</td>
+	</tr>
+</table>
+<h2><a href="#Partioning_Strings">Partioning Strings </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#splitv">splitv (self[, re='%s'])</a></td>
+	<td class="summary">split a string using a pattern.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#partition">partition (self, ch)</a></td>
+	<td class="summary">partition the string using first occurance of a delimiter</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#rpartition">rpartition (self, ch)</a></td>
+	<td class="summary">partition the string p using last occurance of a delimiter</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#at">at (self, idx)</a></td>
+	<td class="summary">return the &lsquo;character&rsquo; at the index.</td>
+	</tr>
+</table>
+<h2><a href="#Miscelaneous">Miscelaneous </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#lines">lines (self)</a></td>
+	<td class="summary">return an interator over all lines in a string</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#title">title (self)</a></td>
+	<td class="summary">iniital word letters uppercase (&lsquo;title case&rsquo;).</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#shorten">shorten (self, sz, tail)</a></td>
+	<td class="summary">return a shorted version of a string.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2><a name="String_Predicates"></a>String Predicates </h2>
+
+
+
+    <dl class="function">
+    <dt>
+    <a name = "isalpha"></a>
+    <strong>isalpha (s)</strong>
+    <a style="float:right;" href="../source/stringx.lua.html#46">line 46</a>
+    </dt>
+    <dd>
+    does s only contain alphabetic characters?.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">s</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         a string
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "isdigit"></a>
+    <strong>isdigit (s)</strong>
+    <a style="float:right;" href="../source/stringx.lua.html#53">line 53</a>
+    </dt>
+    <dd>
+    does s only contain digits?.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">s</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         a string
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "isalnum"></a>
+    <strong>isalnum (s)</strong>
+    <a style="float:right;" href="../source/stringx.lua.html#60">line 60</a>
+    </dt>
+    <dd>
+    does s only contain alphanumeric characters?.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">s</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         a string
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "isspace"></a>
+    <strong>isspace (s)</strong>
+    <a style="float:right;" href="../source/stringx.lua.html#67">line 67</a>
+    </dt>
+    <dd>
+    does s only contain spaces?.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">s</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         a string
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "islower"></a>
+    <strong>islower (s)</strong>
+    <a style="float:right;" href="../source/stringx.lua.html#74">line 74</a>
+    </dt>
+    <dd>
+    does s only contain lower case characters?.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">s</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         a string
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "isupper"></a>
+    <strong>isupper (s)</strong>
+    <a style="float:right;" href="../source/stringx.lua.html#81">line 81</a>
+    </dt>
+    <dd>
+    does s only contain upper case characters?.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">s</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         a string
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "startswith"></a>
+    <strong>startswith (self, s2)</strong>
+    <a style="float:right;" href="../source/stringx.lua.html#89">line 89</a>
+    </dt>
+    <dd>
+    does string start with the substring?.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">self</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         the string
+        </li>
+        <li><span class="parameter">s2</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         a string
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "endswith"></a>
+    <strong>endswith (s, send)</strong>
+    <a style="float:right;" href="../source/stringx.lua.html#112">line 112</a>
+    </dt>
+    <dd>
+    does string end with the given substring?.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">s</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         a string
+        </li>
+        <li><span class="parameter">send</span>
+         a substring or a table of suffixes
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+    <h2><a name="Strings_and_Lists"></a>Strings and Lists </h2>
+
+
+
+    <dl class="function">
+    <dt>
+    <a name = "join"></a>
+    <strong>join (self, seq)</strong>
+    <a style="float:right;" href="../source/stringx.lua.html#134">line 134</a>
+    </dt>
+    <dd>
+    concatenate the strings using this string as a delimiter.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">self</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         the string
+        </li>
+        <li><span class="parameter">seq</span>
+         a table of strings or numbers
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">(<span class="string">' '</span>):join {<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>} == <span class="string">'1 2 3'</span></pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "splitlines"></a>
+    <strong>splitlines (self, keepends)</strong>
+    <a style="float:right;" href="../source/stringx.lua.html#142">line 142</a>
+    </dt>
+    <dd>
+    break string into a list of lines
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">self</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         the string
+        </li>
+        <li><span class="parameter">keepends</span>
+         (currently not used)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "split"></a>
+    <strong>split (self[, re], n)</strong>
+    <a style="float:right;" href="../source/stringx.lua.html#158">line 158</a>
+    </dt>
+    <dd>
+    split a string into a list of strings using a delimiter.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">self</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         the string
+        </li>
+        <li><span class="parameter">re</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         a delimiter (defaults to whitespace)
+         (<em>optional</em>)
+        </li>
+        <li><span class="parameter">n</span>
+            <span class="types"><span class="type">int</span></span>
+         maximum number of results
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <li><pre class="example">#((<span class="string">'one two'</span>):split()) == <span class="number">2</span></pre></li>
+        <li><pre class="example">(<span class="string">'one,two,three'</span>):split(<span class="string">','</span>) == List{<span class="string">'one'</span>,<span class="string">'two'</span>,<span class="string">'three'</span>}</pre></li>
+        <li><pre class="example">(<span class="string">'one,two,three'</span>):split(<span class="string">','</span>,<span class="number">2</span>) == List{<span class="string">'one'</span>,<span class="string">'two,three'</span>}</pre></li>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "expandtabs"></a>
+    <strong>expandtabs (self, n)</strong>
+    <a style="float:right;" href="../source/stringx.lua.html#183">line 183</a>
+    </dt>
+    <dd>
+    replace all tabs in s with n spaces.  If not specified, n defaults to 8.
+ with 0.9.5 this now correctly expands to the next tab stop (if you really
+ want to just replace tabs, use :gsub(&lsquo;\t&rsquo;,&lsquo;  &rsquo;) etc)
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">self</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         the string
+        </li>
+        <li><span class="parameter">n</span>
+            <span class="types"><span class="type">int</span></span>
+         number of spaces to expand each tab, (default 8)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+    <h2><a name="Finding_and_Replacing"></a>Finding and Replacing </h2>
+
+
+
+    <dl class="function">
+    <dt>
+    <a name = "lfind"></a>
+    <strong>lfind (self, sub, i1)</strong>
+    <a style="float:right;" href="../source/stringx.lua.html#202">line 202</a>
+    </dt>
+    <dd>
+    find index of first instance of sub in s from the left.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">self</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         the string
+        </li>
+        <li><span class="parameter">sub</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         substring
+        </li>
+        <li><span class="parameter">i1</span>
+            <span class="types"><span class="type">int</span></span>
+         start index
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "rfind"></a>
+    <strong>rfind (self, sub, first, last)</strong>
+    <a style="float:right;" href="../source/stringx.lua.html#214">line 214</a>
+    </dt>
+    <dd>
+    find index of first instance of sub in s from the right.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">self</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         the string
+        </li>
+        <li><span class="parameter">sub</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         substring
+        </li>
+        <li><span class="parameter">first</span>
+            <span class="types"><span class="type">int</span></span>
+         first index
+        </li>
+        <li><span class="parameter">last</span>
+            <span class="types"><span class="type">int</span></span>
+         last index
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "replace"></a>
+    <strong>replace (s, old, new[, n])</strong>
+    <a style="float:right;" href="../source/stringx.lua.html#229">line 229</a>
+    </dt>
+    <dd>
+    replace up to n instances of old by new in the string s.
+ if n is not present, replace all instances.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">s</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         the string
+        </li>
+        <li><span class="parameter">old</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         the target substring
+        </li>
+        <li><span class="parameter">new</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         the substitution
+        </li>
+        <li><span class="parameter">n</span>
+            <span class="types"><span class="type">int</span></span>
+         optional maximum number of substitutions
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+        result string</li>
+        <li>
+        the number of substitutions</li>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "count"></a>
+    <strong>count (self, sub)</strong>
+    <a style="float:right;" href="../source/stringx.lua.html#242">line 242</a>
+    </dt>
+    <dd>
+    count all instances of substring in string.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">self</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         the string
+        </li>
+        <li><span class="parameter">sub</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         substring
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+    <h2><a name="Stripping_and_Justifying"></a>Stripping and Justifying </h2>
+
+
+
+    <dl class="function">
+    <dt>
+    <a name = "ljust"></a>
+    <strong>ljust (self, w[, ch=''])</strong>
+    <a style="float:right;" href="../source/stringx.lua.html#278">line 278</a>
+    </dt>
+    <dd>
+    left-justify s with width w.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">self</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         the string
+        </li>
+        <li><span class="parameter">w</span>
+            <span class="types"><span class="type">int</span></span>
+         width of justification
+        </li>
+        <li><span class="parameter">ch</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         padding character
+         (<em>default</em> '')
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "rjust"></a>
+    <strong>rjust (s, w[, ch=''])</strong>
+    <a style="float:right;" href="../source/stringx.lua.html#288">line 288</a>
+    </dt>
+    <dd>
+    right-justify s with width w.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">s</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         the string
+        </li>
+        <li><span class="parameter">w</span>
+            <span class="types"><span class="type">int</span></span>
+         width of justification
+        </li>
+        <li><span class="parameter">ch</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         padding character
+         (<em>default</em> '')
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "center"></a>
+    <strong>center (s, w[, ch=''])</strong>
+    <a style="float:right;" href="../source/stringx.lua.html#298">line 298</a>
+    </dt>
+    <dd>
+    center-justify s with width w.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">s</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         the string
+        </li>
+        <li><span class="parameter">w</span>
+            <span class="types"><span class="type">int</span></span>
+         width of justification
+        </li>
+        <li><span class="parameter">ch</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         padding character
+         (<em>default</em> '')
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "lstrip"></a>
+    <strong>lstrip (self[, chrs='%x'])</strong>
+    <a style="float:right;" href="../source/stringx.lua.html#329">line 329</a>
+    </dt>
+    <dd>
+    trim any whitespace on the left of s.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">self</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         the string
+        </li>
+        <li><span class="parameter">chrs</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         default any whitespace character,
+  but can be a string of characters to be trimmed
+         (<em>default</em> '%x')
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "rstrip"></a>
+    <strong>rstrip (s[, chrs='%x'])</strong>
+    <a style="float:right;" href="../source/stringx.lua.html#339">line 339</a>
+    </dt>
+    <dd>
+    trim any whitespace on the right of s.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">s</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         the string
+        </li>
+        <li><span class="parameter">chrs</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         default any whitespace character,
+  but can be a string of characters to be trimmed
+         (<em>default</em> '%x')
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "strip"></a>
+    <strong>strip (self[, chrs='%x'])</strong>
+    <a style="float:right;" href="../source/stringx.lua.html#348">line 348</a>
+    </dt>
+    <dd>
+    trim any whitespace on both left and right of s.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">self</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         the string
+        </li>
+        <li><span class="parameter">chrs</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         default any whitespace character,
+  but can be a string of characters to be trimmed
+         (<em>default</em> '%x')
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+    <h2><a name="Partioning_Strings"></a>Partioning Strings </h2>
+
+
+
+    <dl class="function">
+    <dt>
+    <a name = "splitv"></a>
+    <strong>splitv (self[, re='%s'])</strong>
+    <a style="float:right;" href="../source/stringx.lua.html#361">line 361</a>
+    </dt>
+    <dd>
+    split a string using a pattern.  Note that at least one value will be returned!
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">self</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         the string
+        </li>
+        <li><span class="parameter">re</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         a Lua string pattern (defaults to whitespace)
+         (<em>default</em> '%s')
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        the parts of the string
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">a,b = line:splitv(<span class="string">'='</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "partition"></a>
+    <strong>partition (self, ch)</strong>
+    <a style="float:right;" href="../source/stringx.lua.html#384">line 384</a>
+    </dt>
+    <dd>
+    partition the string using first occurance of a delimiter
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">self</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         the string
+        </li>
+        <li><span class="parameter">ch</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         delimiter
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+        part before ch</li>
+        <li>
+        ch</li>
+        <li>
+        part after ch</li>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "rpartition"></a>
+    <strong>rpartition (self, ch)</strong>
+    <a style="float:right;" href="../source/stringx.lua.html#396">line 396</a>
+    </dt>
+    <dd>
+    partition the string p using last occurance of a delimiter
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">self</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         the string
+        </li>
+        <li><span class="parameter">ch</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         delimiter
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+        part before ch</li>
+        <li>
+        ch</li>
+        <li>
+        part after ch</li>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "at"></a>
+    <strong>at (self, idx)</strong>
+    <a style="float:right;" href="../source/stringx.lua.html#406">line 406</a>
+    </dt>
+    <dd>
+    return the &lsquo;character&rsquo; at the index.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">self</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         the string
+        </li>
+        <li><span class="parameter">idx</span>
+            <span class="types"><span class="type">int</span></span>
+         an index (can be negative)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        a substring of length 1 if successful, empty string otherwise.
+    </ol>
+
+
+
+
+</dd>
+</dl>
+    <h2><a name="Miscelaneous"></a>Miscelaneous </h2>
+
+
+
+    <dl class="function">
+    <dt>
+    <a name = "lines"></a>
+    <strong>lines (self)</strong>
+    <a style="float:right;" href="../source/stringx.lua.html#418">line 418</a>
+    </dt>
+    <dd>
+    return an interator over all lines in a string
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">self</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         the string
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        an iterator
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "title"></a>
+    <strong>title (self)</strong>
+    <a style="float:right;" href="../source/stringx.lua.html#429">line 429</a>
+    </dt>
+    <dd>
+    iniital word letters uppercase (&lsquo;title case&rsquo;).
+ Here &lsquo;words&rsquo; mean chunks of non-space characters.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">self</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         the string
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        a string with each word&rsquo;s first letter uppercase
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "shorten"></a>
+    <strong>shorten (self, sz, tail)</strong>
+    <a style="float:right;" href="../source/stringx.lua.html#444">line 444</a>
+    </dt>
+    <dd>
+    return a shorted version of a string.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">self</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         the string
+        </li>
+        <li><span class="parameter">sz</span>
+            <span class="types"><span class="type">int</span></span>
+         the maxinum size allowed
+        </li>
+        <li><span class="parameter">tail</span>
+            <span class="types"><span class="type">bool</span></span>
+         true if we want to show the end of the string (head otherwise)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
+<i style="float:right;">Last updated 2014-11-01 18:36:39 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

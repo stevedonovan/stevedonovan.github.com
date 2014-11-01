@@ -1,0 +1,1328 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>llib Documentation</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>llib</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Sequences">Sequences </a></li>
+<li><a href="#Modern_C">Modern C </a></li>
+<li><a href="#Reference_Counting">Reference Counting </a></li>
+<li><a href="#Linked_Lists">Linked Lists </a></li>
+<li><a href="#Maps">Maps </a></li>
+<li><a href="#Interfaces">Interfaces </a></li>
+<li><a href="#Array_Operation_Macros">Array Operation Macros </a></li>
+<li><a href="#Strings">Strings </a></li>
+<li><a href="#String_Templates">String Templates </a></li>
+<li><a href="#Values">Values </a></li>
+<li><a href="#Object_Pools">Object Pools </a></li>
+<li><a href="#File_Operations">File Operations </a></li>
+<li><a href="#XML">XML </a></li>
+<li><a href="#Tabular_Data">Tabular Data </a></li>
+<li><a href="#Command_line_Parsing">Command-line Parsing </a></li>
+<li><a href="#Example__Generating_plots_with_Flot">Example: Generating plots with Flot </a></li>
+</ul>
+
+
+<h2>Topics</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><strong>readme</strong></li>
+</ul>
+<h2>Modules</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../modules/obj.html">obj</a></li>
+  <li><a href="../modules/str.html">str</a></li>
+  <li><a href="../modules/scan.html">scan</a></li>
+  <li><a href="../modules/template.html">template</a></li>
+  <li><a href="../modules/list.html">list</a></li>
+  <li><a href="../modules/map.html">map</a></li>
+  <li><a href="../modules/file.html">file</a></li>
+  <li><a href="../modules/value.html">value</a></li>
+  <li><a href="../modules/json.html">json</a></li>
+  <li><a href="../modules/xml.html">xml</a></li>
+  <li><a href="../modules/farr.html">farr</a></li>
+  <li><a href="../modules/array.html">array</a></li>
+  <li><a href="../modules/table.html">table</a></li>
+  <li><a href="../modules/config.html">config</a></li>
+  <li><a href="../modules/arg.html">arg</a></li>
+  <li><a href="../modules/flot.html">flot</a></li>
+</ul>
+<h2>Examples</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../examples/test-array.c.html">test-array.c</a></li>
+  <li><a href="../examples/test-config.c.html">test-config.c</a></li>
+  <li><a href="../examples/test-file.c.html">test-file.c</a></li>
+  <li><a href="../examples/test-interface.c.html">test-interface.c</a></li>
+  <li><a href="../examples/test-json.c.html">test-json.c</a></li>
+  <li><a href="../examples/test-list.c.html">test-list.c</a></li>
+  <li><a href="../examples/test-map.c.html">test-map.c</a></li>
+  <li><a href="../examples/test-obj.c.html">test-obj.c</a></li>
+  <li><a href="../examples/test-pool.c.html">test-pool.c</a></li>
+  <li><a href="../examples/test-scan.c.html">test-scan.c</a></li>
+  <li><a href="../examples/test-seq.c.html">test-seq.c</a></li>
+  <li><a href="../examples/test-sqlite3-table.c.html">test-sqlite3-table.c</a></li>
+  <li><a href="../examples/test-str.c.html">test-str.c</a></li>
+  <li><a href="../examples/test-table.c.html">test-table.c</a></li>
+  <li><a href="../examples/test-template.c.html">test-template.c</a></li>
+  <li><a href="../examples/test-xml.c.html">test-xml.c</a></li>
+  <li><a href="../examples/testa.c.html">testa.c</a></li>
+  <li><a href="../examples/testing.c.html">testing.c</a></li>
+  <li><a href="../examples/cmd.c.html">cmd.c</a></li>
+  <li><a href="../examples/testa.c.html">testa.c</a></li>
+  <li><a href="../examples/config.c.html">config.c</a></li>
+  <li><a href="../examples/words.c.html">words.c</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+
+<h1>llib - a Compact C Utilities Library</h1>
+
+<p><a name="Modern_C"></a></p>
+<h2>Modern C</h2>
+
+<p>Since we are now in the 21st century, llib uses C99, but is compatible with
+MSVC when compiled as C++.  This leads to some 'unnecessary' casting to keep
+C++ happy, but working in the intersection between C99 and MSVC C++ makes this
+library very portable.  The features it depends on are the freedom to declare variables in
+for-loops and variadic preprocessor macros.</p>
+
+<p>It has been tested on Windows 7 64-bit (mingw and MSVC), and both Linux 32-bit and
+64-bit.</p>
+
+<p>There are a number of kitchen-sink extended C libraries like glibc and the
+Apache Portable Runtime but these are big and awkward to use on all platforms.
+llib aims to be small as possible and intended for <em>static</em> linking with your
+application (the BSD licensing should help with this).</p>
+
+<p>llib provides a refcounting mechanism, extended string functions, dynamically-resizable arrays,
+doubly-linked lists and maps using binary trees. The aim of this first release is
+not to produce the most efficient code possible but to explore the API and validate
+the refcounting semantics.</p>
+
+<p>Using this basic mechanism will cost your program less than 10Kb; a Linux executable
+using features from the whole library is less than 40Kb.</p>
+
+<p>A note on style: although C has been heavily influenced by C++ over the years,
+it remains C. So judicious use of statement macros like <a href="../modules/obj.html#FOR">FOR</a> is fine, if they
+are suitably hygenic:</p>
+
+
+<pre>
+#define FOR(i,n) for (int i = 0, n_ = (n); i &lt; n_; i++)
+</pre>
+
+
+<p><a name="Reference_Counting"></a></p>
+<h2>Reference Counting</h2>
+
+<p>llib provides refcounted arrays, which contain their own size. You do not ever use
+<code>free</code> on objects created by llib, and instead use <a href="../modules/obj.html#obj_unref">obj_unref</a>.</p>
+
+
+<pre>
+#include &lt;stdio.h&gt;
+#include &lt;llib/obj.h&gt;
+
+<span class="keyword">int</span> main()
+{
+    <span class="keyword">int</span> *ai = array_new(<span class="keyword">int</span>,<span class="number">10</span>);
+    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>, n = array_len(ai); i &lt; n; ++i)
+        ai[i] = <span class="number">10.0</span>*i;
+    ...
+    obj_unref(ai);
+    <span class="keyword">return</span> <span class="number">0</span>;
+}
+</pre>
+
+<p>C does not have smart pointers, but dumb pointers with hidden secrets. All objects
+are over-allocated, with a hidden header behind the pointer. This keeps track of its
+size if it is an array, and there is a type descriptor indexing a type object
+which contains a 'destructor' for the object. Objects start out with a reference
+count of 1, and the macro <a href="../modules/obj.html#obj_ref">obj_ref</a> increments this count; if un-referenced and the
+count is zero, then we call the destructor and free the memory.</p>
+
+
+
+<pre>
+<span class="keyword">typedef</span> <span class="keyword">struct</span> ObjHeader_ {
+    <span class="keyword">unsigned</span> <span class="keyword">int</span> <span class="global">type</span>:<span class="number">14</span>;
+    <span class="keyword">unsigned</span> <span class="keyword">int</span> is_array:<span class="number">1</span>;
+    <span class="keyword">unsigned</span> <span class="keyword">int</span> is_ref_container:<span class="number">1</span>;
+    <span class="keyword">unsigned</span> <span class="keyword">int</span> _ref:<span class="number">16</span>;
+    <span class="keyword">unsigned</span> <span class="keyword">int</span> _len:<span class="number">32</span>;
+} ObjHeader;
+</pre>
+
+
+<p>This allows for objects to safely <em>share</em> other objects without having to fully
+take ownership.  Reference counting cuts down on the amount of 'defensive copying'
+needed in typical code.</p>
+
+<p>Unless you specifically define <code>LLIB_NO_REF_ABBREV</code>, the basic operations are aliased as
+<code>ref</code> and <code>unref</code>; there is also an alias <code>dispose</code> for <a href="../modules/obj.html#obj_unref_v">obj_unref_v</a> which
+un-references multiple objects.</p>
+
+<p>It is straightforward to create new objects which fit with llib's object scheme:</p>
+
+
+<pre>
+<span class="keyword">typedef</span> <span class="keyword">struct</span> {
+    <span class="keyword">int</span> *ages;
+} Bonzo;
+
+<span class="keyword">static</span> <span class="keyword">void</span> Bonzo_dispose(Bonzo *self) {
+    printf(<span class="string">"disposing Bonzo\n"</span>);
+    unref(self-&gt;ages);
+}
+
+Bonzo *Bonzo_new(<span class="keyword">int</span> *ages) {
+    Bonzo *self = obj_new(Bonzo,Bonzo_dispose);
+    self-&gt;ages = ref(ages);
+    <span class="keyword">return</span> self;
+}
+
+<span class="keyword">void</span> test_bonzo() {
+    <span class="keyword">int</span> AGES[] = {<span class="number">45</span>,<span class="number">42</span>,<span class="number">30</span>,<span class="number">16</span>,<span class="number">17</span>};
+    <span class="keyword">int</span> *ages = array_new(<span class="keyword">int</span>,<span class="number">5</span>);
+
+    FOR(i,<span class="number">5</span>) ages[i] = AGES[i];  <span class="comment">//??
+</span>
+    Bonzo *b = Bonzo_new(ages);
+
+    unref(ages);
+
+    printf(<span class="string">"%d %d\n"</span>,b-&gt;ages[<span class="number">0</span>],b-&gt;ages[<span class="number">1</span>]);
+
+    unref(b);
+}
+</pre>
+
+
+<p>There is nothing special about such structures; when creating them with the macro
+<a href="../modules/obj.html#obj_new">obj_new</a> you can provide a dispose function. In this case, <code>Bonzo</code> objects
+reference the array of ages, and they un-reference this array when they are finally
+disposed.  The test function releases the array <code>ages</code>, and thereafter the only
+reference to <code>ages</code> is kept within the struct.</p>
+
+<p>Arrays can be <em>reference containers</em> which hold refcounted objects:</p>
+
+
+<pre>
+    Bonzo *dogs = array_new_ref(Bonzo,<span class="number">3</span>);
+    <span class="comment">// see? They all happily share the same ages array!
+</span>    dogs[<span class="number">0</span>] = Bonzo_new(ages);
+    dogs[<span class="number">1</span>] = Bonzo_new(ages);
+    dogs[<span class="number">2</span>] = Bonzo_new(ages);
+    ...
+    <span class="comment">// this un-references the Bonzo objects
+</span>    <span class="comment">// only then the array will die
+</span>    unref(dogs);
+</pre>
+
+
+<p><a name="Sequences"></a></p>
+<h2>Sequences</h2>
+
+<p>llib provides resizable arrays, called 'seqs'.</p>
+
+
+<pre>
+<span class="keyword">float</span> **s = seq_new(<span class="keyword">float</span>);
+seq_add(s,<span class="number">1.2</span>);
+seq_add(s,<span class="number">5.2</span>);
+....
+<span class="keyword">float</span> *arr = ref(*s);
+unref(s);
+
+<span class="comment">// array still lives!
+</span>FOR(i,array_len(arr)) printf(<span class="string">"%f "</span>,arr[i]);
+printf(<span class="string">"\n"</span>);
+
+<span class="comment">// alternative macro
+</span><span class="comment">// FOR_ARR(float,pf,arr) printf("%f ",*pf);
+</span>
+</pre>
+
+
+<p>You treat seqs like a pointer to an array, and use <a href="../modules/obj.html#seq_add">seq_add</a> to ensure that the
+array is resized when needed.  <code>*s</code> is <em>always</em> a valid llib array, and in particular
+<a href="../modules/obj.html#array_len">array_len</a> returns the correct size.</p>
+
+<p>A seq keeps a reference to this array, and to get a reference to the array you
+can just say <code>ref(*s)</code> and then it's fine to dispose of the seq itself. The function
+<a href="../modules/obj.html#seq_array_ref">seq_array_ref</a> combines these two operations of sharing the array and disposing
+the seq, plus resizing to fit.</p>
+
+<p>These can also explicitly be <em>reference containers</em> which derereference their objects
+afterwards if you create them using <a href="../modules/obj.html#seq_new_ref">seq_new_ref</a>.</p>
+
+<p><a name="Linked_Lists"></a></p>
+<h2>Linked Lists</h2>
+
+<p>A doubly-linked list is a very useful data structure which offers fast insertion at
+arbitrary posiitions.  It is sufficiently simple that it is continuously
+reinvented, which is one of the endemic C diseases.</p>
+
+
+<pre>
+    List *l = list_new_str();
+    list_add (l,<span class="string">"two"</span>);
+    list_add (l,<span class="string">"three"</span>);
+    list_insert_front(l,<span class="string">"one"</span>);
+    printf(<span class="string">"size %d 2nd is '%s'\n"</span>,list_size(l),list_get(l,<span class="number">1</span>));
+    FOR_LIST(pli, l)
+        printf(<span class="string">"'%s' "</span>,pli-&gt;data);
+    printf(<span class="string">"\n"</span>);
+    unref(l);
+    printf(<span class="string">"remaining %d\n"</span>,obj_kount());
+    <span class="keyword">return</span> <span class="number">0</span>;
+<span class="comment">//    size 3 2nd is 'two'
+</span><span class="comment">//    'one' 'two' 'three'
+</span><span class="comment">//    remaining 0
+</span>
+</pre>
+
+
+<p>A list of strings is a ref container, but with the added thing that if we try to add
+a string which is not <em>one of ours</em> then a proper refcounted copy is made. So it is
+safe to add strings from any source, such as a local buffer on the heap. These are all
+properly disposed of with the list.</p>
+
+<p>Generally, containers in C are annoying, because of the need for typecasts. (Already
+with <code>-Wall</code> GCC is giving us some warnings about those <code>printf</code> flags.)  Integer
+types can fit into the pointer payload fine enough, but it isn't possible to
+directly insert floating-point numbers.  List wrappers do a certain amount of pointer
+aliasing magic for us:</p>
+
+
+<pre>
+    <span class="keyword">float</span> ** pw = (<span class="keyword">float</span>**)listw_new();
+    listw_add(pw, <span class="number">10</span>);
+    listw_add(pw, <span class="number">20</span>);
+    listw_add(pw, <span class="number">30</span>);
+    listw_add(pw, <span class="number">40</span>);
+    listw_insert(pw, listw_first(pw), <span class="number">5</span>);
+    printf(<span class="string">"first %f\n"</span>,listw_get(pw,<span class="number">0</span>));
+    FOR_LISTW(p, pw)
+        printf(<span class="string">"%f\n"</span>,**pw);
+</pre>
+
+
+<p>They are declared as if they were seqs (pointers to arrays) and there's a way
+to iterate over typed values.</p>
+
+<p>Generally I've found that sequences are easier to use (and much more efficient to
+iterate over) unless there are many insertions in the middle.</p>
+
+<p><a name="Maps"></a></p>
+<h2>Maps</h2>
+
+<p>Maps may have two kinds of keys; integer/pointer, and strings. Like string lists,
+the latter own their key strings and they will be safely disposed of later. They
+may contain integer/pointer values, or string values. The difference again is
+with the special semantics needed to own arbitrary strings.</p>
+
+<p>Typecasting is again irritating, so there are macros <a href="../modules/map.html#map_puti">map_puti</a> etc for the
+common integer-valued case:</p>
+
+
+<pre>
+    Map *m = map_new_str_ptr();
+    map_puti(m,<span class="string">"hello"</span>,<span class="number">23</span>);
+    map_puti(m,<span class="string">"alice"</span>,<span class="number">10</span>);
+    map_puti(m,<span class="string">"frodo"</span>,<span class="number">2353</span>);
+
+    printf(<span class="string">"lookup %d\n"</span>,map_geti(m,<span class="string">"alice"</span>));
+
+    map_remove(m,<span class="string">"alice"</span>);
+    FOR_MAP(mi,m)
+        printf(<span class="string">"key %s value %d\n"</span>,mi-&gt;key,mi-&gt;value);
+    unref(m);
+</pre>
+
+
+<p>The implementation in llib is a binary tree - not in general the best, but it works
+reliably and has defined iteration order.</p>
+
+<p>Maps can be initialized from arrays of <code>MapkeyValue</code> structs. Afterwards, such an
+array can be generated using <a href="../modules/map.html#map_to_array">map_to_array</a>:</p>
+
+
+<pre>
+    MapKeyValue mk[] = {
+        {<span class="string">"alpha"</span>,<span class="string">"A"</span>},
+        {<span class="string">"beta"</span>,<span class="string">"B"</span>},
+        {<span class="string">"gamma"</span>,<span class="string">"C"</span>},
+        {NULL,NULL}
+    };
+    Map *m = map_new_str_str();
+    map_put_keyvalues(m,mk);
+
+    MapKeyValue *pkv = map_to_array(m);
+
+    <span class="keyword">for</span> (MapKeyValue *p = pkv; p-&gt;key; ++p)
+        printf(<span class="string">"%s='%s' "</span>,p-&gt;key,p-&gt;value);
+    printf(<span class="string">"\n"</span>);
+
+    unref(m);
+    unref(pkv);
+</pre>
+
+
+<p>llib also provides 'simple maps' which are arrays of strings where the even elements are
+the keys and the odd elements are the values;  <a href="../modules/str.html#str_lookup">str_lookup</a> will look up these values
+by linear search, which is efficient enough for small arrays. <a href="../modules/str.html#smap_new">smap_new</a> creates a sequence
+so that <a href="../modules/str.html#smap_put">smap_put</a> and <a href="../modules/str.html#smap_get">smap_get</a> do linear lookup; <a href="../modules/str.html#smap_add">smap_add</a> simply adds a pair
+which can be more efficient for bulk operations.</p>
+
+<p><a name="Interfaces"></a></p>
+<h2>Interfaces</h2>
+
+<p>Sometimes we are not interested in the particular implementation, only in the abstract functionality.
+For instance, arrays, lists and maps can all be iterated over, and maps are indexable.  This idea was
+popularized by Java, and the llib concept is similar.  List and Map support the <code>Iterable</code>
+interface:</p>
+
+
+<pre>
+    #include &lt;llib/interface.h"
+    ...
+    List *ls = list_new_str();
+    list_add(ls, <span class="string">"ein"</span>);
+    list_add(ls, <span class="string">"zwei"</span>);
+    list_add(ls, <span class="string">"drei"</span>);
+    Iterator *it = interface_get_iterator(ls);
+    <span class="keyword">char</span> *s;
+    <span class="keyword">while</span> (it-&gt;<span class="global">next</span>(it,&amp;s)) {
+        printf(<span class="string">"got '%s'\n"</span>,s);
+    }
+    unref(it);
+</pre>
+
+
+<p>There is an optional function <code>nextpair</code> in the <code>Iterator</code> struct,  which grabs key/value
+pairs:</p>
+
+
+<pre>
+    Map *m = map_new_str_str();
+    map_put(m,<span class="string">"one"</span>,<span class="string">"1"</span>);
+    map_put(m,<span class="string">"two"</span>,<span class="string">"2"</span>);
+    map_put(m,<span class="string">"three"</span>,<span class="string">"3"</span>);
+    Iterator *it = interface_get_iterator(m);
+    <span class="keyword">char</span> *key, *val;
+    <span class="keyword">while</span> (it-&gt;nextpair(it,&amp;key,&amp;val)) {
+        printf(<span class="string">"'%s': '%s'\n"</span>,key,val);
+    }
+</pre>
+
+
+<p><code>next</code> is also defined for Map - it returns the keys - but a non-NULL <code>nextpair</code> means we have
+an associative array.</p>
+
+<p>Naturally C does not provide us with any special syntactical sugar, especially to create 'objects'
+that implement interfaces.  Here is a simple example - how to create a <code>Stringer</code> interface.
+It always provides <code>tostring</code>, but may also provide <code>parse</code>.</p>
+
+
+<pre>
+<span class="keyword">typedef</span> <span class="keyword">struct</span> {
+    <span class="keyword">char</span>* (*<span class="global">tostring</span>) (<span class="keyword">void</span> *o);
+    <span class="keyword">void</span>* (*parse) (<span class="keyword">const</span> <span class="keyword">char</span> *s); <span class="comment">// optional
+</span>} Stringer;
+
+....
+
+    <span class="comment">// register the interface type
+</span>    obj_new_type(Stringer,NULL);
+
+
+<span class="comment">// implement tostring for Lists
+</span><span class="keyword">static</span> <span class="keyword">char</span>* list_tostring(<span class="keyword">void</span> *o) {
+    <span class="keyword">return</span> str_fmt(<span class="string">"List[%d]"</span>,list_size((List*)o));
+}
+
+<span class="keyword">static</span> Stringer s_list = {
+    list_tostring,
+    NULL  <span class="comment">// we can choose not to implement parse
+</span>};
+
+....
+
+    <span class="comment">// List implements Stringer
+</span>    interface_add(interface_typeof(Stringer), interface_typeof(List), &amp;s_list);
+</pre>
+
+
+<p>Here is how 'simple maps' implement <code>Iterable</code>:</p>
+
+
+<pre>
+<span class="keyword">typedef</span> <span class="keyword">struct</span> ArrayIter_ ArrayIter;
+
+<span class="keyword">struct</span> ArrayIter_ {
+    <span class="comment">// Iterable
+</span>    <span class="keyword">bool</span> (*<span class="global">next</span>)(ArrayIter *ai, <span class="keyword">void</span> *pval);
+    <span class="keyword">bool</span> (*nextpair)(ArrayIter *iter, <span class="keyword">void</span> *pkey, <span class="keyword">void</span> *pval);
+    <span class="keyword">int</span> len;
+    <span class="comment">// private implementation
+</span>    <span class="keyword">int</span> n;
+    <span class="keyword">void</span> **P;
+};
+
+<span class="comment">// over key/value values of simple maps
+</span><span class="keyword">static</span> <span class="keyword">bool</span> smap_nextpair(ArrayIterator *ai, <span class="keyword">void</span> *pkey, <span class="keyword">void</span> *pval) {
+    <span class="keyword">if</span> (ai-&gt;n == <span class="number">0</span>)
+        <span class="keyword">return</span> <span class="keyword">false</span>;
+    ai-&gt;n -= <span class="number">2</span>;
+    *((<span class="keyword">void</span>**)pkey) = *(ai-&gt;P)++;
+    *((<span class="keyword">void</span>**)pval) = *(ai-&gt;P)++;
+    <span class="keyword">return</span> <span class="keyword">true</span>;
+}
+
+<span class="comment">// over keys of simple maps
+</span><span class="keyword">static</span> <span class="keyword">bool</span> smap_next(ArrayIter *ai, <span class="keyword">void</span> *pval) {
+    <span class="keyword">void</span> *val;
+    <span class="keyword">return</span> smap_nextpair(ai,pval,&amp;val);
+}
+
+<span class="keyword">static</span> Iterator* smap_init (<span class="keyword">const</span> <span class="keyword">void</span> *o) {
+    ArrayIter *ai = obj_new(ArrayIter,NULL);
+    ai-&gt;n = array_len(o);
+    ai-&gt;P = o;
+    ai-&gt;<span class="global">next</span> = smap_next;
+    ai-&gt;nextpair = smap_nextpair;
+    ai-&gt;len = array_len(o)/<span class="number">2</span>;
+    <span class="keyword">return</span> (Iterator*)ai;
+}
+
+<span class="keyword">static</span> Iterable smap_i = {
+    smap_init
+};
+
+...
+    t_iterable = obj_new_type(Iterable,NULL);
+    interface_add(t_iterable,OBJ_KEYVALUE_T,&amp;smap_i);
+</pre>
+
+
+<p>Although the original concept only applies to functions (methods), these interfaces are defined
+by structs that may contain arbitrary data, perhaps without any functions. You can think of
+them as a general mechanism for attaching extra information to a type, which is indexed
+by the type of that information.</p>
+
+<p><a name="Array_Operation_Macros"></a></p>
+<h2>Array Operation Macros</h2>
+
+<p>C is not good at expressing generic algorithms, so we have to use the preprocessor.
+By inlining the expression we side-step the lack of anonymous functions in C
+Consider the <a href="../modules/array.html#FINDA">FINDA</a> macro;
+it declares an index and sets it to the next array position that matches the expression.
+A placeholder variable <code>_</code>   is set in turn to each value from the array.
+The array must be 'one of ours' - that is, <code>array_len(a)</code> is meaningful. <br/>
+(<a href="../modules/array.html#FINDZ">FINDZ</a> is a similar animal which iterates until the end of a NULL-terminated array.)</p>
+
+
+<pre>
+    #include &lt;llib/array.h&gt;
+    ....
+    <span class="keyword">int</span> nums[] = {-<span class="number">1</span>,-<span class="number">2</span>,<span class="number">2</span>,-<span class="number">1</span>,<span class="number">4</span>,<span class="number">3</span>};
+    <span class="keyword">int</span> *arr = array_new_init(<span class="keyword">int</span>,nums);
+
+    <span class="keyword">int</span> k = <span class="number">0</span>;
+    <span class="keyword">while</span> (<span class="keyword">true</span>) {
+        FINDA(i,arr,k, _ &gt; <span class="number">0</span>);
+        <span class="keyword">if</span> (i == -<span class="number">1</span>)
+            <span class="keyword">break</span>;
+        printf(<span class="string">"non-zero at %d is %d\n"</span>,i,arr[i]);
+        k = i + <span class="number">1</span>;
+    }
+</pre>
+
+
+<p> <a href="../modules/array.html#MAPA">MAPA</a> likewise declares a new variable, which is a new array created by applying an expression
+to elements of a source array.  The <a href="../modules/array.html#MAPAR">MAPAR</a> variant is similar but forces the result to be
+a reference container:</p>
+
+
+<pre>
+    <span class="keyword">char</span>** ss = str_strings(<span class="string">"one"</span>,<span class="string">"two"</span>,<span class="string">"three"</span>,NULL);
+    MAPA(<span class="keyword">int</span>,ssl,strlen(_),ss);
+    <span class="global">assert</span>(ssl[<span class="number">0</span>] == <span class="number">3</span>);
+    <span class="global">assert</span>(ssl[<span class="number">1</span>] == <span class="number">3</span>);
+    <span class="global">assert</span>(ssl[<span class="number">2</span>] == <span class="number">5</span>);
+
+    <span class="keyword">int</span> nn[] = {<span class="number">1</span>,<span class="number">2</span>,<span class="number">22</span>,<span class="number">1</span>,<span class="number">40</span>,<span class="number">3</span>};
+    <span class="keyword">int</span> *na = array_new_init(<span class="keyword">int</span>,nn);
+
+    MAPAR(<span class="keyword">char</span>*,sna,str_fmt(<span class="string">"%02d"</span>,_),na);
+
+    <span class="global">assert</span>(str_eq(str_concat(sna,<span class="string">" "</span>),<span class="string">"01 02 22 01 40 03"</span>));
+</pre>
+
+
+<p>In <a href="../modules/array.html#FILTA">FILTA</a> the expression determines whether the value will be collected in the output array.
+So given the array <code>na</code> above, then <code>FILTA(int,nas,na, _ &lt; 10)</code> results in <code>nas == {1,2,1,3}</code>.</p>
+
+<p>In C99 mode these macros use <code>__typeof</code> which is a GNU extension supported by Clang and Intel,
+and in C++11 mode uses <code>decltype</code>.  </p>
+
+<p><a name="Strings"></a></p>
+<h2>Strings</h2>
+
+<p>Strings are the usual nul-terminated char arrays, but llib refcounted strings are arrays and so
+already know their size through <a href="../modules/obj.html#array_len">array_len</a> (which will be faster than <code>strlen</code> for long strings.)
+It's generally hard to know portably if an arbitrary pointer is heap-allocated, so there's
+<a href="../modules/obj.html#str_ref">str_ref</a> which does the 'one of mine?' check and makes a refcounted copy if not, otherwise acts
+just like <a href="../modules/obj.html#obj_ref">obj_ref</a>.</p>
+
+<p><a href="../modules/str.html#str_fmt">str_fmt</a> is a convenient and safe way to do <code>sprintf</code>, and will return a refcounted string.</p>
+
+<p>String support in C is famously minimalistic, so llib adds some extensions. <a href="../modules/str.html#str_split">str_split</a> uses a
+delimiter to split a string into an array using delimiter chars. The array is a ref container so the
+strings will be disposed with it:</p>
+
+
+<pre>
+    Str* words = str_split(<span class="string">"alpha, beta, gamma"</span>,<span class="string">", "</span>);
+    <span class="global">assert</span>(array_len(words) == <span class="number">3</span>);
+    <span class="global">assert</span>(str_eq(words[<span class="number">0</span>],<span class="string">"alpha"</span>));
+    <span class="global">assert</span>(str_eq(words[<span class="number">1</span>],<span class="string">"beta"</span>));
+    <span class="global">assert</span>(str_eq(words[<span class="number">2</span>],<span class="string">"gamma"</span>));
+    unref(words);
+</pre>
+
+
+<p>Building up strings is a common need, and llib provides two ways to do it.  If you already have
+an array of strings then feed it to <a href="../modules/str.html#str_concat">str_concat</a> with a delimiter - it is the inverse operation
+to <a href="../modules/str.html#str_split">str_split</a>. If the string is built up in an ad-hoc fashion then use the <code>strbuf_*</code> functions.
+A <code>string buffer</code> is basically a sequence, so that <a href="../modules/str.html#strbuf_add">strbuf_add</a> is exactly the same as <a href="../modules/obj.html#seq_add">seq_add</a>
+for character arrays.  <a href="../modules/str.html#strbuf_adds">strbuf_adds</a> appends a string, and <a href="../modules/str.html#strbuf_addf">strbuf_addf</a> is equivalent to
+<code>strbuf_adds(ss,str_fmt(fmt,...))</code>.</p>
+
+<p>They are used for operations which modify strings, like inserting, removing and replacing, and
+resemble the similar methods of C++'s <code>std::string</code>.</p>
+
+<p>Then there are operations on strings which don't modify them:</p>
+
+
+<pre>
+    <span class="keyword">const</span> <span class="keyword">char</span> *S = <span class="string">"hello dolly"</span>;
+    <span class="keyword">int</span> p = str_findstr(S,<span class="string">"doll"</span>);
+    <span class="global">assert</span>(p == <span class="number">6</span>);
+    p = str_findch(S,'d');
+    <span class="global">assert</span>(p == <span class="number">6</span>);
+    p = str_find_first_of(<span class="string">"hello dolly"</span>,<span class="string">" "</span>);
+    <span class="global">assert</span>(p == <span class="number">5</span>);
+    <span class="global">assert</span>(str_starts_with(S,<span class="string">"hell"</span>));
+    <span class="global">assert</span>(str_ends_with(S,<span class="string">"dolly"</span>));
+</pre>
+
+
+<p>They're simple wrappers over the old <code>strchr</code>, <code>strstr</code> etc functions that return offsets
+rather than pointers. This is a more appropriate style for refcounted strings where you
+want to only use the allocated 'root' pointer.</p>
+
+<p><a name="String_Templates"></a></p>
+<h2>String Templates</h2>
+
+<p>These are strings where occurences of a <code>$(var)</code> pattern are expanded.  Sometimes called
+'string interpolation', it's a good way to generate large documents like HTML output and does not
+suffer from the format string size limitations of the <code>printf</code> family.
+You make a template object from a template string, and expand a template using that
+object plus a function to map string keys to values, and a 'map' object.
+The default form assumes that the object is just a NULL-terminated array of strings listing the keys
+and values, and plain linear lookup.</p>
+
+
+<pre>
+    <span class="keyword">const</span> <span class="keyword">char</span> *tpl = <span class="string">"Hello $(name), how is $(home)?"</span>;
+    <span class="keyword">char</span> *tbl1[] = {<span class="string">"name"</span>,<span class="string">"Dolly"</span>,<span class="string">"home"</span>,<span class="string">"here"</span>,NULL};
+    StrTempl st = str_templ_new(tpl,NULL);
+    <span class="keyword">char</span> *S = str_templ_subst(st,tbl1);
+    <span class="global">assert</span>(str_eq(S,<span class="string">"Hello Dolly, how is here?"</span>));
+</pre>
+
+<p>You don't have to use <code>$()</code> as the magic characters, which is the default indicated by <code>NULL</code> in
+<a href="../modules/template.html#str_templ_new">str_templ_new</a>. For instance, if expanding templates containing JavaScript it's better to use <code>@()</code>
+which will not conflict with use of JQuery.</p>
+
+<p>We can easily use a llib map with the more general form:</p>
+
+
+<pre>
+    Map *m = map_new_str_str();
+    map_put(m,<span class="string">"name"</span>,<span class="string">"Monique"</span>);
+    map_put(m,<span class="string">"home"</span>,<span class="string">"Paris"</span>);
+    S = str_templ_subst_using(st, (StrLookup)map_get, m);
+    <span class="global">assert</span>(str_eq(S,<span class="string">"Hello Monique, how is Paris?"</span>));
+</pre>
+
+
+<p>String interpolation is more common in dynamic languages, but perfectly possible to do in less
+flexible static languages like C, as long as there is some mechanism available for string lookup.
+You can even use <code>getenv</code> to expand environment variables, but it does not quite have the
+right signature.  Generally if any lookup fails, the replacement is the empty string.</p>
+
+
+<pre>
+<span class="keyword">static</span> <span class="keyword">char</span> *l_getenv (<span class="keyword">void</span> *data, <span class="keyword">char</span> *key) {
+    <span class="keyword">return</span> getenv(key);
+}
+
+<span class="keyword">void</span> using_environment()
+{
+    StrTempl st = str_templ_new(<span class="string">"hello ???, here is ???"</span>,<span class="string">"???"</span>);
+    <span class="keyword">char</span> *S = str_templ_subst_using(st, (StrLookup)l_getenv, NULL);
+    printf(<span class="string">"got '%s'\n"</span>,S);
+    dispose(st,S);
+}
+</pre>
+
+<p>A powerful feature is the ability to define <em>subtemplates</em>. Say we have the
+following template:</p>
+
+
+<pre>
+&lt;h2&gt;$(title)&lt;/h2&gt;
+&lt;ul&gt;
+$(<span class="keyword">for</span> items |
+&lt;li&gt;&lt;a src=<span class="string">"$(url)"</span>&gt;$(title)&lt;/a&gt;&lt;/li&gt;
+|)
+&lt;/ul&gt;
+</pre>
+
+
+<p>Then <code>items</code> must be something <em>iterable</em> returning something <em>indexable</em>, in other words,
+the object must implement the <code>Iterable</code> interface.  Templates were the original
+motivation for the the interface abstraction; the original implementation was tightly coupled
+to llib <a href="../modules/list.html#List">List</a> and <code>Map</code>.  Now the code is dynamically coupled to any types which implement
+<code>Iterable</code> and <code>Accessor</code> and is smaller and more flexible.</p>
+
+<p>The text inside "|...|" is the subtemplate and any variable expansion inside it will look up names
+in the objects returned by the iteration.  One way to create suitable data would be:</p>
+
+
+<pre>
+<span class="keyword">char</span> ***smap = array_new_ref(<span class="keyword">char</span>**,<span class="number">2</span>);
+smap[<span class="number">0</span>] = str_strings(<span class="string">"title"</span>,<span class="string">"Index"</span>,<span class="string">"url"</span>,<span class="string">"catalog.html"</span>,NULL);
+smap[<span class="number">1</span>] = str_strings(<span class="string">"title"</span>,<span class="string">"home"</span>,<span class="string">"url"</span>,<span class="string">"index.html"</span>,NULL);
+
+<span class="keyword">char</span> *tbl = {
+    <span class="string">"title"</span>, <span class="string">"Pages"</span>,
+    <span class="string">"items"</span>,(<span class="keyword">char</span>*)smap,
+    NULL
+};
+</pre>
+
+<p>Setting up this kind of data is a bit clumsy, but in the next section I'll show some convenient
+macros for building dynamic data structures in code.</p>
+
+<p><a name="Values"></a></p>
+<h2>Values</h2>
+
+<p>llib values have dynamic types since they have their type encoded in their headers.
+A value can be an array of ints, a string, or a map of other values, and so forth, and
+its type and structure can be inspected at run-time.
+To represent numbers we have to introduce wrappers for integer, double and boolean
+types, rather as it is done in Java.  This being C, the programmer has to explicitly box floats
+(for example) using <a href="../modules/value.html#value_float">value_float</a> and so forth, and unbox with <code>value_as_float</code>.</p>
+
+<p>Ref-counted strings are llib values, although string literals need an explicit <a href="../modules/obj.html#str_new">str_new</a>.</p>
+
+<p>The typedef <code>PValue</code> is just <code>void*</code>. There is a special type 'error', so using values is a
+flexible way for a C function to return a sensible error message.</p>
+
+
+<pre>
+PValue v = my_function();
+<span class="keyword">if</span> (value_is_error(v)) {
+    fprintf(stderr,<span class="string">"my_function() is borked: %s\n"</span>,(<span class="keyword">char</span>*)v);
+} <span class="keyword">else</span> { <span class="comment">// we're cool
+</span>    <span class="keyword">double</span> res = value_as_float(v);
+    ...
+}
+</pre>
+
+
+<p>Note that an error value is just a ref-counted string, with a distinct <em>type</em>.  llib types are distinct
+if they have different <em>names</em>, so the trick is to define a standard type slot <code>OBJ_ECHAR_T</code>
+where the type name is "echar_ *" and then make an error like so:</p>
+
+
+<pre>
+PValue value_error (<span class="keyword">const</span> <span class="keyword">char</span> *msg) {
+    PValue v = str_new(msg);
+    obj_set_type(v,OBJ_ECHAR_T);
+    <span class="keyword">return</span> v;
+}
+</pre>
+
+
+<p>(<code>my_function</code> could actually return floats, arrays, ad absurdum and the caller could
+distinguish between these using the <code>value_is_xxx</code> functions.  But this is not a good idea
+in general and causes confusion even with dynamic languages.)</p>
+
+<p>With values, you can have the same kind of dynamic ad-hoc data structures that are common
+in dynamic languages.  For instance, this is a neater way to specify the data for the
+HTML template just discussed:</p>
+
+
+<pre>
+    PValue v = VM(
+        <span class="string">"title"</span>,VS(<span class="string">"Pages"</span>),
+        <span class="string">"items"</span>,VA(
+            VMS(<span class="string">"url"</span>,<span class="string">"index.html"</span>,<span class="string">"title"</span>,<span class="string">"Home"</span>),
+            VMS(<span class="string">"url"</span>,<span class="string">"catalog.html"</span>,<span class="string">"title"</span>,<span class="string">"Links"</span>)
+        )
+    );
+</pre>
+
+
+<p>This uses llib's JSON support, which works very naturally with values. (If you find
+these shorthand macros clobbering your stuff, then define <code>LLIB_NO_VALUE_ABBREV</code>
+before including '<llib/json.h>'. )  JSON itself is a
+great notation to express dynamic data structures (although many people find the
+<em>ad-hoc</em> part less of a solution and more of a problem):</p>
+
+
+<pre>
+    <span class="keyword">const</span> <span class="keyword">char</span> *js = <span class="string">"{'title':'Pages','items':[{'url':'index.html','title':'Home'},"</span>
+        <span class="string">"{'url':'catalog.html','title':'Links'}]}"</span>;
+
+    ....
+    v = json_parse_string(js);
+    S = str_templ_subst_values(st,v);
+</pre>
+
+
+<p>Another useful property of values when used in templates is that they know how
+to turn themselves  into a string.  With plain data, we have to assume that the
+expansions result in a string,
+but if they do result in a value, then <a href="../modules/value.html#value_tostring">value_tostring</a> will be used. (The template function
+<code>$(i var)</code> will explicitly convert integers to strings, but it's hard to work with
+floating-point numbers this way).</p>
+
+<p><a name="Object_Pools"></a></p>
+<h2>Object Pools</h2>
+
+<p>C++ users are fond of RAII - Resource Acquision Is Initialization. The
+language guarantees that destructors of locally scoped objects will be called, however you
+exit from that scope.  So (for instance) a <code>ifstream</code> will be automatically closed when
+no longer needed.</p>
+
+<p>I've tried to escape from the shadow of C++ envy in llib, but this is indeed a convenient pattern.
+All llib objects can have a <em>dispose</em> operation, which will be called when their ref count
+goes to zero.  In C++ terminology, llib objects have virtual destructors.  An alternative way
+to open files is provided:</p>
+
+
+<pre>
+FILE **pf = file_fopen(file,<span class="string">"r"</span>);
+<span class="keyword">if</span> (value_is_error(pf)) {
+    fprintf(stderr,<span class="string">"can't open file %s\n"</span>,value_as_string(pf));
+    <span class="keyword">return</span> <span class="keyword">false</span>;
+}
+<span class="keyword">char</span> *first = file_getline(*pf);
+....
+unref(pf);
+<span class="keyword">return</span> <span class="keyword">true</span>;
+</pre>
+
+
+<p>Here disposing of the file object closes the underlying stream. This by itself is not spectacular.
+If the function has several exit points, then we have to remember to unref the file each time
+(there's already a leaking error object when we can't open the file).  A common
+strategy in C is to <code>goto</code> the end and do all the cleanup there.</p>
+
+<p>GCC provides a useful extension; the <a href="?">cleanup attribute</a>. You provide a function which
+will be <em>automatically</em> called to clean up a variable marked with this attribute.  This
+extension continues to be supported by Clang and Intel, so it's not a bad
+option, if you can live outside the strict C99 standard.  llib hides this as <em>scoped</em>:</p>
+
+
+<pre>
+<span class="keyword">void</span> do_something (<span class="keyword">const</span> <span class="keyword">char</span> *file) {
+    scoped FILE **pf = file_fopen(file,<span class="string">"r"</span>);
+    ....
+    <span class="comment">// magic disposal of pf!
+</span>}
+</pre>
+
+<p>However you leave <code>do_something</code>, the file will be the closed.  The power of the approach
+comes from llib objects all knowing dynamically how to dispose themselves ("virtual destructors")</p>
+
+<p>The cool thing about llib reference counting semantics is that if a container is disposed,
+it will unref all the objects it contains.  Complicated dynamic data structures (read from
+a JSON or XML file, say) can be completely cleaned up, while allowing for sharing.  The key
+point is that every object needs a parent.  Orphan objects are bad news because they will
+never be unref'd.  <em>Object Pools</em> define a default reference container for all objects
+created in their scope.</p>
+
+
+<pre>
+{
+scoped <span class="keyword">void</span> *P_ = obj_pool();
+<span class="comment">// do whatever you like, create orphans;
+</span><span class="comment">// they will all be automatically disposed!
+</span>}
+</pre>
+
+
+<p>It's better to use the macro <code>scoped_pool</code>; it's shorter, and has an alternative C++
+implementation which llib uses to support that old elephant, MVSC.</p>
+
+<p>The main rule is that any object <em>returned</em> from a function must have its reference
+count incremented, so that pool cleanup doesn't dispose that object prematurely.</p>
+
+<p>Object pools can be nested (implemented as a stack of resizable array ref containers).
+There is some overhead involved, but sometimes lazy is the best way;  in my experience
+it can take a fair amount of work to write leak-proof llib code.</p>
+
+<p><a name="File_Operations"></a></p>
+<h2>File Operations</h2>
+
+<p>llib deals with a few irritations about <code>&lt;stdio.h&gt;</code> . For instance <a href="../modules/file.html#file_gets">file_gets</a> is like <code>fgets</code>
+except that it strips off any offending end-of-line characters ("\n" or "\r\n").  With
+<a href="../modules/file.html#file_getline">file_getline</a> you get a refcounted string allocated (up to <code>LINESIZE</code> which is defined as 512
+characters).  <a href="../modules/file.html#file_getlines">file_getlines</a> will return the whole of a stream as an array of strings.  Or you
+can just use <a href="../modules/file.html#file_read_all">file_read_all</a> to grab the contents of a file path.</p>
+
+<p>Calling commands and collecting the result is a common operation, and <a href="../modules/file.html#file_command">file_command</a> will
+grab the first line of output.  Standard error is redirected, so you can check any error messages.
+<a href="../modules/file.html#file_command_lines">file_command_lines</a> gets <em>all</em> of a command's output as an array of strings.</p>
+
+<p>There is <a href="../modules/file.html#file_exists">file_exists</a> (true or false) and the interesting <code>file_exists_any</code>, where the
+<em>first</em> file that's accessible is returned, <code>NULL</code> otherwise.  This compensates for the lack
+of an or-operation which returns non-boolean results, which is so useful in languages
+like Perl and Lua.</p>
+
+<p>There are a set of functions for manipulating file paths, that don't have the gotchas of
+the POSIX functions; they can be split using <a href="../modules/file.html#file_basename">file_basename</a>, <a href="../modules/file.html#file_dirname">file_dirname</a> and
+<a href="../modules/file.html#file_extension">file_extension</a>;  <a href="../modules/file.html#file_replace_extension">file_replace_extension</a> is often useful, and <a href="../modules/file.html#file_expand_user">file_expand_user</a> will
+conviently replace an initial '~' with the user's home directory.  All of these functions
+return properly ref-counted objects.</p>
+
+<p><a name="XML"></a></p>
+<h2>XML</h2>
+
+<p>This is a large and opinionated subject, so let me state that what most people need is
+'pointy-bracket data language' (PBDL) rather than full-blown schemas-and-transforms (XML).
+In particular, it is a common configuration format.  When used in that way, we can simplify life
+by ignoring empty text elements and comments - since it is the structure of the <em>data</em> that
+is important.  If test.xml is:</p>
+
+
+<pre>
+&lt;root&gt;
+    &lt;item name=<span class="string">'age'</span> <span class="global">type</span>=<span class="string">'int'</span>&gt;<span class="number">10</span>&lt;/item&gt;
+    &lt;item name=<span class="string">'name'</span> <span class="global">type</span>=<span class="string">'string'</span>&gt;Bonzo&lt;/item&gt;
+&lt;/root&gt;
+</pre>
+
+
+<p>then <code>xml_parse_file(&quot;test.xml&quot;,true)</code> will return a <code>root</code> element with two <code>item</code> child elements.
+The representation is a little unusual but straightforward; an element is an array of objects,
+with the first item being the tag name, the second (optional) item being an array of atributes
+(so-called 'simple map') and the remainder contains the child nodes - these are either strings or
+elements themselves.  So <code>test.xml</code> is completely equivalent to this data constructor:</p>
+
+
+<pre>
+    v = VAS(<span class="string">"root"</span>,
+        VAS(<span class="string">"item"</span>,VMS(<span class="string">"name"</span>,<span class="string">"age"</span>,<span class="string">"type"</span>,<span class="string">"int"</span>),<span class="string">"10"</span>),
+        VAS(<span class="string">"item"</span>,VMS(<span class="string">"name"</span>,<span class="string">"name"</span>,<span class="string">"type"</span>,<span class="string">"string"</span>),<span class="string">"Bonzo"</span>)
+    );
+</pre>
+
+
+<p>and the output with <a href="../modules/json.html#json_tostring">json_tostring</a> is</p>
+
+
+<pre>
+[<span class="string">"root"</span>,[<span class="string">"item"</span>,{<span class="string">"name"</span>:<span class="string">"age"</span>,<span class="string">"type"</span>:<span class="string">"int"</span>},<span class="string">"10"</span>],[<span class="string">"item"</span>,{<span class="string">"name"</span>:<span class="string">"name"</span>,<span class="string">"type"</span>:<span class="string">"string"</span>},<span class="string">"Bonzo"</span>]]
+</pre>
+
+<p><a name="Tabular_Data"></a></p>
+<h2>Tabular Data</h2>
+
+<p>The <code>table_*</code> functions work with files containing rows of data separated by a delimiter, either
+space or commas.  These files may have a initial header containing field names.  A novel aspect
+of llib table support is that you can ask for <em>columns</em> to be generated and converted.</p>
+
+<p>Assume we have a simple CSV file like so:</p>
+
+
+<pre>
+Name,Age
+Bonzo,<span class="number">12</span>
+Alice,<span class="number">16</span>
+Frodo,<span class="number">46</span>
+Bilbo,<span class="number">144</span>
+.....
+    Table *t = table_new_from_file(<span class="string">"test.csv"</span>, TableCsv | TableColumns | TableAll);
+    <span class="keyword">char</span> **titles = t-&gt;col_names; <span class="comment">// {"Name","Age"}
+</span>    <span class="keyword">char</span> **first = t-&gt;rows[<span class="number">0</span>]; <span class="comment">// {"Bonzo","12"}
+</span>    <span class="keyword">float</span> *ages = (<span class="keyword">float</span>*)t-&gt;cols[<span class="number">1</span>];  <span class="comment">// {12,16,46,144}
+</span>
+</pre>
+
+
+<p>The <code>TableCsv</code> option implies <code>TableComma</code> and <code>TableColumnNames</code> (first line is field names); <code>TableAll</code> means that all of the file is to be read immediately, and <code>TableColumns</code> means that
+columns are to be constructed.</p>
+
+<p>This constructor, and its relative <a href="../modules/table.html#table_new_from_stream">table_new_from_stream</a>, will always return a <code>Table</code> object;
+if the <code>error</code> field is non-NULL, then it describes the error.</p>
+
+<p>By default, if a column appears to be numerical, it is converted to floats.  It's possible to have
+more control over this by explicitly specifying the conversion to be used for each column:</p>
+
+
+<pre>
+    Table *t = table_new_from_file(file, TableCsv | TableAll);
+    <span class="keyword">if</span> (t-&gt;error) {
+        fprintf(stderr,<span class="string">"%s\n"</span>,t-&gt;error);
+        <span class="keyword">return</span> <span class="number">1</span>;
+    }
+    table_convert_cols(t,<span class="number">0</span>,TableString,<span class="number">1</span>,TableInt,-<span class="number">1</span>);
+    table_generate_columns(t);
+    <span class="keyword">int</span> *ages = (<span class="keyword">int</span>*)t-&gt;cols[<span class="number">1</span>]; <span class="comment">// {12,16,46,144}
+</span>
+</pre>
+
+
+<p>When done explicitly, only the columns specified will be constructed.</p>
+
+<p>Normally data is read from a stdio stream, but <a href="../modules/table.html#table_add_row">table_add_row</a> can be used to construct
+a table from other data sources.  This has the correct signature to be used with the Sqlite
+C API's <code>sqlite3_exec</code> function:</p>
+
+
+<pre>
+    <span class="keyword">int</span> err;
+    sqlite3 *conn;
+    <span class="keyword">char</span> *errmsg;
+
+    err = sqlite3_open(<span class="string">"test.sl3"</span>,&amp;conn);
+
+    Table *t = table_new(TableCsv | TableColumns);
+
+    err = sqlite3_exec(conn,<span class="string">"select * from test"</span>,
+        table_add_row,t,&amp;errmsg);
+
+    <span class="keyword">if</span> (err) {
+        printf(<span class="string">"err '%s'\n"</span>,errmsg);
+        <span class="keyword">return</span> <span class="number">1</span>;
+    }
+
+    table_finish_rows(t);
+</pre>
+
+
+
+<p><a name="Command_line_Parsing"></a></p>
+<h2>Command-line Parsing</h2>
+
+<p>There are standard ways of processing command-line arguments in POSIX, but they're fairly
+primitive and not available directly on Windows. The <a href="../modules/arg.html#">arg</a> module gives a higher-level way
+of specifying arguments, which allows you to bind C variables to named flags and arguments.
+Here is a modified head-like utility:</p>
+
+
+<pre>
+<span class="comment">// cmd.c
+</span>#include &lt;stdio.h&gt;
+#include &lt;llib/arg.h&gt;
+
+<span class="keyword">int</span> lines;
+FILE *file;
+<span class="keyword">bool</span> print_lines;
+
+PValue args[] = {
+    <span class="string">"// cmd: show n lines from top of a file"</span>,
+    <span class="string">"int lines=10; // -n number of lines to print"</span>,&amp;lines,
+    <span class="string">"bool verbose=false; // -v controls verbosity"</span>,&amp;verbose,
+    <span class="string">"bool lineno; // -l output line numbers"</span>,&amp;print_lines,
+    <span class="string">"infile #1=stdin; // file to dump"</span>,&amp;file,
+    NULL
+};
+
+<span class="keyword">int</span> main(<span class="keyword">int</span> argc,  <span class="keyword">const</span> <span class="keyword">char</span> **argv)
+{
+    args_command_line(args,argv);
+    <span class="keyword">char</span> buff[<span class="number">512</span>];
+    <span class="keyword">int</span> i = <span class="number">1</span>;
+    <span class="keyword">while</span> (fgets(buff,<span class="keyword">sizeof</span>(buff),file)) {
+        <span class="keyword">if</span> (print_lines)
+            printf(<span class="string">"%03d\t%s"</span>,i,buff);
+        <span class="keyword">else</span>
+            printf(<span class="string">"%s"</span>,buff);
+        <span class="keyword">if</span> (i++ == lines)
+            <span class="keyword">break</span>;
+    }
+    fclose(file);
+    <span class="keyword">return</span> <span class="number">0</span>;
+}
+</pre>
+
+
+<p>Default help output:</p>
+
+<pre><code> cmd: show n lines from top of a file
+ Flags:
+    --help,-h   help on commands and flags
+    --lines,-n (10) number of lines to print
+    --verbose,-v (false)    controls verbosity
+    --lineno,-l (false) output line numbers
+    --#1 (stdin)    file to dump
+</code></pre>
+
+
+<p>This was inspired by the <a href="http://stevedonovan.github.io/Penlight/api/topics/08-additional.md.html#Command_line_Programs_with_Lapp">lapp</a> framework for Lua;
+one specifies the arguments in
+a way that they can be used both for printing out help automatically and with enough
+type information that values can be parsed correctly.  So <code>cmd -l x</code> is an error
+because 'x' is not a valid integer; <code>cmd temp.txt</code> is an error if <code>temp.txt</code> cannot
+be opened for reading.  So we keep the logic of the program as straightforward as
+possible; note how the type and default value is specified using pseudo-C notation
+(the default value for a boolean flag is <code>false</code> but can be set to <code>true</code>.)</p>
+
+<p>Otherwise, the flag parsing is GNU style, with long flags using '--' and short
+aliases with '-'. Short flags can be combined '-abc' and their values can follow
+immediately after '-I/usr/include/lua'. The long flag name comes from the specified
+name, and the short flag is optionally specified after the start of the help comment.
+Names begining with '#' are special and refer to the non-flag arguments of a
+program.</p>
+
+<p>A flag specifier like <code>string include[]</code> binds to an array of strings (<code>char**</code>);
+repeated invocations will add to this array (e.g "-I/mylib -I..").
+ However, if specified like so "int arr[]=,", then the flag takes a single
+argument which is a list of integers separated by ','.  You can use any delimiter, but
+remember that some characters have special meaning in the shell, so '|' and ';' are not a
+good idea.</p>
+
+<p>A default for an array flag cannot be specified; if the flag is not present the variable is
+initialized to a array of zero length. llib arrays know their size, so we don't have
+to track this separately. </p>
+
+<p>The understood types are <code>int</code>, <code>float</code> (means <em>double</em>), <code>string</code> (ref-counted <code>char*</code>),
+<code>bool</code>, <code>infile</code> and <code>outfile</code>.  The last two bind to <code>FILE*</code> and will try to open the file
+for you; their defaults can be <code>stdin</code> and <code>stdout</code> respectively.</p>
+
+<p>Flags can also be implemented by <em>functions</em>, which you can see in action in
+<code>examples/testa.c</code>. <em>Commands</em> are related, where a program exposes its functionality with
+subcommands. for instance 'git status'.  <code>testa</code> shows how a simple but effective
+interactive prompt can be produced by spliting the line and parsing it explicitly.</p>
+
+<p>Since llib is linked statically by default, the resulting programs remain small;
+<code>cmd</code> is only 22Kb on a 32-bit Linux system.</p>
+
+<p><a name="Example__Generating_plots_with_Flot"></a></p>
+<h2>Example: Generating plots with Flot</h2>
+
+<p>Cross-platform graphics capabilities are not easily available to simple C programs.
+The 'old-skool' approach is for your program to write out data in a suitable form
+for GnuPlot, or as CSV to be fed into Excel (on Windows).  But modern browsers
+offer very capable graphics, and <em>client-side</em> libraries like <a href="?">Flot</a> use this to
+produce good-looking plots  - 'client-side' because they take data
+and options in JSON form and render it on the browser.</p>
+
+<p>llib can generate JSON, and it can expand templates - this is all we need to write
+suitable HTML for Flot to render.  By default, I've chosen to let this HTML grab
+the required JavaScript libraries from the Net, although this isn't a big problem in practice since browsers will cache frequently-downloaded scripts. (You can always
+unzip Flot somewhere and arrange for the HTML to point to that location.)</p>
+
+<p>Doing simple plots is straightforward (go to `examples/flot/'):</p>
+
+
+<pre>
+<span class="comment">// flot-norm.c
+</span>#include "flot.c"
+
+<span class="keyword">double</span> sqr(<span class="keyword">double</span> x) { <span class="keyword">return</span> x*x; }
+
+<span class="keyword">double</span> *make_gaussian(<span class="keyword">double</span> m, <span class="keyword">double</span> x, <span class="keyword">double</span> *xv) {
+    <span class="keyword">double</span> s2 = <span class="number">2</span>*sqr(x);
+    <span class="keyword">double</span> norm = <span class="number">1.0</span>/(M_PI*s2);
+    <span class="keyword">int</span> n = array_len(xv);
+    <span class="keyword">double</span> *res = array_new(<span class="keyword">double</span>,n);
+    FOR (i,n) {
+        res[i] = norm*exp(-sqr(xv[i]-m)/s2);
+    }
+    <span class="keyword">return</span> res;
+}
+
+<span class="keyword">int</span> main()
+{
+    Flot *P = flot_new(<span class="string">"caption"</span>, <span class="string">"Gaussians"</span>);
+
+    <span class="keyword">double</span> *xv = farr_range(<span class="number">0</span>,<span class="number">10</span>,<span class="number">0.1</span>);
+
+    flot_series_new(P,xv,make_gaussian(<span class="number">5</span>,<span class="number">1</span>,xv), FlotLines,<span class="string">"label"</span>,<span class="string">"norm s=1"</span>);
+    flot_series_new(P,xv,make_gaussian(<span class="number">4</span>,<span class="number">0.7</span>,xv), FlotLines,<span class="string">"label"</span>,<span class="string">"norm s=0.7"</span>);
+
+    flot_render(<span class="string">"norm"</span>);
+    <span class="keyword">return</span> <span class="number">0</span>;
+
+}
+</pre>
+
+
+<p>Once a <code>Flot</code> object is created, then series can be added; these are fed separate
+X and Y data as llib arrays of double values - these know how large they are, so we
+don't need to pass an explicit size.  <a href="../modules/farr.html#farr_range">farr_range</a> is useful for generating X values
+sampled with a delta.</p>
+
+<p>The result is indeed good-looking (the meaning of 'flot' in Danish) and by default
+a legend is generated.</p>
+
+<p>This Flot API is designed to correspond as closely as possible with the original
+API.  According to <a href="https://github.com/flot/flot/blob/v0.8.2/API.md#customizing-the-data-series">Customizing the Data Series</a>
+the option to fill the area between the line and the axis is <code>series:{lines:{fill:A}}</code>
+where <code>A</code> is the alpha value to apply to the line colour. This can be expressed
+like so:</p>
+
+
+<pre>
+Flot *P = flot_new(<span class="string">"caption"</span>, <span class="string">"Gaussians"</span>,<span class="string">"series.lines.fill"</span>,VF(<span class="number">0.2</span>));
+</pre>
+
+
+<p>That is, the arguments passed to <a href="../modules/flot.html#flot_new">flot_new</a> pass directly into the <code>options</code> of
+the Flot plot object. These options consist of a key followed by its data; the key
+may be dotted to express the nested maps which are natural in JavaScript but
+awkward to express in C. The data needs to be escaped explicitly as a <a href="../modules/value.html#value_float">value_float</a>.</p>
+
+<p>The result is particularly good-looking:</p>
+
+<p><img src="http://stevedonovan.github.io/files/llib-flot.png" alt="llib Flot"/></p>
+
+<p>When using statically-declared data, you must make a llib array - the <a href="../modules/farr.html#farr_copy">farr_copy</a> macro is
+useful here. Note that series also have options; when specifying a fill, note
+that it's just "lines.fill", not "series.lines.fill" used for the plot-wide
+option.</p>
+
+
+<pre>
+    <span class="comment">// apply gradient from top to bottom as background, and move legend
+</span>    Flot *P = flot_new(<span class="string">"caption"</span>, <span class="string">"First Test"</span>,
+        <span class="string">"grid.backgroundColor"</span>,flot_gradient(<span class="string">"#FFF"</span>,<span class="string">"#EEE"</span>),
+        <span class="comment">// 'nw' is short for North West, i.e. top-left
+</span>        <span class="string">"legend.position"</span>,<span class="string">"nw"</span>
+    );
+
+    <span class="comment">// Series data must be llib arrays of doubles
+</span>    <span class="keyword">double</span> X[] = {<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>};
+    <span class="keyword">double</span> Y1[] = {<span class="number">10</span>,<span class="number">15</span>,<span class="number">23</span>,<span class="number">29</span>,<span class="number">31</span>};
+    <span class="keyword">double</span> Y2[] = {<span class="number">9.0</span>,<span class="number">9.0</span>,<span class="number">25.0</span>,<span class="number">28.0</span>,<span class="number">32.0</span>};
+    <span class="keyword">double</span> *xv = farr_copy(X);
+    <span class="keyword">double</span> *yv1 = farr_copy(Y1), *yv2 = farr_copy(Y2);
+
+    <span class="comment">// fill underneath this series
+</span>    flot_series_new(P,xv,yv1, FlotLines,<span class="string">"label"</span>,<span class="string">"cats"</span>,
+        <span class="string">"lines.fill"</span>,VF(<span class="number">0.2</span>)  <span class="comment">// specified as an alpha to be applied to line colour
+</span>    );
+
+    <span class="comment">// override point colour
+</span>    flot_series_new(P,xv,yv2, FlotPoints,<span class="string">"label"</span>,<span class="string">"dogs"</span>,<span class="string">"color"</span>,<span class="string">"#F00"</span>);
+
+    <span class="comment">// will generate test.html
+</span>    flot_render(<span class="string">"test"</span>);
+</pre>
+
+
+<p>Again, you can look at the <a href="https://github.com/flot/flot/blob/v0.8.2/API.md#customizing-the-grid">grid options</a>
+when specifying grid options; same for legend options.</p>
+
+<p>If the Y data is NULL, then it's assumed that the X data array has both x and y
+values, as even and odd entries respectively. This is particularly convenient
+when building up data using sequences and is reminiscent of how you would do
+this in JavaScript using <code>push</code>:</p>
+
+
+<pre>
+    <span class="keyword">double</span> **vsin = seq_new(<span class="keyword">double</span>);
+    <span class="keyword">double</span> **vcos = seq_new(<span class="keyword">double</span>);
+    <span class="keyword">for</span> (<span class="keyword">double</span> x = <span class="number">0</span>; x &lt; <span class="number">2</span>*M_PI; x += <span class="number">0.1</span>)  {
+        seq_add2(vsin,x,sin(x));
+        seq_add2(vcos,x,cos(x));
+    }
+
+    flot_series_new(P,farr_seq(vsin), NULL,FlotLines,<span class="string">"label"</span>,<span class="string">"sine"</span>);
+    flot_series_new(P,farr_seq(vcos), NULL,FlotLines,<span class="string">"label"</span>,<span class="string">"cosine"</span>);
+</pre>
+
+
+<p>To help displaying data from the table module, <a href="../modules/farr.html#farr_sample_float">farr_sample_float</a> and
+<a href="../modules/farr.html#farr_sample_int">farr_sample_int</a> can be used to convert the float and int column arrays
+generated by <a href="../modules/table.html#">table</a>:</p>
+
+
+<pre>
+<span class="keyword">void</span> read_dates_and_values(<span class="keyword">const</span> <span class="keyword">char</span> *file, farr_t *dates, farr_t *values) {
+    Table *t = table_new_from_file(file, TableCsv | TableAll);
+    <span class="keyword">if</span> (t-&gt;error) {
+        fprintf(stderr,<span class="string">"%s %s\n"</span>,file,t-&gt;error);
+        exit(<span class="number">1</span>);
+    }
+    table_convert_cols(t,<span class="number">0</span>,TableInt,<span class="number">1</span>,TableFloat,-<span class="number">1</span>);
+    table_generate_columns(t);
+
+    *dates = farr_sample_int((<span class="keyword">int</span>*)t-&gt;cols[<span class="number">0</span>],<span class="number">0</span>,-<span class="number">1</span>,<span class="number">1</span>);
+    *values = farr_sample_float((<span class="keyword">float</span>*)t-&gt;cols[<span class="number">1</span>],<span class="number">0</span>,-<span class="number">1</span>,<span class="number">1</span>);
+}
+</pre>
+
+
+<p>These helpers create slices-with-steps of arrays (there's also <a href="../modules/farr.html#farr_sample">farr_sample</a> for
+working with <code>double*</code> arrays.) and work like Python slices; -1 means "the last element".</p>
+
+<p>In summary, this example C implementation of a JavaScript API is intended to
+make it easier for C programmers to make decent plots of their data for
+<em>casual</em> consumption. For publication-ready output, you need another solution, but
+this allows you to quickly see what your calculations look like and avoids the tedious
+need for preparing data for another tool. It shows that C is <em>quite</em> capable of operating
+with dynamic data, if certain simple rules are followed.</p>
+
+
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
+<i style="float:right;">Last updated 2014-11-01 16:41:56 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

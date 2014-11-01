@@ -53,11 +53,18 @@
   <li><a href="../modules/table.html">table</a></li>
   <li><a href="../modules/config.html">config</a></li>
   <li><strong>arg</strong></li>
+  <li><a href="../modules/flot.html">flot</a></li>
+</ul>
+<h2>Topics</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../topics/readme.md.html">readme</a></li>
 </ul>
 <h2>Examples</h2>
 <ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../examples/test-array.c.html">test-array.c</a></li>
   <li><a href="../examples/test-config.c.html">test-config.c</a></li>
   <li><a href="../examples/test-file.c.html">test-file.c</a></li>
+  <li><a href="../examples/test-interface.c.html">test-interface.c</a></li>
   <li><a href="../examples/test-json.c.html">test-json.c</a></li>
   <li><a href="../examples/test-list.c.html">test-list.c</a></li>
   <li><a href="../examples/test-map.c.html">test-map.c</a></li>
@@ -70,6 +77,8 @@
   <li><a href="../examples/test-table.c.html">test-table.c</a></li>
   <li><a href="../examples/test-template.c.html">test-template.c</a></li>
   <li><a href="../examples/test-xml.c.html">test-xml.c</a></li>
+  <li><a href="../examples/testa.c.html">testa.c</a></li>
+  <li><a href="../examples/testing.c.html">testing.c</a></li>
   <li><a href="../examples/cmd.c.html">cmd.c</a></li>
   <li><a href="../examples/testa.c.html">testa.c</a></li>
   <li><a href="../examples/config.c.html">config.c</a></li>
@@ -81,16 +90,19 @@
 <div id="content">
 
 <h1>Module <code>arg</code></h1>
-<p><h3>Command-line Argument Parser.</h3>
+<p>
+<h3>Command-line Argument Parser.</h3>
 </p>
-<p>This allows you to bind variables to command-line arguments, providing
-the flag name/type, a shortcut, a pointer to the variable, and some help text.
+<p>This allows you to bind variables to command-line arguments.
 For this we write <em>specifications</em> (which are strings containing pseudo-C declarations
-followed by a comment, which may specify a shortcut).</p>
+followed by a comment, which may specify a shortcut),followed by the address of
+the variable that receives the value.
+The first line may be a comment documenting the program.</p>
 
 <p>The argument parser follows GNU conventions; long flags with double-hyphen,
 which may have short single-letter forms with a single-hyphen. Short flags may
-be combined (&ldquo;-abc&rdquo;) and may be followed immediately by their value (&ldquo;-n10&rdquo;).</p>
+be combined ("-abc") and may be followed immediately by their value ("-n10").</p>
+
 
 <pre>
 #include &lt;stdio.h&gt;
@@ -98,10 +110,12 @@ be combined (&ldquo;-abc&rdquo;) and may be followed immediately by their value 
 
 <span class="keyword">int</span> lines;
 FILE *file;
-<span class="keyword">bool</span> print_lines;
+<span class="keyword">bool</span> verbose, print_lines;
 
 PValue args[] = {
+    <span class="string">"// cmd: show n lines from top of a file"</span>,
     <span class="string">"int lines=10; // -n number of lines to print"</span>,&amp;lines,
+    <span class="string">"bool verbose=false; // -v controls verbosity"</span>,&amp;verbose,
     <span class="string">"bool lineno; // -l output line numbers"</span>,&amp;print_lines,
     <span class="string">"infile #1=stdin; // file to dump"</span>,&amp;file,
     NULL
@@ -109,7 +123,7 @@ PValue args[] = {
 
 <span class="keyword">int</span> main(<span class="keyword">int</span> argc,  <span class="keyword">const</span> <span class="keyword">char</span> **argv)
 {
-    <a href="../modules/arg.html#arg_command_line">arg_command_line</a> (args,argv);
+    <a href="../modules/arg.html#arg_command_line">arg_command_line</a>(args,argv);
     <span class="keyword">char</span> buff[<span class="number">512</span>];
     <span class="keyword">int</span> i = <span class="number">1</span>;
     <span class="keyword">while</span> (fgets(buff,<span class="keyword">sizeof</span>(buff),file)) {
@@ -125,23 +139,40 @@ PValue args[] = {
 }
 </pre>
 
-
 <p>If you now call <code>arg_command_line(args,argv)</code> these variables will be
-bound; note how both type and optional default value are specified. Names like &lsquo;#1&rsquo;
-refer to the first non-flag argument and so forth.  Both &lsquo;&mdash;lines&rsquo; and &lsquo;-n&rsquo; can be
+bound; note how both type and optional default value are specified. Names like '#1'
+refer to the first non-flag argument and so forth.  Both '--lines' and '-n' can be
 used to set the integer variable <code>lines</code>.  If a flag has no default, then it is an error.
 Plain boolean flags have an implicit default of <code>false</code>.</p>
 
+<p>The supported types are <code>int</code>, <code>float</code>, <code>bool</code>, <code>string</code>, <code>infile</code>
+and <code>outfile</code>. <code>float</code> binds a <em>double</em> value, and <code>infile|outfile</code> bind
+to <code>FILE*</code> directly.  An array 'type' (like "string I[]...") binds to an <em>array</em>
+of these values and defines a flag that may be specified more than once,
+for instance "-I/my/path -I/your/path".</p>
+
 <p>Help usage is automatically generated from these specifications.</p>
+
+
+<pre>
+$ cmd --help
+cmd: show n lines from top of a file
+Flags:
+        --help,-h       help on commands and flags
+        --lines,-n (<span class="number">10</span>) number of lines to <span class="global">print</span>
+        --verbose,-v (<span class="keyword">false</span>)    controls verbosity
+        --lineno,-l (<span class="keyword">false</span>)     output line numbers
+        --#1 (stdin)    file to dump
+</pre>
 
 <p>If a conversion is not possible (not a integer, file cannot be opened, etc)
 then the program will exit, showing the help.</p>
 
 <p><a href="../examples/cmd.c.html#">cmd.c</a> is a basic example; <a href="../examples/testa.c.html#">testa.c</a> shows how to
-define flags and commands as functions, as well as defining a simple REPL.</p>
+define flags and commands as <em>functions</em>, as well as defining a simple REPL.</p>
 
-<p><a href="../modules/arg.html#arg_bind_values">arg_bind_values</a>  may be used directly to process an array of name/value
-pairs, for instance in <a href="../examples/config.c.html#">config.c</a> </p>
+<p><a href="../modules/arg.html#arg_bind_values">arg_bind_values</a> may be used directly to process an array of name/value
+pairs, for instance in <a href="../examples/config.c.html#">config.c</a></p>
 
 
 <h2><a href="#Functions">Functions</a></h2>
@@ -198,8 +229,10 @@ pairs, for instance in <a href="../examples/config.c.html#">config.c</a> </p>
             <span class="types"><span class="type">PValue *</span></span>
 
 
+
         </li>
         <li><span class="parameter">...</span>
+
 
 
         </li>
@@ -228,6 +261,7 @@ pairs, for instance in <a href="../examples/config.c.html#">config.c</a> </p>
             <span class="types"><span class="type">PValue *</span></span>
 
 
+
         </li>
     </ul>
 
@@ -235,6 +269,7 @@ pairs, for instance in <a href="../examples/config.c.html#">config.c</a> </p>
     <ol>
 
            <span class="types"><span class="type">ArgState *</span></span>
+
 
 
     </ol>
@@ -257,9 +292,11 @@ pairs, for instance in <a href="../examples/config.c.html#">config.c</a> </p>
             <span class="types"><span class="type">ArgState *</span></span>
 
 
+
         </li>
         <li><span class="parameter">sm</span>
             <span class="types"><span class="type">SMap</span></span>
+
 
 
         </li>
@@ -269,6 +306,7 @@ pairs, for instance in <a href="../examples/config.c.html#">config.c</a> </p>
     <ol>
 
            <span class="types"><span class="type">PValue</span></span>
+
 
 
     </ol>
@@ -291,6 +329,7 @@ pairs, for instance in <a href="../examples/config.c.html#">config.c</a> </p>
             <span class="types"><span class="type">ArgState *</span></span>
 
 
+
         </li>
     </ul>
 
@@ -305,7 +344,7 @@ pairs, for instance in <a href="../examples/config.c.html#">config.c</a> </p>
     </dt>
     <dd>
     parse the given command-line args, given the processed state.
- Call <a href="../modules/arg.html#arg_parse_spec">arg_parse_spec</a>  first to call this directly.
+ Call <a href="../modules/arg.html#arg_parse_spec">arg_parse_spec</a> first to call this directly.
 
 
     <h3>Parameters:</h3>
@@ -314,9 +353,11 @@ pairs, for instance in <a href="../examples/config.c.html#">config.c</a> </p>
             <span class="types"><span class="type">ArgState *</span></span>
 
 
+
         </li>
         <li><span class="parameter">argv</span>
             <span class="types"><span class="type">const char * *</span></span>
+
 
 
         </li>
@@ -326,6 +367,7 @@ pairs, for instance in <a href="../examples/config.c.html#">config.c</a> </p>
     <ol>
 
            <span class="types"><span class="type">PValue</span></span>
+
 
 
     </ol>
@@ -348,14 +390,17 @@ pairs, for instance in <a href="../examples/config.c.html#">config.c</a> </p>
             <span class="types"><span class="type">ArgState *</span></span>
 
 
+
         </li>
         <li><span class="parameter">msg</span>
             <span class="types"><span class="type">str_t</span></span>
 
 
+
         </li>
         <li><span class="parameter">show_help</span>
             <span class="types"><span class="type">bool</span></span>
+
 
 
         </li>
@@ -383,9 +428,11 @@ pairs, for instance in <a href="../examples/config.c.html#">config.c</a> </p>
             <span class="types"><span class="type">void * *</span></span>
 
 
+
         </li>
         <li><span class="parameter">argv</span>
             <span class="types"><span class="type">const char * *</span></span>
+
 
 
         </li>
@@ -395,6 +442,7 @@ pairs, for instance in <a href="../examples/config.c.html#">config.c</a> </p>
     <ol>
 
            <span class="types"><span class="type">ArgState *</span></span>
+
 
 
     </ol>
@@ -409,7 +457,8 @@ pairs, for instance in <a href="../examples/config.c.html#">config.c</a> </p>
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.2</a></i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
+<i style="float:right;">Last updated 2014-11-01 16:41:56 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

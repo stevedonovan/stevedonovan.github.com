@@ -1,0 +1,177 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>llib Documentation</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>llib</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+
+
+<h2>Examples</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../examples/test-array.c.html">test-array.c</a></li>
+  <li><a href="../examples/test-config.c.html">test-config.c</a></li>
+  <li><a href="../examples/test-file.c.html">test-file.c</a></li>
+  <li><strong>test-interface.c</strong></li>
+  <li><a href="../examples/test-json.c.html">test-json.c</a></li>
+  <li><a href="../examples/test-list.c.html">test-list.c</a></li>
+  <li><a href="../examples/test-map.c.html">test-map.c</a></li>
+  <li><a href="../examples/test-obj.c.html">test-obj.c</a></li>
+  <li><a href="../examples/test-pool.c.html">test-pool.c</a></li>
+  <li><a href="../examples/test-scan.c.html">test-scan.c</a></li>
+  <li><a href="../examples/test-seq.c.html">test-seq.c</a></li>
+  <li><a href="../examples/test-sqlite3-table.c.html">test-sqlite3-table.c</a></li>
+  <li><a href="../examples/test-str.c.html">test-str.c</a></li>
+  <li><a href="../examples/test-table.c.html">test-table.c</a></li>
+  <li><a href="../examples/test-template.c.html">test-template.c</a></li>
+  <li><a href="../examples/test-xml.c.html">test-xml.c</a></li>
+  <li><a href="../examples/testa.c.html">testa.c</a></li>
+  <li><a href="../examples/testing.c.html">testing.c</a></li>
+  <li><a href="../examples/cmd.c.html">cmd.c</a></li>
+  <li><a href="../examples/testa.c.html">testa.c</a></li>
+  <li><a href="../examples/config.c.html">config.c</a></li>
+  <li><a href="../examples/words.c.html">words.c</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../modules/obj.html">obj</a></li>
+  <li><a href="../modules/str.html">str</a></li>
+  <li><a href="../modules/scan.html">scan</a></li>
+  <li><a href="../modules/template.html">template</a></li>
+  <li><a href="../modules/list.html">list</a></li>
+  <li><a href="../modules/map.html">map</a></li>
+  <li><a href="../modules/file.html">file</a></li>
+  <li><a href="../modules/value.html">value</a></li>
+  <li><a href="../modules/json.html">json</a></li>
+  <li><a href="../modules/xml.html">xml</a></li>
+  <li><a href="../modules/farr.html">farr</a></li>
+  <li><a href="../modules/array.html">array</a></li>
+  <li><a href="../modules/table.html">table</a></li>
+  <li><a href="../modules/config.html">config</a></li>
+  <li><a href="../modules/arg.html">arg</a></li>
+  <li><a href="../modules/flot.html">flot</a></li>
+</ul>
+<h2>Topics</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../topics/readme.md.html">readme</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+    <h2>test-interface.c</h2>
+<pre>
+#include &lt;stdio.h&gt;
+#include &lt;assert.h&gt;
+#include &lt;llib/str.h&gt;
+#include &lt;llib/json.h&gt;
+#include &lt;llib/list.h&gt;
+#include &lt;llib/map.h&gt;
+#include &lt;llib/interface.h&gt;
+
+<span class="comment">// defining a new interface, Stringer
+</span>
+<span class="keyword">typedef</span> <span class="keyword">struct</span> {
+    <span class="keyword">char</span>* (*<span class="global">tostring</span>) (<span class="keyword">void</span> *o);
+    <span class="keyword">void</span>* (*parse) (<span class="keyword">const</span> <span class="keyword">char</span> *s); <span class="comment">// optional
+</span>} Stringer;
+
+<span class="comment">// implement tostring
+</span><span class="keyword">static</span> <span class="keyword">char</span>* list_tostring(<span class="keyword">void</span> *o) {
+    <span class="keyword">return</span> str_fmt(<span class="string">"List[%d]"</span>,list_size((List*)o));
+}
+
+<span class="keyword">static</span> Stringer s_list = {
+    list_tostring,
+    NULL  <span class="comment">// we can choose not to implement parse
+</span>};
+
+<span class="keyword">void</span> defining_an_interface() {
+    <span class="comment">// register the interface type
+</span>    obj_new_type(Stringer,NULL);
+
+    <span class="comment">// List implements Stringer
+</span>    interface_add(interface_typeof(Stringer), interface_typeof(List), &amp;s_list);
+
+    List *ls = list_new_str();
+    list_add(ls, <span class="string">"ein"</span>);
+    list_add(ls, <span class="string">"zwei"</span>);
+    list_add(ls, <span class="string">"drei"</span>);
+
+    <span class="comment">// call the interface 'methods'
+</span>    Stringer* s = interface_get_by_name(Stringer,ls);
+    <span class="global">assert</span>(str_eq(s-&gt;<span class="global">tostring</span>(ls),<span class="string">"List[3]"</span>));
+}
+
+<span class="keyword">int</span> main()
+{
+    <span class="keyword">char</span>** ss = str_strings(<span class="string">"one"</span>,<span class="string">"two"</span>,<span class="string">"three"</span>,NULL);
+    Iterator* it = interface_get_iterator(ss);
+    <span class="keyword">char</span>* s, *t;
+    <span class="keyword">while</span> (it-&gt;<span class="global">next</span>(it,&amp;s)) {
+        printf(<span class="string">"got '%s'\n"</span>,s);
+    }
+    <span class="keyword">void</span> *smap = VMS(<span class="string">"one"</span>,<span class="string">"1"</span>,<span class="string">"two"</span>,<span class="string">"2"</span>,<span class="string">"three"</span>,<span class="string">"3"</span>);
+    it = interface_get_iterator(smap);
+    <span class="keyword">while</span> (it-&gt;nextpair(it,&amp;s,&amp;t)) {
+        printf(<span class="string">"'%s': '%s'\n"</span>,s,t);
+    }
+    ObjLookup L = interface_get_lookup(smap);
+    printf(<span class="string">"lookup '%s'\n"</span>,(<span class="keyword">char</span>*)L(smap,<span class="string">"two"</span>));
+    List *ls = list_new_str();
+    list_add(ls, <span class="string">"ein"</span>);
+    list_add(ls, <span class="string">"zwei"</span>);
+    list_add(ls, <span class="string">"drei"</span>);
+    it = interface_get_iterator(ls);
+    <span class="keyword">while</span> (it-&gt;<span class="global">next</span>(it,&amp;s)) {
+        printf(<span class="string">"got '%s'\n"</span>,s);
+    }
+    Map *m = map_new_str_str();
+    map_put(m,<span class="string">"one"</span>,<span class="string">"1"</span>);
+    map_put(m,<span class="string">"two"</span>,<span class="string">"2"</span>);
+    map_put(m,<span class="string">"three"</span>,<span class="string">"3"</span>);
+    it = interface_get_iterator(m);
+    <span class="keyword">while</span> (it-&gt;nextpair(it,&amp;s,&amp;t)) {
+        printf(<span class="string">"'%s': '%s'\n"</span>,s,t);
+    }
+
+    defining_an_interface();
+    <span class="keyword">return</span> <span class="number">0</span>;
+}</pre>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
+<i style="float:right;">Last updated 2014-11-01 16:41:56 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

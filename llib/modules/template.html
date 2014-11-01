@@ -53,11 +53,18 @@
   <li><a href="../modules/table.html">table</a></li>
   <li><a href="../modules/config.html">config</a></li>
   <li><a href="../modules/arg.html">arg</a></li>
+  <li><a href="../modules/flot.html">flot</a></li>
+</ul>
+<h2>Topics</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../topics/readme.md.html">readme</a></li>
 </ul>
 <h2>Examples</h2>
 <ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../examples/test-array.c.html">test-array.c</a></li>
   <li><a href="../examples/test-config.c.html">test-config.c</a></li>
   <li><a href="../examples/test-file.c.html">test-file.c</a></li>
+  <li><a href="../examples/test-interface.c.html">test-interface.c</a></li>
   <li><a href="../examples/test-json.c.html">test-json.c</a></li>
   <li><a href="../examples/test-list.c.html">test-list.c</a></li>
   <li><a href="../examples/test-map.c.html">test-map.c</a></li>
@@ -70,6 +77,8 @@
   <li><a href="../examples/test-table.c.html">test-table.c</a></li>
   <li><a href="../examples/test-template.c.html">test-template.c</a></li>
   <li><a href="../examples/test-xml.c.html">test-xml.c</a></li>
+  <li><a href="../examples/testa.c.html">testa.c</a></li>
+  <li><a href="../examples/testing.c.html">testing.c</a></li>
   <li><a href="../examples/cmd.c.html">cmd.c</a></li>
   <li><a href="../examples/testa.c.html">testa.c</a></li>
   <li><a href="../examples/config.c.html">config.c</a></li>
@@ -81,43 +90,58 @@
 <div id="content">
 
 <h1>Module <code>template</code></h1>
-<p><h3>String Templates.</h3>
+<p>
+<h3>String Templates.</h3>
 </p>
 <p>In their simplest form they allow substitution of placeholders like
 <code>$(var)</code> with the value of <code>var</code> determined by a lookup, which is
-defined as a function plus an object. The placeholders can be changed
-if the default clashes with the target language syntax.</p>
+defined as a function plus an object.</p>
+
 
 <pre>
-StrTempl st = <a href="../modules/template.html#str_templ_new">str_templ_new</a> (<span class="string">"Hello $(P)$(name), how is $(home)?"</span>,NULL);
-<span class="comment">// using an array of key/value pairs...(uses <a href="../modules/str.html#str_lookup">str_lookup</a> )
+StrTempl *st = <a href="../modules/template.html#str_templ_new">str_templ_new</a>(<span class="string">"Hello $(P)$(name), how is $(home)?"</span>,NULL);
+<span class="comment">// using an array of key/value pairs...(uses <a href="../modules/str.html#str_lookup">str_lookup</a>)
 </span><span class="keyword">char</span> *tbl1[] = {<span class="string">"name"</span>,<span class="string">"Dolly"</span>,<span class="string">"home"</span>,<span class="string">"here"</span>,<span class="string">"P"</span>,<span class="string">"X"</span>,NULL};
-<span class="keyword">char</span> *S = <a href="../modules/template.html#str_templ_subst">str_templ_subst</a> (st,tbl1);
-<span class="global">assert</span>(<a href="../modules/str.html#str_eq">str_eq</a> (S,<span class="string">"Hello XDolly, how is here?"</span>));
-<span class="comment">// using a map
-</span>Map *m = <a href="../modules/map.html#map_new_str_str">map_new_str_str</a> ();
-<a href="../modules/map.html#map_put">map_put</a> (m,<span class="string">"name"</span>,<span class="string">"Monique"</span>);
-<a href="../modules/map.html#map_put">map_put</a> (m,<span class="string">"home"</span>,<span class="string">"Paris"</span>);
-<a href="../modules/map.html#map_put">map_put</a> (m,<span class="string">"P"</span>,<span class="string">"!"</span>);
-S = <a href="../modules/template.html#str_templ_subst_using">str_templ_subst_using</a> (st,(StrLookup)map_get,m);
-<span class="global">assert</span>(<a href="../modules/str.html#str_eq">str_eq</a> (S,<span class="string">"Hello !Monique, how is Paris?"</span>));
+<span class="keyword">char</span> *S = <a href="../modules/template.html#str_templ_subst">str_templ_subst</a>(st,tbl1);
+<span class="global">assert</span>(<a href="../modules/str.html#str_eq">str_eq</a>(S,<span class="string">"Hello XDolly, how is here?"</span>));
+<span class="comment">// using a map - explicit lookup function and object
+</span>Map *m = <a href="../modules/map.html#map_new_str_str">map_new_str_str</a>();
+<a href="../modules/map.html#map_put">map_put</a>(m,<span class="string">"name"</span>,<span class="string">"Monique"</span>);
+<a href="../modules/map.html#map_put">map_put</a>(m,<span class="string">"home"</span>,<span class="string">"Paris"</span>);
+<a href="../modules/map.html#map_put">map_put</a>(m,<span class="string">"P"</span>,<span class="string">"!"</span>);
+S = <a href="../modules/template.html#str_templ_subst_using">str_templ_subst_using</a>(st,(StrLookup)map_get,m);
+<span class="global">assert</span>(<a href="../modules/str.html#str_eq">str_eq</a>(S,<span class="string">"Hello !Monique, how is Paris?"</span>));
 </pre>
 
+<p><code>str_templ_subst_value</code> will use <code>interface_get_lookup</code> to see if the object
+implements <code>Accessor</code>, so the last could be simply written <code>str_templ_subst_value(st)</code>
+since <code>Map</code> defines that interface.</p>
 
-<p>Subtemplates can be defined; for instance this template generates an HTML list:</p>
+<p>The placeholders can be changed if the default clashes with
+the target language syntax, e.g. <code>str_templ_new(str,&quot;@&lt;&gt;&quot;)</code>. Then your template
+will look like "this is @<home>, welcome @<name>".</p>
+
+<p>Subtemplates can be defined; for instance this template generates an HTML list.</p>
+
 
 <pre>
-<span class="string">"&lt;ul&gt;$(for ls |&lt;li&gt;_&lt;/li&gt;)&lt;/ul&gt;"</span>
+<span class="string">"&lt;ul&gt;$(for ls |&lt;li&gt;$(_)&lt;/li&gt;|)&lt;/ul&gt;"</span>
 </pre>
 
+<p>There is an alternative syntax using a single colon instead of bracketting
+pipe characters.</p>
 
-<p>The special <code>for</code> form iterates over a List or an array. The special variable <code>_</code> means
-&ldquo;use each value of the array&rdquo;;  otherwise the <em>iterable</em> must be a map-like object.</p>
 
-<p>When expanding a template you pass a map-like object, either an actual <code>Map</code>
-or an array of key/value pairs (a <em>simple map</em>).</p>
+<pre>
+<span class="string">"&lt;ul&gt;$(for ls: &lt;li&gt;$(_)&lt;/li&gt;)&lt;/ul&gt;"</span>
+</pre>
 
-<p>See <a href="../examples/test-template.c.html#">test-template.c</a> </p>
+<p>The special <code>for</code> form iterates over an <code>Iterable</code> object like a <a href="../modules/list.html#List">List</a> or an array.</p>
+
+<p>The special variable <code>\_</code> refers to each value of the <code>Iterable</code>; if we're iterating
+over a map-like object, then it will be the <em>key</em>;  use <code>$([\_])</code> for the <em>value</em>.</p>
+
+<p>See <a href="../examples/test-template.c.html#">test-template.c</a></p>
 
 
 <h2><a href="#Functions">Functions</a></h2>
@@ -154,7 +178,7 @@ or an array of key/value pairs (a <em>simple map</em>).</p>
     <dd>
     new template from string with variables to be expanded.
  <code>$(var)</code> is the default, if <code>markers</code> is NULL, but if <code>markers</code>
- was &ldquo;@&lt;>&rdquo; then it would use &lsquo;@&rsquo; as the escape and &ldquo;&lt;>&rdquo; as the
+ was "@&lt;>" then it would use '@' as the escape and "&lt;>" as the
  brackets.
 
 
@@ -164,9 +188,11 @@ or an array of key/value pairs (a <em>simple map</em>).</p>
             <span class="types"><span class="type">const char *</span></span>
 
 
+
         </li>
         <li><span class="parameter">markers</span>
             <span class="types"><span class="type">const char *</span></span>
+
 
 
         </li>
@@ -175,7 +201,8 @@ or an array of key/value pairs (a <em>simple map</em>).</p>
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><span class="type">StrTempl</span></span>
+           <span class="types"><span class="type">StrTempl *</span></span>
+
 
 
     </ol>
@@ -191,13 +218,14 @@ or an array of key/value pairs (a <em>simple map</em>).</p>
     <dd>
     substitute variables in template using a lookup function.
  <code>lookup</code> works with <code>data</code>, so that to use a Map you can pass
- <a href="../modules/map.html#map_get">map_get</a>  together with the map.
+ <a href="../modules/map.html#map_get">map_get</a> together with the map.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">stl</span>
-            <span class="types"><span class="type">StrTempl</span></span>
+            <span class="types"><span class="type">StrTempl *</span></span>
+
 
 
         </li>
@@ -205,9 +233,11 @@ or an array of key/value pairs (a <em>simple map</em>).</p>
             <span class="types"><span class="type">StrLookup</span></span>
 
 
+
         </li>
         <li><span class="parameter">data</span>
             <span class="types"><span class="type">void *</span></span>
+
 
 
         </li>
@@ -217,6 +247,7 @@ or an array of key/value pairs (a <em>simple map</em>).</p>
     <ol>
 
            <span class="types"><span class="type">char *</span></span>
+
 
 
     </ol>
@@ -237,12 +268,14 @@ or an array of key/value pairs (a <em>simple map</em>).</p>
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">stl</span>
-            <span class="types"><span class="type">StrTempl</span></span>
+            <span class="types"><span class="type">StrTempl *</span></span>
+
 
 
         </li>
         <li><span class="parameter">substs</span>
             <span class="types"><span class="type">char * *</span></span>
+
 
 
         </li>
@@ -252,6 +285,7 @@ or an array of key/value pairs (a <em>simple map</em>).</p>
     <ol>
 
            <span class="types"><span class="type">char *</span></span>
+
 
 
     </ol>
@@ -266,19 +300,21 @@ or an array of key/value pairs (a <em>simple map</em>).</p>
     </dt>
     <dd>
     substitute using boxed values.
- The value <code>v</code> can either represent a <code>Map</code> or be a simple
- map.
+ The value <code>v</code> can be any object supporting the <code>Accessor</code> interface,
+ or a simple map.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">st</span>
-            <span class="types"><span class="type">StrTempl</span></span>
+            <span class="types"><span class="type">StrTempl *</span></span>
+
 
 
         </li>
         <li><span class="parameter">v</span>
             <span class="types"><span class="type">PValue</span></span>
+
 
 
         </li>
@@ -288,6 +324,7 @@ or an array of key/value pairs (a <em>simple map</em>).</p>
     <ol>
 
            <span class="types"><span class="type">char *</span></span>
+
 
 
     </ol>
@@ -302,7 +339,8 @@ or an array of key/value pairs (a <em>simple map</em>).</p>
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.2</a></i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
+<i style="float:right;">Last updated 2014-11-01 16:41:56 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

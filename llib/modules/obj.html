@@ -33,6 +33,7 @@
 <h2>Contents</h2>
 <ul>
 <li><a href="#Macros">Macros</a></li>
+<li><a href="#Functions">Functions</a></li>
 <li><a href="#RTTI">RTTI</a></li>
 <li><a href="#New">New</a></li>
 <li><a href="#References">References</a></li>
@@ -59,11 +60,18 @@
   <li><a href="../modules/table.html">table</a></li>
   <li><a href="../modules/config.html">config</a></li>
   <li><a href="../modules/arg.html">arg</a></li>
+  <li><a href="../modules/flot.html">flot</a></li>
+</ul>
+<h2>Topics</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../topics/readme.md.html">readme</a></li>
 </ul>
 <h2>Examples</h2>
 <ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../examples/test-array.c.html">test-array.c</a></li>
   <li><a href="../examples/test-config.c.html">test-config.c</a></li>
   <li><a href="../examples/test-file.c.html">test-file.c</a></li>
+  <li><a href="../examples/test-interface.c.html">test-interface.c</a></li>
   <li><a href="../examples/test-json.c.html">test-json.c</a></li>
   <li><a href="../examples/test-list.c.html">test-list.c</a></li>
   <li><a href="../examples/test-map.c.html">test-map.c</a></li>
@@ -76,6 +84,8 @@
   <li><a href="../examples/test-table.c.html">test-table.c</a></li>
   <li><a href="../examples/test-template.c.html">test-template.c</a></li>
   <li><a href="../examples/test-xml.c.html">test-xml.c</a></li>
+  <li><a href="../examples/testa.c.html">testa.c</a></li>
+  <li><a href="../examples/testing.c.html">testing.c</a></li>
   <li><a href="../examples/cmd.c.html">cmd.c</a></li>
   <li><a href="../examples/testa.c.html">testa.c</a></li>
   <li><a href="../examples/config.c.html">config.c</a></li>
@@ -87,17 +97,19 @@
 <div id="content">
 
 <h1>Module <code>obj</code></h1>
-<p><h3>Support for Refcounted Objects.</h3>
+<p>
+<h3>Support for Refcounted Objects.</h3>
 </p>
 <p>These are (currently) allocated with <code>malloc</code> and freed with <code>free</code>, but in addition always
-carry a refcount (see <a href="../modules/obj.html#obj_refcount">obj_refcount</a> ).  <a href="../modules/obj.html#obj_ref">obj_ref</a>  increments this count, and <a href="../modules/obj.html#obj_unref">obj_unref</a>
+carry a refcount (see <a href="../modules/obj.html#obj_refcount">obj_refcount</a>).  <a href="../modules/obj.html#obj_ref">obj_ref</a> increments this count, and <a href="../modules/obj.html#obj_unref">obj_unref</a>
 decrements this count; when the count becomes zero, the object is freed.  If the object
-has an associated dispose function specified in <a href="../modules/obj.html#obj_new">obj_new</a> , then this will be called first.</p>
+has an associated dispose function specified in <a href="../modules/obj.html#obj_new">obj_new</a>, then this will be called first.</p>
 
 <p>Unless <code>OBJ_REF_ABBREV</code> is defined, these are also defined as <code>ref</code> and <code>unref</code>; there is
 a bulk <code>dispose</code> for multiple objects.</p>
 
 <p>llib objects may specify a <em>dispose</em> function:</p>
+
 
 <pre>
 <span class="keyword">typedef</span> <span class="keyword">struct</span> {
@@ -106,33 +118,32 @@ a bulk <code>dispose</code> for multiple objects.</p>
 } Person;
 
 <span class="keyword">static</span> <span class="keyword">void</span> Person_dispose(Person *p) {
-    <a href="../modules/obj.html#obj_unref">obj_unref</a> (p-&gt;name);
+    <a href="../modules/obj.html#obj_unref">obj_unref</a>(p-&gt;name);
 }
 
 Person *person_new(<span class="keyword">int</span> age, <span class="keyword">char</span> *name) {
-    Person *p = <a href="../modules/obj.html#obj_new">obj_new</a> (Person,Person_dispose);
+    Person *p = <a href="../modules/obj.html#obj_new">obj_new</a>(Person,Person_dispose);
     p-&gt;age = age;
-    p-&gt;name = <a href="../modules/obj.html#str_ref">str_ref</a> (name);
+    p-&gt;name = <a href="../modules/obj.html#str_ref">str_ref</a>(name);
     <span class="keyword">return</span> p;
 }
 </pre>
 
-
 <p>In this typical scenario, the dispose function decrements the reference
 count of the <code>name</code> field when the <code>Person</code> is disposed;  this will of course
-only dispose the string if it hasn&rsquo;t already been referenced elsewhere, which
-permits flexible sharing of data.  (We use <a href="../modules/obj.html#str_ref">str_ref</a>  specifically here because the
+only dispose the string if it hasn't already been referenced elsewhere, which
+permits flexible sharing of data.  (We use <a href="../modules/obj.html#str_ref">str_ref</a> specifically here because the
 argument <code>name</code> may not be already a ref-counted string.)</p>
 
-<p><em>Arrays</em> carry their own size, accessible with <a href="../modules/obj.html#array_len">array_len</a> ;
-if created with <a href="../modules/obj.html#array_new_ref">array_new_ref</a> , they will unref their elements when disposed.</p>
+<p><em>Arrays</em> carry their own size, accessible with <a href="../modules/obj.html#array_len">array_len</a>;
+if created with <a href="../modules/obj.html#array_new_ref">array_new_ref</a>, they will unref their elements when disposed.</p>
 
-<p><em>Sequences</em> are resizeable arrays. <a href="../modules/obj.html#seq_add">seq_add</a>  appends a new value
+<p><em>Sequences</em> are resizeable arrays. <a href="../modules/obj.html#seq_add">seq_add</a> appends a new value
 to a sequence. A sequence <code>s</code> is a pointer to an array of T.  The underlying
 array can always be accessed with <code>*s</code>, and the array will be sized-to-fit when
-<a href="../modules/obj.html#seq_array_ref">seq_array_ref</a>  is called.</p>
+<a href="../modules/obj.html#seq_array_ref">seq_array_ref</a> is called.</p>
 
-<p>See <a href="../examples/test-obj.c.html#">test-obj.c</a>  and <a href="../examples/test-seq.c.html#">test-seq.c</a> </p>
+<p>See <a href="../examples/test-obj.c.html#">test-obj.c</a> and <a href="../examples/test-seq.c.html#">test-seq.c</a></p>
 
 
 <h2><a href="#Macros">Macros</a></h2>
@@ -144,6 +155,13 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
 	<tr>
 	<td class="name" nowrap><a href="#FOR_ARR">FOR_ARR</a></td>
 	<td class="summary">for-loop over array.</td>
+	</tr>
+</table>
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#obj_cast">obj_cast (T, o)</a></td>
+	<td class="summary">dynamically cast object to type.</td>
 	</tr>
 </table>
 <h2><a href="#RTTI">RTTI</a></h2>
@@ -165,10 +183,6 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
 	<td class="summary">is this a reference container array?</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#obj_type">obj_type (arr)</a></td>
-	<td class="summary">type of object.</td>
-	</tr>
-	<tr>
 	<td class="name" nowrap><a href="#obj_elem_size">obj_elem_size (P)</a></td>
 	<td class="summary">size of this object.</td>
 	</tr>
@@ -180,8 +194,16 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
 <h2><a href="#New">New</a></h2>
 <table class="function_list">
 	<tr>
+	<td class="name" nowrap><a href="#obj_new_type">obj_new_type (T, optional)</a></td>
+	<td class="summary">allocate a new type</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#obj_new">obj_new (T, optional)</a></td>
 	<td class="summary">allocate a new refcounted object.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#obj_new_from_type">obj_new_from_type (ti)</a></td>
+	<td class="summary">allocate a new object from type.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#array_new">array_new (type, sz)</a></td>
@@ -272,6 +294,10 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
 	<td class="summary">create a sequence of a refcounted type</td>
 	</tr>
 	<tr>
+	<td class="name" nowrap><a href="#seq_new_array">seq_new_array (arr)</a></td>
+	<td class="summary">create a sequence from an existing array.</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#seq_add">seq_add (s, v)</a></td>
 	<td class="summary">add a value to a sequence.</td>
 	</tr>
@@ -351,6 +377,7 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
             <span class="types"><span class="type">type*</span></span>
 
 
+
         </li>
     </ul>
 
@@ -364,6 +391,34 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
 
 </dd>
 </dl>
+    <h2><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "obj_cast"></a>
+    <strong>obj_cast (T, o)</strong>
+    </dt>
+    <dd>
+    dynamically cast object to type.
+ Uses <a href="../modules/obj.html#obj_is_instance">obj_is_instance</a>
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">T</span>
+         type name
+        </li>
+        <li><span class="parameter">o</span>
+         object
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
     <h2><a name="RTTI"></a>RTTI</h2>
 
     <dl class="function">
@@ -373,13 +428,14 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
     </dt>
     <dd>
     refcount of an object.
- Will return -1 if it isn&rsquo;t one of ours!
+ Will return -1 if it isn't one of ours!
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">p</span>
             <span class="types"><span class="type">const void *</span></span>
+
 
 
         </li>
@@ -389,6 +445,7 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
     <ol>
 
            <span class="types"><span class="type">int</span></span>
+
 
 
     </ol>
@@ -411,6 +468,7 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
             <span class="types"><span class="type">void*</span></span>
 
 
+
         </li>
     </ul>
 
@@ -418,6 +476,7 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
     <ol>
 
            <span class="types"><span class="type">int</span></span>
+
 
 
     </ol>
@@ -440,6 +499,7 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
             <span class="types"><span class="type">void*</span></span>
 
 
+
         </li>
     </ul>
 
@@ -447,6 +507,7 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
     <ol>
 
            <span class="types"><span class="type">bool</span></span>
+
 
 
     </ol>
@@ -469,6 +530,7 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
             <span class="types"><span class="type">void*</span></span>
 
 
+
         </li>
     </ul>
 
@@ -477,34 +539,6 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
 
            <span class="types"><span class="type">bool</span></span>
 
-
-    </ol>
-
-
-
-
-</dd>
-    <dt>
-    <a name = "obj_type"></a>
-    <strong>obj_type (arr)</strong>
-    </dt>
-    <dd>
-    type of object.
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">arr</span>
-            <span class="types"><span class="type">void*</span></span>
-
-
-        </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-           <span class="types"><span class="type">ObjType*</span></span>
 
 
     </ol>
@@ -525,7 +559,8 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">P</span>
-            <span class="types"><span class="type">void *</span></span>
+            <span class="types"><span class="type">const void *</span></span>
+
 
 
         </li>
@@ -535,6 +570,7 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
     <ol>
 
            <span class="types"><span class="type">int</span></span>
+
 
 
     </ol>
@@ -557,9 +593,11 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
             <span class="types"><span class="type">const void *</span></span>
 
 
+
         </li>
         <li><span class="parameter">name</span>
             <span class="types"><span class="type">const char *</span></span>
+
 
 
         </li>
@@ -569,6 +607,7 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
     <ol>
 
            <span class="types"><span class="type">bool</span></span>
+
 
 
     </ol>
@@ -581,6 +620,41 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
     <h2><a name="New"></a>New</h2>
 
     <dl class="function">
+    <dt>
+    <a name = "obj_new_type"></a>
+    <strong>obj_new_type (T, optional)</strong>
+    </dt>
+    <dd>
+    allocate a new type
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">T</span>
+            <span class="types"><span class="type">type</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">optional</span>
+            <span class="types"><span class="type">DisposeFn</span></span>
+         destructior
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">T*</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
     <dt>
     <a name = "obj_new"></a>
     <strong>obj_new (T, optional)</strong>
@@ -595,6 +669,7 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
             <span class="types"><span class="type">type</span></span>
 
 
+
         </li>
         <li><span class="parameter">optional</span>
             <span class="types"><span class="type">DisposeFn</span></span>
@@ -606,6 +681,38 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
     <ol>
 
            <span class="types"><span class="type">T*</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "obj_new_from_type"></a>
+    <strong>obj_new_from_type (ti)</strong>
+    </dt>
+    <dd>
+    allocate a new object from type.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ti</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">void *</span></span>
+
 
 
     </ol>
@@ -640,6 +747,7 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
            <span class="types"><span class="type">T*</span></span>
 
 
+
     </ol>
 
 
@@ -672,6 +780,7 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
            <span class="types"><span class="type">T*</span></span>
 
 
+
     </ol>
 
 
@@ -694,6 +803,7 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
         </li>
         <li><span class="parameter">buff</span>
             <span class="types"><span class="type">T*</span></span>
+
 
 
         </li>
@@ -722,6 +832,7 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
             <span class="types"><span class="type">const char *</span></span>
 
 
+
         </li>
     </ul>
 
@@ -729,6 +840,7 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
     <ol>
 
            <span class="types"><span class="type">char *</span></span>
+
 
 
     </ol>
@@ -751,6 +863,7 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
             <span class="types"><span class="type">int</span></span>
 
 
+
         </li>
     </ul>
 
@@ -758,6 +871,7 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
     <ol>
 
            <span class="types"><span class="type">char *</span></span>
+
 
 
     </ol>
@@ -780,6 +894,7 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
             <span class="types"><span class="type">const char *</span></span>
 
 
+
         </li>
     </ul>
 
@@ -787,6 +902,7 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
     <ol>
 
            <span class="types"><span class="type">char *</span></span>
+
 
 
     </ol>
@@ -813,6 +929,7 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
             <span class="types"><span class="type">T</span></span>
 
 
+
         </li>
     </ul>
 
@@ -820,6 +937,7 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
     <ol>
 
            <span class="types"><span class="type">T</span></span>
+
 
 
     </ol>
@@ -842,6 +960,7 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
     <ul>
         <li><span class="parameter">P</span>
             <span class="types"><span class="type">const void *</span></span>
+
 
 
         </li>
@@ -878,15 +997,16 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
     </dt>
     <dd>
     increase the refcount of a string.
- If this is <em>not</em> one of &ldquo;our strings&rdquo;, we
+ If this is <em>not</em> one of "our strings", we
  create a new refcounted string, otherwise
- proceed as with <a href="../modules/obj.html#obj_ref">obj_ref</a> .
+ proceed as with <a href="../modules/obj.html#obj_ref">obj_ref</a>.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
             <span class="types"><span class="type">const char *</span></span>
+
 
 
         </li>
@@ -896,6 +1016,7 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
     <ol>
 
            <span class="types"><span class="type">const char *</span></span>
+
 
 
     </ol>
@@ -924,13 +1045,16 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
             <span class="types"><span class="type">void *</span></span>
 
 
+
         </li>
         <li><span class="parameter">fn</span>
             <span class="types"><span class="type">PFun</span></span>
 
 
+
         </li>
         <li><span class="parameter">...</span>
+
 
 
         </li>
@@ -1004,6 +1128,7 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
            <span class="types"><span class="type">void *</span></span>
 
 
+
     </ol>
 
 
@@ -1034,6 +1159,7 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
     <ol>
 
            <span class="types"><span class="type">void *</span></span>
+
 
 
     </ol>
@@ -1129,7 +1255,6 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
 </dd>
 </dl>
     <h2><a name="Sequences"></a>Sequences </h2>
-    Sequences.
 
 
     <dl class="function">
@@ -1174,6 +1299,37 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
 
 </dd>
     <dt>
+    <a name = "seq_new_array"></a>
+    <strong>seq_new_array (arr)</strong>
+    </dt>
+    <dd>
+    create a sequence from an existing array.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">arr</span>
+            <span class="types"><span class="type">void *</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">void *</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
     <a name = "seq_add"></a>
     <strong>seq_add (s, v)</strong>
     </dt>
@@ -1203,7 +1359,7 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
     <dd>
     add arbitrary number of values to a sequence.
  The values are implicitly terminated with <code>NULL</code>, so
- this won&rsquo;t work for arbitrary integers.
+ this won't work for arbitrary integers.
 
 
     <h3>Parameters:</h3>
@@ -1268,7 +1424,7 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
         </li>
         <li><span class="parameter">sz</span>
             <span class="types"><span class="type">int</span></span>
-         number of values (-1 means use <a href="../modules/obj.html#array_len">array_len</a> )
+         number of values (-1 means use <a href="../modules/obj.html#array_len">array_len</a>)
         </li>
     </ul>
 
@@ -1295,7 +1451,7 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
         </li>
         <li><span class="parameter">sz</span>
             <span class="types"><span class="type">int</span></span>
-         number of values (-1 means use <a href="../modules/obj.html#array_len">array_len</a> )
+         number of values (-1 means use <a href="../modules/obj.html#array_len">array_len</a>)
         </li>
     </ul>
 
@@ -1318,9 +1474,11 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
             <span class="types"><span class="type">void *</span></span>
 
 
+
         </li>
         <li><span class="parameter">p</span>
             <span class="types"><span class="type">void *</span></span>
+
 
 
         </li>
@@ -1347,6 +1505,7 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
             <span class="types"><span class="type">void *</span></span>
 
 
+
         </li>
     </ul>
 
@@ -1354,6 +1513,7 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
     <ol>
 
            <span class="types"><span class="type">void *</span></span>
+
 
 
     </ol>
@@ -1368,7 +1528,8 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.2</a></i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
+<i style="float:right;">Last updated 2014-11-01 16:41:56 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

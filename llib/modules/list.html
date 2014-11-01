@@ -56,11 +56,18 @@
   <li><a href="../modules/table.html">table</a></li>
   <li><a href="../modules/config.html">config</a></li>
   <li><a href="../modules/arg.html">arg</a></li>
+  <li><a href="../modules/flot.html">flot</a></li>
+</ul>
+<h2>Topics</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../topics/readme.md.html">readme</a></li>
 </ul>
 <h2>Examples</h2>
 <ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../examples/test-array.c.html">test-array.c</a></li>
   <li><a href="../examples/test-config.c.html">test-config.c</a></li>
   <li><a href="../examples/test-file.c.html">test-file.c</a></li>
+  <li><a href="../examples/test-interface.c.html">test-interface.c</a></li>
   <li><a href="../examples/test-json.c.html">test-json.c</a></li>
   <li><a href="../examples/test-list.c.html">test-list.c</a></li>
   <li><a href="../examples/test-map.c.html">test-map.c</a></li>
@@ -73,6 +80,8 @@
   <li><a href="../examples/test-table.c.html">test-table.c</a></li>
   <li><a href="../examples/test-template.c.html">test-template.c</a></li>
   <li><a href="../examples/test-xml.c.html">test-xml.c</a></li>
+  <li><a href="../examples/testa.c.html">testa.c</a></li>
+  <li><a href="../examples/testing.c.html">testing.c</a></li>
   <li><a href="../examples/cmd.c.html">cmd.c</a></li>
   <li><a href="../examples/testa.c.html">testa.c</a></li>
   <li><a href="../examples/config.c.html">config.c</a></li>
@@ -84,22 +93,23 @@
 <div id="content">
 
 <h1>Module <code>list</code></h1>
-<p><h3>Doubly-linked Lists.</h3>
+<p>
+<h3>Doubly-linked Lists.</h3>
 </p>
 <p> A list is either a container (has pointer or integer values) stored inside
 <code>ListEntry</code> nodes as the <code>data</code> field, or the objects themselves are nodes (declared with
 LIST_HEADER up front in the struct).</p>
 
-<p>oThe nodes of a container list are not ref-counted and are simply freed.
+<p>The nodes of a container list are not ref-counted and are simply freed.
 The contained values may be ref-counted and will then be unref'd when the
 container is disposed.</p>
 
 <p>Container lists are either pointer-like or string-like; if LIST_STRING flag bit
 is set then we'll use <code>strcmp</code> for ordering and finding, otherwise simple ordering
-is used, which is also fine for integer values (up to intptr_t or uintptr_t in
+is used, which is also fine for integer values (up to intptr<em>t or uintptr</em>t in
  size)</p>
 
-<p>See <a href="../examples/test-list.c.html#">test-list.c</a> </p>
+<p>See <a href="../examples/test-list.c.html#">test-list.c</a></p>
 
 
 <h2><a href="#Functions">Functions</a></h2>
@@ -206,11 +216,11 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#list_extend_move">list_extend_move (ls, other)</a></td>
-	<td class="summary">extend a list by appending another list&rsquo;s contents, emptying it.</td>
+	<td class="summary">extend a list by appending another list's contents, emptying it.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#list_extend_copy">list_extend_copy (ls, other)</a></td>
-	<td class="summary">extend a list by appending another list&rsquo;s contents, copying it.</td>
+	<td class="summary">extend a list by appending another list's contents, copying it.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#list_advance">list_advance (ls, iter, len)</a></td>
@@ -342,6 +352,7 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
             <span class="types"><span class="type">bool</span></span>
 
 
+
         </li>
     </ul>
 
@@ -349,6 +360,7 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
     <ol>
 
            <span class="types"><a class="type" href="../modules/list.html#List">List *</a></span>
+
 
 
     </ol>
@@ -371,6 +383,7 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
             <span class="types"><a class="type" href="../modules/list.html#List">List *</a></span>
 
 
+
         </li>
     </ul>
 
@@ -378,6 +391,7 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
     <ol>
 
            <span class="types"><span class="type">int</span></span>
+
 
 
     </ol>
@@ -400,9 +414,11 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
             <span class="types"><a class="type" href="../modules/list.html#List">List *</a></span>
 
 
+
         </li>
         <li><span class="parameter">item</span>
             <span class="types"><span class="type">void *</span></span>
+
 
 
         </li>
@@ -412,6 +428,7 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
     <ol>
 
            <span class="types"><span class="type">void *</span></span>
+
 
 
     </ol>
@@ -434,6 +451,7 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
             <span class="types"><a class="type" href="../modules/list.html#List">List *</a></span>
 
 
+
         </li>
     </ul>
 
@@ -441,6 +459,7 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
     <ol>
 
            <span class="types"><a class="type" href="../modules/list.html#ListIter">ListIter</a></span>
+
 
 
     </ol>
@@ -463,6 +482,7 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
             <span class="types"><a class="type" href="../modules/list.html#List">List *</a></span>
 
 
+
         </li>
     </ul>
 
@@ -470,6 +490,7 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
     <ol>
 
            <span class="types"><a class="type" href="../modules/list.html#ListIter">ListIter</a></span>
+
 
 
     </ol>
@@ -492,6 +513,7 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
             <span class="types"><a class="type" href="../modules/list.html#ListIter">ListIter</a></span>
 
 
+
         </li>
     </ul>
 
@@ -499,6 +521,7 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
     <ol>
 
            <span class="types"><a class="type" href="../modules/list.html#ListIter">ListIter</a></span>
+
 
 
     </ol>
@@ -521,6 +544,7 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
             <span class="types"><a class="type" href="../modules/list.html#ListIter">ListIter</a></span>
 
 
+
         </li>
     </ul>
 
@@ -528,6 +552,7 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
     <ol>
 
            <span class="types"><a class="type" href="../modules/list.html#ListIter">ListIter</a></span>
+
 
 
     </ol>
@@ -550,9 +575,11 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
             <span class="types"><a class="type" href="../modules/list.html#List">List *</a></span>
 
 
+
         </li>
         <li><span class="parameter">data</span>
             <span class="types"><span class="type">void *</span></span>
+
 
 
         </li>
@@ -562,6 +589,7 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
     <ol>
 
            <span class="types"><a class="type" href="../modules/list.html#ListIter">ListIter</a></span>
+
 
 
     </ol>
@@ -610,14 +638,17 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
             <span class="types"><a class="type" href="../modules/list.html#List">List *</a></span>
 
 
+
         </li>
         <li><span class="parameter">before</span>
             <span class="types"><a class="type" href="../modules/list.html#ListIter">ListIter</a></span>
 
 
+
         </li>
         <li><span class="parameter">data</span>
             <span class="types"><span class="type">void *</span></span>
+
 
 
         </li>
@@ -627,6 +658,7 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
     <ol>
 
            <span class="types"><a class="type" href="../modules/list.html#ListIter">ListIter</a></span>
+
 
 
     </ol>
@@ -649,9 +681,11 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
             <span class="types"><a class="type" href="../modules/list.html#List">List *</a></span>
 
 
+
         </li>
         <li><span class="parameter">data</span>
             <span class="types"><span class="type">void *</span></span>
+
 
 
         </li>
@@ -661,6 +695,7 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
     <ol>
 
            <span class="types"><a class="type" href="../modules/list.html#ListIter">ListIter</a></span>
+
 
 
     </ol>
@@ -683,9 +718,11 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
             <span class="types"><a class="type" href="../modules/list.html#List">List *</a></span>
 
 
+
         </li>
         <li><span class="parameter">data</span>
             <span class="types"><span class="type">void *</span></span>
+
 
 
         </li>
@@ -695,6 +732,7 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
     <ol>
 
            <span class="types"><a class="type" href="../modules/list.html#ListIter">ListIter</a></span>
+
 
 
     </ol>
@@ -717,9 +755,11 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
             <span class="types"><a class="type" href="../modules/list.html#List">List *</a></span>
 
 
+
         </li>
         <li><span class="parameter">data</span>
             <span class="types"><span class="type">void *</span></span>
+
 
 
         </li>
@@ -744,9 +784,11 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
             <span class="types"><a class="type" href="../modules/list.html#List">List *</a></span>
 
 
+
         </li>
         <li><span class="parameter">item</span>
             <span class="types"><a class="type" href="../modules/list.html#ListIter">ListIter</a></span>
+
 
 
         </li>
@@ -756,6 +798,7 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
     <ol>
 
            <span class="types"><a class="type" href="../modules/list.html#ListIter">ListIter</a></span>
+
 
 
     </ol>
@@ -778,9 +821,11 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
             <span class="types"><a class="type" href="../modules/list.html#List">List *</a></span>
 
 
+
         </li>
         <li><span class="parameter">item</span>
             <span class="types"><a class="type" href="../modules/list.html#ListIter">ListIter</a></span>
+
 
 
         </li>
@@ -790,6 +835,7 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
     <ol>
 
            <span class="types"><span class="type">void *</span></span>
+
 
 
     </ol>
@@ -813,6 +859,7 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
             <span class="types"><a class="type" href="../modules/list.html#List">List *</a></span>
 
 
+
         </li>
     </ul>
 
@@ -820,6 +867,7 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
     <ol>
 
            <span class="types"><span class="type">void *</span></span>
+
 
 
     </ol>
@@ -842,9 +890,11 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
             <span class="types"><a class="type" href="../modules/list.html#List">List *</a></span>
 
 
+
         </li>
         <li><span class="parameter">data</span>
             <span class="types"><span class="type">void *</span></span>
+
 
 
         </li>
@@ -854,6 +904,7 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
     <ol>
 
            <span class="types"><a class="type" href="../modules/list.html#ListIter">ListIter</a></span>
+
 
 
     </ol>
@@ -878,9 +929,11 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
             <span class="types"><a class="type" href="../modules/list.html#List">List *</a></span>
 
 
+
         </li>
         <li><span class="parameter">idx</span>
             <span class="types"><span class="type">int</span></span>
+
 
 
         </li>
@@ -890,6 +943,7 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
     <ol>
 
            <span class="types"><a class="type" href="../modules/list.html#ListIter">ListIter</a></span>
+
 
 
     </ol>
@@ -904,7 +958,7 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
     </dt>
     <dd>
     get data at index.
- This is only different from <a href="../modules/list.html#list_iter">list_iter</a> when it&rsquo;s a container list.
+ This is only different from <a href="../modules/list.html#list_iter">list_iter</a> when it's a container list.
 
 
     <h3>Parameters:</h3>
@@ -913,9 +967,11 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
             <span class="types"><a class="type" href="../modules/list.html#List">List *</a></span>
 
 
+
         </li>
         <li><span class="parameter">idx</span>
             <span class="types"><span class="type">int</span></span>
+
 
 
         </li>
@@ -925,6 +981,7 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
     <ol>
 
            <span class="types"><span class="type">void *</span></span>
+
 
 
     </ol>
@@ -947,9 +1004,11 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
             <span class="types"><a class="type" href="../modules/list.html#List">List *</a></span>
 
 
+
         </li>
         <li><span class="parameter">fun</span>
             <span class="types"><span class="type">ListPred</span></span>
+
 
 
         </li>
@@ -959,6 +1018,7 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
     <ol>
 
            <span class="types"><a class="type" href="../modules/list.html#List">List *</a></span>
+
 
 
     </ol>
@@ -981,14 +1041,17 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
             <span class="types"><a class="type" href="../modules/list.html#List">List *</a></span>
 
 
+
         </li>
         <li><span class="parameter">fun</span>
             <span class="types"><span class="type">ListSearchFn</span></span>
 
 
+
         </li>
         <li><span class="parameter">data</span>
             <span class="types"><span class="type">void *</span></span>
+
 
 
         </li>
@@ -998,6 +1061,7 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
     <ol>
 
            <span class="types"><a class="type" href="../modules/list.html#List">List *</a></span>
+
 
 
     </ol>
@@ -1020,6 +1084,7 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
             <span class="types"><a class="type" href="../modules/list.html#List">List *</a></span>
 
 
+
         </li>
     </ul>
 
@@ -1027,6 +1092,7 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
     <ol>
 
            <span class="types"><a class="type" href="../modules/list.html#List">List *</a></span>
+
 
 
     </ol>
@@ -1040,7 +1106,7 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
     <strong>list_extend_move (ls, other)</strong>
     </dt>
     <dd>
-    extend a list by appending another list&rsquo;s contents, emptying it.
+    extend a list by appending another list's contents, emptying it.
 
 
     <h3>Parameters:</h3>
@@ -1049,9 +1115,11 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
             <span class="types"><a class="type" href="../modules/list.html#List">List *</a></span>
 
 
+
         </li>
         <li><span class="parameter">other</span>
             <span class="types"><a class="type" href="../modules/list.html#List">List *</a></span>
+
 
 
         </li>
@@ -1061,6 +1129,7 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
     <ol>
 
            <span class="types"><a class="type" href="../modules/list.html#ListIter">ListIter</a></span>
+
 
 
     </ol>
@@ -1074,7 +1143,7 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
     <strong>list_extend_copy (ls, other)</strong>
     </dt>
     <dd>
-    extend a list by appending another list&rsquo;s contents, copying it.
+    extend a list by appending another list's contents, copying it.
 
 
     <h3>Parameters:</h3>
@@ -1083,9 +1152,11 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
             <span class="types"><a class="type" href="../modules/list.html#List">List *</a></span>
 
 
+
         </li>
         <li><span class="parameter">other</span>
             <span class="types"><a class="type" href="../modules/list.html#List">List *</a></span>
+
 
 
         </li>
@@ -1095,6 +1166,7 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
     <ol>
 
            <span class="types"><a class="type" href="../modules/list.html#ListIter">ListIter</a></span>
+
 
 
     </ol>
@@ -1117,14 +1189,17 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
             <span class="types"><a class="type" href="../modules/list.html#List">List *</a></span>
 
 
+
         </li>
         <li><span class="parameter">iter</span>
             <span class="types"><a class="type" href="../modules/list.html#ListIter">ListIter *</a></span>
 
 
+
         </li>
         <li><span class="parameter">len</span>
             <span class="types"><span class="type">int</span></span>
+
 
 
         </li>
@@ -1134,6 +1209,7 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
     <ol>
 
            <span class="types"><span class="type">bool</span></span>
+
 
 
     </ol>
@@ -1156,14 +1232,17 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
             <span class="types"><a class="type" href="../modules/list.html#List">List *</a></span>
 
 
+
         </li>
         <li><span class="parameter">begin</span>
             <span class="types"><a class="type" href="../modules/list.html#ListIter">ListIter</a></span>
 
 
+
         </li>
         <li><span class="parameter">end</span>
             <span class="types"><a class="type" href="../modules/list.html#ListIter">ListIter</a></span>
+
 
 
         </li>
@@ -1173,6 +1252,7 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
     <ol>
 
            <span class="types"><a class="type" href="../modules/list.html#List">List *</a></span>
+
 
 
     </ol>
@@ -1195,14 +1275,17 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
             <span class="types"><a class="type" href="../modules/list.html#List">List *</a></span>
 
 
+
         </li>
         <li><span class="parameter">begin</span>
             <span class="types"><a class="type" href="../modules/list.html#ListIter">ListIter</a></span>
 
 
+
         </li>
         <li><span class="parameter">len</span>
             <span class="types"><span class="type">int</span></span>
+
 
 
         </li>
@@ -1212,6 +1295,7 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
     <ol>
 
            <span class="types"><a class="type" href="../modules/list.html#List">List *</a></span>
+
 
 
     </ol>
@@ -1235,14 +1319,17 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
             <span class="types"><a class="type" href="../modules/list.html#List">List *</a></span>
 
 
+
         </li>
         <li><span class="parameter">begin</span>
             <span class="types"><a class="type" href="../modules/list.html#ListIter">ListIter</a></span>
 
 
+
         </li>
         <li><span class="parameter">end</span>
             <span class="types"><a class="type" href="../modules/list.html#ListIter">ListIter</a></span>
+
 
 
         </li>
@@ -1267,14 +1354,17 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
             <span class="types"><a class="type" href="../modules/list.html#List">List *</a></span>
 
 
+
         </li>
         <li><span class="parameter">begin</span>
             <span class="types"><a class="type" href="../modules/list.html#ListIter">ListIter</a></span>
 
 
+
         </li>
         <li><span class="parameter">n</span>
             <span class="types"><span class="type">int</span></span>
+
 
 
         </li>
@@ -1299,9 +1389,11 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
             <span class="types"><a class="type" href="../modules/list.html#List">List *</a></span>
 
 
+
         </li>
         <li><span class="parameter">cmp</span>
             <span class="types"><span class="type">ListCmpFun</span></span>
+
 
 
         </li>
@@ -1326,9 +1418,11 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
             <span class="types"><a class="type" href="../modules/list.html#List">List *</a></span>
 
 
+
         </li>
         <li><span class="parameter">cmp</span>
             <span class="types"><span class="type">ListEqualsFun</span></span>
+
 
 
         </li>
@@ -1353,9 +1447,11 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
             <span class="types"><a class="type" href="../modules/list.html#List">List *</a></span>
 
 
+
         </li>
         <li><span class="parameter">data</span>
             <span class="types"><span class="type">void *</span></span>
+
 
 
         </li>
@@ -1365,6 +1461,7 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
     <ol>
 
            <span class="types"><span class="type">bool</span></span>
+
 
 
     </ol>
@@ -1385,6 +1482,7 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
     <ul>
         <li><span class="parameter">ls</span>
             <span class="types"><a class="type" href="../modules/list.html#List">List *</a></span>
+
 
 
         </li>
@@ -1413,7 +1511,7 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
     <ul>
         <li><span class="parameter">type</span>
             <span class="types"><span class="type">int</span></span>
-         either LIST_POINTER or LIST_STRING
+         either LIST<em>POINTER or LIST</em>STRING
         </li>
         <li><span class="parameter">arr</span>
             <span class="types"><span class="type">void * *</span></span>
@@ -1429,6 +1527,7 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
     <ol>
 
            <span class="types"><a class="type" href="../modules/list.html#List">List *</a></span>
+
 
 
     </ol>
@@ -1455,14 +1554,17 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
             <span class="types"><a class="type" href="../modules/list.html#ListIter">ListIter</a></span>
 
 
+
         </li>
         <li><span class="parameter">last</span>
             <span class="types"><a class="type" href="../modules/list.html#ListIter">ListIter</a></span>
 
 
+
         </li>
         <li><span class="parameter">size</span>
             <span class="types"><span class="type">int</span></span>
+
 
 
         </li>
@@ -1491,14 +1593,17 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
             <span class="types"><a class="type" href="../modules/list.html#ListIter">ListIter</a></span>
 
 
+
         </li>
         <li><span class="parameter">_prev</span>
             <span class="types"><a class="type" href="../modules/list.html#ListIter">ListIter</a></span>
 
 
+
         </li>
         <li><span class="parameter">data</span>
             <span class="types"><span class="type">void*</span></span>
+
 
 
         </li>
@@ -1511,7 +1616,6 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
 </dd>
 </dl>
     <h2><a name="Statement_Macros"></a>Statement Macros </h2>
-    Statement Macros
 
 
     <dl class="function">
@@ -1527,6 +1631,7 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
     <ul>
         <li><span class="parameter">T</span>
             <span class="types"><span class="type">type</span></span>
+
 
 
         </li>
@@ -1559,6 +1664,7 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
             <span class="types"><a class="type" href="../modules/list.html#ListIter">ListIter</a></span>
 
 
+
         </li>
         <li><span class="parameter">the</span>
             <span class="types"><a class="type" href="../modules/list.html#List">List*</a></span>
@@ -1577,7 +1683,8 @@ is used, which is also fine for integer values (up to intptr_t or uintptr_t in
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.2</a></i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
+<i style="float:right;">Last updated 2014-11-01 16:41:56 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

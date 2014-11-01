@@ -53,11 +53,18 @@
   <li><a href="../modules/table.html">table</a></li>
   <li><a href="../modules/config.html">config</a></li>
   <li><a href="../modules/arg.html">arg</a></li>
+  <li><a href="../modules/flot.html">flot</a></li>
+</ul>
+<h2>Topics</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../topics/readme.md.html">readme</a></li>
 </ul>
 <h2>Examples</h2>
 <ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../examples/test-array.c.html">test-array.c</a></li>
   <li><a href="../examples/test-config.c.html">test-config.c</a></li>
   <li><a href="../examples/test-file.c.html">test-file.c</a></li>
+  <li><a href="../examples/test-interface.c.html">test-interface.c</a></li>
   <li><a href="../examples/test-json.c.html">test-json.c</a></li>
   <li><a href="../examples/test-list.c.html">test-list.c</a></li>
   <li><a href="../examples/test-map.c.html">test-map.c</a></li>
@@ -70,6 +77,8 @@
   <li><a href="../examples/test-table.c.html">test-table.c</a></li>
   <li><a href="../examples/test-template.c.html">test-template.c</a></li>
   <li><a href="../examples/test-xml.c.html">test-xml.c</a></li>
+  <li><a href="../examples/testa.c.html">testa.c</a></li>
+  <li><a href="../examples/testing.c.html">testing.c</a></li>
   <li><a href="../examples/cmd.c.html">cmd.c</a></li>
   <li><a href="../examples/testa.c.html">testa.c</a></li>
   <li><a href="../examples/config.c.html">config.c</a></li>
@@ -81,12 +90,13 @@
 <div id="content">
 
 <h1>Module <code>array</code></h1>
-<p><h3>Useful Array Macros.</h3>
+<p>
+<h3>Useful Array Macros.</h3>
 </p>
 <p>These operate on llib arrays, supporting mapping, filtering and inline iteration.
 With all these macros, the dummy variable for accessing the current array
 value is <code>_</code> (underscore).  The map &amp; filter macros all declare an array of
-the given type, and create a reference-counted array if the name ends in &lsquo;R&rsquo;.</p>
+the given type, and create a reference-counted array if the name ends in 'R'.</p>
 
 
 <h2><a href="#Macros">Macros</a></h2>
@@ -110,6 +120,20 @@ the given type, and create a reference-counted array if the name ends in &lsquo;
 	<tr>
 	<td class="name" nowrap><a href="#FILTAR">FILTAR</a></td>
 	<td class="summary">New reference array containing matching elements from <code>A</code>.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#FINDA">FINDA</a></td>
+	<td class="summary">Index into array where expression matches value.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#RFINDA">RFINDA</a></td>
+	<td class="summary">Like <a href="../modules/array.html#FINDA">FINDA</a> but starts searching at end
+ Declares a variable <code>v</code>, which will be -1 if no match is possible.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#FINDZ">FINDZ</a></td>
+	<td class="summary">Like <a href="../modules/array.html#FINDA">FINDA</a> but assumes array ends with <code>NULL</code>
+ Declares a variable <code>v</code>, which will be -1 if no match is possible.</td>
 	</tr>
 </table>
 
@@ -274,13 +298,98 @@ the given type, and create a reference-counted array if the name ends in &lsquo;
     </ul>
 
 </dd>
+    <dt>
+    <a name = "FINDA"></a>
+    <strong>FINDA</strong>
+    </dt>
+    <dd>
+    Index into array where expression matches value.
+ Declares a variable <code>v</code>, which will be -1 if no match is possible.
+
+
+    <ul>
+        <li><span class="parameter">v</span>
+         new index
+        </li>
+        <li><span class="parameter">A</span>
+         the array
+        </li>
+        <li><span class="parameter">istart</span>
+         where to start searching (usually 0)
+        </li>
+        <li><span class="parameter">expr</span>
+         expression in <code>_</code>
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "RFINDA"></a>
+    <strong>RFINDA</strong>
+    </dt>
+    <dd>
+    Like <a href="../modules/array.html#FINDA">FINDA</a> but starts searching at end
+ Declares a variable <code>v</code>, which will be -1 if no match is possible.
+
+
+    <ul>
+        <li><span class="parameter">v</span>
+         new index
+        </li>
+        <li><span class="parameter">A</span>
+         the array
+        </li>
+        <li><span class="parameter">istart</span>
+         where to start searching (-ve from end, +v is valid index)
+        </li>
+        <li><span class="parameter">expr</span>
+         expression in <code>_</code>
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "FINDZ"></a>
+    <strong>FINDZ</strong>
+    </dt>
+    <dd>
+    Like <a href="../modules/array.html#FINDA">FINDA</a> but assumes array ends with <code>NULL</code>
+ Declares a variable <code>v</code>, which will be -1 if no match is possible.
+
+
+    <ul>
+        <li><span class="parameter">v</span>
+         new index
+        </li>
+        <li><span class="parameter">A</span>
+         the array
+        </li>
+        <li><span class="parameter">expr</span>
+         expression in <code>_</code>
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
 </dl>
 
 
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.2</a></i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
+<i style="float:right;">Last updated 2014-11-01 16:41:56 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

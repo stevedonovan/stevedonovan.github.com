@@ -1,0 +1,168 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>llib Documentation</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>llib</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+
+
+<h2>Examples</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><strong>test-array.c</strong></li>
+  <li><a href="../examples/test-config.c.html">test-config.c</a></li>
+  <li><a href="../examples/test-file.c.html">test-file.c</a></li>
+  <li><a href="../examples/test-interface.c.html">test-interface.c</a></li>
+  <li><a href="../examples/test-json.c.html">test-json.c</a></li>
+  <li><a href="../examples/test-list.c.html">test-list.c</a></li>
+  <li><a href="../examples/test-map.c.html">test-map.c</a></li>
+  <li><a href="../examples/test-obj.c.html">test-obj.c</a></li>
+  <li><a href="../examples/test-pool.c.html">test-pool.c</a></li>
+  <li><a href="../examples/test-scan.c.html">test-scan.c</a></li>
+  <li><a href="../examples/test-seq.c.html">test-seq.c</a></li>
+  <li><a href="../examples/test-sqlite3-table.c.html">test-sqlite3-table.c</a></li>
+  <li><a href="../examples/test-str.c.html">test-str.c</a></li>
+  <li><a href="../examples/test-table.c.html">test-table.c</a></li>
+  <li><a href="../examples/test-template.c.html">test-template.c</a></li>
+  <li><a href="../examples/test-xml.c.html">test-xml.c</a></li>
+  <li><a href="../examples/testa.c.html">testa.c</a></li>
+  <li><a href="../examples/testing.c.html">testing.c</a></li>
+  <li><a href="../examples/cmd.c.html">cmd.c</a></li>
+  <li><a href="../examples/testa.c.html">testa.c</a></li>
+  <li><a href="../examples/config.c.html">config.c</a></li>
+  <li><a href="../examples/words.c.html">words.c</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../modules/obj.html">obj</a></li>
+  <li><a href="../modules/str.html">str</a></li>
+  <li><a href="../modules/scan.html">scan</a></li>
+  <li><a href="../modules/template.html">template</a></li>
+  <li><a href="../modules/list.html">list</a></li>
+  <li><a href="../modules/map.html">map</a></li>
+  <li><a href="../modules/file.html">file</a></li>
+  <li><a href="../modules/value.html">value</a></li>
+  <li><a href="../modules/json.html">json</a></li>
+  <li><a href="../modules/xml.html">xml</a></li>
+  <li><a href="../modules/farr.html">farr</a></li>
+  <li><a href="../modules/array.html">array</a></li>
+  <li><a href="../modules/table.html">table</a></li>
+  <li><a href="../modules/config.html">config</a></li>
+  <li><a href="../modules/arg.html">arg</a></li>
+  <li><a href="../modules/flot.html">flot</a></li>
+</ul>
+<h2>Topics</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../topics/readme.md.html">readme</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+    <h2>test-array.c</h2>
+<pre>
+#include &lt;stdio.h&gt;
+#include &lt;assert.h&gt;
+#include &lt;llib/str.h&gt;
+#include &lt;llib/array.h&gt;
+#include &lt;llib/dbg.h&gt;
+
+#define array_new_init(T,A) array_new_copy(T,A,sizeof(A)/sizeof(T))
+
+<span class="keyword">void</span> test_map() {
+    <span class="keyword">char</span>** ss = str_strings(<span class="string">"one"</span>,<span class="string">"two"</span>,<span class="string">"three"</span>,NULL);
+    MAPA(<span class="keyword">int</span>,ssl,strlen(_),ss);
+    <span class="global">assert</span>(ssl[<span class="number">0</span>] == <span class="number">3</span>);
+    <span class="global">assert</span>(ssl[<span class="number">1</span>] == <span class="number">3</span>);
+    <span class="global">assert</span>(ssl[<span class="number">2</span>] == <span class="number">5</span>);
+
+    <span class="keyword">int</span> nn[] = {<span class="number">1</span>,<span class="number">2</span>,<span class="number">22</span>,<span class="number">1</span>,<span class="number">40</span>,<span class="number">3</span>};
+    <span class="keyword">int</span> *na = array_new_init(<span class="keyword">int</span>,nn);
+
+    <span class="comment">// MAPAR because we want the result to be a ref container..
+</span>    MAPAR(<span class="keyword">char</span>*,sna,str_fmt(<span class="string">"%02d"</span>,_),na);
+
+    #define cat(arr) str_concat(arr," ")
+    <span class="global">assert</span>(str_eq(cat(sna),<span class="string">"01 02 22 01 40 03"</span>));
+
+    <span class="comment">// collecting the strings that match a condition
+</span>    <span class="comment">// (again, we want a ref container as a result)
+</span>    FILTAR(<span class="keyword">char</span>*,sna2,sna,_[<span class="number">1</span>]=='2');
+    <span class="global">assert</span>(str_eq(cat(sna2),<span class="string">"02 22"</span>));
+
+
+    FILTA(<span class="keyword">int</span>,nam,na,  _ &lt; <span class="number">10</span>);
+    <span class="keyword">char</span> **sn = strbuf_new();
+    FORA(nam,strbuf_addf(sn,<span class="string">"%02d "</span>,_));
+    <span class="global">assert</span>(str_eq(*sn,<span class="string">"01 02 01 03 "</span>));
+
+}
+
+<span class="keyword">void</span> test_finda() {
+    <span class="keyword">char</span>** exts = str_strings(<span class="string">".o"</span>,<span class="string">".d"</span>,<span class="string">".obj"</span>,NULL);
+    str_t extensions[] = {<span class="string">".o"</span>,<span class="string">".d"</span>,<span class="string">".obj"</span>,NULL};
+    str_t file = <span class="string">"bonzo.d"</span>;
+    <span class="comment">// use with llib arrays, with start index
+</span>    FINDA(idx,exts,<span class="number">0</span>,str_ends_with(file,_));
+    <span class="global">assert</span>(idx == <span class="number">1</span>);
+    <span class="comment">// use with any NULL-terminated array
+</span>    FINDZ(i,extensions,str_ends_with(file,_));
+    <span class="global">assert</span>(i == <span class="number">1</span>);
+
+    <span class="keyword">int</span> nums[] = {-<span class="number">1</span>,-<span class="number">2</span>,<span class="number">2</span>,-<span class="number">1</span>,<span class="number">4</span>,<span class="number">3</span>};
+    <span class="keyword">int</span> *arr = array_new_init(<span class="keyword">int</span>,nums);
+
+    <span class="comment">// unrolling a loop for searching through an array
+</span>    <span class="comment">// we need different names because FINDA/Z declares a new index.
+</span>    FINDA(i1,arr,<span class="number">0</span>, _ &gt; <span class="number">0</span>);
+    <span class="global">assert</span>(i1 == <span class="number">2</span>);
+    FINDA(i2,arr,i1+<span class="number">1</span>, _ &gt; <span class="number">0</span>);
+    <span class="global">assert</span>(i2 == <span class="number">4</span>);
+    FINDA(i3,arr,i2+<span class="number">1</span>, _ &gt; <span class="number">0</span>);
+    <span class="global">assert</span>(i3 == <span class="number">5</span>);
+}
+
+<span class="keyword">int</span> main()
+{
+    test_map();
+    test_finda();
+    printf(<span class="string">"ok\n"</span>);
+    <span class="keyword">return</span> <span class="number">0</span>;
+}</pre>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
+<i style="float:right;">Last updated 2014-11-01 16:41:56 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

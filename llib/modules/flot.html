@@ -1,0 +1,540 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>llib Documentation</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>llib</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../modules/obj.html">obj</a></li>
+  <li><a href="../modules/str.html">str</a></li>
+  <li><a href="../modules/scan.html">scan</a></li>
+  <li><a href="../modules/template.html">template</a></li>
+  <li><a href="../modules/list.html">list</a></li>
+  <li><a href="../modules/map.html">map</a></li>
+  <li><a href="../modules/file.html">file</a></li>
+  <li><a href="../modules/value.html">value</a></li>
+  <li><a href="../modules/json.html">json</a></li>
+  <li><a href="../modules/xml.html">xml</a></li>
+  <li><a href="../modules/farr.html">farr</a></li>
+  <li><a href="../modules/array.html">array</a></li>
+  <li><a href="../modules/table.html">table</a></li>
+  <li><a href="../modules/config.html">config</a></li>
+  <li><a href="../modules/arg.html">arg</a></li>
+  <li><strong>flot</strong></li>
+</ul>
+<h2>Topics</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../topics/readme.md.html">readme</a></li>
+</ul>
+<h2>Examples</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../examples/test-array.c.html">test-array.c</a></li>
+  <li><a href="../examples/test-config.c.html">test-config.c</a></li>
+  <li><a href="../examples/test-file.c.html">test-file.c</a></li>
+  <li><a href="../examples/test-interface.c.html">test-interface.c</a></li>
+  <li><a href="../examples/test-json.c.html">test-json.c</a></li>
+  <li><a href="../examples/test-list.c.html">test-list.c</a></li>
+  <li><a href="../examples/test-map.c.html">test-map.c</a></li>
+  <li><a href="../examples/test-obj.c.html">test-obj.c</a></li>
+  <li><a href="../examples/test-pool.c.html">test-pool.c</a></li>
+  <li><a href="../examples/test-scan.c.html">test-scan.c</a></li>
+  <li><a href="../examples/test-seq.c.html">test-seq.c</a></li>
+  <li><a href="../examples/test-sqlite3-table.c.html">test-sqlite3-table.c</a></li>
+  <li><a href="../examples/test-str.c.html">test-str.c</a></li>
+  <li><a href="../examples/test-table.c.html">test-table.c</a></li>
+  <li><a href="../examples/test-template.c.html">test-template.c</a></li>
+  <li><a href="../examples/test-xml.c.html">test-xml.c</a></li>
+  <li><a href="../examples/testa.c.html">testa.c</a></li>
+  <li><a href="../examples/testing.c.html">testing.c</a></li>
+  <li><a href="../examples/cmd.c.html">cmd.c</a></li>
+  <li><a href="../examples/testa.c.html">testa.c</a></li>
+  <li><a href="../examples/config.c.html">config.c</a></li>
+  <li><a href="../examples/words.c.html">words.c</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>flot</code></h1>
+<p>
+<h3>Generating Pretty Plots with Flot</h3>
+</p>
+<p>
+
+<pre>
+#include &lt;llib/flot.h&gt;
+
+<span class="keyword">double</span> sqr(<span class="keyword">double</span> x) { <span class="keyword">return</span> x*x; }
+
+<span class="keyword">double</span> *make_gaussian(<span class="keyword">double</span> m, <span class="keyword">double</span> x, <span class="keyword">double</span> *xv) {
+    <span class="keyword">double</span> s2 = <span class="number">2</span>*sqr(x);
+    <span class="keyword">double</span> norm = <span class="number">1.0</span>/(M_PI*s2);
+    <span class="keyword">int</span> n = array_len(xv);
+    <span class="keyword">double</span> *res = array_new(<span class="keyword">double</span>,n);
+    FOR (i,n) {
+        res[i] = norm*exp(-sqr(xv[i]-m)/s2);
+    }
+    <span class="keyword">return</span> res;
+}
+
+<span class="keyword">int</span> main()
+{
+    Flot *P = flot_new(<span class="string">"caption"</span>, <span class="string">"Gaussians"</span>,
+        <span class="string">"series.lines.fill"</span>,VF(<span class="number">0.2</span>));
+
+    <span class="keyword">double</span> *xv = farr_range(<span class="number">0</span>,<span class="number">10</span>,<span class="number">0.1</span>);
+
+    flot_series_new(P,xv,make_gaussian(<span class="number">5</span>,<span class="number">1</span>,xv),
+        FlotLines,<span class="string">"label"</span>,<span class="string">"norm s=1"</span>);
+    flot_series_new(P,xv,make_gaussian(<span class="number">4</span>,<span class="number">0.7</span>,xv),
+        FlotLines,<span class="string">"label"</span>,<span class="string">"norm s=0.7"</span>);
+
+    flot_comment(<span class="string">"default fill colour is line colour"</span>);
+    flot_render(<span class="string">"norm"</span>);
+    <span class="keyword">return</span> <span class="number">0</span>;
+}
+</pre>
+
+<p><img src="http://stevedonovan.github.io/files/llib-flot.png" alt="llib Flot"/></p>
+</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#flot_new">flot_new ()</a></td>
+	<td class="summary">new Flot plot.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#flot_option">flot_option (P, key, value)</a></td>
+	<td class="summary">set an option for a whole plot.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#flot_text_mark">flot_text_mark (P, x, y, text)</a></td>
+	<td class="summary">attach text annotations to a plot.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#flot_series_new_">flot_series_new_ (p, X, Y, flags, options)</a></td>
+	<td class="summary">new Flot series associated with a plot.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#flot_series_option">flot_series_option (S, key, value)</a></td>
+	<td class="summary">setting a Series option.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#flot_create">flot_create (title)</a></td>
+	<td class="summary">Create template data prior to rendering.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#flot_render">flot_render (name)</a></td>
+	<td class="summary">Render plots to a file, <code>name</code>.html.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#flot_gradient">flot_gradient (start, finish)</a></td>
+	<td class="summary">gradient between two colours.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#flot_vert_region">flot_vert_region (x1, x2, colour)</a></td>
+	<td class="summary">coloured region between x1 and x2</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#flot_horz_region">flot_horz_region (y1, y2, colour)</a></td>
+	<td class="summary">coloured region between y1 and y2</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "flot_new"></a>
+    <strong>flot_new ()</strong>
+    </dt>
+    <dd>
+    new Flot plot.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "flot_option"></a>
+    <strong>flot_option (P, key, value)</strong>
+    </dt>
+    <dd>
+    set an option for a whole plot.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">P</span>
+            <span class="types"><span class="type">Flot *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">key</span>
+            <span class="types"><span class="type">str_t</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">value</span>
+            <span class="types"><span class="type">const void *</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "flot_text_mark"></a>
+    <strong>flot_text_mark (P, x, y, text)</strong>
+    </dt>
+    <dd>
+    attach text annotations to a plot.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">P</span>
+            <span class="types"><span class="type">Flot *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">x</span>
+            <span class="types"><span class="type">double</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">y</span>
+            <span class="types"><span class="type">double</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">text</span>
+            <span class="types"><span class="type">str_t</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "flot_series_new_"></a>
+    <strong>flot_series_new_ (p, X, Y, flags, options)</strong>
+    </dt>
+    <dd>
+    new Flot series associated with a plot.
+ If <code>Y</code> is <code>NULL</code>, then <code>X</code> is interpreted as containing x and y values interleaved.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">p</span>
+            <span class="types"><span class="type">Flot *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">X</span>
+            <span class="types"><span class="type">double *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">Y</span>
+            <span class="types"><span class="type">double *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">flags</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">options</span>
+            <span class="types"><span class="type">PValue</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">Series *</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "flot_series_option"></a>
+    <strong>flot_series_option (S, key, value)</strong>
+    </dt>
+    <dd>
+    setting a Series option.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">S</span>
+            <span class="types"><span class="type">Series *</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">key</span>
+            <span class="types"><span class="type">str_t</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">value</span>
+            <span class="types"><span class="type">const void *</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "flot_create"></a>
+    <strong>flot_create (title)</strong>
+    </dt>
+    <dd>
+    Create template data prior to rendering.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">title</span>
+            <span class="types"><span class="type">str_t</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">void *</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "flot_render"></a>
+    <strong>flot_render (name)</strong>
+    </dt>
+    <dd>
+    Render plots to a file, <code>name</code>.html.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">name</span>
+            <span class="types"><span class="type">str_t</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "flot_gradient"></a>
+    <strong>flot_gradient (start, finish)</strong>
+    </dt>
+    <dd>
+    gradient between two colours.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">start</span>
+            <span class="types"><span class="type">str_t</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">finish</span>
+            <span class="types"><span class="type">str_t</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">PValue</span></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "flot_vert_region"></a>
+    <strong>flot_vert_region (x1, x2, colour)</strong>
+    </dt>
+    <dd>
+    coloured region between x1 and x2
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x1</span>
+            <span class="types"><span class="type">double</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">x2</span>
+            <span class="types"><span class="type">double</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">colour</span>
+            <span class="types"><span class="type">string</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "flot_horz_region"></a>
+    <strong>flot_horz_region (y1, y2, colour)</strong>
+    </dt>
+    <dd>
+    coloured region between y1 and y2
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">y1</span>
+            <span class="types"><span class="type">double</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">y2</span>
+            <span class="types"><span class="type">double</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">colour</span>
+            <span class="types"><span class="type">string</span></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
+<i style="float:right;">Last updated 2014-11-01 16:41:56 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
