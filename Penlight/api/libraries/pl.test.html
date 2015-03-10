@@ -39,6 +39,7 @@
 <h2>Libraries</h2>
 <ul class="$(kind=='Topics' and '' or 'nowrap'">
   <li><a href="../libraries/pl.html">pl</a></li>
+  <li><a href="../libraries/pl.Set.html">pl.Set</a></li>
   <li><a href="../libraries/pl.app.html">pl.app</a></li>
   <li><a href="../libraries/pl.array2d.html">pl.array2d</a></li>
   <li><a href="../libraries/pl.class.html">pl.class</a></li>
@@ -79,7 +80,6 @@
   <li><a href="../classes/pl.Map.html">pl.Map</a></li>
   <li><a href="../classes/pl.MultiMap.html">pl.MultiMap</a></li>
   <li><a href="../classes/pl.OrderedMap.html">pl.OrderedMap</a></li>
-  <li><a href="../classes/pl.Set.html">pl.Set</a></li>
 </ul>
 <h2>Manual</h2>
 <ul class="$(kind=='Topics' and '' or 'nowrap'">
@@ -112,7 +112,6 @@
   <li><a href="../examples/testxml.lua.html">testxml.lua</a></li>
   <li><a href="../examples/which.lua.html">which.lua</a></li>
 </ul>
-</ul>
 
 </div>
 
@@ -120,15 +119,18 @@
 
 <h1>Module <code>pl.test</code></h1>
 <p>Useful test utilities.</p>
-<p><pre>
+<p>
+
+
+
+<pre>
 test.asserteq({<span class="number">1</span>,<span class="number">2</span>},{<span class="number">1</span>,<span class="number">2</span>}) <span class="comment">-- can compare tables
 </span>test.asserteq(<span class="number">1.2</span>,<span class="number">1.19</span>,<span class="number">0.02</span>) <span class="comment">-- compare FP numbers within precision
 </span>T = test.tuple <span class="comment">-- used for comparing multiple results
 </span>test.asserteq(T(<span class="global">string</span>.find(<span class="string">" me"</span>,<span class="string">"me"</span>)),T(<span class="number">2</span>,<span class="number">3</span>))
 </pre>
 
-
-<p> Dependencies: <a href="../libraries/pl.utils.html#">pl.utils</a>, <a href="../libraries/pl.tablex.html#">pl.tablex</a>, <a href="../libraries/pl.pretty.html#">pl.pretty</a>, <a href="../libraries/pl.path.html#">pl.path</a>, <a href="http://www.lua.org/manual/5.1/manual.html#5.9">debug</a></p>
+<p> Dependencies: <a href="../libraries/pl.utils.html#">pl.utils</a>, <a href="../libraries/pl.tablex.html#">pl.tablex</a>, <a href="../libraries/pl.pretty.html#">pl.pretty</a>, <a href="../libraries/pl.path.html#">pl.path</a>, <a href="http://www.lua.org/manual/5.2/manual.html#6.10">debug</a></p>
 </p>
 
 
@@ -174,7 +176,6 @@ test.asserteq({<span class="number">1</span>,<span class="number">2</span>},{<sp
     <dt>
     <a name = "complain"></a>
     <strong>complain (x, y, msg, where)</strong>
-    <a style="float:right;" href="../source/test.lua.html#48">line 48</a>
     </dt>
     <dd>
     general test complain message.
@@ -205,7 +206,6 @@ test.asserteq({<span class="number">1</span>,<span class="number">2</span>},{<sp
     <dt>
     <a name = "asserteq"></a>
     <strong>asserteq (x, y, eps, where)</strong>
-    <a style="float:right;" href="../source/test.lua.html#56">line 56</a>
     </dt>
     <dd>
     like assert, except takes two arguments that must be equal and can be tables.
@@ -236,7 +236,6 @@ test.asserteq({<span class="number">1</span>,<span class="number">2</span>},{<sp
     <dt>
     <a name = "assertmatch"></a>
     <strong>assertmatch (s1, s2, where)</strong>
-    <a style="float:right;" href="../source/test.lua.html#70">line 70</a>
     </dt>
     <dd>
     assert that the first string matches the second.
@@ -263,7 +262,6 @@ test.asserteq({<span class="number">1</span>,<span class="number">2</span>},{<sp
     <dt>
     <a name = "assertraise"></a>
     <strong>assertraise (fn, e, where)</strong>
-    <a style="float:right;" href="../source/test.lua.html#80">line 80</a>
     </dt>
     <dd>
     assert that the function raises a particular error.
@@ -272,7 +270,7 @@ test.asserteq({<span class="number">1</span>,<span class="number">2</span>},{<sp
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">fn</span>
-         a function or a table of the form {function,arg1,&hellip;}
+         a function or a table of the form {function,arg1,...}
         </li>
         <li><span class="parameter">e</span>
          a string to match the error against
@@ -290,7 +288,6 @@ test.asserteq({<span class="number">1</span>,<span class="number">2</span>},{<sp
     <dt>
     <a name = "asserteq2"></a>
     <strong>asserteq2 (x1, x2, y1, y2, where)</strong>
-    <a style="float:right;" href="../source/test.lua.html#100">line 100</a>
     </dt>
     <dd>
     a version of asserteq that takes two pairs of values.
@@ -325,7 +322,6 @@ test.asserteq({<span class="number">1</span>,<span class="number">2</span>},{<sp
     <dt>
     <a name = "tuple"></a>
     <strong>tuple (...)</strong>
-    <a style="float:right;" href="../source/test.lua.html#130">line 130</a>
     </dt>
     <dd>
     encode an arbitrary argument list as a tuple.
@@ -336,6 +332,7 @@ test.asserteq({<span class="number">1</span>,<span class="number">2</span>},{<sp
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">...</span>
+
 
 
         </li>
@@ -353,7 +350,6 @@ test.asserteq({<span class="number">1</span>,<span class="number">2</span>},{<sp
     <dt>
     <a name = "timer"></a>
     <strong>timer (msg, n, fun, ...)</strong>
-    <a style="float:right;" href="../source/test.lua.html#140">line 140</a>
     </dt>
     <dd>
     Time a function.  Call the function a given number of times, and report the number of seconds taken,
@@ -363,7 +359,7 @@ test.asserteq({<span class="number">1</span>,<span class="number">2</span>},{<sp
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">msg</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          a descriptive message
         </li>
         <li><span class="parameter">n</span>
@@ -391,7 +387,7 @@ test.asserteq({<span class="number">1</span>,<span class="number">2</span>},{<sp
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2014-11-01 18:36:39 </i>
+<i style="float:right;">Last updated 2015-03-10 14:00:48 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

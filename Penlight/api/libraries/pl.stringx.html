@@ -44,6 +44,7 @@
 <h2>Libraries</h2>
 <ul class="$(kind=='Topics' and '' or 'nowrap'">
   <li><a href="../libraries/pl.html">pl</a></li>
+  <li><a href="../libraries/pl.Set.html">pl.Set</a></li>
   <li><a href="../libraries/pl.app.html">pl.app</a></li>
   <li><a href="../libraries/pl.array2d.html">pl.array2d</a></li>
   <li><a href="../libraries/pl.class.html">pl.class</a></li>
@@ -84,7 +85,6 @@
   <li><a href="../classes/pl.Map.html">pl.Map</a></li>
   <li><a href="../classes/pl.MultiMap.html">pl.MultiMap</a></li>
   <li><a href="../classes/pl.OrderedMap.html">pl.OrderedMap</a></li>
-  <li><a href="../classes/pl.Set.html">pl.Set</a></li>
 </ul>
 <h2>Manual</h2>
 <ul class="$(kind=='Topics' and '' or 'nowrap'">
@@ -117,7 +117,6 @@
   <li><a href="../examples/testxml.lua.html">testxml.lua</a></li>
   <li><a href="../examples/which.lua.html">which.lua</a></li>
 </ul>
-</ul>
 
 </div>
 
@@ -127,7 +126,7 @@
 <p>Python-style extended string library.</p>
 <p> see 3.6.1 of the Python reference.
  If you want to make these available as string methods, then say
- <code>stringx.import()</code> to bring them into the standard <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a> table.</p>
+ <code>stringx.import()</code> to bring them into the standard <a href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a> table.</p>
 
 <p> See <a href="../manual/03-strings.md.html#">the Guide</a></p>
 
@@ -250,7 +249,7 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#at">at (self, idx)</a></td>
-	<td class="summary">return the &lsquo;character&rsquo; at the index.</td>
+	<td class="summary">return the 'character' at the index.</td>
 	</tr>
 </table>
 <h2><a href="#Miscelaneous">Miscelaneous </a></h2>
@@ -261,11 +260,15 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#title">title (self)</a></td>
-	<td class="summary">iniital word letters uppercase (&lsquo;title case&rsquo;).</td>
+	<td class="summary">iniital word letters uppercase ('title case').</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#shorten">shorten (self, sz, tail)</a></td>
 	<td class="summary">return a shorted version of a string.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#quote_string">quote_string (s)</a></td>
+	<td class="summary">Quote the given string and preserve any control or escape characters, such that reloading the string in Lua returns the same result.</td>
 	</tr>
 </table>
 
@@ -276,12 +279,10 @@
     <h2><a name="String_Predicates"></a>String Predicates </h2>
 
 
-
     <dl class="function">
     <dt>
     <a name = "isalpha"></a>
     <strong>isalpha (s)</strong>
-    <a style="float:right;" href="../source/stringx.lua.html#46">line 46</a>
     </dt>
     <dd>
     does s only contain alphabetic characters?.
@@ -290,7 +291,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          a string
         </li>
     </ul>
@@ -303,7 +304,6 @@
     <dt>
     <a name = "isdigit"></a>
     <strong>isdigit (s)</strong>
-    <a style="float:right;" href="../source/stringx.lua.html#53">line 53</a>
     </dt>
     <dd>
     does s only contain digits?.
@@ -312,7 +312,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          a string
         </li>
     </ul>
@@ -325,7 +325,6 @@
     <dt>
     <a name = "isalnum"></a>
     <strong>isalnum (s)</strong>
-    <a style="float:right;" href="../source/stringx.lua.html#60">line 60</a>
     </dt>
     <dd>
     does s only contain alphanumeric characters?.
@@ -334,7 +333,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          a string
         </li>
     </ul>
@@ -347,7 +346,6 @@
     <dt>
     <a name = "isspace"></a>
     <strong>isspace (s)</strong>
-    <a style="float:right;" href="../source/stringx.lua.html#67">line 67</a>
     </dt>
     <dd>
     does s only contain spaces?.
@@ -356,7 +354,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          a string
         </li>
     </ul>
@@ -369,7 +367,6 @@
     <dt>
     <a name = "islower"></a>
     <strong>islower (s)</strong>
-    <a style="float:right;" href="../source/stringx.lua.html#74">line 74</a>
     </dt>
     <dd>
     does s only contain lower case characters?.
@@ -378,7 +375,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          a string
         </li>
     </ul>
@@ -391,7 +388,6 @@
     <dt>
     <a name = "isupper"></a>
     <strong>isupper (s)</strong>
-    <a style="float:right;" href="../source/stringx.lua.html#81">line 81</a>
     </dt>
     <dd>
     does s only contain upper case characters?.
@@ -400,7 +396,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          a string
         </li>
     </ul>
@@ -413,7 +409,6 @@
     <dt>
     <a name = "startswith"></a>
     <strong>startswith (self, s2)</strong>
-    <a style="float:right;" href="../source/stringx.lua.html#89">line 89</a>
     </dt>
     <dd>
     does string start with the substring?.
@@ -422,11 +417,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">self</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          the string
         </li>
         <li><span class="parameter">s2</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          a string
         </li>
     </ul>
@@ -439,7 +434,6 @@
     <dt>
     <a name = "endswith"></a>
     <strong>endswith (s, send)</strong>
-    <a style="float:right;" href="../source/stringx.lua.html#112">line 112</a>
     </dt>
     <dd>
     does string end with the given substring?.
@@ -448,7 +442,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          a string
         </li>
         <li><span class="parameter">send</span>
@@ -465,12 +459,10 @@
     <h2><a name="Strings_and_Lists"></a>Strings and Lists </h2>
 
 
-
     <dl class="function">
     <dt>
     <a name = "join"></a>
     <strong>join (self, seq)</strong>
-    <a style="float:right;" href="../source/stringx.lua.html#134">line 134</a>
     </dt>
     <dd>
     concatenate the strings using this string as a delimiter.
@@ -479,7 +471,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">self</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          the string
         </li>
         <li><span class="parameter">seq</span>
@@ -499,7 +491,6 @@
     <dt>
     <a name = "splitlines"></a>
     <strong>splitlines (self, keepends)</strong>
-    <a style="float:right;" href="../source/stringx.lua.html#142">line 142</a>
     </dt>
     <dd>
     break string into a list of lines
@@ -508,7 +499,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">self</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          the string
         </li>
         <li><span class="parameter">keepends</span>
@@ -524,7 +515,6 @@
     <dt>
     <a name = "split"></a>
     <strong>split (self[, re], n)</strong>
-    <a style="float:right;" href="../source/stringx.lua.html#158">line 158</a>
     </dt>
     <dd>
     split a string into a list of strings using a delimiter.
@@ -533,11 +523,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">self</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          the string
         </li>
         <li><span class="parameter">re</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          a delimiter (defaults to whitespace)
          (<em>optional</em>)
         </li>
@@ -561,18 +551,17 @@
     <dt>
     <a name = "expandtabs"></a>
     <strong>expandtabs (self, n)</strong>
-    <a style="float:right;" href="../source/stringx.lua.html#183">line 183</a>
     </dt>
     <dd>
     replace all tabs in s with n spaces.  If not specified, n defaults to 8.
  with 0.9.5 this now correctly expands to the next tab stop (if you really
- want to just replace tabs, use :gsub(&lsquo;\t&rsquo;,&lsquo;  &rsquo;) etc)
+ want to just replace tabs, use :gsub('\t','  ') etc)
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">self</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          the string
         </li>
         <li><span class="parameter">n</span>
@@ -590,12 +579,10 @@
     <h2><a name="Finding_and_Replacing"></a>Finding and Replacing </h2>
 
 
-
     <dl class="function">
     <dt>
     <a name = "lfind"></a>
     <strong>lfind (self, sub, i1)</strong>
-    <a style="float:right;" href="../source/stringx.lua.html#202">line 202</a>
     </dt>
     <dd>
     find index of first instance of sub in s from the left.
@@ -604,11 +591,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">self</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          the string
         </li>
         <li><span class="parameter">sub</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          substring
         </li>
         <li><span class="parameter">i1</span>
@@ -625,7 +612,6 @@
     <dt>
     <a name = "rfind"></a>
     <strong>rfind (self, sub, first, last)</strong>
-    <a style="float:right;" href="../source/stringx.lua.html#214">line 214</a>
     </dt>
     <dd>
     find index of first instance of sub in s from the right.
@@ -634,11 +620,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">self</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          the string
         </li>
         <li><span class="parameter">sub</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          substring
         </li>
         <li><span class="parameter">first</span>
@@ -659,7 +645,6 @@
     <dt>
     <a name = "replace"></a>
     <strong>replace (s, old, new[, n])</strong>
-    <a style="float:right;" href="../source/stringx.lua.html#229">line 229</a>
     </dt>
     <dd>
     replace up to n instances of old by new in the string s.
@@ -669,15 +654,15 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          the string
         </li>
         <li><span class="parameter">old</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          the target substring
         </li>
         <li><span class="parameter">new</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          the substitution
         </li>
         <li><span class="parameter">n</span>
@@ -702,7 +687,6 @@
     <dt>
     <a name = "count"></a>
     <strong>count (self, sub)</strong>
-    <a style="float:right;" href="../source/stringx.lua.html#242">line 242</a>
     </dt>
     <dd>
     count all instances of substring in string.
@@ -711,11 +695,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">self</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          the string
         </li>
         <li><span class="parameter">sub</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          substring
         </li>
     </ul>
@@ -729,12 +713,10 @@
     <h2><a name="Stripping_and_Justifying"></a>Stripping and Justifying </h2>
 
 
-
     <dl class="function">
     <dt>
     <a name = "ljust"></a>
     <strong>ljust (self, w[, ch=''])</strong>
-    <a style="float:right;" href="../source/stringx.lua.html#278">line 278</a>
     </dt>
     <dd>
     left-justify s with width w.
@@ -743,7 +725,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">self</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          the string
         </li>
         <li><span class="parameter">w</span>
@@ -751,7 +733,7 @@
          width of justification
         </li>
         <li><span class="parameter">ch</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          padding character
          (<em>default</em> '')
         </li>
@@ -765,7 +747,6 @@
     <dt>
     <a name = "rjust"></a>
     <strong>rjust (s, w[, ch=''])</strong>
-    <a style="float:right;" href="../source/stringx.lua.html#288">line 288</a>
     </dt>
     <dd>
     right-justify s with width w.
@@ -774,7 +755,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          the string
         </li>
         <li><span class="parameter">w</span>
@@ -782,7 +763,7 @@
          width of justification
         </li>
         <li><span class="parameter">ch</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          padding character
          (<em>default</em> '')
         </li>
@@ -796,7 +777,6 @@
     <dt>
     <a name = "center"></a>
     <strong>center (s, w[, ch=''])</strong>
-    <a style="float:right;" href="../source/stringx.lua.html#298">line 298</a>
     </dt>
     <dd>
     center-justify s with width w.
@@ -805,7 +785,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          the string
         </li>
         <li><span class="parameter">w</span>
@@ -813,7 +793,7 @@
          width of justification
         </li>
         <li><span class="parameter">ch</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          padding character
          (<em>default</em> '')
         </li>
@@ -827,7 +807,6 @@
     <dt>
     <a name = "lstrip"></a>
     <strong>lstrip (self[, chrs='%x'])</strong>
-    <a style="float:right;" href="../source/stringx.lua.html#329">line 329</a>
     </dt>
     <dd>
     trim any whitespace on the left of s.
@@ -836,11 +815,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">self</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          the string
         </li>
         <li><span class="parameter">chrs</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          default any whitespace character,
   but can be a string of characters to be trimmed
          (<em>default</em> '%x')
@@ -855,7 +834,6 @@
     <dt>
     <a name = "rstrip"></a>
     <strong>rstrip (s[, chrs='%x'])</strong>
-    <a style="float:right;" href="../source/stringx.lua.html#339">line 339</a>
     </dt>
     <dd>
     trim any whitespace on the right of s.
@@ -864,11 +842,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          the string
         </li>
         <li><span class="parameter">chrs</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          default any whitespace character,
   but can be a string of characters to be trimmed
          (<em>default</em> '%x')
@@ -883,7 +861,6 @@
     <dt>
     <a name = "strip"></a>
     <strong>strip (self[, chrs='%x'])</strong>
-    <a style="float:right;" href="../source/stringx.lua.html#348">line 348</a>
     </dt>
     <dd>
     trim any whitespace on both left and right of s.
@@ -892,11 +869,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">self</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          the string
         </li>
         <li><span class="parameter">chrs</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          default any whitespace character,
   but can be a string of characters to be trimmed
          (<em>default</em> '%x')
@@ -912,12 +889,10 @@
     <h2><a name="Partioning_Strings"></a>Partioning Strings </h2>
 
 
-
     <dl class="function">
     <dt>
     <a name = "splitv"></a>
     <strong>splitv (self[, re='%s'])</strong>
-    <a style="float:right;" href="../source/stringx.lua.html#361">line 361</a>
     </dt>
     <dd>
     split a string using a pattern.  Note that at least one value will be returned!
@@ -926,11 +901,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">self</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          the string
         </li>
         <li><span class="parameter">re</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          a Lua string pattern (defaults to whitespace)
          (<em>default</em> '%s')
         </li>
@@ -953,7 +928,6 @@
     <dt>
     <a name = "partition"></a>
     <strong>partition (self, ch)</strong>
-    <a style="float:right;" href="../source/stringx.lua.html#384">line 384</a>
     </dt>
     <dd>
     partition the string using first occurance of a delimiter
@@ -962,11 +936,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">self</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          the string
         </li>
         <li><span class="parameter">ch</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          delimiter
         </li>
     </ul>
@@ -988,7 +962,6 @@
     <dt>
     <a name = "rpartition"></a>
     <strong>rpartition (self, ch)</strong>
-    <a style="float:right;" href="../source/stringx.lua.html#396">line 396</a>
     </dt>
     <dd>
     partition the string p using last occurance of a delimiter
@@ -997,11 +970,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">self</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          the string
         </li>
         <li><span class="parameter">ch</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          delimiter
         </li>
     </ul>
@@ -1023,16 +996,15 @@
     <dt>
     <a name = "at"></a>
     <strong>at (self, idx)</strong>
-    <a style="float:right;" href="../source/stringx.lua.html#406">line 406</a>
     </dt>
     <dd>
-    return the &lsquo;character&rsquo; at the index.
+    return the 'character' at the index.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">self</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          the string
         </li>
         <li><span class="parameter">idx</span>
@@ -1055,12 +1027,10 @@
     <h2><a name="Miscelaneous"></a>Miscelaneous </h2>
 
 
-
     <dl class="function">
     <dt>
     <a name = "lines"></a>
     <strong>lines (self)</strong>
-    <a style="float:right;" href="../source/stringx.lua.html#418">line 418</a>
     </dt>
     <dd>
     return an interator over all lines in a string
@@ -1069,7 +1039,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">self</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          the string
         </li>
     </ul>
@@ -1087,17 +1057,16 @@
     <dt>
     <a name = "title"></a>
     <strong>title (self)</strong>
-    <a style="float:right;" href="../source/stringx.lua.html#429">line 429</a>
     </dt>
     <dd>
-    iniital word letters uppercase (&lsquo;title case&rsquo;).
- Here &lsquo;words&rsquo; mean chunks of non-space characters.
+    iniital word letters uppercase ('title case').
+ Here 'words' mean chunks of non-space characters.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">self</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          the string
         </li>
     </ul>
@@ -1105,7 +1074,7 @@
     <h3>Returns:</h3>
     <ol>
 
-        a string with each word&rsquo;s first letter uppercase
+        a string with each word's first letter uppercase
     </ol>
 
 
@@ -1115,7 +1084,6 @@
     <dt>
     <a name = "shorten"></a>
     <strong>shorten (self, sz, tail)</strong>
-    <a style="float:right;" href="../source/stringx.lua.html#444">line 444</a>
     </dt>
     <dd>
     return a shorted version of a string.
@@ -1124,7 +1092,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">self</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          the string
         </li>
         <li><span class="parameter">sz</span>
@@ -1142,6 +1110,31 @@
 
 
 </dd>
+    <dt>
+    <a name = "quote_string"></a>
+    <strong>quote_string (s)</strong>
+    </dt>
+    <dd>
+    Quote the given string and preserve any control or escape characters, such that reloading the string in Lua returns the same result.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">s</span>
+         The string to be quoted.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The quoted string.
+    </ol>
+
+
+
+
+</dd>
 </dl>
 
 
@@ -1149,7 +1142,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2014-11-01 18:36:39 </i>
+<i style="float:right;">Last updated 2015-03-10 14:00:48 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

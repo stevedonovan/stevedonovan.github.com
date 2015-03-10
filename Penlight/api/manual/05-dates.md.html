@@ -51,6 +51,7 @@
 <h2>Libraries</h2>
 <ul class="$(kind=='Topics' and '' or 'nowrap'">
   <li><a href="../libraries/pl.html">pl</a></li>
+  <li><a href="../libraries/pl.Set.html">pl.Set</a></li>
   <li><a href="../libraries/pl.app.html">pl.app</a></li>
   <li><a href="../libraries/pl.array2d.html">pl.array2d</a></li>
   <li><a href="../libraries/pl.class.html">pl.class</a></li>
@@ -91,7 +92,6 @@
   <li><a href="../classes/pl.Map.html">pl.Map</a></li>
   <li><a href="../classes/pl.MultiMap.html">pl.MultiMap</a></li>
   <li><a href="../classes/pl.OrderedMap.html">pl.OrderedMap</a></li>
-  <li><a href="../classes/pl.Set.html">pl.Set</a></li>
 </ul>
 <h2>Examples</h2>
 <ul class="$(kind=='Topics' and '' or 'nowrap'">
@@ -112,26 +112,26 @@
   <li><a href="../examples/testxml.lua.html">testxml.lua</a></li>
   <li><a href="../examples/which.lua.html">which.lua</a></li>
 </ul>
-</ul>
 
 </div>
 
 <div id="content">
 
-    <h2>Date and Time</h2>
+
+<h2>Date and Time</h2>
 
 <p><a id="date"></a></p>
 
 <p><a name="Creating_and_Displaying_Dates"></a></p>
-
 <h3>Creating and Displaying Dates</h3>
 
 <p>The <a href="../classes/pl.Date.html#">Date</a> class provides a simplified way to work with <a href="http://www.lua.org/pil/22.1.html">date and
 time</a> in Lua; it leans heavily on the functions
-<a href="http://www.lua.org/manual/5.1/manual.html#pdf-os.date">os.date</a> and <a href="http://www.lua.org/manual/5.1/manual.html#pdf-os.time">os.time</a>.</p>
+<a href="http://www.lua.org/manual/5.2/manual.html#pdf-os.date">os.date</a> and <a href="http://www.lua.org/manual/5.2/manual.html#pdf-os.time">os.time</a>.</p>
 
-<p>A <a href="../classes/pl.Date.html#">Date</a> object can be constructed from a table, just like with <a href="http://www.lua.org/manual/5.1/manual.html#pdf-os.time">os.time</a>.
+<p>A <a href="../classes/pl.Date.html#">Date</a> object can be constructed from a table, just like with <a href="http://www.lua.org/manual/5.2/manual.html#pdf-os.time">os.time</a>.
 Methods are provided to get and set the various parts of the date.</p>
+
 
 <pre>
 &gt; d = Date {year = <span class="number">2011</span>, month = <span class="number">3</span>, day = <span class="number">2</span> }
@@ -147,8 +147,8 @@ Methods are provided to get and set the various parts of the date.</p>
 <span class="number">2011</span>-<span class="number">04</span>-<span class="number">03</span> <span class="number">12</span>:<span class="number">00</span>:<span class="number">00</span>
 </pre>
 
-
 <p><code>add</code> takes a table containing one of the date table fields.</p>
+
 
 <pre>
 &gt; = d:weekday_name()
@@ -159,9 +159,9 @@ Sun
 April
 </pre>
 
-
 <p>There is a default conversion to text for date objects, but <a href="../classes/pl.Date.html#Date.Format">Date.Format</a> gives
 you full control of the format for both parsing and displaying dates:</p>
+
 
 <pre>
 &gt; iso = Date.Format <span class="string">'yyyy-mm-dd'</span>
@@ -171,9 +171,9 @@ you full control of the format for both parsing and displaying dates:</p>
 <span class="number">04</span>/<span class="number">10</span>/<span class="number">2010</span>
 </pre>
 
-
 <p>With the 0.9.7 relase, the <a href="../classes/pl.Date.html#">Date</a> constructor has become more flexible. You may
-omit any of the &lsquo;year&rsquo;, &lsquo;month&rsquo; or &lsquo;day&rsquo; fields:</p>
+omit any of the 'year', 'month' or 'day' fields:</p>
+
 
 <pre>
 &gt; = Date { year = <span class="number">2008</span> }
@@ -186,11 +186,11 @@ omit any of the &lsquo;year&rsquo;, &lsquo;month&rsquo; or &lsquo;day&rsquo; fie
 <span class="number">2011</span>-<span class="number">10</span>-<span class="number">13</span> <span class="number">14</span>:<span class="number">30</span>:<span class="number">00</span>
 </pre>
 
+<p>If 'year' is omitted, then the current year is assumed, and likewise for 'month'.</p>
 
-<p>If &lsquo;year&rsquo; is omitted, then the current year is assumed, and likewise for &lsquo;month&rsquo;.</p>
+<p>To set the time on such a partial date, you can use the fact that the 'setter'
+methods return the date object and so you can 'chain' these methods.</p>
 
-<p>To set the time on such a partial date, you can use the fact that the &lsquo;setter&rsquo;
-methods return the date object and so you can &lsquo;chain&rsquo; these methods.</p>
 
 <pre>
 &gt; d = Date { day = <span class="number">03</span> }
@@ -198,8 +198,8 @@ methods return the date object and so you can &lsquo;chain&rsquo; these methods.
 <span class="number">2011</span>-<span class="number">10</span>-<span class="number">03</span> <span class="number">18</span>:<span class="number">30</span>:<span class="number">00</span>
 </pre>
 
-
 <p>Finally, <a href="../classes/pl.Date.html#">Date</a> also now accepts positional arguments:</p>
+
 
 <pre>
 &gt; = Date(<span class="number">2011</span>,<span class="number">10</span>,<span class="number">3</span>)
@@ -208,11 +208,11 @@ methods return the date object and so you can &lsquo;chain&rsquo; these methods.
 <span class="number">2011</span>-<span class="number">10</span>-<span class="number">03</span> <span class="number">18</span>:<span class="number">30</span>:<span class="number">23</span>
 </pre>
 
-
 <p><code>Date.format</code> has been extended. If you construct an instance without a pattern,
 then it will try to match against a set of known formats. This is useful for
 human-input dates since keeping to a strict format is not one of the strong
 points of users. It assumes that there will be a date, and then a date.</p>
+
 
 <pre>
 &gt; df = Date.Format()
@@ -236,18 +236,18 @@ points of users. It assumes that there will be a date, and then a date.</p>
 <span class="number">2008</span>-<span class="number">10</span>-<span class="number">03</span> <span class="number">15</span>:<span class="number">30</span>:<span class="number">23</span>
 </pre>
 
-
 <p>ISO date format is of course a good idea if you need to deal with users from
-different countries. Here is the default behaviour for &lsquo;short&rsquo; dates:</p>
+different countries. Here is the default behaviour for 'short' dates:</p>
+
 
 <pre>
 &gt; = df:parse <span class="string">'24/02/12'</span>
 <span class="number">2012</span>-<span class="number">02</span>-<span class="number">24</span> <span class="number">12</span>:<span class="number">00</span>:<span class="number">00</span>
 </pre>
 
-
-<p>That&rsquo;s not what Americans expect! It&rsquo;s tricky to work out in a cross-platform way
+<p>That's not what Americans expect! It's tricky to work out in a cross-platform way
 exactly what the expected format is, so there is an explicit flag:</p>
+
 
 <pre>
 &gt; df:US_order(<span class="keyword">true</span>)
@@ -261,7 +261,7 @@ exactly what the expected format is, so there is an explicit flag:</p>
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2014-11-01 18:36:39 </i>
+<i style="float:right;">Last updated 2015-03-10 14:00:48 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

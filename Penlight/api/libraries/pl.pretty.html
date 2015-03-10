@@ -39,6 +39,7 @@
 <h2>Libraries</h2>
 <ul class="$(kind=='Topics' and '' or 'nowrap'">
   <li><a href="../libraries/pl.html">pl</a></li>
+  <li><a href="../libraries/pl.Set.html">pl.Set</a></li>
   <li><a href="../libraries/pl.app.html">pl.app</a></li>
   <li><a href="../libraries/pl.array2d.html">pl.array2d</a></li>
   <li><a href="../libraries/pl.class.html">pl.class</a></li>
@@ -79,7 +80,6 @@
   <li><a href="../classes/pl.Map.html">pl.Map</a></li>
   <li><a href="../classes/pl.MultiMap.html">pl.MultiMap</a></li>
   <li><a href="../classes/pl.OrderedMap.html">pl.OrderedMap</a></li>
-  <li><a href="../classes/pl.Set.html">pl.Set</a></li>
 </ul>
 <h2>Manual</h2>
 <ul class="$(kind=='Topics' and '' or 'nowrap'">
@@ -111,7 +111,6 @@
   <li><a href="../examples/testinputfields2.lua.html">testinputfields2.lua</a></li>
   <li><a href="../examples/testxml.lua.html">testxml.lua</a></li>
   <li><a href="../examples/which.lua.html">which.lua</a></li>
-</ul>
 </ul>
 
 </div>
@@ -160,22 +159,22 @@
     <dt>
     <a name = "read"></a>
     <strong>read (s)</strong>
-    <a style="float:right;" href="../source/pretty.lua.html#41">line 41</a>
     </dt>
     <dd>
     read a string representation of a Lua table.
  Uses load(), but tries to be cautious about loading arbitrary code!
- It is expecting a string of the form &lsquo;{&hellip;}&rsquo;, with perhaps some whitespace
+ It is expecting a string of the form '{...}', with perhaps some whitespace
  before or after the curly braces. A comment may occur beforehand.
  An empty environment is used, and
- any occurance of the keyword &lsquo;function&rsquo; will be considered a problem.
- in the given environment &ndash; the return value may be <code>nil</code>.
+ any occurance of the keyword 'function' will be considered a problem.
+ in the given environment - the return value may be <code>nil</code>.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
-         {string} string of the form &lsquo;{&hellip;}&rsquo;, with perhaps some whitespace
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+         string of the form '{...}', with perhaps some whitespace
  before or after the curly braces.
         </li>
     </ul>
@@ -193,7 +192,6 @@
     <dt>
     <a name = "load"></a>
     <strong>load (s, env, paranoid)</strong>
-    <a style="float:right;" href="../source/pretty.lua.html#72">line 72</a>
     </dt>
     <dd>
     read a Lua chunk.
@@ -202,12 +200,14 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          Lua code
         </li>
         <li><span class="parameter">env</span>
          optional environment
         </li>
         <li><span class="parameter">paranoid</span>
+            <span class="types"><span class="type">bool</span></span>
          prevent any looping constructs and disable string methods
         </li>
     </ul>
@@ -225,31 +225,33 @@
     <dt>
     <a name = "write"></a>
     <strong>write (tbl, space, not_clever)</strong>
-    <a style="float:right;" href="../source/pretty.lua.html#133">line 133</a>
     </dt>
     <dd>
     Create a string representation of a Lua table.
   This function never fails, but may complain by returning an
   extra value. Normally puts out one item per line, using
-  the provided indent; set the second parameter to &lsquo;&rsquo; if
+  the provided indent; set the second parameter to '' if
   you want output on one line.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">tbl</span>
-         {table} Table to serialize to a string.
+            <span class="types"><span class="type">tab</span></span>
+         Table to serialize to a string.
         </li>
         <li><span class="parameter">space</span>
-        <p> {string} (optional) The indent to use.</p>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
 
+<p> (optional) The indent to use.</p>
 <pre><code>Defaults to two spaces; make it the empty string for no indentation
 </code></pre>
 
         </li>
         <li><span class="parameter">not_clever</span>
-        <p> {bool} (optional) Use for plain output, e.g {[&lsquo;key&rsquo;]=1}.</p>
+            <span class="types"><span class="type">bool</span></span>
 
+<p> (optional) Use for plain output, e.g {['key']=1}.</p>
 <pre><code>Defaults to false.
 </code></pre>
 
@@ -271,7 +273,6 @@
     <dt>
     <a name = "dump"></a>
     <strong>dump (t, ...)</strong>
-    <a style="float:right;" href="../source/pretty.lua.html#234">line 234</a>
     </dt>
     <dd>
     Dump a Lua table out to a file or stdout.
@@ -283,8 +284,8 @@
          {table} The table to write to a file or stdout.
         </li>
         <li><span class="parameter">...</span>
-        <p> {string} (optional) File name to write too. Defaults to writing</p>
 
+<p> {string} (optional) File name to write too. Defaults to writing</p>
 <pre><code>to stdout.
 </code></pre>
 
@@ -299,7 +300,6 @@
     <dt>
     <a name = "number"></a>
     <strong>number (num, kind, prec)</strong>
-    <a style="float:right;" href="../source/pretty.lua.html#257">line 257</a>
     </dt>
     <dd>
     format large numbers nicely for human consumption.
@@ -311,11 +311,11 @@
          a number
         </li>
         <li><span class="parameter">kind</span>
-         one of &lsquo;M&rsquo; (memory in KiB etc), &lsquo;N&rsquo; (postfixes are &lsquo;K&rsquo;,&lsquo;M&rsquo; and &lsquo;B&rsquo;)
- and &rsquo;T' (use commas as thousands separator)
+         one of 'M' (memory in KiB etc), 'N' (postfixes are 'K','M' and 'B')
+ and 'T' (use commas as thousands separator)
         </li>
         <li><span class="parameter">prec</span>
-         number of digits to use for &lsquo;M&rsquo; and &lsquo;N&rsquo; (default 1)
+         number of digits to use for 'M' and 'N' (default 1)
         </li>
     </ul>
 
@@ -331,7 +331,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2014-11-01 18:36:39 </i>
+<i style="float:right;">Last updated 2015-03-10 14:00:48 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

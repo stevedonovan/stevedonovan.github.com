@@ -44,11 +44,11 @@
   <li><a href="../classes/pl.Map.html">pl.Map</a></li>
   <li><a href="../classes/pl.MultiMap.html">pl.MultiMap</a></li>
   <li><a href="../classes/pl.OrderedMap.html">pl.OrderedMap</a></li>
-  <li><a href="../classes/pl.Set.html">pl.Set</a></li>
 </ul>
 <h2>Libraries</h2>
 <ul class="$(kind=='Topics' and '' or 'nowrap'">
   <li><a href="../libraries/pl.html">pl</a></li>
+  <li><a href="../libraries/pl.Set.html">pl.Set</a></li>
   <li><a href="../libraries/pl.app.html">pl.app</a></li>
   <li><a href="../libraries/pl.array2d.html">pl.array2d</a></li>
   <li><a href="../libraries/pl.class.html">pl.class</a></li>
@@ -113,7 +113,6 @@
   <li><a href="../examples/testxml.lua.html">testxml.lua</a></li>
   <li><a href="../examples/which.lua.html">which.lua</a></li>
 </ul>
-</ul>
 
 </div>
 
@@ -124,7 +123,7 @@
 <p> <strong>Please Note</strong>: methods that change the list will return the list.
  This is to allow for method chaining, but please note that <code>ls = ls:sort()</code>
  does not mean that a new copy of the list is made. In-place (mutable) methods
- are marked as returning &lsquo;the list&rsquo; in this documentation.</p>
+ are marked as returning 'the list' in this documentation.</p>
 
 <p> See the Guide for further <a href="../manual/02-arrays.md.html#Python_style_Lists">discussion</a></p>
 
@@ -214,7 +213,7 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#List.range">List.range (start[, finish[, incr=1]])</a></td>
-	<td class="summary">Emulate Python&rsquo;s range(x) function.</td>
+	<td class="summary">Emulate Python's range(x) function.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#List:len">List:len ()</a></td>
@@ -227,7 +226,7 @@
 	<tr>
 	<td class="name" nowrap><a href="#List:splice">List:splice (idx, list)</a></td>
 	<td class="summary">Insert a sublist into a list
- equivalent to &rsquo;s[idx:idx] = list' in Python</td>
+ equivalent to 's[idx:idx] = list' in Python</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#List:slice_assign">List:slice_assign (i1, i2, seq)</a></td>
@@ -275,7 +274,7 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#List:reduce">List:reduce (fun)</a></td>
-	<td class="summary">&lsquo;reduce&rsquo; a list using a binary function.</td>
+	<td class="summary">'reduce' a list using a binary function.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#List:partition">List:partition (fun, ...)</a></td>
@@ -316,13 +315,12 @@
     <dt>
     <a name = "List.new"></a>
     <strong>List.new ([t])</strong>
-    <a style="float:right;" href="../source/List.lua.html#77">line 77</a>
     </dt>
     <dd>
     Create a new list.  Can optionally pass a table;
  passing another instance of List will cause a copy to be created;
  this will return a plain table with an appropriate metatable.
- we pass anything which isn&rsquo;t a simple table to iterate() to work out
+ we pass anything which isn't a simple table to iterate() to work out
  an appropriate iterator
 
 
@@ -355,11 +353,10 @@
     <dt>
     <a name = "List:clone"></a>
     <strong>List:clone ()</strong>
-    <a style="float:right;" href="../source/List.lua.html#82">line 82</a>
     </dt>
     <dd>
     Make a copy of an existing list.
- The difference from a plain &lsquo;copy constructor&rsquo; is that this returns
+ The difference from a plain 'copy constructor' is that this returns
  the actual List subtype.
 
 
@@ -372,7 +369,6 @@
     <dt>
     <a name = "List:append"></a>
     <strong>List:append (i)</strong>
-    <a style="float:right;" href="../source/List.lua.html#91">line 91</a>
     </dt>
     <dd>
     Add an item to the end of the list.
@@ -398,11 +394,10 @@
     <dt>
     <a name = "List:extend"></a>
     <strong>List:extend (L)</strong>
-    <a style="float:right;" href="../source/List.lua.html#102">line 102</a>
     </dt>
     <dd>
     Extend the list by appending all the items in the given list.
- equivalent to &lsquo;a[len(a):] = L&rsquo;.
+ equivalent to 'a[len(a):] = L'.
 
 
     <h3>Parameters:</h3>
@@ -426,7 +421,6 @@
     <dt>
     <a name = "List:insert"></a>
     <strong>List:insert (i, x)</strong>
-    <a style="float:right;" href="../source/List.lua.html#113">line 113</a>
     </dt>
     <dd>
     Insert an item at a given position.  i is the index of the
@@ -457,7 +451,6 @@
     <dt>
     <a name = "List:put"></a>
     <strong>List:put (x)</strong>
-    <a style="float:right;" href="../source/List.lua.html#122">line 122</a>
     </dt>
     <dd>
     Insert an item at the begining of the list.
@@ -483,11 +476,10 @@
     <dt>
     <a name = "List:remove"></a>
     <strong>List:remove (i)</strong>
-    <a style="float:right;" href="../source/List.lua.html#130">line 130</a>
     </dt>
     <dd>
     Remove an element given its index.
- (equivalent of Python&rsquo;s del s[i])
+ (equivalent of Python's del s[i])
 
 
     <h3>Parameters:</h3>
@@ -511,11 +503,10 @@
     <dt>
     <a name = "List:remove_value"></a>
     <strong>List:remove_value (x)</strong>
-    <a style="float:right;" href="../source/List.lua.html#142">line 142</a>
     </dt>
     <dd>
     Remove the first item from the list whose value is given.
- (This is called &lsquo;remove&rsquo; in Python; renamed to avoid confusion
+ (This is called 'remove' in Python; renamed to avoid confusion
  with table.remove)
  Return nil if there is no such item.
 
@@ -540,7 +531,6 @@
     <dt>
     <a name = "List:pop"></a>
     <strong>List:pop ([i])</strong>
-    <a style="float:right;" href="../source/List.lua.html#154">line 154</a>
     </dt>
     <dd>
     Remove the item at the given position in the list, and return it.
@@ -570,7 +560,6 @@
     <dt>
     <a name = "List:index"></a>
     <strong>List:index (x[, idx=1])</strong>
-    <a style="float:right;" href="../source/List.lua.html#169">line 169</a>
     </dt>
     <dd>
     Return the index in the list of the first item whose value is given.
@@ -602,7 +591,6 @@
     <dt>
     <a name = "List:contains"></a>
     <strong>List:contains (x)</strong>
-    <a style="float:right;" href="../source/List.lua.html#175">line 175</a>
     </dt>
     <dd>
     does this list contain the value?.
@@ -628,7 +616,6 @@
     <dt>
     <a name = "List:count"></a>
     <strong>List:count (x)</strong>
-    <a style="float:right;" href="../source/List.lua.html#182">line 182</a>
     </dt>
     <dd>
     Return the number of times value appears in the list.
@@ -654,7 +641,6 @@
     <dt>
     <a name = "List:sort"></a>
     <strong>List:sort ([cmp='<'])</strong>
-    <a style="float:right;" href="../source/List.lua.html#193">line 193</a>
     </dt>
     <dd>
     Sort the items of the list, in place.
@@ -682,7 +668,6 @@
     <dt>
     <a name = "List:sorted"></a>
     <strong>List:sorted ([cmp='<'])</strong>
-    <a style="float:right;" href="../source/List.lua.html#202">line 202</a>
     </dt>
     <dd>
     return a sorted copy of this list.
@@ -710,7 +695,6 @@
     <dt>
     <a name = "List:reverse"></a>
     <strong>List:reverse ()</strong>
-    <a style="float:right;" href="../source/List.lua.html#208">line 208</a>
     </dt>
     <dd>
     Reverse the elements of the list, in place.
@@ -730,7 +714,6 @@
     <dt>
     <a name = "List:minmax"></a>
     <strong>List:minmax ()</strong>
-    <a style="float:right;" href="../source/List.lua.html#222">line 222</a>
     </dt>
     <dd>
     return the minimum and the maximum value of the list.
@@ -752,10 +735,9 @@
     <dt>
     <a name = "List:slice"></a>
     <strong>List:slice (first, last)</strong>
-    <a style="float:right;" href="../source/List.lua.html#239">line 239</a>
     </dt>
     <dd>
-    Emulate list slicing.   like  &lsquo;list[first:last]&rsquo; in Python.
+    Emulate list slicing.   like  'list[first:last]' in Python.
  If first or last are negative then they are relative to the end of the list
  eg. slice(-2) gives last 2 entries in a list, and
  slice(-4,-2) gives from -4th to -2nd
@@ -784,7 +766,6 @@
     <dt>
     <a name = "List:clear"></a>
     <strong>List:clear ()</strong>
-    <a style="float:right;" href="../source/List.lua.html#245">line 245</a>
     </dt>
     <dd>
     empty the list.
@@ -804,10 +785,9 @@
     <dt>
     <a name = "List.range"></a>
     <strong>List.range (start[, finish[, incr=1]])</strong>
-    <a style="float:right;" href="../source/List.lua.html#262">line 262</a>
     </dt>
     <dd>
-    Emulate Python&rsquo;s range(x) function.
+    Emulate Python's range(x) function.
  Include it in List table for tidiness
 
 
@@ -849,7 +829,6 @@
     <dt>
     <a name = "List:len"></a>
     <strong>List:len ()</strong>
-    <a style="float:right;" href="../source/List.lua.html#281">line 281</a>
     </dt>
     <dd>
     list:len() is the same as #list.
@@ -864,11 +843,10 @@
     <dt>
     <a name = "List:chop"></a>
     <strong>List:chop (i1, i2)</strong>
-    <a style="float:right;" href="../source/List.lua.html#292">line 292</a>
     </dt>
     <dd>
     Remove a subrange of elements.
- equivalent to &lsquo;del s[i1:i2]&rsquo; in Python.
+ equivalent to 'del s[i1:i2]' in Python.
 
 
     <h3>Parameters:</h3>
@@ -896,11 +874,10 @@
     <dt>
     <a name = "List:splice"></a>
     <strong>List:splice (idx, list)</strong>
-    <a style="float:right;" href="../source/List.lua.html#302">line 302</a>
     </dt>
     <dd>
     Insert a sublist into a list
- equivalent to &rsquo;s[idx:idx] = list' in Python
+ equivalent to 's[idx:idx] = list' in Python
 
 
     <h3>Parameters:</h3>
@@ -932,7 +909,6 @@
     <dt>
     <a name = "List:slice_assign"></a>
     <strong>List:slice_assign (i1, i2, seq)</strong>
-    <a style="float:right;" href="../source/List.lua.html#318">line 318</a>
     </dt>
     <dd>
     general slice assignment s[i1:i2] = seq.
@@ -967,17 +943,16 @@
     <dt>
     <a name = "List:join"></a>
     <strong>List:join ([delim=''])</strong>
-    <a style="float:right;" href="../source/List.lua.html#354">line 354</a>
     </dt>
     <dd>
-    join the elements of a list using a delimiter.<br/>
+    join the elements of a list using a delimiter. <br/>
  This method uses tostring on all elements.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">delim</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          a delimiter string, can be empty.
          (<em>default</em> '')
         </li>
@@ -996,17 +971,16 @@
     <dt>
     <a name = "List:concat"></a>
     <strong>List:concat ([delim=''])</strong>
-    <a style="float:right;" href="../source/List.lua.html#365">line 365</a>
     </dt>
     <dd>
     join a list of strings.  <br>
- Uses <a href="http://www.lua.org/manual/5.1/manual.html#pdf-table.concat">table.concat</a> directly.
+ Uses <a href="http://www.lua.org/manual/5.2/manual.html#pdf-table.concat">table.concat</a> directly.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">delim</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          a delimiter
          (<em>default</em> '')
         </li>
@@ -1025,7 +999,6 @@
     <dt>
     <a name = "List:foreach"></a>
     <strong>List:foreach (fun, ...)</strong>
-    <a style="float:right;" href="../source/List.lua.html#385">line 385</a>
     </dt>
     <dd>
     call the function on each element of the list.
@@ -1050,7 +1023,6 @@
     <dt>
     <a name = "List:foreachm"></a>
     <strong>List:foreachm (name, ...)</strong>
-    <a style="float:right;" href="../source/List.lua.html#401">line 401</a>
     </dt>
     <dd>
     call the named method on each element of the list.
@@ -1059,7 +1031,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">name</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          the method name
         </li>
         <li><span class="parameter">...</span>
@@ -1075,7 +1047,6 @@
     <dt>
     <a name = "List:filter"></a>
     <strong>List:filter (fun[, arg])</strong>
-    <a style="float:right;" href="../source/List.lua.html#413">line 413</a>
     </dt>
     <dd>
     create a list of all elements which match a function.
@@ -1106,7 +1077,6 @@
     <dt>
     <a name = "List.split"></a>
     <strong>List.split (s[, delim])</strong>
-    <a style="float:right;" href="../source/List.lua.html#422">line 422</a>
     </dt>
     <dd>
     split a string using a delimiter.
@@ -1115,11 +1085,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          the string
         </li>
         <li><span class="parameter">delim</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          the delimiter (default spaces)
          (<em>optional</em>)
         </li>
@@ -1142,7 +1112,6 @@
     <dt>
     <a name = "List:map"></a>
     <strong>List:map (fun, ...)</strong>
-    <a style="float:right;" href="../source/List.lua.html#434">line 434</a>
     </dt>
     <dd>
     apply a function to all elements.
@@ -1181,7 +1150,6 @@
     <dt>
     <a name = "List:transform"></a>
     <strong>List:transform (fun, ...)</strong>
-    <a style="float:right;" href="../source/List.lua.html#443">line 443</a>
     </dt>
     <dd>
     apply a function to all elements, in-place.
@@ -1212,7 +1180,6 @@
     <dt>
     <a name = "List:map2"></a>
     <strong>List:map2 (fun, ls, ...)</strong>
-    <a style="float:right;" href="../source/List.lua.html#455">line 455</a>
     </dt>
     <dd>
     apply a function to elements of two lists.
@@ -1251,7 +1218,6 @@
     <dt>
     <a name = "List:mapm"></a>
     <strong>List:mapm (name, ...)</strong>
-    <a style="float:right;" href="../source/List.lua.html#465">line 465</a>
     </dt>
     <dd>
     apply a named method to all elements.
@@ -1261,7 +1227,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">name</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          name of method
         </li>
         <li><span class="parameter">...</span>
@@ -1286,10 +1252,9 @@
     <dt>
     <a name = "List:reduce"></a>
     <strong>List:reduce (fun)</strong>
-    <a style="float:right;" href="../source/List.lua.html#501">line 501</a>
     </dt>
     <dd>
-    &lsquo;reduce&rsquo; a list using a binary function.
+    'reduce' a list using a binary function.
 
 
     <h3>Parameters:</h3>
@@ -1317,11 +1282,10 @@
     <dt>
     <a name = "List:partition"></a>
     <strong>List:partition (fun, ...)</strong>
-    <a style="float:right;" href="../source/List.lua.html#512">line 512</a>
     </dt>
     <dd>
     partition a list using a classifier function.
- The function may return nil, but this will be converted to the string key &lsquo;<nil>&rsquo;.
+ The function may return nil, but this will be converted to the string key '<nil>'.
 
 
     <h3>Parameters:</h3>
@@ -1354,7 +1318,6 @@
     <dt>
     <a name = "List:iter"></a>
     <strong>List:iter ()</strong>
-    <a style="float:right;" href="../source/List.lua.html#526">line 526</a>
     </dt>
     <dd>
     return an iterator over all values.
@@ -1369,11 +1332,10 @@
     <dt>
     <a name = "List.iterate"></a>
     <strong>List.iterate (seq)</strong>
-    <a style="float:right;" href="../source/List.lua.html#536">line 536</a>
     </dt>
     <dd>
     Create an iterator over a seqence.
- This captures the Python concept of &lsquo;sequence&rsquo;.
+ This captures the Python concept of 'sequence'.
  For tables, iterates over all values with integer indices.
 
 
@@ -1401,7 +1363,6 @@
     <dt>
     <a name = "List:__concat"></a>
     <strong>List:__concat (L)</strong>
-    <a style="float:right;" href="../source/List.lua.html#331">line 331</a>
     </dt>
     <dd>
     concatenation operator.
@@ -1428,7 +1389,6 @@
     <dt>
     <a name = "List:__eq"></a>
     <strong>List:__eq (L)</strong>
-    <a style="float:right;" href="../source/List.lua.html#342">line 342</a>
     </dt>
     <dd>
     equality operator ==.   True iff all elements of two lists are equal.
@@ -1455,7 +1415,6 @@
     <dt>
     <a name = "List:__tostring"></a>
     <strong>List:__tostring ()</strong>
-    <a style="float:right;" href="../source/List.lua.html#378">line 378</a>
     </dt>
     <dd>
     how our list should be rendered as a string.  Uses join().
@@ -1478,7 +1437,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2014-11-01 18:36:39 </i>
+<i style="float:right;">Last updated 2015-03-10 14:00:48 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

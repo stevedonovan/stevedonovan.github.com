@@ -54,6 +54,7 @@
 <h2>Libraries</h2>
 <ul class="$(kind=='Topics' and '' or 'nowrap'">
   <li><a href="../libraries/pl.html">pl</a></li>
+  <li><a href="../libraries/pl.Set.html">pl.Set</a></li>
   <li><a href="../libraries/pl.app.html">pl.app</a></li>
   <li><a href="../libraries/pl.array2d.html">pl.array2d</a></li>
   <li><a href="../libraries/pl.class.html">pl.class</a></li>
@@ -94,7 +95,6 @@
   <li><a href="../classes/pl.Map.html">pl.Map</a></li>
   <li><a href="../classes/pl.MultiMap.html">pl.MultiMap</a></li>
   <li><a href="../classes/pl.OrderedMap.html">pl.OrderedMap</a></li>
-  <li><a href="../classes/pl.Set.html">pl.Set</a></li>
 </ul>
 <h2>Manual</h2>
 <ul class="$(kind=='Topics' and '' or 'nowrap'">
@@ -107,7 +107,6 @@
   <li><a href="../manual/07-functional.md.html">Functional Programming</a></li>
   <li><a href="../manual/08-additional.md.html">Additional Libraries</a></li>
   <li><a href="../manual/09-discussion.md.html">Technical Choices</a></li>
-</ul>
 </ul>
 
 </div>
@@ -122,7 +121,7 @@ utils.import <span class="string">'pl.func'</span>
 <span class="keyword">local</span> List = <span class="global">require</span> <span class="string">'pl.List'</span>
 <span class="keyword">local</span> append,concat = <span class="global">table</span>.insert,<span class="global">table</span>.concat
 <span class="keyword">local</span> compare,find_if,compare_no_order,imap,reduce,count_map = tablex.compare,tablex.find_if,tablex.compare_no_order,tablex.imap,tablex.reduce,tablex.count_map
-<span class="keyword">local</span> <span class="global">unpack</span> = utils.<span class="global">unpack</span>
+<span class="keyword">local</span> unpack = utils.unpack
 
 <span class="keyword">function</span> bindval (self,val)
     <span class="global">rawset</span>(self,<span class="string">'value'</span>,val)
@@ -220,7 +219,7 @@ psexpr = compose(<span class="global">print</span>,sexpr)
                 <span class="comment">-- no placeholders in these args, we can fold the expression.
 </span>                <span class="keyword">local</span> opfn = optable[op]
                 <span class="keyword">if</span> opfn <span class="keyword">then</span>
-                    <span class="keyword">return</span> opfn(<span class="global">unpack</span>(args))
+                    <span class="keyword">return</span> opfn(unpack(args))
                 <span class="keyword">else</span>
                     <span class="keyword">return</span> <span class="string">'?'</span>
                 <span class="keyword">end</span>
@@ -261,12 +260,12 @@ psexpr = compose(<span class="global">print</span>,sexpr)
                     append(res,val)
                 <span class="keyword">end</span>
                 <span class="keyword">if</span> #res == <span class="number">1</span> <span class="keyword">then</span> <span class="keyword">return</span> res[<span class="number">1</span>] <span class="keyword">end</span>
-                <span class="keyword">return</span> PE{op=op,<span class="global">unpack</span>(res)}
+                <span class="keyword">return</span> PE{op=op,unpack(res)}
             <span class="keyword">elseif</span> op == <span class="string">'^'</span> <span class="keyword">then</span>
                 <span class="keyword">if</span> args[<span class="number">2</span>] == <span class="number">1</span> <span class="keyword">then</span> <span class="keyword">return</span> args[<span class="number">1</span>] <span class="keyword">end</span> <span class="comment">-- identity
 </span>                <span class="keyword">if</span> args[<span class="number">2</span>] == <span class="number">0</span> <span class="keyword">then</span> <span class="keyword">return</span> <span class="number">1</span> <span class="keyword">end</span>
             <span class="keyword">end</span>
-            <span class="keyword">return</span> PE{op=op,<span class="global">unpack</span>(args)}
+            <span class="keyword">return</span> PE{op=op,unpack(args)}
         <span class="keyword">end</span>
     <span class="keyword">else</span>
         <span class="keyword">return</span> e
@@ -299,11 +298,11 @@ psexpr = compose(<span class="global">print</span>,sexpr)
 <span class="keyword">end</span>
 
 <span class="keyword">local</span> <span class="keyword">function</span> muli (args)
-    <span class="keyword">return</span> PE{op=<span class="string">'*'</span>,<span class="global">unpack</span>(args)}
+    <span class="keyword">return</span> PE{op=<span class="string">'*'</span>,unpack(args)}
 <span class="keyword">end</span>
 
 <span class="keyword">local</span> <span class="keyword">function</span> addi (args)
-    <span class="keyword">return</span> PE{op=<span class="string">'+'</span>,<span class="global">unpack</span>(args)}
+    <span class="keyword">return</span> PE{op=<span class="string">'+'</span>,unpack(args)}
 <span class="keyword">end</span>
 
 <span class="keyword">function</span> diff (e,x)
@@ -321,7 +320,7 @@ psexpr = compose(<span class="global">print</span>,sexpr)
                 <span class="keyword">for</span> i = <span class="number">1</span>,#e <span class="keyword">do</span>
                     d = fold(diff(e[i],x))
                     <span class="keyword">if</span> d ~= <span class="number">0</span> <span class="keyword">then</span>
-                        ee = {<span class="global">unpack</span>(e)}
+                        ee = {unpack(e)}
                         ee[i] = d
                         append(res,balance(muli(ee)))
                     <span class="keyword">end</span>
@@ -342,7 +341,7 @@ psexpr = compose(<span class="global">print</span>,sexpr)
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2014-11-01 18:36:39 </i>
+<i style="float:right;">Last updated 2015-03-10 14:00:48 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

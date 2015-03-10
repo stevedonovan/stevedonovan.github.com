@@ -40,6 +40,7 @@
 <h2>Libraries</h2>
 <ul class="$(kind=='Topics' and '' or 'nowrap'">
   <li><a href="../libraries/pl.html">pl</a></li>
+  <li><a href="../libraries/pl.Set.html">pl.Set</a></li>
   <li><a href="../libraries/pl.app.html">pl.app</a></li>
   <li><a href="../libraries/pl.array2d.html">pl.array2d</a></li>
   <li><a href="../libraries/pl.class.html">pl.class</a></li>
@@ -80,7 +81,6 @@
   <li><a href="../classes/pl.Map.html">pl.Map</a></li>
   <li><a href="../classes/pl.MultiMap.html">pl.MultiMap</a></li>
   <li><a href="../classes/pl.OrderedMap.html">pl.OrderedMap</a></li>
-  <li><a href="../classes/pl.Set.html">pl.Set</a></li>
 </ul>
 <h2>Manual</h2>
 <ul class="$(kind=='Topics' and '' or 'nowrap'">
@@ -113,7 +113,6 @@
   <li><a href="../examples/testxml.lua.html">testxml.lua</a></li>
   <li><a href="../examples/which.lua.html">which.lua</a></li>
 </ul>
-</ul>
 
 </div>
 
@@ -122,6 +121,7 @@
 <h1>Module <code>pl.lapp</code></h1>
 <p>Simple command-line parsing using human-readable specification.</p>
 <p> Supports GNU-style parameters.</p>
+
 
 <pre>
 lapp = <span class="global">require</span> <span class="string">'pl.lapp'</span>
@@ -135,9 +135,8 @@ Does some calculations
 <span class="global">print</span>(args.offset + args.scale * args.number)
 </pre>
 
-
-<p> Lines begining with &lsquo;&ndash;&rsquo; are flags; there may be a short and a long name;
- lines begining wih &lsquo;<var>&rsquo; are arguments.  Anything in parens after
+<p> Lines begining with '-' are flags; there may be a short and a long name;
+ lines begining wih '<var>' are arguments.  Anything in parens after
  the flag/argument is either a default, a type name or a range constraint.</p>
 
 <p> See <a href="../manual/08-additional.md.html#Command_line_Programs_with_Lapp">the Guide</a></p>
@@ -190,7 +189,6 @@ Does some calculations
     <dt>
     <a name = "quit"></a>
     <strong>quit (msg, no_usage)</strong>
-    <a style="float:right;" href="../source/lapp.lua.html#56">line 56</a>
     </dt>
     <dd>
     quit this script immediately.
@@ -199,12 +197,12 @@ Does some calculations
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">msg</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          optional message
         </li>
         <li><span class="parameter">no_usage</span>
             <span class="types"><span class="type">bool</span></span>
-         suppress &lsquo;usage&rsquo; display
+         suppress 'usage' display
         </li>
     </ul>
 
@@ -216,7 +214,6 @@ Does some calculations
     <dt>
     <a name = "error"></a>
     <strong>error (msg, no_usage)</strong>
-    <a style="float:right;" href="../source/lapp.lua.html#72">line 72</a>
     </dt>
     <dd>
     print an error to stderr and quit.
@@ -225,12 +222,12 @@ Does some calculations
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">msg</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          a message
         </li>
         <li><span class="parameter">no_usage</span>
             <span class="types"><span class="type">bool</span></span>
-         suppress &lsquo;usage&rsquo; display
+         suppress 'usage' display
         </li>
     </ul>
 
@@ -242,7 +239,6 @@ Does some calculations
     <dt>
     <a name = "open"></a>
     <strong>open (file[, opt])</strong>
-    <a style="float:right;" href="../source/lapp.lua.html#85">line 85</a>
     </dt>
     <dd>
     open a file.
@@ -252,12 +248,12 @@ Does some calculations
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">file</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          filename
         </li>
         <li><span class="parameter">opt</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-         same as second parameter of <a href="http://www.lua.org/manual/5.1/manual.html#pdf-io.open">io.open</a>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+         same as second parameter of <a href="http://www.lua.org/manual/5.2/manual.html#pdf-io.open">io.open</a>
          (<em>optional</em>)
         </li>
     </ul>
@@ -270,7 +266,6 @@ Does some calculations
     <dt>
     <a name = "assert"></a>
     <strong>assert (condn, msg)</strong>
-    <a style="float:right;" href="../source/lapp.lua.html#95">line 95</a>
     </dt>
     <dd>
     quit if the condition is false.
@@ -283,7 +278,7 @@ Does some calculations
          a condition
         </li>
         <li><span class="parameter">msg</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          message text
         </li>
     </ul>
@@ -296,17 +291,16 @@ Does some calculations
     <dt>
     <a name = "add_type"></a>
     <strong>add_type (name, converter[, constraint])</strong>
-    <a style="float:right;" href="../source/lapp.lua.html#138">line 138</a>
     </dt>
     <dd>
     add a new type to Lapp.  These appear in parens after the value like
- a range constraint, e.g. &lsquo;<ival> (integer) Process PID&rsquo;
+ a range constraint, e.g. '<ival> (integer) Process PID'
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">name</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          name of type
         </li>
         <li><span class="parameter">converter</span>
@@ -328,7 +322,6 @@ Does some calculations
     <dt>
     <a name = "process_options_string"></a>
     <strong>process_options_string (str, args)</strong>
-    <a style="float:right;" href="../source/lapp.lua.html#171">line 171</a>
     </dt>
     <dd>
     process a Lapp options string.
@@ -338,11 +331,11 @@ Does some calculations
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">str</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          the options text
         </li>
         <li><span class="parameter">args</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">{string}</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">{string}</a></span>
          a table of arguments (default is <code>_G.arg</code>)
         </li>
     </ul>
@@ -364,7 +357,6 @@ Does some calculations
     <dt>
     <a name = "show_usage_error"></a>
     <strong>show_usage_error</strong>
-    <a style="float:right;" href="../source/lapp.lua.html#51">line 51</a>
     </dt>
     <dd>
     controls whether to dump usage on error.
@@ -384,7 +376,7 @@ Does some calculations
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2014-11-01 18:36:39 </i>
+<i style="float:right;">Last updated 2015-03-10 14:00:48 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

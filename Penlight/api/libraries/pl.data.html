@@ -39,6 +39,7 @@
 <h2>Libraries</h2>
 <ul class="$(kind=='Topics' and '' or 'nowrap'">
   <li><a href="../libraries/pl.html">pl</a></li>
+  <li><a href="../libraries/pl.Set.html">pl.Set</a></li>
   <li><a href="../libraries/pl.app.html">pl.app</a></li>
   <li><a href="../libraries/pl.array2d.html">pl.array2d</a></li>
   <li><a href="../libraries/pl.class.html">pl.class</a></li>
@@ -79,7 +80,6 @@
   <li><a href="../classes/pl.Map.html">pl.Map</a></li>
   <li><a href="../classes/pl.MultiMap.html">pl.MultiMap</a></li>
   <li><a href="../classes/pl.OrderedMap.html">pl.OrderedMap</a></li>
-  <li><a href="../classes/pl.Set.html">pl.Set</a></li>
 </ul>
 <h2>Manual</h2>
 <ul class="$(kind=='Topics' and '' or 'nowrap'">
@@ -112,7 +112,6 @@
   <li><a href="../examples/testxml.lua.html">testxml.lua</a></li>
   <li><a href="../examples/which.lua.html">which.lua</a></li>
 </ul>
-</ul>
 
 </div>
 
@@ -120,13 +119,17 @@
 
 <h1>Module <code>pl.data</code></h1>
 <p>Reading and querying simple tabular data.</p>
-<p><pre>
+<p>
+
+
+
+<pre>
 data.read <span class="string">'test.txt'</span>
 ==&gt; {{<span class="number">10</span>,<span class="number">20</span>},{<span class="number">2</span>,<span class="number">5</span>},{<span class="number">40</span>,<span class="number">50</span>},fieldnames={<span class="string">'x'</span>,<span class="string">'y'</span>},delim=<span class="string">','</span>}
 </pre>
 
-
 <p> Provides a way of creating basic SQL-like queries.</p>
+
 
 <pre>
 <span class="global">require</span> <span class="string">'pl'</span>
@@ -136,7 +139,6 @@ data.read <span class="string">'test.txt'</span>
     <span class="global">print</span>(x,y,z)
 <span class="keyword">end</span>
 </pre>
-
 
 <p> See <a href="../manual/06-data.md.html#Reading_Columnar_Data">the Guide</a></p>
 
@@ -206,7 +208,6 @@ data.read <span class="string">'test.txt'</span>
     <dt>
     <a name = "Data.column_by_name"></a>
     <strong>Data.column_by_name (name)</strong>
-    <a style="float:right;" href="../source/data.lua.html#136">line 136</a>
     </dt>
     <dd>
     return a particular column as a list of values (method).
@@ -227,7 +228,6 @@ data.read <span class="string">'test.txt'</span>
     <dt>
     <a name = "Data.select"></a>
     <strong>Data.select (condn)</strong>
-    <a style="float:right;" href="../source/data.lua.html#141">line 141</a>
     </dt>
     <dd>
     return a query iterator on this data (method).
@@ -236,7 +236,7 @@ data.read <span class="string">'test.txt'</span>
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">condn</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          the query expression
         </li>
     </ul>
@@ -253,7 +253,6 @@ data.read <span class="string">'test.txt'</span>
     <dt>
     <a name = "Data.select_row"></a>
     <strong>Data.select_row (condn)</strong>
-    <a style="float:right;" href="../source/data.lua.html#145">line 145</a>
     </dt>
     <dd>
     return a row iterator on this data (method).
@@ -262,7 +261,7 @@ data.read <span class="string">'test.txt'</span>
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">condn</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          the query expression
         </li>
     </ul>
@@ -275,7 +274,6 @@ data.read <span class="string">'test.txt'</span>
     <dt>
     <a name = "Data.copy_select"></a>
     <strong>Data.copy_select (condn)</strong>
-    <a style="float:right;" href="../source/data.lua.html#149">line 149</a>
     </dt>
     <dd>
     return a new data object based on this query (method).
@@ -284,7 +282,7 @@ data.read <span class="string">'test.txt'</span>
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">condn</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          the query expression
         </li>
     </ul>
@@ -297,7 +295,6 @@ data.read <span class="string">'test.txt'</span>
     <dt>
     <a name = "Data.column_names"></a>
     <strong>Data.column_names ()</strong>
-    <a style="float:right;" href="../source/data.lua.html#152">line 152</a>
     </dt>
     <dd>
     return the field names of this data object (method).
@@ -312,7 +309,6 @@ data.read <span class="string">'test.txt'</span>
     <dt>
     <a name = "Data.write_row"></a>
     <strong>Data.write_row (f)</strong>
-    <a style="float:right;" href="../source/data.lua.html#156">line 156</a>
     </dt>
     <dd>
     write out a row (method).
@@ -333,7 +329,6 @@ data.read <span class="string">'test.txt'</span>
     <dt>
     <a name = "Data.write"></a>
     <strong>Data.write (f)</strong>
-    <a style="float:right;" href="../source/data.lua.html#161">line 161</a>
     </dt>
     <dd>
     write data out to file (method).
@@ -354,7 +349,6 @@ data.read <span class="string">'test.txt'</span>
     <dt>
     <a name = "read"></a>
     <strong>read (file, cnfg)</strong>
-    <a style="float:right;" href="../source/data.lua.html#212">line 212</a>
     </dt>
     <dd>
     read a delimited file in a Lua table.
@@ -370,7 +364,7 @@ data.read <span class="string">'test.txt'</span>
             <span class="types"><span class="type">tab</span></span>
          options table: can override <code>delim</code> (a string pattern), <code>fieldnames</code> (a list),
  specify <code>no_convert</code> (default is to conversion), <code>numfields</code> (indices of columns known
- to be numbers) and <code>thousands_dot</code> (thousands separator in Excel CSV is &lsquo;.&rsquo;).
+ to be numbers) and <code>thousands_dot</code> (thousands separator in Excel CSV is '.').
  If <code>csv</code> is set then fields may be double-quoted and contain commas;
         </li>
     </ul>
@@ -380,7 +374,7 @@ data.read <span class="string">'test.txt'</span>
         <li>
         <a href="../libraries/pl.data.html">data</a> object, or <code>nil</code></li>
         <li>
-        error message. May be a file error, &lsquo;not a file-like object&rsquo;
+        error message. May be a file error, 'not a file-like object'
  or a conversion error</li>
     </ol>
 
@@ -391,7 +385,6 @@ data.read <span class="string">'test.txt'</span>
     <dt>
     <a name = "write"></a>
     <strong>write (data, file[, fieldnames[, delim='\t']])</strong>
-    <a style="float:right;" href="../source/data.lua.html#349">line 349</a>
     </dt>
     <dd>
     write 2D data to a file.
@@ -408,12 +401,12 @@ data.read <span class="string">'test.txt'</span>
          filename or file-like object
         </li>
         <li><span class="parameter">fieldnames</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">{string}</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">{string}</a></span>
          list of fields (optional)
          (<em>optional</em>)
         </li>
         <li><span class="parameter">delim</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          delimiter (default tab)
          (<em>default</em> '\t')
         </li>
@@ -427,14 +420,13 @@ data.read <span class="string">'test.txt'</span>
     <dt>
     <a name = "new"></a>
     <strong>new (d[, fieldnames])</strong>
-    <a style="float:right;" href="../source/data.lua.html#386">line 386</a>
     </dt>
     <dd>
     create a new dataset from a table of rows.
  Can specify the fieldnames, else the table must have a field called
- &lsquo;fieldnames&rsquo;, which is either a string of delimiter-separated names,
+ 'fieldnames', which is either a string of delimiter-separated names,
  or a table of names. <br>
- If the table does not have a field called &lsquo;delim&rsquo;, then an attempt will be
+ If the table does not have a field called 'delim', then an attempt will be
  made to guess it from the fieldnames string, defaults otherwise to tab.
 
 
@@ -444,7 +436,7 @@ data.read <span class="string">'test.txt'</span>
          the table.
         </li>
         <li><span class="parameter">fieldnames</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">{string}</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">{string}</a></span>
          optional fieldnames
          (<em>optional</em>)
         </li>
@@ -463,15 +455,14 @@ data.read <span class="string">'test.txt'</span>
     <dt>
     <a name = "query"></a>
     <strong>query (data, condn, context, return_row)</strong>
-    <a style="float:right;" href="../source/data.lua.html#535">line 535</a>
     </dt>
     <dd>
     create a query iterator from a select string.
  Select string has this format: <br>
  FIELDLIST [ where LUA-CONDN [ sort by FIELD] ]<br>
- FIELDLIST is a comma-separated list of valid fields, or &lsquo;*&rsquo;. <br> <br>
- The condition can also be a table, with fields &lsquo;fields&rsquo; (comma-sep string or
- table), &lsquo;sort_by&rsquo; (string) and &lsquo;where&rsquo; (Lua expression string or function)
+ FIELDLIST is a comma-separated list of valid fields, or '*'. <br> <br>
+ The condition can also be a table, with fields 'fields' (comma-sep string or
+ table), 'sort_by' (string) and 'where' (Lua expression string or function)
 
 
     <h3>Parameters:</h3>
@@ -505,7 +496,6 @@ data.read <span class="string">'test.txt'</span>
     <dt>
     <a name = "filter"></a>
     <strong>filter (Q, infile, outfile, dont_fail)</strong>
-    <a style="float:right;" href="../source/data.lua.html#631">line 631</a>
     </dt>
     <dd>
     Filter input using a query.
@@ -514,7 +504,7 @@ data.read <span class="string">'test.txt'</span>
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">Q</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          a query string
         </li>
         <li><span class="parameter">infile</span>
@@ -541,7 +531,7 @@ data.read <span class="string">'test.txt'</span>
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2014-11-01 18:36:39 </i>
+<i style="float:right;">Last updated 2015-03-10 14:00:48 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

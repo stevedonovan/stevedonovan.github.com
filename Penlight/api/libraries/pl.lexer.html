@@ -39,6 +39,7 @@
 <h2>Libraries</h2>
 <ul class="$(kind=='Topics' and '' or 'nowrap'">
   <li><a href="../libraries/pl.html">pl</a></li>
+  <li><a href="../libraries/pl.Set.html">pl.Set</a></li>
   <li><a href="../libraries/pl.app.html">pl.app</a></li>
   <li><a href="../libraries/pl.array2d.html">pl.array2d</a></li>
   <li><a href="../libraries/pl.class.html">pl.class</a></li>
@@ -79,7 +80,6 @@
   <li><a href="../classes/pl.Map.html">pl.Map</a></li>
   <li><a href="../classes/pl.MultiMap.html">pl.MultiMap</a></li>
   <li><a href="../classes/pl.OrderedMap.html">pl.OrderedMap</a></li>
-  <li><a href="../classes/pl.Set.html">pl.Set</a></li>
 </ul>
 <h2>Manual</h2>
 <ul class="$(kind=='Topics' and '' or 'nowrap'">
@@ -112,7 +112,6 @@
   <li><a href="../examples/testxml.lua.html">testxml.lua</a></li>
   <li><a href="../examples/which.lua.html">which.lua</a></li>
 </ul>
-</ul>
 
 </div>
 
@@ -122,11 +121,12 @@
 <p>Lexical scanner for creating a sequence of tokens from text.</p>
 <p> <code>lexer.scan(s)</code> returns an iterator over all tokens found in the
  string <code>s</code>. This iterator returns two values, a token type string
- (such as &lsquo;string&rsquo; for quoted string, &lsquo;iden&rsquo; for identifier) and the value of the
+ (such as 'string' for quoted string, 'iden' for identifier) and the value of the
  token.</p>
 
 <p> Versions specialized for Lua and C are available; these also handle block comments
- and classify keywords as &lsquo;keyword&rsquo; tokens. For example:</p>
+ and classify keywords as 'keyword' tokens. For example:</p>
+
 
 <pre>
 &gt; s = <span class="string">'for i=1,n do'</span>
@@ -139,7 +139,6 @@ number  <span class="number">1</span>
 iden    n
 keyword <span class="keyword">do</span>
 </pre>
-
 
 <p> See the Guide for further <a href="../manual/06-data.md.html#Lexical_Scanning">discussion</a></p>
 
@@ -202,7 +201,6 @@ keyword <span class="keyword">do</span>
     <dt>
     <a name = "scan"></a>
     <strong>scan (s, matches[, filter[, options]])</strong>
-    <a style="float:right;" href="../source/lexer.lua.html#123">line 123</a>
     </dt>
     <dd>
     create a plain token iterator from a string or file-like object.
@@ -211,7 +209,7 @@ keyword <span class="keyword">do</span>
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          the string
         </li>
         <li><span class="parameter">matches</span>
@@ -239,7 +237,6 @@ keyword <span class="keyword">do</span>
     <dt>
     <a name = "insert"></a>
     <strong>insert (tok, a1, a2)</strong>
-    <a style="float:right;" href="../source/lexer.lua.html#222">line 222</a>
     </dt>
     <dd>
     insert tokens into a stream.
@@ -255,7 +252,7 @@ keyword <span class="keyword">do</span>
  a function is assumed to be a token-like iterator (returns type &amp; value)
         </li>
         <li><span class="parameter">a2</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          a string is the value
         </li>
     </ul>
@@ -268,7 +265,6 @@ keyword <span class="keyword">do</span>
     <dt>
     <a name = "getline"></a>
     <strong>getline (tok)</strong>
-    <a style="float:right;" href="../source/lexer.lua.html#241">line 241</a>
     </dt>
     <dd>
     get everything in a stream upto a newline.
@@ -294,7 +290,6 @@ keyword <span class="keyword">do</span>
     <dt>
     <a name = "lineno"></a>
     <strong>lineno (tok)</strong>
-    <a style="float:right;" href="../source/lexer.lua.html#250">line 250</a>
     </dt>
     <dd>
     get current line number.
@@ -321,7 +316,6 @@ keyword <span class="keyword">do</span>
     <dt>
     <a name = "getrest"></a>
     <strong>getrest (tok)</strong>
-    <a style="float:right;" href="../source/lexer.lua.html#257">line 257</a>
     </dt>
     <dd>
     get the rest of the stream.
@@ -347,11 +341,10 @@ keyword <span class="keyword">do</span>
     <dt>
     <a name = "get_keywords"></a>
     <strong>get_keywords ()</strong>
-    <a style="float:right;" href="../source/lexer.lua.html#265">line 265</a>
     </dt>
     <dd>
     get the Lua keywords as a set-like table.
- So <code>res[&quot;and&quot;]</code> etc would be <code>true</code>.
+ So <code>res["and"]</code> etc would be <code>true</code>.
 
 
 
@@ -368,7 +361,6 @@ keyword <span class="keyword">do</span>
     <dt>
     <a name = "lua"></a>
     <strong>lua (s[, filter[, options]])</strong>
-    <a style="float:right;" href="../source/lexer.lua.html#286">line 286</a>
     </dt>
     <dd>
     create a Lua token iterator from a string or file-like object.
@@ -378,7 +370,7 @@ keyword <span class="keyword">do</span>
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          the string
         </li>
         <li><span class="parameter">filter</span>
@@ -402,7 +394,6 @@ keyword <span class="keyword">do</span>
     <dt>
     <a name = "cpp"></a>
     <strong>cpp (s[, filter[, options]])</strong>
-    <a style="float:right;" href="../source/lexer.lua.html#320">line 320</a>
     </dt>
     <dd>
     create a C/C++ token iterator from a string or file-like object.
@@ -412,7 +403,7 @@ keyword <span class="keyword">do</span>
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          the string
         </li>
         <li><span class="parameter">filter</span>
@@ -436,7 +427,6 @@ keyword <span class="keyword">do</span>
     <dt>
     <a name = "get_separated_list"></a>
     <strong>get_separated_list (tok[, endtoken=')'[, delim=']])</strong>
-    <a style="float:right;" href="../source/lexer.lua.html#377">line 377</a>
     </dt>
     <dd>
     get a list of parameters separated by a delimiter from a stream.
@@ -448,12 +438,12 @@ keyword <span class="keyword">do</span>
          the token stream
         </li>
         <li><span class="parameter">endtoken</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-         end of list. Can be &lsquo;\n&rsquo;
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+         end of list. Can be '\n'
          (<em>default</em> ')')
         </li>
         <li><span class="parameter">delim</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          separator
          (<em>default</em> ')
         </li>
@@ -472,7 +462,6 @@ keyword <span class="keyword">do</span>
     <dt>
     <a name = "skipws"></a>
     <strong>skipws (tok)</strong>
-    <a style="float:right;" href="../source/lexer.lua.html#427">line 427</a>
     </dt>
     <dd>
     get the next non-space token from the stream.
@@ -493,7 +482,6 @@ keyword <span class="keyword">do</span>
     <dt>
     <a name = "expecting"></a>
     <strong>expecting (tok, expected_type, no_skip_ws)</strong>
-    <a style="float:right;" href="../source/lexer.lua.html#442">line 442</a>
     </dt>
     <dd>
     get the next token, which must be of the expected type.
@@ -506,7 +494,7 @@ keyword <span class="keyword">do</span>
          the token stream
         </li>
         <li><span class="parameter">expected_type</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          the token type
         </li>
         <li><span class="parameter">no_skip_ws</span>
@@ -527,7 +515,7 @@ keyword <span class="keyword">do</span>
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2014-11-01 18:36:39 </i>
+<i style="float:right;">Last updated 2015-03-10 14:00:48 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
