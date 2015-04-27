@@ -1,0 +1,335 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>llib Documentation</title>
+    <link rel="stylesheet" href="../ldoc_fixed.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>llib</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../modules/obj.html">obj</a></li>
+  <li><a href="../modules/str.html">str</a></li>
+  <li><a href="../modules/scan.html">scan</a></li>
+  <li><a href="../modules/template.html">template</a></li>
+  <li><a href="../modules/list.html">list</a></li>
+  <li><a href="../modules/map.html">map</a></li>
+  <li><a href="../modules/file.html">file</a></li>
+  <li><a href="../modules/value.html">value</a></li>
+  <li><strong>interface</strong></li>
+  <li><a href="../modules/json.html">json</a></li>
+  <li><a href="../modules/xml.html">xml</a></li>
+  <li><a href="../modules/farr.html">farr</a></li>
+  <li><a href="../modules/array.html">array</a></li>
+  <li><a href="../modules/table.html">table</a></li>
+  <li><a href="../modules/config.html">config</a></li>
+  <li><a href="../modules/arg.html">arg</a></li>
+  <li><a href="../modules/flot.html">flot</a></li>
+</ul>
+<h2>Topics</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../topics/readme.md.html">readme</a></li>
+</ul>
+<h2>Examples</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../examples/test-array.c.html">test-array.c</a></li>
+  <li><a href="../examples/test-config.c.html">test-config.c</a></li>
+  <li><a href="../examples/test-file.c.html">test-file.c</a></li>
+  <li><a href="../examples/test-interface.c.html">test-interface.c</a></li>
+  <li><a href="../examples/test-json.c.html">test-json.c</a></li>
+  <li><a href="../examples/test-list.c.html">test-list.c</a></li>
+  <li><a href="../examples/test-map.c.html">test-map.c</a></li>
+  <li><a href="../examples/test-obj.c.html">test-obj.c</a></li>
+  <li><a href="../examples/test-pool.c.html">test-pool.c</a></li>
+  <li><a href="../examples/test-scan.c.html">test-scan.c</a></li>
+  <li><a href="../examples/test-seq.c.html">test-seq.c</a></li>
+  <li><a href="../examples/test-sqlite3-table.c.html">test-sqlite3-table.c</a></li>
+  <li><a href="../examples/test-str.c.html">test-str.c</a></li>
+  <li><a href="../examples/test-table.c.html">test-table.c</a></li>
+  <li><a href="../examples/test-template.c.html">test-template.c</a></li>
+  <li><a href="../examples/test-xml.c.html">test-xml.c</a></li>
+  <li><a href="../examples/testa.c.html">testa.c</a></li>
+  <li><a href="../examples/testing.c.html">testing.c</a></li>
+  <li><a href="../examples/cmd.c.html">cmd.c</a></li>
+  <li><a href="../examples/testa.c.html">testa.c</a></li>
+  <li><a href="../examples/config.c.html">config.c</a></li>
+  <li><a href="../examples/words.c.html">words.c</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>interface</code></h1>
+<p><h3>Defining and Using Interfaces.</h3>
+</p>
+<p>llib has a mechanism for types to implement <em>interfaces</em>. For instance,
+<a href="../modules/list.html#">list</a> objects implement the Iterable<code> interface, which has a function </code>init<code>
+that returns an 'Iterator</code> object.</p>
+
+<pre>
+    #include &lt;llib/interface.h"
+    ...
+    List *ls = list_new_str();
+    list_add(ls, <span class="string">"ein"</span>);
+    list_add(ls, <span class="string">"zwei"</span>);
+    list_add(ls, <span class="string">"drei"</span>);
+    Iterator *it = interface_get_iterator(ls);
+    <span class="keyword">char</span> *s;
+    <span class="keyword">while</span> (it-&gt;<span class="global">next</span>(it,&amp;s)) {
+        printf(<span class="string">"got '%s'\n"</span>,s);
+    }
+    unref(it);
+</pre>
+
+
+<p>There is an optional function <code>nextpair</code> in the <code>Iterator</code> struct,  which grabs key/value
+pairs:</p>
+
+<pre>
+    Map *m = map_new_str_str();
+    map_put(m,<span class="string">"one"</span>,<span class="string">"1"</span>);
+    map_put(m,<span class="string">"two"</span>,<span class="string">"2"</span>);
+    map_put(m,<span class="string">"three"</span>,<span class="string">"3"</span>);
+    Iterator *it = interface_get_iterator(m);
+    <span class="keyword">char</span> *key, *val;
+    <span class="keyword">while</span> (it-&gt;nextpair(it,&amp;key,&amp;val)) {
+        printf(<span class="string">"'%s': '%s'\n"</span>,key,val);
+    }
+</pre>
+
+
+<p><code>Accessible</code> is simpler; the type provides a single <code>lookup</code> function for finding
+the value associated with a key;  <a href="../modules/map.html#">map</a> implements this.</p>
+
+<p>This module also defines default iterators and accessors for arrays.
+In this way, the JSON generator and the <a href="../modules/template.html#">template</a> module may consume arbitrary llib
+data.</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#interface_add">interface_add (itype, type, funs)</a></td>
+	<td class="summary">make a type <code>type</code> support a particular interface <code>itype</code>.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#interface_get">interface_get (itype, obj)</a></td>
+	<td class="summary">find the interface <code>type</code> for this object.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#interface_typeof">interface_typeof (name)</a></td>
+	<td class="summary">type of an interface</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#interface_get_lookup">interface_get_lookup (P)</a></td>
+	<td class="summary">get a lookup function for this object.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#interface_get_iterator">interface_get_iterator (obj)</a></td>
+	<td class="summary">get an iterator for this object.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "interface_add"></a>
+    <strong>interface_add (itype, type, funs)</strong>
+    </dt>
+    <dd>
+    make a type <code>type</code> support a particular interface <code>itype</code>.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">itype</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+        </li>
+        <li><span class="parameter">type</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+        </li>
+        <li><span class="parameter">funs</span>
+            <span class="types"><span class="type">void *</span></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "interface_get"></a>
+    <strong>interface_get (itype, obj)</strong>
+    </dt>
+    <dd>
+    find the interface <code>type</code> for this object.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">itype</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+        </li>
+        <li><span class="parameter">obj</span>
+            <span class="types"><span class="type">const void *</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">void *</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "interface_typeof"></a>
+    <strong>interface_typeof (name)</strong>
+    </dt>
+    <dd>
+    type of an interface
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">name</span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        type index
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "interface_get_lookup"></a>
+    <strong>interface_get_lookup (P)</strong>
+    </dt>
+    <dd>
+    get a lookup function for this object.
+ Will look for &lsquo;Accessor&rsquo;, otherwise returns &lsquo;str_lookup&rsquo;
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">P</span>
+            <span class="types"><span class="type">const void *</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">ObjLookup</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "interface_get_iterator"></a>
+    <strong>interface_get_iterator (obj)</strong>
+    </dt>
+    <dd>
+    get an iterator for this object.
+ Will look for &lsquo;Iterable&rsquo;, otherwise returns an array iterator
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">obj</span>
+            <span class="types"><span class="type">const void *</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">Iterator *</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
+<i style="float:right;">Last updated 2015-04-27 12:35:55 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

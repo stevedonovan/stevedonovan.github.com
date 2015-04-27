@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
     <title>llib Documentation</title>
-    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+    <link rel="stylesheet" href="../ldoc_fixed.css" type="text/css" />
 </head>
 <body>
 
@@ -46,6 +46,7 @@
   <li><a href="../modules/map.html">map</a></li>
   <li><a href="../modules/file.html">file</a></li>
   <li><a href="../modules/value.html">value</a></li>
+  <li><a href="../modules/interface.html">interface</a></li>
   <li><a href="../modules/json.html">json</a></li>
   <li><a href="../modules/xml.html">xml</a></li>
   <li><a href="../modules/farr.html">farr</a></li>
@@ -90,10 +91,21 @@
 <div id="content">
 
 <h1>Module <code>flot</code></h1>
-<p>
-<h3>Generating Pretty Plots with Flot</h3>
+<p><h3>Generating Pretty Plots with Flot</h3>
+
+<p>A llib flot program generates an HTML file containing <a href="http://flotcharts.org">flot</a> plots,
+which you can then open in your browser.</p>
 </p>
-<p>
+<p>  For example, this example will generate a
+&lsquo;norm.html&rsquo; file.</p>
+
+<p>By default, this file will have Internet references to Flot and jQuery, which makes it
+a self-contained document suitable for giving to others.  However, for situations where
+one is offline or simply don&rsquo;t enjoy the latency, you can define LLIB_FLOT to be
+the location of a local copy of Flot (e.g. &lsquo;file:///home/user/stuff/flot&rsquo;)</p>
+
+<p>The official JavaScript API still applies here. Options are passed as name/value pairs,
+and the name may be &lsquo;dotted&rsquo;, like &ldquo;series.lines.fill&rdquo;,VF(0.2)&ldquo; means &lsquo;series:{lines:{fill:0.2}}}&rsquo;.</p>
 
 <pre>
 #include &lt;llib/flot.h&gt;
@@ -123,14 +135,13 @@
     flot_series_new(P,xv,make_gaussian(<span class="number">4</span>,<span class="number">0.7</span>,xv),
         FlotLines,<span class="string">"label"</span>,<span class="string">"norm s=0.7"</span>);
 
-    flot_comment(<span class="string">"default fill colour is line colour"</span>);
     flot_render(<span class="string">"norm"</span>);
     <span class="keyword">return</span> <span class="number">0</span>;
 }
 </pre>
 
-<p><img src="http://stevedonovan.github.io/files/llib-flot.png" alt="llib Flot"/></p>
-</p>
+
+<p><img src="http://stevedonovan.github.io/files/llib-flot.png" alt="llib Flot" /></p>
 
 
 <h2><a href="#Functions">Functions</a></h2>
@@ -181,7 +192,7 @@
 <br/>
 
 
-    <h2><a name="Functions"></a>Functions</h2>
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
 
     <dl class="function">
     <dt>
@@ -212,17 +223,14 @@
             <span class="types"><span class="type">Flot *</span></span>
 
 
-
         </li>
         <li><span class="parameter">key</span>
             <span class="types"><span class="type">str_t</span></span>
 
 
-
         </li>
         <li><span class="parameter">value</span>
             <span class="types"><span class="type">const void *</span></span>
-
 
 
         </li>
@@ -247,11 +255,9 @@
             <span class="types"><span class="type">Flot *</span></span>
 
 
-
         </li>
         <li><span class="parameter">x</span>
             <span class="types"><span class="type">double</span></span>
-
 
 
         </li>
@@ -259,11 +265,9 @@
             <span class="types"><span class="type">double</span></span>
 
 
-
         </li>
         <li><span class="parameter">text</span>
             <span class="types"><span class="type">str_t</span></span>
-
 
 
         </li>
@@ -289,11 +293,9 @@
             <span class="types"><span class="type">Flot *</span></span>
 
 
-
         </li>
         <li><span class="parameter">X</span>
             <span class="types"><span class="type">double *</span></span>
-
 
 
         </li>
@@ -301,17 +303,14 @@
             <span class="types"><span class="type">double *</span></span>
 
 
-
         </li>
         <li><span class="parameter">flags</span>
             <span class="types"><span class="type">int</span></span>
 
 
-
         </li>
         <li><span class="parameter">options</span>
             <span class="types"><span class="type">PValue</span></span>
-
 
 
         </li>
@@ -321,7 +320,6 @@
     <ol>
 
            <span class="types"><span class="type">Series *</span></span>
-
 
 
     </ol>
@@ -344,17 +342,14 @@
             <span class="types"><span class="type">Series *</span></span>
 
 
-
         </li>
         <li><span class="parameter">key</span>
             <span class="types"><span class="type">str_t</span></span>
 
 
-
         </li>
         <li><span class="parameter">value</span>
             <span class="types"><span class="type">const void *</span></span>
-
 
 
         </li>
@@ -379,7 +374,6 @@
             <span class="types"><span class="type">str_t</span></span>
 
 
-
         </li>
     </ul>
 
@@ -387,7 +381,6 @@
     <ol>
 
            <span class="types"><span class="type">void *</span></span>
-
 
 
     </ol>
@@ -408,7 +401,6 @@
     <ul>
         <li><span class="parameter">name</span>
             <span class="types"><span class="type">str_t</span></span>
-
 
 
         </li>
@@ -433,11 +425,9 @@
             <span class="types"><span class="type">str_t</span></span>
 
 
-
         </li>
         <li><span class="parameter">finish</span>
             <span class="types"><span class="type">str_t</span></span>
-
 
 
         </li>
@@ -447,7 +437,6 @@
     <ol>
 
            <span class="types"><span class="type">PValue</span></span>
-
 
 
     </ol>
@@ -470,17 +459,14 @@
             <span class="types"><span class="type">double</span></span>
 
 
-
         </li>
         <li><span class="parameter">x2</span>
             <span class="types"><span class="type">double</span></span>
 
 
-
         </li>
         <li><span class="parameter">colour</span>
             <span class="types"><span class="type">string</span></span>
-
 
 
         </li>
@@ -505,17 +491,14 @@
             <span class="types"><span class="type">double</span></span>
 
 
-
         </li>
         <li><span class="parameter">y2</span>
             <span class="types"><span class="type">double</span></span>
 
 
-
         </li>
         <li><span class="parameter">colour</span>
             <span class="types"><span class="type">string</span></span>
-
 
 
         </li>
@@ -533,7 +516,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2014-11-01 16:41:56 </i>
+<i style="float:right;">Last updated 2015-04-27 12:35:55 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
     <title>llib Documentation</title>
-    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+    <link rel="stylesheet" href="../ldoc_fixed.css" type="text/css" />
 </head>
 <body>
 
@@ -46,6 +46,7 @@
   <li><a href="../modules/map.html">map</a></li>
   <li><a href="../modules/file.html">file</a></li>
   <li><a href="../modules/value.html">value</a></li>
+  <li><a href="../modules/interface.html">interface</a></li>
   <li><a href="../modules/json.html">json</a></li>
   <li><a href="../modules/xml.html">xml</a></li>
   <li><a href="../modules/farr.html">farr</a></li>
@@ -90,8 +91,7 @@
 <div id="content">
 
 <h1>Module <code>arg</code></h1>
-<p>
-<h3>Command-line Argument Parser.</h3>
+<p><h3>Command-line Argument Parser.</h3>
 </p>
 <p>This allows you to bind variables to command-line arguments.
 For this we write <em>specifications</em> (which are strings containing pseudo-C declarations
@@ -101,8 +101,7 @@ The first line may be a comment documenting the program.</p>
 
 <p>The argument parser follows GNU conventions; long flags with double-hyphen,
 which may have short single-letter forms with a single-hyphen. Short flags may
-be combined ("-abc") and may be followed immediately by their value ("-n10").</p>
-
+be combined (&ldquo;-abc&rdquo;) and may be followed immediately by their value (&ldquo;-n10&rdquo;).</p>
 
 <pre>
 #include &lt;stdio.h&gt;
@@ -139,20 +138,20 @@ PValue args[] = {
 }
 </pre>
 
+
 <p>If you now call <code>arg_command_line(args,argv)</code> these variables will be
-bound; note how both type and optional default value are specified. Names like '#1'
-refer to the first non-flag argument and so forth.  Both '--lines' and '-n' can be
+bound; note how both type and optional default value are specified. Names like &lsquo;#1&rsquo;
+refer to the first non-flag argument and so forth.  Both &lsquo;&mdash;lines&rsquo; and &lsquo;-n&rsquo; can be
 used to set the integer variable <code>lines</code>.  If a flag has no default, then it is an error.
 Plain boolean flags have an implicit default of <code>false</code>.</p>
 
 <p>The supported types are <code>int</code>, <code>float</code>, <code>bool</code>, <code>string</code>, <code>infile</code>
 and <code>outfile</code>. <code>float</code> binds a <em>double</em> value, and <code>infile|outfile</code> bind
-to <code>FILE*</code> directly.  An array 'type' (like "string I[]...") binds to an <em>array</em>
+to <code>FILE*</code> directly.  An array &lsquo;type&rsquo; (like &ldquo;string I[]&hellip;&rdquo;) binds to an <em>array</em>
 of these values and defines a flag that may be specified more than once,
-for instance "-I/my/path -I/your/path".</p>
+for instance &ldquo;-I/my/path -I/your/path&rdquo;.</p>
 
 <p>Help usage is automatically generated from these specifications.</p>
-
 
 <pre>
 $ cmd --help
@@ -164,6 +163,7 @@ Flags:
         --lineno,-l (<span class="keyword">false</span>)     output line numbers
         --#1 (stdin)    file to dump
 </pre>
+
 
 <p>If a conversion is not possible (not a integer, file cannot be opened, etc)
 then the program will exit, showing the help.</p>
@@ -211,7 +211,7 @@ pairs, for instance in <a href="../examples/config.c.html#">config.c</a></p>
 <br/>
 
 
-    <h2><a name="Functions"></a>Functions</h2>
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
 
     <dl class="function">
     <dt>
@@ -229,10 +229,8 @@ pairs, for instance in <a href="../examples/config.c.html#">config.c</a></p>
             <span class="types"><span class="type">PValue *</span></span>
 
 
-
         </li>
         <li><span class="parameter">...</span>
-
 
 
         </li>
@@ -261,7 +259,6 @@ pairs, for instance in <a href="../examples/config.c.html#">config.c</a></p>
             <span class="types"><span class="type">PValue *</span></span>
 
 
-
         </li>
     </ul>
 
@@ -269,7 +266,6 @@ pairs, for instance in <a href="../examples/config.c.html#">config.c</a></p>
     <ol>
 
            <span class="types"><span class="type">ArgState *</span></span>
-
 
 
     </ol>
@@ -292,11 +288,9 @@ pairs, for instance in <a href="../examples/config.c.html#">config.c</a></p>
             <span class="types"><span class="type">ArgState *</span></span>
 
 
-
         </li>
         <li><span class="parameter">sm</span>
             <span class="types"><span class="type">SMap</span></span>
-
 
 
         </li>
@@ -306,7 +300,6 @@ pairs, for instance in <a href="../examples/config.c.html#">config.c</a></p>
     <ol>
 
            <span class="types"><span class="type">PValue</span></span>
-
 
 
     </ol>
@@ -327,7 +320,6 @@ pairs, for instance in <a href="../examples/config.c.html#">config.c</a></p>
     <ul>
         <li><span class="parameter">cmds</span>
             <span class="types"><span class="type">ArgState *</span></span>
-
 
 
         </li>
@@ -353,11 +345,9 @@ pairs, for instance in <a href="../examples/config.c.html#">config.c</a></p>
             <span class="types"><span class="type">ArgState *</span></span>
 
 
-
         </li>
         <li><span class="parameter">argv</span>
             <span class="types"><span class="type">const char * *</span></span>
-
 
 
         </li>
@@ -367,7 +357,6 @@ pairs, for instance in <a href="../examples/config.c.html#">config.c</a></p>
     <ol>
 
            <span class="types"><span class="type">PValue</span></span>
-
 
 
     </ol>
@@ -390,17 +379,14 @@ pairs, for instance in <a href="../examples/config.c.html#">config.c</a></p>
             <span class="types"><span class="type">ArgState *</span></span>
 
 
-
         </li>
         <li><span class="parameter">msg</span>
             <span class="types"><span class="type">str_t</span></span>
 
 
-
         </li>
         <li><span class="parameter">show_help</span>
             <span class="types"><span class="type">bool</span></span>
-
 
 
         </li>
@@ -428,11 +414,9 @@ pairs, for instance in <a href="../examples/config.c.html#">config.c</a></p>
             <span class="types"><span class="type">void * *</span></span>
 
 
-
         </li>
         <li><span class="parameter">argv</span>
             <span class="types"><span class="type">const char * *</span></span>
-
 
 
         </li>
@@ -442,7 +426,6 @@ pairs, for instance in <a href="../examples/config.c.html#">config.c</a></p>
     <ol>
 
            <span class="types"><span class="type">ArgState *</span></span>
-
 
 
     </ol>
@@ -458,7 +441,7 @@ pairs, for instance in <a href="../examples/config.c.html#">config.c</a></p>
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2014-11-01 16:41:56 </i>
+<i style="float:right;">Last updated 2015-04-27 12:35:55 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

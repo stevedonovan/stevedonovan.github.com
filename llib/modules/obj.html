@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
     <title>llib Documentation</title>
-    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+    <link rel="stylesheet" href="../ldoc_fixed.css" type="text/css" />
 </head>
 <body>
 
@@ -53,6 +53,7 @@
   <li><a href="../modules/map.html">map</a></li>
   <li><a href="../modules/file.html">file</a></li>
   <li><a href="../modules/value.html">value</a></li>
+  <li><a href="../modules/interface.html">interface</a></li>
   <li><a href="../modules/json.html">json</a></li>
   <li><a href="../modules/xml.html">xml</a></li>
   <li><a href="../modules/farr.html">farr</a></li>
@@ -97,8 +98,7 @@
 <div id="content">
 
 <h1>Module <code>obj</code></h1>
-<p>
-<h3>Support for Refcounted Objects.</h3>
+<p><h3>Support for Refcounted Objects.</h3>
 </p>
 <p>These are (currently) allocated with <code>malloc</code> and freed with <code>free</code>, but in addition always
 carry a refcount (see <a href="../modules/obj.html#obj_refcount">obj_refcount</a>).  <a href="../modules/obj.html#obj_ref">obj_ref</a> increments this count, and <a href="../modules/obj.html#obj_unref">obj_unref</a>
@@ -109,7 +109,6 @@ has an associated dispose function specified in <a href="../modules/obj.html#obj
 a bulk <code>dispose</code> for multiple objects.</p>
 
 <p>llib objects may specify a <em>dispose</em> function:</p>
-
 
 <pre>
 <span class="keyword">typedef</span> <span class="keyword">struct</span> {
@@ -129,9 +128,10 @@ Person *person_new(<span class="keyword">int</span> age, <span class="keyword">c
 }
 </pre>
 
+
 <p>In this typical scenario, the dispose function decrements the reference
 count of the <code>name</code> field when the <code>Person</code> is disposed;  this will of course
-only dispose the string if it hasn't already been referenced elsewhere, which
+only dispose the string if it hasn&rsquo;t already been referenced elsewhere, which
 permits flexible sharing of data.  (We use <a href="../modules/obj.html#str_ref">str_ref</a> specifically here because the
 argument <code>name</code> may not be already a ref-counted string.)</p>
 
@@ -331,7 +331,7 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
 <br/>
 
 
-    <h2><a name="Macros"></a>Macros</h2>
+    <h2 class="section-header "><a name="Macros"></a>Macros</h2>
 
     <dl class="function">
     <dt>
@@ -377,7 +377,6 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
             <span class="types"><span class="type">type*</span></span>
 
 
-
         </li>
     </ul>
 
@@ -391,7 +390,7 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
 
 </dd>
 </dl>
-    <h2><a name="Functions"></a>Functions</h2>
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
 
     <dl class="function">
     <dt>
@@ -419,7 +418,7 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
 
 </dd>
 </dl>
-    <h2><a name="RTTI"></a>RTTI</h2>
+    <h2 class="section-header "><a name="RTTI"></a>RTTI</h2>
 
     <dl class="function">
     <dt>
@@ -428,14 +427,13 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
     </dt>
     <dd>
     refcount of an object.
- Will return -1 if it isn't one of ours!
+ Will return -1 if it isn&rsquo;t one of ours!
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">p</span>
             <span class="types"><span class="type">const void *</span></span>
-
 
 
         </li>
@@ -445,7 +443,6 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
     <ol>
 
            <span class="types"><span class="type">int</span></span>
-
 
 
     </ol>
@@ -468,7 +465,6 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
             <span class="types"><span class="type">void*</span></span>
 
 
-
         </li>
     </ul>
 
@@ -476,7 +472,6 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
     <ol>
 
            <span class="types"><span class="type">int</span></span>
-
 
 
     </ol>
@@ -499,7 +494,6 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
             <span class="types"><span class="type">void*</span></span>
 
 
-
         </li>
     </ul>
 
@@ -507,7 +501,6 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
     <ol>
 
            <span class="types"><span class="type">bool</span></span>
-
 
 
     </ol>
@@ -530,7 +523,6 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
             <span class="types"><span class="type">void*</span></span>
 
 
-
         </li>
     </ul>
 
@@ -538,7 +530,6 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
     <ol>
 
            <span class="types"><span class="type">bool</span></span>
-
 
 
     </ol>
@@ -562,7 +553,6 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
             <span class="types"><span class="type">const void *</span></span>
 
 
-
         </li>
     </ul>
 
@@ -570,7 +560,6 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
     <ol>
 
            <span class="types"><span class="type">int</span></span>
-
 
 
     </ol>
@@ -593,11 +582,9 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
             <span class="types"><span class="type">const void *</span></span>
 
 
-
         </li>
         <li><span class="parameter">name</span>
             <span class="types"><span class="type">const char *</span></span>
-
 
 
         </li>
@@ -609,7 +596,6 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
            <span class="types"><span class="type">bool</span></span>
 
 
-
     </ol>
 
 
@@ -617,7 +603,7 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
 
 </dd>
 </dl>
-    <h2><a name="New"></a>New</h2>
+    <h2 class="section-header "><a name="New"></a>New</h2>
 
     <dl class="function">
     <dt>
@@ -634,7 +620,6 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
             <span class="types"><span class="type">type</span></span>
 
 
-
         </li>
         <li><span class="parameter">optional</span>
             <span class="types"><span class="type">DisposeFn</span></span>
@@ -646,7 +631,6 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
     <ol>
 
            <span class="types"><span class="type">T*</span></span>
-
 
 
     </ol>
@@ -669,7 +653,6 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
             <span class="types"><span class="type">type</span></span>
 
 
-
         </li>
         <li><span class="parameter">optional</span>
             <span class="types"><span class="type">DisposeFn</span></span>
@@ -681,7 +664,6 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
     <ol>
 
            <span class="types"><span class="type">T*</span></span>
-
 
 
     </ol>
@@ -704,7 +686,6 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
             <span class="types"><span class="type">int</span></span>
 
 
-
         </li>
     </ul>
 
@@ -712,7 +693,6 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
     <ol>
 
            <span class="types"><span class="type">void *</span></span>
-
 
 
     </ol>
@@ -747,7 +727,6 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
            <span class="types"><span class="type">T*</span></span>
 
 
-
     </ol>
 
 
@@ -780,7 +759,6 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
            <span class="types"><span class="type">T*</span></span>
 
 
-
     </ol>
 
 
@@ -803,7 +781,6 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
         </li>
         <li><span class="parameter">buff</span>
             <span class="types"><span class="type">T*</span></span>
-
 
 
         </li>
@@ -832,7 +809,6 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
             <span class="types"><span class="type">const char *</span></span>
 
 
-
         </li>
     </ul>
 
@@ -840,7 +816,6 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
     <ol>
 
            <span class="types"><span class="type">char *</span></span>
-
 
 
     </ol>
@@ -863,7 +838,6 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
             <span class="types"><span class="type">int</span></span>
 
 
-
         </li>
     </ul>
 
@@ -871,7 +845,6 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
     <ol>
 
            <span class="types"><span class="type">char *</span></span>
-
 
 
     </ol>
@@ -894,7 +867,6 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
             <span class="types"><span class="type">const char *</span></span>
 
 
-
         </li>
     </ul>
 
@@ -904,7 +876,6 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
            <span class="types"><span class="type">char *</span></span>
 
 
-
     </ol>
 
 
@@ -912,7 +883,7 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
 
 </dd>
 </dl>
-    <h2><a name="References"></a>References</h2>
+    <h2 class="section-header "><a name="References"></a>References</h2>
 
     <dl class="function">
     <dt>
@@ -929,7 +900,6 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
             <span class="types"><span class="type">T</span></span>
 
 
-
         </li>
     </ul>
 
@@ -937,7 +907,6 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
     <ol>
 
            <span class="types"><span class="type">T</span></span>
-
 
 
     </ol>
@@ -960,7 +929,6 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
     <ul>
         <li><span class="parameter">P</span>
             <span class="types"><span class="type">const void *</span></span>
-
 
 
         </li>
@@ -997,7 +965,7 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
     </dt>
     <dd>
     increase the refcount of a string.
- If this is <em>not</em> one of "our strings", we
+ If this is <em>not</em> one of &ldquo;our strings&rdquo;, we
  create a new refcounted string, otherwise
  proceed as with <a href="../modules/obj.html#obj_ref">obj_ref</a>.
 
@@ -1006,7 +974,6 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
     <ul>
         <li><span class="parameter">s</span>
             <span class="types"><span class="type">const char *</span></span>
-
 
 
         </li>
@@ -1018,7 +985,6 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
            <span class="types"><span class="type">const char *</span></span>
 
 
-
     </ol>
 
 
@@ -1026,7 +992,7 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
 
 </dd>
 </dl>
-    <h2><a name="Utilities"></a>Utilities</h2>
+    <h2 class="section-header "><a name="Utilities"></a>Utilities</h2>
 
     <dl class="function">
     <dt>
@@ -1045,16 +1011,13 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
             <span class="types"><span class="type">void *</span></span>
 
 
-
         </li>
         <li><span class="parameter">fn</span>
             <span class="types"><span class="type">PFun</span></span>
 
 
-
         </li>
         <li><span class="parameter">...</span>
-
 
 
         </li>
@@ -1095,7 +1058,7 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
 
 </dd>
 </dl>
-    <h2><a name="Array"></a>Array</h2>
+    <h2 class="section-header "><a name="Array"></a>Array</h2>
 
     <dl class="function">
     <dt>
@@ -1128,7 +1091,6 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
            <span class="types"><span class="type">void *</span></span>
 
 
-
     </ol>
 
 
@@ -1159,7 +1121,6 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
     <ol>
 
            <span class="types"><span class="type">void *</span></span>
-
 
 
     </ol>
@@ -1254,8 +1215,7 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
 
 </dd>
 </dl>
-    <h2><a name="Sequences"></a>Sequences </h2>
-
+    <h2 class="section-header "><a name="Sequences"></a>Sequences </h2>
 
     <dl class="function">
     <dt>
@@ -1312,7 +1272,6 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
             <span class="types"><span class="type">void *</span></span>
 
 
-
         </li>
     </ul>
 
@@ -1320,7 +1279,6 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
     <ol>
 
            <span class="types"><span class="type">void *</span></span>
-
 
 
     </ol>
@@ -1359,7 +1317,7 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
     <dd>
     add arbitrary number of values to a sequence.
  The values are implicitly terminated with <code>NULL</code>, so
- this won't work for arbitrary integers.
+ this won&rsquo;t work for arbitrary integers.
 
 
     <h3>Parameters:</h3>
@@ -1474,11 +1432,9 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
             <span class="types"><span class="type">void *</span></span>
 
 
-
         </li>
         <li><span class="parameter">p</span>
             <span class="types"><span class="type">void *</span></span>
-
 
 
         </li>
@@ -1505,7 +1461,6 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
             <span class="types"><span class="type">void *</span></span>
 
 
-
         </li>
     </ul>
 
@@ -1513,7 +1468,6 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
     <ol>
 
            <span class="types"><span class="type">void *</span></span>
-
 
 
     </ol>
@@ -1529,7 +1483,7 @@ array can always be accessed with <code>*s</code>, and the array will be sized-t
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2014-11-01 16:41:56 </i>
+<i style="float:right;">Last updated 2015-04-27 12:35:55 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

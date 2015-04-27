@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
     <title>llib Documentation</title>
-    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+    <link rel="stylesheet" href="../ldoc_fixed.css" type="text/css" />
 </head>
 <body>
 
@@ -46,6 +46,7 @@
   <li><a href="../modules/map.html">map</a></li>
   <li><a href="../modules/file.html">file</a></li>
   <li><a href="../modules/value.html">value</a></li>
+  <li><a href="../modules/interface.html">interface</a></li>
   <li><a href="../modules/json.html">json</a></li>
   <li><a href="../modules/xml.html">xml</a></li>
   <li><a href="../modules/farr.html">farr</a></li>
@@ -90,8 +91,7 @@
 <div id="content">
 
 <h1>Module <code>table</code></h1>
-<p>
-<h2>Reading CSV Files.</h2>
+<p><h2>Reading CSV Files.</h2>
 </p>
 <p>This reads tab- or comma-delimited data, optionally treating the first row
 as a set of headers (<code>TableCsv</code> implies both commas and header row).
@@ -102,7 +102,6 @@ which will be converted into <code>float</code> arrays if they appear to be numb
 
 <p>Given a simple CSV file like this:</p>
 
-
 <pre>
 Name,Age
 Bonzo,<span class="number">12</span>
@@ -111,8 +110,8 @@ Frodo,<span class="number">46</span>
 Bilbo,<span class="number">144</span>
 </pre>
 
-<p>then the most straightforward way to read it would be:</p>
 
+<p>then the most straightforward way to read it would be:</p>
 
 <pre>
 Table *t = <a href="../modules/table.html#table_new_from_file">table_new_from_file</a>(<span class="string">"test.csv"</span>, TableCsv | TableAll | TableColumns);
@@ -130,9 +129,9 @@ printf(<span class="string">"\n"</span>);
 </span><span class="keyword">float</span> *ages = (<span class="keyword">float</span>*)t-&gt;cols[<span class="number">1</span>];
 </pre>
 
+
 <p>With <a href="../modules/table.html#table_convert_cols">table_convert_cols</a> you can customize column conversion, and even
 provide your own conversion functions.  These look like this:</p>
-
 
 <pre>
 <span class="keyword">const</span> <span class="keyword">char</span> *int_convert(<span class="keyword">const</span> <span class="keyword">char</span> *str, <span class="keyword">void</span> *res) {
@@ -140,6 +139,7 @@ provide your own conversion functions.  These look like this:</p>
     <span class="keyword">return</span> *endptr ? endptr : NULL;
 }
 </pre>
+
 
 <p>That is, they set the value and return an <em>error</em> if conversion is impossible.</p>
 
@@ -189,7 +189,7 @@ for <code>sqlite3_exec</code>.)</p>
 <br/>
 
 
-    <h2><a name="Functions"></a>Functions</h2>
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
 
     <dl class="function">
     <dt>
@@ -208,7 +208,6 @@ for <code>sqlite3_exec</code>.)</p>
             <span class="types"><span class="type">int</span></span>
 
 
-
         </li>
     </ul>
 
@@ -216,7 +215,6 @@ for <code>sqlite3_exec</code>.)</p>
     <ol>
 
            <span class="types"><span class="type">Table *</span></span>
-
 
 
     </ol>
@@ -237,7 +235,7 @@ for <code>sqlite3_exec</code>.)</p>
 
 <p> Each entry is a zero-based column index, and a type, one of
  <code>TableString</code>, <code>TableFloat</code>, <code>TableInt</code> and <code>TableCustom</code>.
- If it's a custom conversion, then follow <code>TableCustom</code> with
+ If it&rsquo;s a custom conversion, then follow <code>TableCustom</code> with
  a <code>TableConvFun</code>.
  The argument list ends with -1, which is an invalid column index.
 
@@ -248,10 +246,8 @@ for <code>sqlite3_exec</code>.)</p>
             <span class="types"><span class="type">Table *</span></span>
 
 
-
         </li>
         <li><span class="parameter">...</span>
-
 
 
         </li>
@@ -278,7 +274,6 @@ for <code>sqlite3_exec</code>.)</p>
             <span class="types"><span class="type">Table *</span></span>
 
 
-
         </li>
     </ul>
 
@@ -286,7 +281,6 @@ for <code>sqlite3_exec</code>.)</p>
     <ol>
 
            <span class="types"><span class="type">bool</span></span>
-
 
 
     </ol>
@@ -310,7 +304,6 @@ for <code>sqlite3_exec</code>.)</p>
             <span class="types"><span class="type">Table *</span></span>
 
 
-
         </li>
     </ul>
 
@@ -318,7 +311,6 @@ for <code>sqlite3_exec</code>.)</p>
     <ol>
 
            <span class="types"><span class="type">bool</span></span>
-
 
 
     </ol>
@@ -341,11 +333,9 @@ for <code>sqlite3_exec</code>.)</p>
             <span class="types"><span class="type">void *</span></span>
 
 
-
         </li>
         <li><span class="parameter">ncols</span>
             <span class="types"><span class="type">int</span></span>
-
 
 
         </li>
@@ -353,11 +343,9 @@ for <code>sqlite3_exec</code>.)</p>
             <span class="types"><span class="type">char * *</span></span>
 
 
-
         </li>
         <li><span class="parameter">columns</span>
             <span class="types"><span class="type">char * *</span></span>
-
 
 
         </li>
@@ -367,7 +355,6 @@ for <code>sqlite3_exec</code>.)</p>
     <ol>
 
            <span class="types"><span class="type">int</span></span>
-
 
 
     </ol>
@@ -390,7 +377,6 @@ for <code>sqlite3_exec</code>.)</p>
             <span class="types"><span class="type">Table *</span></span>
 
 
-
         </li>
     </ul>
 
@@ -398,7 +384,6 @@ for <code>sqlite3_exec</code>.)</p>
     <ol>
 
            <span class="types"><span class="type">bool</span></span>
-
 
 
     </ol>
@@ -414,7 +399,7 @@ for <code>sqlite3_exec</code>.)</p>
     <dd>
     Create a table from an opened file stream.
  <code>opts</code> have same meaning as for <a href="../modules/table.html#table_new">table_new</a>.
- If unsuccesful, the table's <code>error</code> field will be non-NULL.
+ If unsuccesful, the table&rsquo;s <code>error</code> field will be non-NULL.
 
 
     <h3>Parameters:</h3>
@@ -423,11 +408,9 @@ for <code>sqlite3_exec</code>.)</p>
             <span class="types"><span class="type">FILE *</span></span>
 
 
-
         </li>
         <li><span class="parameter">opts</span>
             <span class="types"><span class="type">int</span></span>
-
 
 
         </li>
@@ -437,7 +420,6 @@ for <code>sqlite3_exec</code>.)</p>
     <ol>
 
            <span class="types"><span class="type">Table *</span></span>
-
 
 
     </ol>
@@ -453,7 +435,7 @@ for <code>sqlite3_exec</code>.)</p>
     <dd>
     Create a table from a file path.
  <code>opts</code> have same meaning as for <a href="../modules/table.html#table_new">table_new</a>.
- If unsuccesful, the table's <code>error</code> field will be non-NULL.
+ If unsuccesful, the table&rsquo;s <code>error</code> field will be non-NULL.
 
 
     <h3>Parameters:</h3>
@@ -462,11 +444,9 @@ for <code>sqlite3_exec</code>.)</p>
             <span class="types"><span class="type">const char *</span></span>
 
 
-
         </li>
         <li><span class="parameter">opts</span>
             <span class="types"><span class="type">int</span></span>
-
 
 
         </li>
@@ -476,7 +456,6 @@ for <code>sqlite3_exec</code>.)</p>
     <ol>
 
            <span class="types"><span class="type">Table *</span></span>
-
 
 
     </ol>
@@ -492,7 +471,7 @@ for <code>sqlite3_exec</code>.)</p>
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2014-11-01 16:41:56 </i>
+<i style="float:right;">Last updated 2015-04-27 12:35:55 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

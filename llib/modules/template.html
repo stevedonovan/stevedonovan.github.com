@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
     <title>llib Documentation</title>
-    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+    <link rel="stylesheet" href="../ldoc_fixed.css" type="text/css" />
 </head>
 <body>
 
@@ -46,6 +46,7 @@
   <li><a href="../modules/map.html">map</a></li>
   <li><a href="../modules/file.html">file</a></li>
   <li><a href="../modules/value.html">value</a></li>
+  <li><a href="../modules/interface.html">interface</a></li>
   <li><a href="../modules/json.html">json</a></li>
   <li><a href="../modules/xml.html">xml</a></li>
   <li><a href="../modules/farr.html">farr</a></li>
@@ -90,13 +91,11 @@
 <div id="content">
 
 <h1>Module <code>template</code></h1>
-<p>
-<h3>String Templates.</h3>
+<p><h3>String Templates.</h3>
 </p>
 <p>In their simplest form they allow substitution of placeholders like
 <code>$(var)</code> with the value of <code>var</code> determined by a lookup, which is
 defined as a function plus an object.</p>
-
 
 <pre>
 StrTempl *st = <a href="../modules/template.html#str_templ_new">str_templ_new</a>(<span class="string">"Hello $(P)$(name), how is $(home)?"</span>,NULL);
@@ -113,33 +112,34 @@ S = <a href="../modules/template.html#str_templ_subst_using">str_templ_subst_usi
 <span class="global">assert</span>(<a href="../modules/str.html#str_eq">str_eq</a>(S,<span class="string">"Hello !Monique, how is Paris?"</span>));
 </pre>
 
-<p><code>str_templ_subst_value</code> will use <code>interface_get_lookup</code> to see if the object
+
+<p><code>str_templ_subst_value</code> will use <a href="../modules/interface.html#interface_get_lookup">interface_get_lookup</a> to see if the object
 implements <code>Accessor</code>, so the last could be simply written <code>str_templ_subst_value(st)</code>
 since <code>Map</code> defines that interface.</p>
 
 <p>The placeholders can be changed if the default clashes with
 the target language syntax, e.g. <code>str_templ_new(str,&quot;@&lt;&gt;&quot;)</code>. Then your template
-will look like "this is @<home>, welcome @<name>".</p>
+will look like &ldquo;this is @<home>, welcome @<name>&rdquo;.</p>
 
 <p>Subtemplates can be defined; for instance this template generates an HTML list.</p>
-
 
 <pre>
 <span class="string">"&lt;ul&gt;$(for ls |&lt;li&gt;$(_)&lt;/li&gt;|)&lt;/ul&gt;"</span>
 </pre>
 
+
 <p>There is an alternative syntax using a single colon instead of bracketting
 pipe characters.</p>
-
 
 <pre>
 <span class="string">"&lt;ul&gt;$(for ls: &lt;li&gt;$(_)&lt;/li&gt;)&lt;/ul&gt;"</span>
 </pre>
 
+
 <p>The special <code>for</code> form iterates over an <code>Iterable</code> object like a <a href="../modules/list.html#List">List</a> or an array.</p>
 
-<p>The special variable <code>\_</code> refers to each value of the <code>Iterable</code>; if we're iterating
-over a map-like object, then it will be the <em>key</em>;  use <code>$([\_])</code> for the <em>value</em>.</p>
+<p>The special variable <code>\<em></code> refers to each value of the <code>Iterable</code>; if we're iterating
+over a map-like object, then it will be the </em>key<em>;  use <code>$([\</em>])</code> for the <em>value</em>.</p>
 
 <p>See <a href="../examples/test-template.c.html#">test-template.c</a></p>
 
@@ -168,7 +168,7 @@ over a map-like object, then it will be the <em>key</em>;  use <code>$([\_])</co
 <br/>
 
 
-    <h2><a name="Functions"></a>Functions</h2>
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
 
     <dl class="function">
     <dt>
@@ -178,7 +178,7 @@ over a map-like object, then it will be the <em>key</em>;  use <code>$([\_])</co
     <dd>
     new template from string with variables to be expanded.
  <code>$(var)</code> is the default, if <code>markers</code> is NULL, but if <code>markers</code>
- was "@&lt;>" then it would use '@' as the escape and "&lt;>" as the
+ was &ldquo;@&lt;>&rdquo; then it would use &lsquo;@&rsquo; as the escape and &ldquo;&lt;>&rdquo; as the
  brackets.
 
 
@@ -188,11 +188,9 @@ over a map-like object, then it will be the <em>key</em>;  use <code>$([\_])</co
             <span class="types"><span class="type">const char *</span></span>
 
 
-
         </li>
         <li><span class="parameter">markers</span>
             <span class="types"><span class="type">const char *</span></span>
-
 
 
         </li>
@@ -202,7 +200,6 @@ over a map-like object, then it will be the <em>key</em>;  use <code>$([\_])</co
     <ol>
 
            <span class="types"><span class="type">StrTempl *</span></span>
-
 
 
     </ol>
@@ -227,17 +224,14 @@ over a map-like object, then it will be the <em>key</em>;  use <code>$([\_])</co
             <span class="types"><span class="type">StrTempl *</span></span>
 
 
-
         </li>
         <li><span class="parameter">lookup</span>
             <span class="types"><span class="type">StrLookup</span></span>
 
 
-
         </li>
         <li><span class="parameter">data</span>
             <span class="types"><span class="type">void *</span></span>
-
 
 
         </li>
@@ -247,7 +241,6 @@ over a map-like object, then it will be the <em>key</em>;  use <code>$([\_])</co
     <ol>
 
            <span class="types"><span class="type">char *</span></span>
-
 
 
     </ol>
@@ -271,11 +264,9 @@ over a map-like object, then it will be the <em>key</em>;  use <code>$([\_])</co
             <span class="types"><span class="type">StrTempl *</span></span>
 
 
-
         </li>
         <li><span class="parameter">substs</span>
             <span class="types"><span class="type">char * *</span></span>
-
 
 
         </li>
@@ -285,7 +276,6 @@ over a map-like object, then it will be the <em>key</em>;  use <code>$([\_])</co
     <ol>
 
            <span class="types"><span class="type">char *</span></span>
-
 
 
     </ol>
@@ -310,11 +300,9 @@ over a map-like object, then it will be the <em>key</em>;  use <code>$([\_])</co
             <span class="types"><span class="type">StrTempl *</span></span>
 
 
-
         </li>
         <li><span class="parameter">v</span>
             <span class="types"><span class="type">PValue</span></span>
-
 
 
         </li>
@@ -324,7 +312,6 @@ over a map-like object, then it will be the <em>key</em>;  use <code>$([\_])</co
     <ol>
 
            <span class="types"><span class="type">char *</span></span>
-
 
 
     </ol>
@@ -340,7 +327,7 @@ over a map-like object, then it will be the <em>key</em>;  use <code>$([\_])</co
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2014-11-01 16:41:56 </i>
+<i style="float:right;">Last updated 2015-04-27 12:35:55 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

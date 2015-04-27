@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
     <title>llib Documentation</title>
-    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+    <link rel="stylesheet" href="../ldoc_fixed.css" type="text/css" />
 </head>
 <body>
 
@@ -46,6 +46,7 @@
   <li><a href="../modules/map.html">map</a></li>
   <li><a href="../modules/file.html">file</a></li>
   <li><a href="../modules/value.html">value</a></li>
+  <li><a href="../modules/interface.html">interface</a></li>
   <li><a href="../modules/json.html">json</a></li>
   <li><a href="../modules/xml.html">xml</a></li>
   <li><a href="../modules/farr.html">farr</a></li>
@@ -90,12 +91,11 @@
 <div id="content">
 
 <h1>Module <code>config</code></h1>
-<p>
-<h3>Reading Simple Configuration Files.</h3>
+<p><h3>Reading Simple Configuration Files.</h3>
 </p>
 <p><a href="../modules/config.html#config_read">config_read</a> will read a configuration file in so-called property format;
-Blank lines and comments beginning with '#' are ignored; otherwise lines
-are in the form "key=value".  It returns the result as a simple map.</p>
+Blank lines and comments beginning with &lsquo;#&rsquo; are ignored; otherwise lines
+are in the form &ldquo;key=value&rdquo;.  It returns the result as a simple map.</p>
 
 <p>The various <code>config_gets*</code> functions will look up and convert values,
 returning a default if the key is not found.  The <code>_arr</code> variants will
@@ -133,6 +133,14 @@ using the <a href="../modules/arg.html#">arg</a> module where variables are boun
 	<td class="summary">get an array of double.</td>
 	</tr>
 	<tr>
+	<td class="name" nowrap><a href="#config_read_stream">config_read_stream (in, flags)</a></td>
+	<td class="summary">read a configuration stream.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#config_read_opt">config_read_opt (file, flags)</a></td>
+	<td class="summary">read a configuration file, with options.</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#config_read">config_read (file)</a></td>
 	<td class="summary">read a configuration file, skipping # comments and blank lines.</td>
 	</tr>
@@ -142,7 +150,7 @@ using the <a href="../modules/arg.html#">arg</a> module where variables are boun
 <br/>
 
 
-    <h2><a name="Functions"></a>Functions</h2>
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
 
     <dl class="function">
     <dt>
@@ -159,17 +167,14 @@ using the <a href="../modules/arg.html#">arg</a> module where variables are boun
             <span class="types"><span class="type">SMap</span></span>
 
 
-
         </li>
         <li><span class="parameter">key</span>
             <span class="types"><span class="type">str_t</span></span>
 
 
-
         </li>
         <li><span class="parameter">def</span>
             <span class="types"><span class="type">str_t</span></span>
-
 
 
         </li>
@@ -179,7 +184,6 @@ using the <a href="../modules/arg.html#">arg</a> module where variables are boun
     <ol>
 
            <span class="types"><span class="type">str_t</span></span>
-
 
 
     </ol>
@@ -202,17 +206,14 @@ using the <a href="../modules/arg.html#">arg</a> module where variables are boun
             <span class="types"><span class="type">SMap</span></span>
 
 
-
         </li>
         <li><span class="parameter">key</span>
             <span class="types"><span class="type">str_t</span></span>
 
 
-
         </li>
         <li><span class="parameter">def</span>
             <span class="types"><span class="type">int</span></span>
-
 
 
         </li>
@@ -222,7 +223,6 @@ using the <a href="../modules/arg.html#">arg</a> module where variables are boun
     <ol>
 
            <span class="types"><span class="type">int</span></span>
-
 
 
     </ol>
@@ -245,17 +245,14 @@ using the <a href="../modules/arg.html#">arg</a> module where variables are boun
             <span class="types"><span class="type">SMap</span></span>
 
 
-
         </li>
         <li><span class="parameter">key</span>
             <span class="types"><span class="type">str_t</span></span>
 
 
-
         </li>
         <li><span class="parameter">def</span>
             <span class="types"><span class="type">double</span></span>
-
 
 
         </li>
@@ -265,7 +262,6 @@ using the <a href="../modules/arg.html#">arg</a> module where variables are boun
     <ol>
 
            <span class="types"><span class="type">double</span></span>
-
 
 
     </ol>
@@ -288,11 +284,9 @@ using the <a href="../modules/arg.html#">arg</a> module where variables are boun
             <span class="types"><span class="type">SMap</span></span>
 
 
-
         </li>
         <li><span class="parameter">key</span>
             <span class="types"><span class="type">str_t</span></span>
-
 
 
         </li>
@@ -302,7 +296,6 @@ using the <a href="../modules/arg.html#">arg</a> module where variables are boun
     <ol>
 
            <span class="types"><span class="type">char * *</span></span>
-
 
 
     </ol>
@@ -325,11 +318,9 @@ using the <a href="../modules/arg.html#">arg</a> module where variables are boun
             <span class="types"><span class="type">SMap</span></span>
 
 
-
         </li>
         <li><span class="parameter">key</span>
             <span class="types"><span class="type">str_t</span></span>
-
 
 
         </li>
@@ -339,7 +330,6 @@ using the <a href="../modules/arg.html#">arg</a> module where variables are boun
     <ol>
 
            <span class="types"><span class="type">int *</span></span>
-
 
 
     </ol>
@@ -362,11 +352,9 @@ using the <a href="../modules/arg.html#">arg</a> module where variables are boun
             <span class="types"><span class="type">SMap</span></span>
 
 
-
         </li>
         <li><span class="parameter">key</span>
             <span class="types"><span class="type">str_t</span></span>
-
 
 
         </li>
@@ -377,6 +365,75 @@ using the <a href="../modules/arg.html#">arg</a> module where variables are boun
 
            <span class="types"><span class="type">double *</span></span>
 
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "config_read_stream"></a>
+    <strong>config_read_stream (in, flags)</strong>
+    </dt>
+    <dd>
+    read a configuration stream.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">in</span>
+            <span class="types"><span class="type">FILE *</span></span>
+
+
+        </li>
+        <li><span class="parameter">flags</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">char * *</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "config_read_opt"></a>
+    <strong>config_read_opt (file, flags)</strong>
+    </dt>
+    <dd>
+    read a configuration file, with options.
+ Currently either CONFIG_DELIM_EQUALS or CONFIG_DELIM_SPACE.
+ Will return <code>NULL</code> if the file cannot be opened.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">file</span>
+            <span class="types"><span class="type">str_t</span></span>
+
+
+        </li>
+        <li><span class="parameter">flags</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">char * *</span></span>
 
 
     </ol>
@@ -399,7 +456,6 @@ using the <a href="../modules/arg.html#">arg</a> module where variables are boun
             <span class="types"><span class="type">str_t</span></span>
 
 
-
         </li>
     </ul>
 
@@ -407,7 +463,6 @@ using the <a href="../modules/arg.html#">arg</a> module where variables are boun
     <ol>
 
            <span class="types"><span class="type">char * *</span></span>
-
 
 
     </ol>
@@ -423,7 +478,7 @@ using the <a href="../modules/arg.html#">arg</a> module where variables are boun
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2014-11-01 16:41:56 </i>
+<i style="float:right;">Last updated 2015-04-27 12:35:55 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
     <title>llib Documentation</title>
-    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+    <link rel="stylesheet" href="../ldoc_fixed.css" type="text/css" />
 </head>
 <body>
 
@@ -50,6 +50,7 @@
   <li><a href="../modules/map.html">map</a></li>
   <li><a href="../modules/file.html">file</a></li>
   <li><a href="../modules/value.html">value</a></li>
+  <li><a href="../modules/interface.html">interface</a></li>
   <li><a href="../modules/json.html">json</a></li>
   <li><a href="../modules/xml.html">xml</a></li>
   <li><a href="../modules/farr.html">farr</a></li>
@@ -94,8 +95,7 @@
 <div id="content">
 
 <h1>Module <code>str</code></h1>
-<p>
-<h3>String Manipulation.</h3>
+<p><h3>String Manipulation.</h3>
 </p>
 <p> When building up strings use a <em>strbuf</em>, which is a sequence of chars; can add characters
  and strings, formatted strings (like <a href="../modules/str.html#str_fmt">str_fmt</a>) and also insert and remove substrings.
@@ -106,9 +106,9 @@
  works the other way, joining an array of strings with a separator.</p>
 
 <p> There are searching operations which return a boolean or integer index,
- loosely based on C++'s <code>std::string</code> methods.</p>
+ loosely based on C++&rsquo;s <code>std::string</code> methods.</p>
 
-<p> <em>smaps</em> ('simple maps') are arrays of strings where the odd indices
+<p> <em>smaps</em> (&lsquo;simple maps&rsquo;) are arrays of strings where the odd indices
  are keys and the even indices are values. <a href="../modules/str.html#str_lookup">str_lookup</a> does a
  linear search, which is simple and sufficient for small maps. A convenient
  way to build these maps is to start with <a href="../modules/str.html#smap_new">smap_new</a> and use either <a href="../modules/str.html#smap_add">smap_add</a>
@@ -144,6 +144,10 @@
 	<td class="summary">append a range of chars from a string.</td>
 	</tr>
 	<tr>
+	<td class="name" nowrap><a href="#strbuf_addsp">strbuf_addsp (ss, s)</a></td>
+	<td class="summary">append a string surronded by spaces.</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#strbuf_insert_at">strbuf_insert_at (sp, pos, src, sz)</a></td>
 	<td class="summary">insert a string into a string buffer at <code>pos</code>.</td>
 	</tr>
@@ -159,8 +163,12 @@
 <h2><a href="#Extra_string_functions">Extra string functions </a></h2>
 <table class="function_list">
 	<tr>
+	<td class="name" nowrap><a href="#str_vfmt">str_vfmt (fmt, ap)</a></td>
+	<td class="summary">safe verson of <code>vsprintf</code> which returns a refcounted string.</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#str_fmt">str_fmt (fmt, ...)</a></td>
-	<td class="summary">safe verson of <code>sprintf</code> which returns an allocated string.</td>
+	<td class="summary">safe verson of <code>sprintf</code> which returns a refcounted string.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#str_sub">str_sub (s, i1, i2)</a></td>
@@ -198,6 +206,10 @@
 	<td class="summary">find substring <code>sub</code> in the string.</td>
 	</tr>
 	<tr>
+	<td class="name" nowrap><a href="#str_contains">str_contains (s, sub, after)</a></td>
+	<td class="summary">contains substring?</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#str_findch">str_findch (s, ch)</a></td>
 	<td class="summary">find character <code>ch</code> in the string.</td>
 	</tr>
@@ -213,8 +225,12 @@
 <h2><a href="#Splitting_and_Concatention">Splitting and Concatention </a></h2>
 <table class="function_list">
 	<tr>
+	<td class="name" nowrap><a href="#str_split_n">str_split_n (s, delim, nsplit)</a></td>
+	<td class="summary">split a string upto <code>nsplit</code> times using delimiters.</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#str_split">str_split (s, delim)</a></td>
-	<td class="summary">split a string using a set of delimiters.</td>
+	<td class="summary">split a string using delimiters.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#str_concat">str_concat (ss, delim)</a></td>
@@ -223,6 +239,14 @@
 	<tr>
 	<td class="name" nowrap><a href="#str_strings">str_strings (first, ...)</a></td>
 	<td class="summary">Allocating a simple array of strings.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#str_index">str_index (strings, s)</a></td>
+	<td class="summary">index of <code>s</code> in string array <code>strings</code>.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#str_eq_any">str_eq_any (s, ...)</a></td>
+	<td class="summary">1-based index of <code>s</code> in an arbitrary number of string arguments.</td>
 	</tr>
 </table>
 <h2><a href="#smap_Functions">smap Functions</a></h2>
@@ -238,6 +262,10 @@
 	<tr>
 	<td class="name" nowrap><a href="#str_lookup">str_lookup (substs, name)</a></td>
 	<td class="summary">Look up a string key in a smap returning associated value.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#str_gets">str_gets (substs, name)</a></td>
+	<td class="summary">Like <a href="../modules/str.html#str_lookup">str_lookup</a> but assuming value is a string.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#smap_new">smap_new (ref)</a></td>
@@ -277,8 +305,7 @@
 <br/>
 
 
-    <h2><a name="String_buffers"></a>String buffers </h2>
-
+    <h2 class="section-header "><a name="String_buffers"></a>String buffers </h2>
 
     <dl class="function">
     <dt>
@@ -295,7 +322,6 @@
         <li><span class="parameter">void</span>
 
 
-
         </li>
     </ul>
 
@@ -303,7 +329,6 @@
     <ol>
 
            <span class="types"><span class="type">char * *</span></span>
-
 
 
     </ol>
@@ -326,7 +351,6 @@
             <span class="types"><span class="type">char**</span></span>
 
 
-
         </li>
     </ul>
 
@@ -334,7 +358,6 @@
     <ol>
 
            <span class="types"><span class="type">char*</span></span>
-
 
 
     </ol>
@@ -357,11 +380,9 @@
             <span class="types"><span class="type">char**</span></span>
 
 
-
         </li>
         <li><span class="parameter">ch</span>
             <span class="types"><span class="type">char</span></span>
-
 
 
         </li>
@@ -386,11 +407,9 @@
             <span class="types"><span class="type">char * *</span></span>
 
 
-
         </li>
         <li><span class="parameter">ss</span>
             <span class="types"><span class="type">str_t</span></span>
-
 
 
         </li>
@@ -416,16 +435,13 @@
             <span class="types"><span class="type">char * *</span></span>
 
 
-
         </li>
         <li><span class="parameter">fmt</span>
             <span class="types"><span class="type">str_t</span></span>
 
 
-
         </li>
         <li><span class="parameter">...</span>
-
 
 
         </li>
@@ -450,11 +466,9 @@
             <span class="types"><span class="type">char * *</span></span>
 
 
-
         </li>
         <li><span class="parameter">s</span>
             <span class="types"><span class="type">str_t</span></span>
-
 
 
         </li>
@@ -462,11 +476,37 @@
             <span class="types"><span class="type">int</span></span>
 
 
-
         </li>
         <li><span class="parameter">i2</span>
             <span class="types"><span class="type">int</span></span>
 
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "strbuf_addsp"></a>
+    <strong>strbuf_addsp (ss, s)</strong>
+    </dt>
+    <dd>
+    append a string surronded by spaces.
+ useful when building up a string of tokens separated by spaces.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ss</span>
+            <span class="types"><span class="type">char * *</span></span>
+
+
+        </li>
+        <li><span class="parameter">s</span>
+            <span class="types"><span class="type">str_t</span></span>
 
 
         </li>
@@ -493,11 +533,9 @@
             <span class="types"><span class="type">char * *</span></span>
 
 
-
         </li>
         <li><span class="parameter">pos</span>
             <span class="types"><span class="type">int</span></span>
-
 
 
         </li>
@@ -505,11 +543,9 @@
             <span class="types"><span class="type">str_t</span></span>
 
 
-
         </li>
         <li><span class="parameter">sz</span>
             <span class="types"><span class="type">int</span></span>
-
 
 
         </li>
@@ -519,7 +555,6 @@
     <ol>
 
            <span class="types"><span class="type">char *</span></span>
-
 
 
     </ol>
@@ -542,17 +577,14 @@
             <span class="types"><span class="type">char * *</span></span>
 
 
-
         </li>
         <li><span class="parameter">pos</span>
             <span class="types"><span class="type">int</span></span>
 
 
-
         </li>
         <li><span class="parameter">len</span>
             <span class="types"><span class="type">int</span></span>
-
 
 
         </li>
@@ -562,7 +594,6 @@
     <ol>
 
            <span class="types"><span class="type">char *</span></span>
-
 
 
     </ol>
@@ -585,11 +616,9 @@
             <span class="types"><span class="type">char * *</span></span>
 
 
-
         </li>
         <li><span class="parameter">pos</span>
             <span class="types"><span class="type">int</span></span>
-
 
 
         </li>
@@ -597,11 +626,9 @@
             <span class="types"><span class="type">int</span></span>
 
 
-
         </li>
         <li><span class="parameter">s</span>
             <span class="types"><span class="type">str_t</span></span>
-
 
 
         </li>
@@ -611,7 +638,6 @@
     <ol>
 
            <span class="types"><span class="type">char *</span></span>
-
 
 
     </ol>
@@ -621,16 +647,15 @@
 
 </dd>
 </dl>
-    <h2><a name="Extra_string_functions"></a>Extra string functions </h2>
-
+    <h2 class="section-header "><a name="Extra_string_functions"></a>Extra string functions </h2>
 
     <dl class="function">
     <dt>
-    <a name = "str_fmt"></a>
-    <strong>str_fmt (fmt, ...)</strong>
+    <a name = "str_vfmt"></a>
+    <strong>str_vfmt (fmt, ap)</strong>
     </dt>
     <dd>
-    safe verson of <code>sprintf</code> which returns an allocated string.
+    safe verson of <code>vsprintf</code> which returns a refcounted string.
 
 
     <h3>Parameters:</h3>
@@ -639,10 +664,9 @@
             <span class="types"><span class="type">str_t</span></span>
 
 
-
         </li>
-        <li><span class="parameter">...</span>
-
+        <li><span class="parameter">ap</span>
+            <span class="types"><span class="type">va_list</span></span>
 
 
         </li>
@@ -653,6 +677,38 @@
 
            <span class="types"><span class="type">char *</span></span>
 
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "str_fmt"></a>
+    <strong>str_fmt (fmt, ...)</strong>
+    </dt>
+    <dd>
+    safe verson of <code>sprintf</code> which returns a refcounted string.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fmt</span>
+            <span class="types"><span class="type">str_t</span></span>
+
+
+        </li>
+        <li><span class="parameter">...</span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">char *</span></span>
 
 
     </ol>
@@ -667,6 +723,8 @@
     </dt>
     <dd>
     extract a substring.
+ Note that <code>i2</code> and &lsquo;i1&rsquo; are indices which may be negative, so (0,-1)
+ is a string copy and (1,-2) copies from 2nd to second-last character.
 
 
     <h3>Parameters:</h3>
@@ -675,17 +733,14 @@
             <span class="types"><span class="type">str_t</span></span>
 
 
-
         </li>
         <li><span class="parameter">i1</span>
             <span class="types"><span class="type">int</span></span>
 
 
-
         </li>
         <li><span class="parameter">i2</span>
             <span class="types"><span class="type">int</span></span>
-
 
 
         </li>
@@ -697,11 +752,15 @@
            <span class="types"><span class="type">char *</span></span>
 
 
-
     </ol>
 
 
 
+    <h3>Usage:</h3>
+    <ul>
+        <li><pre class="example">str_sub(<span class="string">"hello"</span>,<span class="number">2</span>,<span class="number">3</span>) -&gt; <span class="string">"l"</span></pre></li>
+        <li><pre class="example">str_sub(<span class="string">"hello"</span>,<span class="number">2</span>,-<span class="number">1</span>) -&gt; <span class="string">"llo"</span></pre></li>
+    </ul>
 
 </dd>
     <dt>
@@ -718,7 +777,6 @@
             <span class="types"><span class="type">char *</span></span>
 
 
-
         </li>
     </ul>
 
@@ -728,8 +786,7 @@
 
 </dd>
 </dl>
-    <h2><a name="Finding_things_in_strings"></a>Finding things in strings </h2>
-
+    <h2 class="section-header "><a name="Finding_things_in_strings"></a>Finding things in strings </h2>
 
     <dl class="function">
     <dt>
@@ -746,7 +803,6 @@
             <span class="types"><span class="type">str_t</span></span>
 
 
-
         </li>
     </ul>
 
@@ -754,7 +810,6 @@
     <ol>
 
            <span class="types"><span class="type">str_t</span></span>
-
 
 
     </ol>
@@ -777,11 +832,9 @@
             <span class="types"><span class="type">str_t</span></span>
 
 
-
         </li>
         <li><span class="parameter">b</span>
             <span class="types"><span class="type">str_t</span></span>
-
 
 
         </li>
@@ -806,11 +859,9 @@
             <span class="types"><span class="type">str_t</span></span>
 
 
-
         </li>
         <li><span class="parameter">prefix</span>
             <span class="types"><span class="type">str_t</span></span>
-
 
 
         </li>
@@ -820,7 +871,6 @@
     <ol>
 
            <span class="types"><span class="type">bool</span></span>
-
 
 
     </ol>
@@ -843,11 +893,9 @@
             <span class="types"><span class="type">str_t</span></span>
 
 
-
         </li>
         <li><span class="parameter">postfix</span>
             <span class="types"><span class="type">str_t</span></span>
-
 
 
         </li>
@@ -857,7 +905,6 @@
     <ol>
 
            <span class="types"><span class="type">bool</span></span>
-
 
 
     </ol>
@@ -880,7 +927,6 @@
             <span class="types"><span class="type">str_t</span></span>
 
 
-
         </li>
     </ul>
 
@@ -888,7 +934,6 @@
     <ol>
 
            <span class="types"><span class="type">bool</span></span>
-
 
 
     </ol>
@@ -911,11 +956,9 @@
             <span class="types"><span class="type">str_t</span></span>
 
 
-
         </li>
         <li><span class="parameter">sub</span>
             <span class="types"><span class="type">str_t</span></span>
-
 
 
         </li>
@@ -926,6 +969,45 @@
 
            <span class="types"><span class="type">int</span></span>
 
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "str_contains"></a>
+    <strong>str_contains (s, sub, after)</strong>
+    </dt>
+    <dd>
+    contains substring?
+ also optionally return index past match.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">s</span>
+            <span class="types"><span class="type">str_t</span></span>
+
+
+        </li>
+        <li><span class="parameter">sub</span>
+            <span class="types"><span class="type">str_t</span></span>
+
+
+        </li>
+        <li><span class="parameter">after</span>
+            <span class="types"><span class="type">int *</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">bool</span></span>
 
 
     </ol>
@@ -948,11 +1030,9 @@
             <span class="types"><span class="type">str_t</span></span>
 
 
-
         </li>
         <li><span class="parameter">ch</span>
             <span class="types"><span class="type">char</span></span>
-
 
 
         </li>
@@ -962,7 +1042,6 @@
     <ol>
 
            <span class="types"><span class="type">int</span></span>
-
 
 
     </ol>
@@ -985,11 +1064,9 @@
             <span class="types"><span class="type">str_t</span></span>
 
 
-
         </li>
         <li><span class="parameter">ps</span>
             <span class="types"><span class="type">str_t</span></span>
-
 
 
         </li>
@@ -999,7 +1076,6 @@
     <ol>
 
            <span class="types"><span class="type">int</span></span>
-
 
 
     </ol>
@@ -1022,11 +1098,9 @@
             <span class="types"><span class="type">str_t</span></span>
 
 
-
         </li>
         <li><span class="parameter">ps</span>
             <span class="types"><span class="type">str_t</span></span>
-
 
 
         </li>
@@ -1038,7 +1112,6 @@
            <span class="types"><span class="type">int</span></span>
 
 
-
     </ol>
 
 
@@ -1046,16 +1119,15 @@
 
 </dd>
 </dl>
-    <h2><a name="Splitting_and_Concatention"></a>Splitting and Concatention </h2>
-
+    <h2 class="section-header "><a name="Splitting_and_Concatention"></a>Splitting and Concatention </h2>
 
     <dl class="function">
     <dt>
-    <a name = "str_split"></a>
-    <strong>str_split (s, delim)</strong>
+    <a name = "str_split_n"></a>
+    <strong>str_split_n (s, delim, nsplit)</strong>
     </dt>
     <dd>
-    split a string using a set of delimiters.
+    split a string upto <code>nsplit</code> times using delimiters.
  Returns a ref array of ref strings.
 
 
@@ -1065,11 +1137,14 @@
             <span class="types"><span class="type">str_t</span></span>
 
 
-
         </li>
         <li><span class="parameter">delim</span>
             <span class="types"><span class="type">str_t</span></span>
 
+
+        </li>
+        <li><span class="parameter">nsplit</span>
+            <span class="types"><span class="type">int</span></span>
 
 
         </li>
@@ -1080,6 +1155,40 @@
 
            <span class="types"><span class="type">char * *</span></span>
 
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "str_split"></a>
+    <strong>str_split (s, delim)</strong>
+    </dt>
+    <dd>
+    split a string using delimiters.
+ Returns a ref array of ref strings.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">s</span>
+            <span class="types"><span class="type">str_t</span></span>
+
+
+        </li>
+        <li><span class="parameter">delim</span>
+            <span class="types"><span class="type">str_t</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">char * *</span></span>
 
 
     </ol>
@@ -1103,11 +1212,9 @@
             <span class="types"><span class="type">char * *</span></span>
 
 
-
         </li>
         <li><span class="parameter">delim</span>
             <span class="types"><span class="type">str_t</span></span>
-
 
 
         </li>
@@ -1117,7 +1224,6 @@
     <ol>
 
            <span class="types"><span class="type">char *</span></span>
-
 
 
     </ol>
@@ -1132,6 +1238,7 @@
     </dt>
     <dd>
     Allocating a simple array of strings.
+ End the string arguments with a final <code>NULL</code>.
  Note that this array is <em>not</em> a ref container; the
  string addresses are just copied over.
 
@@ -1142,10 +1249,8 @@
             <span class="types"><span class="type">char *</span></span>
 
 
-
         </li>
         <li><span class="parameter">...</span>
-
 
 
         </li>
@@ -1157,6 +1262,40 @@
            <span class="types"><span class="type">char * *</span></span>
 
 
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "str_index"></a>
+    <strong>str_index (strings, s)</strong>
+    </dt>
+    <dd>
+    index of <code>s</code> in string array <code>strings</code>.
+ -1 if not found. The string array must be NULL terminated.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">strings</span>
+            <span class="types"><span class="type">const char * *</span></span>
+
+
+        </li>
+        <li><span class="parameter">s</span>
+            <span class="types"><span class="type">const char *</span></span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+
 
     </ol>
 
@@ -1164,8 +1303,45 @@
 
 
 </dd>
+    <dt>
+    <a name = "str_eq_any"></a>
+    <strong>str_eq_any (s, ...)</strong>
+    </dt>
+    <dd>
+    1-based index of <code>s</code> in an arbitrary number of string arguments.
+ If we don&rsquo;t match, then return 0!  <a href="../modules/str.html#str_eq_any">str_eq_any</a> is a convenient
+ replacement for a chain of string comparions. Also useful to parse enum values.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">s</span>
+            <span class="types"><span class="type">string</span></span>
+          the string to match
+        </li>
+        <li><span class="parameter">...</span>
+         the strings to match against
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+
+
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">str_eq_any(<span class="string">"foo"</span>,<span class="string">"baz"</span>,<span class="string">"foo"</span>,<span class="string">"bar"</span>) == <span class="number">2</span>;</pre>
+    </ul>
+
+</dd>
 </dl>
-    <h2><a name="smap_Functions"></a>smap Functions</h2>
+    <h2 class="section-header "><a name="smap_Functions"></a>smap Functions</h2>
 
     <dl class="function">
     <dt>
@@ -1204,11 +1380,9 @@
             <span class="types"><span class="type">char * *</span></span>
 
 
-
         </li>
         <li><span class="parameter">name</span>
             <span class="types"><span class="type">const char *</span></span>
-
 
 
         </li>
@@ -1217,8 +1391,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><span class="type">char * *</span></span>
-
+           <span class="types"><span class="type">void * *</span></span>
 
 
     </ol>
@@ -1241,11 +1414,43 @@
             <span class="types"><span class="type">char * *</span></span>
 
 
-
         </li>
         <li><span class="parameter">name</span>
             <span class="types"><span class="type">const char *</span></span>
 
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">void *</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "str_gets"></a>
+    <strong>str_gets (substs, name)</strong>
+    </dt>
+    <dd>
+    Like <a href="../modules/str.html#str_lookup">str_lookup</a> but assuming value is a string.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">substs</span>
+            <span class="types"><span class="type">char * *</span></span>
+
+
+        </li>
+        <li><span class="parameter">name</span>
+            <span class="types"><span class="type">const char *</span></span>
 
 
         </li>
@@ -1255,7 +1460,6 @@
     <ol>
 
            <span class="types"><span class="type">char *</span></span>
-
 
 
     </ol>
@@ -1278,7 +1482,6 @@
             <span class="types"><span class="type">bool</span></span>
 
 
-
         </li>
     </ul>
 
@@ -1286,7 +1489,6 @@
     <ol>
 
            <span class="types"><span class="type">char * * *</span></span>
-
 
 
     </ol>
@@ -1309,17 +1511,14 @@
             <span class="types"><span class="type">char * * *</span></span>
 
 
-
         </li>
         <li><span class="parameter">name</span>
             <span class="types"><span class="type">const char *</span></span>
 
 
-
         </li>
         <li><span class="parameter">data</span>
             <span class="types"><span class="type">const void *</span></span>
-
 
 
         </li>
@@ -1344,17 +1543,14 @@
             <span class="types"><span class="type">char * * *</span></span>
 
 
-
         </li>
         <li><span class="parameter">name</span>
             <span class="types"><span class="type">const char *</span></span>
 
 
-
         </li>
         <li><span class="parameter">data</span>
             <span class="types"><span class="type">const void *</span></span>
-
 
 
         </li>
@@ -1379,11 +1575,9 @@
             <span class="types"><span class="type">char * * *</span></span>
 
 
-
         </li>
         <li><span class="parameter">name</span>
             <span class="types"><span class="type">const char *</span></span>
-
 
 
         </li>
@@ -1393,7 +1587,6 @@
     <ol>
 
            <span class="types"><span class="type">void *</span></span>
-
 
 
     </ol>
@@ -1416,7 +1609,6 @@
             <span class="types"><span class="type">char * * *</span></span>
 
 
-
         </li>
     </ul>
 
@@ -1424,7 +1616,6 @@
     <ol>
 
            <span class="types"><span class="type">char * *</span></span>
-
 
 
     </ol>
@@ -1447,7 +1638,6 @@
             <span class="types"><span class="type">char * * *</span></span>
 
 
-
         </li>
     </ul>
 
@@ -1455,7 +1645,6 @@
     <ol>
 
            <span class="types"><span class="type">int</span></span>
-
 
 
     </ol>
@@ -1478,11 +1667,9 @@
             <span class="types"><span class="type">str_t</span></span>
 
 
-
         </li>
         <li><span class="parameter">data</span>
             <span class="types"><span class="type">str_t</span></span>
-
 
 
         </li>
@@ -1507,11 +1694,9 @@
             <span class="types"><span class="type">str_t</span></span>
 
 
-
         </li>
         <li><span class="parameter">data</span>
             <span class="types"><span class="type">str_t</span></span>
-
 
 
         </li>
@@ -1529,7 +1714,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2014-11-01 16:41:56 </i>
+<i style="float:right;">Last updated 2015-04-27 12:35:55 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
     <title>llib Documentation</title>
-    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+    <link rel="stylesheet" href="../ldoc_fixed.css" type="text/css" />
 </head>
 <body>
 
@@ -52,6 +52,7 @@
   <li><a href="../modules/map.html">map</a></li>
   <li><a href="../modules/file.html">file</a></li>
   <li><a href="../modules/value.html">value</a></li>
+  <li><a href="../modules/interface.html">interface</a></li>
   <li><a href="../modules/json.html">json</a></li>
   <li><a href="../modules/xml.html">xml</a></li>
   <li><a href="../modules/farr.html">farr</a></li>
@@ -96,12 +97,10 @@
 <div id="content">
 
 <h1>Module <code>scan</code></h1>
-<p>
-<h3>A Lexical Scanner.</h3>
+<p><h3>A Lexical Scanner.</h3>
 </p>
 <p>Lexical scanners are a smarter and cleaner alternative to the primitive <code>strtok</code> function.
 Each time you call <a href="../modules/scan.html#scan_next">scan_next</a>, the scanner finds the next <em>token</em>,</p>
-
 
 <pre>
 ScanState *ts = <a href="../modules/scan.html#scan_new_from_string">scan_new_from_string</a>(<span class="string">"hello = (10,20,30)"</span>));
@@ -116,16 +115,17 @@ ScanState *ts = <a href="../modules/scan.html#scan_new_from_string">scan_new_fro
 </span>
 </pre>
 
+
 <p>At any point, <code>ts-&gt;type</code> tells you the next available token.
 Note that by default this scanner ignores space.</p>
 
 <p>A convenient higher-level function is <a href="../modules/scan.html#scan_scanf">scan_scanf</a>;  the equivalent of above code is
 simply:</p>
 
-
 <pre>
 <a href="../modules/scan.html#scan_scanf">scan_scanf</a>(ts,<span class="string">"%s %c (%f,%f"</span>,&amp;name,&amp;ch,&amp;val1,&amp;val2).
 </pre>
+
 
 <p>See <a href="../examples/test-scan.c.html#">test-scan.c</a> for examples of various uses.</p>
 
@@ -268,7 +268,7 @@ simply:</p>
 <br/>
 
 
-    <h2><a name="Tables"></a>Tables</h2>
+    <h2 class="section-header "><a name="Tables"></a>Tables</h2>
 
     <dl class="function">
     <dt>
@@ -289,21 +289,21 @@ simply:</p>
             <span class="types"><span class="type">int</span></span>
          One of the following:</p>
 
-<p>   T<em>END, T</em>EOF=0,
-   T<em>TOKEN, T</em>IDEN=1,
-   T<em>NUMBER,
-   T</em>STRING,
-   T<em>CHAR,
-   T</em>NADA
+<p>   T_END, T_EOF=0,
+   T_TOKEN, T_IDEN=1,
+   T_NUMBER,
+   T_STRING,
+   T_CHAR,
+   T_NADA
         </li>
         <li><span class="parameter">int_type</span>
             <span class="types"><span class="type">int</span></span>
          One of</p>
 
-<p>   T<em>DOUBLE,
-   T</em>INT,
-   T<em>HEX,
-   T</em>OCT,
+<p>   T_DOUBLE,
+   T_INT,
+   T_HEX,
+   T_OCT,
         </li>
     </ul>
 
@@ -313,7 +313,7 @@ simply:</p>
 
 </dd>
 </dl>
-    <h2><a name="Configuration"></a>Configuration</h2>
+    <h2 class="section-header "><a name="Configuration"></a>Configuration</h2>
 
     <dl class="function">
     <dt>
@@ -321,14 +321,13 @@ simply:</p>
     <strong>scan_set_flags (ts, flags)</strong>
     </dt>
     <dd>
-
-<p>set flags. </p>
+    <p>set flags. </p>
 
 <ul>
-    <li><code>C_IDEN</code> words may contain underscores</li>
-    <li><code>C_NUMBER</code> instead of <code>T_NUMBER</code>, return <code>T_INT</code>,<code>T_HEX</code> and <code>T_DOUBLE</code></li>
-    <li><code>C_STRING</code> parse C string escapes</li>
-    <li><code>C_WSPACE</code> don't skip whitespace</li>
+<li><code>C_IDEN</code> words may contain underscores</li>
+<li><code>C_NUMBER</code> instead of <code>T_NUMBER</code>, return <code>T_INT</code>,<code>T_HEX</code> and <code>T_DOUBLE</code></li>
+<li><code>C_STRING</code> parse C string escapes</li>
+<li><code>C_WSPACE</code> don&rsquo;t skip whitespace</li>
 </ul>
 
 
@@ -340,11 +339,9 @@ simply:</p>
             <span class="types"><a class="type" href="../modules/scan.html#ScanState">ScanState *</a></span>
 
 
-
         </li>
         <li><span class="parameter">flags</span>
             <span class="types"><span class="type">int</span></span>
-
 
 
         </li>
@@ -369,11 +366,9 @@ simply:</p>
             <span class="types"><a class="type" href="../modules/scan.html#ScanState">ScanState *</a></span>
 
 
-
         </li>
         <li><span class="parameter">cc</span>
             <span class="types"><span class="type">const char *</span></span>
-
 
 
         </li>
@@ -398,7 +393,6 @@ simply:</p>
             <span class="types"><a class="type" href="../modules/scan.html#ScanState">ScanState *</a></span>
 
 
-
         </li>
     </ul>
 
@@ -421,7 +415,6 @@ simply:</p>
             <span class="types"><a class="type" href="../modules/scan.html#ScanState">ScanState *</a></span>
 
 
-
         </li>
     </ul>
 
@@ -431,7 +424,7 @@ simply:</p>
 
 </dd>
 </dl>
-    <h2><a name="Constructing"></a>Constructing</h2>
+    <h2 class="section-header "><a name="Constructing"></a>Constructing</h2>
 
     <dl class="function">
     <dt>
@@ -448,7 +441,6 @@ simply:</p>
             <span class="types"><span class="type">const char *</span></span>
 
 
-
         </li>
     </ul>
 
@@ -456,7 +448,6 @@ simply:</p>
     <ol>
 
            <span class="types"><a class="type" href="../modules/scan.html#ScanState">ScanState *</a></span>
-
 
 
     </ol>
@@ -479,7 +470,6 @@ simply:</p>
             <span class="types"><span class="type">const char *</span></span>
 
 
-
         </li>
     </ul>
 
@@ -487,7 +477,6 @@ simply:</p>
     <ol>
 
            <span class="types"><a class="type" href="../modules/scan.html#ScanState">ScanState *</a></span>
-
 
 
     </ol>
@@ -510,7 +499,6 @@ simply:</p>
             <span class="types"><span class="type">FILE *</span></span>
 
 
-
         </li>
     </ul>
 
@@ -520,7 +508,6 @@ simply:</p>
            <span class="types"><a class="type" href="../modules/scan.html#ScanState">ScanState *</a></span>
 
 
-
     </ol>
 
 
@@ -528,7 +515,7 @@ simply:</p>
 
 </dd>
 </dl>
-    <h2><a name="Grabbing"></a>Grabbing</h2>
+    <h2 class="section-header "><a name="Grabbing"></a>Grabbing</h2>
 
     <dl class="function">
     <dt>
@@ -537,7 +524,7 @@ simply:</p>
     </dt>
     <dd>
     fetch a new line from the stream, if defined.
- Advances the line count - not used if the scanner has
+ Advances the line count &ndash; not used if the scanner has
  been given a string directly.
 
 
@@ -547,11 +534,9 @@ simply:</p>
             <span class="types"><a class="type" href="../modules/scan.html#ScanState">ScanState *</a></span>
 
 
-
         </li>
         <li><span class="parameter">skipws</span>
             <span class="types"><span class="type">int</span></span>
-
 
 
         </li>
@@ -561,7 +546,6 @@ simply:</p>
     <ol>
 
            <span class="types"><span class="type">bool</span></span>
-
 
 
     </ol>
@@ -584,7 +568,6 @@ simply:</p>
             <span class="types"><a class="type" href="../modules/scan.html#ScanState">ScanState *</a></span>
 
 
-
         </li>
     </ul>
 
@@ -592,7 +575,6 @@ simply:</p>
     <ol>
 
            <span class="types"><span class="type">char</span></span>
-
 
 
     </ol>
@@ -615,11 +597,9 @@ simply:</p>
             <span class="types"><a class="type" href="../modules/scan.html#ScanState">ScanState *</a></span>
 
 
-
         </li>
         <li><span class="parameter">offs</span>
             <span class="types"><span class="type">int</span></span>
-
 
 
         </li>
@@ -644,11 +624,9 @@ simply:</p>
             <span class="types"><a class="type" href="../modules/scan.html#ScanState">ScanState *</a></span>
 
 
-
         </li>
         <li><span class="parameter">offs</span>
             <span class="types"><span class="type">int</span></span>
-
 
 
         </li>
@@ -658,7 +636,6 @@ simply:</p>
     <ol>
 
            <span class="types"><span class="type">char</span></span>
-
 
 
     </ol>
@@ -682,11 +659,9 @@ simply:</p>
             <span class="types"><a class="type" href="../modules/scan.html#ScanState">ScanState *</a></span>
 
 
-
         </li>
         <li><span class="parameter">target</span>
             <span class="types"><span class="type">const char *</span></span>
-
 
 
         </li>
@@ -694,11 +669,9 @@ simply:</p>
             <span class="types"><span class="type">char *</span></span>
 
 
-
         </li>
         <li><span class="parameter">bufsz</span>
             <span class="types"><span class="type">int</span></span>
-
 
 
         </li>
@@ -708,7 +681,6 @@ simply:</p>
     <ol>
 
            <span class="types"><span class="type">int</span></span>
-
 
 
     </ol>
@@ -732,17 +704,14 @@ simply:</p>
             <span class="types"><a class="type" href="../modules/scan.html#ScanState">ScanState *</a></span>
 
 
-
         </li>
         <li><span class="parameter">values</span>
             <span class="types"><span class="type">double *</span></span>
 
 
-
         </li>
         <li><span class="parameter">sz</span>
             <span class="types"><span class="type">int</span></span>
-
 
 
         </li>
@@ -754,7 +723,6 @@ simply:</p>
            <span class="types"><span class="type">int</span></span>
 
 
-
     </ol>
 
 
@@ -762,7 +730,7 @@ simply:</p>
 
 </dd>
 </dl>
-    <h2><a name="Skipping"></a>Skipping</h2>
+    <h2 class="section-header "><a name="Skipping"></a>Skipping</h2>
 
     <dl class="function">
     <dt>
@@ -779,7 +747,6 @@ simply:</p>
             <span class="types"><a class="type" href="../modules/scan.html#ScanState">ScanState *</a></span>
 
 
-
         </li>
     </ul>
 
@@ -787,7 +754,6 @@ simply:</p>
     <ol>
 
            <span class="types"><span class="type">bool</span></span>
-
 
 
     </ol>
@@ -810,7 +776,6 @@ simply:</p>
             <span class="types"><a class="type" href="../modules/scan.html#ScanState">ScanState *</a></span>
 
 
-
         </li>
     </ul>
 
@@ -831,7 +796,6 @@ simply:</p>
     <ul>
         <li><span class="parameter">ts</span>
             <span class="types"><a class="type" href="../modules/scan.html#ScanState">ScanState *</a></span>
-
 
 
         </li>
@@ -857,11 +821,9 @@ simply:</p>
             <span class="types"><a class="type" href="../modules/scan.html#ScanState">ScanState *</a></span>
 
 
-
         </li>
         <li><span class="parameter">type</span>
             <span class="types"><span class="type">ScanTokenType</span></span>
-
 
 
         </li>
@@ -871,7 +833,6 @@ simply:</p>
     <ol>
 
            <span class="types"><span class="type">bool</span></span>
-
 
 
     </ol>
@@ -894,11 +855,9 @@ simply:</p>
             <span class="types"><a class="type" href="../modules/scan.html#ScanState">ScanState *</a></span>
 
 
-
         </li>
         <li><span class="parameter">val</span>
             <span class="types"><span class="type">double *</span></span>
-
 
 
         </li>
@@ -908,7 +867,6 @@ simply:</p>
     <ol>
 
            <span class="types"><span class="type">bool</span></span>
-
 
 
     </ol>
@@ -931,17 +889,14 @@ simply:</p>
             <span class="types"><a class="type" href="../modules/scan.html#ScanState">ScanState *</a></span>
 
 
-
         </li>
         <li><span class="parameter">buff</span>
             <span class="types"><span class="type">char *</span></span>
 
 
-
         </li>
         <li><span class="parameter">len</span>
             <span class="types"><span class="type">int</span></span>
-
 
 
         </li>
@@ -951,7 +906,6 @@ simply:</p>
     <ol>
 
            <span class="types"><span class="type">char *</span></span>
-
 
 
     </ol>
@@ -974,11 +928,9 @@ simply:</p>
             <span class="types"><a class="type" href="../modules/scan.html#ScanState">ScanState *</a></span>
 
 
-
         </li>
         <li><span class="parameter">type</span>
             <span class="types"><span class="type">ScanTokenType</span></span>
-
 
 
         </li>
@@ -986,11 +938,9 @@ simply:</p>
             <span class="types"><span class="type">char *</span></span>
 
 
-
         </li>
         <li><span class="parameter">sz</span>
             <span class="types"><span class="type">int</span></span>
-
 
 
         </li>
@@ -1002,7 +952,6 @@ simply:</p>
            <span class="types"><span class="type">bool</span></span>
 
 
-
     </ol>
 
 
@@ -1010,7 +959,7 @@ simply:</p>
 
 </dd>
 </dl>
-    <h2><a name="Scanning"></a>Scanning</h2>
+    <h2 class="section-header "><a name="Scanning"></a>Scanning</h2>
 
     <dl class="function">
     <dt>
@@ -1028,7 +977,6 @@ simply:</p>
             <span class="types"><a class="type" href="../modules/scan.html#ScanState">ScanState *</a></span>
 
 
-
         </li>
     </ul>
 
@@ -1038,7 +986,6 @@ simply:</p>
            <span class="types"><span class="type">ScanTokenType</span></span>
 
 
-
     </ol>
 
 
@@ -1046,7 +993,7 @@ simply:</p>
 
 </dd>
 </dl>
-    <h2><a name="Getting"></a>Getting</h2>
+    <h2 class="section-header "><a name="Getting"></a>Getting</h2>
 
     <dl class="function">
     <dt>
@@ -1063,17 +1010,14 @@ simply:</p>
             <span class="types"><a class="type" href="../modules/scan.html#ScanState">ScanState *</a></span>
 
 
-
         </li>
         <li><span class="parameter">tok</span>
             <span class="types"><span class="type">char *</span></span>
 
 
-
         </li>
         <li><span class="parameter">len</span>
             <span class="types"><span class="type">int</span></span>
-
 
 
         </li>
@@ -1083,7 +1027,6 @@ simply:</p>
     <ol>
 
            <span class="types"><span class="type">char *</span></span>
-
 
 
     </ol>
@@ -1106,7 +1049,6 @@ simply:</p>
             <span class="types"><a class="type" href="../modules/scan.html#ScanState">ScanState *</a></span>
 
 
-
         </li>
     </ul>
 
@@ -1114,7 +1056,6 @@ simply:</p>
     <ol>
 
            <span class="types"><span class="type">char *</span></span>
-
 
 
     </ol>
@@ -1128,19 +1069,18 @@ simply:</p>
     <strong>scan_scanf (ts, fmt, ...)</strong>
     </dt>
     <dd>
-
-<p>Formatted reading from the scanner, like <code>scanf</code>.
- Flags start with '%', and '%%' encodes a literal '%'.</p>
+    <p>Formatted reading from the scanner, like <code>scanf</code>.
+ Flags start with &lsquo;%&rsquo;, and &lsquo;%%&rsquo; encodes a literal &lsquo;%&rsquo;.</p>
 
 <ul>
-    <li><code>v</code> value</li>
-    <li><code>s</code> identifier</li>
-    <li><code>l</code> rest of line</li>
-    <li><code>q</code> quoted string</li>
-    <li><code>i</code> int</li>
-    <li><code>f</code> double</li>
-    <li><code>c</code> char</li>
-    <li><code>.</code> don't care!</li>
+<li><code>v</code> value</li>
+<li><code>s</code> identifier</li>
+<li><code>l</code> rest of line</li>
+<li><code>q</code> quoted string</li>
+<li><code>i</code> int</li>
+<li><code>f</code> double</li>
+<li><code>c</code> char</li>
+<li><code>.</code> don&rsquo;t care!</li>
 </ul>
 
 
@@ -1152,16 +1092,13 @@ simply:</p>
             <span class="types"><a class="type" href="../modules/scan.html#ScanState">ScanState *</a></span>
 
 
-
         </li>
         <li><span class="parameter">fmt</span>
             <span class="types"><span class="type">const char *</span></span>
 
 
-
         </li>
         <li><span class="parameter">...</span>
-
 
 
         </li>
@@ -1171,7 +1108,6 @@ simply:</p>
     <ol>
 
            <span class="types"><span class="type">bool</span></span>
-
 
 
     </ol>
@@ -1195,17 +1131,14 @@ simply:</p>
             <span class="types"><a class="type" href="../modules/scan.html#ScanState">ScanState *</a></span>
 
 
-
         </li>
         <li><span class="parameter">buff</span>
             <span class="types"><span class="type">char *</span></span>
 
 
-
         </li>
         <li><span class="parameter">len</span>
             <span class="types"><span class="type">int</span></span>
-
 
 
         </li>
@@ -1215,7 +1148,6 @@ simply:</p>
     <ol>
 
            <span class="types"><span class="type">char *</span></span>
-
 
 
     </ol>
@@ -1239,7 +1171,6 @@ simply:</p>
             <span class="types"><a class="type" href="../modules/scan.html#ScanState">ScanState *</a></span>
 
 
-
         </li>
     </ul>
 
@@ -1247,7 +1178,6 @@ simply:</p>
     <ol>
 
            <span class="types"><span class="type">const char *</span></span>
-
 
 
     </ol>
@@ -1270,7 +1200,6 @@ simply:</p>
             <span class="types"><a class="type" href="../modules/scan.html#ScanState">ScanState *</a></span>
 
 
-
         </li>
     </ul>
 
@@ -1278,7 +1207,6 @@ simply:</p>
     <ol>
 
            <span class="types"><span class="type">double</span></span>
-
 
 
     </ol>
@@ -1294,7 +1222,7 @@ simply:</p>
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2014-11-01 16:41:56 </i>
+<i style="float:right;">Last updated 2015-04-27 12:35:55 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

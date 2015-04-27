@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
     <title>llib Documentation</title>
-    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+    <link rel="stylesheet" href="../ldoc_fixed.css" type="text/css" />
 </head>
 <body>
 
@@ -34,6 +34,7 @@
 <ul>
 <li><a href="#Functions">Functions</a></li>
 <li><a href="#Operations_on_File_paths">Operations on File paths </a></li>
+<li><a href="#file_fmt_Functions">file_fmt Functions</a></li>
 </ul>
 
 
@@ -47,6 +48,7 @@
   <li><a href="../modules/map.html">map</a></li>
   <li><strong>file</strong></li>
   <li><a href="../modules/value.html">value</a></li>
+  <li><a href="../modules/interface.html">interface</a></li>
   <li><a href="../modules/json.html">json</a></li>
   <li><a href="../modules/xml.html">xml</a></li>
   <li><a href="../modules/farr.html">farr</a></li>
@@ -91,12 +93,10 @@
 <div id="content">
 
 <h1>Module <code>file</code></h1>
-<p>
-<h3>Extended file handling.</h3>
+<p><h3>Extended file handling.</h3>
 </p>
 <p>Mostly wrappers around familar functions; <a href="../modules/file.html#file_gets">file_gets</a> is a <code>fgets</code> that strips the line feed;
 The other functions return a refcounted string, or array of strings (like with <a href="../modules/file.html#file_getlines">file_getlines</a>)</p>
-
 
 <pre>
 FILE *f = fopen(file,<span class="string">"r"</span>);
@@ -106,7 +106,8 @@ printf(<span class="string">"no of lines %d \n"</span>,<a href="../modules/obj.h
 fclose(f);
 </pre>
 
-<p>There are functions that work with parts of filenames which don't have the limitations and gotchas
+
+<p>There are functions that work with parts of filenames which don&rsquo;t have the limitations and gotchas
 of the libc equivalents, like <a href="../modules/file.html#file_basename">file_basename</a>.</p>
 
 <p>Finally, <a href="../modules/file.html#file_fopen">file_fopen</a> provides a file wrapper <code>FILE**</code>. It returns an actual error string if it fails,
@@ -182,7 +183,22 @@ and disposing this file object will close the underlying stream.</p>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#file_expand_user">file_expand_user (path)</a></td>
-	<td class="summary">expand initial tilde into user's home directory.</td>
+	<td class="summary">expand initial tilde into user&rsquo;s home directory.</td>
+	</tr>
+</table>
+<h2><a href="#file_fmt_Functions">file_fmt Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#file_popen_fmt">file_popen_fmt (fmt, how, ...)</a></td>
+	<td class="summary"><code>popen</code> using varargs.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#file_command_fmt">file_command_fmt (fmt, ...)</a></td>
+	<td class="summary">output of a command as text, varags version.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#file_write_fmt">file_write_fmt (file, fmt, ...)</a></td>
+	<td class="summary">create a file with given format and args.</td>
 	</tr>
 </table>
 
@@ -190,7 +206,7 @@ and disposing this file object will close the underlying stream.</p>
 <br/>
 
 
-    <h2><a name="Functions"></a>Functions</h2>
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
 
     <dl class="function">
     <dt>
@@ -199,7 +215,7 @@ and disposing this file object will close the underlying stream.</p>
     </dt>
     <dd>
     does the path exist and is accessible?
- <code>rw</code> is a string containing any of 'r', 'w' and 'x'
+ <code>rw</code> is a string containing any of &lsquo;r&rsquo;, &lsquo;w&rsquo; and &lsquo;x&rsquo;
 
 
     <h3>Parameters:</h3>
@@ -208,11 +224,9 @@ and disposing this file object will close the underlying stream.</p>
             <span class="types"><span class="type">const char *</span></span>
 
 
-
         </li>
         <li><span class="parameter">rw</span>
             <span class="types"><span class="type">const char *</span></span>
-
 
 
         </li>
@@ -222,7 +236,6 @@ and disposing this file object will close the underlying stream.</p>
     <ol>
 
            <span class="types"><span class="type">bool</span></span>
-
 
 
     </ol>
@@ -245,17 +258,14 @@ and disposing this file object will close the underlying stream.</p>
             <span class="types"><span class="type">FILE *</span></span>
 
 
-
         </li>
         <li><span class="parameter">buff</span>
             <span class="types"><span class="type">char *</span></span>
 
 
-
         </li>
         <li><span class="parameter">bufsize</span>
             <span class="types"><span class="type">int</span></span>
-
 
 
         </li>
@@ -265,7 +275,6 @@ and disposing this file object will close the underlying stream.</p>
     <ol>
 
            <span class="types"><span class="type">char *</span></span>
-
 
 
     </ol>
@@ -288,7 +297,6 @@ and disposing this file object will close the underlying stream.</p>
             <span class="types"><span class="type">FILE *</span></span>
 
 
-
         </li>
     </ul>
 
@@ -296,7 +304,6 @@ and disposing this file object will close the underlying stream.</p>
     <ol>
 
            <span class="types"><span class="type">char *</span></span>
-
 
 
     </ol>
@@ -319,7 +326,6 @@ and disposing this file object will close the underlying stream.</p>
             <span class="types"><span class="type">FILE *</span></span>
 
 
-
         </li>
     </ul>
 
@@ -327,7 +333,6 @@ and disposing this file object will close the underlying stream.</p>
     <ol>
 
            <span class="types"><span class="type">long</span></span>
-
 
 
     </ol>
@@ -351,7 +356,6 @@ and disposing this file object will close the underlying stream.</p>
             <span class="types"><span class="type">const char *</span></span>
 
 
-
         </li>
     </ul>
 
@@ -359,7 +363,6 @@ and disposing this file object will close the underlying stream.</p>
     <ol>
 
            <span class="types"><span class="type">long</span></span>
-
 
 
     </ol>
@@ -383,11 +386,9 @@ and disposing this file object will close the underlying stream.</p>
             <span class="types"><span class="type">const char *</span></span>
 
 
-
         </li>
         <li><span class="parameter">text</span>
             <span class="types"><span class="type">bool</span></span>
-
 
 
         </li>
@@ -397,7 +398,6 @@ and disposing this file object will close the underlying stream.</p>
     <ol>
 
            <span class="types"><span class="type">char *</span></span>
-
 
 
     </ol>
@@ -420,7 +420,6 @@ and disposing this file object will close the underlying stream.</p>
             <span class="types"><span class="type">FILE *</span></span>
 
 
-
         </li>
     </ul>
 
@@ -428,7 +427,6 @@ and disposing this file object will close the underlying stream.</p>
     <ol>
 
            <span class="types"><span class="type">char * *</span></span>
-
 
 
     </ol>
@@ -475,15 +473,14 @@ and disposing this file object will close the underlying stream.</p>
     </dt>
     <dd>
     output of a command as text.
- Will return "" if the command does not return anything
- Only first line! Use file<em>command</em>lines for the rest!
+ Will return &ldquo;&rdquo; if the command does not return anything
+ Only first line! Use file_command_lines for the rest!
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">cmd</span>
             <span class="types"><span class="type">const char *</span></span>
-
 
 
         </li>
@@ -493,7 +490,6 @@ and disposing this file object will close the underlying stream.</p>
     <ol>
 
            <span class="types"><span class="type">char *</span></span>
-
 
 
     </ol>
@@ -517,7 +513,6 @@ and disposing this file object will close the underlying stream.</p>
             <span class="types"><span class="type">const char *</span></span>
 
 
-
         </li>
     </ul>
 
@@ -525,7 +520,6 @@ and disposing this file object will close the underlying stream.</p>
     <ol>
 
            <span class="types"><span class="type">char * *</span></span>
-
 
 
     </ol>
@@ -548,11 +542,9 @@ and disposing this file object will close the underlying stream.</p>
             <span class="types"><span class="type">const char *</span></span>
 
 
-
         </li>
         <li><span class="parameter">recursive</span>
             <span class="types"><span class="type">int</span></span>
-
 
 
         </li>
@@ -564,7 +556,6 @@ and disposing this file object will close the underlying stream.</p>
            <span class="types"><span class="type">char * *</span></span>
 
 
-
     </ol>
 
 
@@ -572,12 +563,13 @@ and disposing this file object will close the underlying stream.</p>
 
 </dd>
 </dl>
-    <h2><a name="Operations_on_File_paths"></a>Operations on File paths </h2>
+    <h2 class="section-header has-description"><a name="Operations_on_File_paths"></a>Operations on File paths </h2>
 
-
- Unlike the POSIX functions basename and dirname,
+          <div class="section-description">
+           Unlike the POSIX functions basename and dirname,
  these functions are guaranteed not to touch the passed string,
  and will always return a refcounted string.
+          </div>
     <dl class="function">
     <dt>
     <a name = "file_basename"></a>
@@ -585,14 +577,13 @@ and disposing this file object will close the underlying stream.</p>
     </dt>
     <dd>
     file part of a path.
- E.g. '/my/path/bonzo.dog' => 'bonzo.dog'
+ E.g. &lsquo;/my/path/bonzo.dog&rsquo; => &lsquo;bonzo.dog&rsquo;
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">path</span>
             <span class="types"><span class="type">const char *</span></span>
-
 
 
         </li>
@@ -602,7 +593,6 @@ and disposing this file object will close the underlying stream.</p>
     <ol>
 
            <span class="types"><span class="type">char *</span></span>
-
 
 
     </ol>
@@ -617,14 +607,13 @@ and disposing this file object will close the underlying stream.</p>
     </dt>
     <dd>
     file part of a path.
- E.g. '/my/path/bonzo.dog' => '/my/path'
+ E.g. &lsquo;/my/path/bonzo.dog&rsquo; => &lsquo;/my/path&rsquo;
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">path</span>
             <span class="types"><span class="type">const char *</span></span>
-
 
 
         </li>
@@ -634,7 +623,6 @@ and disposing this file object will close the underlying stream.</p>
     <ol>
 
            <span class="types"><span class="type">char *</span></span>
-
 
 
     </ol>
@@ -658,7 +646,6 @@ and disposing this file object will close the underlying stream.</p>
             <span class="types"><span class="type">const char *</span></span>
 
 
-
         </li>
     </ul>
 
@@ -666,7 +653,6 @@ and disposing this file object will close the underlying stream.</p>
     <ol>
 
            <span class="types"><span class="type">char *</span></span>
-
 
 
     </ol>
@@ -691,11 +677,9 @@ and disposing this file object will close the underlying stream.</p>
             <span class="types"><span class="type">const char *</span></span>
 
 
-
         </li>
         <li><span class="parameter">ext</span>
             <span class="types"><span class="type">const char *</span></span>
-
 
 
         </li>
@@ -705,7 +689,6 @@ and disposing this file object will close the underlying stream.</p>
     <ol>
 
            <span class="types"><span class="type">char *</span></span>
-
 
 
     </ol>
@@ -719,16 +702,15 @@ and disposing this file object will close the underlying stream.</p>
     <strong>file_expand_user (path)</strong>
     </dt>
     <dd>
-    expand initial tilde into user's home directory.
- Always returns a ref-counted string, even if path doesn't
- begin with '~'
+    expand initial tilde into user&rsquo;s home directory.
+ Always returns a ref-counted string, even if path doesn&rsquo;t
+ begin with &lsquo;~&rsquo;
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">path</span>
             <span class="types"><span class="type">const char *</span></span>
-
 
 
         </li>
@@ -740,11 +722,130 @@ and disposing this file object will close the underlying stream.</p>
            <span class="types"><span class="type">char *</span></span>
 
 
+    </ol>
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="file_fmt_Functions"></a>file_fmt Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "file_popen_fmt"></a>
+    <strong>file_popen_fmt (fmt, how, ...)</strong>
+    </dt>
+    <dd>
+    <code>popen</code> using varargs.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fmt</span>
+            <span class="types"><span class="type">const char *</span></span>
+
+
+        </li>
+        <li><span class="parameter">how</span>
+            <span class="types"><span class="type">const char *</span></span>
+
+
+        </li>
+        <li><span class="parameter">...</span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">FILE *</span></span>
+
 
     </ol>
 
 
 
+
+</dd>
+    <dt>
+    <a name = "file_command_fmt"></a>
+    <strong>file_command_fmt (fmt, ...)</strong>
+    </dt>
+    <dd>
+    output of a command as text, varags version.
+ Will return &ldquo;&rdquo; if the command does not return anything
+ Only first line! Use file_command_lines for the rest!
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fmt</span>
+            <span class="types"><span class="type">const char *</span></span>
+
+
+        </li>
+        <li><span class="parameter">...</span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">char *</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "file_write_fmt"></a>
+    <strong>file_write_fmt (file, fmt, ...)</strong>
+    </dt>
+    <dd>
+    create a file with given format and args.
+  Replaces the old fopen/fprintf/fclose combination.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">file</span>
+            <span class="types"><span class="type">const char *</span></span>
+
+
+        </li>
+        <li><span class="parameter">fmt</span>
+            <span class="types"><span class="type">const char *</span></span>
+
+
+        </li>
+        <li><span class="parameter">...</span>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">bool</span></span>
+
+
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">flle_write_fmt(<span class="string">"out.txt"</span>,<span class="string">"%s %d\n"</span>,name,age);</pre>
+    </ul>
 
 </dd>
 </dl>
@@ -754,7 +855,7 @@ and disposing this file object will close the underlying stream.</p>
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2014-11-01 16:41:56 </i>
+<i style="float:right;">Last updated 2015-04-27 12:35:55 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

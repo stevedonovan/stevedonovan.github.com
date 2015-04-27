@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
     <title>llib Documentation</title>
-    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+    <link rel="stylesheet" href="../ldoc_fixed.css" type="text/css" />
 </head>
 <body>
 
@@ -46,6 +46,7 @@
   <li><a href="../modules/map.html">map</a></li>
   <li><a href="../modules/file.html">file</a></li>
   <li><a href="../modules/value.html">value</a></li>
+  <li><a href="../modules/interface.html">interface</a></li>
   <li><a href="../modules/json.html">json</a></li>
   <li><a href="../modules/xml.html">xml</a></li>
   <li><a href="../modules/farr.html">farr</a></li>
@@ -90,20 +91,25 @@
 <div id="content">
 
 <h1>Module <code>array</code></h1>
-<p>
-<h3>Useful Array Macros.</h3>
+<p><h3>Useful Array Macros.</h3>
 </p>
 <p>These operate on llib arrays, supporting mapping, filtering and inline iteration.
 With all these macros, the dummy variable for accessing the current array
 value is <code>_</code> (underscore).  The map &amp; filter macros all declare an array of
-the given type, and create a reference-counted array if the name ends in 'R'.</p>
+the given type, and create a reference-counted array if the name ends in &lsquo;R&rsquo;.</p>
+
+<p>See <a href="../examples/test-array.c.html#">test-array.c</a>.</p>
 
 
 <h2><a href="#Macros">Macros</a></h2>
 <table class="function_list">
 	<tr>
 	<td class="name" nowrap><a href="#FORA">FORA</a></td>
-	<td class="summary">Iterate over an array.</td>
+	<td class="summary">Iterate over array values.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#FORAP">FORAP</a></td>
+	<td class="summary">Iterate over pointers to elements.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#MAPA">MAPA</a></td>
@@ -122,18 +128,24 @@ the given type, and create a reference-counted array if the name ends in 'R'.</p
 	<td class="summary">New reference array containing matching elements from <code>A</code>.</td>
 	</tr>
 	<tr>
+	<td class="name" nowrap><a href="#FILTAP">FILTAP</a></td>
+	<td class="summary">Array of <em>pointers</em> to elements of array matching expression.</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#FINDA">FINDA</a></td>
 	<td class="summary">Index into array where expression matches value.</td>
 	</tr>
 	<tr>
+	<td class="name" nowrap><a href="#FINDAP">FINDAP</a></td>
+	<td class="summary">Like <a href="../modules/array.html#FINDA">FINDA</a> but expression variable is pointer.</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#RFINDA">RFINDA</a></td>
-	<td class="summary">Like <a href="../modules/array.html#FINDA">FINDA</a> but starts searching at end
- Declares a variable <code>v</code>, which will be -1 if no match is possible.</td>
+	<td class="summary">Like <a href="../modules/array.html#FINDA">FINDA</a> but starts searching at end.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#FINDZ">FINDZ</a></td>
-	<td class="summary">Like <a href="../modules/array.html#FINDA">FINDA</a> but assumes array ends with <code>NULL</code>
- Declares a variable <code>v</code>, which will be -1 if no match is possible.</td>
+	<td class="summary">Like <a href="../modules/array.html#FINDA">FINDA</a> but assumes array ends with <code>NULL</code>.</td>
 	</tr>
 </table>
 
@@ -141,7 +153,7 @@ the given type, and create a reference-counted array if the name ends in 'R'.</p
 <br/>
 
 
-    <h2><a name="Macros"></a>Macros</h2>
+    <h2 class="section-header "><a name="Macros"></a>Macros</h2>
 
     <dl class="function">
     <dt>
@@ -149,11 +161,12 @@ the given type, and create a reference-counted array if the name ends in 'R'.</p
     <strong>FORA</strong>
     </dt>
     <dd>
-    Iterate over an array.
+    Iterate over array values.
+ <code>_</code> is <code>A[i]</code>
 
 
     <ul>
-        <li><span class="parameter">arr</span>
+        <li><span class="parameter">A</span>
          the array (can be an expression)
         </li>
         <li><span class="parameter">expr</span>
@@ -166,7 +179,35 @@ the given type, and create a reference-counted array if the name ends in 'R'.</p
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">FORA(ints,printf(<span class="string">"%i "</span>,_));</pre>
+        <pre class="example"><span class="backtick"><a href="../modules/array.html#FORA">FORA</a></span>(ints,printf(<span class="string">"%i "</span>,_));</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "FORAP"></a>
+    <strong>FORAP</strong>
+    </dt>
+    <dd>
+    Iterate over pointers to elements.
+ <code>_</code> is <code>A+i</code>. Useful with arrays of structs to avoid
+ copying, and when you need to modify the array
+
+
+    <ul>
+        <li><span class="parameter">A</span>
+         the array
+        </li>
+        <li><span class="parameter">expr</span>
+         the expression containing <code>_</code>
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="backtick"><a href="../modules/array.html#FORAP">FORAP</a></span>(<span class="keyword">if</span>(*_ &lt; <span class="number">0</span>) *_ = <span class="number">0</span>);</pre>
     </ul>
 
 </dd>
@@ -198,7 +239,12 @@ the given type, and create a reference-counted array if the name ends in 'R'.</p
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">MAPA(int,ints,ceil(_),floats);</pre>
+        <pre class="example">
+    char** ss = str_strings(<span class="string">"one"</span>,<span class="string">"two"</span>,<span class="string">"three"</span>,NULL);
+    MAPA(int,ssl,strlen(_),ss);
+    <span class="global">assert</span>(ssl[<span class="number">0</span>] == <span class="number">3</span>);
+    <span class="global">assert</span>(ssl[<span class="number">1</span>] == <span class="number">3</span>);
+    <span class="global">assert</span>(ssl[<span class="number">2</span>] == <span class="number">5</span>);</pre>
     </ul>
 
 </dd>
@@ -230,7 +276,7 @@ the given type, and create a reference-counted array if the name ends in 'R'.</p
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">MAPAR(char*,strs,str_fmt(<span class="string">"%d"</span>,_),ints);</pre>
+        <pre class="example"><span class="backtick"><a href="../modules/array.html#MAPAR">MAPAR</a></span>(char*,strs,str_fmt(<span class="string">"%d"</span>,_),ints);</pre>
     </ul>
 
 </dd>
@@ -262,7 +308,7 @@ the given type, and create a reference-counted array if the name ends in 'R'.</p
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">FILTA(int,non_zero,ints,_ &gt; <span class="number">0</span>);</pre>
+        <pre class="example"><span class="backtick"><a href="../modules/array.html#FILTA">FILTA</a></span>(int,non_zero,ints,_ &gt; <span class="number">0</span>);</pre>
     </ul>
 
 </dd>
@@ -294,8 +340,35 @@ the given type, and create a reference-counted array if the name ends in 'R'.</p
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">FILTAR(char*,matches,lines,str_starts_with(_,<span class="string">"log:"</span>));</pre>
+        <pre class="example"><span class="backtick"><a href="../modules/array.html#FILTAR">FILTAR</a></span>(char*,matches,lines,<span class="backtick"><a href="../modules/str.html#str_starts_with">str_starts_with</a></span>(_,<span class="string">"log:"</span>));</pre>
     </ul>
+
+</dd>
+    <dt>
+    <a name = "FILTAP"></a>
+    <strong>FILTAP</strong>
+    </dt>
+    <dd>
+    Array of <em>pointers</em> to elements of array matching expression.
+ Useful if you needed selected &lsquo;views&rsquo; of an array of structs,
+ without the need for copying them.
+
+
+    <ul>
+        <li><span class="parameter">v</span>
+         the name of the new array
+        </li>
+        <li><span class="parameter">A</span>
+         the input array
+        </li>
+        <li><span class="parameter">expr</span>
+         the filter expresion in <code>_</code>
+        </li>
+    </ul>
+
+
+
+
 
 </dd>
     <dt>
@@ -325,6 +398,43 @@ the given type, and create a reference-counted array if the name ends in 'R'.</p
 
 
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">
+   char** exts = <span class="backtick"><a href="../modules/str.html#str_strings">str_strings</a></span>(<span class="string">".o"</span>,<span class="string">".d"</span>,<span class="string">".obj"</span>,NULL);
+   str_t file = <span class="string">"bonzo.d"</span>;
+   <span class="backtick"><a href="../modules/array.html#FINDA">FINDA</a></span>(idx,exts,<span class="number">0</span>,<span class="backtick"><a href="../modules/str.html#str_ends_with">str_ends_with</a></span>(file,_));
+   <span class="global">assert</span>(idx == <span class="number">1</span>);</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "FINDAP"></a>
+    <strong>FINDAP</strong>
+    </dt>
+    <dd>
+    Like <a href="../modules/array.html#FINDA">FINDA</a> but expression variable is pointer.
+ Declares a variable <code>v</code>, which will be -1 if no match is possible.
+
+
+    <ul>
+        <li><span class="parameter">v</span>
+         new index
+        </li>
+        <li><span class="parameter">A</span>
+         the array
+        </li>
+        <li><span class="parameter">istart</span>
+         where to start searching (usually 0)
+        </li>
+        <li><span class="parameter">expr</span>
+         expression in <code>_</code>
+        </li>
+    </ul>
+
+
+
+
 
 </dd>
     <dt>
@@ -332,7 +442,7 @@ the given type, and create a reference-counted array if the name ends in 'R'.</p
     <strong>RFINDA</strong>
     </dt>
     <dd>
-    Like <a href="../modules/array.html#FINDA">FINDA</a> but starts searching at end
+    Like <a href="../modules/array.html#FINDA">FINDA</a> but starts searching at end.
  Declares a variable <code>v</code>, which will be -1 if no match is possible.
 
 
@@ -361,7 +471,7 @@ the given type, and create a reference-counted array if the name ends in 'R'.</p
     <strong>FINDZ</strong>
     </dt>
     <dd>
-    Like <a href="../modules/array.html#FINDA">FINDA</a> but assumes array ends with <code>NULL</code>
+    Like <a href="../modules/array.html#FINDA">FINDA</a> but assumes array ends with <code>NULL</code>.
  Declares a variable <code>v</code>, which will be -1 if no match is possible.
 
 
@@ -389,7 +499,7 @@ the given type, and create a reference-counted array if the name ends in 'R'.</p
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2014-11-01 16:41:56 </i>
+<i style="float:right;">Last updated 2015-04-27 12:35:55 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

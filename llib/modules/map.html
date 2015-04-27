@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
     <title>llib Documentation</title>
-    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+    <link rel="stylesheet" href="../ldoc_fixed.css" type="text/css" />
 </head>
 <body>
 
@@ -49,6 +49,7 @@
   <li><strong>map</strong></li>
   <li><a href="../modules/file.html">file</a></li>
   <li><a href="../modules/value.html">value</a></li>
+  <li><a href="../modules/interface.html">interface</a></li>
   <li><a href="../modules/json.html">json</a></li>
   <li><a href="../modules/xml.html">xml</a></li>
   <li><a href="../modules/farr.html">farr</a></li>
@@ -93,8 +94,7 @@
 <div id="content">
 
 <h1>Module <code>map</code></h1>
-<p>
-<h3>Maps Implemented as Binary Trees.</h3>
+<p><h3>Maps Implemented as Binary Trees.</h3>
 </p>
 <p>Maps use the same basic structure as lists, since most of the requirements are similar:
 comparison functions (which are like <code>strcmp</code>) and key allocation. The nodes have the same
@@ -103,7 +103,7 @@ field is the key.</p>
 
 <p>Keys are always pointers, but like with string lists,  char* pointers are a special case.</p>
 
-<p>If the keys aren't strings, then the comparison function is simply the less-than operator.
+<p>If the keys aren&rsquo;t strings, then the comparison function is simply the less-than operator.
 This will work fine if simple equality defines a match, as with pointers and integers.</p>
 
 <p>See <a href="../examples/test-map.c.html#">test-map.c</a>.  <a href="../examples/words.c.html#">words.c</a> generates a map of word counts and then
@@ -243,7 +243,7 @@ sorts the result, giving the ten most common words.</p>
 <br/>
 
 
-    <h2><a name="Macros"></a>Macros</h2>
+    <h2 class="section-header "><a name="Macros"></a>Macros</h2>
 
     <dl class="function">
     <dt>
@@ -299,8 +299,7 @@ sorts the result, giving the ten most common words.</p>
 
 </dd>
 </dl>
-    <h2><a name="Making_New_Maps"></a>Making New Maps </h2>
-
+    <h2 class="section-header "><a name="Making_New_Maps"></a>Making New Maps </h2>
 
     <dl class="function">
     <dt>
@@ -324,7 +323,6 @@ sorts the result, giving the ten most common words.</p>
     <ol>
 
            <span class="types"><span class="type">Map *</span></span>
-
 
 
     </ol>
@@ -383,7 +381,7 @@ sorts the result, giving the ten most common words.</p>
     </dt>
     <dd>
     make a new map with pointer keys and pointer values.
- It's possible to use integers up to uintptr_t size as well.
+ It&rsquo;s possible to use integers up to uintptr_t size as well.
 
 
 
@@ -421,8 +419,7 @@ sorts the result, giving the ten most common words.</p>
 
 </dd>
 </dl>
-    <h2><a name="Insertion__removal_and_retrieval"></a>Insertion, removal and retrieval </h2>
-
+    <h2 class="section-header "><a name="Insertion__removal_and_retrieval"></a>Insertion, removal and retrieval </h2>
 
     <dl class="function">
     <dt>
@@ -437,7 +434,6 @@ sorts the result, giving the ten most common words.</p>
     <ul>
         <li><span class="parameter">m</span>
             <span class="types"><span class="type">Map *</span></span>
-
 
 
         </li>
@@ -462,7 +458,6 @@ sorts the result, giving the ten most common words.</p>
             <span class="types"><span class="type">void *</span></span>
 
 
-
         </li>
     </ul>
 
@@ -470,7 +465,6 @@ sorts the result, giving the ten most common words.</p>
     <ol>
 
            <span class="types"><span class="type">bool</span></span>
-
 
 
     </ol>
@@ -485,7 +479,7 @@ sorts the result, giving the ten most common words.</p>
     </dt>
     <dd>
     get the data associated with this tree node.
- if it's a container, then we return the node's data,
+ if it&rsquo;s a container, then we return the node&rsquo;s data,
  otherwise the node itself is the data
 
 
@@ -495,11 +489,9 @@ sorts the result, giving the ten most common words.</p>
             <span class="types"><span class="type">Map *</span></span>
 
 
-
         </li>
         <li><span class="parameter">item</span>
             <span class="types"><span class="type">PEntry</span></span>
-
 
 
         </li>
@@ -509,7 +501,6 @@ sorts the result, giving the ten most common words.</p>
     <ol>
 
            <span class="types"><span class="type">void *</span></span>
-
 
 
     </ol>
@@ -533,7 +524,6 @@ sorts the result, giving the ten most common words.</p>
             <span class="types"><span class="type">Map *</span></span>
 
 
-
         </li>
     </ul>
 
@@ -541,7 +531,6 @@ sorts the result, giving the ten most common words.</p>
     <ol>
 
            <span class="types"><span class="type">PEntry</span></span>
-
 
 
     </ol>
@@ -556,7 +545,7 @@ sorts the result, giving the ten most common words.</p>
     </dt>
     <dd>
     insert a map struct.
- That is, it is 'derived' from the MAP_HEADER type.
+ That is, it is &lsquo;derived&rsquo; from the MAP_HEADER type.
 
 
     <h3>Parameters:</h3>
@@ -565,11 +554,9 @@ sorts the result, giving the ten most common words.</p>
             <span class="types"><span class="type">Map *</span></span>
 
 
-
         </li>
         <li><span class="parameter">data</span>
             <span class="types"><span class="type">void *</span></span>
-
 
 
         </li>
@@ -579,7 +566,6 @@ sorts the result, giving the ten most common words.</p>
     <ol>
 
            <span class="types"><span class="type">PEntry</span></span>
-
 
 
     </ol>
@@ -600,7 +586,7 @@ sorts the result, giving the ten most common words.</p>
     <ul>
         <li><span class="parameter">param</span>
             <span class="types"><span class="type">Map*</span></span>
-         ...  the struct pointers
+         &hellip;  the struct pointers
         </li>
     </ul>
 
@@ -624,17 +610,14 @@ sorts the result, giving the ten most common words.</p>
             <span class="types"><span class="type">Map *</span></span>
 
 
-
         </li>
         <li><span class="parameter">key</span>
             <span class="types"><span class="type">void *</span></span>
 
 
-
         </li>
         <li><span class="parameter">data</span>
             <span class="types"><span class="type">void *</span></span>
-
 
 
         </li>
@@ -644,7 +627,6 @@ sorts the result, giving the ten most common words.</p>
     <ol>
 
            <span class="types"><span class="type">PEntry</span></span>
-
 
 
     </ol>
@@ -668,11 +650,9 @@ sorts the result, giving the ten most common words.</p>
             <span class="types"><span class="type">Map *</span></span>
 
 
-
         </li>
         <li><span class="parameter">mkv</span>
             <span class="types"><a class="type" href="../modules/map.html#MapKeyValue">MapKeyValue *</a></span>
-
 
 
         </li>
@@ -697,11 +677,9 @@ sorts the result, giving the ten most common words.</p>
             <span class="types"><span class="type">Map *</span></span>
 
 
-
         </li>
         <li><span class="parameter">key</span>
             <span class="types"><span class="type">void *</span></span>
-
 
 
         </li>
@@ -732,7 +710,6 @@ sorts the result, giving the ten most common words.</p>
             <span class="types"><span class="type">Map*</span></span>
 
 
-
         </li>
         <li><span class="parameter">key</span>
          cast to void*
@@ -743,7 +720,6 @@ sorts the result, giving the ten most common words.</p>
     <ol>
 
            <span class="types"><span class="type">int</span></span>
-
 
 
     </ol>
@@ -764,7 +740,6 @@ sorts the result, giving the ten most common words.</p>
     <ul>
         <li><span class="parameter">m</span>
             <span class="types"><span class="type">Map*</span></span>
-
 
 
         </li>
@@ -796,11 +771,9 @@ sorts the result, giving the ten most common words.</p>
             <span class="types"><span class="type">Map *</span></span>
 
 
-
         </li>
         <li><span class="parameter">key</span>
             <span class="types"><span class="type">void *</span></span>
-
 
 
         </li>
@@ -831,11 +804,9 @@ sorts the result, giving the ten most common words.</p>
             <span class="types"><span class="type">Map *</span></span>
 
 
-
         </li>
         <li><span class="parameter">key</span>
             <span class="types"><span class="type">void *</span></span>
-
 
 
         </li>
@@ -845,7 +816,6 @@ sorts the result, giving the ten most common words.</p>
     <ol>
 
            <span class="types"><span class="type">PEntry</span></span>
-
 
 
     </ol>
@@ -868,11 +838,9 @@ sorts the result, giving the ten most common words.</p>
             <span class="types"><span class="type">Map *</span></span>
 
 
-
         </li>
         <li><span class="parameter">key</span>
             <span class="types"><span class="type">void *</span></span>
-
 
 
         </li>
@@ -890,8 +858,7 @@ sorts the result, giving the ten most common words.</p>
 
 </dd>
 </dl>
-    <h2><a name="Iterating_over_maps"></a>Iterating over maps </h2>
-
+    <h2 class="section-header "><a name="Iterating_over_maps"></a>Iterating over maps </h2>
 
     <dl class="function">
     <dt>
@@ -941,7 +908,6 @@ sorts the result, giving the ten most common words.</p>
             <span class="types"><span class="type">Map *</span></span>
 
 
-
         </li>
     </ul>
 
@@ -949,7 +915,6 @@ sorts the result, giving the ten most common words.</p>
     <ol>
 
            <span class="types"><a class="type" href="../modules/map.html#MapKeyValue">MapKeyValue *</a></span>
-
 
 
     </ol>
@@ -972,11 +937,9 @@ sorts the result, giving the ten most common words.</p>
             <span class="types"><span class="type">void*</span></span>
 
 
-
         </li>
         <li><span class="parameter">value</span>
             <span class="types"><span class="type">void*</span></span>
-
 
 
         </li>
@@ -1001,11 +964,9 @@ sorts the result, giving the ten most common words.</p>
             <span class="types"><span class="type">void*</span></span>
 
 
-
         </li>
         <li><span class="parameter">value</span>
             <span class="types"><span class="type">void*</span></span>
-
 
 
         </li>
@@ -1030,17 +991,14 @@ sorts the result, giving the ten most common words.</p>
             <span class="types"><span class="type">Map *</span></span>
 
 
-
         </li>
         <li><span class="parameter">pkey</span>
             <span class="types"><span class="type">void *</span></span>
 
 
-
         </li>
         <li><span class="parameter">pvalue</span>
             <span class="types"><span class="type">void *</span></span>
-
 
 
         </li>
@@ -1050,7 +1008,6 @@ sorts the result, giving the ten most common words.</p>
     <ol>
 
            <span class="types"><a class="type" href="../modules/map.html#MapIter">MapIter</a></span>
-
 
 
     </ol>
@@ -1073,7 +1030,6 @@ sorts the result, giving the ten most common words.</p>
             <span class="types"><a class="type" href="../modules/map.html#MapIter">MapIter</a></span>
 
 
-
         </li>
     </ul>
 
@@ -1081,7 +1037,6 @@ sorts the result, giving the ten most common words.</p>
     <ol>
 
            <span class="types"><a class="type" href="../modules/map.html#MapIter">MapIter</a></span>
-
 
 
     </ol>
@@ -1097,7 +1052,7 @@ sorts the result, giving the ten most common words.</p>
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2014-11-01 16:41:56 </i>
+<i style="float:right;">Last updated 2015-04-27 12:35:55 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
