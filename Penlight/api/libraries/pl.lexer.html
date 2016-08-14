@@ -37,7 +37,7 @@
 
 
 <h2>Libraries</h2>
-<ul class="$(kind=='Topics' and '' or 'nowrap'">
+<ul class="nowrap">
   <li><a href="../libraries/pl.html">pl</a></li>
   <li><a href="../libraries/pl.Set.html">pl.Set</a></li>
   <li><a href="../libraries/pl.app.html">pl.app</a></li>
@@ -74,7 +74,7 @@
   <li><a href="../libraries/pl.xml.html">pl.xml</a></li>
 </ul>
 <h2>Classes</h2>
-<ul class="$(kind=='Topics' and '' or 'nowrap'">
+<ul class="nowrap">
   <li><a href="../classes/pl.Date.html">pl.Date</a></li>
   <li><a href="../classes/pl.List.html">pl.List</a></li>
   <li><a href="../classes/pl.Map.html">pl.Map</a></li>
@@ -82,7 +82,7 @@
   <li><a href="../classes/pl.OrderedMap.html">pl.OrderedMap</a></li>
 </ul>
 <h2>Manual</h2>
-<ul class="$(kind=='Topics' and '' or 'nowrap'">
+<ul class="nowrap">
   <li><a href="../manual/01-introduction.md.html">Introduction</a></li>
   <li><a href="../manual/02-arrays.md.html">Tables and Arrays</a></li>
   <li><a href="../manual/03-strings.md.html">Strings. Higher-level operations on strings.</a></li>
@@ -94,7 +94,7 @@
   <li><a href="../manual/09-discussion.md.html">Technical Choices</a></li>
 </ul>
 <h2>Examples</h2>
-<ul class="$(kind=='Topics' and '' or 'nowrap'">
+<ul class="nowrap">
   <li><a href="../examples/seesubst.lua.html">seesubst.lua</a></li>
   <li><a href="../examples/sipscan.lua.html">sipscan.lua</a></li>
   <li><a href="../examples/symbols.lua.html">symbols.lua</a></li>
@@ -121,12 +121,11 @@
 <p>Lexical scanner for creating a sequence of tokens from text.</p>
 <p> <code>lexer.scan(s)</code> returns an iterator over all tokens found in the
  string <code>s</code>. This iterator returns two values, a token type string
- (such as 'string' for quoted string, 'iden' for identifier) and the value of the
+ (such as &lsquo;string&rsquo; for quoted string, &lsquo;iden&rsquo; for identifier) and the value of the
  token.</p>
 
 <p> Versions specialized for Lua and C are available; these also handle block comments
- and classify keywords as 'keyword' tokens. For example:</p>
-
+ and classify keywords as &lsquo;keyword&rsquo; tokens. For example:</p>
 
 <pre>
 &gt; s = <span class="string">'for i=1,n do'</span>
@@ -139,6 +138,7 @@ number  <span class="number">1</span>
 iden    n
 keyword <span class="keyword">do</span>
 </pre>
+
 
 <p> See the Guide for further <a href="../manual/06-data.md.html#Lexical_Scanning">discussion</a></p>
 
@@ -195,7 +195,7 @@ keyword <span class="keyword">do</span>
 <br/>
 
 
-    <h2><a name="Functions"></a>Functions</h2>
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
 
     <dl class="function">
     <dt>
@@ -209,12 +209,14 @@ keyword <span class="keyword">do</span>
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
-         the string
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a> or <span class="type">file</span></span>
+         a string or a file-like object with <code>:read()</code> method returning lines.
         </li>
         <li><span class="parameter">matches</span>
             <span class="types"><span class="type">tab</span></span>
-         an optional match table (set of pattern-action pairs)
+         an optional match table &ndash; array of token descriptions.
+ A token is described by a <code>{pattern, action}</code> pair, where <code>pattern</code> should match
+ token body and <code>action</code> is a function called when a token of described type is found.
         </li>
         <li><span class="parameter">filter</span>
             <span class="types"><span class="type">tab</span></span>
@@ -252,7 +254,7 @@ keyword <span class="keyword">do</span>
  a function is assumed to be a token-like iterator (returns type &amp; value)
         </li>
         <li><span class="parameter">a2</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          a string is the value
         </li>
     </ul>
@@ -293,7 +295,6 @@ keyword <span class="keyword">do</span>
     </dt>
     <dd>
     get current line number.
- Only available if the input source is a file-like object.
 
 
     <h3>Parameters:</h3>
@@ -306,7 +307,9 @@ keyword <span class="keyword">do</span>
     <h3>Returns:</h3>
     <ol>
 
-        the line number and current column
+         the line number.
+ if the input source is a file-like object,
+ also return the column.
     </ol>
 
 
@@ -344,7 +347,7 @@ keyword <span class="keyword">do</span>
     </dt>
     <dd>
     get the Lua keywords as a set-like table.
- So <code>res["and"]</code> etc would be <code>true</code>.
+ So <code>res[&quot;and&quot;]</code> etc would be <code>true</code>.
 
 
 
@@ -370,7 +373,7 @@ keyword <span class="keyword">do</span>
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          the string
         </li>
         <li><span class="parameter">filter</span>
@@ -403,7 +406,7 @@ keyword <span class="keyword">do</span>
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          the string
         </li>
         <li><span class="parameter">filter</span>
@@ -438,12 +441,12 @@ keyword <span class="keyword">do</span>
          the token stream
         </li>
         <li><span class="parameter">endtoken</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
-         end of list. Can be '\n'
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         end of list. Can be &lsquo;\n&rsquo;
          (<em>default</em> ')')
         </li>
         <li><span class="parameter">delim</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          separator
          (<em>default</em> ')
         </li>
@@ -494,7 +497,7 @@ keyword <span class="keyword">do</span>
          the token stream
         </li>
         <li><span class="parameter">expected_type</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          the token type
         </li>
         <li><span class="parameter">no_skip_ws</span>
@@ -514,8 +517,8 @@ keyword <span class="keyword">do</span>
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2015-03-10 14:00:48 </i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.4</a></i>
+<i style="float:right;">Last updated 2016-08-14 19:25:18 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

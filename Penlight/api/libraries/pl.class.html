@@ -37,7 +37,7 @@
 
 
 <h2>Libraries</h2>
-<ul class="$(kind=='Topics' and '' or 'nowrap'">
+<ul class="nowrap">
   <li><a href="../libraries/pl.html">pl</a></li>
   <li><a href="../libraries/pl.Set.html">pl.Set</a></li>
   <li><a href="../libraries/pl.app.html">pl.app</a></li>
@@ -74,7 +74,7 @@
   <li><a href="../libraries/pl.xml.html">pl.xml</a></li>
 </ul>
 <h2>Classes</h2>
-<ul class="$(kind=='Topics' and '' or 'nowrap'">
+<ul class="nowrap">
   <li><a href="../classes/pl.Date.html">pl.Date</a></li>
   <li><a href="../classes/pl.List.html">pl.List</a></li>
   <li><a href="../classes/pl.Map.html">pl.Map</a></li>
@@ -82,7 +82,7 @@
   <li><a href="../classes/pl.OrderedMap.html">pl.OrderedMap</a></li>
 </ul>
 <h2>Manual</h2>
-<ul class="$(kind=='Topics' and '' or 'nowrap'">
+<ul class="nowrap">
   <li><a href="../manual/01-introduction.md.html">Introduction</a></li>
   <li><a href="../manual/02-arrays.md.html">Tables and Arrays</a></li>
   <li><a href="../manual/03-strings.md.html">Strings. Higher-level operations on strings.</a></li>
@@ -94,7 +94,7 @@
   <li><a href="../manual/09-discussion.md.html">Technical Choices</a></li>
 </ul>
 <h2>Examples</h2>
-<ul class="$(kind=='Topics' and '' or 'nowrap'">
+<ul class="nowrap">
   <li><a href="../examples/seesubst.lua.html">seesubst.lua</a></li>
   <li><a href="../examples/sipscan.lua.html">sipscan.lua</a></li>
   <li><a href="../examples/symbols.lua.html">symbols.lua</a></li>
@@ -121,11 +121,11 @@
 <p>Provides a reuseable and convenient framework for creating classes in Lua.</p>
 <p> Two possible notations:</p>
 
-
 <pre>
 B = class(A)
 class.B(A)
 </pre>
+
 
 <p> The latter form creates a named class within the current environment. Note
  that this implicitly brings in <a href="../libraries/pl.utils.html#">pl.utils</a> as a dependency.</p>
@@ -161,7 +161,7 @@ class.B(A)
 <br/>
 
 
-    <h2><a name="Functions"></a>Functions</h2>
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
 
     <dl class="function">
     <dt>
@@ -184,14 +184,14 @@ class.B(A)
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example"> <span class="keyword">local</span> Cat = class()
- <span class="keyword">function</span> Cat:_init(name)
-   <span class="comment">--self:super(name)   -- call the ancestor initializer if needed
-</span>   self.name = name
- <span class="keyword">end</span>
+        <pre class="example"><span class="keyword">local</span> Cat = class()
+<span class="keyword">function</span> Cat:_init(name)
+  <span class="comment">--self:super(name)   -- call the ancestor initializer if needed
+</span>  self.name = name
+<span class="keyword">end</span>
 
- <span class="keyword">local</span> pussycat = Cat(<span class="string">"pussycat"</span>)
- <span class="global">print</span>(pussycat.name)  --&gt; pussycat</pre>
+<span class="keyword">local</span> pussycat = Cat(<span class="string">"pussycat"</span>)
+<span class="global">print</span>(pussycat.name)  <span class="comment">--&gt; pussycat</span></pre>
     </ul>
 
 </dd>
@@ -201,30 +201,36 @@ class.B(A)
     </dt>
     <dd>
     checks whether an <strong>instance</strong> is derived from some class.
- Works the other way around as <a href="../libraries/pl.class.html#some_class:class_of">class_of</a>.
+ Works the other way around as <a href="../libraries/pl.class.html#some_class:class_of">class_of</a>. It has two ways of using;
+ 1) call with a class to check against, 2) call without params.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">some_class</span>
-         class to check against
+         class to check against, or <code>nil</code> to return the class
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-        <code>true</code> if <code>instance</code> is derived from <code>some_class</code>
+        <code>true</code> if <code>instance</code> is derived from <code>some_class</code>, or if <code>some_class == nil</code> then
+ it returns the class table of the instance
     </ol>
 
 
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example"> <span class="keyword">local</span> pussycat = Lion()  <span class="comment">-- assuming Lion derives from Cat
-</span> <span class="keyword">if</span> pussycat:is_a(Cat) <span class="keyword">then</span>
-   <span class="comment">-- it's true
-</span> <span class="keyword">end</span></pre>
+        <pre class="example"><span class="keyword">local</span> pussycat = Lion()  <span class="comment">-- assuming Lion derives from Cat
+</span><span class="keyword">if</span> pussycat:is_a(Cat) <span class="keyword">then</span>
+  <span class="comment">-- it's true, it is a Lion, but also a Cat
+</span><span class="keyword">end</span>
+
+<span class="keyword">if</span> pussycat:is_a() == Lion <span class="keyword">then</span>
+  <span class="comment">-- It's true
+</span><span class="keyword">end</span></pre>
     </ul>
 
 </dd>
@@ -254,10 +260,10 @@ class.B(A)
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example"> <span class="keyword">local</span> pussycat = Lion()  <span class="comment">-- assuming Lion derives from Cat
-</span> <span class="keyword">if</span> Cat:class_of(pussycat) <span class="keyword">then</span>
-   <span class="comment">-- it's true
-</span> <span class="keyword">end</span></pre>
+        <pre class="example"><span class="keyword">local</span> pussycat = Lion()  <span class="comment">-- assuming Lion derives from Cat
+</span><span class="keyword">if</span> Cat:class_of(pussycat) <span class="keyword">then</span>
+  <span class="comment">-- it's true
+</span><span class="keyword">end</span></pre>
     </ul>
 
 </dd>
@@ -319,8 +325,8 @@ class.B(A)
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2015-03-10 14:00:48 </i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.4</a></i>
+<i style="float:right;">Last updated 2016-08-14 19:25:18 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

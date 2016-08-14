@@ -37,7 +37,7 @@
 
 
 <h2>Libraries</h2>
-<ul class="$(kind=='Topics' and '' or 'nowrap'">
+<ul class="nowrap">
   <li><a href="../libraries/pl.html">pl</a></li>
   <li><a href="../libraries/pl.Set.html">pl.Set</a></li>
   <li><a href="../libraries/pl.app.html">pl.app</a></li>
@@ -74,7 +74,7 @@
   <li><a href="../libraries/pl.xml.html">pl.xml</a></li>
 </ul>
 <h2>Classes</h2>
-<ul class="$(kind=='Topics' and '' or 'nowrap'">
+<ul class="nowrap">
   <li><a href="../classes/pl.Date.html">pl.Date</a></li>
   <li><a href="../classes/pl.List.html">pl.List</a></li>
   <li><a href="../classes/pl.Map.html">pl.Map</a></li>
@@ -82,7 +82,7 @@
   <li><a href="../classes/pl.OrderedMap.html">pl.OrderedMap</a></li>
 </ul>
 <h2>Manual</h2>
-<ul class="$(kind=='Topics' and '' or 'nowrap'">
+<ul class="nowrap">
   <li><a href="../manual/01-introduction.md.html">Introduction</a></li>
   <li><a href="../manual/02-arrays.md.html">Tables and Arrays</a></li>
   <li><a href="../manual/03-strings.md.html">Strings. Higher-level operations on strings.</a></li>
@@ -94,7 +94,7 @@
   <li><a href="../manual/09-discussion.md.html">Technical Choices</a></li>
 </ul>
 <h2>Examples</h2>
-<ul class="$(kind=='Topics' and '' or 'nowrap'">
+<ul class="nowrap">
   <li><a href="../examples/seesubst.lua.html">seesubst.lua</a></li>
   <li><a href="../examples/sipscan.lua.html">sipscan.lua</a></li>
   <li><a href="../examples/symbols.lua.html">symbols.lua</a></li>
@@ -138,11 +138,11 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#import">import (t, T)</a></td>
-	<td class="summary">take a table and 'inject' it into the local namespace.</td>
+	<td class="summary">take a table and &lsquo;inject&rsquo; it into the local namespace.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#escape">escape (s)</a></td>
-	<td class="summary">escape any 'magic' characters in a string</td>
+	<td class="summary">escape any &lsquo;magic&rsquo; characters in a string</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#choose">choose (cond, value1, value2)</a></td>
@@ -153,7 +153,7 @@
 	<td class="summary">return the contents of a file as a string</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#writefile">writefile (filename, str)</a></td>
+	<td class="name" nowrap><a href="#writefile">writefile (filename, str, is_bin)</a></td>
 	<td class="summary">write a string to a file</td>
 	</tr>
 	<tr>
@@ -173,12 +173,16 @@
 	<td class="summary">convert an array of values to strings.</td>
 	</tr>
 	<tr>
+	<td class="name" nowrap><a href="#quote_arg">quote_arg (argument)</a></td>
+	<td class="summary">Quote an argument of a command.</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#executeex">executeex (cmd, bin)</a></td>
 	<td class="summary">execute a shell command and return the output.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#memoize">memoize (func)</a></td>
-	<td class="summary">'memoize' a function (cache returned value for next call).</td>
+	<td class="summary">&lsquo;memoize&rsquo; a function (cache returned value for next call).</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#add_function_factory">add_function_factory (mt, fun)</a></td>
@@ -242,7 +246,7 @@
 <br/>
 
 
-    <h2><a name="Functions"></a>Functions</h2>
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
 
     <dl class="function">
     <dt>
@@ -259,7 +263,7 @@
          The exit code or a message to be printed
         </li>
         <li><span class="parameter">...</span>
-         extra arguments for message's format'
+         extra arguments for message&rsquo;s format'
         </li>
     </ul>
 
@@ -326,7 +330,7 @@
     <strong>import (t, T)</strong>
     </dt>
     <dd>
-    take a table and 'inject' it into the local namespace.
+    take a table and &lsquo;inject&rsquo; it into the local namespace.
 
 
     <h3>Parameters:</h3>
@@ -349,7 +353,7 @@
     <strong>escape (s)</strong>
     </dt>
     <dd>
-    escape any 'magic' characters in a string
+    escape any &lsquo;magic&rsquo; characters in a string
 
 
     <h3>Parameters:</h3>
@@ -420,7 +424,7 @@
 </dd>
     <dt>
     <a name = "writefile"></a>
-    <strong>writefile (filename, str)</strong>
+    <strong>writefile (filename, str, is_bin)</strong>
     </dt>
     <dd>
     write a string to a file
@@ -434,6 +438,9 @@
         <li><span class="parameter">str</span>
          The string
         </li>
+        <li><span class="parameter">is_bin</span>
+         open in binary mode
+        </li>
     </ul>
 
     <h3>Returns:</h3>
@@ -445,7 +452,7 @@
     </ol>
 
     <h3>Raises:</h3>
-    error if filename or str aren't strings
+    error if filename or str aren&rsquo;t strings
 
 
 
@@ -491,10 +498,10 @@
          The input string
         </li>
         <li><span class="parameter">re</span>
-         A Lua string pattern; defaults to '%s+'
+         A Lua string pattern; defaults to &lsquo;%s+&rsquo;
         </li>
         <li><span class="parameter">plain</span>
-         don't use Lua patterns
+         don&rsquo;t use Lua patterns
         </li>
         <li><span class="parameter">n</span>
          optional maximum number of splits
@@ -567,7 +574,7 @@
         </li>
         <li><span class="parameter">tostr</span>
          custom tostring function, called with (value,index).
- Otherwise use <a href="http://www.lua.org/manual/5.2/manual.html#pdf-tostring">tostring</a>
+ Otherwise use <a href="https://www.lua.org/manual/5.1/manual.html#pdf-tostring">tostring</a>
         </li>
     </ul>
 
@@ -575,6 +582,34 @@
     <ol>
 
         the converted buffer
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "quote_arg"></a>
+    <strong>quote_arg (argument)</strong>
+    </dt>
+    <dd>
+    Quote an argument of a command.
+ Quotes a single argument of a command to be passed
+ to <a href="https://www.lua.org/manual/5.1/manual.html#pdf-os.execute">os.execute</a>, <a href="../libraries/pl.utils.html#execute">pl.utils.execute</a> or <a href="../libraries/pl.utils.html#executeex">pl.utils.executeex</a>.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">argument</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         the argument.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        quoted argument.
     </ol>
 
 
@@ -621,9 +656,9 @@
     <strong>memoize (func)</strong>
     </dt>
     <dd>
-    'memoize' a function (cache returned value for next call).
+    &lsquo;memoize&rsquo; a function (cache returned value for next call).
  This is useful if you have a function which is relatively expensive,
- but you don't know in advance what values will be required, so
+ but you don&rsquo;t know in advance what values will be required, so
  building a table upfront is wasteful/impossible.
 
 
@@ -677,7 +712,7 @@
     </dt>
     <dd>
     an anonymous function as a string.  This string is either of the form
- '|args| expression' or is a function of one argument, '_'
+ &lsquo;|args| expression&rsquo; or is a function of one argument, &lsquo;_&rsquo;
 
 
     <h3>Parameters:</h3>
@@ -710,7 +745,7 @@
     process a function argument.
  This is used throughout Penlight and defines what is meant by a function:
  Something that is callable, or an operator string as defined by <code>pl.operator</code>,
- such as '>' or '#'. If a function factory has been registered for the type, it will
+ such as &lsquo;>&rsquo; or &lsquo;#&rsquo;. If a function factory has been registered for the type, it will
  be called to get the function.
 
 
@@ -823,7 +858,7 @@
          the type
         </li>
         <li><span class="parameter">verify</span>
-         an optional verfication function
+         an optional verification function
         </li>
         <li><span class="parameter">msg</span>
          an optional custom message
@@ -877,18 +912,18 @@
     <dd>
     control the error strategy used by Penlight.
  Controls how <code>utils.raise</code> works; the default is for it
- to return nil and the error string, but if the mode is 'error' then
- it will throw an error. If mode is 'quit' it will immediately terminate
+ to return nil and the error string, but if the mode is &lsquo;error&rsquo; then
+ it will throw an error. If mode is &lsquo;quit&rsquo; it will immediately terminate
  the program.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">mode</span>
-
-<ul>
-    <li>either 'default', 'quit'  or 'error'</li>
+        <ul>
+<li>either &lsquo;default&rsquo;, &lsquo;quit&rsquo;  or &lsquo;error&rsquo;</li>
 </ul>
+
 
         </li>
     </ul>
@@ -968,7 +1003,7 @@
          for source errors
         </li>
         <li><span class="parameter">mode</span>
-         kind of chunk, 't' for text, 'b' for bytecode, 'bt' for all (default)
+         kind of chunk, &rsquo;t' for text, &lsquo;b&rsquo; for bytecode, &lsquo;bt&rsquo; for all (default)
         </li>
         <li><span class="parameter">env</span>
           the environment for the new chunk (default nil)
@@ -1066,8 +1101,8 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2015-03-10 14:00:48 </i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.4</a></i>
+<i style="float:right;">Last updated 2016-08-14 19:25:18 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

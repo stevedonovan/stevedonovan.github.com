@@ -44,7 +44,7 @@
 
 
 <h2>Libraries</h2>
-<ul class="$(kind=='Topics' and '' or 'nowrap'">
+<ul class="nowrap">
   <li><a href="../libraries/pl.html">pl</a></li>
   <li><a href="../libraries/pl.Set.html">pl.Set</a></li>
   <li><a href="../libraries/pl.app.html">pl.app</a></li>
@@ -81,7 +81,7 @@
   <li><a href="../libraries/pl.xml.html">pl.xml</a></li>
 </ul>
 <h2>Classes</h2>
-<ul class="$(kind=='Topics' and '' or 'nowrap'">
+<ul class="nowrap">
   <li><a href="../classes/pl.Date.html">pl.Date</a></li>
   <li><a href="../classes/pl.List.html">pl.List</a></li>
   <li><a href="../classes/pl.Map.html">pl.Map</a></li>
@@ -89,7 +89,7 @@
   <li><a href="../classes/pl.OrderedMap.html">pl.OrderedMap</a></li>
 </ul>
 <h2>Manual</h2>
-<ul class="$(kind=='Topics' and '' or 'nowrap'">
+<ul class="nowrap">
   <li><a href="../manual/01-introduction.md.html">Introduction</a></li>
   <li><a href="../manual/02-arrays.md.html">Tables and Arrays</a></li>
   <li><a href="../manual/03-strings.md.html">Strings. Higher-level operations on strings.</a></li>
@@ -101,7 +101,7 @@
   <li><a href="../manual/09-discussion.md.html">Technical Choices</a></li>
 </ul>
 <h2>Examples</h2>
-<ul class="$(kind=='Topics' and '' or 'nowrap'">
+<ul class="nowrap">
   <li><a href="../examples/seesubst.lua.html">seesubst.lua</a></li>
   <li><a href="../examples/sipscan.lua.html">sipscan.lua</a></li>
   <li><a href="../examples/symbols.lua.html">symbols.lua</a></li>
@@ -151,7 +151,7 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#reduce">reduce (fun, t)</a></td>
-	<td class="summary">'reduce' a list using a binary function.</td>
+	<td class="summary">&lsquo;reduce&rsquo; a list using a binary function.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#index_map">index_map (t)</a></td>
@@ -160,6 +160,14 @@
 	<tr>
 	<td class="name" nowrap><a href="#makeset">makeset (t)</a></td>
 	<td class="summary">create a set from a list-like table.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#union">union (t1, t2)</a></td>
+	<td class="summary">the union of two map-like tables.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#intersection">intersection (t1, t2)</a></td>
+	<td class="summary">the intersection of two map-like tables.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#count_map">count_map (t, cmp)</a></td>
@@ -279,7 +287,7 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#filter">filter (t, pred, arg)</a></td>
-	<td class="summary">filter an array's values using a predicate function</td>
+	<td class="summary">filter an array&rsquo;s values using a predicate function</td>
 	</tr>
 </table>
 <h2><a href="#Iterating">Iterating</a></h2>
@@ -313,7 +321,7 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#sub">sub (t, first, last)</a></td>
-	<td class="summary">Extract a range from a table, like  'string.sub'.</td>
+	<td class="summary">Extract a range from a table, like  &lsquo;string.sub&rsquo;.</td>
 	</tr>
 </table>
 <h2><a href="#Merging">Merging</a></h2>
@@ -337,7 +345,7 @@
 <br/>
 
 
-    <h2><a name="Functions"></a>Functions</h2>
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
 
     <dl class="function">
     <dt>
@@ -471,7 +479,7 @@
     <strong>reduce (fun, t)</strong>
     </dt>
     <dd>
-    'reduce' a list using a binary function.
+    &lsquo;reduce&rsquo; a list using a binary function.
 
 
     <h3>Parameters:</h3>
@@ -555,6 +563,79 @@
 
 </dd>
     <dt>
+    <a name = "union"></a>
+    <strong>union (t1, t2)</strong>
+    </dt>
+    <dd>
+    the union of two map-like tables.
+ If there are duplicate keys, the second table wins.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t1</span>
+            <span class="types"><span class="type">tab</span></span>
+         a table
+        </li>
+        <li><span class="parameter">t2</span>
+            <span class="types"><span class="type">tab</span></span>
+         a table
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">tab</span></span>
+
+
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../libraries/pl.tablex.html#merge">tablex.merge</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "intersection"></a>
+    <strong>intersection (t1, t2)</strong>
+    </dt>
+    <dd>
+    the intersection of two map-like tables.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t1</span>
+            <span class="types"><span class="type">tab</span></span>
+         a table
+        </li>
+        <li><span class="parameter">t2</span>
+            <span class="types"><span class="type">tab</span></span>
+         a table
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">tab</span></span>
+
+
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../libraries/pl.tablex.html#merge">tablex.merge</a>
+    </ul>
+
+
+</dd>
+    <dt>
     <a name = "count_map"></a>
     <strong>count_map (t, cmp)</strong>
     </dt>
@@ -593,7 +674,7 @@
     <strong>set (t, val[, i1=1[, i2=#t]])</strong>
     </dt>
     <dd>
-    set an array range to a value.  If it's a function we use the result
+    set an array range to a value.  If it&rsquo;s a function we use the result
  of applying it to the indices.
 
 
@@ -638,7 +719,7 @@
          size
         </li>
         <li><span class="parameter">val</span>
-         initial value (can be <code>nil</code>, but don't expect <code>#</code> to work!)
+         initial value (can be <code>nil</code>, but don&rsquo;t expect <code>#</code> to work!)
         </li>
     </ul>
 
@@ -718,7 +799,7 @@
     <dd>
     modifies a table to be read only.
  This only offers weak protection. Tables can still be modified with
- <a href="http://www.lua.org/manual/5.2/manual.html#pdf-table.insert">table.insert</a> and <a href="http://www.lua.org/manual/5.2/manual.html#pdf-rawset">rawset</a>.
+ <a href="https://www.lua.org/manual/5.1/manual.html#pdf-table.insert">table.insert</a> and <a href="https://www.lua.org/manual/5.1/manual.html#pdf-rawset">rawset</a>.
 
 
     <h3>Parameters:</h3>
@@ -740,7 +821,7 @@
 
 </dd>
 </dl>
-    <h2><a name="Copying"></a>Copying</h2>
+    <h2 class="section-header "><a name="Copying"></a>Copying</h2>
 
     <dl class="function">
     <dt>
@@ -805,7 +886,7 @@
     </dt>
     <dd>
     make a deep copy of a table, recursively copying all the keys and fields.
- This will also set the copied table's metatable to that of the original.
+ This will also set the copied table&rsquo;s metatable to that of the original.
 
 
     <h3>Parameters:</h3>
@@ -912,7 +993,7 @@
     </dt>
     <dd>
     insert values into a table.
- similar to <a href="http://www.lua.org/manual/5.2/manual.html#pdf-table.insert">table.insert</a> but inserts values from given table <a href="../libraries/pl.tablex.html#values">values</a>,
+ similar to <a href="https://www.lua.org/manual/5.1/manual.html#pdf-table.insert">table.insert</a> but inserts values from given table <a href="../libraries/pl.tablex.html#values">values</a>,
  not the object itself, into table <code>t</code> at position <code>pos</code>.
 
 
@@ -931,7 +1012,6 @@
             <span class="types"><span class="type">array</span></span>
 
 
-
         </li>
     </ul>
 
@@ -941,7 +1021,7 @@
 
 </dd>
 </dl>
-    <h2><a name="Comparing"></a>Comparing</h2>
+    <h2 class="section-header "><a name="Comparing"></a>Comparing</h2>
 
     <dl class="function">
     <dt>
@@ -1041,7 +1121,7 @@
 
 </dd>
 </dl>
-    <h2><a name="Finding"></a>Finding</h2>
+    <h2 class="section-header "><a name="Finding"></a>Finding</h2>
 
     <dl class="function">
     <dt>
@@ -1184,7 +1264,7 @@
     <h3>Returns:</h3>
     <ol>
 
-        a fieldspec, e.g. 'a.b' or 'math.sin'
+        a fieldspec, e.g. &lsquo;a.b&rsquo; or &lsquo;math.sin&rsquo;
     </ol>
 
 
@@ -1196,7 +1276,7 @@
 
 </dd>
 </dl>
-    <h2><a name="MappingAndFiltering"></a>MappingAndFiltering</h2>
+    <h2 class="section-header "><a name="MappingAndFiltering"></a>MappingAndFiltering</h2>
 
     <dl class="function">
     <dt>
@@ -1283,7 +1363,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">name</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          the method name
         </li>
         <li><span class="parameter">t</span>
@@ -1420,8 +1500,8 @@
     <dd>
     call the function with the key and value pairs from a table.
  The function can return a value and a key (note the order!). If both
- are not nil, then this pair is inserted into the result. If only value is not nil, then
- it is appended to the result.
+ are not nil, then this pair is inserted into the result: if the key already exists, we convert the value for that
+ key into a table and append into it. If only value is not nil, then it is appended to the result.
 
 
     <h3>Parameters:</h3>
@@ -1454,7 +1534,7 @@
     <strong>filter (t, pred, arg)</strong>
     </dt>
     <dd>
-    filter an array's values using a predicate function
+    filter an array&rsquo;s values using a predicate function
 
 
     <h3>Parameters:</h3>
@@ -1478,7 +1558,7 @@
 
 </dd>
 </dl>
-    <h2><a name="Iterating"></a>Iterating</h2>
+    <h2 class="section-header "><a name="Iterating"></a>Iterating</h2>
 
     <dl class="function">
     <dt>
@@ -1611,7 +1691,7 @@
 
 </dd>
 </dl>
-    <h2><a name="Extraction"></a>Extraction</h2>
+    <h2 class="section-header "><a name="Extraction"></a>Extraction</h2>
 
     <dl class="function">
     <dt>
@@ -1661,7 +1741,7 @@
     <strong>sub (t, first, last)</strong>
     </dt>
     <dd>
-    Extract a range from a table, like  'string.sub'.
+    Extract a range from a table, like  &lsquo;string.sub&rsquo;.
  If first or last are negative then they are relative to the end of the list
  eg. sub(t,-2) gives last 2 entries in a list, and
  sub(t,-4,-2) gives from -4th to -2nd
@@ -1694,7 +1774,7 @@
 
 </dd>
 </dl>
-    <h2><a name="Merging"></a>Merging</h2>
+    <h2 class="section-header "><a name="Merging"></a>Merging</h2>
 
     <dl class="function">
     <dt>
@@ -1805,8 +1885,8 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2015-03-10 14:00:48 </i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.4</a></i>
+<i style="float:right;">Last updated 2016-08-14 19:25:18 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

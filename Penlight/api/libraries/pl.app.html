@@ -37,7 +37,7 @@
 
 
 <h2>Libraries</h2>
-<ul class="$(kind=='Topics' and '' or 'nowrap'">
+<ul class="nowrap">
   <li><a href="../libraries/pl.html">pl</a></li>
   <li><a href="../libraries/pl.Set.html">pl.Set</a></li>
   <li><strong>pl.app</strong></li>
@@ -74,7 +74,7 @@
   <li><a href="../libraries/pl.xml.html">pl.xml</a></li>
 </ul>
 <h2>Classes</h2>
-<ul class="$(kind=='Topics' and '' or 'nowrap'">
+<ul class="nowrap">
   <li><a href="../classes/pl.Date.html">pl.Date</a></li>
   <li><a href="../classes/pl.List.html">pl.List</a></li>
   <li><a href="../classes/pl.Map.html">pl.Map</a></li>
@@ -82,7 +82,7 @@
   <li><a href="../classes/pl.OrderedMap.html">pl.OrderedMap</a></li>
 </ul>
 <h2>Manual</h2>
-<ul class="$(kind=='Topics' and '' or 'nowrap'">
+<ul class="nowrap">
   <li><a href="../manual/01-introduction.md.html">Introduction</a></li>
   <li><a href="../manual/02-arrays.md.html">Tables and Arrays</a></li>
   <li><a href="../manual/03-strings.md.html">Strings. Higher-level operations on strings.</a></li>
@@ -94,7 +94,7 @@
   <li><a href="../manual/09-discussion.md.html">Technical Choices</a></li>
 </ul>
 <h2>Examples</h2>
-<ul class="$(kind=='Topics' and '' or 'nowrap'">
+<ul class="nowrap">
   <li><a href="../examples/seesubst.lua.html">seesubst.lua</a></li>
   <li><a href="../examples/sipscan.lua.html">sipscan.lua</a></li>
   <li><a href="../examples/symbols.lua.html">symbols.lua</a></li>
@@ -128,7 +128,7 @@
 <table class="function_list">
 	<tr>
 	<td class="name" nowrap><a href="#require_here">require_here (base)</a></td>
-	<td class="summary">add the current script's path to the Lua module path.</td>
+	<td class="summary">add the current script&rsquo;s path to the Lua module path.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#appfile">appfile (file)</a></td>
@@ -152,7 +152,7 @@
 <br/>
 
 
-    <h2><a name="Functions"></a>Functions</h2>
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
 
     <dl class="function">
     <dt>
@@ -160,7 +160,7 @@
     <strong>require_here (base)</strong>
     </dt>
     <dd>
-    add the current script's path to the Lua module path.
+    add the current script&rsquo;s path to the Lua module path.
  Applies to both the source and the binary module paths. It makes it easy for
  the main file of a multi-file program to access its modules in the same directory.
  <code>base</code> allows these modules to be put in a specified subdirectory, to allow for
@@ -171,7 +171,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">base</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          optional base directory.
         </li>
     </ul>
@@ -179,8 +179,8 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
-        the current script's path with a trailing slash
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+        the current script&rsquo;s path with a trailing slash
     </ol>
 
 
@@ -193,14 +193,14 @@
     </dt>
     <dd>
     return a suitable path for files private to this application.
- These will look like '~/.SNAME/file', with '~' as with expanduser and
+ These will look like &lsquo;~/.SNAME/file&rsquo;, with &lsquo;~&rsquo; as with expanduser and
  SNAME is the name of the script without .lua extension.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">file</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          a filename (w/out path)
         </li>
     </ul>
@@ -210,7 +210,7 @@
         <li>
         a full pathname, or nil</li>
         <li>
-        'cannot create' error</li>
+        &lsquo;cannot create&rsquo; error</li>
     </ol>
 
 
@@ -229,7 +229,7 @@
     <h3>Returns:</h3>
     <ol>
 
-        'Windows','OSX' or whatever uname returns (e.g. 'Linux')
+        &lsquo;Windows&rsquo;,&lsquo;OSX&rsquo; or whatever uname returns (e.g. &lsquo;Linux&rsquo;)
     </ol>
 
 
@@ -242,7 +242,7 @@
     </dt>
     <dd>
     return the full command-line used to invoke this script.
- Any extra flags occupy slots, so that <code>lua -lpl</code> gives us <code>{[-2]='lua',[-1]='-lpl'}</code>
+ Any extra flags occupy slots, so that <code>lua -lpl</code> gives us <code>{[-2]=&apos;lua&apos;,[-1]=&apos;-lpl&apos;}</code>
 
 
 
@@ -264,8 +264,8 @@
     </dt>
     <dd>
     parse command-line arguments into flags and parameters.
- Understands GNU-style command-line flags; short (<code>-f</code>) and long (<code>--flag</code>).
- These may be given a value with either '=' or ':' (<code>-k:2</code>,<code>--alpha=3.2</code>,<code>-n2</code>);
+ Understands GNU-style command-line flags; short (<code>-f</code>) and long (<code>&mdash;flag</code>).
+ These may be given a value with either &lsquo;=&rsquo; or &lsquo;:&rsquo; (<code>-k:2</code>,<code>&mdash;alpha=3.2</code>,<code>-n2</code>);
  note that a number value can be given without a space.
  Multiple short args can be combined like so: ( <code>-abcd</code>).
 
@@ -273,7 +273,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">args</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">{string}</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">{string}</a></span>
          an array of strings (default is the global <code>arg</code>)
         </li>
         <li><span class="parameter">flags_with_values</span>
@@ -302,8 +302,8 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2015-03-10 14:00:48 </i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.4</a></i>
+<i style="float:right;">Last updated 2016-08-14 19:25:18 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
