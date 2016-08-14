@@ -30,26 +30,12 @@
   <li><a href="../index.html">Index</a></li>
 </ul>
 
-
-
-<h2>Examples</h2>
+<h2>Contents</h2>
 <ul>
-  <li><a href="../examples/seesubst.lua.html">seesubst.lua</a></li>
-  <li><a href="../examples/sipscan.lua.html">sipscan.lua</a></li>
-  <li><a href="../examples/symbols.lua.html">symbols.lua</a></li>
-  <li><a href="../examples/test-cmp.lua.html">test-cmp.lua</a></li>
-  <li><a href="../examples/test-listcallbacks.lua.html">test-listcallbacks.lua</a></li>
-  <li><a href="../examples/test-pretty.lua.html">test-pretty.lua</a></li>
-  <li><a href="../examples/test-symbols.lua.html">test-symbols.lua</a></li>
-  <li><a href="../examples/testapp.lua.html">testapp.lua</a></li>
-  <li><a href="../examples/testclone.lua.html">testclone.lua</a></li>
-  <li><strong>testconfig.lua</strong></li>
-  <li><a href="../examples/testglobal.lua.html">testglobal.lua</a></li>
-  <li><a href="../examples/testinputfields.lua.html">testinputfields.lua</a></li>
-  <li><a href="../examples/testinputfields2.lua.html">testinputfields2.lua</a></li>
-  <li><a href="../examples/testxml.lua.html">testxml.lua</a></li>
-  <li><a href="../examples/which.lua.html">which.lua</a></li>
+<li><a href="#Functions">Functions</a></li>
 </ul>
+
+
 <h2>Modules</h2>
 <ul>
   <li><a href="../modules/pl.html">pl</a></li>
@@ -61,7 +47,7 @@
   <li><a href="../modules/pl.Set.html">pl.Set</a></li>
   <li><a href="../modules/pl.app.html">pl.app</a></li>
   <li><a href="../modules/pl.array2d.html">pl.array2d</a></li>
-  <li><a href="../modules/pl.class.html">pl.class</a></li>
+  <li><strong>pl.class</strong></li>
   <li><a href="../modules/pl.comprehension.html">pl.comprehension</a></li>
   <li><a href="../modules/pl.config.html">pl.config</a></li>
   <li><a href="../modules/pl.data.html">pl.data</a></li>
@@ -100,63 +86,79 @@
   <li><a href="../topics/08-additional.md.html">08-additional.md</a></li>
   <li><a href="../topics/09-discussion.md.html">09-discussion.md</a></li>
 </ul>
+<h2>Examples</h2>
+<ul>
+  <li><a href="../examples/seesubst.lua.html">seesubst.lua</a></li>
+  <li><a href="../examples/sipscan.lua.html">sipscan.lua</a></li>
+  <li><a href="../examples/symbols.lua.html">symbols.lua</a></li>
+  <li><a href="../examples/test-cmp.lua.html">test-cmp.lua</a></li>
+  <li><a href="../examples/test-listcallbacks.lua.html">test-listcallbacks.lua</a></li>
+  <li><a href="../examples/test-pretty.lua.html">test-pretty.lua</a></li>
+  <li><a href="../examples/test-symbols.lua.html">test-symbols.lua</a></li>
+  <li><a href="../examples/testapp.lua.html">testapp.lua</a></li>
+  <li><a href="../examples/testclone.lua.html">testclone.lua</a></li>
+  <li><a href="../examples/testconfig.lua.html">testconfig.lua</a></li>
+  <li><a href="../examples/testglobal.lua.html">testglobal.lua</a></li>
+  <li><a href="../examples/testinputfields.lua.html">testinputfields.lua</a></li>
+  <li><a href="../examples/testinputfields2.lua.html">testinputfields2.lua</a></li>
+  <li><a href="../examples/testxml.lua.html">testxml.lua</a></li>
+  <li><a href="../examples/which.lua.html">which.lua</a></li>
+</ul>
 
 </div>
 
 <div id="content">
 
-<h1>Example <code>testconfig.lua</code></h1>
+<h1>Module <code>pl.class</code></h1>
 
-    <pre>
-<span class="keyword">local</span> stringio = <span class="global">require</span> <span class="string">'pl.stringio'</span>
-<span class="keyword">local</span> config = <span class="global">require</span> <span class="string">'pl.config'</span>
+<p>Provides a reuseable and convenient framework for creating classes in Lua.</p>
+<p> Two possible notations:</p>
 
-<span class="keyword">function</span> dump(t,indent)
-    <span class="keyword">if</span> <span class="global">type</span>(t) == <span class="string">'table'</span> <span class="keyword">then</span>
-        <span class="global">io</span>.write(indent,<span class="string">'{\n'</span>)
-        <span class="keyword">local</span> newindent = indent..<span class="string">'  '</span>
-        <span class="keyword">for</span> k,v <span class="keyword">in</span> <span class="global">pairs</span>(t) <span class="keyword">do</span>            
-            <span class="global">io</span>.write(newindent,k,<span class="string">'='</span>)
-            dump(v,indent)
-            <span class="global">io</span>.write(<span class="string">'\n'</span>)
-        <span class="keyword">end</span>    
-        <span class="global">io</span>.write(newindent,<span class="string">'},\n'</span>)
-    <span class="keyword">else</span>
-        <span class="global">io</span>.write(indent,t,<span class="string">'('</span>,<span class="global">type</span>(t),<span class="string">')'</span>)
-    <span class="keyword">end</span>
-<span class="keyword">end</span>
+<pre><code>B = class(A)
+class.B(A)
+</code></pre>
+
+<p> The latter form creates a named class.</p>
+
+<p> See the Guide for further <a href="../topics/01-introduction.md.html#Simplifying_Object_Oriented_Programming_in_Lua">discussion</a></p>
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#class">class&nbsp;(base, c_arg, c)</a></td>
+	<td class="summary">create a new class, derived from a given base class.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
 
 
-<span class="keyword">function</span> testconfig(test)
-    f = stringio.open(test)
-    c = config.read(f)
-    f:close()
-    dump(c,<span class="string">'  '</span>)
-    <span class="global">print</span> <span class="string">'-----'</span>
-<span class="keyword">end</span>
+    <h2><a name="Functions"></a>Functions</h2>
+    
+    <dl class="function">
+    <dt>
+    <a name = "class"></a>
+    <strong>class&nbsp;(base, c_arg, c)</strong>
+    </dt>
+    <dd>
+    create a new class, derived from a given base class.  <br>
+ Supporting two class creation syntaxes:
+ either <code>Name = class(base)</code> or <code>class.Name(base)</code>
 
-testconfig <span class="string">[[
- ; comment 2 (an ini file)
-[section!]
-bonzo.dog=20,30
-config_parm=here we go again
-depth = 2
-[another]
-felix="cat"
-]]</span>
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>base</em></code>:  optional base class</li>
+       <li><code><em>c_arg</em></code>:  optional parameter to class ctor</li>
+       <li><code><em>c</em></code>:  optional table to be used as class</li>
+    </ul>
 
-testconfig <span class="string">[[
-# this is a more Unix-y config file
-fred = 1
-alice = 2
-home = /bonzo/dog/etc
-]]</span>
 
-testconfig <span class="string">[[
-# this is just a set of comma-separated values
-1000,444,222
-44,555,224
-]]</span>
+
+
+</dd>
+</dl>
+
 
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->

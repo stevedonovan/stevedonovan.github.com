@@ -30,26 +30,12 @@
   <li><a href="../index.html">Index</a></li>
 </ul>
 
-
-
-<h2>Examples</h2>
+<h2>Contents</h2>
 <ul>
-  <li><a href="../examples/seesubst.lua.html">seesubst.lua</a></li>
-  <li><a href="../examples/sipscan.lua.html">sipscan.lua</a></li>
-  <li><a href="../examples/symbols.lua.html">symbols.lua</a></li>
-  <li><a href="../examples/test-cmp.lua.html">test-cmp.lua</a></li>
-  <li><a href="../examples/test-listcallbacks.lua.html">test-listcallbacks.lua</a></li>
-  <li><a href="../examples/test-pretty.lua.html">test-pretty.lua</a></li>
-  <li><a href="../examples/test-symbols.lua.html">test-symbols.lua</a></li>
-  <li><a href="../examples/testapp.lua.html">testapp.lua</a></li>
-  <li><a href="../examples/testclone.lua.html">testclone.lua</a></li>
-  <li><strong>testconfig.lua</strong></li>
-  <li><a href="../examples/testglobal.lua.html">testglobal.lua</a></li>
-  <li><a href="../examples/testinputfields.lua.html">testinputfields.lua</a></li>
-  <li><a href="../examples/testinputfields2.lua.html">testinputfields2.lua</a></li>
-  <li><a href="../examples/testxml.lua.html">testxml.lua</a></li>
-  <li><a href="../examples/which.lua.html">which.lua</a></li>
+<li><a href="#Functions">Functions</a></li>
 </ul>
+
+
 <h2>Modules</h2>
 <ul>
   <li><a href="../modules/pl.html">pl</a></li>
@@ -82,7 +68,7 @@
   <li><a href="../modules/pl.stringio.html">pl.stringio</a></li>
   <li><a href="../modules/pl.stringx.html">pl.stringx</a></li>
   <li><a href="../modules/pl.tablex.html">pl.tablex</a></li>
-  <li><a href="../modules/pl.template.html">pl.template</a></li>
+  <li><strong>pl.template</strong></li>
   <li><a href="../modules/pl.test.html">pl.test</a></li>
   <li><a href="../modules/pl.text.html">pl.text</a></li>
   <li><a href="../modules/pl.utils.html">pl.utils</a></li>
@@ -100,63 +86,101 @@
   <li><a href="../topics/08-additional.md.html">08-additional.md</a></li>
   <li><a href="../topics/09-discussion.md.html">09-discussion.md</a></li>
 </ul>
+<h2>Examples</h2>
+<ul>
+  <li><a href="../examples/seesubst.lua.html">seesubst.lua</a></li>
+  <li><a href="../examples/sipscan.lua.html">sipscan.lua</a></li>
+  <li><a href="../examples/symbols.lua.html">symbols.lua</a></li>
+  <li><a href="../examples/test-cmp.lua.html">test-cmp.lua</a></li>
+  <li><a href="../examples/test-listcallbacks.lua.html">test-listcallbacks.lua</a></li>
+  <li><a href="../examples/test-pretty.lua.html">test-pretty.lua</a></li>
+  <li><a href="../examples/test-symbols.lua.html">test-symbols.lua</a></li>
+  <li><a href="../examples/testapp.lua.html">testapp.lua</a></li>
+  <li><a href="../examples/testclone.lua.html">testclone.lua</a></li>
+  <li><a href="../examples/testconfig.lua.html">testconfig.lua</a></li>
+  <li><a href="../examples/testglobal.lua.html">testglobal.lua</a></li>
+  <li><a href="../examples/testinputfields.lua.html">testinputfields.lua</a></li>
+  <li><a href="../examples/testinputfields2.lua.html">testinputfields2.lua</a></li>
+  <li><a href="../examples/testxml.lua.html">testxml.lua</a></li>
+  <li><a href="../examples/which.lua.html">which.lua</a></li>
+</ul>
 
 </div>
 
 <div id="content">
 
-<h1>Example <code>testconfig.lua</code></h1>
+<h1>Module <code>pl.template</code></h1>
 
-    <pre>
-<span class="keyword">local</span> stringio = <span class="global">require</span> <span class="string">'pl.stringio'</span>
-<span class="keyword">local</span> config = <span class="global">require</span> <span class="string">'pl.config'</span>
+<p>A template preprocessor.</p>
+<p> Originally by <a href="http://lua-users.org/wiki/SlightlyLessSimpleLuaPreprocessor">Ricki Lake</a></p>
 
-<span class="keyword">function</span> dump(t,indent)
-    <span class="keyword">if</span> <span class="global">type</span>(t) == <span class="string">'table'</span> <span class="keyword">then</span>
-        <span class="global">io</span>.write(indent,<span class="string">'{\n'</span>)
-        <span class="keyword">local</span> newindent = indent..<span class="string">'  '</span>
-        <span class="keyword">for</span> k,v <span class="keyword">in</span> <span class="global">pairs</span>(t) <span class="keyword">do</span>            
-            <span class="global">io</span>.write(newindent,k,<span class="string">'='</span>)
-            dump(v,indent)
-            <span class="global">io</span>.write(<span class="string">'\n'</span>)
-        <span class="keyword">end</span>    
-        <span class="global">io</span>.write(newindent,<span class="string">'},\n'</span>)
-    <span class="keyword">else</span>
-        <span class="global">io</span>.write(indent,t,<span class="string">'('</span>,<span class="global">type</span>(t),<span class="string">')'</span>)
-    <span class="keyword">end</span>
-<span class="keyword">end</span>
+<p> There are two rules:</p>
+
+<ul>
+    <li>lines starting with # are Lua</li>
+    <li>otherwise, <code>$(expr)</code> is the result of evaluating <code>expr</code></li>
+</ul>
+
+<p> Example:</p>
+
+<pre><code>#  for i = 1,3 do
+   $(i) Hello, Word!
+#  end
+===&gt;
+1 Hello, Word!
+2 Hello, Word!
+3 Hello, Word!
+</code></pre>
+
+<p> Other escape characters can be used, when the defaults conflict
+ with the output language.</p>
+
+<pre><code>&gt; for _,n in pairs{'one','two','three'} do
+static int l_${n} (luaState *state);
+&gt; end
+</code></pre>
+
+<p> See  <a href="../topics/03-strings.md.html#Another_Style_of_Template">the Guide</a>.</p>
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#substitute">substitute&nbsp;(str, env)</a></td>
+	<td class="summary">expand the template using the specified environment.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
 
 
-<span class="keyword">function</span> testconfig(test)
-    f = stringio.open(test)
-    c = config.read(f)
-    f:close()
-    dump(c,<span class="string">'  '</span>)
-    <span class="global">print</span> <span class="string">'-----'</span>
-<span class="keyword">end</span>
+    <h2><a name="Functions"></a>Functions</h2>
+    
+    <dl class="function">
+    <dt>
+    <a name = "substitute"></a>
+    <strong>substitute&nbsp;(str, env)</strong>
+    </dt>
+    <dd>
+    expand the template using the specified environment. 
 
-testconfig <span class="string">[[
- ; comment 2 (an ini file)
-[section!]
-bonzo.dog=20,30
-config_parm=here we go again
-depth = 2
-[another]
-felix="cat"
-]]</span>
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>str</em></code>:  the template string</li>
+       <li><code><em>env</em></code>:  the environment (by default empty). <br>
+ There are three special fields in the environment table <ul>
+ <li><code>_parent</code> continue looking up in this table</li>
+ <li><code>_brackets</code>; default is '()', can be any suitable bracket pair</li>
+ <li><code>_escape</code>; default is '#' </li>
+ </ul></li>
+    </ul>
 
-testconfig <span class="string">[[
-# this is a more Unix-y config file
-fred = 1
-alice = 2
-home = /bonzo/dog/etc
-]]</span>
 
-testconfig <span class="string">[[
-# this is just a set of comma-separated values
-1000,444,222
-44,555,224
-]]</span>
+
+
+</dd>
+</dl>
+
 
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->

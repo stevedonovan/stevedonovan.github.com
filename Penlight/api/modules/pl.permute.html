@@ -30,26 +30,12 @@
   <li><a href="../index.html">Index</a></li>
 </ul>
 
-
-
-<h2>Examples</h2>
+<h2>Contents</h2>
 <ul>
-  <li><a href="../examples/seesubst.lua.html">seesubst.lua</a></li>
-  <li><a href="../examples/sipscan.lua.html">sipscan.lua</a></li>
-  <li><a href="../examples/symbols.lua.html">symbols.lua</a></li>
-  <li><a href="../examples/test-cmp.lua.html">test-cmp.lua</a></li>
-  <li><a href="../examples/test-listcallbacks.lua.html">test-listcallbacks.lua</a></li>
-  <li><a href="../examples/test-pretty.lua.html">test-pretty.lua</a></li>
-  <li><a href="../examples/test-symbols.lua.html">test-symbols.lua</a></li>
-  <li><a href="../examples/testapp.lua.html">testapp.lua</a></li>
-  <li><a href="../examples/testclone.lua.html">testclone.lua</a></li>
-  <li><strong>testconfig.lua</strong></li>
-  <li><a href="../examples/testglobal.lua.html">testglobal.lua</a></li>
-  <li><a href="../examples/testinputfields.lua.html">testinputfields.lua</a></li>
-  <li><a href="../examples/testinputfields2.lua.html">testinputfields2.lua</a></li>
-  <li><a href="../examples/testxml.lua.html">testxml.lua</a></li>
-  <li><a href="../examples/which.lua.html">which.lua</a></li>
+<li><a href="#Functions">Functions</a></li>
 </ul>
+
+
 <h2>Modules</h2>
 <ul>
   <li><a href="../modules/pl.html">pl</a></li>
@@ -74,7 +60,7 @@
   <li><a href="../modules/pl.luabalanced.html">pl.luabalanced</a></li>
   <li><a href="../modules/pl.operator.html">pl.operator</a></li>
   <li><a href="../modules/pl.path.html">pl.path</a></li>
-  <li><a href="../modules/pl.permute.html">pl.permute</a></li>
+  <li><strong>pl.permute</strong></li>
   <li><a href="../modules/pl.pretty.html">pl.pretty</a></li>
   <li><a href="../modules/pl.seq.html">pl.seq</a></li>
   <li><a href="../modules/pl.sip.html">pl.sip</a></li>
@@ -100,63 +86,102 @@
   <li><a href="../topics/08-additional.md.html">08-additional.md</a></li>
   <li><a href="../topics/09-discussion.md.html">09-discussion.md</a></li>
 </ul>
+<h2>Examples</h2>
+<ul>
+  <li><a href="../examples/seesubst.lua.html">seesubst.lua</a></li>
+  <li><a href="../examples/sipscan.lua.html">sipscan.lua</a></li>
+  <li><a href="../examples/symbols.lua.html">symbols.lua</a></li>
+  <li><a href="../examples/test-cmp.lua.html">test-cmp.lua</a></li>
+  <li><a href="../examples/test-listcallbacks.lua.html">test-listcallbacks.lua</a></li>
+  <li><a href="../examples/test-pretty.lua.html">test-pretty.lua</a></li>
+  <li><a href="../examples/test-symbols.lua.html">test-symbols.lua</a></li>
+  <li><a href="../examples/testapp.lua.html">testapp.lua</a></li>
+  <li><a href="../examples/testclone.lua.html">testclone.lua</a></li>
+  <li><a href="../examples/testconfig.lua.html">testconfig.lua</a></li>
+  <li><a href="../examples/testglobal.lua.html">testglobal.lua</a></li>
+  <li><a href="../examples/testinputfields.lua.html">testinputfields.lua</a></li>
+  <li><a href="../examples/testinputfields2.lua.html">testinputfields2.lua</a></li>
+  <li><a href="../examples/testxml.lua.html">testxml.lua</a></li>
+  <li><a href="../examples/which.lua.html">which.lua</a></li>
+</ul>
 
 </div>
 
 <div id="content">
 
-<h1>Example <code>testconfig.lua</code></h1>
+<h1>Module <code>pl.permute</code></h1>
 
-    <pre>
-<span class="keyword">local</span> stringio = <span class="global">require</span> <span class="string">'pl.stringio'</span>
-<span class="keyword">local</span> config = <span class="global">require</span> <span class="string">'pl.config'</span>
+<p>Permutation operations.</p>
+<p>
 
-<span class="keyword">function</span> dump(t,indent)
-    <span class="keyword">if</span> <span class="global">type</span>(t) == <span class="string">'table'</span> <span class="keyword">then</span>
-        <span class="global">io</span>.write(indent,<span class="string">'{\n'</span>)
-        <span class="keyword">local</span> newindent = indent..<span class="string">'  '</span>
-        <span class="keyword">for</span> k,v <span class="keyword">in</span> <span class="global">pairs</span>(t) <span class="keyword">do</span>            
-            <span class="global">io</span>.write(newindent,k,<span class="string">'='</span>)
-            dump(v,indent)
-            <span class="global">io</span>.write(<span class="string">'\n'</span>)
-        <span class="keyword">end</span>    
-        <span class="global">io</span>.write(newindent,<span class="string">'},\n'</span>)
-    <span class="keyword">else</span>
-        <span class="global">io</span>.write(indent,t,<span class="string">'('</span>,<span class="global">type</span>(t),<span class="string">')'</span>)
-    <span class="keyword">end</span>
-<span class="keyword">end</span>
+</p>
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#iter">iter&nbsp;(a)</a></td>
+	<td class="summary">an iterator over all permutations of the elements of a list.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#table">table&nbsp;(a)</a></td>
+	<td class="summary">construct a table containing all the permutations of a list.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
 
 
-<span class="keyword">function</span> testconfig(test)
-    f = stringio.open(test)
-    c = config.read(f)
-    f:close()
-    dump(c,<span class="string">'  '</span>)
-    <span class="global">print</span> <span class="string">'-----'</span>
-<span class="keyword">end</span>
+    <h2><a name="Functions"></a>Functions</h2>
+    
+    <dl class="function">
+    <dt>
+    <a name = "iter"></a>
+    <strong>iter&nbsp;(a)</strong>
+    </dt>
+    <dd>
+    an iterator over all permutations of the elements of a list. 
+ Please note that the same list is returned each time, so do not keep references!
 
-testconfig <span class="string">[[
- ; comment 2 (an ini file)
-[section!]
-bonzo.dog=20,30
-config_parm=here we go again
-depth = 2
-[another]
-felix="cat"
-]]</span>
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>a</em></code>:  list-like table</li>
+    </ul>
 
-testconfig <span class="string">[[
-# this is a more Unix-y config file
-fred = 1
-alice = 2
-home = /bonzo/dog/etc
-]]</span>
 
-testconfig <span class="string">[[
-# this is just a set of comma-separated values
-1000,444,222
-44,555,224
-]]</span>
+    <h3>Returns:</h3>
+    <ol>
+        an iterator which provides the next permutation as a list
+    </ol>
+
+
+</dd>
+    <dt>
+    <a name = "table"></a>
+    <strong>table&nbsp;(a)</strong>
+    </dt>
+    <dd>
+    construct a table containing all the permutations of a list. 
+
+    <h3>Parameters:</h3>
+    <ul>
+       <li><code><em>a</em></code>:  list-like table</li>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">permute.table {1,2,3} --> {{2,3,1},{3,2,1},{3,1,2},{1,3,2},{2,1,3},{1,2,3}}</pre>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        a table of tables
+    </ol>
+
+
+</dd>
+</dl>
+
 
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
