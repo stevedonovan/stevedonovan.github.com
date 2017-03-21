@@ -1,0 +1,642 @@
+<!DOCTYPE HTML>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Filesystem and Processes - </title>
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <base href="">
+
+        <link rel="stylesheet" href="book.css">
+        <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+
+        <link rel="shortcut icon" href="favicon.png">
+
+        <!-- Font Awesome -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+
+        <!-- MathJax -->
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Fetch JQuery from CDN but have a local fallback -->
+        <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+        <script>
+            if (typeof jQuery == 'undefined') {
+                document.write(unescape("%3Cscript src='jquery.js'%3E%3C/script%3E"));
+            }
+        </script>
+    </head>
+    <body class="light">
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme = localStorage.getItem('theme');
+            if (theme == null) { theme = 'light'; }
+            $('body').removeClass().addClass(theme);
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var sidebar = localStorage.getItem('sidebar');
+            if (sidebar === "hidden") { $("html").addClass("sidebar-hidden") }
+            else if (sidebar === "visible") { $("html").addClass("sidebar-visible") }
+        </script>
+
+        <div id="sidebar" class="sidebar">
+            <ul class="chapter"><li class="affix"><a href="./readme.html">Introduction</a></li><li><a href="./1-basics.html"><strong>1.</strong> Basics</a></li><li><a href="./2-structs-enums-lifetimes.html"><strong>2.</strong> Structs, Enums and Matching</a></li><li><a href="./3-filesystem.html" class="active"><strong>3.</strong> Filesystem and Processes</a></li><li><a href="./4-modules.html"><strong>4.</strong> Modules and Cargo</a></li><li><a href="./5-stdlib-containers.html"><strong>5.</strong> Standard Library Containers</a></li><li><a href="./6-error-handling.html"><strong>6.</strong> Error Handling</a></li><li><a href="./7-shared-and-networking.html"><strong>7.</strong> Threads, Networking and Sharing</a></li></ul>
+        </div>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar" class="menu-bar">
+                    <div class="left-buttons">
+                        <i id="sidebar-toggle" class="fa fa-bars"></i>
+                        <i id="theme-toggle" class="fa fa-paint-brush"></i>
+                    </div>
+
+                    <h1 class="menu-title"></h1>
+
+                    <div class="right-buttons">
+                        <i id="print-button" class="fa fa-print" title="Print this book"></i>
+                    </div>
+                </div>
+
+                <div id="content" class="content">
+                    <a class="header" href="./3-filesystem.html#filesystem-and-processes" name="filesystem-and-processes"><h1>Filesystem and Processes</h1></a>
+<a class="header" href="./3-filesystem.html#another-look-at-reading-files" name="another-look-at-reading-files"><h2>Another look at Reading Files</h2></a>
+<p>At the end of Part 1, I showed how to read a whole file into a string. Naturally
+this isn't always such a good idea, so here is how to read a file line-by-line.</p>
+<p><code>fs::File</code> implements <code>io::Read</code>, which is the trait for anything readable.
+This trait defines a <code>read</code> method which will fill a slice of <code>u8</code> with bytes -
+this is the only <em>required</em> method of the trait, and you get some <em>provided</em> methods
+for free, much like with <code>Iterator</code>.  You can use <code>read_to_end</code> to fill a vector of
+bytes with contents from the readable, and <code>read_to_string</code> to fill a string - which
+must be UTF-8 encoded.</p>
+<p>This is a 'raw' read, with no buffering. For buffered reading there is the
+<code>io::BufRead</code> trait which gives us <code>read_line</code> and a <code>lines</code> iterator.
+<code>io::BufReader</code> will provide an implementation of <code>io::BufRead</code> for <em>any</em> readable.</p>
+<p><code>fs::File</code> <em>also</em> implements <code>io::Write</code>.</p>
+<p>The easiest way to make sure all these traits are visible is <code>use std::io::prelude::*</code>.</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+use std::fs::File;
+use std::io;
+use std::io::prelude::*;
+
+fn read_all_lines(filename: &amp;str) -&gt; io::Result&lt;()&gt; {
+    let file = File::open(&amp;filename)?;
+
+    let reader = io::BufReader::new(file);
+
+    for line in reader.lines() {
+        let line = line?;
+        println!(&quot;{}&quot;, line);
+    }
+    Ok(())
+}
+
+#}</code></pre></pre>
+<p>The <code>let line = line?</code> may look a bit strange. The <code>line</code> returned by the
+iterator is actually an <code>io::Result&lt;String&gt;</code> which we unwrap with <code>?</code>.
+Because things <em>can</em> go wrong during this iteration - I/O errors, swallowing
+a chunk of bytes that aren't UTF-8, and so forth.</p>
+<p><code>lines</code> being an iterator, it is straightforward to read a file into a vector
+of strings using <code>collect</code>, or print out the line with line numbers using the
+<code>enumerate</code> iterator.</p>
+<p>It isn't the most efficient way to read all the lines, however, because a new
+string is allocated for each line. It is more efficient to use <code>read_line</code>, although
+more awkward. Note that the returned line includes the linefeed, which
+can be removed using <code>trim_right</code>.</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    let mut reader = io::BufReader::new(file);
+    let mut buf = String::new();
+    while reader.read_line(&amp;mut buf)? &gt; 0 {
+        {
+            let line = buf.trim_right();
+            println!(&quot;{}&quot;, line);
+        }
+        buf.clear();
+    }
+
+#}</code></pre></pre>
+<p>This results in far less allocations, because <em>clearing</em> that string does not free its
+allocated memory; once the string has enough capacity, no more allocations will take
+place.</p>
+<p>This is one of those cases where we use a block to control a borrow. <code>line</code> is
+borrowed from <code>buf</code>, and this borrow must finish before we modify <code>buf</code>.  Again,
+Rust is trying to stop us doing something stupid, which is to access <code>line</code> <em>after</em>
+we've cleared the buffer. (The borrow checker can be restrictive sometimes.
+Rust is due to get 'non-lexical lifetimes' this year, where
+it will analyze the code and see that <code>line</code> isn't used after <code>buf.clear()</code>.)</p>
+<p>This isn't very pretty. I cannot give you a proper iterator that returns references
+to a buffer, but I can give you something that <em>looks</em> like an iterator.</p>
+<p>First define a generic struct;
+the type parameter <code>R</code> is 'any type that implements Read'. It contains the reader
+and the buffer which we are going to borrow from.</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+// file5.rs
+use std::fs::File;
+use std::io;
+use std::io::prelude::*;
+
+struct Lines&lt;R&gt; {
+    reader: io::BufReader&lt;R&gt;,
+    buf: String
+}
+impl &lt;R: Read&gt; Lines&lt;R&gt; {
+    fn new(r: R) -&gt; Lines&lt;R&gt; {
+        Lines{reader: io::BufReader::new(r), buf: String::new()}
+    }
+    ...
+}
+
+#}</code></pre></pre>
+<p>Then the <code>next</code> method. It returns an <code>Option</code> - just like an iterator, when it
+returns <code>None</code> the iterator finishes. The returned type is a <code>Result</code> because
+<code>read_line</code> might fail, and we <em>never throw errors away</em>. So if fails, we
+wrap up its error in a <code>Some&lt;Result&gt;</code>.  Otherwise, it may have read zero bytes,
+which is the natural end of the file - not an error, just a <code>None</code>.</p>
+<p>At this point, the buffer contains the line with a linefeed (`\n') appended.
+Trim this away, and package up the string slice.</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    fn next&lt;'a&gt;(&amp;'a mut self) -&gt; Option&lt;io::Result&lt;&amp;'a str&gt;&gt;{
+        self.buf.clear();
+        match self.reader.read_line(&amp;mut self.buf) {
+            Ok(nbytes) =&gt; if nbytes == 0 {
+                None // no more lines!
+            } else {
+                let line = self.buf.trim_right();
+                Some(Ok(line))
+            },
+            Err(e) =&gt; Some(Err(e))
+        }
+    }
+
+#}</code></pre></pre>
+<p>Now, note how the lifetimes work. We need an explicit lifetime because Rust will never
+allow us to hand out borrowed string slices without knowing their lifetime. And here
+we say that the lifetime of this borrowed string is within the lifetime of <code>self</code>.</p>
+<p>And this signature, with the lifetime, is incompatible with the interface of <code>Iterator</code>.
+But it's easy to see problems if it were compatible; consider <code>collect</code> trying to make
+a vector of these string slices. There's no way this could work, since they're all
+borrowed from the same mutable string! (If you had read <em>all</em> the file into a string, then
+the string's <code>lines</code> iterator works fine because the string slices are all borrowed from
+the original string.)</p>
+<p>The resulting loop is much cleaner, and the file buffering is invisible to the user.</p>
+<pre><code>fn read_all_lines(filename: &amp;str) -&gt; io::Result&lt;()&gt; {
+    let file = File::open(&amp;filename)?;
+
+    let mut lines = Lines::new(file);
+    while let Some(line) = lines.next() {
+        let line = line?;
+        println!(&quot;{}&quot;, line)?;
+    }
+
+    Ok(())
+}
+</code></pre>
+<p>You can even write the loop like this, since the explicit match can pull out the
+string slice:</p>
+<pre><code>    while let Some(Ok(line)) = lines.next() {
+        println!&quot;{}&quot;, line)?;
+    }
+</code></pre>
+<p>It's tempting, but you are throwing away a possible error here; this loop will
+silently stop whenever an error occurs. In particular, it will stop at the first place
+where Rust can't convert a line to UTF-8.  Fine for casual code, bad for production code!</p>
+<a class="header" href="./3-filesystem.html#writing-to-files" name="writing-to-files"><h2>Writing To Files</h2></a>
+<p>We met the <code>write!</code> macro when implementing <code>Display</code> - it also works with anything
+that implements <code>Write</code>. So here's a another way of saying <code>print!</code>:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    let mut stdout = io::stdout();
+    ...
+    write!(stdout,&quot;answer is {}\n&quot;, 42).expect(&quot;write failed&quot;);
+
+#}</code></pre></pre>
+<p>If an error is <em>possible</em>, you must handle it. It may not be
+very <em>likely</em> but it can happen. It's usually fine, because if you
+are doing file i/o you should be in a context where <code>?</code> works.</p>
+<p><code>print!</code> works fine as it is, but for arbitrary files we need <code>write!</code>. The
+file is closed when <code>out</code> is dropped at the end of <code>write_out</code>, which is
+convenient and often important.</p>
+<pre><pre class="playpen"><code class="language-rust">// file6.rs
+use std::fs::File;
+use std::io;
+use std::io::prelude::*;
+
+fn write_out(f: &amp;str) -&gt; io::Result&lt;()&gt; {
+    let mut out = File::create(f)?;
+    write!(out,&quot;answer is {}\n&quot;, 42)?;
+    Ok(())
+}
+
+fn main() {
+  write_out(&quot;test.txt&quot;).expect(&quot;write failed&quot;);
+}
+</code></pre></pre>
+<p>Another place we need it is writing to 'standard error'. There is one input stream
+<code>io::stdin()</code> and <em>two</em> output streams <code>io::stderr()</code> and <code>io::stdout()</code>. If a program
+needs to complain bitterly, the convention is that this output should go to the
+error stream. If the program wants then to stop running, the convention is also to
+return a non-zero exit code.</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+fn quit(msg: &amp;str) {
+    write!(io::stderr(),&quot;error: {}\n&quot;, msg).expect(&quot;write?&quot;);
+    std::process::exit(1);
+}
+
+#}</code></pre></pre>
+<a class="header" href="./3-filesystem.html#files-paths-and-directories" name="files-paths-and-directories"><h2>Files, Paths and Directories</h2></a>
+<p>Here is a little program for printing out the Cargo directory on a machine. The
+simplest case is that it's '~/.cargo'. This is a Unix shell expansion,
+so we use <code>env::home_dir</code> because it's cross-platform. (It might fail, but a
+computer without a home directory isn't going to be hosting Rust tools anyway.)</p>
+<p>We then create a <code>PathBuf</code>
+and use its <code>push</code> method to build up the full file path from its <em>components</em>.
+(This is much easier than fooling around with '/','' or whatever, depending on
+the system.)</p>
+<pre><pre class="playpen"><code class="language-rust">// file7.rs
+use std::env;
+use std::path::PathBuf;
+
+fn main() {
+    let home = env::home_dir().expect(&quot;no home!&quot;);
+    let mut path = PathBuf::new();
+    path.push(home);
+    path.push(&quot;.cargo&quot;);
+
+    if path.is_dir() {
+        println!(&quot;{}&quot;, path.display());
+    }
+}
+</code></pre></pre>
+<p>A <code>PathBuf</code> is like <code>String</code> - it owns a growable set of characters, but with methods
+specialized to building up paths.  Most of its functionality however comes from
+the borrowed version <code>Path</code>, which is like <code>&amp;str</code>.  So, for instance, <code>is_dir</code> is
+a <code>Path</code> method.</p>
+<p>This might sound suspiciously like a form of inheritance, but the magic <a href="https://doc.rust-lang.org/book/deref-coercions.html">Deref</a>
+trait works differently. It works just like it does with <code>String/&amp;str</code> -
+a reference to <code>PathBuf</code> can be <em>coerced</em> into a reference to <code>Path</code>.
+('Coerce' is a strong word, but this really
+is one of the few places where Rust does conversions for you.)</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+fn foo(p: &amp;Path) {...}
+...
+let path = PathBuf::from(home);
+foo(&amp;path);
+
+#}</code></pre></pre>
+<p><code>PathBuf</code> has an intimate relationship with <code>OsString</code>, which represents strings we get
+directly from the system. (There is a corresponding <code>OsString/&amp;OsStr</code> relationship.)</p>
+<p>Such strings are not <em>guaranteed</em> to be representable as UTF-8!
+Real life is a <a href="https://news.ycombinator.com/item?id=10519932">complicated matter</a>,
+particularly see the answer to 'Why are they so hard?'.  To summarize, first there are
+years of ASCII legacy coding, and multiple special encodings for other languages. Second,
+human languages are complicated. For instance 'noël' is <em>five</em> Unicode code points!</p>
+<p>It's true that <em>most</em> of the time
+with modern operating systems file names will be Unicode (UTF-8 on the Unix side, UTF-16
+for Windows), except when they're not. And Rust must handle that possibility
+rigorously. For instance,
+<code>Path</code> has a method <code>as_os_str</code> which returns a <code>&amp;OsStr</code>, but the <code>to_str</code> method
+returns an <code>Option&lt;&amp;str&gt;</code>. Not always possible!</p>
+<p>People have trouble at this point because they have become too attached to 'string' and
+'character' as the only necessary abstractions.  As Einstein could have said, a programming language
+has to be as simple as possible, but no simpler. A systems language <em>needs</em> a
+<code>String/&amp;str</code> distinction (owned versus borrowed: this is also very <em>convenient</em>)
+and if it wishes to standardize on Unicode strings then it needs another type to handle
+text which isn't valid Unicode - hence <code>OsString/&amp;OsStr</code>.</p>
+<p>People are also very used to processing filenames as if they were text, which is why
+Rust makes it easier to manipulate file paths using <code>PathBuf</code> methods.</p>
+<p>You can <code>pop</code> to successively remove path components. Here we start with the
+current directory of the program:</p>
+<pre><code>// file8.rs
+use std::env;
+
+fn main() {
+    let mut path = env::current_dir().expect(&quot;can't access current dir&quot;);
+    loop {
+        println!(&quot;{}&quot;, path.display());
+        if ! path.pop() {
+            break;
+        }
+    }
+}
+// /home/steve/rust/gentle-intro/src
+// /home/steve/rust/gentle-intro
+// /home/steve/rust
+// /home/steve
+// /home
+// /
+</code></pre>
+<p>Here's a useful variation. I have a program which searches for a configuration file,
+and the rule is that it may appear in any subdirectory of the current directory.
+So I create <code>/home/steve/rust/config.txt</code> and start this program up in <code>/home/steve/rust/gentle-intro/src</code>:</p>
+<pre><pre class="playpen"><code class="language-rust">// file9.rs
+use std::env;
+
+fn main() {
+    let mut path = env::current_dir().expect(&quot;can't access current dir&quot;);
+    loop {
+        path.push(&quot;config.txt&quot;);
+        if path.is_file() {
+            println!(&quot;gotcha {}&quot;, path.display());
+            break;
+        } else {
+            path.pop();
+        }
+        if ! path.pop() {
+            break;
+        }
+    }
+}
+// gotcha /home/steve/rust/config.txt
+</code></pre></pre>
+<p>This is pretty much how <strong>git</strong> works when it wants to know what the current repo is.</p>
+<p>The details about a file (its size, type, etc) are called its <em>metadata</em>. As always,
+there may be an error - not just 'not found' but also if we don't have permission
+to read this file.</p>
+<pre><pre class="playpen"><code class="language-rust">// file10.rs
+use std::env;
+use std::path::Path;
+
+fn main() {
+    let file = env::args().skip(1).next().unwrap_or(&quot;file10.rs&quot;.to_string());
+    let path = Path::new(&amp;file);
+    match path.metadata() {
+        Ok(data) =&gt; {
+            println!(&quot;type {:?}&quot;, data.file_type());
+            println!(&quot;len {}&quot;, data.len());
+            println!(&quot;perm {:?}&quot;, data.permissions());
+            println!(&quot;modified {:?}&quot;, data.modified());
+        },
+        Err(e) =&gt; println!(&quot;error {:?}&quot;, e)
+    }
+}
+// type FileType(FileType { mode: 33204 })
+// len 488
+// perm Permissions(FilePermissions { mode: 436 })
+// modified Ok(SystemTime { tv_sec: 1483866529, tv_nsec: 600495644 })
+</code></pre></pre>
+<p>The length of the file (in bytes) and modified time are straightforward to interpret.
+(Note we may not be able to get this time!)  The file type has methods <code>is_dir</code>,
+<code>is_file</code> and <code>is_symlink</code>.</p>
+<p><code>permissions</code> is an interesting one. Rust strives to be cross-platform, and so it's
+a case of the 'lowest common denominator'. In general, all you can query is whether
+the file is read-only - the 'permissions' concept is extended in Unix and encodes
+read/write/executable for user/group/others.</p>
+<p>But, if you are not interested in Windows, then bringing in a platform-specific trait will give
+us at least the permission mode bits. (As usual, a trait only kicks in when it is
+visible.) Then, applying the program to its own executable gives:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+use std::os::unix::fs::PermissionsExt;
+...
+println!(&quot;perm {:o}&quot;,data.permissions().mode());
+// perm 755
+
+#}</code></pre></pre>
+<p>(Note '{:o}' for printing out in <em>octal</em>)</p>
+<p>(Whether a file is executable on Windows is determined by its extension. The executable
+extensions are found in the <code>PATHEXT</code> environment variable - '.exe','.bat' and so forth).</p>
+<p><code>std::fs</code> contains a number of useful functions for working with files, such as copying or
+moving files, making symbolic links and creating directories.</p>
+<p>To find the contents of a directory, <code>std::fs::read_dir</code> provides an iterator.
+Here are all files with extension '.rs' and size greater than 1024 bytes:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+fn dump_dir(dir: &amp;str) -&gt; io::Result&lt;()&gt; {
+    for entry in fs::read_dir(dir)? {
+        let entry = entry?;
+        let data = entry.metadata()?;
+        let path = entry.path();
+        if data.is_file() {
+            if let Some(ex) = path.extension() {
+                if ex == &quot;rs&quot; &amp;&amp; data.len() &gt; 1024 {
+                    println!(&quot;{} length {}&quot;, path.display(),data.len());
+                }
+            }
+        }
+    }
+    Ok(())
+}
+// ./enum4.rs length 2401
+// ./struct7.rs length 1151
+// ./sexpr.rs length 7483
+// ./struct6.rs length 1359
+// ./new-sexpr.rs length 7719
+
+#}</code></pre></pre>
+<p>Obviously <code>read_dir</code> might fail (usually 'not found' or 'no permission'), but
+also getting each new entry might fail (it's like the <code>lines</code> iterator over a buffered
+reader's contents).  Plus, we might not be able to get the metadata corresponding to
+the entry.  A file might have no extension, so we have to check for that as well.</p>
+<p>Why not just an iterator over paths? On Unix this is the way the <code>opendir</code> system call works,
+but on Windows you cannot iterate over a directory's contents without getting the
+metadata. So this is a reasonably elegant compromise that allows cross-platform
+code to be as efficient as possible.</p>
+<p>You can be forgiven for feeling 'error fatigue' at this point. But please note that
+the <em>errors always existed</em> - it's not that Rust is inventing new ones. It's just
+trying its darnedest to make it hard for you to ignore them.  Any call to an
+operating system may fail, but C makes getting errors awkward. You check the return
+code, and if it's not zero you then have to inspect <code>errno</code>
+to find out what the actual error was.
+Quite apart from memory safety, this makes robust C programming harder than most
+C programmers think!</p>
+<p>Languages like Java and Python throw exceptions; languages like Go and Lua return two
+values, where the first is the result and the second is the error: like Rust it is
+considered bad manners for library functions to raise errors. So there is a lot
+of error checking and early-returns from functions.</p>
+<p>Rust uses <code>Result</code> because it's either-or: you cannot get a result <em>and</em> an error.
+And the question-mark operator makes handling errors much cleaner.</p>
+<a class="header" href="./3-filesystem.html#processes" name="processes"><h2>Processes</h2></a>
+<p>A fundamental need is for programs to run programs, or to <em>launch processes</em>.
+Your program can <em>spawn</em> as many child processes it likes, and as the name
+suggests they have a special relationship with their parent.</p>
+<p>To run a program is straightforward using the <code>Command</code> struct, which <em>builds</em> up
+arguments to pass to the program:</p>
+<pre><pre class="playpen"><code class="language-rust">use std::process::Command;
+
+fn main() {
+    let status = Command::new(&quot;rustc&quot;)
+        .arg(&quot;-V&quot;)
+        .status()
+        .expect(&quot;no rustc?&quot;);
+
+    println!(&quot;cool {} code {}&quot;, status.success(), status.code().unwrap());
+}
+// rustc 1.15.0-nightly (8f02c429a 2016-12-15)
+// cool true code 0
+</code></pre></pre>
+<p>So <code>new</code> receives the name of the program (it will be looked up on <code>PATH</code> if not
+an absolute filename), <code>arg</code> adds a new argument, and <code>status</code> causes it to be run.
+This returns a <code>Result</code>, which is <code>Ok</code> if the program actually run, containing an
+<code>ExitStatus</code>. In this case, the program succeeded, and returned an exit code 0. (The
+<code>unwrap</code> is because we can't always get the code if the program was killed by
+a signal).</p>
+<p>If we change the <code>-V</code> to <code>-v</code> (an easy mistake) then <code>rustc</code> fails:</p>
+<pre><code>error: no input filename given
+
+cool false code 101
+</code></pre>
+<p>So there are three possibilities:</p>
+<ul>
+<li>program didn't exist, was bad, or we were not allowed to run it</li>
+<li>program ran, but was not successful - non-zero exit code</li>
+<li>program ran, with zero exit code. Success!</li>
+</ul>
+<p>By default, we get the program's output, since its standard output and standard error is
+still going to the terminal.</p>
+<p>Often we are very interested in capturing that output, so there's the <code>output</code>
+method.</p>
+<pre><pre class="playpen"><code class="language-rust">// process2.rs
+use std::process::Command;
+
+fn main() {
+    let output = Command::new(&quot;rustc&quot;)
+        .arg(&quot;-V&quot;)
+        .output()
+        .expect(&quot;no rustc?&quot;);
+
+    if output.status.success() {
+        println!(&quot;ok!&quot;);
+    }
+    println!(&quot;len stdout {} stderr {}&quot;, output.stdout.len(), output.stderr.len());
+}
+// ok!
+// len stdout 44 stderr 0
+</code></pre></pre>
+<p>As with <code>status</code> our program blocks until the child process is finished, and we get
+back three things - the status (as before), the contents of stdout and the contents
+of stderr.</p>
+<p>The captured output is simply <code>Vec&lt;u8&gt;</code> - just bytes.  Recall we have no guarantee
+that data we receive from the operating system is a properly encoded UTF-8 string. In
+fact, we have no guarantee that it <em>even</em> is a string - programs may return arbitrary
+binary data.</p>
+<p>If we are pretty sure the output is UTF-8, then <code>String::from_utf8</code> will convert those
+vectors or bytes - it returns a <code>Result</code> because this conversion may not succeed.
+A more sloppy function is <code>String::from_utf8_lossy</code> which will make a good attempt at
+conversion and insert the invalid Unicode mark � where it failed.</p>
+<p>Here is a useful function which runs a program using the shell. This uses the usual
+shell mechanism for joining stderr to stdout:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+fn shell(cmd: &amp;str) -&gt; (String,bool) {
+    let cmd = format!(&quot;{} 2&gt;&amp;1&quot;,cmd);
+    let output = Command::new(&quot;/bin/sh&quot;)
+        .arg(&quot;-c&quot;)
+        .arg(&amp;cmd)
+        .output()
+        .expect(&quot;no shell?&quot;);
+    (
+        String::from_utf8_lossy(&amp;output.stdout).trim_right().to_string(),
+        output.status.success()
+    )
+}
+
+fn shell_success(cmd: &amp;str) -&gt; Option&lt;String&gt; {
+    let (output,success) = shell(cmd);
+    if success {Some(output)} else {None}
+}
+
+#}</code></pre></pre>
+<p>I'm trimming any whitespace from the right so that if you said <code>shell(&quot;which rustc&quot;)</code>
+you will get the path without any extra linefeed.</p>
+<p>You can control the execution of a program by specifying the directory it will run
+in using the <code>current_dir</code> method and the environment variables it sees using <code>env</code>.</p>
+<p>Up to now, our program simply waits for the child process to finish. If you use
+the <code>spawn</code> method then we return immediately, and must explicitly wait for it to
+finish - or go off and do something else in the meantime!  This example also
+shows how to suppress both standard out and standard error:</p>
+<pre><pre class="playpen"><code class="language-rust">// process5.rs
+use std::process::{Command,Stdio};
+
+fn main() {
+    let mut child = Command::new(&quot;rustc&quot;)
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .spawn()
+        .expect(&quot;no rustc?&quot;);
+
+    let res = child.wait();
+    println!(&quot;res {:?}&quot;, res);
+}
+</code></pre></pre>
+<p>By default, the child 'inherits' the standard input and output of the parent. In this case,
+we redirect the child's output handles into 'nowhere'. It's equivalent to saying
+<code>&gt; /dev/null 2&gt; /dev/null</code> in the Unix shell.</p>
+<p>Now, it's possible to do these things using the shell in Rust, although not in a portable way.
+But this way you get full programmatic control of process creation.</p>
+<p>For example, if we just had <code>.stdout(Stdio::piped())</code> then the child's standard output
+is redirected to a pipe. If we then use <code>wait_with_output</code> instead of <code>wait</code> then
+it returns a <code>Result&lt;Output&gt;</code> and the child's output is captured into the <code>stdout</code>
+field of that <code>Output</code> just as before. Alternatively, the <em>child</em>'s <code>stdout</code> field is readable and
+you can manually read the child's output in the usual way.</p>
+<p>The <code>Child</code> struct also gives you an explicit <code>kill</code> method.</p>
+
+                </div>
+
+                <!-- Mobile navigation buttons -->
+                
+                    <a href="./2-structs-enums-lifetimes.html" class="mobile-nav-chapters previous">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a href="./4-modules.html" class="mobile-nav-chapters next">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+
+            </div>
+
+            
+                <a href="./2-structs-enums-lifetimes.html" class="nav-chapters previous" title="You can navigate through the chapters using the arrow keys">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+            
+
+            
+                <a href="./4-modules.html" class="nav-chapters next" title="You can navigate through the chapters using the arrow keys">
+                    <i class="fa fa-angle-right"></i>
+                </a>
+            
+
+        </div>
+
+
+        <!-- Local fallback for Font Awesome -->
+        <script>
+            if ($(".fa").css("font-family") !== "FontAwesome") {
+                $('<link rel="stylesheet" type="text/css" href="_FontAwesome/css/font-awesome.css">').prependTo('head');
+            }
+        </script>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        
+
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+    </body>
+</html>

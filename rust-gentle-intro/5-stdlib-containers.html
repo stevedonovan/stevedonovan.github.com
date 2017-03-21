@@ -1,0 +1,638 @@
+<!DOCTYPE HTML>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Standard Library Containers - </title>
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <base href="">
+
+        <link rel="stylesheet" href="book.css">
+        <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+
+        <link rel="shortcut icon" href="favicon.png">
+
+        <!-- Font Awesome -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+
+        <!-- MathJax -->
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Fetch JQuery from CDN but have a local fallback -->
+        <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+        <script>
+            if (typeof jQuery == 'undefined') {
+                document.write(unescape("%3Cscript src='jquery.js'%3E%3C/script%3E"));
+            }
+        </script>
+    </head>
+    <body class="light">
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme = localStorage.getItem('theme');
+            if (theme == null) { theme = 'light'; }
+            $('body').removeClass().addClass(theme);
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var sidebar = localStorage.getItem('sidebar');
+            if (sidebar === "hidden") { $("html").addClass("sidebar-hidden") }
+            else if (sidebar === "visible") { $("html").addClass("sidebar-visible") }
+        </script>
+
+        <div id="sidebar" class="sidebar">
+            <ul class="chapter"><li class="affix"><a href="./readme.html">Introduction</a></li><li><a href="./1-basics.html"><strong>1.</strong> Basics</a></li><li><a href="./2-structs-enums-lifetimes.html"><strong>2.</strong> Structs, Enums and Matching</a></li><li><a href="./3-filesystem.html"><strong>3.</strong> Filesystem and Processes</a></li><li><a href="./4-modules.html"><strong>4.</strong> Modules and Cargo</a></li><li><a href="./5-stdlib-containers.html" class="active"><strong>5.</strong> Standard Library Containers</a></li><li><a href="./6-error-handling.html"><strong>6.</strong> Error Handling</a></li><li><a href="./7-shared-and-networking.html"><strong>7.</strong> Threads, Networking and Sharing</a></li></ul>
+        </div>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar" class="menu-bar">
+                    <div class="left-buttons">
+                        <i id="sidebar-toggle" class="fa fa-bars"></i>
+                        <i id="theme-toggle" class="fa fa-paint-brush"></i>
+                    </div>
+
+                    <h1 class="menu-title"></h1>
+
+                    <div class="right-buttons">
+                        <i id="print-button" class="fa fa-print" title="Print this book"></i>
+                    </div>
+                </div>
+
+                <div id="content" class="content">
+                    <a class="header" href="./5-stdlib-containers.html#standard-library-containers" name="standard-library-containers"><h1>Standard Library Containers</h1></a>
+<a class="header" href="./5-stdlib-containers.html#reading-the-documentation" name="reading-the-documentation"><h2>Reading the Documentation</h2></a>
+<p>In this section I'll briefly introduce some very useful parts of the Rust standard
+library. The documentation (as always) is excellent but a little context and a few examples is
+always useful.</p>
+<p>Initially, reading the Rust documentation can be challenging. I'll take the <code>Vec</code> struct as an
+example.  A useful tip is to tick the '[-]' box to collapse the docs. (If you download the
+standard library source using <code>rustup component add rust-src</code> a '[src]' link will appear next to this.)
+This gives you a bird's eye view of all the available methods.</p>
+<p>The first point to notice is that <em>not all possible methods</em> are defined on <code>Vec</code> itself. They are (mostly)
+mutable methods that change the vector, e.g. <code>push</code>. Some methods are only implemented for vectors where
+the type matches some constraint. For example, you can only call <code>dedup</code> (remove duplicates) if the
+type is indeed something that can be compared for equality.  There are multiple <code>impl</code> blocks that
+define <code>Vec</code> for different type constraints.</p>
+<p>Then there's the very special relationship between <code>Vec&lt;T&gt;</code> and <code>&amp;[T]</code>.  Any method that works on
+slices will also directly work on vectors, without explicitly having to use the <code>as_slice</code> method.
+This relationship is expressed by <code>Deref&lt;Target=[T]&gt;</code>. This also kicks in when you pass a vector by
+mutable reference to something that expects a slice - this is one of the few places where
+a conversion between types happens automatically. So slice methods like <code>first</code>, which maybe-returns
+a reference to the first element, or <code>last</code>, work for vectors as well. Many of the methods are similar
+to the corresponding string methods, so there's <code>split_at</code> for getting a pair of slices spit at an index,
+<code>starts_with</code> to check whether a vector starts with sequence of values, and <code>contains</code> to check whether
+a vector contains a particular value.</p>
+<p>There's no <code>search</code> method for finding the index of a particular value, but here's a rule of thumb:
+if you can't find a method on the container, look for a method on the iterator:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    let v = vec![10,20,30,40,50];
+    assert_eq!(v.iter().position(|&amp;i| i == 30).unwrap(), 2);
+
+#}</code></pre></pre>
+<p>(The <code>&amp;</code> is because this is an iterator over <em>references</em> - alternatively you could say <code>*i == 30</code> for
+the comparison.)</p>
+<p>Likewise, there's no <code>map</code> method on vectors, because <code>iter().map(...).collect()</code> will do the job
+just as well. Rust does not like to allocate unnecessarily - often you don't need the result of that <code>map</code>
+as an actual allocated vector.</p>
+<p>In other languages, things like <code>map</code> are functions. For instance, in C++ <code>std::count</code> is a function that
+takes two C++ iterators to establish a range, but it's an iterator method in Rust.</p>
+<p>So I'd suggest you become familiar with all the iterator methods, because they are crucial to writing
+good Rust code without having to write loops all the time. As always, write little programs to explore
+iterator methods, rather than wrestling with them in the context of a more complicated program.</p>
+<p>The <code>Vec&lt;T&gt;</code> and <code>&amp;[T]</code> methods are followed by the common traits: vectors know how to do a debug display of themselves
+(but only if the elements implement <code>Debug</code>). Likewise, they are clonable if their elements are clonable.
+They implement <code>Drop</code>, which happens when vectors get to finally die; memory is released,
+and all the elements are dropped as well.</p>
+<p>The <code>Extend</code> trait means values from iterators can be added to a vector without a loop:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+v.extend([60,70,80].iter());
+let mut strings = vec![&quot;hello&quot;.to_string(), &quot;dolly&quot;.to_string()];
+strings.extend([&quot;you&quot;,&quot;are&quot;,&quot;fine&quot;].iter().map(|s| s.to_string()));
+
+#}</code></pre></pre>
+<p>There's also <code>FromIterator</code>, which lets vectors be <em>constructed</em> from iterators. (The iterator <code>collect</code>
+method leans on this.)</p>
+<p>Any container needs to be iterable as well. Recall that there are three kinds of iterators:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+for x in v {...} // returns T, consumes v
+for x in &amp;v {...} // returns &amp;T
+for x in &amp;mut v {...} // returns &amp;mut T
+
+#}</code></pre></pre>
+<p>The <code>for</code> statement relies on the <code>IntoIterator</code> trait, and there's indeed three implementations.</p>
+<p>Then there is indexing, controlled by <code>Index</code> (reading from a vector) and <code>IndexMut</code> (modifying a
+vector.)  There are many possibilities, because there's slice indexing as well, like <code>v[0..2]</code>,
+returning these return slices, as well as plain <code>v[0]</code> which returns a reference to the first element.</p>
+<p>There's a few implementations of the <code>From</code> trait. For instance <code>Vec::from(&quot;hello&quot;.to_string())</code>
+will give you a vector of the underlying bytes of the string <code>Vec&lt;u8&gt;</code>.
+Now, there's already a method 'into_bytes<code>on</code>String`, so why the redundancy?
+It seems confusing to have multiple ways of doing the same thing.
+But it's needed because explicit traits make generic methods possible.</p>
+<p>We've met this before with <code>String</code> - there seem to be so many ways to create strings! There's the
+<code>to_string</code> method on <code>&amp;str</code> - this comes from the <code>ToString</code> trait and will be implemented for anything
+that knows how to <code>Display</code> itself.  There is <code>String::from</code> which comes from the <code>From</code> trait. There's
+also <code>Into</code> which is the inverse of <code>From</code> and is automatically available if <code>From</code> exists.
+If a function argument expects a <code>String</code>, you will often
+see the value passed as <code>&quot;some text&quot;.into()</code> since string slices implement <code>Into&lt;String&gt;</code>.</p>
+<p>Sometimes limitations of the Rust type system make things clumsy. An example here is how <code>PartialEq</code>
+is <em>separately</em> defined for arrays up to size 32!  This will get better. This allows the convenience
+of directly comparing vectors with arrays, but beware the limit.</p>
+<p>This is still clearer than what the C++ docs say about <code>std::vector</code></p>
+<blockquote>
+<p>The requirements that are imposed on the elements depend on the actual operations performed
+on the container. Generally, it is required that element type is a complete type and meets
+the requirements of Erasable, but many member functions impose stricter requirements.</p>
+</blockquote>
+<p>Clearly, you're on your own! The explicitness of Rust is daunting at first, but as you learn to
+read the constraints you will know exactly what any particular method of <code>Vec</code> requires.</p>
+<a class="header" href="./5-stdlib-containers.html#maps" name="maps"><h2>Maps</h2></a>
+<p><em>Maps</em>  (sometimes called <em>associative arrays</em> or <em>dicts</em>) let you look up values
+associated with a <em>key</em>.  It's not really a fancy concept, and can be done with
+an array of tuples:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    let entries = [(&quot;one&quot;,&quot;eins&quot;),(&quot;two&quot;,&quot;zwei&quot;),(&quot;three&quot;,&quot;drei&quot;)];
+
+    if let Some(val) = entries.iter().find(|t| t.0 == &quot;two&quot;) {
+        assert_eq!(val.1,&quot;zwei&quot;);
+    }
+
+#}</code></pre></pre>
+<p>This is fine for small maps and just requires equality to be defined for the keys,
+but the search takes linear time - proportional to the size of the map.</p>
+<p>A <code>HashMap</code> does much better when there are a <em>lot</em> of key/value pairs to be
+searched:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+use std::collections::HashMap;
+
+let mut map = HashMap::new();
+map.insert(&quot;one&quot;,&quot;eins&quot;);
+map.insert(&quot;two&quot;,&quot;zwei&quot;);
+map.insert(&quot;three&quot;,&quot;drei&quot;);
+
+assert_eq! (map.contains_key(&quot;two&quot;), true);
+assert_eq! (map.get(&quot;two&quot;), Some(&amp;&quot;zwei&quot;));
+
+#}</code></pre></pre>
+<p><code>&amp;&quot;zwei&quot;</code>? This is because <code>get</code> returns a <em>reference</em> to the value, not the value
+itself. Here the value type is <code>&amp;str</code>, so we get a <code>&amp;&amp;str</code>. In general it <em>has</em> to be
+a reference, because we can't just <em>move</em> a value out of its owning type.</p>
+<p><code>get_mut</code> is like <code>get</code> but returns a possible mutable reference. Here we have
+a map from strings to integers, and wish to update the value for the key 'two':</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+let mut map = HashMap::new();
+map.insert(&quot;one&quot;,1);
+map.insert(&quot;two&quot;,2);
+map.insert(&quot;three&quot;,3);
+
+println!(&quot;before {}&quot;, map.get(&quot;two&quot;).unwrap());
+
+{
+    let mut mref = map.get_mut(&quot;two&quot;).unwrap();
+    *mref = 20;
+}
+
+println!(&quot;after {}&quot;, map.get(&quot;two&quot;).unwrap());
+// before 2
+// after 20
+
+#}</code></pre></pre>
+<p>Note that getting that writable reference takes place in its own block - otherwise,
+we would have a mutable borrow lasting until the end, and then Rust won't allow
+you to borrow from <code>map</code> again with <code>map.get(&quot;two&quot;)</code>; it cannot allow any readable
+references while there's already a writable reference in scope. (If it did, it could
+not guarantee that those readable references would remain valid.)
+So the solution is to make
+sure that mutable borrow doesn't last very long.</p>
+<p>It is not the most elegant API possible, but we can't throw away any possible
+errors. Python would bail out with an exception, and C++ would just create
+a default value. (This is convenient but sneaky; easy to forget that the price
+of <code>a_map[&quot;two&quot;]</code> always returning an integer is that we can't tell the difference
+between zero and 'not found', <em>plus</em> an extra entry is created!)</p>
+<p>And no-one just calls <code>unwrap</code>, except in examples. However, most Rust code you see consists
+of little standalone examples!  Much more likely for a match to take place:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+if let Some(v) = map.get(&quot;two&quot;) {
+    let res = v + 1;
+    assert_eq!(res, 3);
+}
+...
+match map.get_mut(&quot;two&quot;) {
+    Some(mref) =&gt; *mref = 20,
+    None =&gt; panic!(&quot;_now_ we can panic!&quot;)
+}
+
+#}</code></pre></pre>
+<p>We can iterate over the key/value pairs, but not in any particular order.</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+for (k,v) in map.iter() {
+    println!(&quot;key {} value {}&quot;, k,v);
+}
+// key one value eins
+// key three value drei
+// key two value zwei
+
+#}</code></pre></pre>
+<p>There are also <code>keys</code> and <code>values</code> methods returning iterators over the keys and
+values respectively, which makes creating vectors of values easy.</p>
+<a class="header" href="./5-stdlib-containers.html#example-counting-words" name="example-counting-words"><h2>Example: Counting Words</h2></a>
+<p>An entertaining thing to do with text is count word length frequency. It is straightforward
+to break text into words with <code>split_whitespace</code>, but really we must respect punctuation.
+So the words should be defined as consisting only of alphabetic characters.
+And the words need to be compared as lower-case as well.</p>
+<p>Doing a mutable lookup on a map is straightforward, but also handling the case where the
+lookup fails is a little awkward.  Fortunately there's an elegant
+way to update the values of a map:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+let mut map = HashMap::new();
+
+for s in text.split(|c: char| ! c.is_alphabetic()) {
+    let word = s.to_lowercase();
+    let mut count = map.entry(word).or_insert(0);
+    *count += 1;
+}
+
+#}</code></pre></pre>
+<p>If there's no existing count corresponding to a word, then let's create a new entry
+containing zero for that word and <em>insert</em> it into the map. Its exactly what a C++
+map does, except it's done explicitly and not sneakily.</p>
+<p>There is exactly one explicit type in this snippet, and that's the <code>char</code> needed
+because of a quirk of the string <code>Pattern</code> trait used by <code>split</code>.
+But we can deduce that the key type is <code>String</code> and the value type is <code>i32</code>.</p>
+<p>Using <a href="http://www.gutenberg.org/cache/epub/1661/pg1661.txt">The Adventures of Sherlock Holmes</a>
+from Project Gutenberg, we can test this out
+more thoroughly.  The total number of unique words (<code>map.len</code>) is 8071.</p>
+<p>How to find the twenty most common words? First, convert the map into a vector
+of (key,value) tuples. (This consumes the map, since we used <code>into_iter</code>.)</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+let mut entries: Vec&lt;_&gt; = map.into_iter().collect();
+
+#}</code></pre></pre>
+<p>Next we can sort in descending order. <code>sort_by</code> expects the result of the <code>cmp</code>
+method that comes from the <code>Ord</code> trait, which is implemented by the
+integer value type:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    entries.sort_by(|a,b| b.1.cmp(&amp;a.1));
+
+#}</code></pre></pre>
+<p>And finally print out the first twenty entries:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    for e in entries.iter().take(20) {
+        println!(&quot;{} {}&quot;, e.0, e.1);
+    }
+
+#}</code></pre></pre>
+<p>(Well, you <em>could</em> just loop over <code>0..20</code> and index the vector here - it isn't wrong,
+just a little un-idiomatic - and potentially more expensive for big iterations.)</p>
+<pre><code> 38765
+the 5810
+and 3088
+i 3038
+to 2823
+of 2778
+a 2701
+in 1823
+that 1767
+it 1749
+you 1572
+he 1486
+was 1411
+his 1159
+is 1150
+my 1007
+have 929
+with 877
+as 863
+had 830
+</code></pre>
+<p>A little surprise - what's that empty word? It is because <code>split</code> works on single-character
+delimiters, so any punctuation or extra spaces causes a new split.</p>
+<a class="header" href="./5-stdlib-containers.html#sets" name="sets"><h2>Sets</h2></a>
+<p>Sets are maps where you care only about the keys, not any associated values.
+So <code>insert</code> only takes one value, and you use <code>contains</code> for testing whether a value
+is in a set.</p>
+<p>Like all containers, you can create a <code>HashSet</code> from an iterator. And this
+is exactly what <code>collect</code> does, once you have given it the necessary type hint.</p>
+<pre><code>// set1.rs
+use std::collections::HashSet;
+
+fn make_set(words: &amp;str) -&gt; HashSet&lt;&amp;str&gt; {
+    words.split_whitespace().collect()
+}
+
+fn main() {
+    let fruit = make_set(&quot;apple orange pear orange&quot;);
+
+    println!(&quot;{:?}&quot;, fruit);
+}
+// {&quot;orange&quot;, &quot;pear&quot;, &quot;apple&quot;}
+</code></pre>
+<p>Note (as expected) that repeated insertions of the same key have no effect, and the order
+of values in a set are not important.</p>
+<p>They would not be sets without the usual operations:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+let fruit = make_set(&quot;apple orange pear&quot;);
+let colours = make_set(&quot;brown purple orange yellow&quot;);
+
+for c in fruit.intersection(&amp;colours) {
+    println!(&quot;{:?}&quot;,c);
+}
+// &quot;orange&quot;
+
+#}</code></pre></pre>
+<p>They all create iterators, and you can use <code>collect</code> to make these into sets.</p>
+<p>Here's a shortcut, just as we defined for vectors:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+use std::hash::Hash;
+
+trait ToSet&lt;T&gt; {
+    fn to_set(self) -&gt; HashSet&lt;T&gt;;
+}
+
+impl &lt;T,I&gt; ToSet&lt;T&gt; for I
+where T: Eq + Hash, I: Iterator&lt;Item=T&gt; {
+
+    fn to_set(self) -&gt; HashSet&lt;T&gt; {
+       self.collect()
+    }
+}
+
+...
+
+let intersect = fruit.intersection(&amp;colours).to_set();
+
+#}</code></pre></pre>
+<p>As with all Rust generics, you do need to constrain types - this can only be
+implemented for types that understand equality (<code>Eq</code>) and for which a 'hash function'
+exists (<code>Hash</code>). Remember that there is no <em>type</em> called <code>Iterator</code>, so <code>I</code> represents
+any type that <em>implements</em> <code>Iterator</code>.</p>
+<p>This technique for implementing our own methods on standard library types may appear
+to be a little too powerful, but again, there are Rules. We can only do this for our
+own traits. If both the struct and the trait came from the same crate (particularly,
+the stdlib) then such implemention would not be allowed. In this way, you are
+saved from creating confusion.</p>
+<p>Before congratulating ourselves on such a clever, convenient shortcut, you should be
+aware of the consequences. If <code>make_set</code> was written so, so that these are sets
+of owned strings, then the actual type of <code>intersect</code> could come as a sunrise:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+fn make_set(words: &amp;str) -&gt; HashSet&lt;String&gt; {
+    words.split_whitespace().map(|s| s.to_string()).collect()
+}
+...
+// intersect is HashSet&lt;&amp;String&gt;!
+let intersect = fruit.intersection(&amp;colours).to_set();
+
+#}</code></pre></pre>
+<p>And it cannot be otherwise, since Rust will not suddenly start making copies of owned
+strings. <code>intersect</code> contains a single <code>&amp;String</code> borrowed from <code>fruit</code>. I can promise
+you that this will cause you trouble later, when you start patching up lifetimes!
+A better solution is to use the iterator's <code>cloned</code> method to make owned string copies
+of the intersection.</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+// intersect is HashSet&lt;String&gt; - much better
+let intersect = fruit.intersection(&amp;colours).cloned().to_set();
+
+#}</code></pre></pre>
+<p>A more robust definition of <code>to_set</code> might be <code>self.cloned().collect()</code>,
+which I invite you to try out.</p>
+<a class="header" href="./5-stdlib-containers.html#example-interactive-command-processing" name="example-interactive-command-processing"><h2>Example: Interactive command processing</h2></a>
+<p>It's often useful to have an interactive session with a program. Each line is read in and
+split into words; the command is looked up on the first word, and the rest of the words
+are passed as an argument to that command.</p>
+<p>A natural implementation is a map from command names to closures. It's tempting as
+first to make them <code>FnMut</code> - that is, they can modify any captured variables. But we will
+have more than one command, each with its own closure, and you cannot then mutably borrow
+the same variables.</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+// this is a no-no
+let mut a = 10;
+let set = |n| a = n;
+let get = || a;  // can't borrow `a` again!
+
+#}</code></pre></pre>
+<p>So the closures are passed a <em>mutable reference</em> as an argument, plus
+a slice of string slices (<code>&amp;[&amp;str]</code>) representing the command arguments.
+They will return some <code>Result</code> - We'll use <code>String</code> errors at first.</p>
+<p>Recall that all closures
+implementing a particular function signature are all distinct types, and are (in fact)
+compiler-generated structs that <em>borrow</em> variables from the environment of the closure.
+They are different types and may well have different sizes, so we put them in a <code>Box</code>.</p>
+<p>Any struct that borrows references needs an explicit lifetime, since Rust needs
+assurance that these references outlive our <code>Cli</code> struct - so closures have lifetimes.</p>
+<p><code>D</code> is the data type, which can be anything with a size.</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+type CliResult = Result&lt;String,String&gt;;
+
+struct Cli&lt;'a,D&gt; {
+    data: D,
+    callbacks: HashMap&lt;String, Box&lt;Fn(&amp;mut D,&amp;[&amp;str])-&gt;CliResult + 'a&gt;&gt;
+}
+
+impl &lt;'a,D: Sized&gt; Cli&lt;'a,D&gt; {
+    fn new(data: D) -&gt; Cli&lt;'a,D&gt; {
+        Cli{data: data, callbacks: HashMap::new()}
+    }
+
+    fn cmd&lt;F&gt;(&amp;mut self, name: &amp;str, callback: F)
+    where F: Fn(&amp;mut D, &amp;[&amp;str])-&gt;CliResult + 'a {
+        self.callbacks.insert(name.to_string(),Box::new(callback));
+    }
+
+#}</code></pre></pre>
+<p><code>cmd</code> is passed a name and any closure that matches our signature, which is boxed
+and entered into the map.  <code>Fn</code> means that our closures borrow their environment
+but can't modify it. It's one of those generic methods where the declaration is scarier than
+the actual implementation!  Forgetting the explicit lifetime is a common error
+here - Rust won't let us forget that these closures have a lifetime limited to
+their environment!</p>
+<p>Now for reading and running commands:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    fn process(&amp;mut self,line: &amp;str) -&gt; CliResult {
+        let parts: Vec&lt;_&gt; = line.split_whitespace().collect();
+        if parts.len() == 0 { return Ok(&quot;&quot;.to_string()); }
+        match self.callbacks.get(parts[0]) {
+            Some(callback) =&gt; callback(&amp;mut self.data,&amp;parts[1..]),
+            None =&gt; Err(&quot;no such command&quot;.to_string())
+        }
+    }
+
+    fn go(&amp;mut self) {
+        let mut buff = String::new();
+        while io::stdin().read_line(&amp;mut buff).expect(&quot;error&quot;) &gt; 0 {
+            {
+                let line = buff.trim_left();
+                let res = self.process(line);
+                println!(&quot;{:?}&quot;, res);
+
+            }
+            buff.clear();
+        }
+    }
+
+
+#}</code></pre></pre>
+<p>This is all reasonably straightforward - split the line into words as a vector,
+look up the first word in the map and call the closure with our stored mutable
+data and the rest of the words. An empty line is ignored and not considered an error.</p>
+<p>Next, let's define some helper functions to make it easier for our closures to
+return correct and incorrect results. There's a <em>little</em> bit of cleverness going on;
+they are generic functions that work for any type that can be converted to a <code>String</code>.</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+fn ok&lt;T: ToString&gt;(s: T) -&gt; CliResult {
+    Ok(s.to_string())
+}
+
+fn err&lt;T: ToString&gt;(s: T) -&gt; CliResult {
+    Err(s.to_string())
+}
+
+#}</code></pre></pre>
+<p>So finally, the Main Program. Look at how <code>ok(answer)</code> works - because
+integers know how to convert themselves to strings!</p>
+<pre><pre class="playpen"><code class="language-rust">use std::error::Error;
+
+fn main() {
+    println!(&quot;Welcome to the Interactive Prompt! &quot;);
+
+    struct Data {
+        answer: i32
+    }
+
+    let mut cli = Cli::new(Data{answer: 42});
+
+    cli.cmd(&quot;go&quot;,|data,args| {
+        if args.len() == 0 { return err(&quot;need 1 argument&quot;); }
+        data.answer = match args[0].parse::&lt;i32&gt;() {
+            Ok(n) =&gt; n,
+            Err(e) =&gt; return err(e.description())
+        };
+        println!(&quot;got {:?}&quot;, args);
+        ok(data.answer)
+    });
+
+    cli.cmd(&quot;show&quot;,|data,_| {
+        ok(data.answer)
+    });
+
+    cli.go();
+}
+</code></pre></pre>
+<p>The error handling is a bit clunky here, and we'll later see how to use the question
+mark operator in cases like this.
+Basically, the particular error <code>std::num::ParseIntError</code> implements
+the trait <code>std::error::Error</code>, which we must bring into scope - Rust doesn't let traits
+operate unless they're visible.</p>
+<p>And in action:</p>
+<pre><code>Welcome to the Interactive Prompt!
+go 32
+got [&quot;32&quot;]
+Ok(&quot;32&quot;)
+show
+Ok(&quot;32&quot;)
+goop one two three
+Err(&quot;no such command&quot;)
+go 42 one two three
+got [&quot;42&quot;, &quot;one&quot;, &quot;two&quot;, &quot;three&quot;]
+Ok(&quot;42&quot;)
+go boo!
+Err(&quot;invalid digit found in string&quot;)
+</code></pre>
+<p>Here are some obvious improvements for you to try. First, if we give <code>cmd</code> three
+arguments with the second being a help line, then we can store these help lines
+and automatically implement a 'help' command. Second, having some command editing and
+history is <em>very</em> convenient, so use the <a href="https://crates.io/crates/rustyline">rustyline</a> crate
+from Cargo.</p>
+
+                </div>
+
+                <!-- Mobile navigation buttons -->
+                
+                    <a href="./4-modules.html" class="mobile-nav-chapters previous">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a href="./6-error-handling.html" class="mobile-nav-chapters next">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+
+            </div>
+
+            
+                <a href="./4-modules.html" class="nav-chapters previous" title="You can navigate through the chapters using the arrow keys">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+            
+
+            
+                <a href="./6-error-handling.html" class="nav-chapters next" title="You can navigate through the chapters using the arrow keys">
+                    <i class="fa fa-angle-right"></i>
+                </a>
+            
+
+        </div>
+
+
+        <!-- Local fallback for Font Awesome -->
+        <script>
+            if ($(".fa").css("font-family") !== "FontAwesome") {
+                $('<link rel="stylesheet" type="text/css" href="_FontAwesome/css/font-awesome.css">').prependTo('head');
+            }
+        </script>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        
+
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+    </body>
+</html>

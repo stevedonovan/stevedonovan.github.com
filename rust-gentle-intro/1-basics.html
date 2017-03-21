@@ -1,0 +1,1294 @@
+<!DOCTYPE HTML>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Basics - </title>
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <base href="">
+
+        <link rel="stylesheet" href="book.css">
+        <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+
+        <link rel="shortcut icon" href="favicon.png">
+
+        <!-- Font Awesome -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+
+        <!-- MathJax -->
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Fetch JQuery from CDN but have a local fallback -->
+        <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+        <script>
+            if (typeof jQuery == 'undefined') {
+                document.write(unescape("%3Cscript src='jquery.js'%3E%3C/script%3E"));
+            }
+        </script>
+    </head>
+    <body class="light">
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme = localStorage.getItem('theme');
+            if (theme == null) { theme = 'light'; }
+            $('body').removeClass().addClass(theme);
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var sidebar = localStorage.getItem('sidebar');
+            if (sidebar === "hidden") { $("html").addClass("sidebar-hidden") }
+            else if (sidebar === "visible") { $("html").addClass("sidebar-visible") }
+        </script>
+
+        <div id="sidebar" class="sidebar">
+            <ul class="chapter"><li class="affix"><a href="./readme.html">Introduction</a></li><li><a href="./1-basics.html" class="active"><strong>1.</strong> Basics</a></li><li><a href="./2-structs-enums-lifetimes.html"><strong>2.</strong> Structs, Enums and Matching</a></li><li><a href="./3-filesystem.html"><strong>3.</strong> Filesystem and Processes</a></li><li><a href="./4-modules.html"><strong>4.</strong> Modules and Cargo</a></li><li><a href="./5-stdlib-containers.html"><strong>5.</strong> Standard Library Containers</a></li><li><a href="./6-error-handling.html"><strong>6.</strong> Error Handling</a></li><li><a href="./7-shared-and-networking.html"><strong>7.</strong> Threads, Networking and Sharing</a></li></ul>
+        </div>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar" class="menu-bar">
+                    <div class="left-buttons">
+                        <i id="sidebar-toggle" class="fa fa-bars"></i>
+                        <i id="theme-toggle" class="fa fa-paint-brush"></i>
+                    </div>
+
+                    <h1 class="menu-title"></h1>
+
+                    <div class="right-buttons">
+                        <i id="print-button" class="fa fa-print" title="Print this book"></i>
+                    </div>
+                </div>
+
+                <div id="content" class="content">
+                    <a class="header" href="./1-basics.html#basics" name="basics"><h1>Basics</h1></a>
+<a class="header" href="./1-basics.html#hello-world" name="hello-world"><h2>Hello, World!</h2></a>
+<p>The original purpose of &quot;hello world&quot;, ever since the first C version was written,
+was to test the compiler and run an actual program.</p>
+<pre><pre class="playpen"><code class="language-rust">// hello.rs
+fn main() {
+    println!(&quot;Hello, World!&quot;);
+}
+</code></pre></pre>
+<pre><code>$ rustc hello.rs
+$ ./hello
+Hello, World!
+</code></pre>
+<p>Rust is a curly-braces language with semicolons, C++-style comments and a <code>main</code>
+function - so far, so familiar.  The exclamation mark indicates that this is a
+<em>macro</em> call. For C++ programmers, this can be a turn-off, since they are used to
+seriously stupid C macros - but I can ensure you that these are altogether more
+capable and sane.</p>
+<p>For anybody else,
+it's probably &quot;Great, now I have to remember when to say bang!&quot;.  However, the
+compiler is unusually helpful; if you leave out that exclamation, you get:</p>
+<pre><code>error[E0425]: unresolved name `println`
+ --&gt; hello2.rs:2:5
+  |
+2 |     println(&quot;Hello, World!&quot;);
+  |     ^^^^^^^ did you mean the macro `println!`?
+
+</code></pre>
+<p>Learning a language means getting comfortable with its errors. Try to see the compiler
+as a strict but friendly helper rather than a computer <em>shouting</em> at you, because you are
+going to see a lot of red ink in the beginning.  It's much better for the compiler
+to catch you out than for your program to blow up in front of actual humans.</p>
+<p>The next step is to introduce a <em>variable</em>:</p>
+<pre><pre class="playpen"><code class="language-rust">// let1.rs
+fn main() {
+    let answer = 42;
+    println!(&quot;Hello {}&quot;, answer);
+}
+
+</code></pre></pre>
+<p>Spelling mistakes are <em>compile</em> errors, not runtime errors like with dynamic languages
+like Python or JavaScript.  This will save you a lot of stress later! And if I wrote
+'answr' instead of 'answer', the compiler is actually <em>nice</em> about it:</p>
+<pre><code>4 |     println!(&quot;Hello {}&quot;, answr);
+  |                         ^^^^^ did you mean `answer`?
+
+</code></pre>
+<p>The <code>println!</code> macro takes a <a href="https://doc.rust-lang.org/std/fmt/index.html">format string</a>
+and some values; it's very similar to the formatting used by Python 3.</p>
+<p>Another very useful macro is <code>assert_eq!</code>. This is the workhorse of testing
+in Rust; you <em>assert</em> that two things must be equal, and if not, <em>panic</em>.</p>
+<pre><pre class="playpen"><code class="language-rust">// let2.rs
+fn main() {
+    let answer = 42;
+    assert_eq!(answer,42);
+}
+</code></pre></pre>
+<p>Which won't produce any input. But change 42 to 40:</p>
+<pre><code>thread 'main' panicked at
+'assertion failed: `(left == right)` (left: `42`, right: `40`)',
+let2.rs:4
+note: Run with `RUST_BACKTRACE=1` for a backtrace.
+</code></pre>
+<p>And that's our first <em>runtime error</em> in Rust.</p>
+<a class="header" href="./1-basics.html#looping-and-ifing" name="looping-and-ifing"><h2>Looping and Ifing</h2></a>
+<p>Anything interesting can be done more than once:</p>
+<pre><pre class="playpen"><code class="language-rust">// for1.rs
+fn main() {
+    for i in 0..5 {
+        println!(&quot;Hello {}&quot;, i);
+    }
+}
+</code></pre></pre>
+<p>The <em>range</em> is not inclusive, so <code>i</code> goes from 0 to 4. This is convenient in a
+language which <em>indexes</em> things like arrays from 0.</p>
+<p>And interesting things have to be done <em>conditionally</em>:</p>
+<pre><pre class="playpen"><code class="language-rust">// for2.rs
+fn main() {
+    for i in 0..5 {
+        if i % 2 == 0 {
+            println!(&quot;even {}&quot;, i);
+        } else {
+            println!(&quot;odd {}&quot;, i);
+        }
+    }
+}
+</code></pre></pre>
+<pre><code>even 0
+odd 1
+even 2
+odd 3
+even 4
+</code></pre>
+<p><code>i % 2</code> is zero if 2 can divide into <code>i</code> cleanly; Rust uses C-style operators.
+There are <em>no</em> brackets around the condition, just like in Go, but
+you <em>must</em> use curly brackets around the block.</p>
+<p>This does the same, written in a more interesting way:</p>
+<pre><pre class="playpen"><code class="language-rust">// for3.rs
+fn main() {
+    for i in 0..5 {
+        let even_odd = if i % 2 == 0 {&quot;even&quot;} else {&quot;odd&quot;};
+        println!(&quot;{} {}&quot;, even_odd, i);
+    }
+}
+</code></pre></pre>
+<p>Traditionally, programming languages have <em>statements</em> (like <code>if</code>) and
+<em>expressions</em> (like <code>1+i</code>). In Rust, nearly everything has a value and can
+be an expression.  The seriously ugly C 'ternary operator' <code>i % 2 == 0 ? &quot;even&quot; : &quot;odd&quot;</code>
+is not needed.</p>
+<p>Note that there aren't any semi-colons in those blocks!</p>
+<a class="header" href="./1-basics.html#adding-things-up" name="adding-things-up"><h2>Adding Things Up</h2></a>
+<p>Computers are very good at arithmetic. Here is a first attempt at adding all
+the numbers from 0 to 4:</p>
+<pre><pre class="playpen"><code class="language-rust">// add1.rs
+fn main() {
+    let sum = 0;
+    for i in 0..5 {
+        sum += i;
+    }
+    println!(&quot;sum is {}&quot;, sum);
+}
+</code></pre></pre>
+<p>But it fails to compile:</p>
+<pre><code>error[E0384]: re-assignment of immutable variable `sum`
+ --&gt; add1.rs:5:9
+3 |     let sum = 0;
+  |         --- first assignment to `sum`
+4 |     for i in 0..5 {
+5 |         sum += i;
+  |         ^^^^^^^^ re-assignment of immutable variable
+
+</code></pre>
+<p>'Immutable'? A variable that cannot <em>vary</em>?  <code>let</code> variables by default can only
+be assigned a value when declared. Adding the magic word <code>mut</code> (<em>please</em> make
+this variable mutable) does the trick:</p>
+<pre><pre class="playpen"><code class="language-rust">// add2.rs
+fn main() {
+    let mut sum = 0;
+    for i in 0..5 {
+        sum += i;
+    }
+    println!(&quot;sum is {}&quot;, sum);
+}
+</code></pre></pre>
+<p>This can be puzzling when coming from other languages, where variables can be
+re-written by default. What makes something a 'variable' is that it gets assigned
+a computed value at run-time - it is not a <em>constant</em>.
+It is pretty much how the word is used in mathematics, like when we say
+'let n be the largest number in set S'.</p>
+<p>There is a reason for declaring variables to be <em>read-only</em> by default. In a larger
+program, it gets hard to track where writes are taking place. So Rust makes things
+like mutability ('write-ability') explicit. There's a lot of cleverness in the
+language, but it never hides anything.</p>
+<p>Rust is both statically-typed and strongly-typed - these are often confused, but
+think of C (statically but weakly typed) and Python (dynamically but strongly typed).
+In static types the type is known at compile time, and dynamic types are only known
+at run time.</p>
+<p>At the moment, it feels like Rust is <em>hiding</em> those types from you. What
+exactly is the type of <code>i</code>?  The compiler can work it out, starting with 0,
+with <em>type inference</em>, and comes up with <code>i32</code> (four byte signed integer.)</p>
+<p>Let's make exactly one change - turn that <code>0</code> into <code>0.0</code>. Then we get errors:</p>
+<pre><code>error[E0277]: the trait bound `{float}: std::ops::AddAssign&lt;{integer}&gt;` is not satisfied
+ --&gt; add3.rs:5:9
+  |
+5 |         sum += i;
+  |         ^^^^^^^^ the trait `std::ops::AddAssign&lt;{integer}&gt;` is not implemented for `{float}`
+  |
+
+</code></pre>
+<p>Ok, so the honeymoon is over: what does this mean? Each operator (like <code>+=</code>) corresponds
+to a <em>trait</em>, which is like an abstract interface that must be implemented for each concrete type.
+We'll deal with traits in detail later, but here all you need to know is that
+<code>AddAssign</code> is the name of the trait implementing the <code>+=</code> operator, and the error is saying
+that floating point numbers do not implement this operator for a integer. (The full list of
+operator traits is <a href="https://doc.rust-lang.org/std/ops/index.html">here</a>.</p>
+<p>Again, Rust likes to be explicit - it will not silently convert that integer into a float for you.</p>
+<p>We have to <em>cast</em> that value to a floating-point value explicitly.</p>
+<pre><pre class="playpen"><code class="language-rust">// add3.rs
+fn main() {
+    let mut sum = 0.0;
+    for i in 0..5 {
+        sum += i as f64;
+    }
+    println!(&quot;sum is {}&quot;, sum);
+}
+</code></pre></pre>
+<a class="header" href="./1-basics.html#get-explicit" name="get-explicit"><h2>Get Explicit</h2></a>
+<p><em>Functions</em> are one place where the compiler will not work out types for you.
+And this in fact was a deliberate decision, since languages like Haskell have
+such powerful type inference that there are hardly any explicit type names. It's
+a case of the language being somewhat more intelligent than its users, since
+it's good Haskell style to put in a comment giving the function argument types. This feels
+self-defeating.</p>
+<p>Here is a simple user-defined function:</p>
+<pre><pre class="playpen"><code class="language-rust">// fun1.rs
+
+fn sqr(x: f64) -&gt; f64 {
+    return x * x;
+}
+
+fn main() {
+    let res = sqr(2.0);
+    println!(&quot;square is {}&quot;, res);
+}
+</code></pre></pre>
+<p>Rust (like Go, which it superficially resembles in many ways) goes back to an
+older style of argument declaration, where the type follows the name. This is
+how it was done in Algol-derived languages like Pascal.</p>
+<p>Again, no integer-to-float conversions - if you replace the <code>0.0</code> with <code>0</code> then we
+get a clear error:</p>
+<pre><code>8 |     let res = sqr(0);
+  |                   ^ expected f64, found integral variable
+  |
+</code></pre>
+<p>You will actually rarely see functions written using a <code>return</code> statement. More
+often, it will look like this:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+fn sqr(x: f64) -&gt; f64 {
+    x * x
+}
+
+#}</code></pre></pre>
+<p>This is because the body of the function (inside <code>{}</code>) has the value of its
+last expression, just like with if-as-an-expression.</p>
+<p>Since semicolons are inserted semi-automatically by human fingers, you might add it
+here and get the following error:</p>
+<pre><code>  |
+3 | fn sqr(x: f64) -&gt; f64 {
+  |                       ^ expected f64, found ()
+  |
+  = note: expected type `f64`
+  = note:    found type `()`
+help: consider removing this semicolon:
+ --&gt; fun2.rs:4:8
+  |
+4 |     x * x;
+  |       ^
+
+</code></pre>
+<p>The <code>()</code> type is the empty type, nada, <code>void</code>, zilch, nothing. Everything in Rust
+has a value, but sometimes it's just nothing.  The compiler knows this is
+a common mistake, and actually <em>helps</em> you.  (Anybody who has spent time with a
+C++ compiler will know how <em>damn unusual</em> this is.)</p>
+<p>A few more examples of this no-return expression style:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+// absolute value of a floating-point number
+fn abs(x: f64) -&gt; f64 {
+    if x &gt; 0.0 {
+        x
+    } else {
+        -x
+    }
+}
+
+// ensure the number always falls in the given range
+fn clamp(x: f64, x1: f64, x2: f64) -&gt; f64 {
+    if x &lt; x1 {
+        x1
+    } else if x &gt; x2 {
+        x2
+    } else {
+        x
+    }
+}
+
+#}</code></pre></pre>
+<p>It's not wrong to use <code>return</code>, but code is cleaner without it. You will still
+use <code>return</code> for <em>returning early</em> from a function.</p>
+<p>Some operations can be elegantly expressed <em>recursively</em>:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+fn factorial(n: u64) -&gt; u64 {
+    if n == 0 {
+        1
+    } else {
+        n * factorial(n-1)
+    }
+}
+
+#}</code></pre></pre>
+<p>This can be a little strange at first, and the best thing is then to use pencil and paper
+and work out some examples. It isn't usually the most <em>efficient</em> way to do that
+operation however.</p>
+<p>What if you want a function to modify one of its arguments?  Enter <em>mutable references</em>:</p>
+<pre><pre class="playpen"><code class="language-rust">// fun4.rs
+
+fn modifies(x: &amp;mut f64) {
+    *x = 1.0;
+}
+
+fn main() {
+    let mut res = 0.0;
+    modifies(&amp;mut res);
+    println!(&quot;res is {}&quot;, res);
+}
+</code></pre></pre>
+<p>This is more how C would do it than C++. You have to explicitly pass the
+reference (with <code>&amp;</code>) and explicitly <em>dereference</em> with <code>*</code>. And then throw in <code>mut</code>
+because it's not the default. (I've always felt that C++ references are
+too easy to miss compared to C.)</p>
+<p>Basically, Rust is introducing some <em>friction</em> here, and not-so-subtly pushing
+you towards returning values from functions directly.  Fortunately, Rust has
+powerful ways to express things like &quot;operation succeeded and here's the result&quot;
+so <code>&amp;mut</code> isn't needed that often.</p>
+<p>The type-after-variable style applies to <code>let</code> as well, when you really want to nail
+down the type of a variable:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+let bigint: i64 = 0;
+
+#}</code></pre></pre>
+<a class="header" href="./1-basics.html#learning-where-to-find-the-ropes" name="learning-where-to-find-the-ropes"><h2>Learning Where to Find the Ropes</h2></a>
+<p>It's time to start using the documentation. This will be installed on your machine,
+and you can use <code>rustup doc --std</code> to open it in a browser.</p>
+<p>Note the <em>search</em> field at the top, since this
+is going to be your friend; it operates completely offline.</p>
+<p>Let's say we want to see where the mathematical
+functions are, so search for 'cos'. The first two hits show it defined for both
+single and double-precision floating point numbers.  It is defined on the
+<em>value itself</em> as a method, like so:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+let pi = 3.1416;
+let x = pi/2.0;
+let cosine = x.cos();
+
+#}</code></pre></pre>
+<p>And the result will be sort-of zero; we obviously need a more authoritative source
+of pi-ness!</p>
+<p>Let me quote the example given for <code>cos</code>, but written as a complete program
+( <code>assert!</code> is a cousin of <code>assert_eq!</code>; the expression must be true):</p>
+<pre><pre class="playpen"><code class="language-rust">fn main() {
+    let x = 2.0 * std::f64::consts::PI;
+
+    let abs_difference = (x.cos() - 1.0).abs();
+
+    assert!(abs_difference &lt; 1e-10);
+}
+</code></pre></pre>
+<p><code>std::f64::consts::PI</code> is a mouthful! <code>::</code> means much the same as it does in C++,
+(often written using '.' in other languages) - it is a <em>fully qualified name</em>. We get
+this full name from the second hit on searching for <code>PI</code>.</p>
+<p>Up to now, our little Rust programs have been free of all that <code>import</code> and
+<code>include</code> stuff that tends to slow down the discussion of 'Hello World' programs.
+Let's make this program more readable with a <code>use</code> statement:</p>
+<pre><pre class="playpen"><code class="language-rust">use std::f64::consts;
+
+fn main() {
+    let x = 2.0 * consts::PI;
+
+    let abs_difference = (x.cos() - 1.0).abs();
+
+    assert!(abs_difference &lt; 1e-10);
+}
+</code></pre></pre>
+<p>Why haven't we needed to do this up to now?
+This is because Rust helpfully makes a lot of basic functionality visible without
+explicit <code>use</code> statements.</p>
+<a class="header" href="./1-basics.html#arrays-and-slices" name="arrays-and-slices"><h2>Arrays and Slices</h2></a>
+<p>All statically-typed languages have <em>arrays</em>, which are values packed nose to tail
+in memory. Arrays are <em>indexed</em> from zero:</p>
+<pre><pre class="playpen"><code class="language-rust">// array1.rs
+fn main() {
+    let arr = [10, 20, 30, 40];
+    let first = arr[0];
+    println!(&quot;first {}&quot;, first);
+
+    for i in 0..4 {
+        println!(&quot;[{}] = {}&quot;, i,arr[i]);
+    }
+    println!(&quot;length {}&quot;, arr.len());
+}
+</code></pre></pre>
+<p>And the output is:</p>
+<pre><code>first 10
+[0] = 10
+[1] = 20
+[2] = 30
+[3] = 40
+length 4
+</code></pre>
+<p>In this case, Rust knows <em>exactly</em> how big the array is and if you try to
+access <code>arr[4]</code> it will be a <em>compile error</em>.</p>
+<p>Learning a new language often involves <em>unlearning</em> mental habits from languages
+you already know; if you are a Pythonista, then those brackets say <code>List</code>. We will
+come to the Rust equivalent of <code>List</code> soon, but arrays are not the droids you're looking
+for; they are <em>fixed in size</em>. They can be <em>mutable</em> (if we ask nicely) but you
+cannot add new elements.</p>
+<p>Arrays are not used that often in Rust, because the type of an array includes its
+size.  The type of the array in the example is
+<code>[i32; 4]</code>; the type of <code>[10, 20]</code> would be <code>[i32; 2]</code> and so forth: they
+have <em>different types</em>.  So they are basically bastards to pass around as
+function arguments.</p>
+<p>What <em>are</em> used often are <em>slices</em>. You can think of these as <em>views</em> into
+an underlying array of values. They otherwise behave very much like an array, and
+<em>know their size</em>, unlike those dangerous animals C pointers.</p>
+<p>Note two important things here - how to write an slice type, and that
+you have to use <code>&amp;</code> to pass it to the function.</p>
+<pre><pre class="playpen"><code class="language-rust">// array2.rs
+// read as: slice of i32 array
+fn sum(values: &amp;[i32]) -&gt; i32 {
+    let mut res = 0;
+    for i in 0..values.len() {
+        res += values[i]
+    }
+    res
+}
+
+fn main() {
+    let arr = [10,20,30,40];
+    // look at that &amp;
+    let res = sum(&amp;arr);
+    println!(&quot;sum {}&quot;, res);
+}
+</code></pre></pre>
+<p>Ignore the code of <code>sum</code> for a while, and look at <code>&amp;[i32]</code>. The relationship between
+Rust arrays and slices is similar to that between C arrays and pointers, except for
+two important differences - Rust slices keep track of their size (and will
+panic if you try to access outside that size) and you have to explicitly say that
+you want to pass an array as a slice using the <code>&amp;</code> operator.</p>
+<p>A C programmer pronounces <code>&amp;</code> as 'address of'; a Rust programmer pronounces it
+'borrow'. This is going to be the key word when learning Rust. Borrowing is the name
+given to a common pattern in programming; whenever you pass something by reference
+(as nearly always happens in dynamic languages) or pass a pointer in C. Anything
+borrowed remains the 'property' of the original owner.</p>
+<a class="header" href="./1-basics.html#slicing-and-dicing" name="slicing-and-dicing"><h2>Slicing and Dicing</h2></a>
+<p>You cannot print out an array in the usual way with <code>{}</code> but you can do a <em>debug</em>
+print with <code>{:?}</code>.</p>
+<pre><pre class="playpen"><code class="language-rust">// array3.rs
+fn main() {
+    let ints = [1, 2, 3];
+    let floats = [1.1, 2.1, 3.1];
+    let strings = [&quot;hello&quot;, &quot;world&quot;];
+    let ints_ints = [[1, 2], [10, 20]];
+    println!(&quot;ints {:?}&quot;, ints);
+    println!(&quot;floats {:?}&quot;, floats);
+    println!(&quot;strings {:?}&quot;, strings);
+    println!(&quot;ints_ints {:?}&quot;, ints_ints);
+}
+</code></pre></pre>
+<p>Which gives:</p>
+<pre><code>ints [1, 2, 3]
+floats [1.1, 2.1, 3.1]
+strings [&quot;hello&quot;, &quot;world&quot;]
+ints_ints [[1, 2], [10, 20]]
+</code></pre>
+<p>So, arrays of arrays are no problem, but the important thing is that an array contains
+values of <em>only one type</em>.  The values in an array are arranged next to each other
+in memory so that <code>[10, 20]</code> takes 8 bytes (two 4-byte signed integers). This makes
+them <em>very</em> efficient to access.</p>
+<p>If you are curious about the actual types of these variables, here is a useful trick.
+Just declare a variable with an explicit type which you know will be wrong:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+let var: () = [1.1, 1.2];
+
+#}</code></pre></pre>
+<p>Here is the informative error:</p>
+<pre><code>3 |     let var: () = [1.1, 1.2];
+  |                   ^^^^^^^^^^ expected (), found array of 2 elements
+  |
+  = note: expected type `()`
+  = note:    found type `[{float}; 2]`
+</code></pre>
+<p>Slices give you different <em>views</em> of the <em>same</em> array:</p>
+<pre><pre class="playpen"><code class="language-rust">// slice1.rs
+fn main() {
+    let ints = [1, 2, 3, 4, 5];
+    let slice1 = &amp;ints[0..2];
+    let slice2 = &amp;ints[1..];  // open range!
+
+    println!(&quot;ints {:?}&quot;, ints);
+    println!(&quot;slice1 {:?}&quot;, slice1);
+    println!(&quot;slice2 {:?}&quot;, slice2);
+}
+</code></pre></pre>
+<pre><code>ints [1, 2, 3, 4, 5]
+slice1 [1, 2]
+slice2 [2, 3, 4, 5]
+</code></pre>
+<p>This is a neat notation which looks similar to Python slices but with a big difference:
+a copy of the data is never made.  These slices all <em>borrow</em> their data from their
+arrays. They have a very intimate relationship with that array, and Rust spends a lot
+of effort to make sure that relationship does not break down.</p>
+<a class="header" href="./1-basics.html#optional-values" name="optional-values"><h2>Optional Values</h2></a>
+<p>Slices, like arrays, can be <em>indexed</em>. Rust knows the size of an array at
+compile-time, but the size of a slice is only known at run-time. So <code>s[i]</code> can
+cause an out-of-bounds error when running and will <em>panic</em>.  This is really not
+what you want to happen - it can be the difference between a safe launch abort and
+scattering pieces of a very expensive satellite all over Florida. And there are
+<em>no exceptions</em>.</p>
+<p>Let that sink in, because it comes as a shock. You cannot wrap dodgy-may-panic
+code in some try-block and 'catch the error' - at least not in a way you'd want to use
+every day. So how can Rust be safe?</p>
+<p>There is a slice method <code>get</code> which does not panic. But what does it return?</p>
+<pre><pre class="playpen"><code class="language-rust">// slice2.rs
+fn main() {
+    let ints = [1, 2, 3, 4, 5];
+    let slice = &amp;ints;
+    let first = slice.get(0);
+    let last = slice.get(5);
+
+    println!(&quot;first {:?}&quot;, first);
+    println!(&quot;last {:?}&quot;, last);
+}
+// first Some(1)
+// last None
+</code></pre></pre>
+<p><code>last</code> failed (forgot zero-based indexing), but returned something called <code>None</code>.
+<code>first</code> is fine, but appears as a value wrapped in <code>Some</code>.  Welcome to the <code>Option</code>
+type!  It may be <em>either</em> <code>Some</code> or <code>None</code>.</p>
+<p>The <code>Option</code> type has some useful methods:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    println!(&quot;first {} {}&quot;, first.is_some(), first.is_none());
+    println!(&quot;last {} {}&quot;, last.is_some(), last.is_none());
+    println!(&quot;first value {}&quot;, first.unwrap());
+
+// first true false
+// last false true
+// first value 1
+
+#}</code></pre></pre>
+<p>If you were to <em>unwrap</em> <code>last</code>, you would get a panic. But at least you can call
+<code>is_some</code> first to make sure - for instance, if you had a distinct no-value default:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    let maybe_last = slice.get(5);
+    let last = if maybe_last.is_some() {
+        maybe_last.unwrap()
+    } else {
+        -1
+    };
+
+#}</code></pre></pre>
+<p>Which is long-winded, so there's a shortcut:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    let last = slice.get(5).unwrap_or(-1);
+
+#}</code></pre></pre>
+<p>You can think of <code>Option</code> as a box which may contain a value, or nothing (<code>None</code>).
+(It is called <code>Maybe</code> in Haskell). It may contain <em>any</em> kind of value, which is
+its <em>type parameter</em>. In this case, the full type is <code>Option&lt;i32&gt;</code>, using
+C++-style notation for <em>generics</em>.  Unwrapping this box may cause an explosion,
+but unlike Schroedinger's Cat, we know if it contains a value up-front.</p>
+<p>It is very common for Rust functions/methods to return such maybe-boxes, so learn
+how to use them safely!</p>
+<a class="header" href="./1-basics.html#vectors" name="vectors"><h2>Vectors</h2></a>
+<p>We'll return to slice methods again, but first: vectors. These are <em>re-sizeable</em>
+arrays and behave much like Python <code>List</code> and C++ <code>std::vector</code>. The Rust type
+<code>Vec</code> (pronounced 'vector') behaves very much like an slice in fact; the
+difference is that you can append extra values to a vector - note that it must
+be declared as mutable.</p>
+<pre><pre class="playpen"><code class="language-rust">// vec1.rs
+fn main() {
+    let mut v = Vec::new();
+    v.push(10);
+    v.push(20);
+    v.push(30);
+
+    let first = v[0];  // will panic if out-of-range
+    let maybe_first = v.get(0);
+
+    println!(&quot;v is {:?}&quot;, v);
+    println!(&quot;first is {}&quot;, first);
+    println!(&quot;maybe_first is {:?}&quot;, maybe_first);
+}
+// v is [10, 20, 30]
+// first is 10
+// maybe_first is Some(10)
+</code></pre></pre>
+<p>A common beginner mistake is to forget the <code>mut</code>; you will get a helpful error
+message:</p>
+<pre><code>3 |     let v = Vec::new();
+  |         - use `mut v` here to make mutable
+4 |     v.push(10);
+  |     ^ cannot borrow mutably
+</code></pre>
+<p>There is a very intimate relation between vectors and slices:</p>
+<pre><pre class="playpen"><code class="language-rust">// vec2.rs
+fn dump(arr: &amp;[i32]) {
+    println!(&quot;arr is {:?}&quot;, arr);
+}
+
+fn main() {
+    let mut v = Vec::new();
+    v.push(10);
+    v.push(20);
+    v.push(30);
+
+    dump(&amp;v);
+
+    let slice = &amp;v[1..];
+    println!(&quot;slice is {:?}&quot;, slice);
+}
+</code></pre></pre>
+<p>That little, so-important borrow operator <code>&amp;</code> is <em>coercing</em> the vector into a
+slice. And it makes complete sense, because the vector is looking after an array of
+values, with the difference that the array is allocated <em>dynamically</em>.</p>
+<p>If you come from a dynamic language, now is time for that little talk. In systems
+languages, program memory comes in two kinds: the stack and the heap. It is very fast
+to allocate data on the stack, but the stack is limited; typically of the order of
+megabytes. The heap can be gigabytes, but allocating is relatively expensive, and
+such memory must be <em>freed</em> later. In so-called 'managed' languages (like Java, Go
+and the so-called 'scripting' languages) these details are hidden from you by that
+convenient municipal utility called the <em>garbage collector</em>. Once the system is sure
+that data is no longer referenced by other data, it goes back into the pool
+of available memory.</p>
+<p>Generally, this is a price worth paying. Playing with the stack is terribly unsafe,
+because if you make one mistake you can override the return address of the current
+function, and you die an ignominious death or (worse) got pwned by some guy living
+in his Mom's basement in Minsk.</p>
+<p>The first C program I wrote (on an DOS PC)
+took out the whole computer. Unix systems always behaved better, and only the process died
+with a <em>segfault</em>. Why is this worse than a Rust (or Go) program panicking?
+Because the panic happens when the original problem happens, not when the program
+has become hopelessly confused and eaten all your homework. Panics are <em>memory safe</em>
+because they happen before any illegal access to memory. This is a common cause of
+security problems in C, because all memory accesses are unsafe and a cunning attacker
+can exploit this weakness.</p>
+<p>Panicking sounds desperate and unplanned, but Rust panics are structured - the stack is <em>unwound</em>
+just as with exceptions. All allocated objects are dropped, and a backtrace is generated.</p>
+<p>The downsides of garbage collection? The first is that it is wasteful of memory, which
+matters in those small embedded microchips which increasingly rule our world. The
+second is that it will decide, at the worst possible time, that a clean up must happen
+<em>now</em>. (The Mom analogy is that she wants to clean your room when you are at a
+delicate stage with a new lover). Those embedded systems need to respond to things
+<em>when they happen</em> ('real-time') and can't tolerate unscheduled outbreaks of
+cleaning. Roberto Ierusalimschy, the chief designer of Lua (one of the most elegant
+dynamic languages ever) said that he would not like to fly on an airplane that
+relied on garbage-collected software.</p>
+<p>Back to vectors: when a vector is modified or created, it allocates from the heap and becomes
+the <em>owner</em> of that memory. The slice <em>borrows</em> the array from the vector.
+When the vector dies or <em>drops</em>, it lets the memory go.</p>
+<a class="header" href="./1-basics.html#iterators" name="iterators"><h2>Iterators</h2></a>
+<p>We have got so far without mentioning a key part of the Rust puzzle - iterators.
+The for-loop over a range was using an iterator (<code>0..n</code> is actually similar to the
+Python 3 <code>range</code> function).</p>
+<p>An iterator is easy to define informally. It is an 'object' with a <code>next</code> method
+which returns an <code>Option</code>. As long as that value is not <code>None</code>, we keep calling
+<code>next</code>:</p>
+<pre><pre class="playpen"><code class="language-rust">// iter1.rs
+fn main() {
+    let mut iter = 0..3;
+    assert_eq!(iter.next(), Some(0));
+    assert_eq!(iter.next(), Some(1));
+    assert_eq!(iter.next(), Some(2));
+    assert_eq!(iter.next(), None);
+}
+</code></pre></pre>
+<p>And that is exactly what <code>for var in iter {}</code> does.</p>
+<p>This may seem an inefficient way to define a for-loop, but <code>rustc</code> does crazy-ass
+optimizations in release mode and it will be just as fast as a <code>while</code> loop. (Contrast
+with the situation on the JVM, where iterators always require allocation. The consequence
+is that funky functional stuff in Scala is <em>always</em> going to be significantly slower
+than in Rust).</p>
+<p>Here is the first attempt to iterate over an array:</p>
+<pre><pre class="playpen"><code class="language-rust">// iter2.rs
+fn main() {
+    let arr = [10, 20, 30];
+    for i in arr {
+        println!(&quot;{}&quot;, i);
+    }
+}
+</code></pre></pre>
+<p>which fails, but helpfully:</p>
+<pre><code>4 |     for i in arr {
+  |     ^ the trait `std::iter::Iterator` is not implemented for `[{integer}; 3]`
+  |
+  = note: `[{integer}; 3]` is not an iterator; maybe try calling
+   `.iter()` or a similar method
+  = note: required by `std::iter::IntoIterator::into_iter`
+</code></pre>
+<p>Following <code>rustc</code>'s advice, the following program works as expected.</p>
+<pre><pre class="playpen"><code class="language-rust">// iter3.rs
+fn main() {
+    let arr = [10, 20, 30];
+    for i in arr.iter() {
+        println!(&quot;{}&quot;, i);
+    }
+
+    // slices can be converted implicitly to iterators...
+    let slice = &amp;arr;
+    for i in slice {
+        println!(&quot;{}&quot;, i);
+    }
+}
+</code></pre></pre>
+<p>In fact, it is more efficient to iterate over an array or slice this way
+than to use <code>for i in 0..slice.len() {}</code> because Rust does not have to obsessively
+check every index operation.</p>
+<p>We had an example of summing up a range of integers earlier. It involved a <code>mut</code>
+variable and a loop. Here's the <em>idiomatic</em>, pro-level way of doing the sum:</p>
+<pre><pre class="playpen"><code class="language-rust">// sum1.rs
+fn main() {
+    let sum: i32  = (0..5).sum();
+    println!(&quot;sum was {}&quot;, sum);
+
+    let sum: i64 = [10, 20, 30].iter().sum();
+    println!(&quot;sum was {}&quot;, sum);
+}
+</code></pre></pre>
+<p>Note that this is one of those cases where you need to be explicit about
+the <em>type</em> of the variable, since otherwise Rust doesn't have enough information.
+Here we do sums with two different integer sizes, no problem. (It is also no
+problem to create a new variable of the same name if you run out of names to
+give things.)</p>
+<p>With this background, some more of the slice methods will make more sense.
+Another documentation tip; on the right-hand side of every page there's a '[-]' which you can
+click to collapse the method list. You can then expand the details of anything
+that looks interesting. (Anything that looks too weird, just ignore for now.)</p>
+<p>The <code>windows</code> method gives you an iterator of slices - overlapping windows of
+values!</p>
+<pre><pre class="playpen"><code class="language-rust">// slice4.rs
+fn main() {
+    let ints = [1, 2, 3, 4, 5];
+    let slice = &amp;ints;
+
+    for s in slice.windows(2) {
+        println!(&quot;window {:?}&quot;, s);
+    }
+}
+// window [1, 2]
+// window [2, 3]
+// window [3, 4]
+// window [4, 5]
+</code></pre></pre>
+<p>Or <code>chunks</code>:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    for s in slice.chunks(2) {
+        println!(&quot;chunks {:?}&quot;, s);
+    }
+// chunks [1, 2]
+// chunks [3, 4]
+// chunks [5]
+
+#}</code></pre></pre>
+<a class="header" href="./1-basics.html#more-about-vectors" name="more-about-vectors"><h2>More about vectors...</h2></a>
+<p>There is a useful little macro <code>vec!</code> for initializing a vector. Note that you
+can <em>remove</em> values from the end of a vector using <code>pop</code>, and <em>extend</em> a vector
+using any compatible iterator.</p>
+<pre><pre class="playpen"><code class="language-rust">// vec3.rs
+fn main() {
+    let mut v1 = vec![10, 20, 30, 40];
+    v1.pop();
+
+    let mut v2 = Vec::new();
+    v2.push(10);
+    v2.push(20);
+    v2.push(30);
+
+    assert_eq!(v1, v2);
+
+    v2.extend(0..2);
+    assert_eq!(v2, &amp;[10, 20, 30, 0, 1]);
+}
+</code></pre></pre>
+<p>Vectors compare with each other and with slices by value.</p>
+<p>You can insert values into a vector at arbitrary positions with <code>insert</code>,
+and remove with <code>remove</code>. This is not as efficient as pushing and popping since
+the values will have to be moved to make room, so watch out for these operations on big
+vectors.</p>
+<p>Vectors have a size and a <em>capacity</em>. If you <code>clear</code> a vector, its size becomes zero,
+but it still retains its old capacity. So refilling it with <code>push</code>, etc only requires
+reallocation when the size gets larger than that capacity.</p>
+<p>Vectors can be sorted, and then duplicates can be removed - these operate in-place
+on the vector. (If you want to make a copy first, use <code>clone</code>.)</p>
+<pre><pre class="playpen"><code class="language-rust">// vec4.rs
+fn main() {
+    let mut v1 = vec![1, 10, 5, 1, 2, 11, 2, 40];
+    v1.sort();
+    v1.dedup();
+    assert_eq!(v1, &amp;[1, 2, 5, 10, 11, 40]);
+}
+</code></pre></pre>
+<a class="header" href="./1-basics.html#strings" name="strings"><h2>Strings</h2></a>
+<p>Strings in Rust are a little more involved than in dynamic languages; the <code>String</code> type,
+like <code>Vec</code>, allocates dynamically and is resizeable. (So it's like C++'s <code>std::string</code>
+but not like the immutable strings of Java and Python.) A program may contain a lot
+of <em>string literals</em> (like &quot;hello&quot;) and a system language should be able to store
+these statically in the executable itself. In embedded micros, that could mean putting
+them in cheap ROM rather than expensive RAM (for low-power devices, RAM is
+also expensive in terms of power consumption.)</p>
+<p>So &quot;hello&quot; is not of type <code>String</code>. It is of type <code>&amp;str</code> (pronounced 'string slice').
+It's like the distinction between <code>const char*</code> and <code>std::string</code> in C++, except
+<code>&amp;str</code> is much more intelligent.  In fact, <code>&amp;str</code> and <code>String</code> have a very
+similar relationship to each other as do <code>&amp;[T]</code> to <code>Vec&lt;T&gt;</code>.</p>
+<pre><pre class="playpen"><code class="language-rust">// string1.rs
+fn dump(s: &amp;str) {
+    println!(&quot;str '{}'&quot;, s);
+}
+
+fn main() {
+    let text = &quot;hello dolly&quot;;  // the string slice
+    let s = text.to_string();  // it's now an allocated string
+
+    dump(text);
+    dump(&amp;s);
+}
+</code></pre></pre>
+<p>Again, the borrow operator can coerce <code>String</code> into <code>&amp;str</code>, just as <code>Vec</code> could
+be coerced into <code>&amp;[]</code>.</p>
+<p>In C++, char pointers can become strings implicitly through the constructor and
+through assignment,  but you need the ugly <code>c_str</code>
+method to get the owned char pointer of the string. And that's an important difference
+in emphasis; Rust is making the <em>allocation</em> obvious, but makes it easier to borrow
+the characters as a string slice.</p>
+<p>Like a vector, you can <code>push</code> a character and <code>pop</code> one off the end.</p>
+<pre><pre class="playpen"><code class="language-rust">// string5.rs
+fn main() {
+    let mut s = String::new();
+    // initially empty!
+    s.push('H');
+    s.push_str(&quot;ello&quot;);
+    s.push(' ');
+    s += &quot;World!&quot;; // short for `push_str`
+    // remove the last char
+    s.pop();
+
+    assert_eq!(s, &quot;Hello World&quot;);
+}
+</code></pre></pre>
+<p>You can convert many types to strings using <code>to_string</code>
+(essentially, if you can display them with '{}' then they can be converted).
+The <code>format!</code> macro is a very useful way to build
+up more complicated strings using the same format strings as <code>println!</code>.</p>
+<pre><pre class="playpen"><code class="language-rust">// string5.rs
+fn array_to_str(arr: &amp;[i32]) -&gt; String {
+    let mut res = '['.to_string();
+    for v in arr {
+        res += &amp;v.to_string();
+        res.push(',');
+    }
+    res.pop();
+    res.push(']');
+    res
+}
+
+fn main() {
+    let arr = array_to_str(&amp;[10, 20, 30]);
+    let res = format!(&quot;hello {}&quot;, arr);
+
+    assert_eq!(res, &quot;hello [10,20,30]&quot;);
+}
+</code></pre></pre>
+<p>Note the <code>&amp;</code> in front of <code>v.to_string()</code> - the operator is defined on a string
+slice, not a <code>String</code> itself, so it needs a little persuasion to match.</p>
+<p>The notation used for slices works with strings as well:</p>
+<pre><pre class="playpen"><code class="language-rust">// string2.rs
+fn main() {
+    let text = &quot;static&quot;;
+    let string = &quot;dynamic&quot;.to_string();
+
+    let text_s = &amp;text[1..];
+    let string_s = &amp;string[2..4];
+
+    println!(&quot;slices {:?} {:?}&quot;, text_s, string_s);
+}
+// slices &quot;tatic&quot; &quot;na&quot;
+</code></pre></pre>
+<p>Again, this is superior to the C++ approach, which is to use the <code>substr</code>
+method - which <em>makes a copy</em>. In the Rust case, it's just a borrow.</p>
+<p>But, you cannot index strings!  This is because they use the One True Encoding,
+UTF-8, where a 'character' may be a number of bytes.</p>
+<pre><pre class="playpen"><code class="language-rust">// string3.rs
+fn main() {
+    let multilingual = &quot;Hi! ¡Hola! привет!&quot;;
+    for ch in multilingual.chars() {
+        print!(&quot;'{}' &quot;, ch);
+    }
+    println!(&quot;&quot;);
+    println!(&quot;len {}&quot;, multilingual.len());
+    println!(&quot;count {}&quot;, multilingual.chars().count());
+
+    let maybe = multilingual.find('п');
+    if maybe.is_some() {
+        let hi = &amp;multilingual[maybe.unwrap()..];
+        println!(&quot;Russian hi {}&quot;, hi);
+    }
+}
+// 'H' 'i' '!' ' ' '¡' 'H' 'o' 'l' 'a' '!' ' ' 'п' 'р' 'и' 'в' 'е' 'т' '!'
+// len 25
+// count 18
+// Russian hi привет!
+</code></pre></pre>
+<p>Now, let that sink in - there are 25 bytes, but only 18 characters! However, if
+you use a method like <code>find</code>, you will get a valid index (if found) and then
+any slice will be fine.</p>
+<p>(The Rust <code>char</code> type is a 4-byte Unicode code point. Strings are <em>not</em> arrays
+of chars!)</p>
+<p>String slicing may explode like vector indexing, because it uses byte offsets. In this case,
+the string consists of two bytes, so trying to pull out the first byte is a Unicode error. So be
+careful to only slice strings using valid offsets that come from string methods.</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    let s = &quot;¡&quot;;
+    println!(&quot;{}&quot;, &amp;s[0..1]); &lt;-- bad, first byte of a multibyte character
+
+#}</code></pre></pre>
+<p>Breaking up strings is a popular and useful pastime. The string <code>split_whitespace</code>
+method returns an <em>iterator</em>, and we then choose what to do with it. <code>collect</code>
+is very general and so needs some clues about <em>what</em> it is collecting - hence
+the explicit type.</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    let text = &quot;the red fox and the lazy dog&quot;;
+    let words: Vec&lt;&amp;str&gt; = text.split_whitespace().collect();
+    // [&quot;the&quot;, &quot;red&quot;, &quot;fox&quot;, &quot;and&quot;, &quot;the&quot;, &quot;lazy&quot;, &quot;dog&quot;]
+
+#}</code></pre></pre>
+<p>You could also say it like this, passing the iterator into the <code>extend</code> method:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    let mut words = Vec::new();
+    words.extend(text.split_whitespace());
+
+#}</code></pre></pre>
+<p>If written in C++, we would have to make these <em>allocated strings</em>, whereas
+here each slice in the vector is borrowing from the original string. All we
+allocate is the space to keep the slices.</p>
+<p>Have a look at this cute two-liner; we get an iterator over the chars,
+and only take those characters which are not space. Again, <code>collect</code> needs
+a clue (we may have wanted a vector of chars, say):</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    let stripped: String = text.chars()
+        .filter(|ch| !ch.is_whitespace()).collect();
+    // theredfoxandthelazydog
+
+#}</code></pre></pre>
+<p>The <code>filter</code> method takes a <em>closure</em>, which is Rust-speak for what C++ calls
+lambdas or anonymous functions.  Here the argument type is clear from the
+context, so the explicit rule is relaxed.</p>
+<p>Yes, you can do this as an explicit loop over chars, pushing the returned slices
+into a mutable vector, but this is shorter, reads well (<em>when</em> you are used to it,
+of course) and just as fast. It is not a <em>sin</em> to use a loop, however, and I encourage
+you to write that version as well.</p>
+<a class="header" href="./1-basics.html#interlude-getting-command-line-arguments" name="interlude-getting-command-line-arguments"><h2>Interlude: Getting Command Line Arguments</h2></a>
+<p>Up to now our programs have lived in blissful ignorance of the outside world; now
+it's time to feed them data.</p>
+<p><code>std::env::args</code> is how you access command-line arguments; it returns an iterator
+over the arguments as strings, including the program name.</p>
+<pre><pre class="playpen"><code class="language-rust">// args0.rs
+fn main() {
+    for arg in std::env::args() {
+        println!(&quot;'{}&quot;, arg);
+    }
+}
+</code></pre></pre>
+<pre><code>src$ rustc args0.rs
+src$ ./args0 42 'hello dolly' frodo
+'./args0'
+'42'
+'hello dolly'
+'frodo'
+</code></pre>
+<p>Would it have been better to return a <code>Vec</code>? It's easy enough to use <code>collect</code> to
+make that vector, using the iterator <code>skip</code> method to move past the program
+name.</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    let args: Vec&lt;String&gt; = std::env::args().skip(1).collect();
+    if args.len() &gt; 0 { // we have args!
+        ...
+    }
+
+#}</code></pre></pre>
+<p>Which is fine; it's pretty much how you would do it in C.</p>
+<p>A more Rust-y approach to reading a single argument (together with parsing an
+integer value):</p>
+<pre><pre class="playpen"><code class="language-rust">// args1.rs
+use std::env;
+
+fn main() {
+    let first = env::args().nth(1).expect(&quot;please supply an argument&quot;);
+    let n: i32 = first.parse().expect(&quot;not an integer!&quot;);
+    // do your magic
+}
+</code></pre></pre>
+<p><code>nth(1)</code> gives you the second argument from the iterator, and <code>expect</code>
+is like an <code>unwrap</code> with a readable message.</p>
+<p>Converting a string into a number is straightforward, but you do need to specify
+the type of the value - how else could <code>parse</code> know?</p>
+<p>This program can panic, which is fine for dinky test programs. But don't get too
+comfortable with this convenient habit.</p>
+<a class="header" href="./1-basics.html#matching" name="matching"><h2>Matching</h2></a>
+<p>The code in <code>string3.rs</code> where we extract the Russian greeting is not how it would
+be usually written. Enter <em>match</em>:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    match multilingual.find('п') {
+        Some(idx) =&gt; {
+            let hi = &amp;multilingual[idx..];
+            println!(&quot;Russian hi {}&quot;, hi);
+        },
+        None =&gt; println!(&quot;couldn't find the greeting, Товарищ&quot;)
+    };
+
+#}</code></pre></pre>
+<p><code>match</code> consists of several <em>patterns</em> with a matching value following the fat arrow,
+separated by commas.  It has conveniently unwrapped the value from the <code>Option</code> and
+bound it to <code>idx</code>.  You <em>must</em> specify all the possibilities, so we have to handle
+<code>None</code>.</p>
+<p>Once you are used to it (and by that I mean, typed it out in full a few times) it
+feels more natural than the explicit <code>is_some</code> check which needed an extra
+variable to store the <code>Option</code>.</p>
+<p>But if you're not interested in failure here, then <code>if let</code> is your friend:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    if let Some(idx) = multilingual.find('п') {
+        println!(&quot;Russian hi {}&quot;, &amp;multilingual[idx..]);
+    }
+
+#}</code></pre></pre>
+<p>This is convenient if you want to do a match and are <em>only</em> interested in one possible
+result.</p>
+<p><code>match</code> can also operate like a C <code>switch</code> statement, and like other Rust constructs
+can return a value:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    let text = match n {
+        0 =&gt; &quot;zero&quot;,
+        1 =&gt; &quot;one&quot;,
+        2 =&gt; &quot;two&quot;,
+        _ =&gt; &quot;many&quot;,
+    };
+
+#}</code></pre></pre>
+<p>The <code>_</code> is like C <code>default</code> - it's a fall-back case. If you don't provide one then
+<code>rustc</code> will consider it an error. (In C++ the best you can expect is a warning, which
+says a lot about the respective languages).</p>
+<p>Rust <code>match</code> statements are more powerful than <code>switch</code>:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    let text = match n {
+        0...3 =&gt; &quot;small&quot;,
+        4...6 =&gt; &quot;medium&quot;,
+        _ =&gt; &quot;large&quot;,
+     };
+
+#}</code></pre></pre>
+<a class="header" href="./1-basics.html#reading-from-files" name="reading-from-files"><h2>Reading from Files</h2></a>
+<p>The next step to exposing our programs to the world is to <em>reading files</em>.</p>
+<p>Recall that <code>expect</code> is like <code>unwrap</code> but gives a custom error message. We are
+going to throw any a few errors here:</p>
+<pre><pre class="playpen"><code class="language-rust">// file1.rs
+use std::env;
+use std::fs::File;
+use std::io::Read;
+
+fn main() {
+    let first = env::args().nth(1).expect(&quot;please supply a filename&quot;);
+
+    let mut file = File::open(&amp;first).expect(&quot;can't open the file&quot;);
+
+    let mut text = String::new();
+    file.read_to_string(&amp;mut text).expect(&quot;can't read the file&quot;);
+
+    println!(&quot;file had {} bytes&quot;, text.len());
+
+}
+</code></pre></pre>
+<pre><code>src$ file1 file1.rs
+file had 366 bytes
+src$ ./file1 frodo.txt
+thread 'main' panicked at 'can't open the file: Error { repr: Os { code: 2, message: &quot;No such file or directory&quot; } }', ../src/libcore/result.rs:837
+note: Run with `RUST_BACKTRACE=1` for a backtrace.
+src$ file1 file1
+thread 'main' panicked at 'can't read the file: Error { repr: Custom(Custom { kind: InvalidData, error: StringError(&quot;stream did not contain valid UTF-8&quot;) }) }', ../src/libcore/result.rs:837
+note: Run with `RUST_BACKTRACE=1` for a backtrace.
+</code></pre>
+<p>So <code>open</code> can fail because the file doesn't exist or we aren't allowed to read it,
+and <code>read_to_string</code> can fail because the file doesn't contain valid UTF-8. (Which is
+fair enough, you can use <code>read_to_end</code> and put the contents into a vector of bytes
+instead.) For files that aren't too big, reading them in one gulp is useful and
+straightforward.</p>
+<p>If you know anything about file handling in other languages, you may wonder when
+the file is <em>closed</em>. If we were writing to this file, then not closing it could
+result in loss of data.
+But the file here is closed when the function ends and the <code>file</code> variable is <em>dropped</em>.</p>
+<p>This 'throwing away errors' thing is getting too much of a habit. You do not
+want to put this code into a function, knowing that it could so easily crash
+the whole program.  So now we have to talk about exactly what <code>File::open</code> returns.
+If <code>Option</code> is a value that may contain something or nothing, then <code>Result</code> is a value
+that may contain something or an error. They both understand <code>unwrap</code> (and its cousin
+<code>expect</code>) but they are quite different.</p>
+<p>This version defines a function that does not crash. It passes on a <code>Result</code> and
+it is the <em>caller</em> who must decide how to handle the error.</p>
+<pre><pre class="playpen"><code class="language-rust">// file2.rs
+use std::env;
+use std::fs::File;
+use std::io::Read;
+use std::io;
+
+fn read_to_string(filename: &amp;str) -&gt; io::Result&lt;String&gt; {
+    let mut file = match File::open(&amp;filename) {
+        Ok(f) =&gt; f,
+        Err(e) =&gt; return Err(e),
+    };
+    let mut text = String::new();
+    match file.read_to_string(&amp;mut text) {
+        Ok(_) =&gt; Ok(text),
+        Err(e) =&gt; Err(e),
+    }
+}
+
+fn main() {
+    let file = env::args().nth(1).expect(&quot;please supply a filename&quot;);
+
+    let text = read_to_string(&amp;file).expect(&quot;bad file man!&quot;);
+
+    println!(&quot;file had {} bytes&quot;, text.len());
+}
+</code></pre></pre>
+<p>The <code>Result</code> 'box' has two compartments, one labelled <code>Ok</code>
+and the other <code>Err</code>.</p>
+<p>The first match safely extracts the value from <code>Ok</code>, which
+becomes the value of the match. If it's <code>Err</code> it just returns the error.
+The second match returns the string, wrapped up as an <code>Ok</code>, otherwise
+(again) the error. The actual value in the <code>Ok</code> is unimportant, so we ignore
+it with <code>_</code>.</p>
+<p>This is not so pretty; when most of a function is error handling, then
+the 'happy path' gets lost. Go tends to have this problem, with lots of
+explicit early returns, or just <em>ignoring errors</em>.  (That is, by the way,
+the closest thing to evil in the Rust universe.)</p>
+<p>Fortunately, there is a shortcut:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+fn read_to_string(filename: &amp;str) -&gt; io::Result&lt;String&gt; {
+    let mut file = File::open(&amp;filename)?;
+    let mut text = String::new();
+    file.read_to_string(&amp;mut text)?;
+    Ok(text)
+}
+
+#}</code></pre></pre>
+<p>That <code>?</code> operator does almost exactly what the first match did; if the
+result was an error, then it will immediately return that error. At the end, we
+still need to wrap up the string as a result.</p>
+<p>It's been a good year in Rust, and <code>?</code> was one of the cool things that
+became stable recently. You will still see the macro <code>try!</code> used in older code:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+fn read_to_string(filename: &amp;str) -&gt; io::Result&lt;String&gt; {
+    let mut file = try!(File::open(&amp;filename));
+    let mut text = String::new();
+    try!(file.read_to_string(&amp;mut text));
+    Ok(text)
+}
+
+#}</code></pre></pre>
+<p>In summary, it's possible to write perfectly safe Rust that isn't ugly, without
+needing exceptions.</p>
+
+                </div>
+
+                <!-- Mobile navigation buttons -->
+                
+                    <a href="./readme.html" class="mobile-nav-chapters previous">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a href="./2-structs-enums-lifetimes.html" class="mobile-nav-chapters next">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+
+            </div>
+
+            
+                <a href="./readme.html" class="nav-chapters previous" title="You can navigate through the chapters using the arrow keys">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+            
+
+            
+                <a href="./2-structs-enums-lifetimes.html" class="nav-chapters next" title="You can navigate through the chapters using the arrow keys">
+                    <i class="fa fa-angle-right"></i>
+                </a>
+            
+
+        </div>
+
+
+        <!-- Local fallback for Font Awesome -->
+        <script>
+            if ($(".fa").css("font-family") !== "FontAwesome") {
+                $('<link rel="stylesheet" type="text/css" href="_FontAwesome/css/font-awesome.css">').prependTo('head');
+            }
+        </script>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        
+
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+    </body>
+</html>

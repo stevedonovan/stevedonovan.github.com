@@ -1,0 +1,1794 @@
+<!DOCTYPE HTML>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Structs, Enums and Matching - </title>
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <base href="">
+
+        <link rel="stylesheet" href="book.css">
+        <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+
+        <link rel="shortcut icon" href="favicon.png">
+
+        <!-- Font Awesome -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+
+        <!-- MathJax -->
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Fetch JQuery from CDN but have a local fallback -->
+        <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+        <script>
+            if (typeof jQuery == 'undefined') {
+                document.write(unescape("%3Cscript src='jquery.js'%3E%3C/script%3E"));
+            }
+        </script>
+    </head>
+    <body class="light">
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme = localStorage.getItem('theme');
+            if (theme == null) { theme = 'light'; }
+            $('body').removeClass().addClass(theme);
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var sidebar = localStorage.getItem('sidebar');
+            if (sidebar === "hidden") { $("html").addClass("sidebar-hidden") }
+            else if (sidebar === "visible") { $("html").addClass("sidebar-visible") }
+        </script>
+
+        <div id="sidebar" class="sidebar">
+            <ul class="chapter"><li class="affix"><a href="./readme.html">Introduction</a></li><li><a href="./1-basics.html"><strong>1.</strong> Basics</a></li><li><a href="./2-structs-enums-lifetimes.html" class="active"><strong>2.</strong> Structs, Enums and Matching</a></li><li><a href="./3-filesystem.html"><strong>3.</strong> Filesystem and Processes</a></li><li><a href="./4-modules.html"><strong>4.</strong> Modules and Cargo</a></li><li><a href="./5-stdlib-containers.html"><strong>5.</strong> Standard Library Containers</a></li><li><a href="./6-error-handling.html"><strong>6.</strong> Error Handling</a></li><li><a href="./7-shared-and-networking.html"><strong>7.</strong> Threads, Networking and Sharing</a></li></ul>
+        </div>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar" class="menu-bar">
+                    <div class="left-buttons">
+                        <i id="sidebar-toggle" class="fa fa-bars"></i>
+                        <i id="theme-toggle" class="fa fa-paint-brush"></i>
+                    </div>
+
+                    <h1 class="menu-title"></h1>
+
+                    <div class="right-buttons">
+                        <i id="print-button" class="fa fa-print" title="Print this book"></i>
+                    </div>
+                </div>
+
+                <div id="content" class="content">
+                    <a class="header" href="./2-structs-enums-lifetimes.html#structs-enums-and-matching" name="structs-enums-and-matching"><h1>Structs, Enums and Matching</h1></a>
+<a class="header" href="./2-structs-enums-lifetimes.html#rust-likes-to-move-it-move-it" name="rust-likes-to-move-it-move-it"><h2>Rust likes to Move It, Move It</h2></a>
+<p>I'd like to move back a little, and show you something surprising:</p>
+<pre><pre class="playpen"><code class="language-rust">// move1.rs
+fn main() {
+    let s1 = &quot;hello dolly&quot;.to_string();
+    let s2 = s1;
+    println!(&quot;s1 {}&quot;, s1);
+}
+</code></pre></pre>
+<p>And we get the following error:</p>
+<pre><code>error[E0382]: use of moved value: `s1`
+ --&gt; move1.rs:5:22
+  |
+4 |     let s2 = s1;
+  |         -- value moved here
+5 |     println!(&quot;s1 {}&quot;, s1);
+  |                      ^^ value used here after move
+  |
+  = note: move occurs because `s1` has type `std::string::String`,
+  which does not implement the `Copy` trait
+</code></pre>
+<p>Rust has different behaviour than other languages. In a language where variables are
+always references (like Java or Python), <code>s2</code> becomes yet another reference to the
+string object referenced by <code>s1</code>. In C++, <code>s1</code> is a value, and it is <em>copied</em> to <code>s2</code>.
+But Rust moves the value.  It doesn't see strings as copyable
+(&quot;does not implement the Copy trait&quot;).</p>
+<p>We would not see this with 'primitive' types like numbers, since they are just values;
+they are allowed to be copyable because they are cheap to copy. But <code>String</code> has allocated
+memory containing &quot;Hello dolly&quot;, and copying will involve allocating some more memory
+and copying the characters. Rust will not do this silently.</p>
+<p>Consider a <code>String</code> containing the whole text of 'Moby-Dick'. It's not a big struct,
+just has the address in memory of the text, its size, and how big the allocated block is.
+Copying this is going to be expensive, because that memory is allocated on the heap and
+the copy will need its own allocated block.</p>
+<pre><code>    | addr | ---------&gt; Call me Ishmael.....
+    | size |                    |
+    | cap  |                    |
+                                |
+    | addr | -------------------|
+    | size |
+
+    | 8 bytes |
+</code></pre>
+<p>The second value is a string slice (<code>&amp;str</code>) which refers to the same memory as the string,
+with a size - just the guy's name. Cheap to copy!</p>
+<p>The third value is an <code>f64</code> - just 8 bytes. It does not refer to any other memory, so
+it's just as cheap to copy as to move.</p>
+<p>Re-writing with a function call reveals exactly the same error:</p>
+<pre><pre class="playpen"><code class="language-rust">// move2.rs
+
+fn dump(s: String) {
+    println!(&quot;{}&quot;, s);
+}
+
+fn main() {
+    let s1 = &quot;hello dolly&quot;.to_string();
+    dump(s1);
+    println!(&quot;s1 {}&quot;, s1);
+}
+</code></pre></pre>
+<p>Here, you have a choice. You may explicitly create a reference to that string, or
+explicitly copy it using its <code>clone</code> method.  Generally, the first is the better way
+to go.</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+fn dump(s: &amp;String) {
+    println!(&quot;{}&quot;, s);
+}
+
+#}</code></pre></pre>
+<p>The call becomes <code>dump(&amp;s1)</code>, and the error goes away. But you'll rarely see a plain
+<code>String</code> reference like this, since to pass a string literal is really ugly <em>and</em> involves
+creating a temporary string.</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    dump(&amp;&quot;hello world&quot;.to_string());
+
+#}</code></pre></pre>
+<p>So altogether the best way to declare that function is:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+fn dump(s: &amp;str) {
+    println!(&quot;{}&quot;, s);
+}
+
+#}</code></pre></pre>
+<p>And then both <code>dump(&amp;s1)</code> and <code>dump(&quot;hello world&quot;)</code> work properly.</p>
+<a class="header" href="./2-structs-enums-lifetimes.html#lifetimes" name="lifetimes"><h2>Lifetimes</h2></a>
+<p>So, the rule of thumb is to prefer to keep references to the original data - to 'borrow'
+it.</p>
+<p>But a reference must <em>not</em> outlive the owner!</p>
+<p>First, Rust is a <em>block-scoped</em> language. Variables only exist for the duration of their
+block:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+{
+    let a = 10;
+    let b = &quot;hello&quot;;
+    {
+        let c = &quot;hello&quot;.to_string();
+        // a,b and c are visible
+    } // the string c is dropped
+    // a,b are visible
+    for i in 0..a {
+        let b = &amp;b[1..];
+        // original b is no longer visible - it is shadowed.
+    }
+    // the slice b is dropped
+    // i is _not_ visible!
+}
+
+#}</code></pre></pre>
+<p>Loop variables (like <code>i</code>) are a little different, they are only visible in the loop
+block.  It is not an error to create a new variable using the same name ('shadowing')
+but it can be confusing.</p>
+<p>When a variable 'goes out of scope' then it is <em>dropped</em>. Any memory used is reclaimed,
+and any other <em>resources</em> owned by that variable are given back to the system - for
+instance, dropping a <code>File</code> closes it.  This is a Good Thing. Unused resources are
+reclaimed immediately when not needed.</p>
+<p>(A further Rust-specific issue is that a variable may appear to be in scope, but its
+value has moved.)</p>
+<p>Here a reference <code>rs1</code> is made to a value <code>tmp</code> which only lives for the duration
+of its block:</p>
+<pre><pre class="playpen"><code class="language-rust">01 // ref1.rs
+02 fn main() {
+03    let s1 = &quot;hello dolly&quot;.to_string();
+04    let mut rs1 = &amp;s1;
+05    {
+06        let tmp = &quot;hello world&quot;.to_string();
+07        rs1 = &amp;tmp;
+08    }
+09    println!(&quot;ref {}&quot;, rs1);
+10 }
+</code></pre></pre>
+<p>We borrow the value of <code>s1</code> and then borrow the value of <code>tmp</code>. But <code>tmp</code>'s value
+does not exist outside that block:</p>
+<pre><code>error: `tmp` does not live long enough
+  --&gt; ref1.rs:8:5
+   |
+7  |         rs1 = &amp;tmp;
+   |                --- borrow occurs here
+8  |     }
+   |     ^ `tmp` dropped here while still borrowed
+9  |     println!(&quot;ref {}&quot;, rs1);
+10 | }
+   | - borrowed value needs to live until here
+</code></pre>
+<p>Where is <code>tmp</code>? Gone, dead, gone back to the Big Heap in the Sky: <em>dropped</em>.
+Rust is here saving you from the dreaded 'dangling pointer' problem of C -
+a reference that points to stale data.</p>
+<a class="header" href="./2-structs-enums-lifetimes.html#tuples" name="tuples"><h2>Tuples</h2></a>
+<p>It's sometimes very useful to return multiple values from a function. Tuples are
+the solution:</p>
+<pre><pre class="playpen"><code class="language-rust">// tuple1.rs
+
+fn add_mul(x: f64, y: f64) -&gt; (f64,f64) {
+    (x + y, x * y)
+}
+
+fn main() {
+    let t = add_mul(2.0,10.0);
+
+    // can debug print
+    println!(&quot;t {:?}&quot;, t);
+
+    // can 'index' the values
+    println!(&quot;add {} mul {}&quot;, t.0,t.1);
+
+    // can _extract_ values
+    let (add,mul) = t;
+    println!(&quot;add {} mul {}&quot;, add,mul);
+}
+// t (12, 20)
+// add 12 mul 20
+// add 12 mul 20
+</code></pre></pre>
+<p>The <code>let (add,mul) = t</code> construct is similar to that found in Python, except it only works
+with tuple values, not any source of values.</p>
+<p>Tuples may contain <em>different</em> types, which is the main difference from arrays.</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+let tuple = (&quot;hello&quot;, 5, 'c');
+
+assert_eq!(tuple.0, &quot;hello&quot;);
+assert_eq!(tuple.1, 5);
+assert_eq!(tuple.2, 'c');
+
+#}</code></pre></pre>
+<p>They appear in some <code>Iterator</code> methods. This is like the Python generator
+of the same name:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    for (i,s) in [&quot;zero&quot;,&quot;one&quot;,&quot;two&quot;].iter().enumerate() {
+        print!(&quot; {} {};&quot;,i,s);
+    }
+    //  0 zero; 1 one; 2 two;
+
+#}</code></pre></pre>
+<p><code>zip</code> is specifically for combining two iterators into a single iterator of
+tuples containing the values:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    let names = [&quot;ten&quot;,&quot;hundred&quot;,&quot;thousand&quot;];
+    let nums = [10,100,1000];
+    for (name,num) in names.iter().zip(nums.iter()) {
+        print!(&quot; {} {};&quot;, name,num);
+    }
+    //  ten 10; hundred 100; thousand 1000;
+
+#}</code></pre></pre>
+<a class="header" href="./2-structs-enums-lifetimes.html#structs" name="structs"><h2>Structs</h2></a>
+<p>Tuples are convenient, but saying <code>t.1</code> and keeping track of the meaning of each part
+is tedious for anything that isn't straightforward.</p>
+<p>Rust <em>structs</em> contain named <em>fields</em>:</p>
+<pre><pre class="playpen"><code class="language-rust">// struct1.rs
+
+struct Person {
+    first_name: String,
+    last_name: String
+}
+
+fn main() {
+    let p = Person {
+        first_name: &quot;John&quot;.to_string(),
+        last_name: &quot;Smith&quot;.to_string()
+    };
+    println!(&quot;person {} {}&quot;, p.first_name,p.last_name);
+}
+</code></pre></pre>
+<p>The values of a struct will be placed next to each other in memory, although you should
+not assume any particular memory layout - the compiler will organize the memory for
+efficiency, not size, and so there will be padding. A <code>struct</code> should be familiar to C or
+C++ programmers.</p>
+<p>Initializing this struct is a bit clumsy, so we want to move the construction of a <code>Person</code>
+into its own function. This function can be made into a <em>method</em> of <code>Person</code> by putting
+it into a <code>impl</code> block:</p>
+<pre><pre class="playpen"><code class="language-rust">// struct2.rs
+
+struct Person {
+    first_name: String,
+    last_name: String
+}
+
+impl Person {
+
+    fn new(first: &amp;str, name: &amp;str) -&gt; Person {
+        Person {
+            first_name: first.to_string(),
+            last_name: name.to_string()
+        }
+    }
+
+}
+
+fn main() {
+    let p = Person::new(&quot;John&quot;,&quot;Smith&quot;);
+    println!(&quot;person {} {}&quot;, p.first_name,p.last_name);
+}
+</code></pre></pre>
+<p>There is nothing magic or reserved about the name <code>new</code> here. Note that it's accessed
+using a C++-like notation (what C++ would call in its usual clunky way a 'static member
+function'.)</p>
+<p>Here's a another <code>Person</code> method, but with a <em>reference self</em> argument:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+impl Person {
+    ...
+
+    fn full_name(&amp;self) -&gt; String {
+        format!(&quot;{} {}&quot;, self.first_name, self.last_name)
+    }
+
+}
+...
+    println!(&quot;fullname {}&quot;, p.full_name());
+// fullname John Smith
+
+#}</code></pre></pre>
+<p>The <code>self</code> is used explicitly (unlike the <code>this</code> of C++) and is passed as a reference.
+(You can think of <code>&amp;self</code> as <code>self: &amp;Person</code>.)</p>
+<p>The keyword <code>Self</code> refers to the struct type - you can mentally substitute <code>Person</code>
+for <code>Self</code> here:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    fn copy(&amp;self) -&gt; Self {
+        Self::new(&amp;self.first_name,&amp;self.last_name)
+    }
+
+#}</code></pre></pre>
+<p>Methods may allow the data to be modified using a <em>mutable self</em> argument:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    fn set_first_name(&amp;mut self, name: &amp;str) {
+        self.first_name = name.to_string();
+    }
+
+#}</code></pre></pre>
+<p>And the data will <em>move</em> into the method when a plain self argument is used:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    fn to_tuple(self) -&gt; (String,String) {
+        (self.first_name, self.last_name)
+    }
+
+#}</code></pre></pre>
+<p>(Try that with <code>&amp;self</code> - structs will not let go of their data without a fight!)</p>
+<p>If you try to do a debug dump of a <code>Person</code>, you will get an informative error:</p>
+<pre><code>error[E0277]: the trait bound `Person: std::fmt::Debug` is not satisfied
+  --&gt; struct2.rs:23:21
+   |
+23 |     println!(&quot;{:?}&quot;, p);
+   |                     ^ the trait `std::fmt::Debug` is not implemented for `Person`
+   |
+   = note: `Person` cannot be formatted using `:?`; if it is defined in your crate,
+    add `#[derive(Debug)]` or manually implement it
+   = note: required by `std::fmt::Debug::fmt`
+</code></pre>
+<p>The compiler is giving advice, so we put <code>#[derive(Debug)]</code> in front of <code>Person</code>, and now
+there is sensible output:</p>
+<pre><code>Person { first_name: &quot;John&quot;, last_name: &quot;Smith&quot; }
+</code></pre>
+<p>The <em>directive</em> makes the compiler generate a <code>Debug</code> implementation, which is very
+helpful. It's good practice to do this for your structs, so they can be
+printed out (or written as a string using <code>format!</code>).  (Doing so <em>by default</em> would be
+very un-Rustlike.)</p>
+<a class="header" href="./2-structs-enums-lifetimes.html#lifetimes-start-to-bite" name="lifetimes-start-to-bite"><h2>Lifetimes Start to Bite</h2></a>
+<p>Usually structs contain values, but often they also need to contain references.
+Say we want to put a string slice, not a string value, in a struct.</p>
+<pre><pre class="playpen"><code class="language-rust">// life1.rs
+
+#[derive(Debug)]
+struct A {
+    s: &amp;str
+}
+
+fn main() {
+    let a = A { s: &quot;hello dammit&quot; };
+
+    println!(&quot;{:?}&quot;, a);
+}
+</code></pre></pre>
+<pre><code>error[E0106]: missing lifetime specifier
+ --&gt; life1.rs:5:8
+  |
+5 |     s: &amp;str
+  |        ^ expected lifetime parameter
+</code></pre>
+<p>To understand the complaint, you have to see the problem from the point of view of Rust.
+It will not allow a reference to be stored without knowing its lifetime. Because all
+references are borrowed from some value, and values have lifetimes. The lifetime of
+a reference cannot be longer than the lifetime of that value.
+Rust cannot allow
+a situation where that reference could suddenly become invalid.</p>
+<p>Now, there are basically two kinds of string slices; those that refer to <em>string literals</em>
+like &quot;hello&quot; and those that borrow from <code>String</code> values. String literals exist for the duration
+of the whole program, which is called the 'static' lifetime.</p>
+<p>So this works - we assure Rust that the string slice always refers to such static strings:</p>
+<pre><pre class="playpen"><code class="language-rust">// life2.rs
+
+#[derive(Debug)]
+struct A {
+    s: &amp;'static str
+}
+
+fn main() {
+    let a = A { s: &quot;hello dammit&quot; };
+
+    println!(&quot;{:?}&quot;, a);
+}
+// A { s: &quot;hello dammit&quot; }
+</code></pre></pre>
+<p>It is not the most <em>pretty</em> notation, but sometimes ugliness is the necessary
+price of being precise.</p>
+<p>This can also be used to specify a string slice that is returned from a function:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+fn how(i: u32) -&gt; &amp;'static str {
+    match i {
+    0: 'none',
+    1: 'one',
+    _: 'many'
+    }
+}
+
+#}</code></pre></pre>
+<p>That works for the special case of static strings, but this is very restrictive.</p>
+<p>However we can specify that the lifetime of the reference is <em>as least as long</em> as that of
+the struct itself.</p>
+<pre><pre class="playpen"><code class="language-rust">// life3.rs
+
+#[derive(Debug)]
+struct A &lt;'a&gt; {
+    s: &amp;'a str
+}
+
+fn main() {
+    let string = &quot;I'm a little string&quot;.to_string();
+    let a = A { s: &amp;string };
+
+    println!(&quot;{:?}&quot;, a);
+}
+</code></pre></pre>
+<p>Lifetimes are conventionally called 'a','b',etc but you could just as well called it
+'me' here.</p>
+<p>Sometimes it seems like a good idea for a struct to contain a value <em>and</em> a reference
+that borrows from that value.
+It's basically impossible because structs must be <em>moveable</em>, and any move will
+invalidate the reference.  It isn't necessary to do this - for instance, if your
+struct has a string field, and needs to provide slices, then it could keep indices
+and have a method to generate the actual slices.</p>
+<a class="header" href="./2-structs-enums-lifetimes.html#traits" name="traits"><h2>Traits</h2></a>
+<p>Please note that Rust does not spell <code>struct</code> <em>class</em>. The keyword <code>class</code> in other
+languages is so overloaded with meaning that it effectively shuts down original thinking.</p>
+<p>Let's put it like this: Rust structs cannot <em>inherit</em> from other structs; they are
+all unique types. There is no <em>sub-typing</em>. They are dumb data.</p>
+<p>So how <em>does</em> one establish relationships between types? This is where <em>traits</em> come in.</p>
+<p><code>rustc</code> often talks about <code>implementing X trait</code> and so it's time to talk about traits
+properly.</p>
+<p>Here's a little example of defining a trait and <em>implementing</em> it for a particular type.</p>
+<pre><pre class="playpen"><code class="language-rust">// trait1.rs
+
+trait Show {
+    fn show(&amp;self) -&gt; String;
+}
+
+impl Show for i32 {
+    fn show(&amp;self) -&gt; String {
+        format!(&quot;four-byte unsigned {}&quot;, self)
+    }
+}
+
+impl Show for f64 {
+    fn show(&amp;self) -&gt; String {
+        format!(&quot;eight-byte float {}&quot;, self)
+    }
+}
+
+fn main() {
+    let answer = 42;
+    let maybe_pi = 3.14;
+    let s1 = answer.show();
+    let s2 = maybe_pi.show();
+    println!(&quot;show {}&quot;, s1);
+    println!(&quot;show {}&quot;, s2);
+}
+// show four-byte signed 42
+// show eight-byte float 3.14
+</code></pre></pre>
+<p>It's pretty cool; we have <em>added a new method</em> to both <code>i32</code> and <code>f64</code>!</p>
+<p>Getting comfortable with Rust involves learning the basic traits of the
+standard library (they tend to hunt in packs.)</p>
+<p><code>Debug</code> is very common.
+We gave <code>Person</code> a default implementation with the
+convenient <code>#[derive(Debug)]</code>, but say we want a <code>Person</code> to display as its full name:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+use std::fmt;
+
+impl fmt::Debug for Person {
+    fn fmt(&amp;self, f: &amp;mut fmt::Formatter) -&gt; fmt::Result {
+        write!(f, &quot;{}&quot;, self.full_name())
+    }
+}
+...
+    println!(&quot;{:?}&quot;, p);
+    // John Smith
+
+#}</code></pre></pre>
+<p><code>write!</code> is a very useful macro - here <code>f</code> is anything that implements <code>Write</code>.
+(This would also work with a <code>File</code> - or even a <code>String</code>.)</p>
+<p>Now, with the implementations of <code>Show</code> in <code>trait1.rs</code>, here's a
+little main program with big implications:</p>
+<pre><pre class="playpen"><code class="language-rust">fn main() {
+    let answer = 42;
+    let maybe_pi = 3.14;
+    let v: Vec&lt;&amp;Show&gt; = vec![&amp;answer,&amp;maybe_pi];
+    for d in v.iter() {
+        println!(&quot;show {}&quot;,d.show());
+    }
+}
+// show four-byte signed 42
+// show eight-byte float 3.14
+</code></pre></pre>
+<p>This is a case where Rust needs some type guidance - I specifically want a vector
+of references to anything that implements <code>Show</code>.  Now note that <code>i32</code> and <code>f64</code>
+have no relationship to each other, but they both understand the <code>show</code> method
+because they both implement the same trait. This method is <em>virtual</em>, because
+the actual function has different code for different types, and yet the correct
+method is invoked based on <em>runtime</em> information. These references
+are called <a href="https://doc.rust-lang.org/stable/book/trait-objects.html">trait objects</a>.</p>
+<p>And <em>that</em> is how you can put objects of different types in the same vector. If
+you come from a Java background, you can think of <code>Show</code> as an interface; the
+nearest C++ equivalent is &quot;abstract base class&quot;.</p>
+<a class="header" href="./2-structs-enums-lifetimes.html#example-iterator-over-floating-point-range" name="example-iterator-over-floating-point-range"><h2>Example: iterator over floating-point range</h2></a>
+<p>We have met ranges before (<code>0..n</code>) but they don't work for floating-point values. (You
+can <em>force</em> this but you'll end up with a step of 1.0 which is uninteresting.)</p>
+<p>Recall the informal definition of an iterator; it is an struct with a <code>next</code> method
+which may return <code>Some</code>-thing or <code>None</code>. In the process, the iterator itself gets modified,
+it keeps the state for the iteration (like next index and so forth.) The data that
+is being iterated over doesn't change usually, (But see <code>std::vec::Vec::drain</code> for an
+interesting iterator that does modify its data.)</p>
+<p>And here is the formal definition: the <code>Iterator</code> trait:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+trait Iterator {
+    type Item;
+    fn next(&amp;mut self) -&gt; Option&lt;Self::Item&gt;;
+    ...
+}
+
+#}</code></pre></pre>
+<p>Here we meet an <a href="https://doc.rust-lang.org/stable/book/associated-types.html">associated type</a> of the <code>Iterator</code> trait.
+This trait must work for any type, so you must specify that return type somehow.
+The method can then be written without using a
+particular type - instead it refers to that type parameter's <code>Item</code> via <code>Self</code>.</p>
+<p>The iterator trait for <code>f64</code> is written <code>Iterator&lt;Item=f64&gt;</code>, which can be read as
+&quot;an Iterator with its associated type Item set to f64&quot;.</p>
+<p>The <code>...</code> refers to the <em>default methods</em> of <code>Iterator</code>. You only need to define <code>Item</code>
+and <code>next</code>, and the default methods are defined for you.</p>
+<pre><pre class="playpen"><code class="language-rust">// trait3.rs
+
+struct FRange {
+    val: f64,
+    end: f64,
+    incr: f64
+}
+
+fn range(x1: f64, x2: f64, skip: f64) -&gt; FRange {
+    FRange {val: x1, end: x2, incr: skip}
+}
+
+impl Iterator for FRange {
+    type Item = f64;
+
+    fn next(&amp;mut self) -&gt; Option&lt;Self::Item&gt; {
+        let res = self.val;
+        if res &gt;= self.end {
+            None
+        } else {
+            self.val += self.incr;
+            Some(res)
+        }
+    }
+}
+
+
+fn main() {
+    for x in range(0.0, 1.0, 0.1) {
+        println!(&quot;{} &quot;, x);
+    }
+}
+</code></pre></pre>
+<p>And the rather messy looking result is</p>
+<pre><code>0
+0.1
+0.2
+0.30000000000000004
+0.4
+0.5
+0.6
+0.7
+0.7999999999999999
+0.8999999999999999
+0.9999999999999999
+</code></pre>
+<p>This is because 0.1 is not precisely representable as a float, so a little formatting
+help is needed. Replace the <code>println!</code> with this</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+println!(&quot;{:.1} &quot;, x);
+
+#}</code></pre></pre>
+<p>And we get cleaner output (this format means 'one decimal after dot'.)</p>
+<p>All of the default iterator methods are available, so we can collect these values into
+a vector:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    let v: Vec&lt;f64&gt; = range(0.0, 1.0, 0.1).collect();
+
+#}</code></pre></pre>
+<p>This is a common pattern and it gets irritating. Fortunately, it's easy to
+add new 'consumers' of iterators. These are those methods that end the chain and
+'pull' all the values of the iterator, like <code>count</code> - or <code>collect</code>.</p>
+<p>We will define a new trait <code>ToVec</code> which has an associated type, just like an <code>Iterator</code>.
+It will be the type contained in the returned vector.</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+trait ToVec {
+    type Item;
+
+    fn to_vec(self) -&gt; Vec&lt;Self::Item&gt;;
+}
+
+#}</code></pre></pre>
+<p>And now we'll implement <code>ToVec</code> for <code>Iterator</code>. All that <code>Vec</code> requires of its elements is that they
+have a size. (Traits, being abstract, have no size.) The actual iterator type <code>I</code>
+must implement <code>Iterator</code> with its associated type <code>Item</code> set to <code>T</code>, the element
+type. There is only one free type parameter <code>T</code> since <code>I</code> is defined in terms of <code>T</code>.</p>
+<p>Alternatively: This implementation of <code>ToVec</code> has type parameters <code>T</code> and <code>I</code>. <code>T</code> must implement <code>Size</code> to
+make <code>Vec</code> happy. <code>I</code> is any concrete type that implements an iterator for values of the type <code>T</code>.</p>
+<p>The actual implementation is delegated to the <code>FromIterator</code> trait, which is
+defined for vectors and constructs a vector by consuming an iterator (it's exactly how <code>collect</code> is
+implemented)</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+impl &lt;T,I&gt; ToVec for I
+where T: Sized, I: Iterator&lt;Item=T&gt; {
+    type Item = T;
+
+    fn to_vec(self) -&gt; Vec&lt;Self::Item&gt; {
+        FromIterator::from_iter(self)
+    }
+}
+    ....
+    let v = range(0.0, 1.0, 0.1).to_vec();
+
+#}</code></pre></pre>
+<p>Et voilà! No more awkwardness! The implementation was a little scary, but familiarity
+breeds acceptance.</p>
+<a class="header" href="./2-structs-enums-lifetimes.html#simple-enums" name="simple-enums"><h2>Simple Enums</h2></a>
+<p>Enums are types which have a few definite values. For instance, a direction has
+only four possible values.</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+enum Direction {
+    Up,
+    Down,
+    Left,
+    Right
+}
+...
+    // `start` is type `Direction`
+    let start = Direction::Left;
+
+#}</code></pre></pre>
+<p>They can have methods defined on them, just like structs.
+The  <code>match</code> expression is the basic way to handle <code>enum</code> values.</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+impl Direction {
+    fn as_str(&amp;self) -&gt; &amp;'static str {
+        match *self {
+        Direction::Up =&gt; &quot;Up&quot;,
+        Direction::Down =&gt; &quot;Down&quot;,
+        Direction::Left =&gt; &quot;Left&quot;,
+        Direction::Right =&gt; &quot;Right&quot;
+        }
+    }
+}
+
+#}</code></pre></pre>
+<p>Both the typename and <code>self</code> are explicit in Rust, unlike C++. This is generally a
+good idea, because the baroque way C++ resolves names is a little too clever for normal
+humans. (And there is a shortcut, as we will see.)</p>
+<p>Punctuation matters. Note that <code>*</code> before <code>self</code>. It's easy to forget, because often
+Rust will assume it (we said <code>self.first_name</code>, not <code>*self.first_name</code>). However,
+matching is a more exact business. Leaving it out would give a whole spew of messages,
+which boil down to this type mismatch:</p>
+<pre><code>   = note: expected type `&amp;Direction`
+   = note:    found type `Direction`
+</code></pre>
+<p>This is because <code>self</code> has type <code>&amp;Direction</code>, so we have to throw in the <code>*</code> to
+<em>deference</em> the type.</p>
+<p>Like structs, enums can implement traits, and our friend <code>#[derive(Debug)]</code> can
+be added to <code>Direction</code>:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+        println!(&quot;start {:?}&quot;,start);
+        // start Left
+
+#}</code></pre></pre>
+<p>So that <code>as_str</code> method isn't really necessary, since we can always get the name from <code>Debug</code>.
+(But <code>as_str</code> does <em>not allocate</em>, which may be important.)</p>
+<p>You should not assume any particular ordering here - there's no implied integer
+'ordinal' value.</p>
+<p>Here's a method which defines the 'successor' of each <code>Direction</code> value. The
+very handy <em>wildcard use</em> temporarily puts the enum names into the method context:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    fn inc(&amp;self) -&gt; Direction {
+        use Direction::*;
+        match *self {
+        Up =&gt; Right,
+        Right =&gt; Down,
+        Down =&gt; Left,
+        Left =&gt; Up
+        }
+    }
+    ...
+
+    let mut d = start;
+    for _ in 0..8 {
+        println!(&quot;d {:?}&quot;, d);
+        d = d.inc();
+    }
+    // d Left
+    // d Up
+    // d Right
+    // d Down
+    // d Left
+    // d Up
+    // d Right
+    // d Down
+
+#}</code></pre></pre>
+<p>So this will cycle endlessly through the various directions in this particular, arbitrary,
+order. It is (in fact) a very simple <em>state machine</em>.</p>
+<p>Out of the box, these values can't be compared:</p>
+<pre><code>assert_eq!(start, Direction::Left);
+
+error[E0369]: binary operation `==` cannot be applied to type `Direction`
+  --&gt; enum1.rs:42:5
+   |
+42 |     assert_eq!(start, Direction::Left);
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: an implementation of `std::cmp::PartialEq` might be missing for `Direction`
+  --&gt; enum1.rs:42:5
+</code></pre>
+<p>The solution is to say <code>#[derive(Debug,PartialEq)]</code> in front of <code>enum Direction</code>.</p>
+<p>This is an important point - Rust user-defined types start out fresh and unadorned.
+You give them sensible default behaviours by implementing the common traits. This
+applies also to structs - if you ask for Rust to derive <code>PartialEq</code> for a struct it
+will do the sensible thing, assume that all fields implement it and build up
+a comparison. If this isn't so, or you want to redefine equality, then you are free
+to define <code>PartialEq</code> explicitly.</p>
+<p>Rust does 'C style enums' as well:</p>
+<pre><pre class="playpen"><code class="language-rust">// enum2.rs
+
+enum Speed {
+    Slow = 10,
+    Medium = 20,
+    Fast = 50
+}
+
+fn main() {
+    let s = Speed::Slow;
+    let speed = s as u32;
+    println!(&quot;speed {}&quot;, speed);
+}
+</code></pre></pre>
+<p>They are initialized with an integer value, and can be converted into that integer
+with a type cast. It's essentially a convenient way to create a set of constants.</p>
+<p>Like with C enums, you only need to give the first name a value, and thereafter the
+value goes up by one each time.</p>
+<p>(By the way, 'name' is too vague, like saying 'thingy' all the time. The proper term here
+is <em>variant</em> - <code>Speed</code> has variants <code>Slow</code>,<code>Medium</code> and <code>Fast</code>.)</p>
+<p>These enums <em>do</em> have a natural ordering, but you have to ask nicely.
+After placing <code>#[derive(PartialEq,PartialOrd)]</code> in front of <code>enum Speed</code>, then it's indeed
+true that <code>Speed::Fast &gt; Speed::Slow</code> and <code>Speed::Medium != Speed::Slow</code>.</p>
+<a class="header" href="./2-structs-enums-lifetimes.html#enums-in-their-full-glory" name="enums-in-their-full-glory"><h2>Enums in their Full Glory</h2></a>
+<p>Rust enums in their full form are like C unions on steroids, like a Ferrari compared
+to a Fiat Uno. Consider the problem of storing different values in a type-safe way.</p>
+<pre><pre class="playpen"><code class="language-rust">// enum3.rs
+
+#[derive(Debug)]
+enum Value {
+    Number(f64),
+    Str(String),
+    Bool(bool)
+}
+
+fn main() {
+    use Value::*;
+    let n = Number(2.3);
+    let s = Str(&quot;hello&quot;.to_string());
+    let b = Bool(true);
+
+    println!(&quot;n {:?} s {:?} b {:?}&quot;, n,s,b);
+}
+// n Number(2.3) s Str(&quot;hello&quot;) b Bool(true)
+</code></pre></pre>
+<p>Again, this enum can only contain <em>one</em> of these values; its size will be the size of
+the largest variant.</p>
+<p>So far, not really a supercar, although it's cool that they know how to print themselves
+out. But they also know how <em>what kind</em> of value they contain, and <em>that</em> is the
+superpower of <code>match</code>.</p>
+<p>Let me give you a function with a mistake. We want to print out a custom string based
+on the <em>Value</em>'s contained type, and we want to pass it as a reference, because otherwise
+a move would take place and the value would be eaten:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+fn dump(v: &amp;Value) {
+    use Value::*;
+    match *v {
+        Number(n) =&gt; println!(&quot;number is {}&quot;, n),
+        Str(s) =&gt; println!(&quot;string is '{}'&quot;, s),
+        Bool(b) =&gt; println!(&quot;boolean is {}&quot;, b)
+    }
+}
+
+#}</code></pre></pre>
+<pre><code>error[E0507]: cannot move out of borrowed content
+  --&gt; enum3.rs:12:11
+   |
+12 |     match *v {
+   |           ^^ cannot move out of borrowed content
+13 |     Number(n) =&gt; println!(&quot;number is {}&quot;,n),
+14 |     Str(s) =&gt; println!(&quot;string is '{}'&quot;,s),
+   |         - hint: to prevent move, use `ref s` or `ref mut s`
+</code></pre>
+<p>There are things you cannot do with borrowed references. Rust is not letting
+you <em>extract</em> the string contained in the original value. It did not complain about <code>Number</code>
+because it's happy to copy <code>f64</code>, but <code>String</code> does not implement <code>Copy</code>.</p>
+<p>I mentioned earlier that <code>match</code> is picky about <em>exact</em> types</p>
+<ul>
+<li>here we follow the hint and things will work; now we are just borrowing a reference
+to that contained string.</li>
+</ul>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+fn dump(v: &amp;Value) {
+    use Value::*;
+    match *v {
+    Number(n) =&gt; println!(&quot;number is {}&quot;, n),
+    Str(ref s) =&gt; println!(&quot;string is '{}'&quot;, s),
+    Bool(b) =&gt; println!(&quot;boolean is {}&quot;, b)
+    }
+}
+    ....
+
+    dump(&amp;s);
+    // string is 'hello'
+
+#}</code></pre></pre>
+<p>Before we move on, filled with the euphoria of a successful Rust compilation, let's
+pause a little. <code>rustc</code> is unusually good at generating errors that have enough
+context for a human to fix the error without necessarily <em>understanding</em> the error.</p>
+<p>The issue is a combination of the exactness of matching, with the determination of the
+borrow checker to foil any attempt to break the Rules.  One of those Rules is that
+you cannot yank out a value which belongs to some owning type. Some knowledge of
+C++ is a hindrance here, since <code>c++</code> will copy its way out of the problem, whether that
+copy even <em>makes sense</em>.  You will get exactly the same error if you try to pull out
+a value from a vector, say with <code>*v[0]</code> (<code>*</code> because indexing returns references.)
+It will simply not let you do this. (Sometimes <code>clone</code> isn't such a bad solution to this.)</p>
+<p>As for <code>match</code>, you can see <code>Str(s) =&gt;</code> as short for <code>Str(s: String) =&gt;</code>. A local variable
+(often called a <em>binding</em>) is created.  Often that inferred type is cool, when you
+eat up a value and extract its contents. But here we really needed is <code>s: &amp;String</code>, and the
+<code>ref</code> is a hint that ensures this: we just want to borrow that string.</p>
+<p>Here is a method that really does eat up a <code>Value</code>. It's a classic use of <code>Option</code>,
+because either that value contained a string, or it didn't.</p>
+<p>Look carefully (punctuation matters!) - the method signature is now plain <code>self</code>, and
+the <code>*</code> has dropped. The <code>self</code> argument is <em>moved</em> into the method.</p>
+<p>Here we do want to extract that string, and don't care about
+the enum value afterwards.</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+impl Value {
+    fn to_str(self) -&gt; Option&lt;String&gt; {
+        match self {
+        Value::Str(s) =&gt; Some(s),
+        _ =&gt; None
+        }
+    }
+}
+    ...
+    println!(&quot;s? {:?}&quot;, s.to_str());
+    // s? Some(&quot;hello&quot;)
+    // println!(&quot;{:?}&quot;, s) // error! s has moved...
+
+#}</code></pre></pre>
+<p>Naming also matters - this is called <code>to_str</code>, not <code>as_str</code>. You can write a
+method that just borrows that string as an <code>Option&lt;&amp;String&gt;</code> (The reference will need
+the same lifetime as the enum value.)  But you would not call it <code>to_str</code>.</p>
+<p>You can write <code>to_str</code> like this - it is completely equivalent:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    fn to_str(self) -&gt; Option&lt;String&gt; {
+        if let Value::Str(s) = self {
+            Some(s)
+        } else {
+            None
+        }
+    }
+
+#}</code></pre></pre>
+<a class="header" href="./2-structs-enums-lifetimes.html#more-about-matching" name="more-about-matching"><h2>More about Matching</h2></a>
+<p>Recall that the values of a tuple can be extracted with '()':</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    let t = (10,&quot;hello&quot;.to_string());
+    ...
+    let (n,s) = t;
+    // t has been moved. It is No More
+    // n is i32, s is String
+
+#}</code></pre></pre>
+<p>This is a special case of <em>destructuring</em>; we have some
+data and wish to either pull it apart (like here) or just borrow its values.
+Either way, we get the parts of a structure.</p>
+<p>The syntax used for borrowing is just like that used in <code>match</code>.</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    let (ref n,ref s) = t;
+    // n and s are borrowed from t. It still lives!
+    // n is &amp;i32, s is &amp;String
+
+#}</code></pre></pre>
+<p>Destructuring works with structs as well:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    struct Point {
+        x: f32,
+        y: f32
+    }
+
+    let p = Point{x:1.0,y:2.0};
+    ...
+    let Point{x,y} = p;
+    // p still lives, since x and y can be copied
+    // both x and y are f32
+
+#}</code></pre></pre>
+<p>Time to revisit <code>match</code> with some new patterns. The first two patterns are exactly like <code>let</code>
+destructuring - it only matches tuples with first element zero, but <em>any</em> string;
+the second adds an <code>if</code> so that it only matches <code>(1,&quot;hello&quot;)</code>.</p>
+<p>Finally, just a variable matches <em>anything</em>. This is useful if the <code>match</code> applies
+to an expression and you don't want to bind a variable to that expression. <code>_</code> works
+like a variable but is ignored (<code>_</code> behaves rather like it does in Go.) It's a common
+way to finish off a <code>match</code>, like <code>default</code> in C <code>switch</code> statements.</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+fn match_tuple(t: (i32,String)) {
+    let text = match t {
+        (0, s) =&gt; format!(&quot;zero {}&quot;, s),
+        (1, ref s) if s == &quot;hello&quot; =&gt; format!(&quot;hello one!&quot;),
+        tt =&gt; format!(&quot;no match {:?}&quot;, tt)
+     };
+    println!(&quot;{}&quot;, text);
+}
+
+#}</code></pre></pre>
+<p>Why not just match against <code>(1,&quot;hello&quot;)</code>? Matching is an exact business, and the compiler
+will complain:</p>
+<pre><code>  = note: expected type `std::string::String`
+  = note:    found type `&amp;'static str`
+</code></pre>
+<p>Why do we need <code>ref s</code>? It's a slightly obscure gotcha (look up the E00008 error) where
+if you have an <em>if guard</em> you need to borrow, since the if guard happens in a different
+context, a move will take place otherwise. It's a case of the implementation leaking
+ever so slightly.</p>
+<p>If the type <em>was</em> <code>&amp;str</code> then we match it directly:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    match (42,&quot;answer&quot;) {
+        (42,&quot;answer&quot;) =&gt; println!(&quot;yes&quot;),
+        _ =&gt; println!(&quot;no&quot;)
+    };
+
+#}</code></pre></pre>
+<p>What applies to <code>match</code> applies to <code>if let</code>. This is a cool example, since if we
+get a <code>Some</code>, we can match inside it and only extract the string from the tuple. So it
+isn't necessary to have nested <code>if let</code> statements here.</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    let ot = Some((2,&quot;hello&quot;.to_string());
+
+    if let Some((_,ref s)) = ot {
+        assert_eq!(s, &quot;hello&quot;);
+    }
+    // we just borrowed the string, no 'destructive destructuring'
+
+#}</code></pre></pre>
+<p>An interesting problem happens when using <code>parse</code> (or any function which needs to work
+out its return type from context)</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    if let Ok(n) = &quot;42&quot;.parse() {
+        ...
+    }
+
+#}</code></pre></pre>
+<p>So what's the type of <code>n</code>? You have to give a hint somehow - what kind of integer? Is it
+even an integer?</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    if let Ok(n) = &quot;42&quot;.parse::&lt;i32&gt;() {
+        ...
+    }
+
+#}</code></pre></pre>
+<p>This somewhat non-elegant syntax is called the 'turbofish operator'.</p>
+<p>If you are in a function returning <code>Result</code>, then the question-mark operator provides a much
+more elegant solution:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    let n: i32 = &quot;42&quot;.parse()?;
+
+#}</code></pre></pre>
+<p>However, the parse error needs to be convertible to the error type of the <code>Result</code>, which is a topic
+we'll take up later when discussing error handling.</p>
+<a class="header" href="./2-structs-enums-lifetimes.html#closures" name="closures"><h2>Closures</h2></a>
+<p>A great deal of Rust's power comes from <em>closures</em>. In their simplest form, they
+act like shortcut functions:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    let f = |x| x * x;
+
+    let res = f(10);
+
+    println!(&quot;res {}&quot;, res);
+    // res 100
+
+#}</code></pre></pre>
+<p>There are no explicit types in this example - everything is deduced, starting with the
+integer literal 10.</p>
+<p>We get an error if we call <code>f</code> on different types - Rust has already decided that
+<code>f</code> must be called on an integer type:</p>
+<pre><code>    let res = f(10);
+
+    let resf = f(1.2);
+  |
+8 |     let resf = f(1.2);
+  |                  ^^^ expected integral variable, found floating-point variable
+  |
+  = note: expected type `{integer}`
+  = note:    found type `{float}`
+
+</code></pre>
+<p>So, the first call fixes the type of the argument <code>x</code>. It's equivalent to this function:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    fn f (x: i32) -&gt; i32 {
+        x*x
+    }
+
+#}</code></pre></pre>
+<p>But there's a big difference between functions and closures, <em>apart</em> from the need for explicit typing.
+Here we evaluate a linear function:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    let m = 2.0;
+    let c = 1.0;
+
+    let lin = |x| m*x + c;
+
+    println!(&quot;res {} {}&quot;, lin(1.0), lin(2.0));
+    // res 3 5
+
+#}</code></pre></pre>
+<p>You cannot do this with the explicit <code>fn</code> form - it does not know about variables
+in the enclosing scope. The closure has <em>borrowed</em> <code>m</code> and <code>c</code> from its context.</p>
+<p>The usual Rules of Borrowing apply. This works fine - our little closure is borrowing
+<code>answer</code> mutably.</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+let mut answer = 42;
+
+let set = |v| answer = v;
+
+//let get = || answer;
+
+set(58);
+assert_eq!(answer, 58);
+
+#}</code></pre></pre>
+<p>But uncomment <code>get</code> and you get a borrowing error:
+&quot;cannot borrow <code>answer</code> as immutable because it is also borrowed as mutable&quot;</p>
+<p>Now, what's the type of <code>lin</code>? Only <code>rustc</code> knows. Exactly the same situation applies
+to C++ lambdas, and for exactly the same version. Under the hood, a closure is a <em>struct</em>
+that implements the call operator. All closures are unique types</p>
+<ul>
+<li>but they have traits in common.</li>
+</ul>
+<p>So even though we don't know the exact type, we know the generic constraint:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+fn apply&lt;F&gt;(x: f64, f: F) -&gt; f64
+where F: Fn(f64)-&gt;f64  {
+    f(x)
+}
+...
+    let res1 = apply(3.0,lin);
+    let res2 = apply(3.14, |x| x.sin());
+
+#}</code></pre></pre>
+<p>In English: <code>apply</code> works for <em>any</em> type <code>T</code> such that <code>T</code> implements <code>Fn(f64)-&gt;f64</code> - that
+is, is a function which takes <code>f64</code> and returns <code>f64</code>.</p>
+<p>After the call to <code>apply(3.0,lin)</code>, trying to access <code>lin</code> gives an interesting error:</p>
+<pre><code>    let l = lin;
+error[E0382]: use of moved value: `lin`
+  --&gt; closure2.rs:22:9
+   |
+16 |     let res = apply(3.0,lin);
+   |                         --- value moved here
+...
+22 |     let l = lin;
+   |         ^ value used here after move
+   |
+   = note: move occurs because `lin` has type
+    `[closure@closure2.rs:12:15: 12:26 m:&amp;f64, c:&amp;f64]`,
+     which does not implement the `Copy` trait
+
+</code></pre>
+<p>That's it, <code>apply</code> ate our closure. And there's the actual type of the struct that
+<code>rustc</code> made up to implement it. Thinking of closures as structs is useful because they
+are <em>values</em> and it's important to know what happens when values move.</p>
+<p>Thinking of calling a closure as a <em>method call</em> makes it easy to understand the
+three kinds of function traits - they are the three kinds of methods:</p>
+<ul>
+<li><code>Fn</code> struct passed as <code>&amp;self</code></li>
+<li><code>FnMut</code> struct passed as <code>&amp;mut self</code></li>
+<li><code>FnOnce</code> struct passed as <code>self</code></li>
+</ul>
+<p>So it's possible for a closure to mutate its <em>captured</em> references:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    fn mutate&lt;F&gt;(mut f: F)
+    where F: FnMut() {
+        f()
+    }
+    let mut s = &quot;world&quot;;
+    mutate(|| s = &quot;hello&quot;);
+    assert_eq!(s, &quot;hello&quot;);
+
+#}</code></pre></pre>
+<p>Note that <code>mut</code> - <code>f</code> needs to be mutable for this to work.</p>
+<p>At this point, if you are used to languages like JavaScript or Lua, you may wonder at the
+apparent complexity of closures compared with how straightforward they are in those languages.
+This is the necessary cost of Rust's promise to not sneakily make any allocations. In JavaScript,
+the equivalent <code>mutate(function() {s = &quot;hello&quot;;})</code> will always result in a dynamically
+allocated closure.</p>
+<p>You can of course explicitly create a dynamically allocated closure in Rust using <code>Box::new</code>.
+This solves the problem of keeping a collection of different closures that implement the
+same trait.  The <code>Box</code> struct is fed a
+value, allocates enough memory for it on the heap, and moves that value to the heap.
+A <code>Box</code> always has the same size (it's basically a smart pointer.) so we're good to go.</p>
+<p>Here's a first try:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    let mut v = Vec::new();
+    v.push(Box::new(|x| x * x));
+    v.push(Box::new(|x| x / 2.0));
+
+    for f in v.iter() {
+        let res = f(1.0);
+        println!(&quot;res {}&quot;, res);
+    }
+
+#}</code></pre></pre>
+<p>We get a very definite error on the second push:</p>
+<pre><code>  = note: expected type `[closure@closure4.rs:4:21: 4:28]`
+  = note:    found type `[closure@closure4.rs:5:21: 5:28]`
+note: no two closures, even if identical, have the same type
+</code></pre>
+<p><code>rustc</code> has deduced a type which is too specific, so it's necessary to force that
+vector to have the <em>boxed trait type</em> before things just work:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    let mut v: Vec&lt;Box&lt;Fn(f64)-&gt;f64&gt;&gt; = Vec::new();
+
+#}</code></pre></pre>
+<p>You can use these boxed closures to implement callbacks and so forth. If you want to keep
+these boxed closures in a struct, then you will need a lifetime annotation, because
+<em>closures borrow variables</em> and so their lifetime is tied to the lifetime of those
+variables.</p>
+<p>Sometimes you don't want a closure to borrow those variables, but instead <em>move</em> them.</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    let name = &quot;dolly&quot;.to_string();
+    let age = 42;
+
+    let c = move || {
+        println!(&quot;name {} age {}&quot;, name,age);
+    };
+
+    c();
+
+    println!(&quot;name {}&quot;,name);
+
+#}</code></pre></pre>
+<p>And the error at the last <code>println</code> is: &quot;use of moved value: <code>name</code>&quot;. So one solution
+here - if we <em>did</em> want to keep <code>name</code> alive - is to move a cloned copy into the closure:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    let cname = name.to_string();
+    let c = move || {
+        println!(&quot;name {} age {}&quot;,cname,age);
+    }
+
+#}</code></pre></pre>
+<p>Why are moved closures needed? Because we might need to call them at a point where
+the original context no longer exists. A classic case is when creating a <em>thread</em>.</p>
+<p>A major use of closures is within iterator methods. Recall the <code>range</code> iterator we
+defined to go over a range of floating-point numbers. It's straightforward to operate
+on this (or any other iterator) using closures:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    let sine: Vec&lt;f64&gt; = range(0.0,1.0,0.1).map(|x| x.sin()).collect();
+
+#}</code></pre></pre>
+<p><code>map</code> isn't defined on vectors (although it's easy enough to create a trait that does this),
+because then <em>every</em> map  will create a new vector.  This way, we have a choice. In this
+sum, no temporary objects are created:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+ let sum: f64 = range(0.0,1.0,0.1).map(|x| x.sin()).sum();
+
+#}</code></pre></pre>
+<p>It will (in fact) be as fast as writing it out as an explicit loop!</p>
+<p><code>filter</code> is another useful iterator method - it only lets through values that match
+a condition:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    let tuples = [(10,&quot;ten&quot;),(20,&quot;twenty&quot;),(30,&quot;thirty&quot;),(40,&quot;forty&quot;)];
+    let iter = tuples.iter().filter(|t| t.0 &gt; 20).map(|t| t.1);
+
+    for name in iter {
+        println!(&quot;{} &quot;, name);
+    }
+    // thirty
+    // forty
+
+#}</code></pre></pre>
+<a class="header" href="./2-structs-enums-lifetimes.html#the-three-kinds-of-iterators" name="the-three-kinds-of-iterators"><h2>The Three Kinds of Iterators</h2></a>
+<p>The three kinds correspond (again) to the three basic argument types. Assume we
+have a vector of <code>String</code> values. Here are the iterator types explicitly, and
+then <em>implicitly</em>, together with the actual type returned by the iterator.</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+for s in vec.iter() {...} // &amp;String
+for s in vec.iter_mut() {...} // &amp;mut String
+for s in vec.into_iter() {...} // String
+
+// implicit!
+for s in &amp;vec {...} // &amp;String
+for s in &amp;mut vec {...} // &amp;mut String
+for s in vec {...} // String
+
+#}</code></pre></pre>
+<p>Personally I prefer being explicit, but it's important to understand both forms,
+and their implications.</p>
+<p><code>into_iter</code> <em>consumes</em> the vector and extracts its strings,
+and so afterwards the vector is no longer available - it has been moved. It's
+a definite gotcha for Pythonistas used to saying <code>for s in vec</code>!</p>
+<p>So the
+implicit form <code>for s in &amp;vec</code> is usually the one you want, just as <code>&amp;T</code> is a good
+default in passing arguments to functions.</p>
+<p>It's important to understand how the three kinds works because Rust relies heavily
+on type deduction - you won't often see explicit types in closure arguments. And this
+is a Good Thing, because it would be noisy if all those types were explicitly
+<em>typed out</em>. However, the price of this compact code is that you need to know
+what the implicit types actually are!</p>
+<p><code>map</code> takes whatever value the iterator returns and converts it into something else,
+but <code>filter</code> takes a <em>reference</em> to that value. In this case, we're using <code>iter</code> so
+the iterator item type is <code>&amp;String</code>. Note that <code>filter</code> receives a reference to this type.</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+for n in vec.iter().map(|x: &amp;String| x.len()) {...} // n is usize
+for s in vec.iter().filter(|x: &amp;&amp;String| x.len() &gt; 2) {...}
+
+#}</code></pre></pre>
+<p>When calling methods, Rust will derefence automatically, so the problem isn't obvious.
+But <code>|x: &amp;&amp;String| x == &quot;one&quot;|</code> will <em>not</em> work, because operators are more strict
+about type matching. <code>rustc</code> will complain that there is no such operator that
+compares <code>&amp;&amp;String</code> and <code>&amp;str</code>. So you need an explicit deference to make that <code>&amp;&amp;String</code>
+into a <code>&amp;String</code> which <em>does</em> match.</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+for s in vec.iter().filter(|x: &amp;&amp;String| *x == &quot;one&quot;) {...}
+
+#}</code></pre></pre>
+<p>If you leave out the explicit type, you can modify the argument so that the type of <code>s</code>
+is now <code>&amp;String</code>:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+for s in vec.iter().filter(|&amp;x| x == &quot;one&quot;)
+
+#}</code></pre></pre>
+<p>And that's usually how you will see it written.</p>
+<a class="header" href="./2-structs-enums-lifetimes.html#structs-with-dynamic-data" name="structs-with-dynamic-data"><h2>Structs with Dynamic Data</h2></a>
+<p>A most powerful technique is <em>a struct that contain references to itself</em>.</p>
+<p>Here is the basic building block of a <em>binary tree</em>, expressed in C (everyone's
+favourite old relative with a frightening fondness for using power tools without
+protection.)</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    struct Node {
+        const char *payload;
+        struct Node *left;
+        struct Node *right;
+    };
+
+#}</code></pre></pre>
+<p>You can not do this by <em>directly</em> including <code>Node</code> fields, because then the size of
+<code>Node</code> depends on the size of <code>Node</code>... it just doesn't compute. So we use pointers
+to <code>Node</code> structs, since the size of a pointer is always known.</p>
+<p>If <code>left</code> isn't <code>NULL</code>, the <code>Node</code> will have a left pointing to another node, and so
+moreorless indefinitely.</p>
+<p>Rust does not do <code>NULL</code> (at least not <em>safely</em>) so it's clearly a job for <code>Option</code>.
+But you cannot just put a <code>Node</code> in that <code>Option</code>, because we don't know the size
+of <code>Node</code> (and so forth.)  This is a job for <code>Box</code>, since it contains a allocated
+pointer to the data, and always has a fixed size.</p>
+<p>So here's the Rust equivalent, using <code>type</code> to create an alias:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+type NodeBox = Option&lt;Box&lt;Node&gt;&gt;;
+
+#[derive(Debug)]
+struct Node {
+    payload: String,
+    left: NodeBox,
+    right: NodeBox
+}
+
+#}</code></pre></pre>
+<p>(Rust is forgiving in this way - no need for forward declarations.)</p>
+<p>And a first test program:</p>
+<pre><pre class="playpen"><code class="language-rust">impl Node {
+    fn new(s: &amp;str) -&gt; Node {
+        Node{payload: s.to_string(), left: None, right: None}
+    }
+
+    fn boxer(node: Node) -&gt; NodeBox {
+        Some(Box::new(node))
+    }
+
+    fn set_left(&amp;mut self, node: Node) {
+        self.left = Self::boxer(node);
+    }
+
+    fn set_right(&amp;mut self, node: Node) {
+        self.right = Self::boxer(node);
+    }
+
+}
+
+
+fn main() {
+    let mut root = Node::new(&quot;root&quot;);
+    root.set_left(Node::new(&quot;left&quot;));
+    root.set_right(Node::new(&quot;right&quot;));
+
+    println!(&quot;arr {:#?}&quot;, root);
+}
+</code></pre></pre>
+<p>The output is surprisingly pretty, thanks to &quot;{:#?}&quot; ('#' means 'extended'.)</p>
+<pre><code>root Node {
+    payload: &quot;root&quot;,
+    left: Some(
+        Node {
+            payload: &quot;left&quot;,
+            left: None,
+            right: None
+        }
+    ),
+    right: Some(
+        Node {
+            payload: &quot;right&quot;,
+            left: None,
+            right: None
+        }
+    )
+}
+</code></pre>
+<p>Now, what happens when <code>root</code> is dropped? All fields are dropped; if the 'branches' of
+the tree are dropped, they drop <em>their</em> fields and so on. <code>Box::new</code> may be the
+closest you will get to a <code>new</code> keyword, but we have no need for <code>delete</code> or <code>free</code>.</p>
+<p>We must know work out what use such a tree is. Note that strings can be ordered:
+'bar' &lt; 'foo', 'abba' &gt; 'aardvark'; so-called 'alphabetical order'. (Strictly speaking, this
+is <em>lexical order</em>, since human languages are very diverse and have strange rules.)</p>
+<p>Here is a method which inserts nodes in lexical order of the strings. We compare the new data
+to the current node - if it's less, then we try to insert on the left, otherwise try to insert
+on the right. There may be no node on the left, so then <code>set_left</code> and so forth.</p>
+<pre><pre class="playpen"><code class="language-rust">    fn insert(&amp;mut self, data: &amp;str) {
+        if data &lt; &amp;self.payload {
+            match self.left {
+            Some(ref mut n) =&gt; n.insert(data),
+            None =&gt; self.set_left(Self::new(data)),
+            }
+        } else {
+            match self.right {
+            Some(ref mut n) =&gt; n.insert(data),
+            None =&gt; self.set_right(Self::new(data)),
+            }
+        }
+    }
+
+    ...
+    fn main() {
+        let mut root = Node::new(&quot;root&quot;);
+        root.insert(&quot;one&quot;);
+        root.insert(&quot;two&quot;);
+        root.insert(&quot;four&quot;);
+
+        println!(&quot;root {:#?}&quot;, root);
+    }
+</code></pre></pre>
+<p>Note the <code>match</code> - we're pulling out a mutable reference to the box, if the <code>Option</code>
+is <code>Some</code>, and applying the <code>insert</code> method. Otherwise, we need to create a new <code>Node</code>
+for the left side and so forth. <code>Box</code> is a <em>smart</em> pointer; note that no 'unboxing' was
+needed to call <code>Node</code> methods on it!</p>
+<p>And here's the output tree:</p>
+<pre><code>root Node {
+    payload: &quot;root&quot;,
+    left: Some(
+        Node {
+            payload: &quot;one&quot;,
+            left: Some(
+                Node {
+                    payload: &quot;four&quot;,
+                    left: None,
+                    right: None
+                }
+            ),
+            right: None
+        }
+    ),
+    right: Some(
+        Node {
+            payload: &quot;two&quot;,
+            left: None,
+            right: None
+        }
+    )
+}
+</code></pre>
+<p>The strings that are 'less' than other strings get put down the left side, otherwise
+the right side.</p>
+<p>Time for a visit. This is <em>in-order traversal</em> - we visit the left, do something on
+the node, and then visit the right.</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    fn visit(&amp;self) {
+        if let Some(ref left) = self.left {
+            left.visit();
+        }
+        println!(&quot;'{}'&quot;, self.payload);
+        if let Some(ref right) = self.right {
+            right.visit();
+        }
+    }
+    ...
+    ...
+    root.visit();
+    // 'four'
+    // 'one'
+    // 'root'
+    // 'two'
+
+#}</code></pre></pre>
+<p>So we're visiting the strings in order! Please note the reappearance of <code>ref</code> - <code>if let</code>
+uses exactly the same rules as <code>match</code>.</p>
+<a class="header" href="./2-structs-enums-lifetimes.html#generic-functions" name="generic-functions"><h2>Generic Functions</h2></a>
+<p>The operation of squaring a number is <em>generic</em> in that <code>x*x</code> will work for integers,
+floats and generally for anything that knows about the multiplication operator <code>*</code>.</p>
+<p>This Just Happens in dynamic languages because the arguments carry their type, and the
+runtime will then call the appropriate multiply operator - or fail miserably.
+(Which is always the painful thing about dynamic languages.)</p>
+<p>The Rust solution is a <em>generic function</em>, which has <em>type parameters</em>.</p>
+<pre><pre class="playpen"><code class="language-rust">// gen1.rs
+
+fn sqr&lt;T&gt; (x: T) -&gt; T {
+    x * x
+}
+
+fn main() {
+    let res = sqr(10.0);
+    println!(&quot;res {}&quot;,res);
+}
+</code></pre></pre>
+<p>However, Rust is not C++ - it's not going to let you do this without knowing <em>something</em>
+about <code>T</code>:</p>
+<pre><code>error[E0369]: binary operation `*` cannot be applied to type `T`
+ --&gt; gen1.rs:4:5
+  |
+4 |     x * x
+  |     ^
+  |
+note: an implementation of `std::ops::Mul` might be missing for `T`
+ --&gt; gen1.rs:4:5
+  |
+4 |     x * x
+  |     ^
+</code></pre>
+<p>Following the advice of the compiler, let's <em>constrain</em> that type parameter using
+that trait, which is used to implement the multiplication operator <code>*</code>:
+(<code>T: Mul</code> means 'any type T that implements Mul')</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+use std::ops::Mul;
+
+fn sqr&lt;T: Mul&gt; (x: T) -&gt; T {
+    x * x
+}
+
+#}</code></pre></pre>
+<p>Which still doesn't work:</p>
+<pre><code>rror[E0308]: mismatched types
+ --&gt; gen2.rs:6:5
+  |
+6 |     x * x
+  |     ^^^ expected type parameter, found associated type
+  |
+  = note: expected type `T`
+  = note:    found type `&lt;T as std::ops::Mul&gt;::Output`
+</code></pre>
+<p>What <code>rustc</code> is saying that the type of <code>x*x</code> is the associated type <code>T::Output</code>, not <code>T</code>.
+There's actually no reason that the type of <code>x*x</code> is the same as the type of <code>x</code>, e.g. the dot product
+of two vectors is a scalar.</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+fn sqr&lt;T: Mul&gt; (x: T) -&gt; T::Output {
+    x * x
+}
+
+#}</code></pre></pre>
+<p>and now the error is:</p>
+<pre><code>error[E0382]: use of moved value: `x`
+ --&gt; gen2.rs:6:7
+  |
+6 |     x * x
+  |     - ^ value used here after move
+  |     |
+  |     value moved here
+  |
+  = note: move occurs because `x` has type `T`, which does not implement the `Copy` trait
+</code></pre>
+<p>So, we need to constrain the type even further!</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+fn sqr&lt;T: Mul + Copy&gt; (x: T) -&gt; T::Output {
+    x * x
+}
+
+#}</code></pre></pre>
+<p>And that (finally) works. Calmly listening to the compiler will often get you closer
+to the magic point when ... things compile cleanly.</p>
+<p>It <em>is</em> a bit simpler in C++:</p>
+<pre><code class="language-cpp">template &lt;typename T&gt;
+T sqr(x: T) {
+    return x * x;
+}
+</code></pre>
+<p>but (to be honest) C++ is adopting cowboy tactics here. C++ template errors are famously
+bad, because all the compiler knows (ultimately) is that some operator or method is
+not defined. The C++ committee knows this is a problem and so they are working
+toward <a href="https://en.wikipedia.org/wiki/Concepts_(C%2B%2B)">concepts</a>, which are pretty
+much like trait-constrained type parameters in Rust.</p>
+<p>Rust generic functions may look a bit overwhelming at first, but being explicit means
+you will know exactly what kind of values you can safely feed it, just by looking at the
+definition.</p>
+<p>These functions are called <em>monomorphic</em>, in constrast to <em>polymorphic</em>. The body of
+the function is compiled separately for each unique type.  With polymorphic functions,
+the same machine code works with each matching type, dynamically <em>dispatching</em>
+the correct method.</p>
+<p>Monomorphic produces faster code,
+specialized for the particular type, and can often be <em>inlined</em>.  So when <code>sqr(x)</code> is
+seen, it's effectively replaced with <code>x*x</code>.  The downside is that large generic
+functions produce a lot of code, for each type used, which can result in <em>code bloat</em>.
+As always, there are trade-offs; an experienced person learns to make the right choice
+for the job.</p>
+<a class="header" href="./2-structs-enums-lifetimes.html#generic-structs" name="generic-structs"><h2>Generic Structs</h2></a>
+<p>Consider the example of a binary tree. It would be <em>seriously irritating</em> to
+have to rewrite it for all possible kinds of payload. Before C++ templates, people
+would do truly awful things with the C preprocessor to write 'generic' classes.</p>
+<p>So here's our generic <code>Node</code> with its <em>type parameter</em> <code>T</code>. It's fairly similar to
+a C++ template struct.</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+type NodeBox&lt;T&gt; = Option&lt;Box&lt;Node&lt;T&gt;&gt;&gt;;
+
+#[derive(Debug)]
+struct Node&lt;T&gt; {
+    payload: T,
+    left: NodeBox&lt;T&gt;,
+    right: NodeBox&lt;T&gt;
+}
+
+#}</code></pre></pre>
+<p>The implementation shows the difference between the languages. The fundamental operation
+on the payload is comparison, so T must be comparable with <code>&lt;</code>, i.e. implements <code>PartialOrd</code>.
+The type parameter must be declared in the <code>impl</code> block with its constraints:</p>
+<pre><pre class="playpen"><code class="language-rust">impl &lt;T: PartialOrd&gt; Node&lt;T&gt; {
+    fn new(s: T) -&gt; Node&lt;T&gt; {
+        Node{payload: s, left: None, right: None}
+    }
+
+    fn boxer(node: Node&lt;T&gt;) -&gt; NodeBox&lt;T&gt; {
+        Some(Box::new(node))
+    }
+
+    fn set_left(&amp;mut self, node: Node&lt;T&gt;) {
+        self.left = Self::boxer(node);
+    }
+
+    fn set_right(&amp;mut self, node: Node&lt;T&gt;) {
+        self.right = Self::boxer(node);
+    }
+
+    fn insert(&amp;mut self, data: T) {
+        if data &lt; self.payload {
+            match self.left {
+            Some(ref mut n) =&gt; n.insert(data),
+            None =&gt; self.set_left(Self::new(data)),
+            }
+        } else {
+            match self.right {
+            Some(ref mut n) =&gt; n.insert(data),
+            None =&gt; self.set_right(Self::new(data)),
+            }
+        }
+    }
+}
+
+
+fn main() {
+    let mut root = Node::new(&quot;root&quot;.to_string());
+    root.insert(&quot;one&quot;.to_string());
+    root.insert(&quot;two&quot;.to_string());
+    root.insert(&quot;four&quot;.to_string());
+
+    println!(&quot;root {:#?}&quot;, root);
+}
+</code></pre></pre>
+<p>So generic structs need their type parameter(s) specified
+in angle brackets, like C++. Unlike C++, Rust is usually smart enough to work out
+that type parameter from context. But you do need to constrain that type appropriately!</p>
+
+                </div>
+
+                <!-- Mobile navigation buttons -->
+                
+                    <a href="./1-basics.html" class="mobile-nav-chapters previous">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a href="./3-filesystem.html" class="mobile-nav-chapters next">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+
+            </div>
+
+            
+                <a href="./1-basics.html" class="nav-chapters previous" title="You can navigate through the chapters using the arrow keys">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+            
+
+            
+                <a href="./3-filesystem.html" class="nav-chapters next" title="You can navigate through the chapters using the arrow keys">
+                    <i class="fa fa-angle-right"></i>
+                </a>
+            
+
+        </div>
+
+
+        <!-- Local fallback for Font Awesome -->
+        <script>
+            if ($(".fa").css("font-family") !== "FontAwesome") {
+                $('<link rel="stylesheet" type="text/css" href="_FontAwesome/css/font-awesome.css">').prependTo('head');
+            }
+        </script>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        
+
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+    </body>
+</html>

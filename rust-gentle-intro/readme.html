@@ -1,0 +1,181 @@
+<!DOCTYPE HTML>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Introduction - </title>
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <base href="">
+
+        <link rel="stylesheet" href="book.css">
+        <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+
+        <link rel="shortcut icon" href="favicon.png">
+
+        <!-- Font Awesome -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+
+        <!-- MathJax -->
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Fetch JQuery from CDN but have a local fallback -->
+        <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+        <script>
+            if (typeof jQuery == 'undefined') {
+                document.write(unescape("%3Cscript src='jquery.js'%3E%3C/script%3E"));
+            }
+        </script>
+    </head>
+    <body class="light">
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme = localStorage.getItem('theme');
+            if (theme == null) { theme = 'light'; }
+            $('body').removeClass().addClass(theme);
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var sidebar = localStorage.getItem('sidebar');
+            if (sidebar === "hidden") { $("html").addClass("sidebar-hidden") }
+            else if (sidebar === "visible") { $("html").addClass("sidebar-visible") }
+        </script>
+
+        <div id="sidebar" class="sidebar">
+            <ul class="chapter"><li class="affix"><a href="./readme.html" class="active">Introduction</a></li><li><a href="./1-basics.html"><strong>1.</strong> Basics</a></li><li><a href="./2-structs-enums-lifetimes.html"><strong>2.</strong> Structs, Enums and Matching</a></li><li><a href="./3-filesystem.html"><strong>3.</strong> Filesystem and Processes</a></li><li><a href="./4-modules.html"><strong>4.</strong> Modules and Cargo</a></li><li><a href="./5-stdlib-containers.html"><strong>5.</strong> Standard Library Containers</a></li><li><a href="./6-error-handling.html"><strong>6.</strong> Error Handling</a></li><li><a href="./7-shared-and-networking.html"><strong>7.</strong> Threads, Networking and Sharing</a></li></ul>
+        </div>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar" class="menu-bar">
+                    <div class="left-buttons">
+                        <i id="sidebar-toggle" class="fa fa-bars"></i>
+                        <i id="theme-toggle" class="fa fa-paint-brush"></i>
+                    </div>
+
+                    <h1 class="menu-title"></h1>
+
+                    <div class="right-buttons">
+                        <i id="print-button" class="fa fa-print" title="Print this book"></i>
+                    </div>
+                </div>
+
+                <div id="content" class="content">
+                    <a class="header" href="./readme.html#a-gentle-introduction-to-rust" name="a-gentle-introduction-to-rust"><h1>A Gentle Introduction To Rust</h1></a>
+<a class="header" href="./readme.html#why-learn-a-new-programming-language" name="why-learn-a-new-programming-language"><h2>Why learn a new Programming Language?</h2></a>
+<p>The aim of this tutorial is to take you to a place where you can read and write
+enough Rust to fully appreciate the excellent learning resources available
+online, in particular <a href="https://doc.rust-lang.org/stable/book/">The Book</a>.
+It's an opportunity to <em>try before you buy</em>, and get enough feeling for the
+power of the language to want to go deeper.</p>
+<p>As Einstein might have said, &quot;As gentle as possible, but no gentler.&quot;. There is a
+lot of new stuff to learn here, and it's different enough to require some
+rearrangement of your mental furniture. By 'gentle' I mean that the features are
+presented practically with examples; as we encounter difficulties, I hope to
+show how Rust solves these problems. It is important to understand the problems before
+the solutions make sense. To put it in flowery language, we are going for a hike
+in hilly country and I will point out some interesting rock formations on the way,
+with only a few geology lectures. There will be some uphill but the view will be
+inspiring; the community is unusually pleasant and happy to help.</p>
+<p>Why learn a new programming language? It is an investment of time and energy
+and that needs some justification. Even if you do not immediately land
+a cool job using that language, it stretches the mental muscles and makes you a
+better programmer. That seems a poor kind of return-on-investment but if you're
+not learning something <em>genuinely</em> new all the time then you will stagnate and be
+like the person who has ten years of experience in doing the same thing over and over.</p>
+<a class="header" href="./readme.html#where-rust-shines" name="where-rust-shines"><h2>Where Rust Shines</h2></a>
+<p>Rust is a statically and strongly typed systems programming language. <em>statically</em>
+means that all types are known at compile-time, <em>strongly</em> means that these types
+are designed to make it harder to write incorrect programs. A successful compilation
+means you have a much better guarantee of correctness than with a cowboy language
+like C. <em>systems</em> means generating the best possible machine code with full control
+of memory use.  So the uses are pretty hardcore: operating systems, device drivers
+and embedded systems that might not even have an operating system.  However, it's
+actually a very pleasant language to write normal application code in as well.</p>
+<p>The big difference from C and C++ is that Rust is <em>safe by default</em>; all memory accesses
+are checked. It is not possible to corrupt memory by accident.</p>
+<p>The unifying principles behind Rust are:</p>
+<ul>
+<li>strictly enforcing <em>safe borrowing</em> of data</li>
+<li>functions, methods and closures to operate on data</li>
+<li>tuples, structs and enums to aggregate data</li>
+<li>pattern matching to select and destructure data</li>
+<li>traits to define <em>behaviour</em> on data</li>
+</ul>
+<p>There is a fast-growing ecosystem of available libraries through Cargo
+but here we will concentrate on the core principles of the language
+by learning to use the standard library. My advice is to write <em>lots of small programs</em>,
+so learning to use <code>rustc</code> directly is a core skill. When doing the examples in this
+tutorial I defined a little script called <code>rrun</code> which does a compilation and runs
+the result:</p>
+<pre><code>rustc $1.rs &amp;&amp; ./$1
+</code></pre>
+<a class="header" href="./readme.html#setting-up" name="setting-up"><h2>Setting Up</h2></a>
+<p>This tutorial assumes that you have Rust installed locally. Fortunately this is
+<a href="https://www.rust-lang.org/en-US/downloads.html">very straightforward</a>.</p>
+<pre><code>$ curl https://sh.rustup.rs -sSf | sh
+$ rustup component add rust-docs
+</code></pre>
+<p>I would recommend getting the default stable version; it's easy to switch later.</p>
+<p>This gets the compiler, the Cargo package manager, the API documentation, and the Rust Book.
+The journey of a thousand miles starts with one step, and this first step is painless.</p>
+<p>You will probably already have an editor you like, and <a href="https://areweideyet.com/">basic Rust support</a>
+is good. I'd suggest you start out with basic syntax highlighting at first, and
+work up as your programs get larger.</p>
+<p>Personally I'm a fan of <a href="https://www.geany.org/Download/Releases">Geany</a> which is
+one of the few editors with Rust support out-of-the-box; it's particularly easy
+on Linux since it's available through the package manager, but it works fine on
+other platforms.</p>
+<p>The main thing is knowing how to edit, compile and run Rust programs.
+You learn to program with your <em>fingers</em>; type in
+the code yourself, and learn to rearrange things efficiently with your editor.</p>
+<p>Zed Shaw's <a href="https://learnpythonthehardway.org/book/intro.html">advice</a> about learning
+to program in Python remains good, whatever the language. He says learning to program
+is like learning a musical instrument - the secret is practice and persistence.
+There's also good advice from Yoga and the soft martial arts like Tai Chi;
+feel the strain, but don't over-strain. You are not building dumb muscle here.</p>
+
+                </div>
+
+                <!-- Mobile navigation buttons -->
+                
+
+                
+                    <a href="./1-basics.html" class="mobile-nav-chapters next">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+
+            </div>
+
+            
+
+            
+                <a href="./1-basics.html" class="nav-chapters next" title="You can navigate through the chapters using the arrow keys">
+                    <i class="fa fa-angle-right"></i>
+                </a>
+            
+
+        </div>
+
+
+        <!-- Local fallback for Font Awesome -->
+        <script>
+            if ($(".fa").css("font-family") !== "FontAwesome") {
+                $('<link rel="stylesheet" type="text/css" href="_FontAwesome/css/font-awesome.css">').prependTo('head');
+            }
+        </script>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        
+
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+    </body>
+</html>

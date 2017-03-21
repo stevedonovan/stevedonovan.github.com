@@ -1,0 +1,642 @@
+<!DOCTYPE HTML>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Modules and Cargo - </title>
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <base href="">
+
+        <link rel="stylesheet" href="book.css">
+        <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+
+        <link rel="shortcut icon" href="favicon.png">
+
+        <!-- Font Awesome -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+
+        <!-- MathJax -->
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Fetch JQuery from CDN but have a local fallback -->
+        <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+        <script>
+            if (typeof jQuery == 'undefined') {
+                document.write(unescape("%3Cscript src='jquery.js'%3E%3C/script%3E"));
+            }
+        </script>
+    </head>
+    <body class="light">
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme = localStorage.getItem('theme');
+            if (theme == null) { theme = 'light'; }
+            $('body').removeClass().addClass(theme);
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var sidebar = localStorage.getItem('sidebar');
+            if (sidebar === "hidden") { $("html").addClass("sidebar-hidden") }
+            else if (sidebar === "visible") { $("html").addClass("sidebar-visible") }
+        </script>
+
+        <div id="sidebar" class="sidebar">
+            <ul class="chapter"><li class="affix"><a href="./readme.html">Introduction</a></li><li><a href="./1-basics.html"><strong>1.</strong> Basics</a></li><li><a href="./2-structs-enums-lifetimes.html"><strong>2.</strong> Structs, Enums and Matching</a></li><li><a href="./3-filesystem.html"><strong>3.</strong> Filesystem and Processes</a></li><li><a href="./4-modules.html" class="active"><strong>4.</strong> Modules and Cargo</a></li><li><a href="./5-stdlib-containers.html"><strong>5.</strong> Standard Library Containers</a></li><li><a href="./6-error-handling.html"><strong>6.</strong> Error Handling</a></li><li><a href="./7-shared-and-networking.html"><strong>7.</strong> Threads, Networking and Sharing</a></li></ul>
+        </div>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar" class="menu-bar">
+                    <div class="left-buttons">
+                        <i id="sidebar-toggle" class="fa fa-bars"></i>
+                        <i id="theme-toggle" class="fa fa-paint-brush"></i>
+                    </div>
+
+                    <h1 class="menu-title"></h1>
+
+                    <div class="right-buttons">
+                        <i id="print-button" class="fa fa-print" title="Print this book"></i>
+                    </div>
+                </div>
+
+                <div id="content" class="content">
+                    <a class="header" href="./4-modules.html#modules-and-cargo" name="modules-and-cargo"><h1>Modules and Cargo</h1></a>
+<a class="header" href="./4-modules.html#modules" name="modules"><h2>Modules</h2></a>
+<p>As programs get larger, it's necessary to spread them over more than one file
+and put functions and types in different <em>namespaces</em>.
+The Rust solution for both of these is <em>modules</em>.</p>
+<p>C does the first, and not
+the second, so you end up with awful names like <code>primitive_display_set_width</code> and
+so forth. In Rust the full name would look like <code>primitive::display::set_width</code>,
+and after saying <code>use primitive::display</code> you can then refer to it as <code>display::set_width</code>.
+You can even say <code>use primitive::display::set_width</code> and then just say <code>set_width</code>, but
+it's not a good idea to get carried away with this. <code>rustc</code> will not be confused, but <em>you</em>
+may get confused later.</p>
+<p>A new keyword <code>mod</code> is used to define a module as a block
+where Rust types or functions can be written:</p>
+<pre><pre class="playpen"><code class="language-rust">mod foo {
+    #[derive(Debug)]
+    struct Foo {
+        s: &amp;'static str
+    }
+}
+
+fn main() {
+    let f = foo::Foo{s: &quot;hello&quot;};
+    println!(&quot;{:?}&quot;, f);
+}
+</code></pre></pre>
+<p>But it's still not quite right - we get 'struct Foo is private'. To solve this, we need the <code>pub</code> keyword
+to export <code>Foo</code>. The error then changes to 'field s of struct foo::Foo is private', so put <code>pub</code>
+before the field <code>s</code> to export <code>Foo::s</code>. Then things will work.</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    pub struct Foo {
+        pub s: &amp;'static str
+    }
+
+#}</code></pre></pre>
+<p>Needing an explicit <code>pub</code> means that you must <em>choose</em> what items to make public from a module.
+The set of functions and types exported from a module is called its <em>interface</em>.</p>
+<p>It is usually better to hide the insides of a struct, and only allow access through methods:</p>
+<pre><pre class="playpen"><code class="language-rust">mod foo {
+    #[derive(Debug)]
+    pub struct Foo {
+        s: &amp;'static str
+    }
+
+    impl Foo {
+        pub fn new(s: &amp;'static str) -&gt; Foo {
+            Foo{s: s}
+        }
+    }
+}
+
+fn main() {
+    let f = foo::Foo::new(&quot;hello&quot;);
+    println!(&quot;{:?}&quot;, f);
+}
+</code></pre></pre>
+<p>Why is hiding the implementation a good thing?  Because it means you may change it later
+without breaking the interface, without consumers of a module getting too dependent on its details.
+The great enemy of large-scale programing is a tendency for code to get entangled, so that understanding
+a piece of code is impossible in isolation.</p>
+<p>In a perfect world a module does one thing, does it well, and keeps its own secrets.</p>
+<p>When not to hide? As Stroustrup says, when the interface <em>is</em> the implementation, like
+<code>struct Point{x: f32, y: f32}</code>.</p>
+<p><em>Within</em> a module, all items are visible to all other items. It's a cozy place where
+everyone can be friends and know intimate details about each other.</p>
+<p>Everyone gets to a point where they want to break a program up into separate files,
+depending on taste. I start getting uncomfortable around 500 lines, but we all agree
+that more than 2000 lines is pushing it.</p>
+<p>So how to break this program into separate files?</p>
+<p>We put the <code>foo</code> code into <code>foo.rs</code>:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+// foo.rs
+#[derive(Debug)]
+pub struct Foo {
+    s: &amp;'static str
+}
+
+impl Foo {
+    pub fn new(s: &amp;'static str) -&gt; Foo {
+        Foo{s: s}
+    }
+}
+
+#}</code></pre></pre>
+<p>And use a <code>mod foo</code> statement <em>without</em> a block in the main program:</p>
+<pre><pre class="playpen"><code class="language-rust">// mod3.rs
+mod foo;
+
+fn main() {
+    let f = foo::Foo::new(&quot;hello&quot;);
+    println!(&quot;{:?}&quot;, f);
+}
+</code></pre></pre>
+<p>Now <code>rustc mod3.rs</code> will cause <code>foo.rs</code> to be compiled as well. There is no need to fool around
+with makefiles!</p>
+<p>The compiler will also look at <code>MODNAME/mod.rs</code>, so this will work
+if I create a directory <code>boo</code> containing a file <code>mod.rs</code>:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+// boo/mod.rs
+pub fn answer()-&gt;u32 {
+    42
+}
+
+#}</code></pre></pre>
+<p>And now the main program can use both modules as separate files:</p>
+<pre><code>// mod3.rs
+mod foo;
+mod boo;
+
+fn main() {
+    let f = foo::Foo::new(&quot;hello&quot;);
+    let res = boo::answer();
+    println!(&quot;{:?} {}&quot;, f,res);
+}
+</code></pre>
+<p>So far, there's <code>mod3.rs</code>, containing <code>main</code>, a module <code>foo.rs</code> and a directory <code>boo</code> containing
+<code>mod.rs</code>.  The usual convention is that the file containing <code>main</code> is just called <code>main.rs</code>.</p>
+<p>Why two ways to do the same thing? Because <code>boo/mod.rs</code> can refer to other modules defined in <code>boo</code>,
+Update <code>boo/mod.rs</code> and add a new module - note that this is explicitly exported.</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+pub fn answer()-&gt;u32 {
+    42
+}
+
+pub mod bar {
+    pub fn question() -&gt; &amp;'static str {
+        &quot;the meaning of everything&quot;
+    }
+}
+
+#}</code></pre></pre>
+<p>and then we have the question corresponding to the answer:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+let q = boo::bar::question();
+
+#}</code></pre></pre>
+<p>That module block can be pulled out as <code>boo/bar.rs</code> and so on.</p>
+<p>In summary, modules are about organization and visibility,
+and this may or may not involve separate files.</p>
+<p>Please note that <code>use</code> has nothing to do with importing, and simply specifies visibility
+of module names. For example:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+{
+    use boo::bar;
+    let q = bar::question();
+    ...
+}
+{
+    use boo::bar::question();
+    let q = question();
+    ...
+}
+
+
+#}</code></pre></pre>
+<p>An important point to note is there is no <em>separate compilation</em> here. The main program and its
+module files will be recompiled each time. Larger programs will take a fair amount of time to build,
+although <code>rustc</code> is getting better at incremental compilation.</p>
+<a class="header" href="./4-modules.html#crates" name="crates"><h2>Crates</h2></a>
+<p>The 'compilation unit' for Rust is the <em>crate</em>, which is either an executable or a library.</p>
+<p>To separately compile the files from the last section,
+first build <code>foo.rs</code> as a Rust <em>static library</em> crate:</p>
+<pre><code>src$ rustc foo.rs --crate-type=lib
+src$ ls -l libfoo.rlib
+-rw-rw-r-- 1 steve steve 7888 Jan  5 13:35 libfoo.rlib
+</code></pre>
+<p>We can now <em>link</em> this into our main program:</p>
+<pre><code>src$ rustc mod4.rs --extern foo=libfoo.rlib
+</code></pre>
+<p>But the main program must now look like this, where the <code>extern</code> name is the same
+as the one used when linking. There is an implicit top-level module <code>foo</code> associated
+with the library crate:</p>
+<pre><code>// mod4.rs
+extern crate foo;
+
+fn main() {
+    let f = foo::Foo::new(&quot;hello&quot;);
+    println!(&quot;{:?}&quot;, f);
+}
+</code></pre>
+<p>Before people start chanting 'Cargo! Cargo!' let me justify this lower-level look at building Rust.
+I'm a great believer in 'Know Thy Toolchain', and this will reduce the amount of new magic you need
+to learn when we look at managing projects with Cargo. Modules are basic language features and can be
+used outside Cargo projects.</p>
+<p>It's time to understand why Rust binaries are so large:</p>
+<pre><code>src$ ls -lh mod4
+-rwxrwxr-x 1 steve steve 3,4M Jan  5 13:39 mod4
+</code></pre>
+<p>That's rather fat! There is a <em>lot</em> of debug information in that executable. This is not a Bad Thing,
+if you want to use a debugger and actually want meaningful backtraces when your program panics.</p>
+<p>So let's strip that debug information and see:</p>
+<pre><code>src$ strip mod4
+src$ ls -lh mod4
+-rwxrwxr-x 1 steve steve 300K Jan  5 13:49 mod4
+</code></pre>
+<p>Still feels a little large for something so simple, but this program links <em>statically</em> against
+the Rust standard library. This is a Good Thing, since you can hand this executable to anyone
+with the right operating system - they will not need a 'Rust install<code>. (And</code>rustup` will even let
+you cross-compile for other operating systems and platforms as well.)</p>
+<p>We can link dynamically against the Rust runtime and get truly tiny exes:</p>
+<pre><code>src$ rustc -C prefer-dynamic mod4.rs --extern foo=libfoo.rlib
+src$ ls -lh mod4
+-rwxrwxr-x 1 steve steve 14K Jan  5 13:53 mod4
+src$ ldd mod4
+    linux-vdso.so.1 =&gt;  (0x00007fffa8746000)
+    libstd-b4054fae3db32020.so =&gt; not found
+    libc.so.6 =&gt; /lib/x86_64-linux-gnu/libc.so.6 (0x00007f3cd47aa000)
+    /lib64/ld-linux-x86-64.so.2 (0x00007f3cd4d72000)
+</code></pre>
+<p>That 'not found' is because <code>rustup</code> doesn't install the dynamic libraries globally. We
+can hack our way to happiness, at least on Unix (yes, I know the best solution is a symlink.)</p>
+<pre><code>src$ export LD_LIBRARY_PATH=~/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/lib
+src$ ./mod4
+Foo { s: &quot;hello&quot; }
+</code></pre>
+<p>Rust does not have a <em>philosophical</em> problem with dynamic linking, in the same way as Go does. It's
+just that when there's a stable release every 6 weeks it becomes inconvenient to have to recompile
+everything. If you have a stable version that Works For You, then cool. As stable versions of Rust
+get increasingly delivered by the OS package manager, dynamic linking will become more popular.</p>
+<a class="header" href="./4-modules.html#cargo" name="cargo"><h2>Cargo</h2></a>
+<p>The Rust standard library is not very large, compared to Java or Python; although much more fully
+featured than C or C++, which lean heavily on operating system provided libraries.</p>
+<p>But it is straightforward to access community-provided libraries in <a href="https://crates.io">crates.io</a>
+using <strong>Cargo</strong>.  Cargo will look up the correct version and download the source for you, and
+ensures that any other needed crates are downloaded as well.</p>
+<p>Let's create a simple program which needs to read JSON. This data format is very widely used,
+but is too specialized for inclusion in the standard library. So we initialize a Cargo project,
+using '--bin' because the default is to create a library project.</p>
+<pre><code>test$ cargo init --bin test-json
+     Created binary (application) project
+test$ cd test-json
+test$ cat Cargo.toml
+[package]
+name = &quot;test-json&quot;
+version = &quot;0.1.0&quot;
+authors = [&quot;Your Name &lt;you@example.org&gt;&quot;]
+
+[dependencies]
+</code></pre>
+<p>To make the project depend on the <a href="http://json.rs/doc/json/">JSON crate</a>, edit the
+'Cargo.toml' file so:</p>
+<pre><code>[dependencies]
+json=&quot;*&quot;
+</code></pre>
+<p>Then do a first build with Cargo:</p>
+<pre><code>test-json$ cargo build
+    Updating registry `https://github.com/rust-lang/crates.io-index`
+ Downloading json v0.11.4
+   Compiling json v0.11.4
+   Compiling test-json v0.1.0 (file:///home/steve/c/rust/test/test-json)
+    Finished debug [unoptimized + debuginfo] target(s) in 1.75 secs
+</code></pre>
+<p>The main file of this project has already been created - it's 'main.rs' in the 'src'
+directory. It starts out just as a 'hello world' app, so let's edit it to be a proper test program.</p>
+<p>Mote the very convenient 'raw' string literal - otherwise we would need to escape those double quotes
+and end up with ugliness:</p>
+<pre><pre class="playpen"><code class="language-rust">// test-json/src/main.rs
+extern crate json;
+
+fn main() {
+    let doc = json::parse(r#&quot;
+    {
+        &quot;code&quot;: 200,
+        &quot;success&quot;: true,
+        &quot;payload&quot;: {
+            &quot;features&quot;: [
+                &quot;awesome&quot;,
+                &quot;easyAPI&quot;,
+                &quot;lowLearningCurve&quot;
+            ]
+        }
+    }
+    &quot;#).expect(&quot;parse failed&quot;);
+
+    println!(&quot;debug {:?}&quot;, doc);
+    println!(&quot;display {}&quot;, doc);
+}
+</code></pre></pre>
+<p>You can now build and run this project - only <code>main.rs</code> has changed.</p>
+<pre><code>test-json$ cargo run
+   Compiling test-json v0.1.0 (file:///home/steve/c/rust/test/test-json)
+    Finished debug [unoptimized + debuginfo] target(s) in 0.21 secs
+     Running `target/debug/test-json`
+debug Object(Object { store: [(&quot;code&quot;, Number(Number { category: 1, exponent: 0, mantissa: 200 }),
+ 0, 1), (&quot;success&quot;, Boolean(true), 0, 2), (&quot;payload&quot;, Object(Object { store: [(&quot;features&quot;,
+ Array([Short(&quot;awesome&quot;), Short(&quot;easyAPI&quot;), Short(&quot;lowLearningCurve&quot;)]), 0, 0)] }), 0, 0)] })
+display {&quot;code&quot;:200,&quot;success&quot;:true,&quot;payload&quot;:{&quot;features&quot;:[&quot;awesome&quot;,&quot;easyAPI&quot;,&quot;lowLearningCurve&quot;]}}
+</code></pre>
+<p>The debug output shows some internal details of the JSON document, but a
+plain '{}', using the <code>Display</code> trait, regenerates JSON from the parsed document.</p>
+<p>Let's explore the JSON API.
+It would not be useful if we could not extract values. The <code>as_TYPE</code> methods
+return <code>Option&lt;TYPE&gt;</code> since we cannot be sure that the field exists or is of the correct type.
+(see the <a href="http://json.rs/doc/json/enum.JsonValue.html">docs for JsonValue</a>)</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    let code = doc[&quot;code&quot;].as_u32().unwrap_or(0);
+    let success = doc[&quot;success&quot;].as_bool().unwrap_or(false);
+
+    assert_eq!(code, 200);
+    assert_eq!(success, true);
+
+    let features = &amp;doc[&quot;payload&quot;][&quot;features&quot;];
+    for v in features.members() {
+        println!(&quot;{}&quot;, v.as_str().unwrap()); // MIGHT explode
+    }
+    // awesome
+    // easyAPI
+    // lowLearningCurve
+
+#}</code></pre></pre>
+<p><code>features</code> here is a reference to <code>JsonValue</code> - it has to be a reference because otherwise
+we would be trying to move a <em>value</em> out of the JSON document.  Here we know it's an array,
+so <code>members()</code> will return a non-empty iterator over <code>&amp;JsonValue</code>.</p>
+<p>What if the 'payload' object didn't have a 'features' key? Then <code>features</code> would be set to <code>Null</code>.
+There will be no explosion. This convenience expresses the free-form, anything-goes nature of JSON
+very well. It is up to you to examine the structure of any document you receive and create your own
+errors if the structure does not match.</p>
+<p>You can modify these structures. If we had <code>let mut doc</code> then this would do what you expect:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    let features = &amp;mut doc[&quot;payload&quot;][&quot;features&quot;];
+    features.push(&quot;cargo!&quot;).expect(&quot;couldn't push&quot;);
+
+#}</code></pre></pre>
+<p>The <code>push</code> will fail if <code>features</code> wasn't an array, hence it returns <code>Result&lt;()&gt;</code>.</p>
+<p>Here's a truly beautiful use of macros to generate <em>JSON literals</em>:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    let data = object!{
+        &quot;name&quot;    =&gt; &quot;John Doe&quot;,
+        &quot;age&quot;     =&gt; 30,
+        &quot;numbers&quot; =&gt; array![10,53,553]
+    };
+    assert_eq!(
+        data.dump(),
+        r#&quot;{&quot;name&quot;:&quot;John Doe&quot;,&quot;age&quot;:30,&quot;numbers&quot;:[10,53,553]}&quot;#
+    );
+
+#}</code></pre></pre>
+<p>For this to work, you need to explicitly import macros from the JSON crate thus:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+#[macro_use]
+extern crate json;
+
+#}</code></pre></pre>
+<p>There is a downside to using this crate, because of the mismatch between the amorphous, dynamically-typed
+nature of JSON and the structured, static nature of Rust. (The readme explicitly speaks of 'friction')
+So if you <em>did</em> want to map JSON to Rust data structures, you would end up doing a lot of checking,
+because you can not assume that the received structure matches your structs! For that, a better
+solution is <a href="https://github.com/serde-rs/json">serde-json</a> where you <em>serialize</em> Rust data structures
+into JSON and <em>deserialize</em> JSON into Rust.</p>
+<p>For this, create a another Cargo binary project with <code>cargo new --bin test-serde-json</code>, go into
+the <code>test-serde-json</code> directory and edit <code>Cargo.toml</code>. Edit it like so:</p>
+<pre><code>[dependencies]
+serde=&quot;0.9&quot;
+serde_derive=&quot;0.9&quot;
+serde_json=&quot;0.9&quot;
+</code></pre>
+<p>And edit <code>src/main.rs</code> to be this:</p>
+<pre><pre class="playpen"><code class="language-rust">#[macro_use]
+extern crate serde_derive;
+extern crate serde_json;
+
+#[derive(Serialize, Deserialize, Debug)]
+struct Person {
+    name: String,
+    age: u8,
+    address: Address,
+    phones: Vec&lt;String&gt;,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+struct Address {
+    street: String,
+    city: String,
+}
+
+fn main() {
+    let data = r#&quot; {
+     &quot;name&quot;: &quot;John Doe&quot;, &quot;age&quot;: 43,
+     &quot;address&quot;: {&quot;street&quot;: &quot;main&quot;, &quot;city&quot;:&quot;Downtown&quot;},
+     &quot;phones&quot;:[&quot;27726550023&quot;]
+    } &quot;#;
+    let p: Person = serde_json::from_str(data).expect(&quot;deserialize error&quot;);
+    println!(&quot;Please call {} at the number {}&quot;, p.name, p.phones[0]);
+
+    println!(&quot;{:#?}&quot;,p);
+}
+</code></pre></pre>
+<p>You have seen the <code>derive</code> attribute before, but the <code>serde_derive</code> crate defines <em>custom derives</em>
+for the special <code>Serialize</code> and <code>Deserialize</code> traits. And the result shows the generated Rust struct:</p>
+<pre><code>Please call John Doe at the number 27726550023
+Person {
+    name: &quot;John Doe&quot;,
+    age: 43,
+    address: Address {
+        street: &quot;main&quot;,
+        city: &quot;Downtown&quot;
+    },
+    phones: [
+        &quot;27726550023&quot;
+    ]
+}
+</code></pre>
+<p>Now, if you did this using the <code>json</code> crate, you would need a few hundred lines of custom conversion
+code, mostly error handling. Tedious, easy to mess up, and not where you want to put effort anyway.</p>
+<p>This is clearly the best solution if you are processing well-structured JSON from outside sources (it's
+possible to remap field names if needed) and provides a robust way for Rust programs to share data
+with other programs over the network (since everything understands JSON these days.)</p>
+<p>Serialization is an important technique and similar solutions exist for Java and Go - but with a big
+difference. In those languages the structure of the data is found at <em>run-time</em> using <em>reflection</em>, but
+in this case the serialization code is generated at <em>compile-time</em> - altogether more efficient!</p>
+<p>Cargo is considered to be one of the great strengths of the Rust ecosystem, because it does
+a lot of work for us. Otherwise we would have had to download these libraries from Github,
+build as static library crates, and link them against the program. It's painful to do this for
+C++ projects, and would be nearly as painful for Rust projects if Cargo did not exist.
+C++ is somewhat unique in its painfullness here, so we should compare this with
+other languages' package managers. npm (for JavaScript) and pip (for Python) manage dependencies
+and downloads for you, but the distribution story is harder, since the user of your program
+needs NodeJS or Python installed.
+But these programs are statically linked against their dependencies, so again it can be handed
+out to your buddies without external dependencies.</p>
+<a class="header" href="./4-modules.html#more-gems" name="more-gems"><h2>More Gems</h2></a>
+<p>When processing anything except simple text, regular expressions make your life much easier.
+These are commonly available for most languages and I'll here assume a basic familiarity with
+regex notation.  To use the <a href="https://github.com/rust-lang/regex">regex</a> crate, put 'regex = &quot;*&quot;'
+after &quot;[dependencies]&quot; in your Cargo.toml.</p>
+<p>We'll use 'raw strings' again so that the backslashes don't have to be escaped. In English, this
+regular expression is &quot;match exactly two digits, the character ':', and then any number of digits.
+Capture both sets of digits&quot;:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+extern crate regex;
+use regex::Regex;
+
+let re = Regex::new(r&quot;(\d{2}):(\d+)&quot;).unwrap();
+println!(&quot;{:?}&quot;, re.captures(&quot;  10:230&quot;));
+println!(&quot;{:?}&quot;, re.captures(&quot;[22:2]&quot;));
+println!(&quot;{:?}&quot;, re.captures(&quot;10:x23&quot;));
+// Some(Captures({0: Some(&quot;10:230&quot;), 1: Some(&quot;10&quot;), 2: Some(&quot;230&quot;)}))
+// Some(Captures({0: Some(&quot;22:2&quot;), 1: Some(&quot;22&quot;), 2: Some(&quot;2&quot;)}))
+// None
+
+#}</code></pre></pre>
+<p>The successful output actually has three <em>captures</em> - the whole match, and the two sets of digits.
+These regular expressions are not <em>anchored</em> by default, so <strong>regex</strong> will hunt for the first
+occurring match, skipping anything that doesn't match.  (If you left out the '()' it would just
+give us the whole match.)</p>
+<p>It's possible to <em>name</em> those captures, and spread the regular expression over several lines,
+even including comments!  Compiling the regex might fail (the first <em>expect</em>) or the match
+might fail (the second <em>expect</em>). Here we can use the result as an associative array and look
+up captures by name.</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+let re = Regex::new(r&quot;(?x)
+(?P&lt;year&gt;\d{4})  # the year
+-
+(?P&lt;month&gt;\d{2}) # the month
+-
+(?P&lt;day&gt;\d{2})   # the day
+&quot;).expect(&quot;bad regex&quot;);
+let caps = re.captures(&quot;2010-03-14&quot;).expect(&quot;match failed&quot;);
+
+assert_eq!(&quot;2010&quot;, &amp;caps[&quot;year&quot;]);
+assert_eq!(&quot;03&quot;, &amp;caps[&quot;month&quot;]);
+assert_eq!(&quot;14&quot;, &amp;caps[&quot;day&quot;]);
+
+#}</code></pre></pre>
+<p>Regular expressions can break up strings that match a pattern, but won't check whether they make sense.
+That is, you can specify and match the <em>syntax</em> of ISO-style dates, but <em>semantically</em> they may be nonsense,
+like &quot;2014-24-52&quot;.</p>
+<p>For this, you need dedicated date-time processing, which is provided by <a href="https://github.com/lifthrasiir/rust-chrono">chrono</a>.
+You need to decide on a time zone when doing dates:</p>
+<pre><pre class="playpen"><code class="language-rust">extern crate chrono;
+use chrono::*;
+
+fn main() {
+    let date = Local.ymd(2010,3,14);
+    println!(&quot;date was {}&quot;, date);
+}
+// date was 2010-03-14+02:00
+</code></pre></pre>
+<p>However, this isn't recommended because feeding it bad dates will cause a panic! (try the bogus date
+to see this.) The method you need here is <code>ymd_opt</code> which returns <code>LocalResult&lt;Date&gt;</code></p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    let date = Local.ymd_opt(2010,3,14);
+    println!(&quot;date was {:?}&quot;, date);
+    // date was Single(2010-03-14+02:00)
+
+    let date = Local.ymd_opt(2014,24,52);
+    println!(&quot;date was {:?}&quot;, date);
+    // date was None
+
+#}</code></pre></pre>
+<p>You can also directly parse date-times, either in standard UTC format or using custom <a href="https://lifthrasiir.github.io/rust-chrono/chrono/format/strftime/index.html#specifiers">formats</a>.
+These self-same formats allow you to print out dates in exactly the format you want.</p>
+<p>I specifically highlighted these two useful crates because they would be part of the standard
+library in most other languages. And, in fact, the embryonic form of these crates was
+once part of the Rust stdlib, but were cut loose. This was a deliberate decision: the Rust team takes
+stdlib stability very seriously so features only arrive in stable once they have gone through
+incubation in unstable nightly versions, and only then beta and stable.  For libraries that need
+experimentation and refinement, it's much better that they remain independent and get tracked
+with Cargo. For all practical purposes, these two crates <em>are</em> standard - they are not going away and
+may be folded back into the stdlib at some point.</p>
+
+                </div>
+
+                <!-- Mobile navigation buttons -->
+                
+                    <a href="./3-filesystem.html" class="mobile-nav-chapters previous">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a href="./5-stdlib-containers.html" class="mobile-nav-chapters next">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+
+            </div>
+
+            
+                <a href="./3-filesystem.html" class="nav-chapters previous" title="You can navigate through the chapters using the arrow keys">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+            
+
+            
+                <a href="./5-stdlib-containers.html" class="nav-chapters next" title="You can navigate through the chapters using the arrow keys">
+                    <i class="fa fa-angle-right"></i>
+                </a>
+            
+
+        </div>
+
+
+        <!-- Local fallback for Font Awesome -->
+        <script>
+            if ($(".fa").css("font-family") !== "FontAwesome") {
+                $('<link rel="stylesheet" type="text/css" href="_FontAwesome/css/font-awesome.css">').prependTo('head');
+            }
+        </script>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        
+
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+    </body>
+</html>

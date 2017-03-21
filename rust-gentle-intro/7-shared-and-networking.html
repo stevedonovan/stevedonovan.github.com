@@ -1,0 +1,821 @@
+<!DOCTYPE HTML>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Threads, Networking and Sharing - </title>
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <base href="">
+
+        <link rel="stylesheet" href="book.css">
+        <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+
+        <link rel="shortcut icon" href="favicon.png">
+
+        <!-- Font Awesome -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+
+        <!-- MathJax -->
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Fetch JQuery from CDN but have a local fallback -->
+        <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+        <script>
+            if (typeof jQuery == 'undefined') {
+                document.write(unescape("%3Cscript src='jquery.js'%3E%3C/script%3E"));
+            }
+        </script>
+    </head>
+    <body class="light">
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme = localStorage.getItem('theme');
+            if (theme == null) { theme = 'light'; }
+            $('body').removeClass().addClass(theme);
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var sidebar = localStorage.getItem('sidebar');
+            if (sidebar === "hidden") { $("html").addClass("sidebar-hidden") }
+            else if (sidebar === "visible") { $("html").addClass("sidebar-visible") }
+        </script>
+
+        <div id="sidebar" class="sidebar">
+            <ul class="chapter"><li class="affix"><a href="./readme.html">Introduction</a></li><li><a href="./1-basics.html"><strong>1.</strong> Basics</a></li><li><a href="./2-structs-enums-lifetimes.html"><strong>2.</strong> Structs, Enums and Matching</a></li><li><a href="./3-filesystem.html"><strong>3.</strong> Filesystem and Processes</a></li><li><a href="./4-modules.html"><strong>4.</strong> Modules and Cargo</a></li><li><a href="./5-stdlib-containers.html"><strong>5.</strong> Standard Library Containers</a></li><li><a href="./6-error-handling.html"><strong>6.</strong> Error Handling</a></li><li><a href="./7-shared-and-networking.html" class="active"><strong>7.</strong> Threads, Networking and Sharing</a></li></ul>
+        </div>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar" class="menu-bar">
+                    <div class="left-buttons">
+                        <i id="sidebar-toggle" class="fa fa-bars"></i>
+                        <i id="theme-toggle" class="fa fa-paint-brush"></i>
+                    </div>
+
+                    <h1 class="menu-title"></h1>
+
+                    <div class="right-buttons">
+                        <i id="print-button" class="fa fa-print" title="Print this book"></i>
+                    </div>
+                </div>
+
+                <div id="content" class="content">
+                    <a class="header" href="./7-shared-and-networking.html#threads-networking-and-sharing" name="threads-networking-and-sharing"><h1>Threads, Networking and Sharing</h1></a>
+<a class="header" href="./7-shared-and-networking.html#changing-the-unchangeable" name="changing-the-unchangeable"><h2>Changing the Unchangeable</h2></a>
+<p>If you're feeling pig-headed (as I get) you wonder if it's <em>ever</em> possible to get
+around the restrictions of the borrow checker.</p>
+<p>Consider the following little program, which compiles and runs without problems.</p>
+<pre><pre class="playpen"><code class="language-rust">// cell.rs
+use std::cell::Cell;
+
+fn main() {
+    let answer = Cell::new(42);
+
+    assert_eq!(answer.get(), 42);
+
+    answer.set(77);
+
+    assert_eq!(answer.get(), 77);
+}
+</code></pre></pre>
+<p>The answer was changed - and yet the <em>variable</em> <code>answer</code> was not mutable!</p>
+<p>This is obviously perfectly safe, since the value inside the cell is only accessed
+through <code>set</code> and <code>get</code>.  This goes by the grand name of <em>interior mutability</em>. The
+usual is called <em>inherited mutability</em>: if I have a struct value <code>v</code>, then I can only
+write to a field <code>v.a</code> if <code>v</code> itself is writeable. <code>Cell</code> values relax this rule, since
+we can change the value contained within them with <code>set</code> even if the cell itself is
+not mutable.</p>
+<p>However, <code>Cell</code> only works with values that can be copied, that is, they implement <code>Copy</code>,
+like primitive types and structs containing them marked as 'derive(Copy)'.</p>
+<p>For other values, we have to get a reference we can work on, either mutable or immutable.
+This is what <code>RefCell</code> provides - you ask it explicitly for a reference to the contained
+value:</p>
+<pre><pre class="playpen"><code class="language-rust">// refcell.rs
+use std::cell::RefCell;
+
+fn main() {
+    let greeting = RefCell::new(&quot;hello&quot;.to_string());
+
+    assert_eq!(*greeting.borrow(), &quot;hello&quot;);
+    assert_eq!(greeting.borrow().len(), 5);
+
+    *greeting.borrow_mut() = &quot;hola&quot;.to_string();
+
+    assert_eq!(*greeting.borrow(), &quot;hola&quot;);
+}
+</code></pre></pre>
+<p>The explicit dereference operator <code>*</code> can be a little bit confusing in Rust, because
+often you don't need it - for instance <code>greeting.borrow().len()</code> is fine since method
+calls will deference implicitly.  But you <em>do</em> need <code>*</code> to pull out the underlying
+<code>&amp;String</code> from <code>greeting.borrow()</code> or the <code>&amp;mut String</code> from <code>greeting.borrow_mut()</code>.</p>
+<p>Using a <code>RefCell</code> isn't always safe, because any references returned from these
+methods must follow the usual rules.</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    let mut gr = greeting.borrow_mut(); // gr is a mutable borrow
+    *gr = &quot;hola&quot;.to_string();
+
+    assert_eq!(*greeting.borrow(), &quot;hola&quot;); // &lt;== we blow up here!
+....
+thread 'main' panicked at 'already mutably borrowed: BorrowError'
+
+#}</code></pre></pre>
+<p>You cannot borrow immutably if you have already borrowed mutably! Except - and this
+is important - the violation of the rules happens at <em>runtime</em>.  The solution (as always)
+is to keep the scope of mutable borrows as limited as possible - in this case, you could
+put a block around the first two lines here so that the mutable reference <code>gr</code> gets
+dropped before we borrow again.</p>
+<p>So, this is not a feature you use without good reason, since you will <em>not</em> get a
+compile-time error.  These types provide <em>dynamic borrowing</em> in cases where the usual
+rules make some things impossible.</p>
+<a class="header" href="./7-shared-and-networking.html#shared-references" name="shared-references"><h2>Shared References</h2></a>
+<p>Up to now, the relationship between a value and its borrowed references has been clear
+and known at compile time.  The value is the owner, and the references cannot outlive it.
+But many cases simply don't fit into this neat pattern. For example, say we have
+a <code>Player</code> struct and a <code>Role</code> struct. A <code>Player</code> keeps a vector of references to <code>Role</code>
+objects. There isn't a neat one-to-one relationship between these values, and persuading
+<code>rustc</code> to cooperate becomes nasty.</p>
+<p><code>Rc</code> works like <code>Box</code> - heap memory is allocated and the value is moved to it. If you
+clone a <code>Box</code>, it allocates a full cloned copy of the value.  But cloning an <code>Rc</code> is
+cheap, because each time you clone it just updates a _reference count_to the <em>same data</em>.
+This is an old and very popular strategy for memory management,
+for example it's used in the Objective C runtime on iOS/MacOS.
+(In modern C++, it is implemented with <code>std::shared_ptr</code>.)</p>
+<p>When a <code>Rc</code> is dropped, the reference count is decremented. When that count goes to zero
+the owned value is dropped and the memory freed.</p>
+<pre><pre class="playpen"><code class="language-rust">// rc1.rs
+use std::rc::Rc;
+
+fn main() {
+    let s = &quot;hello dolly&quot;.to_string();
+    let rs1 = Rc::new(s); // s moves to heap; ref count 1
+    let rs2 = rs1.clone(); // ref count 2
+
+    println!(&quot;len {}, {}&quot;, rs1.len(), rs2.len());
+} // both rs1 and rs2 drop, string dies.
+</code></pre></pre>
+<p>You may make as many references as you like to the original value - it's <em>dynamic borrowing</em>
+again. You do not have to carefully track the relationship between the value <code>T</code> and
+its references <code>&amp;T</code>. There is some runtime cost involved, so it isn't the <em>first</em>
+solution you choose, but it makes patterns of sharing possible which would fall foul
+of the borrow checker.  Note that <code>Rc</code> gives you immutable shared references, since
+otherwise that would break one of the very basic rules of borrowing.
+A leopard can't change its spots without ceasing to be a leopard.</p>
+<p>In the case of a <code>Player</code>, it can now keep its roles as a <code>Vec&lt;Rc&lt;Role&gt;&gt;</code> and things
+work out fine - we can add or remove roles but not <em>change</em> them after their creation.</p>
+<p>However, what if each <code>Player</code> needs to keep references to a <em>team</em> as a vector of
+<code>Player</code> references? Then everything becomes immutable, because all the <code>Player</code> values
+need to be stored as <code>Rc</code>!  This is the place where <code>RefCell</code> becomes necessary. The team
+may be then defined as <code>Vec&lt;Rc&lt;RefCell&lt;Player&gt;&gt;&gt;</code>.  It is now possible to change
+a <code>Player</code> value using <code>borrow_mut</code>, <em>provided</em> no-one has 'checked out' a reference
+to a <code>Player</code> at the same time. For example, say we have a rule that if something special
+happens to a player, then all of their team gets stronger:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    for p in &amp;self.team {
+        p.borrow_mut().make_stronger();
+    }
+
+#}</code></pre></pre>
+<p>So the application code isn't too bad, but the type signatures get a bit scary. You can
+always simplify them with a <code>type</code> alias:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+type PlayerRef = Rc&lt;RefCell&lt;Player&gt;&gt;;
+
+#}</code></pre></pre>
+<a class="header" href="./7-shared-and-networking.html#multithreading" name="multithreading"><h2>Multithreading</h2></a>
+<p>Over the last twenty years, there has been a shift away from raw processing speed
+to CPUs having multiple cores. So the only way to get the most out of a modern computer
+is to keep all of those cores busy. It's certainly possible to spawn child processes
+in the background as we saw with <code>Command</code> but there's still a synchronization problem:
+we don't know exactly when those children are finished without waiting on them.</p>
+<p>There are other reasons for needing separate <em>threads of execution</em>, of course. You cannot
+afford to lock up your whole process just to wait on blocking i/o, for instance.</p>
+<p>Spawning threads is straightforward in Rust - you feed <code>spawn</code> a closure which is
+executed in the background.</p>
+<pre><pre class="playpen"><code class="language-rust">// thread1.rs
+use std::thread;
+use std::time;
+
+fn main() {
+    thread::spawn(|| println!(&quot;hello&quot;));
+    thread::spawn(|| println!(&quot;dolly&quot;));
+
+    println!(&quot;so fine&quot;);
+    // wait a little bit
+    thread::sleep(time::Duration::from_millis(100));
+}
+// so fine
+// hello
+// dolly
+</code></pre></pre>
+<p>Well obviously just 'wait a little bit' is not a very rigorous solution! It's better
+to call <code>join</code> on the returned object - then the main thread waits for the
+spawned thread to finish.</p>
+<pre><pre class="playpen"><code class="language-rust">// thread2.rs
+use std::thread;
+
+fn main() {
+    let t = thread::spawn(|| {
+        println!(&quot;hello&quot;);
+    });
+    println!(&quot;wait {:?}&quot;, t.join());
+}
+// hello
+// wait Ok(())
+</code></pre></pre>
+<p>Here's an interesting variation: force the new thread to panic.</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    let t = thread::spawn(|| {
+        println!(&quot;hello&quot;);
+        panic!(&quot;I give up!&quot;);
+    });
+    println!(&quot;wait {:?}&quot;, t.join());
+
+#}</code></pre></pre>
+<p>We get a panic as expected, but only the panicking thread dies! We still manage
+to print out the error message from the <code>join</code>. So yes, panics are not always fatal,
+but threads are relatively expensive, so this should not be seen as a routine way
+of handling panics.</p>
+<pre><code>hello
+thread '&lt;unnamed&gt;' panicked at 'I give up!', thread2.rs:7
+note: Run with `RUST_BACKTRACE=1` for a backtrace.
+wait Err(Any)
+</code></pre>
+<a class="header" href="./7-shared-and-networking.html#threads-dont-borrow" name="threads-dont-borrow"><h2>Threads Don't Borrow</h2></a>
+<p>It's possible for the thread closure to capture values, but <em>not</em> by borrowing!</p>
+<pre><pre class="playpen"><code class="language-rust">// thread3.rs
+use std::thread;
+
+fn main() {
+    let name = &quot;dolly&quot;.to_string();
+    let t = thread::spawn(|| {
+        println!(&quot;hello {}&quot;, name);
+    });
+    println!(&quot;wait {:?}&quot;, t.join());
+}
+</code></pre></pre>
+<p>And here's the helpful error message:</p>
+<pre><code>error[E0373]: closure may outlive the current function, but it borrows `name`, which is owned by the current function
+ --&gt; thread3.rs:6:27
+  |
+6 |     let t = thread::spawn(|| {
+  |                           ^^ may outlive borrowed value `name`
+7 |         println!(&quot;hello {}&quot;, name);
+  |                             ---- `name` is borrowed here
+  |
+help: to force the closure to take ownership of `name` (and any other referenced variables), use the `move` keyword, as shown:
+  |     let t = thread::spawn(move || {
+</code></pre>
+<p>That's fair enough! Imagine spawning this thread from a function - it will exist
+after the function call has finished and <code>name</code> gets dropped.  So adding <code>move</code> solves our
+problem.</p>
+<p>The returned objects can be used to keep track of multiple threads:</p>
+<pre><pre class="playpen"><code class="language-rust">// thread4.rs
+use std::thread;
+
+fn main() {
+    let mut threads = Vec::new();
+
+    for i in 0..5 {
+        let t = thread::spawn(move || {
+            println!(&quot;hello {}&quot;, i);
+        });
+        threads.push(t);
+    }
+
+    for t in threads {
+        t.join().expect(&quot;thread failed&quot;);
+    }
+}
+// hello 0
+// hello 2
+// hello 4
+// hello 3
+// hello 1
+
+</code></pre></pre>
+<p>Rust insists that we handle the case where the join failed - i.e. that thread panicked.
+(You would typically not bail out of the main program when this happens, just note the
+error, retry etc)</p>
+<p>There is no particular order to thread execution (this program gives different orders
+for different runs), and this is key - they really are <em>independent threads of execution</em>.
+Multithreading is easy; what's hard is <em>concurrency</em> - managing and synchronizing multiple
+threads of execution.</p>
+<p>Threads can't share the same environment - by <em>design</em> in Rust. In particular,
+they cannot share regular references because the closures move their captured variables.</p>
+<p>_<em>shared references</em> are fine however - but you cannot use <code>Rc</code> for this. This is because
+<code>Rc</code> is not <em>thread safe</em> - it's optimized to be fast for the non-threaded case. For
+threads, you need <code>std::sync::Arc</code> - 'Arc' stands for 'Atomic Reference Counting'. That
+is, it guarantees that the reference count will be modified in one logical operation. To
+make this guarantee, it must ensure that the operation is locked so that only the current
+thread has access.</p>
+<pre><pre class="playpen"><code class="language-rust">// thread5.rs
+use std::thread;
+use std::sync::Arc;
+
+fn main() {
+    let mut threads = Vec::new();
+    let name = Arc::new(&quot;dolly&quot;.to_string());
+
+    for i in 0..5 {
+        let tname = name.clone();
+        let t = thread::spawn(move || {
+            println!(&quot;hello {} count {}&quot;, tname,i);
+        });
+        threads.push(t);
+    }
+
+    for t in threads {
+        t.join().expect(&quot;thread failed&quot;);
+    }
+}
+</code></pre></pre>
+<p>So the shared reference <code>name</code> is passed to each new thread by making a new reference
+with <code>clone</code> and moving it into the closure. It's a little verbose, but this is a safe
+pattern. Safety is important in concurrency precisely because the problems are so
+unpredictable. A program may run fine on your machine, but occasionally crash on the
+server, usually on the weekend. Worse still, the symptoms of such problems are
+not easy to diagnose.</p>
+<a class="header" href="./7-shared-and-networking.html#channels" name="channels"><h2>Channels</h2></a>
+<p>There are ways to send data between threads. This
+is done in Rust using <em>channels</em>. <code>std::sync::mpsc::channel()</code> returns a pair:
+the <em>receiver</em> channel and the <em>sender</em> channel. Each thread is passed a copy
+of the sender with <code>clone</code>, and calls <code>send</code>. Meanwhile the main thread calls
+<code>recv</code> on the receiver.</p>
+<pre><pre class="playpen"><code class="language-rust">// thread9.rs
+use std::thread;
+use std::sync::mpsc;
+
+fn main() {
+    let nthreads = 5;
+    let (tx, rx) = mpsc::channel();
+
+    for i in 0..nthreads {
+        let tx = tx.clone();
+        thread::spawn(move || {
+            let response = format!(&quot;hello {}&quot;, i);
+            tx.send(response).unwrap();
+        });
+    }
+
+    for _ in 0..nthreads {
+        println!(&quot;got {:?}&quot;, rx.recv());
+    }
+}
+// got Ok(&quot;hello 0&quot;)
+// got Ok(&quot;hello 1&quot;)
+// got Ok(&quot;hello 3&quot;)
+// got Ok(&quot;hello 4&quot;)
+// got Ok(&quot;hello 2&quot;)
+</code></pre></pre>
+<p>There's no need to join here since the threads send their response just before they
+end execution, but obviously this can happen at any time. <code>recv</code> will block, and will
+return an error if the sender channel is disconnected. <code>recv_timeout</code> will only block
+for a given time period, and may return a timeout error as well.</p>
+<p><code>send</code> never blocks, which is useful because threads can push out data without waiting
+for the receiver to process. In addition, the channel is buffered so multiple
+send` operations can take place, which will be received in order.</p>
+<p>However, not blocking means that <code>Ok</code> does not automatically mean 'successfully delivered message'!</p>
+<p>A <code>sync_channel</code> <em>does</em> block on send. With an argument of zero, the send blocks until the
+recv happens. The threads must meet up or <em>rendezvous</em> (on the sound principle that most things
+sound better in French.)</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    let (tx, rx) = mpsc::sync_channel(0);
+
+    let t1 = thread::spawn(move || {
+        for i in 0..5 {
+            tx.send(i).unwrap();
+        }
+    });
+
+    for _ in 0..5 {
+        let res = rx.recv().unwrap();
+        println!(&quot;{}&quot;,res);
+    }
+    t1.join().unwrap();
+
+#}</code></pre></pre>
+<p>We can easily cause an error here by calling <code>recv</code> when there has been no corresponding <code>send</code>, e.g
+by looping <code>for i in 0..4</code>. The thread ends, and <code>tx</code> drops, and then <code>recv</code> will fail. This will also
+happen if the thread panics, which causes its stack to be unwound, dropping any values.</p>
+<p>If the <code>sync_channel</code> was created with a non-zero argument <code>n</code>, then it acts like a queue with a
+maximum size of <code>n</code> - <code>send</code> will only block when it tries to add more than <code>n</code> values to the queue.</p>
+<p>Channels are strongly typed - here the channel had type <code>i32</code> - but type inference makes this implicit.
+If you need to pass different kinds of data, then enums are a good way to express this.</p>
+<a class="header" href="./7-shared-and-networking.html#synchronization" name="synchronization"><h2>Synchronization</h2></a>
+<p>Let's look at <em>synchronization</em>. <code>join</code> is very basic, and merely waits until a
+particular thread has finished.  A <code>sync_channel</code> synchronizes two threads - in the last example, the
+spawned thread and the main thread are completely locked together.</p>
+<p>Barrier synchronization is a checkpoint where the threads must wait until <em>all</em> of
+them have reached that point. Then they can keep going as before. The barrier is
+created with the number of threads that we want to wait for. As before we use use <code>Arc</code>
+to share the barrier with all the threads.</p>
+<pre><pre class="playpen"><code class="language-rust">// thread7.rs
+use std::thread;
+use std::sync::Arc;
+use std::sync::Barrier;
+
+fn main() {
+    let nthreads = 5;
+    let mut threads = Vec::new();
+    let barrier = Arc::new(Barrier::new(nthreads));
+
+    for i in 0..nthreads {
+        let barrier = barrier.clone();
+        let t = thread::spawn(move || {
+            println!(&quot;before wait {}&quot;, i);
+            barrier.wait();
+            println!(&quot;after wait {}&quot;, i);
+        });
+        threads.push(t);
+    }
+
+    for t in threads {
+        t.join().unwrap();
+    }
+}
+// before wait 2
+// before wait 0
+// before wait 1
+// before wait 3
+// before wait 4
+// after wait 4
+// after wait 2
+// after wait 3
+// after wait 0
+// after wait 1
+</code></pre></pre>
+<p>The threads do their semi-random thing, all meet up, and then continue. It's like a kind
+of resumable <code>join</code> and useful when you need to farm off pieces of a job to
+different threads and want to take some action when all the pieces are finished.</p>
+<a class="header" href="./7-shared-and-networking.html#shared-state" name="shared-state"><h2>Shared State</h2></a>
+<p>But how can threads <em>modify</em> shared state?</p>
+<p>Recall the <code>Rc&lt;RefCell&gt;</code> strategy for <em>dynamically</em> doing a
+mutable borrow on shared references.  The threading equivalent to <code>RefCell</code> is
+<code>Mutex</code> - you may get your mutable reference by calling <code>lock</code>. While this reference
+exists, no other thread can access it. <code>mutex</code> stands for <code>Mutual Exclusion' - we lock a section of code so that only one thread can access it, and then unlock it. You get the lock with the</code>lock` method, and it is unlocked when the reference is dropped.</p>
+<pre><pre class="playpen"><code class="language-rust">// thread9.rs
+use std::thread;
+use std::sync::Arc;
+use std::sync::Mutex;
+
+fn main() {
+    let answer = Arc::new(Mutex::new(42));
+
+    let answer_ref = answer.clone();
+    let t = thread::spawn(move || {
+        let mut answer = answer_ref.lock().unwrap();
+        *answer = 55;
+    });
+
+    t.join().unwrap();
+
+    let ar = answer.lock().unwrap();
+    assert_eq!(*ar, 55);
+
+}
+</code></pre></pre>
+<p>This isn't so straightforward as using <code>RefCell</code> because asking for the lock on
+the mutex might fail, if another thread has panicked while holding the lock.
+(In this case, the documentation actually recommends just exiting the thread with <code>unwrap</code>
+because things have gone seriously wrong!)</p>
+<p>It's even more important to keep this mutable borrow as short as possible, because
+as long as the mutex is locked, other threads are <em>blocked</em>. This is not the place for
+expensive calculations! So typically such code would be used like this:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+// ... do something in the thread
+// get a locked reference and use it briefly!
+{
+    let mut data = data_ref.lock().unwrap();
+    // modify data
+}
+//... continue with the thread
+
+#}</code></pre></pre>
+<a class="header" href="./7-shared-and-networking.html#higher-level-operations" name="higher-level-operations"><h2>Higher-Level Operations</h2></a>
+<p>It's better to find higher-level ways of doing threading, rather than managing the synchronization
+yourself. An example is when you need to do things in parallel and collect the results. One very
+cool crate is <a href="https://docs.rs/pipeliner/0.1.1/pipeliner/">pipeliner</a> which has a very straightforward
+API. Here's the 'Hello, World!' - an iterator feeds us inputs and we execute up to <code>n</code> of the operations
+on the values in parallel.</p>
+<pre><pre class="playpen"><code class="language-rust">extern crate pipeliner;
+use pipeliner::Pipeline;
+
+fn main() {
+    for result in (0..50).with_threads(10).map(|x| x + 1) {
+        println!(&quot;result: {}&quot;, result);
+    }
+}
+</code></pre></pre>
+<p>It's silly of course, because the operation is so cheap to calculate, but shows how simple it is
+to collect parallel results.</p>
+<p>Here's something more useful. Doing network operations in parallel is very useful, because they can
+take time, and you don't want to wait for them <em>all</em> to finish before starting to do work.</p>
+<p>This example is pretty crude (believe me, there are better ways of doing it) but here we want to focus
+on the principle. We reuse the <code>shell</code> function defined in section 4 to call <code>ping</code> on a range
+of IP4 addresses.</p>
+<pre><pre class="playpen"><code class="language-rust">extern crate pipeliner;
+use pipeliner::Pipeline;
+
+use std::process::Command;
+
+fn shell(cmd: &amp;str) -&gt; (String,bool) {
+    let cmd = format!(&quot;{} 2&gt;&amp;1&quot;,cmd);
+    let output = Command::new(&quot;/bin/sh&quot;)
+        .arg(&quot;-c&quot;)
+        .arg(&amp;cmd)
+        .output()
+        .expect(&quot;no shell?&quot;);
+    (
+        String::from_utf8_lossy(&amp;output.stdout).trim_right().to_string(),
+        output.status.success()
+    )
+}
+
+fn main() {
+    let addresses: Vec&lt;_&gt; = (1..40).map(|n| format!(&quot;ping -c1 192.168.0.{}&quot;,n)).collect();
+    let n = addresses.len();
+
+    for result in addresses.with_threads(n).map(|s| shell(&amp;s)) {
+        if result.1 {
+            println!(&quot;got: {}&quot;, result.0);
+        }
+    }
+
+}
+</code></pre></pre>
+<p>And the result on my home network looks like this:</p>
+<pre><code>got: PING 192.168.0.1 (192.168.0.1) 56(84) bytes of data.
+64 bytes from 192.168.0.1: icmp_seq=1 ttl=64 time=43.2 ms
+
+--- 192.168.0.1 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 43.284/43.284/43.284/0.000 ms
+got: PING 192.168.0.18 (192.168.0.18) 56(84) bytes of data.
+64 bytes from 192.168.0.18: icmp_seq=1 ttl=64 time=0.029 ms
+
+--- 192.168.0.18 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 0.029/0.029/0.029/0.000 ms
+got: PING 192.168.0.3 (192.168.0.3) 56(84) bytes of data.
+64 bytes from 192.168.0.3: icmp_seq=1 ttl=64 time=110 ms
+
+--- 192.168.0.3 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 110.008/110.008/110.008/0.000 ms
+got: PING 192.168.0.5 (192.168.0.5) 56(84) bytes of data.
+64 bytes from 192.168.0.5: icmp_seq=1 ttl=64 time=207 ms
+...
+</code></pre>
+<p>The active addresses come through pretty fast within the first half-second, and we then wait for the negative
+results to come in. Otherwise, we would wait for the better part of a minute! You can now proceed
+to scrape things like ping times from the output, although this would only work on Linux. <code>ping</code>
+is universal, but the exact output format is different for each platform.  To do better we need to use
+the cross-platform Rust networking API, and so let's move onto Networking.</p>
+<a class="header" href="./7-shared-and-networking.html#a-better-way-to-resolve-addresses" name="a-better-way-to-resolve-addresses"><h2>A Better Way to Resolve Addresses</h2></a>
+<p>If you <em>just</em> want availability and not detailed ping statistics, the <code>std::net::ToSocketAddrs</code> trait
+will do any DNS resolution for you:</p>
+<pre><pre class="playpen"><code class="language-rust">use std::net::*;
+
+fn main() {
+    for res in &quot;google.com:80&quot;.to_socket_addrs().expect(&quot;bad&quot;) {
+        println!(&quot;got {:?}&quot;, res);
+    }
+}
+// got V4(216.58.223.14:80)
+// got V6([2c0f:fb50:4002:803::200e]:80)
+</code></pre></pre>
+<p>It's an iterator because there is often more than one interface associated with a domain - there are
+both IPV4 and IPV6 interfaces to Google.</p>
+<p>So, let's naively use this method to rewrite the pipeliner example. Most networking protocols use both an
+address and a port:</p>
+<pre><pre class="playpen"><code class="language-rust">extern crate pipeliner;
+use pipeliner::Pipeline;
+
+use std::net::*;
+
+fn main() {
+    let addresses: Vec&lt;_&gt; = (1..40).map(|n| format!(&quot;192.168.0.{}:0&quot;,n)).collect();
+    let n = addresses.len();
+
+    for result in addresses.with_threads(n).map(|s| s.to_socket_addrs()) {
+        println!(&quot;got: {:?}&quot;, result);
+    }
+}
+// got: Ok(IntoIter([V4(192.168.0.1:0)]))
+// got: Ok(IntoIter([V4(192.168.0.39:0)]))
+// got: Ok(IntoIter([V4(192.168.0.2:0)]))
+// got: Ok(IntoIter([V4(192.168.0.3:0)]))
+// got: Ok(IntoIter([V4(192.168.0.5:0)]))
+// ....
+</code></pre></pre>
+<p>This is much faster than the ping example because it's just checking that the IP address is valid - if we fed
+it a list of actual domain names the DNS lookup could take some time, hence the importance of parallelism.</p>
+<p>Suprisingly, it sort-of Just Works. The fact that everything in the standard library implements <code>Debug</code>
+is great for exploration as well as debugging.  The iterator is returning <code>Result</code> (hence <code>Ok</code>) and
+in that <code>Result</code> is an <code>IntoIter</code> into a <code>SocketAddr</code> which is an enum with either a IPV4 or a IPV6 address.</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    for result in addresses.with_threads(n)
+        .map(|s| s.to_socket_addrs().unwrap().next().unwrap())
+    {
+        println!(&quot;got: {:?}&quot;, result);
+    }
+// got: V4(192.168.0.1:0)
+// got: V4(192.168.0.39:0)
+// got: V4(192.168.0.3:0)
+
+#}</code></pre></pre>
+<p>This also works, surprisingly enough, at least for our simple example. The first <code>unwrap</code> gets rid of
+the <code>Result</code>, and then we explicitly pull the first value out of the iterator. The <code>Result</code> will get
+bad typically when we give a nonsense address (like an address name without a port.)</p>
+<a class="header" href="./7-shared-and-networking.html#tcp-client-server" name="tcp-client-server"><h2>TCP Client Server</h2></a>
+<p>Rust provides a straightforward interface to the most commonly used network protocol, TCP.
+It is very fault-resistant and is the base on which our networked world is built - <em>packets</em> of
+data are sent and received, with acknowledgement. By contrast, UDP sends packets out into the wild
+without much error correction - there's a joke that goes &quot;I could tell you a joke about UDP but you
+might not get it.&quot;
+(Jokes about networking are only funny for a specialized meaning of the word 'funny')</p>
+<p>However, error handling is <em>very</em> important with networking, because anything can happen, and will,
+eventually.</p>
+<p>TCP works as a client/server model; the server listens on a address and a particular <em>network port</em>,
+and the client connects to that server. A connection is established and thereafter the client and server
+can communicate with a socket.</p>
+<p><code>TcpStream::connect</code> takes anything that can convert into a <code>SocketAddr</code>, in particular the plain strings
+we have been using.</p>
+<p>A simple TCP client in Rust is easy - a <code>TcpStream</code> struct is both readable and writeable. As usual, we
+have to bring the <code>Read</code>, <code>Write</code> and other <code>std::io</code> traits into scope:</p>
+<pre><pre class="playpen"><code class="language-rust">// client.rs
+use std::net::TcpStream;
+use std::io::prelude::*;
+
+fn main() {
+    let mut stream = TcpStream::connect(&quot;127.0.0.1:8000&quot;).expect(&quot;connection failed&quot;);
+
+    write!(stream,&quot;hello from the client!\n&quot;).expect(&quot;write failed&quot;);
+ }
+</code></pre></pre>
+<p>The server is not much more complicated; we set up a listener and wait for connections. When a
+client connects, we get a <code>TcpStream</code> on the server side. In this
+case, we read everything that the client has written into a string.</p>
+<pre><pre class="playpen"><code class="language-rust">// server.rs
+use std::net::TcpListener;
+use std::io::prelude::*;
+
+fn main() {
+
+    let listener = TcpListener::bind(&quot;127.0.0.1:8000&quot;).expect(&quot;could not start server&quot;);
+
+    // accept connections and get a TcpStream
+    for connection in listener.incoming() {
+        match connection {
+            Ok(mut stream) =&gt; {
+                let mut text = String::new();
+                stream.read_to_string(&amp;mut text).expect(&quot;read failed&quot;);
+                println!(&quot;got '{}'&quot;, text);
+            }
+            Err(e) =&gt; { println!(&quot;connection failed {}&quot;, e); }
+        }
+    }
+}
+</code></pre></pre>
+<p>Here I've chosen a port number moreorless at random, but <a href="https://en.wikipedia.org/wiki/List_of_TCP_and_UDP_port_numbers">most ports</a>
+are assigned some meaning.</p>
+<p>Note that both parties have to agree on a protocol - the client expects it can write
+text to the stream, and the server expects to read text from the stream.  If they don't play the same
+game, then situations can occur where one party is blocked, waiting for bytes that never come.</p>
+<p>Error checking is important - network I/O can fail for many reasons, and errors that might appear
+once in a blue moon on a local filesystem can happen on a regular basis.
+Someone can trip over the network cable, the other party could crash,  and so forth.
+This little server isn't very robust, because it will fall over on the first read error.</p>
+<p>Here is a more solid server that handles the error without failing. It also specifically reads a <em>line</em>
+from the stream, which is done using <code>io::BufReader</code> to create an <code>io::BufRead</code> on which we can call
+<code>read_line</code>.</p>
+<pre><pre class="playpen"><code class="language-rust">// server2.rs
+use std::net::{TcpListener, TcpStream};
+use std::io::prelude::*;
+use std::io;
+
+fn handle_connection(stream: TcpStream) -&gt; io::Result&lt;()&gt;{
+    let mut rdr = io::BufReader::new(stream);
+    let mut text = String::new();
+    rdr.read_line(&amp;mut text)?;
+    println!(&quot;got '{}'&quot;, text.trim_right());
+    Ok(())
+}
+
+fn main() {
+
+    let listener = TcpListener::bind(&quot;127.0.0.1:8000&quot;).expect(&quot;could not start server&quot;);
+
+    // accept connections and get a TcpStream
+    for connection in listener.incoming() {
+        match connection {
+            Ok(stream) =&gt; {
+                if let Err(e) = handle_connection(stream) {
+                    println!(&quot;error {:?}&quot;, e);
+                }
+            }
+            Err(e) =&gt; { print!(&quot;connection failed {}\n&quot;, e); }
+        }
+    }
+}
+</code></pre></pre>
+<p><code>read_line</code> might fail in <code>handle_connection</code>, but the resulting error is safely handled.</p>
+<p>One-way communications like this are certainly useful - for instance. a set of services across a
+network which want to collect their status reports together in one central place. But it's
+reasonable to expect a polite reply, even if just 'ok'!</p>
+<p>A simple example is an 'echo' server. The client writes some text ending in a newline to the
+server, and receives the same text back with a newline - the stream is readable and writeable.</p>
+<pre><pre class="playpen"><code class="language-rust">// client_echo.rs
+use std::io::prelude::*;
+use std::net::TcpStream;
+
+fn main() {
+    let mut stream = TcpStream::connect(&quot;127.0.0.1:8000&quot;).expect(&quot;connection failed&quot;);
+    let msg = &quot;hello from the client!&quot;;
+
+    write!(stream,&quot;{}\n&quot;, msg).expect(&quot;write failed&quot;);
+
+    let mut resp = String::new();
+    stream.read_to_string(&amp;mut resp).expect(&quot;read failed&quot;);
+    let text = resp.trim_right();
+    assert_eq!(msg,text);
+}
+</code></pre></pre>
+<p>The server has an interesting twist. Only <code>handle_connection</code> changes:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+fn handle_connection(stream: TcpStream) -&gt; io::Result&lt;()&gt;{
+    let mut ostream = stream.try_clone()?;
+    let mut rdr = io::BufReader::new(stream);
+    let mut text = String::new();
+    rdr.read_line(&amp;mut text)?;
+    ostream.write_all(text.as_bytes())?;
+    Ok(())
+}
+
+#}</code></pre></pre>
+<p>This is a common gotcha with simple two-way socket communication; we want to read a line, so
+need to feed the readable stream to <code>BufReader</code> - but it <em>consumes</em> the stream! So we have to
+clone the stream, creating a new struct which refers to the same underlying socket. Then we
+have happiness.</p>
+
+                </div>
+
+                <!-- Mobile navigation buttons -->
+                
+                    <a href="./6-error-handling.html" class="mobile-nav-chapters previous">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+
+            </div>
+
+            
+                <a href="./6-error-handling.html" class="nav-chapters previous" title="You can navigate through the chapters using the arrow keys">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+            
+
+            
+
+        </div>
+
+
+        <!-- Local fallback for Font Awesome -->
+        <script>
+            if ($(".fa").css("font-family") !== "FontAwesome") {
+                $('<link rel="stylesheet" type="text/css" href="_FontAwesome/css/font-awesome.css">').prependTo('head');
+            }
+        </script>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        
+
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+    </body>
+</html>
