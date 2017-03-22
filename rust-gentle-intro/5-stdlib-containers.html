@@ -286,7 +286,7 @@ because of a quirk of the string <code>Pattern</code> trait used by <code>split<
 But we can deduce that the key type is <code>String</code> and the value type is <code>i32</code>.</p>
 <p>Using <a href="http://www.gutenberg.org/cache/epub/1661/pg1661.txt">The Adventures of Sherlock Holmes</a>
 from Project Gutenberg, we can test this out
-more thoroughly.  The total number of unique words (<code>map.len</code>) is 8071.</p>
+more thoroughly.  The total number of unique words (<code>map.len()</code>) is 8071.</p>
 <p>How to find the twenty most common words? First, convert the map into a vector
 of (key,value) tuples. (This consumes the map, since we used <code>into_iter</code>.)</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
@@ -344,7 +344,7 @@ So <code>insert</code> only takes one value, and you use <code>contains</code> f
 is in a set.</p>
 <p>Like all containers, you can create a <code>HashSet</code> from an iterator. And this
 is exactly what <code>collect</code> does, once you have given it the necessary type hint.</p>
-<pre><code>// set1.rs
+<pre><pre class="playpen"><code class="language-rust">// set1.rs
 use std::collections::HashSet;
 
 fn make_set(words: &amp;str) -&gt; HashSet&lt;&amp;str&gt; {
@@ -357,7 +357,7 @@ fn main() {
     println!(&quot;{:?}&quot;, fruit);
 }
 // {&quot;orange&quot;, &quot;pear&quot;, &quot;apple&quot;}
-</code></pre>
+</code></pre></pre>
 <p>Note (as expected) that repeated insertions of the same key have no effect, and the order
 of values in a set are not important.</p>
 <p>They would not be sets without the usual operations:</p>

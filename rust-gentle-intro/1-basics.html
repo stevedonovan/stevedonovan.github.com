@@ -124,7 +124,7 @@ fn main() {
     assert_eq!(answer,42);
 }
 </code></pre></pre>
-<p>Which won't produce any input. But change 42 to 40:</p>
+<p>Which won't produce any output. But change 42 to 40:</p>
 <pre><code>thread 'main' panicked at
 'assertion failed: `(left == right)` (left: `42`, right: `40`)',
 let2.rs:4
@@ -470,7 +470,7 @@ function arguments.</p>
 <p>What <em>are</em> used often are <em>slices</em>. You can think of these as <em>views</em> into
 an underlying array of values. They otherwise behave very much like an array, and
 <em>know their size</em>, unlike those dangerous animals C pointers.</p>
-<p>Note two important things here - how to write an slice type, and that
+<p>Note two important things here - how to write a slice's type, and that
 you have to use <code>&amp;</code> to pass it to the function.</p>
 <pre><pre class="playpen"><code class="language-rust">// array2.rs
 // read as: slice of i32 array
@@ -498,7 +498,7 @@ you want to pass an array as a slice using the <code>&amp;</code> operator.</p>
 'borrow'. This is going to be the key word when learning Rust. Borrowing is the name
 given to a common pattern in programming; whenever you pass something by reference
 (as nearly always happens in dynamic languages) or pass a pointer in C. Anything
-borrowed remains the 'property' of the original owner.</p>
+borrowed remains belongs to the original owner.</p>
 <a class="header" href="./1-basics.html#slicing-and-dicing" name="slicing-and-dicing"><h2>Slicing and Dicing</h2></a>
 <p>You cannot print out an array in the usual way with <code>{}</code> but you can do a <em>debug</em>
 print with <code>{:?}</code>.</p>
@@ -612,11 +612,12 @@ type!  It may be <em>either</em> <code>Some</code> or <code>None</code>.</p>
     };
 
 #}</code></pre></pre>
-<p>Which is long-winded, so there's a shortcut:</p>
+<p>Which is long-winded, so there's a shortcut (the <code>&amp;</code> is because <code>get</code> always
+returns a reference):</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
-    let last = slice.get(5).unwrap_or(-1);
+    let last = slice.get(5).unwrap_or(&amp;-1);
 
 #}</code></pre></pre>
 <p>You can think of <code>Option</code> as a box which may contain a value, or nothing (<code>None</code>).
@@ -625,7 +626,7 @@ its <em>type parameter</em>. In this case, the full type is <code>Option&lt;i32&
 C++-style notation for <em>generics</em>.  Unwrapping this box may cause an explosion,
 but unlike Schroedinger's Cat, we know if it contains a value up-front.</p>
 <p>It is very common for Rust functions/methods to return such maybe-boxes, so learn
-how to use them safely!</p>
+how to <a href="https://doc.rust-lang.org/std/option/enum.Option.html">use them</a> comfortably.</p>
 <a class="header" href="./1-basics.html#vectors" name="vectors"><h2>Vectors</h2></a>
 <p>We'll return to slice methods again, but first: vectors. These are <em>re-sizeable</em>
 arrays and behave much like Python <code>List</code> and C++ <code>std::vector</code>. The Rust type

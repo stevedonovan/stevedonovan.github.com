@@ -145,7 +145,7 @@ objects. There isn't a neat one-to-one relationship between these values, and pe
 <code>rustc</code> to cooperate becomes nasty.</p>
 <p><code>Rc</code> works like <code>Box</code> - heap memory is allocated and the value is moved to it. If you
 clone a <code>Box</code>, it allocates a full cloned copy of the value.  But cloning an <code>Rc</code> is
-cheap, because each time you clone it just updates a _reference count_to the <em>same data</em>.
+cheap, because each time you clone it just updates a <em>reference count</em> to the <em>same data</em>.
 This is an old and very popular strategy for memory management,
 for example it's used in the Objective C runtime on iOS/MacOS.
 (In modern C++, it is implemented with <code>std::shared_ptr</code>.)</p>
@@ -256,7 +256,7 @@ note: Run with `RUST_BACKTRACE=1` for a backtrace.
 wait Err(Any)
 </code></pre>
 <a class="header" href="./7-shared-and-networking.html#threads-dont-borrow" name="threads-dont-borrow"><h2>Threads Don't Borrow</h2></a>
-<p>It's possible for the thread closure to capture values, but <em>not</em> by borrowing!</p>
+<p>It's possible for the thread closure to capture values, but by <em>moving</em>,  not by <em>borrowing</em>!</p>
 <pre><pre class="playpen"><code class="language-rust">// thread3.rs
 use std::thread;
 
@@ -317,7 +317,7 @@ Multithreading is easy; what's hard is <em>concurrency</em> - managing and synch
 threads of execution.</p>
 <p>Threads can't share the same environment - by <em>design</em> in Rust. In particular,
 they cannot share regular references because the closures move their captured variables.</p>
-<p>_<em>shared references</em> are fine however - but you cannot use <code>Rc</code> for this. This is because
+<p><em>shared references</em> are fine however - but you cannot use <code>Rc</code> for this. This is because
 <code>Rc</code> is not <em>thread safe</em> - it's optimized to be fast for the non-threaded case. For
 threads, you need <code>std::sync::Arc</code> - 'Arc' stands for 'Atomic Reference Counting'. That
 is, it guarantees that the reference count will be modified in one logical operation. To
@@ -352,8 +352,8 @@ server, usually on the weekend. Worse still, the symptoms of such problems are
 not easy to diagnose.</p>
 <a class="header" href="./7-shared-and-networking.html#channels" name="channels"><h2>Channels</h2></a>
 <p>There are ways to send data between threads. This
-is done in Rust using <em>channels</em>. <code>std::sync::mpsc::channel()</code> returns a pair:
-the <em>receiver</em> channel and the <em>sender</em> channel. Each thread is passed a copy
+is done in Rust using <em>channels</em>. <code>std::sync::mpsc::channel()</code> returns a tuple consisting
+of the <em>receiver</em> channel and the <em>sender</em> channel. Each thread is passed a copy
 of the sender with <code>clone</code>, and calls <code>send</code>. Meanwhile the main thread calls
 <code>recv</code> on the receiver.</p>
 <pre><pre class="playpen"><code class="language-rust">// thread9.rs
@@ -469,7 +469,9 @@ different threads and want to take some action when all the pieces are finished.
 <p>Recall the <code>Rc&lt;RefCell&gt;</code> strategy for <em>dynamically</em> doing a
 mutable borrow on shared references.  The threading equivalent to <code>RefCell</code> is
 <code>Mutex</code> - you may get your mutable reference by calling <code>lock</code>. While this reference
-exists, no other thread can access it. <code>mutex</code> stands for <code>Mutual Exclusion' - we lock a section of code so that only one thread can access it, and then unlock it. You get the lock with the</code>lock` method, and it is unlocked when the reference is dropped.</p>
+exists, no other thread can access it. <code>mutex</code> stands for 'Mutual Exclusion' - we lock
+a section of code so that only one thread can access it, and then unlock it. You get the
+lock with the <code>lock</code> method, and it is unlocked when the reference is dropped.</p>
 <pre><pre class="playpen"><code class="language-rust">// thread9.rs
 use std::thread;
 use std::sync::Arc;

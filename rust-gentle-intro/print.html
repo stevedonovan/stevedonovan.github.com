@@ -197,7 +197,7 @@ fn main() {
     assert_eq!(answer,42);
 }
 </code></pre></pre>
-<p>Which won't produce any input. But change 42 to 40:</p>
+<p>Which won't produce any output. But change 42 to 40:</p>
 <pre><code>thread 'main' panicked at
 'assertion failed: `(left == right)` (left: `42`, right: `40`)',
 let2.rs:4
@@ -543,7 +543,7 @@ function arguments.</p>
 <p>What <em>are</em> used often are <em>slices</em>. You can think of these as <em>views</em> into
 an underlying array of values. They otherwise behave very much like an array, and
 <em>know their size</em>, unlike those dangerous animals C pointers.</p>
-<p>Note two important things here - how to write an slice type, and that
+<p>Note two important things here - how to write a slice's type, and that
 you have to use <code>&amp;</code> to pass it to the function.</p>
 <pre><pre class="playpen"><code class="language-rust">// array2.rs
 // read as: slice of i32 array
@@ -571,7 +571,7 @@ you want to pass an array as a slice using the <code>&amp;</code> operator.</p>
 'borrow'. This is going to be the key word when learning Rust. Borrowing is the name
 given to a common pattern in programming; whenever you pass something by reference
 (as nearly always happens in dynamic languages) or pass a pointer in C. Anything
-borrowed remains the 'property' of the original owner.</p>
+borrowed remains belongs to the original owner.</p>
 <a class="header" href="print.html#slicing-and-dicing" name="slicing-and-dicing"><h2>Slicing and Dicing</h2></a>
 <p>You cannot print out an array in the usual way with <code>{}</code> but you can do a <em>debug</em>
 print with <code>{:?}</code>.</p>
@@ -685,11 +685,12 @@ type!  It may be <em>either</em> <code>Some</code> or <code>None</code>.</p>
     };
 
 #}</code></pre></pre>
-<p>Which is long-winded, so there's a shortcut:</p>
+<p>Which is long-winded, so there's a shortcut (the <code>&amp;</code> is because <code>get</code> always
+returns a reference):</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
-    let last = slice.get(5).unwrap_or(-1);
+    let last = slice.get(5).unwrap_or(&amp;-1);
 
 #}</code></pre></pre>
 <p>You can think of <code>Option</code> as a box which may contain a value, or nothing (<code>None</code>).
@@ -698,7 +699,7 @@ its <em>type parameter</em>. In this case, the full type is <code>Option&lt;i32&
 C++-style notation for <em>generics</em>.  Unwrapping this box may cause an explosion,
 but unlike Schroedinger's Cat, we know if it contains a value up-front.</p>
 <p>It is very common for Rust functions/methods to return such maybe-boxes, so learn
-how to use them safely!</p>
+how to <a href="https://doc.rust-lang.org/std/option/enum.Option.html">use them</a> comfortably.</p>
 <a class="header" href="print.html#vectors" name="vectors"><h2>Vectors</h2></a>
 <p>We'll return to slice methods again, but first: vectors. These are <em>re-sizeable</em>
 arrays and behave much like Python <code>List</code> and C++ <code>std::vector</code>. The Rust type
@@ -1586,8 +1587,7 @@ fn main() {
 }
 </code></pre></pre>
 <p>There is nothing magic or reserved about the name <code>new</code> here. Note that it's accessed
-using a C++-like notation (what C++ would call in its usual clunky way a 'static member
-function'.)</p>
+using a C++-like notation using double-colon <code>::</code>.</p>
 <p>Here's a another <code>Person</code> method, but with a <em>reference self</em> argument:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
@@ -1678,13 +1678,13 @@ fn main() {
   |        ^ expected lifetime parameter
 </code></pre>
 <p>To understand the complaint, you have to see the problem from the point of view of Rust.
-It will not allow a reference to be stored without knowing its lifetime. Because all
-references are borrowed from some value, and values have lifetimes. The lifetime of
+It will not allow a reference to be stored without knowing its lifetime. All
+references are borrowed from some value, and all values have lifetimes. The lifetime of
 a reference cannot be longer than the lifetime of that value.
 Rust cannot allow
 a situation where that reference could suddenly become invalid.</p>
-<p>Now, there are basically two kinds of string slices; those that refer to <em>string literals</em>
-like &quot;hello&quot; and those that borrow from <code>String</code> values. String literals exist for the duration
+<p>Now, string slices borrow from <em>string literals</em>
+like &quot;hello&quot; or from <code>String</code> values. String literals exist for the duration
 of the whole program, which is called the 'static' lifetime.</p>
 <p>So this works - we assure Rust that the string slice always refers to such static strings:</p>
 <pre><pre class="playpen"><code class="language-rust">// life2.rs
@@ -1819,7 +1819,7 @@ little main program with big implications:</p>
 of references to anything that implements <code>Show</code>.  Now note that <code>i32</code> and <code>f64</code>
 have no relationship to each other, but they both understand the <code>show</code> method
 because they both implement the same trait. This method is <em>virtual</em>, because
-the actual function has different code for different types, and yet the correct
+the actual method has different code for different types, and yet the correct
 method is invoked based on <em>runtime</em> information. These references
 are called <a href="https://doc.rust-lang.org/stable/book/trait-objects.html">trait objects</a>.</p>
 <p>And <em>that</em> is how you can put objects of different types in the same vector. If
@@ -1833,7 +1833,7 @@ which may return <code>Some</code>-thing or <code>None</code>. In the process, t
 it keeps the state for the iteration (like next index and so forth.) The data that
 is being iterated over doesn't change usually, (But see <code>std::vec::Vec::drain</code> for an
 interesting iterator that does modify its data.)</p>
-<p>And here is the formal definition: the <code>Iterator</code> trait:</p>
+<p>And here is the formal definition: the <a href="https://doc.rust-lang.org/std/iter/trait.Iterator.html">Iterator trait</a>.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
@@ -1846,12 +1846,12 @@ trait Iterator {
 #}</code></pre></pre>
 <p>Here we meet an <a href="https://doc.rust-lang.org/stable/book/associated-types.html">associated type</a> of the <code>Iterator</code> trait.
 This trait must work for any type, so you must specify that return type somehow.
-The method can then be written without using a
+The method <code>next</code> can then be written without using a
 particular type - instead it refers to that type parameter's <code>Item</code> via <code>Self</code>.</p>
 <p>The iterator trait for <code>f64</code> is written <code>Iterator&lt;Item=f64&gt;</code>, which can be read as
 &quot;an Iterator with its associated type Item set to f64&quot;.</p>
-<p>The <code>...</code> refers to the <em>default methods</em> of <code>Iterator</code>. You only need to define <code>Item</code>
-and <code>next</code>, and the default methods are defined for you.</p>
+<p>The <code>...</code> refers to the <em>provided methods</em> of <code>Iterator</code>. You only need to define <code>Item</code>
+and <code>next</code>, and the provided methods are defined for you.</p>
 <pre><pre class="playpen"><code class="language-rust">// trait3.rs
 
 struct FRange {
@@ -1994,7 +1994,7 @@ impl Direction {
 good idea, because the baroque way C++ resolves names is a little too clever for normal
 humans. (And there is a shortcut, as we will see.)</p>
 <p>Punctuation matters. Note that <code>*</code> before <code>self</code>. It's easy to forget, because often
-Rust will assume it (we said <code>self.first_name</code>, not <code>*self.first_name</code>). However,
+Rust will assume it (we said <code>self.first_name</code>, not <code>(*self).first_name</code>). However,
 matching is a more exact business. Leaving it out would give a whole spew of messages,
 which boil down to this type mismatch:</p>
 <pre><code>   = note: expected type `&amp;Direction`
@@ -2146,11 +2146,9 @@ fn dump(v: &amp;Value) {
 <p>There are things you cannot do with borrowed references. Rust is not letting
 you <em>extract</em> the string contained in the original value. It did not complain about <code>Number</code>
 because it's happy to copy <code>f64</code>, but <code>String</code> does not implement <code>Copy</code>.</p>
-<p>I mentioned earlier that <code>match</code> is picky about <em>exact</em> types</p>
-<ul>
-<li>here we follow the hint and things will work; now we are just borrowing a reference
-to that contained string.</li>
-</ul>
+<p>I mentioned earlier that <code>match</code> is picky about <em>exact</em> types;
+here we follow the hint and things will work; now we are just borrowing a reference
+to that contained string.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
@@ -2170,11 +2168,11 @@ fn dump(v: &amp;Value) {
 #}</code></pre></pre>
 <p>Before we move on, filled with the euphoria of a successful Rust compilation, let's
 pause a little. <code>rustc</code> is unusually good at generating errors that have enough
-context for a human to fix the error without necessarily <em>understanding</em> the error.</p>
+context for a human to <em>fix</em> the error without necessarily <em>understanding</em> the error.</p>
 <p>The issue is a combination of the exactness of matching, with the determination of the
 borrow checker to foil any attempt to break the Rules.  One of those Rules is that
 you cannot yank out a value which belongs to some owning type. Some knowledge of
-C++ is a hindrance here, since <code>c++</code> will copy its way out of the problem, whether that
+C++ is a hindrance here, since C++ will copy its way out of the problem, whether that
 copy even <em>makes sense</em>.  You will get exactly the same error if you try to pull out
 a value from a vector, say with <code>*v[0]</code> (<code>*</code> because indexing returns references.)
 It will simply not let you do this. (Sometimes <code>clone</code> isn't such a bad solution to this.)</p>
@@ -2302,7 +2300,8 @@ ever so slightly.</p>
 #}</code></pre></pre>
 <p>What applies to <code>match</code> applies to <code>if let</code>. This is a cool example, since if we
 get a <code>Some</code>, we can match inside it and only extract the string from the tuple. So it
-isn't necessary to have nested <code>if let</code> statements here.</p>
+isn't necessary to have nested <code>if let</code> statements here. We use <code>_</code> because we aren't interested
+in the first part of the tuple.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
@@ -2379,7 +2378,7 @@ integer literal 10.</p>
 # 
 #fn main() {
     fn f (x: i32) -&gt; i32 {
-        x*x
+        x * x
     }
 
 #}</code></pre></pre>
@@ -2418,10 +2417,8 @@ assert_eq!(answer, 58);
 &quot;cannot borrow <code>answer</code> as immutable because it is also borrowed as mutable&quot;</p>
 <p>Now, what's the type of <code>lin</code>? Only <code>rustc</code> knows. Exactly the same situation applies
 to C++ lambdas, and for exactly the same version. Under the hood, a closure is a <em>struct</em>
-that implements the call operator. All closures are unique types</p>
-<ul>
-<li>but they have traits in common.</li>
-</ul>
+that implements the call operator. All closures are unique types,
+but they have traits in common.</p>
 <p>So even though we don't know the exact type, we know the generic constraint:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
@@ -2630,6 +2627,8 @@ into a <code>&amp;String</code> which <em>does</em> match.</p>
 # 
 #fn main() {
 for s in vec.iter().filter(|x: &amp;&amp;String| *x == &quot;one&quot;) {...}
+// same as
+for s in vec.iter().filter(|x| *x == &quot;one&quot;) {...}
 
 #}</code></pre></pre>
 <p>If you leave out the explicit type, you can modify the argument so that the type of <code>s</code>
@@ -2740,13 +2739,13 @@ on the right. There may be no node on the left, so then <code>set_left</code> an
 <pre><pre class="playpen"><code class="language-rust">    fn insert(&amp;mut self, data: &amp;str) {
         if data &lt; &amp;self.payload {
             match self.left {
-            Some(ref mut n) =&gt; n.insert(data),
-            None =&gt; self.set_left(Self::new(data)),
+                Some(ref mut n) =&gt; n.insert(data),
+                None =&gt; self.set_left(Self::new(data)),
             }
         } else {
             match self.right {
-            Some(ref mut n) =&gt; n.insert(data),
-            None =&gt; self.set_right(Self::new(data)),
+                Some(ref mut n) =&gt; n.insert(data),
+                None =&gt; self.set_right(Self::new(data)),
             }
         }
     }
@@ -2850,7 +2849,7 @@ note: an implementation of `std::ops::Mul` might be missing for `T`
   |     ^
 </code></pre>
 <p>Following the advice of the compiler, let's <em>constrain</em> that type parameter using
-that trait, which is used to implement the multiplication operator <code>*</code>:
+<a href="https://doc.rust-lang.org/std/ops/trait.Mul.html">that trait</a>, which is used to implement the multiplication operator <code>*</code>:
 (<code>T: Mul</code> means 'any type T that implements Mul')</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
@@ -3082,6 +3081,7 @@ struct Lines&lt;R&gt; {
     reader: io::BufReader&lt;R&gt;,
     buf: String
 }
+
 impl &lt;R: Read&gt; Lines&lt;R&gt; {
     fn new(r: R) -&gt; Lines&lt;R&gt; {
         Lines{reader: io::BufReader::new(r), buf: String::new()}
@@ -3185,18 +3185,20 @@ return a non-zero exit code.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
-fn quit(msg: &amp;str) {
+fn quit(msg: &amp;str) -&gt; ! {
     write!(io::stderr(),&quot;error: {}\n&quot;, msg).expect(&quot;write?&quot;);
     std::process::exit(1);
 }
 
 #}</code></pre></pre>
+<p>(The <code>!</code> means that function never returns, so you can call <code>quit</code> anywhere
+and there will be no type mismatch complaints)</p>
 <a class="header" href="print.html#files-paths-and-directories" name="files-paths-and-directories"><h2>Files, Paths and Directories</h2></a>
 <p>Here is a little program for printing out the Cargo directory on a machine. The
 simplest case is that it's '~/.cargo'. This is a Unix shell expansion,
 so we use <code>env::home_dir</code> because it's cross-platform. (It might fail, but a
 computer without a home directory isn't going to be hosting Rust tools anyway.)</p>
-<p>We then create a <code>PathBuf</code>
+<p>We then create a <a href="https://doc.rust-lang.org/std/ops/trait.Mul.html">PathBuf</a>
 and use its <code>push</code> method to build up the full file path from its <em>components</em>.
 (This is much easier than fooling around with '/','' or whatever, depending on
 the system.)</p>
@@ -3513,8 +3515,8 @@ fn main() {
 </code></pre></pre>
 <p>By default, the child 'inherits' the standard input and output of the parent. In this case,
 we redirect the child's output handles into 'nowhere'. It's equivalent to saying
-<code>&gt; /dev/null 2&gt; /dev/null</code> in the Unix shell.</p>
-<p>Now, it's possible to do these things using the shell in Rust, although not in a portable way.
+<code>&gt; /dev/null &gt; /dev/null 2&gt; /dev/null</code> in the Unix shell.</p>
+<p>Now, it's possible to do these things using the shell (<code>sh</code> or <code>cmd</code>) in Rust, although not in a portable way.
 But this way you get full programmatic control of process creation.</p>
 <p>For example, if we just had <code>.stdout(Stdio::piped())</code> then the child's standard output
 is redirected to a pipe. If we then use <code>wait_with_output</code> instead of <code>wait</code> then
@@ -3731,7 +3733,7 @@ src$ ls -lh mod4
 </code></pre>
 <p>Still feels a little large for something so simple, but this program links <em>statically</em> against
 the Rust standard library. This is a Good Thing, since you can hand this executable to anyone
-with the right operating system - they will not need a 'Rust install<code>. (And</code>rustup` will even let
+with the right operating system - they will not need a 'Rust runtime'. (And <code>rustup</code> will even let
 you cross-compile for other operating systems and platforms as well.)</p>
 <p>We can link dynamically against the Rust runtime and get truly tiny exes:</p>
 <pre><code>src$ rustc -C prefer-dynamic mod4.rs --extern foo=libfoo.rlib
@@ -3776,7 +3778,7 @@ authors = [&quot;Your Name &lt;you@example.org&gt;&quot;]
 <p>To make the project depend on the <a href="http://json.rs/doc/json/">JSON crate</a>, edit the
 'Cargo.toml' file so:</p>
 <pre><code>[dependencies]
-json=&quot;*&quot;
+json=&quot;0.11.4&quot;
 </code></pre>
 <p>Then do a first build with Cargo:</p>
 <pre><code>test-json$ cargo build
@@ -3965,7 +3967,7 @@ out to your buddies without external dependencies.</p>
 <a class="header" href="print.html#more-gems" name="more-gems"><h2>More Gems</h2></a>
 <p>When processing anything except simple text, regular expressions make your life much easier.
 These are commonly available for most languages and I'll here assume a basic familiarity with
-regex notation.  To use the <a href="https://github.com/rust-lang/regex">regex</a> crate, put 'regex = &quot;*&quot;'
+regex notation.  To use the <a href="https://github.com/rust-lang/regex">regex</a> crate, put 'regex = &quot;0.2.1&quot;'
 after &quot;[dependencies]&quot; in your Cargo.toml.</p>
 <p>We'll use 'raw strings' again so that the backslashes don't have to be escaped. In English, this
 regular expression is &quot;match exactly two digits, the character ':', and then any number of digits.
@@ -4267,7 +4269,7 @@ because of a quirk of the string <code>Pattern</code> trait used by <code>split<
 But we can deduce that the key type is <code>String</code> and the value type is <code>i32</code>.</p>
 <p>Using <a href="http://www.gutenberg.org/cache/epub/1661/pg1661.txt">The Adventures of Sherlock Holmes</a>
 from Project Gutenberg, we can test this out
-more thoroughly.  The total number of unique words (<code>map.len</code>) is 8071.</p>
+more thoroughly.  The total number of unique words (<code>map.len()</code>) is 8071.</p>
 <p>How to find the twenty most common words? First, convert the map into a vector
 of (key,value) tuples. (This consumes the map, since we used <code>into_iter</code>.)</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
@@ -4325,7 +4327,7 @@ So <code>insert</code> only takes one value, and you use <code>contains</code> f
 is in a set.</p>
 <p>Like all containers, you can create a <code>HashSet</code> from an iterator. And this
 is exactly what <code>collect</code> does, once you have given it the necessary type hint.</p>
-<pre><code>// set1.rs
+<pre><pre class="playpen"><code class="language-rust">// set1.rs
 use std::collections::HashSet;
 
 fn make_set(words: &amp;str) -&gt; HashSet&lt;&amp;str&gt; {
@@ -4338,7 +4340,7 @@ fn main() {
     println!(&quot;{:?}&quot;, fruit);
 }
 // {&quot;orange&quot;, &quot;pear&quot;, &quot;apple&quot;}
-</code></pre>
+</code></pre></pre>
 <p>Note (as expected) that repeated insertions of the same key have no effect, and the order
 of values in a set are not important.</p>
 <p>They would not be sets without the usual operations:</p>
@@ -4993,7 +4995,7 @@ objects. There isn't a neat one-to-one relationship between these values, and pe
 <code>rustc</code> to cooperate becomes nasty.</p>
 <p><code>Rc</code> works like <code>Box</code> - heap memory is allocated and the value is moved to it. If you
 clone a <code>Box</code>, it allocates a full cloned copy of the value.  But cloning an <code>Rc</code> is
-cheap, because each time you clone it just updates a _reference count_to the <em>same data</em>.
+cheap, because each time you clone it just updates a <em>reference count</em> to the <em>same data</em>.
 This is an old and very popular strategy for memory management,
 for example it's used in the Objective C runtime on iOS/MacOS.
 (In modern C++, it is implemented with <code>std::shared_ptr</code>.)</p>
@@ -5104,7 +5106,7 @@ note: Run with `RUST_BACKTRACE=1` for a backtrace.
 wait Err(Any)
 </code></pre>
 <a class="header" href="print.html#threads-dont-borrow" name="threads-dont-borrow"><h2>Threads Don't Borrow</h2></a>
-<p>It's possible for the thread closure to capture values, but <em>not</em> by borrowing!</p>
+<p>It's possible for the thread closure to capture values, but by <em>moving</em>,  not by <em>borrowing</em>!</p>
 <pre><pre class="playpen"><code class="language-rust">// thread3.rs
 use std::thread;
 
@@ -5165,7 +5167,7 @@ Multithreading is easy; what's hard is <em>concurrency</em> - managing and synch
 threads of execution.</p>
 <p>Threads can't share the same environment - by <em>design</em> in Rust. In particular,
 they cannot share regular references because the closures move their captured variables.</p>
-<p>_<em>shared references</em> are fine however - but you cannot use <code>Rc</code> for this. This is because
+<p><em>shared references</em> are fine however - but you cannot use <code>Rc</code> for this. This is because
 <code>Rc</code> is not <em>thread safe</em> - it's optimized to be fast for the non-threaded case. For
 threads, you need <code>std::sync::Arc</code> - 'Arc' stands for 'Atomic Reference Counting'. That
 is, it guarantees that the reference count will be modified in one logical operation. To
@@ -5200,8 +5202,8 @@ server, usually on the weekend. Worse still, the symptoms of such problems are
 not easy to diagnose.</p>
 <a class="header" href="print.html#channels" name="channels"><h2>Channels</h2></a>
 <p>There are ways to send data between threads. This
-is done in Rust using <em>channels</em>. <code>std::sync::mpsc::channel()</code> returns a pair:
-the <em>receiver</em> channel and the <em>sender</em> channel. Each thread is passed a copy
+is done in Rust using <em>channels</em>. <code>std::sync::mpsc::channel()</code> returns a tuple consisting
+of the <em>receiver</em> channel and the <em>sender</em> channel. Each thread is passed a copy
 of the sender with <code>clone</code>, and calls <code>send</code>. Meanwhile the main thread calls
 <code>recv</code> on the receiver.</p>
 <pre><pre class="playpen"><code class="language-rust">// thread9.rs
@@ -5317,7 +5319,9 @@ different threads and want to take some action when all the pieces are finished.
 <p>Recall the <code>Rc&lt;RefCell&gt;</code> strategy for <em>dynamically</em> doing a
 mutable borrow on shared references.  The threading equivalent to <code>RefCell</code> is
 <code>Mutex</code> - you may get your mutable reference by calling <code>lock</code>. While this reference
-exists, no other thread can access it. <code>mutex</code> stands for <code>Mutual Exclusion' - we lock a section of code so that only one thread can access it, and then unlock it. You get the lock with the</code>lock` method, and it is unlocked when the reference is dropped.</p>
+exists, no other thread can access it. <code>mutex</code> stands for 'Mutual Exclusion' - we lock
+a section of code so that only one thread can access it, and then unlock it. You get the
+lock with the <code>lock</code> method, and it is unlocked when the reference is dropped.</p>
 <pre><pre class="playpen"><code class="language-rust">// thread9.rs
 use std::thread;
 use std::sync::Arc;

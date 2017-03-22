@@ -276,7 +276,7 @@ src$ ls -lh mod4
 </code></pre>
 <p>Still feels a little large for something so simple, but this program links <em>statically</em> against
 the Rust standard library. This is a Good Thing, since you can hand this executable to anyone
-with the right operating system - they will not need a 'Rust install<code>. (And</code>rustup` will even let
+with the right operating system - they will not need a 'Rust runtime'. (And <code>rustup</code> will even let
 you cross-compile for other operating systems and platforms as well.)</p>
 <p>We can link dynamically against the Rust runtime and get truly tiny exes:</p>
 <pre><code>src$ rustc -C prefer-dynamic mod4.rs --extern foo=libfoo.rlib
@@ -321,7 +321,7 @@ authors = [&quot;Your Name &lt;you@example.org&gt;&quot;]
 <p>To make the project depend on the <a href="http://json.rs/doc/json/">JSON crate</a>, edit the
 'Cargo.toml' file so:</p>
 <pre><code>[dependencies]
-json=&quot;*&quot;
+json=&quot;0.11.4&quot;
 </code></pre>
 <p>Then do a first build with Cargo:</p>
 <pre><code>test-json$ cargo build
@@ -510,7 +510,7 @@ out to your buddies without external dependencies.</p>
 <a class="header" href="./4-modules.html#more-gems" name="more-gems"><h2>More Gems</h2></a>
 <p>When processing anything except simple text, regular expressions make your life much easier.
 These are commonly available for most languages and I'll here assume a basic familiarity with
-regex notation.  To use the <a href="https://github.com/rust-lang/regex">regex</a> crate, put 'regex = &quot;*&quot;'
+regex notation.  To use the <a href="https://github.com/rust-lang/regex">regex</a> crate, put 'regex = &quot;0.2.1&quot;'
 after &quot;[dependencies]&quot; in your Cargo.toml.</p>
 <p>We'll use 'raw strings' again so that the backslashes don't have to be escaped. In English, this
 regular expression is &quot;match exactly two digits, the character ':', and then any number of digits.

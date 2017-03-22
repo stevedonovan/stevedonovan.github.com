@@ -153,6 +153,7 @@ struct Lines&lt;R&gt; {
     reader: io::BufReader&lt;R&gt;,
     buf: String
 }
+
 impl &lt;R: Read&gt; Lines&lt;R&gt; {
     fn new(r: R) -&gt; Lines&lt;R&gt; {
         Lines{reader: io::BufReader::new(r), buf: String::new()}
@@ -256,18 +257,20 @@ return a non-zero exit code.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
-fn quit(msg: &amp;str) {
+fn quit(msg: &amp;str) -&gt; ! {
     write!(io::stderr(),&quot;error: {}\n&quot;, msg).expect(&quot;write?&quot;);
     std::process::exit(1);
 }
 
 #}</code></pre></pre>
+<p>(The <code>!</code> means that function never returns, so you can call <code>quit</code> anywhere
+and there will be no type mismatch complaints)</p>
 <a class="header" href="./3-filesystem.html#files-paths-and-directories" name="files-paths-and-directories"><h2>Files, Paths and Directories</h2></a>
 <p>Here is a little program for printing out the Cargo directory on a machine. The
 simplest case is that it's '~/.cargo'. This is a Unix shell expansion,
 so we use <code>env::home_dir</code> because it's cross-platform. (It might fail, but a
 computer without a home directory isn't going to be hosting Rust tools anyway.)</p>
-<p>We then create a <code>PathBuf</code>
+<p>We then create a <a href="https://doc.rust-lang.org/std/ops/trait.Mul.html">PathBuf</a>
 and use its <code>push</code> method to build up the full file path from its <em>components</em>.
 (This is much easier than fooling around with '/','' or whatever, depending on
 the system.)</p>
@@ -584,8 +587,8 @@ fn main() {
 </code></pre></pre>
 <p>By default, the child 'inherits' the standard input and output of the parent. In this case,
 we redirect the child's output handles into 'nowhere'. It's equivalent to saying
-<code>&gt; /dev/null 2&gt; /dev/null</code> in the Unix shell.</p>
-<p>Now, it's possible to do these things using the shell in Rust, although not in a portable way.
+<code>&gt; /dev/null &gt; /dev/null 2&gt; /dev/null</code> in the Unix shell.</p>
+<p>Now, it's possible to do these things using the shell (<code>sh</code> or <code>cmd</code>) in Rust, although not in a portable way.
 But this way you get full programmatic control of process creation.</p>
 <p>For example, if we just had <code>.stdout(Stdio::piped())</code> then the child's standard output
 is redirected to a pipe. If we then use <code>wait_with_output</code> instead of <code>wait</code> then
