@@ -287,7 +287,7 @@ fn main() {
 <p>This can be puzzling when coming from other languages, where variables can be
 re-written by default. What makes something a 'variable' is that it gets assigned
 a computed value at run-time - it is not a <em>constant</em>.
-It is pretty much how the word is used in mathematics, like when we say
+It is also how the word is used in mathematics, like when we say
 'let n be the largest number in set S'.</p>
 <p>There is a reason for declaring variables to be <em>read-only</em> by default. In a larger
 program, it gets hard to track where writes are taking place. So Rust makes things
@@ -297,7 +297,7 @@ language, but it never hides anything.</p>
 think of C (statically but weakly typed) and Python (dynamically but strongly typed).
 In static types the type is known at compile time, and dynamic types are only known
 at run time.</p>
-<p>At the moment, it feels like Rust is <em>hiding</em> those types from you. What
+<p>At the moment, however, it feels like Rust is <em>hiding</em> those types from you. What
 exactly is the type of <code>i</code>?  The compiler can work it out, starting with 0,
 with <em>type inference</em>, and comes up with <code>i32</code> (four byte signed integer.)</p>
 <p>Let's make exactly one change - turn that <code>0</code> into <code>0.0</code>. Then we get errors:</p>
@@ -313,7 +313,7 @@ with <em>type inference</em>, and comes up with <code>i32</code> (four byte sign
 to a <em>trait</em>, which is like an abstract interface that must be implemented for each concrete type.
 We'll deal with traits in detail later, but here all you need to know is that
 <code>AddAssign</code> is the name of the trait implementing the <code>+=</code> operator, and the error is saying
-that floating point numbers do not implement this operator for a integer. (The full list of
+that floating point numbers do not implement this operator for integers. (The full list of
 operator traits is <a href="https://doc.rust-lang.org/std/ops/index.html">here</a>.</p>
 <p>Again, Rust likes to be explicit - it will not silently convert that integer into a float for you.</p>
 <p>We have to <em>cast</em> that value to a floating-point value explicitly.</p>
@@ -326,7 +326,7 @@ fn main() {
     println!(&quot;sum is {}&quot;, sum);
 }
 </code></pre></pre>
-<a class="header" href="print.html#get-explicit" name="get-explicit"><h2>Get Explicit</h2></a>
+<a class="header" href="print.html#function-types-are-explicit" name="function-types-are-explicit"><h2>Function Types are Explicit</h2></a>
 <p><em>Functions</em> are one place where the compiler will not work out types for you.
 And this in fact was a deliberate decision, since languages like Haskell have
 such powerful type inference that there are hardly any explicit type names. It's
@@ -345,7 +345,7 @@ fn main() {
     println!(&quot;square is {}&quot;, res);
 }
 </code></pre></pre>
-<p>Rust (like Go, which it superficially resembles in many ways) goes back to an
+<p>Rust goes back to an
 older style of argument declaration, where the type follows the name. This is
 how it was done in Algol-derived languages like Pascal.</p>
 <p>Again, no integer-to-float conversions - if you replace the <code>0.0</code> with <code>0</code> then we
@@ -428,6 +428,20 @@ fn factorial(n: u64) -&gt; u64 {
 <p>This can be a little strange at first, and the best thing is then to use pencil and paper
 and work out some examples. It isn't usually the most <em>efficient</em> way to do that
 operation however.</p>
+<p>Values can also be passed by <em>reference</em>. A reference is created by <code>&amp;</code> and <em>dererefenced</em>
+by <code>*</code>.</p>
+<pre><pre class="playpen"><code class="language-rust">fn by_ref(x: &amp;i32) -&gt; i32{
+    *x + 1
+}
+
+fn main() {
+    let i = 10;
+    let res1 = by_ref(&amp;i);
+    let res2 = by_ref(&amp;41);
+    println!(&quot;{} {}&quot;, res1,res2);
+}
+// 11 42
+</code></pre></pre>
 <p>What if you want a function to modify one of its arguments?  Enter <em>mutable references</em>:</p>
 <pre><pre class="playpen"><code class="language-rust">// fun4.rs
 
@@ -448,7 +462,8 @@ too easy to miss compared to C.)</p>
 <p>Basically, Rust is introducing some <em>friction</em> here, and not-so-subtly pushing
 you towards returning values from functions directly.  Fortunately, Rust has
 powerful ways to express things like &quot;operation succeeded and here's the result&quot;
-so <code>&amp;mut</code> isn't needed that often.</p>
+so <code>&amp;mut</code> isn't needed that often. Passing by reference is important when we have a
+large object and don't wish to copy it.</p>
 <p>The type-after-variable style applies to <code>let</code> as well, when you really want to nail
 down the type of a variable:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
@@ -595,8 +610,7 @@ ints_ints [[1, 2], [10, 20]]
 </code></pre>
 <p>So, arrays of arrays are no problem, but the important thing is that an array contains
 values of <em>only one type</em>.  The values in an array are arranged next to each other
-in memory so that <code>[10, 20]</code> takes 8 bytes (two 4-byte signed integers). This makes
-them <em>very</em> efficient to access.</p>
+in memory so that they are <em>very</em> efficient to access.</p>
 <p>If you are curious about the actual types of these variables, here is a useful trick.
 Just declare a variable with an explicit type which you know will be wrong:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
@@ -679,18 +693,20 @@ type!  It may be <em>either</em> <code>Some</code> or <code>None</code>.</p>
 #fn main() {
     let maybe_last = slice.get(5);
     let last = if maybe_last.is_some() {
-        maybe_last.unwrap()
+        *maybe_last.unwrap()
     } else {
         -1
     };
 
 #}</code></pre></pre>
+<p>Note the <code>*</code> - the precise type inside the <code>Some</code> is <code>&amp;i32</code>, which is a reference. We need
+to deference this to get back to a <code>i32</code> value.</p>
 <p>Which is long-winded, so there's a shortcut (the <code>&amp;</code> is because <code>get</code> always
-returns a reference):</p>
+returns a reference, and <code>*</code> is to get the value as <code>i32</code>):</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
-    let last = slice.get(5).unwrap_or(&amp;-1);
+    let last = *slice.get(5).unwrap_or(&amp;-1);
 
 #}</code></pre></pre>
 <p>You can think of <code>Option</code> as a box which may contain a value, or nothing (<code>None</code>).
@@ -1127,7 +1143,7 @@ name.</p>
     }
 
 #}</code></pre></pre>
-<p>Which is fine; it's pretty much how you would do it in C.</p>
+<p>Which is fine; it's pretty much how you would do it in most languages.</p>
 <p>A more Rust-y approach to reading a single argument (together with parsing an
 integer value):</p>
 <pre><pre class="playpen"><code class="language-rust">// args1.rs
@@ -1380,18 +1396,20 @@ fn main() {
     println!(&quot;s1 {}&quot;, s1);
 }
 </code></pre></pre>
-<p>Here, you have a choice. You may explicitly create a reference to that string, or
+<p>Here, you have a choice. You may pass a reference to that string, or
 explicitly copy it using its <code>clone</code> method.  Generally, the first is the better way
 to go.</p>
-<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
-# 
-#fn main() {
-fn dump(s: &amp;String) {
+<pre><pre class="playpen"><code class="language-rust">fn dump(s: &amp;String) {
     println!(&quot;{}&quot;, s);
 }
 
-#}</code></pre></pre>
-<p>The call becomes <code>dump(&amp;s1)</code>, and the error goes away. But you'll rarely see a plain
+fn main() {
+    let s1 = &quot;hello dolly&quot;.to_string();
+    dump(&amp;s1);
+    println!(&quot;s1 {}&quot;, s1);
+}    
+</code></pre></pre>
+<p>The error goes away. But you'll rarely see a plain
 <code>String</code> reference like this, since to pass a string literal is really ugly <em>and</em> involves
 creating a temporary string.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
@@ -1655,6 +1673,55 @@ there is sensible output:</p>
 helpful. It's good practice to do this for your structs, so they can be
 printed out (or written as a string using <code>format!</code>).  (Doing so <em>by default</em> would be
 very un-Rustlike.)</p>
+<p>Here is the final little program:</p>
+<pre><code>// struct4.rs
+use std::fmt;
+
+#[derive(Debug)]
+struct Person {
+    first_name: String,
+    last_name: String
+}
+
+impl Person {
+    
+    fn new(first: &amp;str, name: &amp;str) -&gt; Person {
+        Person {
+            first_name: first.to_string(),
+            last_name: name.to_string()
+        }
+    }
+
+    fn full_name(&amp;self) -&gt; String {
+        format!(&quot;{} {}&quot;,self.first_name, self.last_name)
+    }
+    
+    fn set_first_name(&amp;mut self, name: &amp;str) {
+        self.first_name = name.to_string();
+    }
+    
+    fn to_tuple(self) -&gt; (String,String) {
+        (self.first_name, self.last_name)
+    }
+}
+
+fn main() {
+    let mut p = Person::new(&quot;John&quot;,&quot;Smith&quot;);
+    
+    println!(&quot;{:?}&quot;, p);
+    
+    p.set_first_name(&quot;Jane&quot;);
+    
+    println!(&quot;{:?}&quot;, p);
+    
+    println!(&quot;{:?}&quot;, p.to_tuple());
+    // p has now moved.
+    
+}
+// Person { first_name: &quot;John&quot;, last_name: &quot;Smith&quot; }
+// Person { first_name: &quot;Jane&quot;, last_name: &quot;Smith&quot; }
+// (&quot;Jane&quot;, &quot;Smith&quot;)
+</code></pre>
 <a class="header" href="print.html#lifetimes-start-to-bite" name="lifetimes-start-to-bite"><h2>Lifetimes Start to Bite</h2></a>
 <p>Usually structs contain values, but often they also need to contain references.
 Say we want to put a string slice, not a string value, in a struct.</p>
@@ -1906,7 +1973,8 @@ help is needed. Replace the <code>println!</code> with this</p>
 println!(&quot;{:.1} &quot;, x);
 
 #}</code></pre></pre>
-<p>And we get cleaner output (this format means 'one decimal after dot'.)</p>
+<p>And we get cleaner output (this <a href="https://doc.rust-lang.org/std/fmt/index.html">format</a>
+means 'one decimal after dot'.)</p>
 <p>All of the default iterator methods are available, so we can collect these values into
 a vector:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
@@ -2086,8 +2154,8 @@ fn main() {
 with a type cast. It's essentially a convenient way to create a set of constants.</p>
 <p>Like with C enums, you only need to give the first name a value, and thereafter the
 value goes up by one each time.</p>
-<p>(By the way, 'name' is too vague, like saying 'thingy' all the time. The proper term here
-is <em>variant</em> - <code>Speed</code> has variants <code>Slow</code>,<code>Medium</code> and <code>Fast</code>.)</p>
+<p>By the way, 'name' is too vague, like saying 'thingy' all the time. The proper term here
+is <em>variant</em> - <code>Speed</code> has variants <code>Slow</code>,<code>Medium</code> and <code>Fast</code>.</p>
 <p>These enums <em>do</em> have a natural ordering, but you have to ask nicely.
 After placing <code>#[derive(PartialEq,PartialOrd)]</code> in front of <code>enum Speed</code>, then it's indeed
 true that <code>Speed::Fast &gt; Speed::Slow</code> and <code>Speed::Medium != Speed::Slow</code>.</p>
@@ -2662,7 +2730,7 @@ to <code>Node</code> structs, since the size of a pointer is always known.</p>
 moreorless indefinitely.</p>
 <p>Rust does not do <code>NULL</code> (at least not <em>safely</em>) so it's clearly a job for <code>Option</code>.
 But you cannot just put a <code>Node</code> in that <code>Option</code>, because we don't know the size
-of <code>Node</code> (and so forth.)  This is a job for <code>Box</code>, since it contains a allocated
+of <code>Node</code> (and so forth.)  This is a job for <code>Box</code>, since it contains an allocated
 pointer to the data, and always has a fixed size.</p>
 <p>So here's the Rust equivalent, using <code>type</code> to create an alias:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]

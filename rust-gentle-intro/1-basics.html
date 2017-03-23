@@ -214,7 +214,7 @@ fn main() {
 <p>This can be puzzling when coming from other languages, where variables can be
 re-written by default. What makes something a 'variable' is that it gets assigned
 a computed value at run-time - it is not a <em>constant</em>.
-It is pretty much how the word is used in mathematics, like when we say
+It is also how the word is used in mathematics, like when we say
 'let n be the largest number in set S'.</p>
 <p>There is a reason for declaring variables to be <em>read-only</em> by default. In a larger
 program, it gets hard to track where writes are taking place. So Rust makes things
@@ -224,7 +224,7 @@ language, but it never hides anything.</p>
 think of C (statically but weakly typed) and Python (dynamically but strongly typed).
 In static types the type is known at compile time, and dynamic types are only known
 at run time.</p>
-<p>At the moment, it feels like Rust is <em>hiding</em> those types from you. What
+<p>At the moment, however, it feels like Rust is <em>hiding</em> those types from you. What
 exactly is the type of <code>i</code>?  The compiler can work it out, starting with 0,
 with <em>type inference</em>, and comes up with <code>i32</code> (four byte signed integer.)</p>
 <p>Let's make exactly one change - turn that <code>0</code> into <code>0.0</code>. Then we get errors:</p>
@@ -240,7 +240,7 @@ with <em>type inference</em>, and comes up with <code>i32</code> (four byte sign
 to a <em>trait</em>, which is like an abstract interface that must be implemented for each concrete type.
 We'll deal with traits in detail later, but here all you need to know is that
 <code>AddAssign</code> is the name of the trait implementing the <code>+=</code> operator, and the error is saying
-that floating point numbers do not implement this operator for a integer. (The full list of
+that floating point numbers do not implement this operator for integers. (The full list of
 operator traits is <a href="https://doc.rust-lang.org/std/ops/index.html">here</a>.</p>
 <p>Again, Rust likes to be explicit - it will not silently convert that integer into a float for you.</p>
 <p>We have to <em>cast</em> that value to a floating-point value explicitly.</p>
@@ -253,7 +253,7 @@ fn main() {
     println!(&quot;sum is {}&quot;, sum);
 }
 </code></pre></pre>
-<a class="header" href="./1-basics.html#get-explicit" name="get-explicit"><h2>Get Explicit</h2></a>
+<a class="header" href="./1-basics.html#function-types-are-explicit" name="function-types-are-explicit"><h2>Function Types are Explicit</h2></a>
 <p><em>Functions</em> are one place where the compiler will not work out types for you.
 And this in fact was a deliberate decision, since languages like Haskell have
 such powerful type inference that there are hardly any explicit type names. It's
@@ -272,7 +272,7 @@ fn main() {
     println!(&quot;square is {}&quot;, res);
 }
 </code></pre></pre>
-<p>Rust (like Go, which it superficially resembles in many ways) goes back to an
+<p>Rust goes back to an
 older style of argument declaration, where the type follows the name. This is
 how it was done in Algol-derived languages like Pascal.</p>
 <p>Again, no integer-to-float conversions - if you replace the <code>0.0</code> with <code>0</code> then we
@@ -355,6 +355,20 @@ fn factorial(n: u64) -&gt; u64 {
 <p>This can be a little strange at first, and the best thing is then to use pencil and paper
 and work out some examples. It isn't usually the most <em>efficient</em> way to do that
 operation however.</p>
+<p>Values can also be passed by <em>reference</em>. A reference is created by <code>&amp;</code> and <em>dererefenced</em>
+by <code>*</code>.</p>
+<pre><pre class="playpen"><code class="language-rust">fn by_ref(x: &amp;i32) -&gt; i32{
+    *x + 1
+}
+
+fn main() {
+    let i = 10;
+    let res1 = by_ref(&amp;i);
+    let res2 = by_ref(&amp;41);
+    println!(&quot;{} {}&quot;, res1,res2);
+}
+// 11 42
+</code></pre></pre>
 <p>What if you want a function to modify one of its arguments?  Enter <em>mutable references</em>:</p>
 <pre><pre class="playpen"><code class="language-rust">// fun4.rs
 
@@ -375,7 +389,8 @@ too easy to miss compared to C.)</p>
 <p>Basically, Rust is introducing some <em>friction</em> here, and not-so-subtly pushing
 you towards returning values from functions directly.  Fortunately, Rust has
 powerful ways to express things like &quot;operation succeeded and here's the result&quot;
-so <code>&amp;mut</code> isn't needed that often.</p>
+so <code>&amp;mut</code> isn't needed that often. Passing by reference is important when we have a
+large object and don't wish to copy it.</p>
 <p>The type-after-variable style applies to <code>let</code> as well, when you really want to nail
 down the type of a variable:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
@@ -522,8 +537,7 @@ ints_ints [[1, 2], [10, 20]]
 </code></pre>
 <p>So, arrays of arrays are no problem, but the important thing is that an array contains
 values of <em>only one type</em>.  The values in an array are arranged next to each other
-in memory so that <code>[10, 20]</code> takes 8 bytes (two 4-byte signed integers). This makes
-them <em>very</em> efficient to access.</p>
+in memory so that they are <em>very</em> efficient to access.</p>
 <p>If you are curious about the actual types of these variables, here is a useful trick.
 Just declare a variable with an explicit type which you know will be wrong:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
@@ -606,18 +620,20 @@ type!  It may be <em>either</em> <code>Some</code> or <code>None</code>.</p>
 #fn main() {
     let maybe_last = slice.get(5);
     let last = if maybe_last.is_some() {
-        maybe_last.unwrap()
+        *maybe_last.unwrap()
     } else {
         -1
     };
 
 #}</code></pre></pre>
+<p>Note the <code>*</code> - the precise type inside the <code>Some</code> is <code>&amp;i32</code>, which is a reference. We need
+to deference this to get back to a <code>i32</code> value.</p>
 <p>Which is long-winded, so there's a shortcut (the <code>&amp;</code> is because <code>get</code> always
-returns a reference):</p>
+returns a reference, and <code>*</code> is to get the value as <code>i32</code>):</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
-    let last = slice.get(5).unwrap_or(&amp;-1);
+    let last = *slice.get(5).unwrap_or(&amp;-1);
 
 #}</code></pre></pre>
 <p>You can think of <code>Option</code> as a box which may contain a value, or nothing (<code>None</code>).
@@ -1054,7 +1070,7 @@ name.</p>
     }
 
 #}</code></pre></pre>
-<p>Which is fine; it's pretty much how you would do it in C.</p>
+<p>Which is fine; it's pretty much how you would do it in most languages.</p>
 <p>A more Rust-y approach to reading a single argument (together with parsing an
 integer value):</p>
 <pre><pre class="playpen"><code class="language-rust">// args1.rs

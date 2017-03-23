@@ -128,18 +128,20 @@ fn main() {
     println!(&quot;s1 {}&quot;, s1);
 }
 </code></pre></pre>
-<p>Here, you have a choice. You may explicitly create a reference to that string, or
+<p>Here, you have a choice. You may pass a reference to that string, or
 explicitly copy it using its <code>clone</code> method.  Generally, the first is the better way
 to go.</p>
-<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
-# 
-#fn main() {
-fn dump(s: &amp;String) {
+<pre><pre class="playpen"><code class="language-rust">fn dump(s: &amp;String) {
     println!(&quot;{}&quot;, s);
 }
 
-#}</code></pre></pre>
-<p>The call becomes <code>dump(&amp;s1)</code>, and the error goes away. But you'll rarely see a plain
+fn main() {
+    let s1 = &quot;hello dolly&quot;.to_string();
+    dump(&amp;s1);
+    println!(&quot;s1 {}&quot;, s1);
+}    
+</code></pre></pre>
+<p>The error goes away. But you'll rarely see a plain
 <code>String</code> reference like this, since to pass a string literal is really ugly <em>and</em> involves
 creating a temporary string.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
@@ -403,6 +405,55 @@ there is sensible output:</p>
 helpful. It's good practice to do this for your structs, so they can be
 printed out (or written as a string using <code>format!</code>).  (Doing so <em>by default</em> would be
 very un-Rustlike.)</p>
+<p>Here is the final little program:</p>
+<pre><code>// struct4.rs
+use std::fmt;
+
+#[derive(Debug)]
+struct Person {
+    first_name: String,
+    last_name: String
+}
+
+impl Person {
+    
+    fn new(first: &amp;str, name: &amp;str) -&gt; Person {
+        Person {
+            first_name: first.to_string(),
+            last_name: name.to_string()
+        }
+    }
+
+    fn full_name(&amp;self) -&gt; String {
+        format!(&quot;{} {}&quot;,self.first_name, self.last_name)
+    }
+    
+    fn set_first_name(&amp;mut self, name: &amp;str) {
+        self.first_name = name.to_string();
+    }
+    
+    fn to_tuple(self) -&gt; (String,String) {
+        (self.first_name, self.last_name)
+    }
+}
+
+fn main() {
+    let mut p = Person::new(&quot;John&quot;,&quot;Smith&quot;);
+    
+    println!(&quot;{:?}&quot;, p);
+    
+    p.set_first_name(&quot;Jane&quot;);
+    
+    println!(&quot;{:?}&quot;, p);
+    
+    println!(&quot;{:?}&quot;, p.to_tuple());
+    // p has now moved.
+    
+}
+// Person { first_name: &quot;John&quot;, last_name: &quot;Smith&quot; }
+// Person { first_name: &quot;Jane&quot;, last_name: &quot;Smith&quot; }
+// (&quot;Jane&quot;, &quot;Smith&quot;)
+</code></pre>
 <a class="header" href="./2-structs-enums-lifetimes.html#lifetimes-start-to-bite" name="lifetimes-start-to-bite"><h2>Lifetimes Start to Bite</h2></a>
 <p>Usually structs contain values, but often they also need to contain references.
 Say we want to put a string slice, not a string value, in a struct.</p>
@@ -654,7 +705,8 @@ help is needed. Replace the <code>println!</code> with this</p>
 println!(&quot;{:.1} &quot;, x);
 
 #}</code></pre></pre>
-<p>And we get cleaner output (this format means 'one decimal after dot'.)</p>
+<p>And we get cleaner output (this <a href="https://doc.rust-lang.org/std/fmt/index.html">format</a>
+means 'one decimal after dot'.)</p>
 <p>All of the default iterator methods are available, so we can collect these values into
 a vector:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
@@ -834,8 +886,8 @@ fn main() {
 with a type cast. It's essentially a convenient way to create a set of constants.</p>
 <p>Like with C enums, you only need to give the first name a value, and thereafter the
 value goes up by one each time.</p>
-<p>(By the way, 'name' is too vague, like saying 'thingy' all the time. The proper term here
-is <em>variant</em> - <code>Speed</code> has variants <code>Slow</code>,<code>Medium</code> and <code>Fast</code>.)</p>
+<p>By the way, 'name' is too vague, like saying 'thingy' all the time. The proper term here
+is <em>variant</em> - <code>Speed</code> has variants <code>Slow</code>,<code>Medium</code> and <code>Fast</code>.</p>
 <p>These enums <em>do</em> have a natural ordering, but you have to ask nicely.
 After placing <code>#[derive(PartialEq,PartialOrd)]</code> in front of <code>enum Speed</code>, then it's indeed
 true that <code>Speed::Fast &gt; Speed::Slow</code> and <code>Speed::Medium != Speed::Slow</code>.</p>
@@ -1410,7 +1462,7 @@ to <code>Node</code> structs, since the size of a pointer is always known.</p>
 moreorless indefinitely.</p>
 <p>Rust does not do <code>NULL</code> (at least not <em>safely</em>) so it's clearly a job for <code>Option</code>.
 But you cannot just put a <code>Node</code> in that <code>Option</code>, because we don't know the size
-of <code>Node</code> (and so forth.)  This is a job for <code>Box</code>, since it contains a allocated
+of <code>Node</code> (and so forth.)  This is a job for <code>Box</code>, since it contains an allocated
 pointer to the data, and always has a fixed size.</p>
 <p>So here's the Rust equivalent, using <code>type</code> to create an alias:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
