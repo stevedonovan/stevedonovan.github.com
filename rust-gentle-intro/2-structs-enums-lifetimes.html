@@ -139,7 +139,7 @@ fn main() {
     let s1 = &quot;hello dolly&quot;.to_string();
     dump(&amp;s1);
     println!(&quot;s1 {}&quot;, s1);
-}    
+}
 </code></pre></pre>
 <p>The error goes away. But you'll rarely see a plain
 <code>String</code> reference like this, since to pass a string literal is really ugly <em>and</em> involves
@@ -406,7 +406,7 @@ helpful. It's good practice to do this for your structs, so they can be
 printed out (or written as a string using <code>format!</code>).  (Doing so <em>by default</em> would be
 very un-Rustlike.)</p>
 <p>Here is the final little program:</p>
-<pre><code>// struct4.rs
+<pre><pre class="playpen"><code class="language-rust">// struct4.rs
 use std::fmt;
 
 #[derive(Debug)]
@@ -416,7 +416,7 @@ struct Person {
 }
 
 impl Person {
-    
+
     fn new(first: &amp;str, name: &amp;str) -&gt; Person {
         Person {
             first_name: first.to_string(),
@@ -427,11 +427,11 @@ impl Person {
     fn full_name(&amp;self) -&gt; String {
         format!(&quot;{} {}&quot;,self.first_name, self.last_name)
     }
-    
+
     fn set_first_name(&amp;mut self, name: &amp;str) {
         self.first_name = name.to_string();
     }
-    
+
     fn to_tuple(self) -&gt; (String,String) {
         (self.first_name, self.last_name)
     }
@@ -439,21 +439,21 @@ impl Person {
 
 fn main() {
     let mut p = Person::new(&quot;John&quot;,&quot;Smith&quot;);
-    
+
     println!(&quot;{:?}&quot;, p);
-    
+
     p.set_first_name(&quot;Jane&quot;);
-    
+
     println!(&quot;{:?}&quot;, p);
-    
+
     println!(&quot;{:?}&quot;, p.to_tuple());
     // p has now moved.
-    
+
 }
 // Person { first_name: &quot;John&quot;, last_name: &quot;Smith&quot; }
 // Person { first_name: &quot;Jane&quot;, last_name: &quot;Smith&quot; }
 // (&quot;Jane&quot;, &quot;Smith&quot;)
-</code></pre>
+</code></pre></pre>
 <a class="header" href="./2-structs-enums-lifetimes.html#lifetimes-start-to-bite" name="lifetimes-start-to-bite"><h2>Lifetimes Start to Bite</h2></a>
 <p>Usually structs contain values, but often they also need to contain references.
 Say we want to put a string slice, not a string value, in a struct.</p>
@@ -508,9 +508,9 @@ price of being precise.</p>
 #fn main() {
 fn how(i: u32) -&gt; &amp;'static str {
     match i {
-    0: 'none',
-    1: 'one',
-    _: 'many'
+    0 =&gt; 'none',
+    1 =&gt; 'one',
+    _ =&gt; 'many'
     }
 }
 

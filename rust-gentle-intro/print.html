@@ -428,7 +428,7 @@ fn factorial(n: u64) -&gt; u64 {
 <p>This can be a little strange at first, and the best thing is then to use pencil and paper
 and work out some examples. It isn't usually the most <em>efficient</em> way to do that
 operation however.</p>
-<p>Values can also be passed by <em>reference</em>. A reference is created by <code>&amp;</code> and <em>dererefenced</em>
+<p>Values can also be passed by <em>reference</em>. A reference is created by <code>&amp;</code> and <em>dereferenced</em>
 by <code>*</code>.</p>
 <pre><pre class="playpen"><code class="language-rust">fn by_ref(x: &amp;i32) -&gt; i32{
     *x + 1
@@ -700,7 +700,7 @@ type!  It may be <em>either</em> <code>Some</code> or <code>None</code>.</p>
 
 #}</code></pre></pre>
 <p>Note the <code>*</code> - the precise type inside the <code>Some</code> is <code>&amp;i32</code>, which is a reference. We need
-to deference this to get back to a <code>i32</code> value.</p>
+to dereference this to get back to a <code>i32</code> value.</p>
 <p>Which is long-winded, so there's a shortcut (the <code>&amp;</code> is because <code>get</code> always
 returns a reference, and <code>*</code> is to get the value as <code>i32</code>):</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
@@ -1407,7 +1407,7 @@ fn main() {
     let s1 = &quot;hello dolly&quot;.to_string();
     dump(&amp;s1);
     println!(&quot;s1 {}&quot;, s1);
-}    
+}
 </code></pre></pre>
 <p>The error goes away. But you'll rarely see a plain
 <code>String</code> reference like this, since to pass a string literal is really ugly <em>and</em> involves
@@ -1674,7 +1674,7 @@ helpful. It's good practice to do this for your structs, so they can be
 printed out (or written as a string using <code>format!</code>).  (Doing so <em>by default</em> would be
 very un-Rustlike.)</p>
 <p>Here is the final little program:</p>
-<pre><code>// struct4.rs
+<pre><pre class="playpen"><code class="language-rust">// struct4.rs
 use std::fmt;
 
 #[derive(Debug)]
@@ -1684,7 +1684,7 @@ struct Person {
 }
 
 impl Person {
-    
+
     fn new(first: &amp;str, name: &amp;str) -&gt; Person {
         Person {
             first_name: first.to_string(),
@@ -1695,11 +1695,11 @@ impl Person {
     fn full_name(&amp;self) -&gt; String {
         format!(&quot;{} {}&quot;,self.first_name, self.last_name)
     }
-    
+
     fn set_first_name(&amp;mut self, name: &amp;str) {
         self.first_name = name.to_string();
     }
-    
+
     fn to_tuple(self) -&gt; (String,String) {
         (self.first_name, self.last_name)
     }
@@ -1707,21 +1707,21 @@ impl Person {
 
 fn main() {
     let mut p = Person::new(&quot;John&quot;,&quot;Smith&quot;);
-    
+
     println!(&quot;{:?}&quot;, p);
-    
+
     p.set_first_name(&quot;Jane&quot;);
-    
+
     println!(&quot;{:?}&quot;, p);
-    
+
     println!(&quot;{:?}&quot;, p.to_tuple());
     // p has now moved.
-    
+
 }
 // Person { first_name: &quot;John&quot;, last_name: &quot;Smith&quot; }
 // Person { first_name: &quot;Jane&quot;, last_name: &quot;Smith&quot; }
 // (&quot;Jane&quot;, &quot;Smith&quot;)
-</code></pre>
+</code></pre></pre>
 <a class="header" href="print.html#lifetimes-start-to-bite" name="lifetimes-start-to-bite"><h2>Lifetimes Start to Bite</h2></a>
 <p>Usually structs contain values, but often they also need to contain references.
 Say we want to put a string slice, not a string value, in a struct.</p>
@@ -1776,9 +1776,9 @@ price of being precise.</p>
 #fn main() {
 fn how(i: u32) -&gt; &amp;'static str {
     match i {
-    0: 'none',
-    1: 'one',
-    _: 'many'
+    0 =&gt; 'none',
+    1 =&gt; 'one',
+    _ =&gt; 'many'
     }
 }
 
@@ -3192,7 +3192,10 @@ borrowed from the same mutable string! (If you had read <em>all</em> the file in
 the string's <code>lines</code> iterator works fine because the string slices are all borrowed from
 the original string.)</p>
 <p>The resulting loop is much cleaner, and the file buffering is invisible to the user.</p>
-<pre><code>fn read_all_lines(filename: &amp;str) -&gt; io::Result&lt;()&gt; {
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+fn read_all_lines(filename: &amp;str) -&gt; io::Result&lt;()&gt; {
     let file = File::open(&amp;filename)?;
 
     let mut lines = Lines::new(file);
@@ -3203,13 +3206,18 @@ the original string.)</p>
 
     Ok(())
 }
-</code></pre>
+
+#}</code></pre></pre>
 <p>You can even write the loop like this, since the explicit match can pull out the
 string slice:</p>
-<pre><code>    while let Some(Ok(line)) = lines.next() {
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    while let Some(Ok(line)) = lines.next() {
         println!&quot;{}&quot;, line)?;
     }
-</code></pre>
+
+#}</code></pre></pre>
 <p>It's tempting, but you are throwing away a possible error here; this loop will
 silently stop whenever an error occurs. In particular, it will stop at the first place
 where Rust can't convert a line to UTF-8.  Fine for casual code, bad for production code!</p>
@@ -3326,7 +3334,7 @@ text which isn't valid Unicode - hence <code>OsString/&amp;OsStr</code>.</p>
 Rust makes it easier to manipulate file paths using <code>PathBuf</code> methods.</p>
 <p>You can <code>pop</code> to successively remove path components. Here we start with the
 current directory of the program:</p>
-<pre><code>// file8.rs
+<pre><pre class="playpen"><code class="language-rust">// file8.rs
 use std::env;
 
 fn main() {
@@ -3344,7 +3352,7 @@ fn main() {
 // /home/steve
 // /home
 // /
-</code></pre>
+</code></pre></pre>
 <p>Here's a useful variation. I have a program which searches for a configuration file,
 and the rule is that it may appear in any subdirectory of the current directory.
 So I create <code>/home/steve/rust/config.txt</code> and start this program up in <code>/home/steve/rust/gentle-intro/src</code>:</p>

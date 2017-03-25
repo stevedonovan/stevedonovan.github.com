@@ -196,7 +196,10 @@ borrowed from the same mutable string! (If you had read <em>all</em> the file in
 the string's <code>lines</code> iterator works fine because the string slices are all borrowed from
 the original string.)</p>
 <p>The resulting loop is much cleaner, and the file buffering is invisible to the user.</p>
-<pre><code>fn read_all_lines(filename: &amp;str) -&gt; io::Result&lt;()&gt; {
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+fn read_all_lines(filename: &amp;str) -&gt; io::Result&lt;()&gt; {
     let file = File::open(&amp;filename)?;
 
     let mut lines = Lines::new(file);
@@ -207,13 +210,18 @@ the original string.)</p>
 
     Ok(())
 }
-</code></pre>
+
+#}</code></pre></pre>
 <p>You can even write the loop like this, since the explicit match can pull out the
 string slice:</p>
-<pre><code>    while let Some(Ok(line)) = lines.next() {
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    while let Some(Ok(line)) = lines.next() {
         println!&quot;{}&quot;, line)?;
     }
-</code></pre>
+
+#}</code></pre></pre>
 <p>It's tempting, but you are throwing away a possible error here; this loop will
 silently stop whenever an error occurs. In particular, it will stop at the first place
 where Rust can't convert a line to UTF-8.  Fine for casual code, bad for production code!</p>
@@ -330,7 +338,7 @@ text which isn't valid Unicode - hence <code>OsString/&amp;OsStr</code>.</p>
 Rust makes it easier to manipulate file paths using <code>PathBuf</code> methods.</p>
 <p>You can <code>pop</code> to successively remove path components. Here we start with the
 current directory of the program:</p>
-<pre><code>// file8.rs
+<pre><pre class="playpen"><code class="language-rust">// file8.rs
 use std::env;
 
 fn main() {
@@ -348,7 +356,7 @@ fn main() {
 // /home/steve
 // /home
 // /
-</code></pre>
+</code></pre></pre>
 <p>Here's a useful variation. I have a program which searches for a configuration file,
 and the rule is that it may appear in any subdirectory of the current directory.
 So I create <code>/home/steve/rust/config.txt</code> and start this program up in <code>/home/steve/rust/gentle-intro/src</code>:</p>
