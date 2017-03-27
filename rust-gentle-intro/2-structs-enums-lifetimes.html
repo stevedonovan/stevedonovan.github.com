@@ -508,9 +508,9 @@ price of being precise.</p>
 #fn main() {
 fn how(i: u32) -&gt; &amp;'static str {
     match i {
-    0 =&gt; 'none',
-    1 =&gt; 'one',
-    _ =&gt; 'many'
+    0 =&gt; &quot;none&quot;,
+    1 =&gt; &quot;one&quot;,
+    _ =&gt; &quot;many&quot;
     }
 }
 
@@ -1198,18 +1198,24 @@ Here we evaluate a linear function:</p>
 #}</code></pre></pre>
 <p>You cannot do this with the explicit <code>fn</code> form - it does not know about variables
 in the enclosing scope. The closure has <em>borrowed</em> <code>m</code> and <code>c</code> from its context.</p>
-<p>The usual Rules of Borrowing apply. This works fine - our little closure is borrowing
-<code>answer</code> mutably.</p>
+<p>The usual Rules of Borrowing apply. This example works fine - our little closure is borrowing
+<code>answer</code> mutably. Note here that the mutable borrow of <code>answer</code> by <code>set</code> has to take
+place in a block, so it ends before we do an <em>immutable</em> borrow of <code>answer</code> in
+the assert statement. (The borrow checker can be a little ... picky, and using blocks
+to control scopes of borrows is common.)</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
 let mut answer = 42;
 
-let set = |v| answer = v;
+{
+    let mut set = |v| answer = v;
 
-//let get = || answer;
+    //let get = || answer;
 
-set(58);
+    set(58);
+}
+
 assert_eq!(answer, 58);
 
 #}</code></pre></pre>
