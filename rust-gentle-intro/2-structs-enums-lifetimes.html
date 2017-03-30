@@ -955,9 +955,9 @@ to that contained string.</p>
 fn dump(v: &amp;Value) {
     use Value::*;
     match *v {
-    Number(n) =&gt; println!(&quot;number is {}&quot;, n),
-    Str(ref s) =&gt; println!(&quot;string is '{}'&quot;, s),
-    Bool(b) =&gt; println!(&quot;boolean is {}&quot;, b)
+        Number(n) =&gt; println!(&quot;number is {}&quot;, n),
+        Str(ref s) =&gt; println!(&quot;string is '{}'&quot;, s),
+        Bool(b) =&gt; println!(&quot;boolean is {}&quot;, b)
     }
 }
     ....
@@ -974,8 +974,10 @@ borrow checker to foil any attempt to break the Rules.  One of those Rules is th
 you cannot yank out a value which belongs to some owning type. Some knowledge of
 C++ is a hindrance here, since C++ will copy its way out of the problem, whether that
 copy even <em>makes sense</em>.  You will get exactly the same error if you try to pull out
-a value from a vector, say with <code>*v[0]</code> (<code>*</code> because indexing returns references.)
+a string from a vector, say with <code>*v.get(0).unwrap()</code> (<code>*</code> because indexing returns references.)
 It will simply not let you do this. (Sometimes <code>clone</code> isn't such a bad solution to this.)</p>
+<p>(By the way, <code>v[0]</code> does not work for non-copyable values like strings for precisely this reason.
+You must either borrow with <code>&amp;v[0]</code> or clone with <code>v[0].clone()</code>)</p>
 <p>As for <code>match</code>, you can see <code>Str(s) =&gt;</code> as short for <code>Str(s: String) =&gt;</code>. A local variable
 (often called a <em>binding</em>) is created.  Often that inferred type is cool, when you
 eat up a value and extract its contents. But here we really needed is <code>s: &amp;String</code>, and the
@@ -1055,7 +1057,7 @@ Either way, we get the parts of a structure.</p>
     let p = Point{x:1.0,y:2.0};
     ...
     let Point{x,y} = p;
-    // p still lives, since x and y can be copied
+    // p still lives, since x and y can and will be copied
     // both x and y are f32
 
 #}</code></pre></pre>
@@ -1073,7 +1075,8 @@ fn match_tuple(t: (i32,String)) {
     let text = match t {
         (0, s) =&gt; format!(&quot;zero {}&quot;, s),
         (1, ref s) if s == &quot;hello&quot; =&gt; format!(&quot;hello one!&quot;),
-        tt =&gt; format!(&quot;no match {:?}&quot;, tt)
+        tt =&gt; format!(&quot;no match {:?}&quot;, tt),
+        // or say _ =&gt; format!(&quot;no match&quot;) if you're not interested in the value  
      };
     println!(&quot;{}&quot;, text);
 }
@@ -1143,7 +1146,7 @@ more elegant solution:</p>
 
 #}</code></pre></pre>
 <p>However, the parse error needs to be convertible to the error type of the <code>Result</code>, which is a topic
-we'll take up later when discussing error handling.</p>
+we'll take up later when discussing <a href="6-error-handling.html">error handling</a>.</p>
 <a class="header" href="./2-structs-enums-lifetimes.html#closures" name="closures"><h2>Closures</h2></a>
 <p>A great deal of Rust's power comes from <em>closures</em>. In their simplest form, they
 act like shortcut functions:</p>
@@ -1219,7 +1222,7 @@ let mut answer = 42;
 assert_eq!(answer, 58);
 
 #}</code></pre></pre>
-<p>But uncomment <code>get</code> and you get a borrowing error:
+<p>But uncomment <code>let get ...</code> and you get a borrowing error:
 &quot;cannot borrow <code>answer</code> as immutable because it is also borrowed as mutable&quot;</p>
 <p>Now, what's the type of <code>lin</code>? Only <code>rustc</code> knows. Exactly the same situation applies
 to C++ lambdas, and for exactly the same version. Under the hood, a closure is a <em>struct</em>
@@ -1321,6 +1324,8 @@ vector to have the <em>boxed trait type</em> before things just work:</p>
 these boxed closures in a struct, then you will need a lifetime annotation, because
 <em>closures borrow variables</em> and so their lifetime is tied to the lifetime of those
 variables.</p>
+<p>(Unfortunately, you can't use <code>type</code> to declare a shorthand for function trait types; it's definitely a
+place where I miss a <code>typedef</code> statement.)</p>
 <p>Sometimes you don't want a closure to borrow those variables, but instead <em>move</em> them.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 

@@ -68,7 +68,8 @@
 
                 <div id="content" class="content">
                     <a class="header" href="print.html#a-gentle-introduction-to-rust" name="a-gentle-introduction-to-rust"><h1>A Gentle Introduction To Rust</h1></a>
-<p><img src="PPrustS.png" alt="Rust" /></p>
+<p><img src="PPrustS.png" alt="Rust" />
+<a href="http://leftoversalad.com/c/015_programmingpeople/">thanks to David Marino</a></p>
 <a class="header" href="print.html#why-learn-a-new-programming-language" name="why-learn-a-new-programming-language"><h2>Why learn a new Programming Language?</h2></a>
 <p>The aim of this tutorial is to take you to a place where you can read and write
 enough Rust to fully appreciate the excellent learning resources available
@@ -144,6 +145,10 @@ to program in Python remains good, whatever the language. He says learning to pr
 is like learning a musical instrument - the secret is practice and persistence.
 There's also good advice from Yoga and the soft martial arts like Tai Chi;
 feel the strain, but don't over-strain. You are not building dumb muscle here.</p>
+<p>I'd like to thank the many contributors who caught bad English or bad Rust for me,
+and thanks to David Marino for his cool characterization
+of Rust as a friendly-but-hardcore no-nonsense knight in shining armour.</p>
+<p>Steve Donovan © 2017 MIT license version 0.2.0</p>
 <a class="header" href="print.html#basics" name="basics"><h1>Basics</h1></a>
 <a class="header" href="print.html#hello-world" name="hello-world"><h2>Hello, World!</h2></a>
 <p>The original purpose of &quot;hello world&quot;, ever since the first C version was written,
@@ -590,7 +595,7 @@ you want to pass an array as a slice using the <code>&amp;</code> operator.</p>
 'borrow'. This is going to be the key word when learning Rust. Borrowing is the name
 given to a common pattern in programming; whenever you pass something by reference
 (as nearly always happens in dynamic languages) or pass a pointer in C. Anything
-borrowed remains belongs to the original owner.</p>
+borrowed remains owned by the original owner.</p>
 <a class="header" href="print.html#slicing-and-dicing" name="slicing-and-dicing"><h2>Slicing and Dicing</h2></a>
 <p>You cannot print out an array in the usual way with <code>{}</code> but you can do a <em>debug</em>
 print with <code>{:?}</code>.</p>
@@ -2227,9 +2232,9 @@ to that contained string.</p>
 fn dump(v: &amp;Value) {
     use Value::*;
     match *v {
-    Number(n) =&gt; println!(&quot;number is {}&quot;, n),
-    Str(ref s) =&gt; println!(&quot;string is '{}'&quot;, s),
-    Bool(b) =&gt; println!(&quot;boolean is {}&quot;, b)
+        Number(n) =&gt; println!(&quot;number is {}&quot;, n),
+        Str(ref s) =&gt; println!(&quot;string is '{}'&quot;, s),
+        Bool(b) =&gt; println!(&quot;boolean is {}&quot;, b)
     }
 }
     ....
@@ -2246,8 +2251,10 @@ borrow checker to foil any attempt to break the Rules.  One of those Rules is th
 you cannot yank out a value which belongs to some owning type. Some knowledge of
 C++ is a hindrance here, since C++ will copy its way out of the problem, whether that
 copy even <em>makes sense</em>.  You will get exactly the same error if you try to pull out
-a value from a vector, say with <code>*v[0]</code> (<code>*</code> because indexing returns references.)
+a string from a vector, say with <code>*v.get(0).unwrap()</code> (<code>*</code> because indexing returns references.)
 It will simply not let you do this. (Sometimes <code>clone</code> isn't such a bad solution to this.)</p>
+<p>(By the way, <code>v[0]</code> does not work for non-copyable values like strings for precisely this reason.
+You must either borrow with <code>&amp;v[0]</code> or clone with <code>v[0].clone()</code>)</p>
 <p>As for <code>match</code>, you can see <code>Str(s) =&gt;</code> as short for <code>Str(s: String) =&gt;</code>. A local variable
 (often called a <em>binding</em>) is created.  Often that inferred type is cool, when you
 eat up a value and extract its contents. But here we really needed is <code>s: &amp;String</code>, and the
@@ -2327,7 +2334,7 @@ Either way, we get the parts of a structure.</p>
     let p = Point{x:1.0,y:2.0};
     ...
     let Point{x,y} = p;
-    // p still lives, since x and y can be copied
+    // p still lives, since x and y can and will be copied
     // both x and y are f32
 
 #}</code></pre></pre>
@@ -2345,7 +2352,8 @@ fn match_tuple(t: (i32,String)) {
     let text = match t {
         (0, s) =&gt; format!(&quot;zero {}&quot;, s),
         (1, ref s) if s == &quot;hello&quot; =&gt; format!(&quot;hello one!&quot;),
-        tt =&gt; format!(&quot;no match {:?}&quot;, tt)
+        tt =&gt; format!(&quot;no match {:?}&quot;, tt),
+        // or say _ =&gt; format!(&quot;no match&quot;) if you're not interested in the value  
      };
     println!(&quot;{}&quot;, text);
 }
@@ -2415,7 +2423,7 @@ more elegant solution:</p>
 
 #}</code></pre></pre>
 <p>However, the parse error needs to be convertible to the error type of the <code>Result</code>, which is a topic
-we'll take up later when discussing error handling.</p>
+we'll take up later when discussing <a href="6-error-handling.html">error handling</a>.</p>
 <a class="header" href="print.html#closures" name="closures"><h2>Closures</h2></a>
 <p>A great deal of Rust's power comes from <em>closures</em>. In their simplest form, they
 act like shortcut functions:</p>
@@ -2491,7 +2499,7 @@ let mut answer = 42;
 assert_eq!(answer, 58);
 
 #}</code></pre></pre>
-<p>But uncomment <code>get</code> and you get a borrowing error:
+<p>But uncomment <code>let get ...</code> and you get a borrowing error:
 &quot;cannot borrow <code>answer</code> as immutable because it is also borrowed as mutable&quot;</p>
 <p>Now, what's the type of <code>lin</code>? Only <code>rustc</code> knows. Exactly the same situation applies
 to C++ lambdas, and for exactly the same version. Under the hood, a closure is a <em>struct</em>
@@ -2593,6 +2601,8 @@ vector to have the <em>boxed trait type</em> before things just work:</p>
 these boxed closures in a struct, then you will need a lifetime annotation, because
 <em>closures borrow variables</em> and so their lifetime is tied to the lifetime of those
 variables.</p>
+<p>(Unfortunately, you can't use <code>type</code> to declare a shorthand for function trait types; it's definitely a
+place where I miss a <code>typedef</code> statement.)</p>
 <p>Sometimes you don't want a closure to borrow those variables, but instead <em>move</em> them.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
@@ -3211,7 +3221,7 @@ fn read_all_lines(filename: &amp;str) -&gt; io::Result&lt;()&gt; {
     let mut lines = Lines::new(file);
     while let Some(line) = lines.next() {
         let line = line?;
-        println!(&quot;{}&quot;, line)?;
+        println!(&quot;{}&quot;, line);
     }
 
     Ok(())
@@ -3224,7 +3234,7 @@ string slice:</p>
 # 
 #fn main() {
     while let Some(Ok(line)) = lines.next() {
-        println!&quot;{}&quot;, line)?;
+        println!(&quot;{}&quot;, line)?;
     }
 
 #}</code></pre></pre>
@@ -4710,16 +4720,18 @@ fn raises_my_error(yes: bool) -&gt; Result&lt;(),MyError&gt; {
 }
 
 #}</code></pre></pre>
-<p>In this example we need to handle the specific error when a string can't be parsed
-as a floating-point number. It implements <code>Error</code> so <code>description()</code> is defined.</p>
-<p>Now the way that <code>?</code> works
-is to look for a conversion from the error of the expression to the error that must
-be returned. And this conversion is expressed by the <code>From</code> trait:</p>
+<p>In this next example we need to handle the specific error when a string can't be parsed
+as a floating-point number.  Now the way that <code>?</code> works
+is to look for a conversion from the error of the <em>expression</em> to the error that must
+be <em>returned</em>. And this conversion must be expressed by the <code>From</code> trait.
+<code>ParseFloatError</code> implements <code>Error</code> so <code>description()</code> is defined.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
-impl From&lt;std::num::ParseFloatError&gt; for MyError {
-    fn from(err: std::num::ParseFloatError) -&gt; Self {
+use std::num::ParseFloatError;
+
+impl From&lt;ParseFloatError&gt; for MyError {
+    fn from(err: ParseFloatError) -&gt; Self {
         MyError::new(err.description())
     }
 }
@@ -4733,7 +4745,7 @@ fn parse_f64(s: &amp;str, yes: bool) -&gt; Result&lt;f64,MyError&gt; {
 
 #}</code></pre></pre>
 <p>The first <code>?</code> is fine (a type always converts to itself with <code>From</code>) and the
-second <code>?</code> needs to convert from <code>ParseFloatError</code> to <code>MyError</code>.</p>
+second <code>?</code> will convert the <code>ParseFloatError</code> to <code>MyError</code>.</p>
 <p>And the results:</p>
 <pre><pre class="playpen"><code class="language-rust">fn main() {
     println!(&quot; {:?}&quot;, parse_f64(&quot;42&quot;,false));
@@ -4750,8 +4762,8 @@ with <code>MyError</code>.  But once the mechanism is in place, your error handl
 much cleaner!</p>
 <p>Typing <code>Result&lt;T,MyError&gt;</code> gets tedious and many Rust modules define their own
 <code>Result</code> - e.g. <code>io::Result&lt;T&gt;</code> is short for <code>io::Result&lt;T,io::Error&gt;</code>.</p>
-<p>Currently, the question-mark operator only works for <code>Result</code>, not <code>Option</code>, and this can be seen
-as a feature, not a limitation.  <code>Option</code> has a <code>ok_or_else</code> which converts itself into a <code>Result</code>.
+<p>Currently, the question-mark operator only works for <code>Result</code>, not <code>Option</code>, and this is
+a feature, not a limitation.  <code>Option</code> has a <code>ok_or_else</code> which converts itself into a <code>Result</code>.
 For example, say we had a <code>HashMap</code> and must fail if a key isn't defined:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
@@ -4769,14 +4781,15 @@ A little macro magic can go a long way in Rust...</p>
 change to this directory. Edit <code>Cargo.toml</code> and add <code>error-chain=&quot;0.8.1&quot;</code> to the end.</p>
 <p>What <strong>error-chain</strong> does for you is create all the definitions we needed for manually implementing
 an error type; creating a struct, and implementing the necessary traits: <code>Display</code>, <code>Debug</code> and <code>Error</code>.
-It also by default implements <code>From</code> so strings can be converted into errors. Here we also ask for
-<code>From</code> to be implemented so that <code>std::io::Error</code> will also convert into our error type.</p>
+It also by default implements <code>From</code> so strings can be converted into errors.</p>
 <p>Our first <code>src/main.rs</code> file looks like this. All the main program does is call <code>run</code>, print out any
 errors, and end the program with a non-zero exit code.  The macro <code>error_chain</code> generates all the
 definitions needed, within an <code>error</code> module - in a larger program you would put this in its own file.
 We need to bring everything in <code>error</code> back into global scope because our code will need to see
 the generated traits. By default, there will be an <code>Error</code> struct and a <code>Result</code> defined with that
-error:</p>
+error.</p>
+<p>Here we also ask for <code>From</code> to be implemented so that <code>std::io::Error</code> will convert into
+our error type using <code>foreign_links</code>:</p>
 <pre><pre class="playpen"><code class="language-rust">#[macro_use]
 extern crate error_chain;
 
@@ -4855,7 +4868,7 @@ An alternative to the <code>ok_or</code> method here could be:</p>
 <p>Like <code>?</code> it does an <em>early return</em>.</p>
 <p>The returned error contains an enum <code>ErrorKind</code>, which allows us to distinguish between various
 kinds of errors. There's always a variant <code>Msg</code> (when you say <code>Error::from(str)</code>) and the <code>foreign_links</code>
-macro has declared <code>Io</code> which wraps I/O errors:</p>
+has declared <code>Io</code> which wraps I/O errors:</p>
 <pre><pre class="playpen"><code class="language-rust">fn main() {
     if let Err(e) = run() {
         match e.kind() {
@@ -4919,7 +4932,7 @@ function! This match-on-kind technique is pretty much the equivalent of traditio
 where you match on exception types.</p>
 <p>In summary, <strong>error-chain</strong> creates a type <code>Error</code> for you, and defines <code>Result&lt;T&gt;</code> to be <code>std::result::Result&lt;T,Error&gt;</code>.
 <code>Error</code> contains an enum <code>ErrorKind</code> and by default there is one variant <code>Msg</code> for errors created from
-strings. You define 'foreign' errors with <code>foreign_links</code> which does two things. First, it creates a new
+strings. You define external errors with <code>foreign_links</code> which does two things. First, it creates a new
 <code>ErrorKind</code> variant. Second, it defines <code>From</code> on these external errors so they can be converted to our
 error.  New error variants can be easily added.  A lot of irritating boilerplate code is eliminated.</p>
 <a class="header" href="print.html#chaining-errors" name="chaining-errors"><h2>Chaining Errors</h2></a>
