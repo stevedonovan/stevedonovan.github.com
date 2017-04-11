@@ -323,7 +323,7 @@ to a <em>trait</em>, which is like an abstract interface that must be implemente
 We'll deal with traits in detail later, but here all you need to know is that
 <code>AddAssign</code> is the name of the trait implementing the <code>+=</code> operator, and the error is saying
 that floating point numbers do not implement this operator for integers. (The full list of
-operator traits is <a href="https://doc.rust-lang.org/std/ops/index.html">here</a>.</p>
+operator traits is <a href="https://doc.rust-lang.org/std/ops/index.html">here</a>.)</p>
 <p>Again, Rust likes to be explicit - it will not silently convert that integer into a float for you.</p>
 <p>We have to <em>cast</em> that value to a floating-point value explicitly.</p>
 <pre><pre class="playpen"><code class="language-rust">// add3.rs
@@ -1006,7 +1006,7 @@ fn main() {
 (essentially, if you can display them with '{}' then they can be converted).
 The <code>format!</code> macro is a very useful way to build
 up more complicated strings using the same format strings as <code>println!</code>.</p>
-<pre><pre class="playpen"><code class="language-rust">// string5.rs
+<pre><pre class="playpen"><code class="language-rust">// string6.rs
 fn array_to_str(arr: &amp;[i32]) -&gt; String {
     let mut res = '['.to_string();
     for v in arr {
@@ -4151,7 +4151,7 @@ may be folded back into the stdlib at some point.</p>
 <p>In this section I'll briefly introduce some very useful parts of the Rust standard
 library. The documentation (as always) is excellent but a little context and a few examples is
 always useful.</p>
-<p>Initially, reading the Rust documentation can be challenging. I'll take the <code>Vec</code> struct as an
+<p>Initially, reading the Rust documentation can be challenging, so I'll go through <code>Vec</code> as an
 example.  A useful tip is to tick the '[-]' box to collapse the docs. (If you download the
 standard library source using <code>rustup component add rust-src</code> a '[src]' link will appear next to this.)
 This gives you a bird's eye view of all the available methods.</p>
@@ -4163,7 +4163,7 @@ define <code>Vec</code> for different type constraints.</p>
 <p>Then there's the very special relationship between <code>Vec&lt;T&gt;</code> and <code>&amp;[T]</code>.  Any method that works on
 slices will also directly work on vectors, without explicitly having to use the <code>as_slice</code> method.
 This relationship is expressed by <code>Deref&lt;Target=[T]&gt;</code>. This also kicks in when you pass a vector by
-mutable reference to something that expects a slice - this is one of the few places where
+reference to something that expects a slice - this is one of the few places where
 a conversion between types happens automatically. So slice methods like <code>first</code>, which maybe-returns
 a reference to the first element, or <code>last</code>, work for vectors as well. Many of the methods are similar
 to the corresponding string methods, so there's <code>split_at</code> for getting a pair of slices spit at an index,
@@ -4183,10 +4183,8 @@ the comparison.)</p>
 <p>Likewise, there's no <code>map</code> method on vectors, because <code>iter().map(...).collect()</code> will do the job
 just as well. Rust does not like to allocate unnecessarily - often you don't need the result of that <code>map</code>
 as an actual allocated vector.</p>
-<p>In other languages, things like <code>map</code> are functions. For instance, in C++ <code>std::count</code> is a function that
-takes two C++ iterators to establish a range, but it's an iterator method in Rust.</p>
 <p>So I'd suggest you become familiar with all the iterator methods, because they are crucial to writing
-good Rust code without having to write loops all the time. As always, write little programs to explore
+good Rust code without having to write loops out all the time. As always, write little programs to explore
 iterator methods, rather than wrestling with them in the context of a more complicated program.</p>
 <p>The <code>Vec&lt;T&gt;</code> and <code>&amp;[T]</code> methods are followed by the common traits: vectors know how to do a debug display of themselves
 (but only if the elements implement <code>Debug</code>). Likewise, they are clonable if their elements are clonable.
@@ -4203,7 +4201,7 @@ strings.extend([&quot;you&quot;,&quot;are&quot;,&quot;fine&quot;].iter().map(|s|
 #}</code></pre></pre>
 <p>There's also <code>FromIterator</code>, which lets vectors be <em>constructed</em> from iterators. (The iterator <code>collect</code>
 method leans on this.)</p>
-<p>Any container needs to be iterable as well. Recall that there are three kinds of iterators:</p>
+<p>Any container needs to be iterable as well. Recall that there are <a href="2-structs-enums-lifetimes.html#the-three-kinds-of-iterators">three kinds of iterators</a></p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
@@ -4221,16 +4219,35 @@ will give you a vector of the underlying bytes of the string <code>Vec&lt;u8&gt;
 Now, there's already a method 'into_bytes<code>on</code>String`, so why the redundancy?
 It seems confusing to have multiple ways of doing the same thing.
 But it's needed because explicit traits make generic methods possible.</p>
-<p>We've met this before with <code>String</code> - there seem to be so many ways to create strings! There's the
-<code>to_string</code> method on <code>&amp;str</code> - this comes from the <code>ToString</code> trait and will be implemented for anything
-that knows how to <code>Display</code> itself.  There is <code>String::from</code> which comes from the <code>From</code> trait. There's
-also <code>Into</code> which is the inverse of <code>From</code> and is automatically available if <code>From</code> exists.
-If a function argument expects a <code>String</code>, you will often
-see the value passed as <code>&quot;some text&quot;.into()</code> since string slices implement <code>Into&lt;String&gt;</code>.</p>
 <p>Sometimes limitations of the Rust type system make things clumsy. An example here is how <code>PartialEq</code>
-is <em>separately</em> defined for arrays up to size 32!  This will get better. This allows the convenience
-of directly comparing vectors with arrays, but beware the limit.</p>
-<p>This is still clearer than what the C++ docs say about <code>std::vector</code></p>
+is <em>separately</em> defined for arrays up to size 32!  (This will get better.) This allows the convenience
+of directly comparing vectors with arrays, but beware the size limit.</p>
+<p>And there are <a href="http://xion.io/post/code/rust-iter-patterns.html">Hidden Gems</a> buried
+deep in the documentation. As Karol Kuczmarski says &quot;Because let’s be honest: no one scrolls that far&quot;.
+How does one handle errors in an iterator? Say you map over some operation that might
+fail and so returns <code>Result</code>, and then want to collect the results:</p>
+<pre><pre class="playpen"><code class="language-rust">fn main() {
+    let nums = [&quot;5&quot;,&quot;52&quot;,&quot;65&quot;];
+    let iter = nums.iter().map(|s| s.parse::&lt;i32&gt;());
+    let converted: Vec&lt;_&gt; = iter.collect();
+    println!(&quot;{:?}&quot;,converted);
+}
+//[Ok(5), Ok(52), Ok(65)]
+</code></pre></pre>
+<p>Fair enough, but now you have to unwrap these errors - carefully!.
+But Rust already knows how to do the Right Thing,
+if you ask for the vector to be <em>contained</em> in a <code>Result</code>:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    let converted: Result&lt;Vec&lt;_&gt;,_&gt; = iter.collect();
+//Ok([5, 52, 65])
+
+#}</code></pre></pre>
+<p>And if there was a bad conversion? Then you would just get <code>Err</code> with the first
+error encountered. It's a good example of how extremely flexible <code>convert</code> is.</p>
+<p>So there's a <em>lot</em> of detail in the documentation.
+But it's certainly clearer than what the C++ docs say about <code>std::vector</code></p>
 <blockquote>
 <p>The requirements that are imposed on the elements depend on the actual operations performed
 on the container. Generally, it is required that element type is a complete type and meets
@@ -4238,6 +4255,9 @@ the requirements of Erasable, but many member functions impose stricter requirem
 </blockquote>
 <p>Clearly, you're on your own! The explicitness of Rust is daunting at first, but as you learn to
 read the constraints you will know exactly what any particular method of <code>Vec</code> requires.</p>
+<p>I would suggest that you do get the source using <code>rustup component add rust-src</code>, since the
+standard library source is very readable and the method implementations are usually less scary than the
+method declarations.</p>
 <a class="header" href="print.html#maps" name="maps"><h2>Maps</h2></a>
 <p><em>Maps</em>  (sometimes called <em>associative arrays</em> or <em>dicts</em>) let you look up values
 associated with a <em>key</em>.  It's not really a fancy concept, and can be done with
