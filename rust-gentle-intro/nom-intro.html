@@ -47,7 +47,7 @@
         </script>
 
         <div id="sidebar" class="sidebar">
-            <ul class="chapter"><li class="affix"><a href="./readme.html">Introduction</a></li><li><a href="./1-basics.html"><strong>1.</strong> Basics</a></li><li><a href="./2-structs-enums-lifetimes.html"><strong>2.</strong> Structs, Enums and Matching</a></li><li><a href="./3-filesystem.html"><strong>3.</strong> Filesystem and Processes</a></li><li><a href="./4-modules.html"><strong>4.</strong> Modules and Cargo</a></li><li><a href="./5-stdlib-containers.html"><strong>5.</strong> Standard Library Containers</a></li><li><a href="./6-error-handling.html"><strong>6.</strong> Error Handling</a></li><li><a href="./7-shared-and-networking.html"><strong>7.</strong> Threads, Networking and Sharing</a></li><li><a href="nom-intro.html" class="active"><strong>8.</strong> Parsing with Nom</a></li></ul>
+            <ul class="chapter"><li class="affix"><a href="./readme.html">Introduction</a></li><li><a href="./1-basics.html"><strong>1.</strong> Basics</a></li><li><a href="./2-structs-enums-lifetimes.html"><strong>2.</strong> Structs, Enums and Matching</a></li><li><a href="./3-filesystem.html"><strong>3.</strong> Filesystem and Processes</a></li><li><a href="./4-modules.html"><strong>4.</strong> Modules and Cargo</a></li><li><a href="./5-stdlib-containers.html"><strong>5.</strong> Standard Library Containers</a></li><li><a href="./6-error-handling.html"><strong>6.</strong> Error Handling</a></li><li><a href="./7-shared-and-networking.html"><strong>7.</strong> Threads, Networking and Sharing</a></li><li><a href="./object-orientation.html"><strong>8.</strong> Object-Oriented Programming</a></li><li><a href="./nom-intro.html" class="active"><strong>9.</strong> Parsing with Nom</a></li></ul>
         </div>
 
         <div id="page-wrapper" class="page-wrapper">
@@ -67,7 +67,7 @@
                 </div>
 
                 <div id="content" class="content">
-                    <a class="header" href="nom-intro.html#parsing-text-with-nom" name="parsing-text-with-nom"><h2>Parsing Text with Nom</h2></a>
+                    <a class="header" href="./nom-intro.html#parsing-text-with-nom" name="parsing-text-with-nom"><h2>Parsing Text with Nom</h2></a>
 <p><a href="https://github.com/Geal/nom">nom</a> is a parser library for Rust which is well worth
 the initial time investment. If you have to parse a known data format, like CSV or JSON, then
 it's best to use a specialized library like <a href="https://github.com/BurntSushi/rust-csv">Rust CSV</a> or
@@ -189,7 +189,7 @@ have to escape significant characters like <code>*</code> and <code>(</code>. If
 <p>It's also a heavy-weight dependency. On this fairly feeble i5 laptop, Nom examples take about 0.55
 seconds to compile, which is not much more than &quot;Hello world&quot;. But the regex examples take about
 0.90s. And the stripped executable of the Nom example is about 0.3Mb; the regex example 2.0Mb.</p>
-<a class="header" href="nom-intro.html#what-a-nom-parser-returns" name="what-a-nom-parser-returns"><h2>What a Nom Parser returns</h2></a>
+<a class="header" href="./nom-intro.html#what-a-nom-parser-returns" name="what-a-nom-parser-returns"><h2>What a Nom Parser returns</h2></a>
 <p><a href="http://rust.unhandledexpression.com/nom/enum.IResult.html">IResult</a> has an interesting difference
 from the standard <code>Result</code> type - there are three possibilities:</p>
 <ul>
@@ -246,7 +246,7 @@ macro_rules! nom_res {
 println!(&quot;result {:?}&quot;, nom_res!(get_greeting, &quot; bye  &quot;));
 
 #}</code></pre></pre>
-<a class="header" href="nom-intro.html#combining-parsers" name="combining-parsers"><h2>Combining Parsers</h2></a>
+<a class="header" href="./nom-intro.html#combining-parsers" name="combining-parsers"><h2>Combining Parsers</h2></a>
 <p>Let's continue the greeting example and imagine that a greeting consists of &quot;hi&quot; or &quot;bye&quot;, plus
 a name. <code>nom::alpha</code> matches a series of alphabetical ASCII bytes, which we can convert safely
 to a string using <code>from_utf8</code>.  The <code>pair!</code> macro will collect the result of matching two
@@ -306,7 +306,7 @@ but here we need to tell Nom that the input is complete.</p>
 // result Ok((&quot;bye&quot;, None))
 
 #}</code></pre></pre>
-<a class="header" href="nom-intro.html#parsing-numbers" name="parsing-numbers"><h2>Parsing Numbers</h2></a>
+<a class="header" href="./nom-intro.html#parsing-numbers" name="parsing-numbers"><h2>Parsing Numbers</h2></a>
 <p>Nom provides a function <code>digit</code> which matches a series of numerical digits. We do the usual
 <code>map_res!</code> to get a <code>&amp;str</code>, and then can convert this to the particular integer type using the
 <code>FromStr</code> trait. However, using <code>map_res!</code> here is definitely bad - we could overflow our integer.
@@ -424,7 +424,7 @@ winds and throw away the error:</p>
 #}</code></pre></pre>
 <p>Please note how it's possible to build up pretty complicated parsers step by step, testing each
 little part first.  That's a strong advantage of parser combinators over regexes.</p>
-<a class="header" href="nom-intro.html#operations-over-multiple-matches" name="operations-over-multiple-matches"><h2>Operations over Multiple Matches</h2></a>
+<a class="header" href="./nom-intro.html#operations-over-multiple-matches" name="operations-over-multiple-matches"><h2>Operations over Multiple Matches</h2></a>
 <p>We've met <code>pairs!</code> and <code>tuple!</code> which capture a fixed number of matches as Rust tuples.</p>
 <p>There is also <code>many0</code> and <code>many1</code> - they both capture indefinite numbers of matches as vectors.
 The difference is that the first may capture 'zero or many' and the second 'one or many' (like the
@@ -502,7 +502,7 @@ block in parentheses.</p>
 <p>We're not interested in that tag (it can only be a comma) but we assign the two float values
 to temporary values which are used to build a struct. The code at the end can be any Rust
 expression.</p>
-<a class="header" href="nom-intro.html#parsing-arithmetic-expressions" name="parsing-arithmetic-expressions"><h2>Parsing Arithmetic Expressions</h2></a>
+<a class="header" href="./nom-intro.html#parsing-arithmetic-expressions" name="parsing-arithmetic-expressions"><h2>Parsing Arithmetic Expressions</h2></a>
 <p>With the necessary background established, I can explain the example on the front page of
 the Nom documentation.
 This is a good example of something that really can't be done with regexes (together with the
@@ -607,7 +607,7 @@ is still a quarter of the size of a &quot;hello world&quot; regex program.</p>
 
                 <!-- Mobile navigation buttons -->
                 
-                    <a href="./7-shared-and-networking.html" class="mobile-nav-chapters previous">
+                    <a href="./object-orientation.html" class="mobile-nav-chapters previous">
                         <i class="fa fa-angle-left"></i>
                     </a>
                 
@@ -617,7 +617,7 @@ is still a quarter of the size of a &quot;hello world&quot; regex program.</p>
             </div>
 
             
-                <a href="./7-shared-and-networking.html" class="nav-chapters previous" title="You can navigate through the chapters using the arrow keys">
+                <a href="./object-orientation.html" class="nav-chapters previous" title="You can navigate through the chapters using the arrow keys">
                     <i class="fa fa-angle-left"></i>
                 </a>
             
