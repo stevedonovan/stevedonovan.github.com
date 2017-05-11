@@ -116,7 +116,7 @@ for d in &amp;debugables {
 to emphasize we are iterating over references that are all guaranteed to have the <code>fmt</code>
 method defined. A vector of references to values implementing <code>Debug</code> can be printed out.
 That's a clunky thing  to say often, so they are called <code>Debug</code> <em>trait objects</em>.
-Now integers and strings otherwise don't have much in common, but here we've found a common denomator;
+Now integers and strings otherwise don't have much in common, but here we've found a common denominator;
 they know how to print out their innards.
 And this is how you get traditional dynamic dispatch in Rust, because that <code>fmt</code> method
 defined by the <code>Debug</code> trait is called as a virtual method.</p>
@@ -253,7 +253,7 @@ the original!  So it is possible for a Go interface to be <em>accidentally</em> 
 both the <code>Debug</code> and <code>Display</code> traits define <code>fmt</code> methods, but they really mean different
 things.</p>
 <p>So Rust traits allow traditional <em>polymorphic</em> OOP.  But what about inheritance? People usually
-mean _implementation inheritance' whereas Rust does <em>interface inheritance</em>.  It's as if a Java
+mean <em>implementation inheritance</em> whereas Rust does <em>interface inheritance</em>.  It's as if a Java
 programmer never used <code>extend</code> and instead used <code>implements</code>. And this is actually
 <a href="http://www.javaworld.com/article/2073649/core-java/why-extends-is-evil.html">recommended practice</a>
 by Alan Holub. He says:</p>
@@ -286,7 +286,7 @@ quack(&amp;d);
 #}</code></pre></pre>
 <p>The type parameter is <em>any</em> type which implements <code>Quack</code>. There's an important difference
 between <code>quack</code> and <code>quack_ref</code>.  The body of this function is compiled for <em>each</em> of the calling
-types and no virtual method is needed; such functions can be completely inlined. It's a
+types and no virtual method is needed; such functions can be completely inlined. It
 uses the trait <code>Quack</code> in a different way, as a <em>constraint</em> on generic types.</p>
 <p>This is the C++ equivalent to the generic <code>quack</code> (note the <code>const</code>):</p>
 <pre><code class="language-cpp">template &lt;class Q&gt;
@@ -327,7 +327,7 @@ quack_everyone(ducks.into_iter());
 #}</code></pre></pre>
 <p>Iterators in Rust aren't duck-typed but are types that must implement <code>Iterator</code>, and in
 this case the iterator provides boxes of <code>Quack</code>.  There's no ambiguity about the types
-involved, and the values must satisfy <code>Duck</code>. Often the function signature is the most challenging
+involved, and the values must satisfy <code>Quack</code>. Often the function signature is the most challenging
 thing about a generic Rust function, which is why I recommend reading the source - the
 implementation is often much simpler. Here the only type parameter is the actual iterator type,
 which means that this will work with anything that can deliver a sequence of boxes, not just
