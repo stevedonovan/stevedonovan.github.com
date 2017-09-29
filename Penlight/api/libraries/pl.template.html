@@ -163,6 +163,14 @@ static int l_${n} (luaState *state);
 	<td class="name" nowrap><a href="#substitute">substitute (str[, env])</a></td>
 	<td class="summary">expand the template using the specified environment.</td>
 	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ct:render">ct:render ([env[, parent[, db]]])</a></td>
+	<td class="summary">executes the previously compiled template and renders it.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#compile">compile (str[, opts])</a></td>
+	<td class="summary">compiles the template.</td>
+	</tr>
 </table>
 
 <br/>
@@ -178,21 +186,26 @@ static int l_${n} (luaState *state);
     </dt>
     <dd>
     <p>expand the template using the specified environment.
- There are three special fields in the environment table <code>env</code></p>
+ This function will compile and render the template. For more performant
+ recurring usage use the two step approach by using <a href="../libraries/pl.template.html#compile">compile</a> and <a href="../libraries/pl.template.html#ct:render">ct:render</a>.
+ There are six special fields in the environment table <code>env</code></p>
 
 <ul>
-<li> <code>_parent</code> continue looking up in this table (e.g. <code>_parent=_G</code>)</li>
-<li> <code>_brackets</code>; default is &lsquo;()&rsquo;, can be any suitable bracket pair</li>
-<li> <code>_escape</code>; default is &lsquo;#&rsquo;</li>
+<li> <code>_parent</code>: continue looking up in this table (e.g. <code>_parent=_G</code>).</li>
+<li> <code>_brackets</code>: bracket pair that wraps inline Lua expressions,  default is &lsquo;()&rsquo;.</li>
+<li> <code>_escape</code>: character marking Lua lines, default is &lsquo;#&rsquo;</li>
+<li> <code>_inline_escape</code>: character marking inline Lua expression, default is &lsquo;$&rsquo;.</li>
+<li> <code>_chunk_name</code>: chunk name for loaded templates, used if there
+ is an error in Lua code. Default is &lsquo;TMP&rsquo;.</li>
+<li> <code>_debug</code>: if truthy, the generated code will be printed upon a render error</li>
 </ul>
-
 
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">str</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          the template string
         </li>
         <li><span class="parameter">env</span>
@@ -202,9 +215,109 @@ static int l_${n} (luaState *state);
         </li>
     </ul>
 
+    <h3>Returns:</h3>
+    <ol>
+
+        <code>rendered template + nil + source_code</code>, or <code>nil + error + source_code</code>. The last
+ return value (<code>source_code</code>) is only returned if the debug option is used.
+    </ol>
 
 
 
+
+</dd>
+    <dt>
+    <a name = "ct:render"></a>
+    <strong>ct:render ([env[, parent[, db]]])</strong>
+    </dt>
+    <dd>
+    executes the previously compiled template and renders it.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">env</span>
+            <span class="types"><span class="type">tab</span></span>
+         the environment.
+         (<em>optional</em>)
+        </li>
+        <li><span class="parameter">parent</span>
+            <span class="types"><span class="type">tab</span></span>
+         continue looking up in this table (e.g. <code>parent=_G</code>).
+         (<em>optional</em>)
+        </li>
+        <li><span class="parameter">db</span>
+            <span class="types"><span class="type">bool</span></span>
+         if thruthy, it will print the code upon a render error
+ (provided the template was compiled with the debug option).
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        <code>rendered template + nil + source_code</code>, or <code>nil + error + source_code</code>. The last return value
+ (<code>source_code</code>) is only returned if the template was compiled with the debug option.
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> ct, err = template.compile(my_template)
+<span class="keyword">local</span> rendered , err = ct:render(my_env, parent)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "compile"></a>
+    <strong>compile (str[, opts])</strong>
+    </dt>
+    <dd>
+    <p>compiles the template.
+ Returns an object that can repeatedly be rendered without parsing/compiling
+ the template again.
+ The options passed in the <code>opts</code> table support the following options:</p>
+
+<ul>
+<li> <code>chunk_name</code>: chunk name for loaded templates, used if there
+ is an error in Lua code. Default is &lsquo;TMP&rsquo;.</li>
+<li> <code>escape</code>: character marking Lua lines, default is &lsquo;#&rsquo;</li>
+<li> <code>inline_escape</code>: character marking inline Lua expression, default is &lsquo;$&rsquo;.</li>
+<li> <code>inline_brackets</code>: bracket pair that wraps inline Lua expressions, default is &lsquo;()&rsquo;.</li>
+<li> <code>newline</code>: string to replace newline characters, default is <code>nil</code> (not replacing newlines).</li>
+<li> <a href="https://www.lua.org/manual/5.2/manual.html#6.10">debug</a>: if truthy, the generated source code will be retained within the compiled template object, default is <code>nil</code>.</li>
+</ul>
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">str</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+         the template string
+        </li>
+        <li><span class="parameter">opts</span>
+            <span class="types"><span class="type">tab</span></span>
+         the compilation options to use
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        template object, or <code>nil + error + source_code</code>
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> ct, err = template.compile(my_template)
+<span class="keyword">local</span> rendered , err = ct:render(my_env, parent)</pre>
+    </ul>
 
 </dd>
 </dl>
@@ -213,8 +326,8 @@ static int l_${n} (luaState *state);
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.4</a></i>
-<i style="float:right;">Last updated 2016-08-14 19:25:18 </i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2017-07-18 16:28:41 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

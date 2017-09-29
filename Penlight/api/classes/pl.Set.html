@@ -113,7 +113,6 @@
   <li><a href="../examples/testxml.lua.html">testxml.lua</a></li>
   <li><a href="../examples/which.lua.html">which.lua</a></li>
 </ul>
-</ul>
 
 </div>
 
@@ -121,7 +120,11 @@
 
 <h1>Class <code>pl.Set</code></h1>
 <p>A Set class.</p>
-<p><pre>
+<p>
+
+
+
+<pre>
 &gt; Set = <span class="global">require</span> <span class="string">'pl.Set'</span>
 &gt; = Set{<span class="string">'one'</span>,<span class="string">'two'</span>} == Set{<span class="string">'two'</span>,<span class="string">'one'</span>}
 <span class="keyword">true</span>
@@ -138,7 +141,6 @@
 &gt; = fruit*colours
 [orange]
 </pre>
-
 
 <p> Depdencies: <a href="../libraries/pl.utils.html#">pl.utils</a>, <a href="../libraries/pl.tablex.html#">pl.tablex</a>, <a href="../libraries/pl.class.html#">pl.class</a>, (<a href="../classes/pl.List.html#">pl.List</a> if __tostring is used)</p>
 </p>
@@ -168,7 +170,7 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#pl.Set:difference">pl.Set:difference (self, set)</a></td>
-	<td class="summary">new set with elements in the set that are not in the other (also &ndash;).</td>
+	<td class="summary">new set with elements in the set that are not in the other (also -).</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#pl.Set:issubset">pl.Set:issubset (self, set)</a></td>
@@ -233,7 +235,6 @@
     <dt>
     <a name = "pl.Set:Set"></a>
     <strong>pl.Set:Set (t)</strong>
-    <a style="float:right;" href="../source/Set.lua.html#45">line 45</a>
     </dt>
     <dd>
     create a set.  <br>
@@ -254,7 +255,6 @@
     <dt>
     <a name = "pl.Set:values"></a>
     <strong>pl.Set:values (self)</strong>
-    <a style="float:right;" href="../source/Set.lua.html#64">line 64</a>
     </dt>
     <dd>
     get a list of the values in a set.
@@ -275,7 +275,6 @@
     <dt>
     <a name = "pl.Set:map"></a>
     <strong>pl.Set:map (self, fn, ...)</strong>
-    <a style="float:right;" href="../source/Set.lua.html#71">line 71</a>
     </dt>
     <dd>
     map a function over the values of a set.
@@ -307,7 +306,6 @@
     <dt>
     <a name = "pl.Set:union"></a>
     <strong>pl.Set:union (self, set)</strong>
-    <a style="float:right;" href="../source/Set.lua.html#84">line 84</a>
     </dt>
     <dd>
     union of two sets (also +).
@@ -336,7 +334,6 @@
     <dt>
     <a name = "pl.Set:intersection"></a>
     <strong>pl.Set:intersection (self, set)</strong>
-    <a style="float:right;" href="../source/Set.lua.html#97">line 97</a>
     </dt>
     <dd>
     intersection of two sets (also *).
@@ -360,15 +357,26 @@
 
 
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">
+ &gt; s = Set{<span class="number">10</span>,<span class="number">20</span>,<span class="number">30</span>}
+ &gt; t = Set{<span class="number">20</span>,<span class="number">30</span>,<span class="number">40</span>}
+ &gt; = t
+ [<span class="number">20</span>,<span class="number">30</span>,<span class="number">40</span>]
+ &gt; = Set.intersection(s,t)
+ [<span class="number">30</span>,<span class="number">20</span>]
+ &gt; = s*t
+ [<span class="number">30</span>,<span class="number">20</span>]</pre>
+    </ul>
 
 </dd>
     <dt>
     <a name = "pl.Set:difference"></a>
     <strong>pl.Set:difference (self, set)</strong>
-    <a style="float:right;" href="../source/Set.lua.html#110">line 110</a>
     </dt>
     <dd>
-    new set with elements in the set that are not in the other (also &ndash;).
+    new set with elements in the set that are not in the other (also -).
 
 
     <h3>Parameters:</h3>
@@ -394,7 +402,6 @@
     <dt>
     <a name = "pl.Set:issubset"></a>
     <strong>pl.Set:issubset (self, set)</strong>
-    <a style="float:right;" href="../source/Set.lua.html#137">line 137</a>
     </dt>
     <dd>
     is the first set a subset of the second (also &lt;)?.
@@ -423,7 +430,6 @@
     <dt>
     <a name = "pl.Set:isempty"></a>
     <strong>pl.Set:isempty (self)</strong>
-    <a style="float:right;" href="../source/Set.lua.html#152">line 152</a>
     </dt>
     <dd>
     is the set empty?.
@@ -449,7 +455,6 @@
     <dt>
     <a name = "pl.Set:isdisjoint"></a>
     <strong>pl.Set:isdisjoint (s1, s2)</strong>
-    <a style="float:right;" href="../source/Set.lua.html#161">line 161</a>
     </dt>
     <dd>
     are the sets disjoint?  (no elements in common).
@@ -479,7 +484,6 @@
     <dt>
     <a name = "pl.Set:len"></a>
     <strong>pl.Set:len (s)</strong>
-    <a style="float:right;" href="../source/Set.lua.html#169">line 169</a>
     </dt>
     <dd>
     size of this set (also # for 5.2).
@@ -509,7 +513,6 @@
     <dt>
     <a name = "pl.Set:__tostring"></a>
     <strong>pl.Set:__tostring ()</strong>
-    <a style="float:right;" href="../source/Set.lua.html#57">line 57</a>
     </dt>
     <dd>
     string representation of a set.
@@ -524,7 +527,6 @@
     <dt>
     <a name = "pl.Set:__add"></a>
     <strong>pl.Set:__add ()</strong>
-    <a style="float:right;" href="../source/Set.lua.html#91">line 91</a>
     </dt>
     <dd>
     union of sets.
@@ -539,7 +541,6 @@
     <dt>
     <a name = "pl.Set:__mul"></a>
     <strong>pl.Set:__mul ()</strong>
-    <a style="float:right;" href="../source/Set.lua.html#104">line 104</a>
     </dt>
     <dd>
     intersection of sets.
@@ -554,7 +555,6 @@
     <dt>
     <a name = "pl.Set:__sub"></a>
     <strong>pl.Set:__sub ()</strong>
-    <a style="float:right;" href="../source/Set.lua.html#118">line 118</a>
     </dt>
     <dd>
     difference of sets.
@@ -569,7 +569,6 @@
     <dt>
     <a name = "pl.Set:__pow"></a>
     <strong>pl.Set:__pow ()</strong>
-    <a style="float:right;" href="../source/Set.lua.html#131">line 131</a>
     </dt>
     <dd>
     symmetric difference of sets.
@@ -584,7 +583,6 @@
     <dt>
     <a name = "pl.Set:__lt"></a>
     <strong>pl.Set:__lt ()</strong>
-    <a style="float:right;" href="../source/Set.lua.html#147">line 147</a>
     </dt>
     <dd>
     first set subset of second?
@@ -599,7 +597,6 @@
     <dt>
     <a name = "pl.Set:__len"></a>
     <strong>pl.Set:__len ()</strong>
-    <a style="float:right;" href="../source/Set.lua.html#174">line 174</a>
     </dt>
     <dd>
     cardinality of set (5.2).
@@ -614,7 +611,6 @@
     <dt>
     <a name = "pl.Set:__eq"></a>
     <strong>pl.Set:__eq (s1, s2)</strong>
-    <a style="float:right;" href="../source/Set.lua.html#178">line 178</a>
     </dt>
     <dd>
     equality between sets.
@@ -625,8 +621,10 @@
         <li><span class="parameter">s1</span>
 
 
+
         </li>
         <li><span class="parameter">s2</span>
+
 
 
         </li>
@@ -644,7 +642,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2014-11-01 18:36:39 </i>
+<i style="float:right;">Last updated 2015-03-10 13:57:30 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

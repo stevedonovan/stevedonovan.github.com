@@ -115,16 +115,15 @@
 
     <h2>test-data.lua</h2>
 <pre>
-<span class="comment">--_DEBUG=true
-</span>data = <span class="global">require</span> <span class="string">'pl.data'</span>
-List = <span class="global">require</span> <span class="string">'pl.List'</span>
-array = <span class="global">require</span> <span class="string">'pl.array2d'</span>
-seq = <span class="global">require</span> <span class="string">'pl.seq'</span>
-utils = <span class="global">require</span> <span class="string">'pl.utils'</span>
-stringio = <span class="global">require</span> <span class="string">'pl.stringio'</span>
-open = stringio. open
-asserteq = <span class="global">require</span> <span class="string">'pl.test'</span> . asserteq
-T = <span class="global">require</span> <span class="string">'pl.test'</span>. tuple
+<span class="keyword">local</span> data = <span class="global">require</span> <span class="string">'pl.data'</span>
+<span class="keyword">local</span> List = <span class="global">require</span> <span class="string">'pl.List'</span>
+<span class="keyword">local</span> array = <span class="global">require</span> <span class="string">'pl.array2d'</span>
+<span class="keyword">local</span> func = <span class="global">require</span> <span class="string">'pl.func'</span>
+<span class="keyword">local</span> seq = <span class="global">require</span> <span class="string">'pl.seq'</span>
+<span class="keyword">local</span> stringio = <span class="global">require</span> <span class="string">'pl.stringio'</span>
+<span class="keyword">local</span> open = stringio. open
+<span class="keyword">local</span> asserteq = <span class="global">require</span> <span class="string">'pl.test'</span> . asserteq
+<span class="keyword">local</span> T = <span class="global">require</span> <span class="string">'pl.test'</span>. tuple
 
 <span class="comment">--[=[
 dat,err = data.read(open [[
@@ -139,7 +138,7 @@ os.exit(0)
 --]=]</span>
 
 <span class="comment">-- tab-separated data, explicit column names
-</span>t1f = open <span class="string">[[
+</span><span class="keyword">local</span> t1f = open <span class="string">[[
 EventID	Magnitude	LocationX	LocationY	LocationZ	LocationError	EventDate	DataFile
 981124001	2.0	18988.4	10047.1	4149.7	33.8	24/11/1998 11:18:05	981124DF.AAB
 981125001	0.8	19104.0	9970.4	5088.7	3.0	25/11/1998 05:44:54	981125DF.AAB
@@ -148,7 +147,7 @@ EventID	Magnitude	LocationX	LocationY	LocationZ	LocationError	EventDate	DataFile
 981127006	0.2	19109.9	9716.5	3612.0	11.8	27/11/1998 19:29:51	981127DF.AAG
 ]]</span>
 
-t1 = data.read (t1f)
+<span class="keyword">local</span> t1 = data.read (t1f)
 <span class="comment">-- column_by_name returns a List
 </span>asserteq(t1:column_by_name <span class="string">'Magnitude'</span>,List{<span class="number">2</span>,<span class="number">0.8</span>,<span class="number">0.5</span>,<span class="number">0.6</span>,<span class="number">0.2</span>})
 <span class="comment">-- can use array.column as well
@@ -156,7 +155,7 @@ t1 = data.read (t1f)
 
 <span class="comment">-- only numerical columns (deduced from first data row) are converted by default
 </span><span class="comment">-- can look up indices in the list fieldnames.
-</span>EDI = t1.fieldnames:index <span class="string">'EventDate'</span>
+</span><span class="keyword">local</span> EDI = t1.fieldnames:index <span class="string">'EventDate'</span>
 <span class="global">assert</span>(<span class="global">type</span>(t1[<span class="number">1</span>][EDI]) == <span class="string">'string'</span>)
 
 <span class="comment">-- select method returns a sequence, in this case single-valued.
@@ -171,19 +170,19 @@ end
 --]]</span>
 
 <span class="comment">-- space-separated, but with last field containing spaces.
-</span>t2f = open <span class="string">[[
+</span><span class="keyword">local</span> t2f = open <span class="string">[[
 USER PID %MEM %CPU COMMAND
 sdonovan 2333  0.3 0.1 background --n=2
 root 2332  0.4  0.2 fred --start=yes
 root 2338  0.2  0.1 backyard-process
 ]]</span>
 
-t2,err = data.read(t2f,{last_field_collect=<span class="keyword">true</span>})
+<span class="keyword">local</span> t2,err = data.read(t2f,{last_field_collect=<span class="keyword">true</span>})
 <span class="keyword">if</span> <span class="keyword">not</span> t2 <span class="keyword">then</span> <span class="keyword">return</span> <span class="global">print</span> (err) <span class="keyword">end</span>
 
 <span class="comment">-- the last_field_collect option is useful with space-delimited data where the last
 </span><span class="comment">-- field may contain spaces. Otherwise, a record count mismatch should be an error!
-</span>lt2 = List(t2[<span class="number">2</span>])
+</span><span class="keyword">local</span> lt2 = List(t2[<span class="number">2</span>])
 asserteq(lt2:join <span class="string">','</span>,<span class="string">'root,2332,0.4,0.2,fred --start=yes'</span>)
 
 <span class="comment">-- fieldnames are converted into valid identifiers by substituting _
@@ -194,13 +193,13 @@ asserteq(lt2:join <span class="string">','</span>,<span class="string">'root,233
 </span><span class="comment">--s,err = t2:select('_MEM where USER="root"')
 </span><span class="comment">--assert(err == [[[string "tmp"]:9: unexpected symbol near '=']])
 </span>
-s = t2:<span class="global">select</span>(<span class="string">'_MEM where USER=="root"'</span>)
+<span class="keyword">local</span> s = t2:<span class="global">select</span>(<span class="string">'_MEM where USER=="root"'</span>)
 <span class="global">assert</span>(s() == <span class="number">0.4</span>)
 <span class="global">assert</span>(s() == <span class="number">0.2</span>)
 <span class="global">assert</span>(s() == <span class="keyword">nil</span>)
 
 <span class="comment">-- CSV, Excel style. Double-quoted fields are allowed, and they may contain commas!
-</span>t3f = open <span class="string">[[
+</span><span class="keyword">local</span> t3f = open <span class="string">[[
 "Department Name","Employee ID",Project,"Hours Booked"
 sales,1231,overhead,4
 sales,1255,overhead,3
@@ -209,7 +208,7 @@ engineering,1501,maintenance,3
 engineering,1433,maintenance,10
 ]]</span>
 
-t3 = data.read(t3f,{csv=<span class="keyword">true</span>})
+<span class="keyword">local</span> t3 = data.read(t3f,{csv=<span class="keyword">true</span>})
 
 <span class="comment">-- although fieldnames are turned in valid Lua identifiers, there is always <code>original_fieldnames</code>
 </span>asserteq(t3.fieldnames,List{<span class="string">'Department_Name'</span>,<span class="string">'Employee_ID'</span>,<span class="string">'Project'</span>,<span class="string">'Hours_Booked'</span>})
@@ -218,9 +217,9 @@ asserteq(t3.original_fieldnames,List{<span class="string">'Department Name'</spa
 <span class="comment">-- a common operation is to select using a given list of columns, and each row
 </span><span class="comment">-- on some explicit condition. The select() method can take a table with these
 </span><span class="comment">-- parameters
-</span>keepcols = {<span class="string">'Employee_ID'</span>,<span class="string">'Hours_Booked'</span>}
+</span><span class="keyword">local</span> keepcols = {<span class="string">'Employee_ID'</span>,<span class="string">'Hours_Booked'</span>}
 
-q = t3:<span class="global">select</span> { fields = keepcols,
+<span class="keyword">local</span> q = t3:<span class="global">select</span> { fields = keepcols,
     where = <span class="keyword">function</span>(row) <span class="keyword">return</span> row[<span class="number">1</span>]==<span class="string">'engineering'</span> <span class="keyword">end</span>
     }
 
@@ -229,14 +228,12 @@ asserteq(seq.copy2(q),{{<span class="number">1501</span>,<span class="number">5<
 <span class="comment">-- another pattern is doing a select to restrict rows &amp; columns, process some
 </span><span class="comment">-- fields and write out the modified rows.
 </span>
-utils.import <span class="string">'pl.func'</span>
+<span class="keyword">local</span> outf = stringio.create()
 
-outf = stringio.create()
-
-names = {[<span class="number">1501</span>]=<span class="string">'don'</span>,[<span class="number">1433</span>]=<span class="string">'dilbert'</span>}
+<span class="keyword">local</span> names = {[<span class="number">1501</span>]=<span class="string">'don'</span>,[<span class="number">1433</span>]=<span class="string">'dilbert'</span>}
 
 t3:write_row (outf,{<span class="string">'Employee'</span>,<span class="string">'Hours_Booked'</span>})
-q = t3:select_row {fields=keepcols,where=Eq(_1[<span class="number">1</span>],<span class="string">'engineering'</span>)}
+q = t3:select_row {fields=keepcols,where=func.Eq(func._1[<span class="number">1</span>],<span class="string">'engineering'</span>)}
 <span class="keyword">for</span> row <span class="keyword">in</span> q <span class="keyword">do</span>
     row[<span class="number">1</span>] = names[row[<span class="number">1</span>]]
     t3:write_row(outf,row)
@@ -308,7 +305,7 @@ dat,err = data.read(open <span class="string">[[
 </span>
 asserteq(T(dat:flatten():minmax()),T(<span class="number">0.1</span>,<span class="number">1.3</span>))
 
-f = open <span class="string">[[
+<span class="keyword">local</span> f = open <span class="string">[[
 Time Message
 1266840760 +# EE7C0600006F0D00C00F06010302054000000308010A00002B00407B00
 1266840760 closure data 0.000000 1972 1972 0
@@ -331,7 +328,7 @@ Time Message
     <span class="keyword">return</span> Date(<span class="global">tonumber</span>(ds))
 <span class="keyword">end</span>
 
-d = data.read(f,{convert={[<span class="number">1</span>]=date_convert},last_field_collect=<span class="keyword">true</span>})
+<span class="keyword">local</span> d = data.read(f,{convert={[<span class="number">1</span>]=date_convert},last_field_collect=<span class="keyword">true</span>})
 
 asserteq(#d[<span class="number">1</span>],<span class="number">2</span>)
 asserteq(d[<span class="number">2</span>][<span class="number">1</span>]:year(),<span class="number">2010</span>)
@@ -368,8 +365,8 @@ asserteq(d,{
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.4</a></i>
-<i style="float:right;">Last updated 2016-08-14 19:25:18 </i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2017-07-18 16:28:41 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

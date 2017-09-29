@@ -32,9 +32,9 @@
 
 <h2>Contents</h2>
 <ul>
-<li><a href="#Simple_Input_Patterns">Simple Input Patterns</a></li>
-<li><a href="#Command_line_Programs_with_Lapp">Command-line Programs with Lapp</a></li>
-<li><a href="#Simple_Test_Framework">Simple Test Framework</a></li>
+<li><a href="#Simple_Input_Patterns">Simple Input Patterns </a></li>
+<li><a href="#Command_line_Programs_with_Lapp">Command-line Programs with Lapp </a></li>
+<li><a href="#Simple_Test_Framework">Simple Test Framework </a></li>
 </ul>
 
 
@@ -168,8 +168,8 @@ Jul=<span class="number">7</span>,Aug=<span class="number">8</span>,Sep=<span cl
 
 
 <p>These aren&rsquo;t particularly difficult patterns, but already typical issues are
-appearing, such as having to escape &lsquo;&ndash;&rsquo;. Also, <a href="https://www.lua.org/manual/5.1/manual.html#pdf-string.match">string.match</a> returns its
-captures, so that we're forced to use a slightly awkward nested if-statement.</p>
+appearing, such as having to escape &lsquo;-&rsquo;. Also, <a href="https://www.lua.org/manual/5.2/manual.html#pdf-string.match">string.match</a> returns its
+captures, so that we&rsquo;re forced to use a slightly awkward nested if-statement.</p>
 
 <p>Verification issues will further cloud the picture, since regular expression
 people try to enforce constraints (like year cannot be more than four digits)
@@ -303,8 +303,8 @@ or just &lsquo;$r&rsquo; if no named captures are used.</p>
 
 <p><a href="../libraries/pl.lapp.html#">pl.lapp</a> is a small and focused Lua module which aims to make standard
 command-line parsing easier and intuitive. It implements the standard GNU style,
-i.e. short flags with one letter start with &lsquo;&ndash;&rsquo;, and there may be an additional
-long flag which starts with &lsquo;&mdash;&rsquo;. Generally options which take an argument expect
+i.e. short flags with one letter start with &lsquo;-&rsquo;, and there may be an additional
+long flag which starts with &lsquo;&ndash;&rsquo;. Generally options which take an argument expect
 to find it as the next parameter (e.g. &lsquo;gcc test.c -o test&rsquo;) but single short
 options taking a value can dispense with the space (e.g. &lsquo;head -n4
 test.c&rsquo; or <code>gcc -I/usr/include/lua/5.1 &hellip;</code>)</p>
@@ -329,7 +329,7 @@ the parameters.</p>
   Does some calculations
     -o,--offset (default 0.0)  Offset to add to scaled number
     -s,--scale  (number)  Scaling factor
-     &lt;number&gt; (number )  Number to be scaled
+    &lt;number&gt; (number)  Number to be scaled
   ]]</span>
 
   <span class="global">print</span>(args.offset + args.scale * args.number)
@@ -375,6 +375,23 @@ There are file values for the predefined console streams: stdin, stdout, stderr.
 &lsquo;(boolean default false)<code>.  If the flag is meant to be 'turned off' then either the full
 '(boolean default true)</code> or the shortcut &rsquo;(default true)&lsquo; will work.</p>
 
+<p>An alternative to <code>default</code> is <code>optional</code>:</p>
+
+<pre>
+<span class="keyword">local</span> lapp = <span class="global">require</span> <span class="string">'pl.lapp'</span>
+<span class="keyword">local</span> args = lapp <span class="string">[[
+   --cmd (optional string) Command to run.
+]]</span>
+
+<span class="keyword">if</span> args.cmd <span class="keyword">then</span>
+  <span class="global">os</span>.execute(args.cmd)
+<span class="keyword">end</span>
+</pre>
+
+
+<p>Here we&rsquo;re implying that <code>cmd</code> need not be specified (just as with <code>default</code>) but if not
+present, then <code>args.cmd</code> is <code>nil</code>, which will always test false.</p>
+
 <p>The rest of the line is ignored and can be used for explanatory text.</p>
 
 <p>This script shows the relation between the specified parameter names and the
@@ -399,7 +416,7 @@ Various flags and option types
 </pre>
 
 
-<p>I've just dumped out all values of the args table; note that args.quiet has
+<p>I&rsquo;ve just dumped out all values of the args table; note that args.quiet has
 become true, because it&rsquo;s specified; args.p defaults to false. If there is a long
 name for an option, that will be used in preference as a field name. A type or
 default specifier is not necessary for simple flags, since the default type is
@@ -424,7 +441,7 @@ input_name      simple.lua
 </pre>
 
 
-<p>The parameter input has been set to an open read-only file object &ndash; we know it
+<p>The parameter input has been set to an open read-only file object - we know it
 must be a read-only file since that is the type of the default value. The field
 input_name is automatically generated, since it&rsquo;s often useful to have access to
 the original filename.</p>
@@ -566,7 +583,7 @@ example for another implementation.)</p>
 
 <p>Flags and options may also be declared as vararg arrays, and can occur anywhere.
 If there is both a short and long form, then the trailing &ldquo;&hellip;&rdquo; must happen after the long form,
-for example &ldquo;-x,&mdash;network&hellip; (string)&hellip;&rdquo;,</p>
+for example &ldquo;-x,&ndash;network&hellip; (string)&hellip;&rdquo;,</p>
 
 <p>Bear in mind that short options can be combined (like &lsquo;tar -xzf&rsquo;), so it&rsquo;s
 perfectly legal to have &lsquo;-vvv&rsquo;. But normally the value of args.v is just a simple
@@ -649,11 +666,11 @@ argument.</p>
 
 <h4>Slack Mode</h4>
 
-<p>If you'd like to use a multi-letter &lsquo;short&rsquo; parameter you need to set
+<p>If you&rsquo;d like to use a multi-letter &lsquo;short&rsquo; parameter you need to set
 the <code>lapp.slack</code> variable to <code>true</code>.</p>
 
 <p>In the following example we also see how default <code>false</code> and default <code>true</code> flags can be used
-and how to overwrite the default <code>-h</code> help flag (<code>&mdash;help</code> still works fine) &ndash; this applies
+and how to overwrite the default <code>-h</code> help flag (<code>&ndash;help</code> still works fine) - this applies
 to non-slack mode as well.</p>
 
 <pre>
@@ -729,7 +746,7 @@ test.asserteq({<span class="number">10</span>,<span class="number">20</span>,<sp
 </pre>
 
 
-<p>This covers most cases but it&rsquo;s also useful to compare strings using <a href="https://www.lua.org/manual/5.1/manual.html#pdf-string.match">string.match</a></p>
+<p>This covers most cases but it&rsquo;s also useful to compare strings using <a href="https://www.lua.org/manual/5.2/manual.html#pdf-string.match">string.match</a></p>
 
 <pre>
 <span class="comment">-- must start with bonzo the dog
@@ -756,7 +773,7 @@ is &ldquo;attempt to index a nil value (local &rsquo;t')&rdquo;)</p>
 
 <p>There is an extra optional argument to these test functions, which is helpful when writing
 test helper functions. There you want to highlight the failed line, not the actual call
-to <code>asserteq</code> or <code>assertmatch</code> &ndash; line 33 here is the call to <code>is_iden</code></p>
+to <code>asserteq</code> or <code>assertmatch</code> - line 33 here is the call to <code>is_iden</code></p>
 
 <pre>
 <span class="keyword">function</span> is_iden(str)
@@ -788,12 +805,11 @@ test.asserteq(T(failing()),T(<span class="keyword">nil</span>,<span class="strin
 </pre>
 
 
-
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.4</a></i>
-<i style="float:right;">Last updated 2016-08-14 19:25:18 </i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2017-07-18 16:28:41 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

@@ -32,12 +32,12 @@
 
 <h2>Contents</h2>
 <ul>
-<li><a href="#Reading_Data_Files">Reading Data Files</a></li>
-<li><a href="#Reading_Unstructured_Text_Data">Reading Unstructured Text Data</a></li>
-<li><a href="#Reading_Columnar_Data">Reading Columnar Data</a></li>
-<li><a href="#Reading_Configuration_Files">Reading Configuration Files</a></li>
-<li><a href="#Lexical_Scanning">Lexical Scanning</a></li>
-<li><a href="#XML">XML</a></li>
+<li><a href="#Reading_Data_Files">Reading Data Files </a></li>
+<li><a href="#Reading_Unstructured_Text_Data">Reading Unstructured Text Data </a></li>
+<li><a href="#Reading_Columnar_Data">Reading Columnar Data </a></li>
+<li><a href="#Reading_Configuration_Files">Reading Configuration Files </a></li>
+<li><a href="#Lexical_Scanning">Lexical Scanning </a></li>
+<li><a href="#XML">XML </a></li>
 </ul>
 
 
@@ -181,7 +181,7 @@ props = []
 
 
 <p>This is more self-documenting; it is generally better to make the code express
-the <em>intention</em>, rather than having to scatter comments everywhere &ndash; comments are
+the <em>intention</em>, rather than having to scatter comments everywhere - comments are
 necessary, of course, but mostly to give the higher view of your intention that
 cannot be expressed in code. It is slightly slower, true, but in practice the
 speed of this script is determined by I/O, so further optimization is unnecessary.</p>
@@ -286,7 +286,7 @@ all the events:</p>
 
 
 <p><a href="../libraries/pl.input.html#fields">input.fields</a> is passed either a field count, or a list of column indices,
-starting at one as usual. So in this case we're only interested in column 3.  If
+starting at one as usual. So in this case we&rsquo;re only interested in column 3.  If
 you pass it a field count, then you get every field up to that count:</p>
 
 <pre>
@@ -514,7 +514,7 @@ qs = <span class="string">'COMMAND,_MEM where _MEM &gt; 5 and USER=="steve"'</sp
 </pre>
 
 
-<p>I've always been an admirer of the AWK programming language; with <a href="../libraries/pl.data.html#filter">filter</a> you
+<p>I&rsquo;ve always been an admirer of the AWK programming language; with <a href="../libraries/pl.data.html#filter">filter</a> you
 can get Lua programs which are just as compact:</p>
 
 <pre>
@@ -836,7 +836,7 @@ correctly separate the columns.  It&rsquo;s common to find &lsquo;KEY VALUE&rsqu
 files such as <code>/etc/ssh/ssh_config</code>; the options <code>{keysep=&apos; &apos;}</code> make
 <a href="../libraries/pl.config.html#read">config.read</a> return a table where each KEY has a value VALUE.</p>
 
-<p>Files in the Linux <code>procfs</code> usually use &lsquo;:<code>as the field delimiter:</code></p>
+<p>Files in the Linux <code>procfs</code> usually use &lsquo;:` as the field delimiter:</p>
 
 <pre>
 &gt; t = config.read(<span class="string">'/proc/meminfo'</span>,{keysep=<span class="string">':'</span>})
@@ -845,11 +845,11 @@ files such as <code>/etc/ssh/ssh_config</code>; the options <code>{keysep=&apos;
 </pre>
 
 
-<p>That result is a string, since <a href="https://www.lua.org/manual/5.1/manual.html#pdf-tonumber">tonumber</a> doesn&rsquo;t like it, but defining the
+<p>That result is a string, since <a href="https://www.lua.org/manual/5.2/manual.html#pdf-tonumber">tonumber</a> doesn&rsquo;t like it, but defining the
 <code>convert_numbers</code> option as <code>function(s) return tonumber((s:gsub(' kB$','')))
 end</code> will get the memory figures as actual numbers in the result. (The extra
-parentheses are necessary so that <a href="https://www.lua.org/manual/5.1/manual.html#pdf-tonumber">tonumber</a> only gets the first result from
-<code>gsub</code>). From <code>tests/test-config.lua':</code></p>
+parentheses are necessary so that <a href="https://www.lua.org/manual/5.2/manual.html#pdf-tonumber">tonumber</a> only gets the first result from
+<code>gsub</code>). From `tests/test-config.lua':</p>
 
 <pre>
 testconfig(<span class="string">[[
@@ -939,14 +939,17 @@ points
 </pre>
 
 
-<p>(818344.1,-20389.7,-0.1),(818337.9,-20389.3,-0.1),(818332.5,-20387.8,-0.1)
+<p>(818344.1,-20389.7,-0.1),(818337.9,-20389.3,-0.1),(818332.5,-20387.8,-0.1)</p>
+
 <pre>
-,(<span class="number">818327.4</span>,&ndash;<span class="number">20388</span>,&ndash;<span class="number">0.1</span>),(<span class="number">818322</span>,&ndash;<span class="number">20387.7</span>,&ndash;<span class="number">0.1</span>),(<span class="number">818316.3</span>,&ndash;<span class="number">20388.6</span>,&ndash;<span class="number">0.1</span>)
-,(<span class="number">818309.7</span>,&ndash;<span class="number">20389.4</span>,&ndash;<span class="number">0.1</span>),(<span class="number">818303.5</span>,&ndash;<span class="number">20390.6</span>,&ndash;<span class="number">0.1</span>),(<span class="number">818295.8</span>,&ndash;<span class="number">20388.3</span>,&ndash;<span class="number">0.1</span>)
-,(<span class="number">818290.5</span>,&ndash;<span class="number">20386.9</span>,&ndash;<span class="number">0.1</span>),(<span class="number">818285.2</span>,&ndash;<span class="number">20386.1</span>,&ndash;<span class="number">0.1</span>),(<span class="number">818279.3</span>,&ndash;<span class="number">20383.6</span>,&ndash;<span class="number">0.1</span>)
-,(<span class="number">818274</span>,&ndash;<span class="number">20381.2</span>,&ndash;<span class="number">0.1</span>),(<span class="number">818274</span>,&ndash;<span class="number">20380.7</span>,&ndash;<span class="number">0.1</span>);
+,(<span class="number">818327.4</span>,-<span class="number">20388</span>,-<span class="number">0.1</span>),(<span class="number">818322</span>,-<span class="number">20387.7</span>,-<span class="number">0.1</span>),(<span class="number">818316.3</span>,-<span class="number">20388.6</span>,-<span class="number">0.1</span>)
+,(<span class="number">818309.7</span>,-<span class="number">20389.4</span>,-<span class="number">0.1</span>),(<span class="number">818303.5</span>,-<span class="number">20390.6</span>,-<span class="number">0.1</span>),(<span class="number">818295.8</span>,-<span class="number">20388.3</span>,-<span class="number">0.1</span>)
+,(<span class="number">818290.5</span>,-<span class="number">20386.9</span>,-<span class="number">0.1</span>),(<span class="number">818285.2</span>,-<span class="number">20386.1</span>,-<span class="number">0.1</span>),(<span class="number">818279.3</span>,-<span class="number">20383.6</span>,-<span class="number">0.1</span>)
+,(<span class="number">818274</span>,-<span class="number">20381.2</span>,-<span class="number">0.1</span>),(<span class="number">818274</span>,-<span class="number">20380.7</span>,-<span class="number">0.1</span>);
 </pre>
-Here is code to extract the points using <a href="../libraries/pl.lexer.html#">pl.lexer</a>:</p>
+
+
+<p>Here is code to extract the points using <a href="../libraries/pl.lexer.html#">pl.lexer</a>:</p>
 
 <pre>
 <span class="comment">-- assume 's' contains the text above...
@@ -976,7 +979,7 @@ Here is code to extract the points using <a href="../libraries/pl.lexer.html#">p
 
 <p>The <code>expecting</code> function grabs the next token and if the type doesn&rsquo;t match, it
 throws an error. (<a href="../libraries/pl.lexer.html#">pl.lexer</a>, unlike other PL libraries, raises errors if
-something goes wrong, so you should wrap your code in <a href="https://www.lua.org/manual/5.1/manual.html#pdf-pcall">pcall</a> to catch the error
+something goes wrong, so you should wrap your code in <a href="https://www.lua.org/manual/5.2/manual.html#pdf-pcall">pcall</a> to catch the error
 gracefully.)</p>
 
 <p>The scanners all have a second optional argument, which is a table which controls
@@ -1337,7 +1340,7 @@ keeping such strings.</p>
 <p>How to remove the string <code>boops!</code>?  <code>clone</code> (also called <a href="../libraries/pl.data.html#filter">filter</a> when called as a
 method) copies a LOM document. It can be passed a filter function, which is applied
 to each string found. The powerful thing about this is that this function receives
-structural information &ndash; the parent node, and whether this was a tag name, a text
+structural information - the parent node, and whether this was a tag name, a text
 element or a attribute name:</p>
 
 <pre>
@@ -1372,8 +1375,8 @@ extract values from it using a pattern.</p>
 <a href="http://blog.programmableweb.com/2010/02/08/googles-secret-weather-api/">(undocumented and subsequently discontinued) Google Weather
 API</a> is a
 good example. Grabbing the result of
-<code>http://www.google.com/ig/api?weather=Johannesburg,ZA" we get something like
-this, after pretty-printing:</code></p>
+`http://www.google.com/ig/api?weather=Johannesburg,ZA" we get something like
+this, after pretty-printing:</p>
 
 <pre>
 &lt;xml_api_reply version=<span class="string">'1'</span>&gt;
@@ -1381,37 +1384,40 @@ this, after pretty-printing:</code></p>
 </pre>
 
 
-<p>mobile_row=&lsquo;0&rsquo;>
+<p>mobile_row=&lsquo;0&rsquo;></p>
+
 <pre>
 &lt;forecast_information&gt;
-  &lt;city data=<span class="string">&lsquo;Johannesburg, Gauteng&rsquo;</span>/&gt;
-  &lt;postal_code data=<span class="string">&lsquo;Johannesburg,ZA&rsquo;</span>/&gt;
-  &lt;latitude_e6 data=<span class="string">&lsquo;&rsquo;</span>/&gt;
-  &lt;longitude_e6 data=<span class="string">&lsquo;&rsquo;</span>/&gt;
-  &lt;forecast_date data=<span class="string">&lsquo;2010-10-02&rsquo;</span>/&gt;
-  &lt;current_date_time data=<span class="string">&lsquo;2010-10-02 18:30:00 +0000&rsquo;</span>/&gt;
-  &lt;unit_system data=<span class="string">&lsquo;US&rsquo;</span>/&gt;
+  &lt;city data=<span class="string">'Johannesburg, Gauteng'</span>/&gt;
+  &lt;postal_code data=<span class="string">'Johannesburg,ZA'</span>/&gt;
+  &lt;latitude_e6 data=<span class="string">''</span>/&gt;
+  &lt;longitude_e6 data=<span class="string">''</span>/&gt;
+  &lt;forecast_date data=<span class="string">'2010-10-02'</span>/&gt;
+  &lt;current_date_time data=<span class="string">'2010-10-02 18:30:00 +0000'</span>/&gt;
+  &lt;unit_system data=<span class="string">'US'</span>/&gt;
 &lt;/forecast_information&gt;
 &lt;current_conditions&gt;
-  &lt;condition data=<span class="string">&lsquo;Clear&rsquo;</span>/&gt;
-  &lt;temp_f data=<span class="string">&lsquo;75&rsquo;</span>/&gt;
-  &lt;temp_c data=<span class="string">&lsquo;24&rsquo;</span>/&gt;
-  &lt;humidity data=<span class="string">&lsquo;Humidity: 19%&rsquo;</span>/&gt;
-  &lt;icon data=<span class="string">&lsquo;/ig/images/weather/sunny.gif&rsquo;</span>/&gt;
-  &lt;wind_condition data=<span class="string">&lsquo;Wind: NW at 7 mph&rsquo;</span>/&gt;
+  &lt;condition data=<span class="string">'Clear'</span>/&gt;
+  &lt;temp_f data=<span class="string">'75'</span>/&gt;
+  &lt;temp_c data=<span class="string">'24'</span>/&gt;
+  &lt;humidity data=<span class="string">'Humidity: 19%'</span>/&gt;
+  &lt;icon data=<span class="string">'/ig/images/weather/sunny.gif'</span>/&gt;
+  &lt;wind_condition data=<span class="string">'Wind: NW at 7 mph'</span>/&gt;
 &lt;/current_conditions&gt;
 &lt;forecast_conditions&gt;
-  &lt;day_of_week data=<span class="string">&lsquo;Sat&rsquo;</span>/&gt;
-  &lt;low data=<span class="string">&lsquo;60&rsquo;</span>/&gt;
-  &lt;high data=<span class="string">&lsquo;89&rsquo;</span>/&gt;
-  &lt;icon data=<span class="string">&lsquo;/ig/images/weather/sunny.gif&rsquo;</span>/&gt;
-  &lt;condition data=<span class="string">&lsquo;Clear&rsquo;</span>/&gt;
+  &lt;day_of_week data=<span class="string">'Sat'</span>/&gt;
+  &lt;low data=<span class="string">'60'</span>/&gt;
+  &lt;high data=<span class="string">'89'</span>/&gt;
+  &lt;icon data=<span class="string">'/ig/images/weather/sunny.gif'</span>/&gt;
+  &lt;condition data=<span class="string">'Clear'</span>/&gt;
 &lt;/forecast_conditions&gt;
-&hellip;.
+....
 /weather&gt;
 l_api_reply&gt;
 </pre>
-Assume that the above XML has been read into <code>google</code>. The idea is to write a
+
+
+<p>Assume that the above XML has been read into <code>google</code>. The idea is to write a
 pattern looking like a template, and use it to extract some values of interest:</p>
 
 <pre>
@@ -1573,7 +1579,7 @@ tags matched are themselves meaningful.</p>
 
 
 <p>You will then get <code>{{alpha=&apos;1.3&apos;},&hellip;}</code>. The most convenient format would be
-returned by this (note that <code>_&ndash;</code> behaves just like <code>$_</code>):</p>
+returned by this (note that <code>_-</code> behaves just like <code>$_</code>):</p>
 
 <pre>
 &lt;config&gt;
@@ -1621,12 +1627,11 @@ are properly closed; attributes do not need to be quoted.</p>
 <p>Also, DOCTYPE directives and comments are skipped. For truly badly formed HTML,
 this is not the tool for you!</p>
 
-
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.4</a></i>
-<i style="float:right;">Last updated 2016-08-14 19:25:18 </i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2017-07-18 16:28:41 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

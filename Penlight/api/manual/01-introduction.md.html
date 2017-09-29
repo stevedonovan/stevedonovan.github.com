@@ -32,13 +32,13 @@
 
 <h2>Contents</h2>
 <ul>
-<li><a href="#Purpose">Purpose</a></li>
-<li><a href="#To_Inject_or_not_to_Inject_">To Inject or not to Inject?</a></li>
-<li><a href="#What_are_function_arguments_in_Penlight_">What are function arguments in Penlight?</a></li>
-<li><a href="#Pros_and_Cons_of_Loopless_Programming">Pros and Cons of Loopless Programming</a></li>
-<li><a href="#Generally_useful_functions">Generally useful functions</a></li>
-<li><a href="#Application_Support">Application Support</a></li>
-<li><a href="#Simplifying_Object_Oriented_Programming_in_Lua">Simplifying Object-Oriented Programming in Lua</a></li>
+<li><a href="#Purpose">Purpose </a></li>
+<li><a href="#To_Inject_or_not_to_Inject_">To Inject or not to Inject? </a></li>
+<li><a href="#What_are_function_arguments_in_Penlight_">What are function arguments in Penlight? </a></li>
+<li><a href="#Pros_and_Cons_of_Loopless_Programming">Pros and Cons of Loopless Programming </a></li>
+<li><a href="#Generally_useful_functions">Generally useful functions </a></li>
+<li><a href="#Application_Support">Application Support </a></li>
+<li><a href="#Simplifying_Object_Oriented_Programming_in_Lua">Simplifying Object-Oriented Programming in Lua </a></li>
 </ul>
 
 
@@ -156,12 +156,12 @@ return <code>nil,message</code> if there is a problem. There are some exceptions
 like <a href="../libraries/pl.input.html#fields">input.fields</a> default to shutting down the program immediately with a
 useful message. This is more appropriate behaviour for a <em>script</em> than providing
 a stack trace. (However, this default can be changed.) The lexer functions always
-throw errors, to simplify coding, and so should be wrapped in <a href="https://www.lua.org/manual/5.1/manual.html#pdf-pcall">pcall</a>.</p>
+throw errors, to simplify coding, and so should be wrapped in <a href="https://www.lua.org/manual/5.2/manual.html#pdf-pcall">pcall</a>.</p>
 
 <p>If you are used to Python conventions, please note that all indices consistently
 start at 1.</p>
 
-<p>The Lua function <a href="https://www.lua.org/manual/5.1/manual.html#pdf-table.foreach">table.foreach</a> has been deprecated in favour of the <code>for in</code>
+<p>The Lua function <code>table.foreach</code> has been deprecated in favour of the <code>for in</code>
 statement, but such an operation becomes particularly useful with the
 higher-order function support in Penlight. Note that <a href="../libraries/pl.tablex.html#foreach">tablex.foreach</a> reverses
 the order, so that the function is passed the value and then the key. Although
@@ -223,8 +223,8 @@ for injecting Penlight into, or if no table is given, it passes back a new one.<
 
 
 <p>The table <a href="../libraries/pl.html#">pl</a> is a &lsquo;lazy table&rsquo; which loads modules as needed, so we can then
-use <a href="../libraries/pl.utils.html#printf">pl.utils.printf</a> and so forth, without an explicit <code>require' or harming any
-globals.</code></p>
+use <a href="../libraries/pl.utils.html#printf">pl.utils.printf</a> and so forth, without an explicit `require' or harming any
+globals.</p>
 
 <p>If you are using <code>_ENV</code> with Lua 5.2 to define modules, then here is a way to
 make Penlight available within a module:</p>
@@ -254,7 +254,7 @@ clobber standard tables like &lsquo;io&rsquo;.  require(&lsquo;pl&rsquo;) will b
 front,  so this method is as efficient as explicitly loading required modules.</p>
 
 <p>You have an option to bring the <a href="../libraries/pl.stringx.html#">pl.stringx</a> methods into the standard string
-table. All strings have a metatable that allows for automatic lookup in <a href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a>,
+table. All strings have a metatable that allows for automatic lookup in <a href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a>,
 so we can say <code>s:upper()</code>. Importing <a href="../libraries/pl.stringx.html#">stringx</a> allows for its functions to also
 be called as methods: <code>s:strip()</code>,etc:</p>
 
@@ -307,8 +307,8 @@ scheme used by <code>require &apos;pl</code>.</p>
 
 <p><a href="../libraries/pl.strict.html#">strict</a> also disallows assignment to global variables, except in the main
 program. Generally, modules have no business messing with global scope; if you
-must do it, then use a call to <a href="https://www.lua.org/manual/5.1/manual.html#pdf-rawset">rawset</a>. Similarly, if you have to check for the
-existence of a global, use <a href="https://www.lua.org/manual/5.1/manual.html#pdf-rawget">rawget</a>.</p>
+must do it, then use a call to <a href="https://www.lua.org/manual/5.2/manual.html#pdf-rawset">rawset</a>. Similarly, if you have to check for the
+existence of a global, use <a href="https://www.lua.org/manual/5.2/manual.html#pdf-rawget">rawget</a>.</p>
 
 <p>If you wish to enforce strictness globally, then just add <code>require &apos;pl.strict&apos;</code>
 at the end of <code>pl/init.lua</code>, otherwise call it from your main program.</p>
@@ -351,7 +351,7 @@ than merely returning a <code>nil</code> that will cause problems later.</p>
 
 <p>Many functions in Penlight themselves take function arguments, like <code>map</code> which
 applies a function to a list, element by element.  You can use existing
-functions, like <a href="https://www.lua.org/manual/5.1/manual.html#pdf-math.max">math.max</a>, anonymous functions (like <code>function(x,y) return x &gt; y
+functions, like <a href="https://www.lua.org/manual/5.2/manual.html#pdf-math.max">math.max</a>, anonymous functions (like <code>function(x,y) return x &gt; y
 end&lt;code&gt; ), or operations by name (e.g &amp;apos;*&amp;apos; or &amp;apos;..&amp;apos;).  The module &lt;/code&gt;pl.operator</code> exports
 all the standard Lua operations, like the Python module of the same name.
 Penlight allows these to be referred to by name, so <a href="../libraries/pl.operator.html#gt">operator.gt</a> can be more
@@ -442,7 +442,7 @@ also takes a file object parameter, just like the C function.)</p>
 
 <p>Utility functions like <code>is_type</code> help with identifying what
 kind of animal you are dealing with.
-The Lua <a href="https://www.lua.org/manual/5.1/manual.html#pdf-type">type</a> function handles the basic types, but can&rsquo;t distinguish between
+The Lua <a href="https://www.lua.org/manual/5.2/manual.html#pdf-type">type</a> function handles the basic types, but can&rsquo;t distinguish between
 different kinds of objects, which are all tables. So <code>is_type</code> handles both
 cases, like <code>is_type(s,&quot;string&quot;)</code> and <code>is_type(ls,List)</code>.</p>
 
@@ -459,7 +459,7 @@ a table:</p>
 
 <p>But this will bite you someday when <code>nil</code> is one of the arguments, since this
 will put a &lsquo;hole&rsquo; in your table. In particular, <code>#ls</code> will only give you the size
-upto the <code>nil</code> value.  Hence the need for <a href="https://www.lua.org/manual/5.1/manual.html#pdf-table.pack">table.pack</a> &ndash; this is a new Lua 5.2
+upto the <code>nil</code> value.  Hence the need for <a href="https://www.lua.org/manual/5.2/manual.html#pdf-table.pack">table.pack</a> - this is a new Lua 5.2
 function which Penlight defines also for Lua 5.1.</p>
 
 <pre>
@@ -505,10 +505,10 @@ whether the source is a binary chunk or text code (default is &lsquo;bt&rsquo;)<
 </ul>
 
 
-<p>Using <a href="../libraries/pl.utils.html#load">utils.load</a> should reduce the need to call the deprecated function <a href="https://www.lua.org/manual/5.1/manual.html#pdf-setfenv">setfenv</a>,
+<p>Using <a href="../libraries/pl.utils.html#load">utils.load</a> should reduce the need to call the deprecated function <code>setfenv</code>,
 and make your Lua 5.1 code 5.2-friendly.</p>
 
-<p>The <a href="../libraries/pl.utils.html#">utils</a> module exports <a href="https://www.lua.org/manual/5.1/manual.html#pdf-getfenv">getfenv</a> and <a href="https://www.lua.org/manual/5.1/manual.html#pdf-setfenv">setfenv</a> for
+<p>The <a href="../libraries/pl.utils.html#">utils</a> module exports <code>getfenv</code> and <code>setfenv</code> for
 Lua 5.2 as well, based on code by Sergey Rozhenko.  Note that these functions can fail
 for functions which don&rsquo;t access any globals.</p>
 
@@ -518,12 +518,12 @@ for functions which don&rsquo;t access any globals.</p>
 
 <p><a href="../libraries/pl.app.html#parse_args">app.parse_args</a> is a simple command-line argument parser. If called without any
 arguments, it tries to use the global <code>arg</code> array.  It returns the <em>flags</em>
-(options begining with &lsquo;&ndash;&rsquo;) as a table of name/value pairs, and the <em>arguments</em>
-as an array.  It knows about long GNU-style flag names, e.g. <code>&mdash;value</code>, and
+(options begining with &lsquo;-&rsquo;) as a table of name/value pairs, and the <em>arguments</em>
+as an array.  It knows about long GNU-style flag names, e.g. <code>&ndash;value</code>, and
 groups of short flags are understood, so that <code>-ab</code> is short for <code>-a -b</code>. The
 flags result would then look like <code>{value=true,a=true,b=true}</code>.</p>
 
-<p>Flags may take values. The command-line <code>&mdash;value=open -n10</code> would result in
+<p>Flags may take values. The command-line <code>&ndash;value=open -n10</code> would result in
 <code>{value=&apos;open&apos;,n=&apos;10&apos;}</code>; generally you can use &lsquo;=&rsquo; or &lsquo;:&rsquo; to separate the flag
 from its value, except in the special case where a short flag is followed by an
 integer.  Or you may specify upfront that some flags have associated values, and
@@ -541,7 +541,7 @@ then the values will follow the flag.</p>
 or arguments for you, or raise errors. For that, have a look at
 <a href="../manual/08-additional.md.html#Command_line_Programs_with_Lapp">Lapp</a>.</p>
 
-<p>An application which consists of several files usually cannot use <a href="https://www.lua.org/manual/5.1/manual.html#pdf-require">require</a> to
+<p>An application which consists of several files usually cannot use <a href="https://www.lua.org/manual/5.2/manual.html#pdf-require">require</a> to
 load files in the same directory as the main script.  <code>app.require_here()</code>
 ensures that the Lua module path is modified so that files found locally are
 found first. In the <code>examples</code> directory, <a href="../examples/test-symbols.lua.html#">test-symbols.lua</a> uses this function
@@ -723,7 +723,7 @@ There is nothing special about these classes and you may inherit from them.</p>
 and functions, which is often called &lsquo;monkey patching&rsquo; It&rsquo;s entertaining and convenient,
 but ultimately anti-social; you may modify <a href="../classes/pl.List.html#">List</a> but then any other modules using
 this <em>shared</em> resource can no longer be sure about its behaviour. (This is why you
-must say <code>stringx.import()</code> explicitly if you want the extended string methods &ndash; it
+must say <code>stringx.import()</code> explicitly if you want the extended string methods - it
 would be a bad default.)  Lua is particularly open to modification but the
 community is not as tolerant of monkey-patching as the Ruby community, say. You may
 wish to add some new methods to <a href="../classes/pl.List.html#">List</a>? Cool, but that&rsquo;s what subclassing is for.</p>
@@ -749,7 +749,7 @@ Strings:catch(<span class="keyword">function</span>(self,name)
 </pre>
 
 
-<p>In this case we're just customizing the error message, but
+<p>In this case we&rsquo;re just customizing the error message, but
 creative things can be done. Consider this code from <code>test-vector.lua</code>:</p>
 
 <pre>
@@ -761,12 +761,12 @@ asserteq(ls:sub(<span class="number">1</span>,<span class="number">2</span>),{<s
 </pre>
 
 
-<p>So we've converted a unknown method invocation into a map using the function of
-that name found in <a href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a>.  So for a <code>Vector</code> (which is a specialization of <a href="../classes/pl.List.html#">List</a>
-for numbers) it makes sense to make <a href="https://www.lua.org/manual/5.1/manual.html#5.6">math</a> the default map so that <code>v:sin()</code> makes
+<p>So we&rsquo;ve converted a unknown method invocation into a map using the function of
+that name found in <a href="https://www.lua.org/manual/5.2/manual.html#6.4">string</a>.  So for a <code>Vector</code> (which is a specialization of <a href="../classes/pl.List.html#">List</a>
+for numbers) it makes sense to make <a href="https://www.lua.org/manual/5.2/manual.html#6.6">math</a> the default map so that <code>v:sin()</code> makes
 sense.</p>
 
-<p>Note that <code>map</code> operations return a object of the same type &ndash; this is often called
+<p>Note that <code>map</code> operations return a object of the same type - this is often called
 <em>covariance</em>. So <code>ls:upper()</code> itself returns a <code>Strings</code> object.</p>
 
 <p>This is not <em>always</em> what you want, but objects can always be cast to the desired type.
@@ -834,12 +834,11 @@ worth it.</p>
 to <code>mp._a</code> directly. It is possible to have this kind of control in Lua, but it
 again comes with run-time costs.</p>
 
-
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.4</a></i>
-<i style="float:right;">Last updated 2016-08-14 19:25:18 </i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2017-07-18 16:28:41 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

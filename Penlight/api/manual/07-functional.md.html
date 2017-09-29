@@ -32,11 +32,11 @@
 
 <h2>Contents</h2>
 <ul>
-<li><a href="#Sequences">Sequences</a></li>
-<li><a href="#Sequence_Wrappers">Sequence Wrappers</a></li>
-<li><a href="#List_Comprehensions">List Comprehensions</a></li>
-<li><a href="#Creating_Functions_from_Functions">Creating Functions from Functions</a></li>
-<li><a href="#Placeholder_Expressions">Placeholder Expressions</a></li>
+<li><a href="#Sequences">Sequences </a></li>
+<li><a href="#Sequence_Wrappers">Sequence Wrappers </a></li>
+<li><a href="#List_Comprehensions">List Comprehensions </a></li>
+<li><a href="#Creating_Functions_from_Functions">Creating Functions from Functions </a></li>
+<li><a href="#Placeholder_Expressions">Placeholder Expressions </a></li>
 </ul>
 
 
@@ -130,10 +130,10 @@
 <p>A Lua iterator (in its simplest form) is a function which can be repeatedly
 called to return a set of one or more values. The <code>for in</code> statement understands
 these iterators, and loops until the function returns <code>nil</code>. There are standard
-sequence adapters for tables in Lua (<a href="https://www.lua.org/manual/5.1/manual.html#pdf-ipairs">ipairs</a> and <a href="https://www.lua.org/manual/5.1/manual.html#pdf-pairs">pairs</a>), and <a href="https://www.lua.org/manual/5.1/manual.html#pdf-io.lines">io.lines</a>
+sequence adapters for tables in Lua (<a href="https://www.lua.org/manual/5.2/manual.html#pdf-ipairs">ipairs</a> and <a href="https://www.lua.org/manual/5.2/manual.html#pdf-pairs">pairs</a>), and <a href="https://www.lua.org/manual/5.2/manual.html#pdf-io.lines">io.lines</a>
 returns an iterator over all the lines in a file. In the Penlight libraries, such
 iterators are also called <em>sequences</em>.  A sequence of single values (say from
-<a href="https://www.lua.org/manual/5.1/manual.html#pdf-io.lines">io.lines</a>) is called <em>single-valued</em>, whereas the sequence defined by <a href="https://www.lua.org/manual/5.1/manual.html#pdf-pairs">pairs</a> is
+<a href="https://www.lua.org/manual/5.2/manual.html#pdf-io.lines">io.lines</a>) is called <em>single-valued</em>, whereas the sequence defined by <a href="https://www.lua.org/manual/5.2/manual.html#pdf-pairs">pairs</a> is
 <em>double-valued</em>.</p>
 
 <p><a href="../libraries/pl.seq.html#">pl.seq</a> provides a number of useful iterators, and some functions which operate
@@ -152,7 +152,7 @@ in Lua, (with the sequence being inclusive):</p>
 <p>But <a href="../libraries/pl.seq.html#range">range</a> is actually equivalent to Python&rsquo;s <code>xrange</code>, since it generates a
 sequence, not a list.  To get a list, use <code>seq.copy(seq.range(1,10))</code>, which
 takes any single-value sequence and makes a table from the result. <a href="../libraries/pl.seq.html#list">seq.list</a> is
-like <a href="https://www.lua.org/manual/5.1/manual.html#pdf-ipairs">ipairs</a> except that it does not give you the index, just the value.</p>
+like <a href="https://www.lua.org/manual/5.2/manual.html#pdf-ipairs">ipairs</a> except that it does not give you the index, just the value.</p>
 
 <pre>
 &gt; <span class="keyword">for</span> x <span class="keyword">in</span> seq.list {<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>} <span class="keyword">do</span> <span class="global">print</span>(x) <span class="keyword">end</span>
@@ -164,7 +164,7 @@ like <a href="https://www.lua.org/manual/5.1/manual.html#pdf-ipairs">ipairs</a> 
 
 <p><a href="../libraries/pl.seq.html#enum">enum</a> takes a sequence and turns it into a double-valued sequence consisting of
 a sequence number and the value, so <code>enum(list(ls))</code> is actually equivalent to
-<a href="https://www.lua.org/manual/5.1/manual.html#pdf-ipairs">ipairs</a>. A more interesting example prints out a file with line numbers:</p>
+<a href="https://www.lua.org/manual/5.2/manual.html#pdf-ipairs">ipairs</a>. A more interesting example prints out a file with line numbers:</p>
 
 <pre>
 <span class="keyword">for</span> i,v <span class="keyword">in</span> seq.enum(<span class="global">io</span>.lines(fname)) <span class="keyword">do</span> <span class="global">print</span>(i..<span class="string">' '</span>..v) <span class="keyword">end</span>
@@ -229,7 +229,7 @@ ls = seq.copy(seq.filter(ls, <span class="string">'&gt;'</span>, <span class="nu
 </pre>
 
 
-<p>We're already encounted <a href="../libraries/pl.seq.html#sum">seq.sum</a> when discussing <a href="../libraries/pl.input.html#numbers">input.numbers</a>. This can also
+<p>We&rsquo;re already encounted <a href="../libraries/pl.seq.html#sum">seq.sum</a> when discussing <a href="../libraries/pl.input.html#numbers">input.numbers</a>. This can also
 be expressed with <a href="../libraries/pl.seq.html#reduce">seq.reduce</a>:</p>
 
 <pre>
@@ -281,8 +281,8 @@ the number of times they occurred:</p>
 
 
 <p>This will also work on numerical sequences, but you cannot expect the result to
-be a proper list, i.e. having no &lsquo;holes&rsquo;. Instead, you always need to use <a href="https://www.lua.org/manual/5.1/manual.html#pdf-pairs">pairs</a>
-to iterate over the result &ndash; note that there is a hole at index 5:</p>
+be a proper list, i.e. having no &lsquo;holes&rsquo;. Instead, you always need to use <a href="https://www.lua.org/manual/5.2/manual.html#pdf-pairs">pairs</a>
+to iterate over the result - note that there is a hole at index 5:</p>
 
 <pre>
 &gt; t = seq.count_map {<span class="number">1</span>,<span class="number">2</span>,<span class="number">4</span>,<span class="number">2</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">2</span>,<span class="number">6</span>}
@@ -360,7 +360,7 @@ a sequence of strings, and print them out.</p>
 
 
 <p>As a convenience, there is a function <a href="../libraries/pl.seq.html#lines">seq.lines</a> which behaves just like
-<a href="https://www.lua.org/manual/5.1/manual.html#pdf-io.lines">io.lines</a> except it wraps the result as an explicit sequence type. This takes
+<a href="https://www.lua.org/manual/5.2/manual.html#pdf-io.lines">io.lines</a> except it wraps the result as an explicit sequence type. This takes
 the first 10 lines from standard input, makes it uppercase, turns it into a
 sequence with a count and the value, glues these together with the concatenation
 operator, and finally prints out the sequence delimited by a newline.</p>
@@ -443,7 +443,7 @@ so that any function can be used, appropriate or not:</p>
 
 <p>What function is returned? It&rsquo;s almost certain to be something that makes no
 sense in the current context. So implicit sequences may make certain kinds of
-programming mistakes harder to catch &ndash; they are best used for interactive
+programming mistakes harder to catch - they are best used for interactive
 exploration and small scripts.</p>
 
 <p><a id="comprehensions"/></p>
@@ -486,7 +486,7 @@ function taking a string argument, so this works as well:</p>
 <p>The basic syntax so far is <code>&lt;expr&gt; for &lt;set&gt;</code>, where <code>&lt;set&gt;</code> can be anything that
 the Lua <code>for</code> statement understands. <code>&lt;set&gt;</code> can also just be the variable, in
 which case the values will come from the <em>argument</em> of the comprehension. Here
-I'm emphasizing that a comprehension is a function which can take a list argument:</p>
+I&rsquo;m emphasizing that a comprehension is a function which can take a list argument:</p>
 
 <pre>
 &gt; = C <span class="string">'2*x for x'</span> {<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>}
@@ -509,7 +509,7 @@ I'm emphasizing that a comprehension is a function which can take a list argumen
 
 
 <p>This extended syntax is useful when you wish to collect the result of some
-iterator, such as <a href="https://www.lua.org/manual/5.1/manual.html#pdf-io.lines">io.lines</a>. This comprehension creates a function which creates
+iterator, such as <a href="https://www.lua.org/manual/5.2/manual.html#pdf-io.lines">io.lines</a>. This comprehension creates a function which creates
 a table of all the lines in a file:</p>
 
 <pre>
@@ -598,10 +598,10 @@ start&gt;  hello   <span class="number">2</span>
 
 <p>The last example unfortunately reads backwards, because <a href="../libraries/pl.func.html#bind1">bind1</a> alway binds the
 first argument!  Also unfortunately, in my youth I confused &lsquo;currying&rsquo; with
-&lsquo;partial application&rsquo;, so the old name for <a href="../libraries/pl.func.html#bind1">bind1</a> is <code>curry</code> &ndash; this alias still exists.</p>
+&lsquo;partial application&rsquo;, so the old name for <a href="../libraries/pl.func.html#bind1">bind1</a> is <code>curry</code> - this alias still exists.</p>
 
 <p>This is a specialized form of function argument binding. Here is another way
-to say the <a href="https://www.lua.org/manual/5.1/manual.html#pdf-print">print</a> example:</p>
+to say the <a href="https://www.lua.org/manual/5.2/manual.html#pdf-print">print</a> example:</p>
 
 <pre>
 &gt; p2 = func.bind(<span class="global">print</span>,<span class="string">'start&gt;'</span>,func._1,func._2)
@@ -639,8 +639,8 @@ usefulness of binding the last argument of a function.</p>
 </pre>
 
 
-<p>When using <a href="../libraries/pl.func.html#bind">bind</a> with <a href="https://www.lua.org/manual/5.1/manual.html#pdf-print">print</a>, we got a function of precisely two arguments,
-whereas we really want our function to use varargs like <a href="https://www.lua.org/manual/5.1/manual.html#pdf-print">print</a>. This is the role
+<p>When using <a href="../libraries/pl.func.html#bind">bind</a> with <a href="https://www.lua.org/manual/5.2/manual.html#pdf-print">print</a>, we got a function of precisely two arguments,
+whereas we really want our function to use varargs like <a href="https://www.lua.org/manual/5.2/manual.html#pdf-print">print</a>. This is the role
 of <code>_0</code>:</p>
 
 <pre>
@@ -655,7 +655,7 @@ start&gt;  <span class="number">1</span>       <span class="number">2</span>    
 </pre>
 
 
-<p>I've turned on the global <code>_DEBUG</code> flag, so that the function generated is
+<p>I&rsquo;ve turned on the global <code>_DEBUG</code> flag, so that the function generated is
 printed out. It is actually a function which <em>generates</em> the required function;
 the first call <em>binds the value</em> of <code>_v1</code> to &lsquo;start>&rsquo;.</p>
 
@@ -696,7 +696,7 @@ Boost libraries.)</p>
 
 <p>These expressions can use arbitrary functions, altho they must first be
 registered with the functional library. <a href="../libraries/pl.func.html#register">func.register</a> brings in a single
-function, and <a href="../libraries/pl.func.html#import">func.import</a> brings in a whole table of functions, such as <a href="https://www.lua.org/manual/5.1/manual.html#5.6">math</a>.</p>
+function, and <a href="../libraries/pl.func.html#import">func.import</a> brings in a whole table of functions, such as <a href="https://www.lua.org/manual/5.2/manual.html#6.6">math</a>.</p>
 
 <pre>
 &gt; sin = register(<span class="global">math</span>.sin)
@@ -718,7 +718,7 @@ function, and <a href="../libraries/pl.func.html#import">func.import</a> brings 
 
 <p>There are some restrictions on what operators can be used in PEs. For instance,
 because the <code>__len</code> metamethod cannot be overriden by plain Lua tables, we need
-to define a special function to express <code>#_1':</code></p>
+to define a special function to express `#_1':</p>
 
 <pre>
 &gt; = tablex.map(Len(_1), {<span class="string">'one'</span>,<span class="string">'four'</span>,<span class="string">'x'</span>})
@@ -780,7 +780,7 @@ binary operation like addition (set+<em>1 </em>is_ properly quoted) so there is 
 for an explicit quoting or wrapping operation. This is the job of the <code>_</code>
 function; the PE in this case should be <code>_(set)[_1]</code>.  This works for functions
 as well, as a convenient alternative to registering functions: <code>_(math.sin)(_1)</code>.
-This is equivalent to using the <code>lines' method:</code></p>
+This is equivalent to using the `lines' method:</p>
 
 <pre>
 <span class="keyword">for</span> line <span class="keyword">in</span> I(_(f):read()) <span class="keyword">do</span> <span class="global">print</span>(line) <span class="keyword">end</span>
@@ -791,7 +791,7 @@ This is equivalent to using the <code>lines' method:</code></p>
 returning the next line. If you had a LuaSocket client which was being &lsquo;pushed&rsquo;
 by lines sent from a server, then <code>_(s):receive &apos;*l&apos;</code> would create an iterator
 for accepting input. These forms can be convenient for adapting your data flow so
-that it can be passed to the sequence functions in <code>pl.seq'.</code></p>
+that it can be passed to the sequence functions in `pl.seq'.</p>
 
 <p>Placeholder expressions can be mixed with sequence wrapper expressions.
 <a href="../libraries/pl.lexer.html#lua">lexer.lua</a> will give us a double-valued sequence of tokens, where the first
@@ -824,12 +824,11 @@ this;</p>
 </pre>
 
 
-
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.4</a></i>
-<i style="float:right;">Last updated 2016-08-14 19:25:18 </i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2017-07-18 16:28:41 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

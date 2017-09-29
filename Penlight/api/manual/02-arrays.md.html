@@ -32,10 +32,10 @@
 
 <h2>Contents</h2>
 <ul>
-<li><a href="#Python_style_Lists">Python-style Lists</a></li>
-<li><a href="#Map_and_Set_classes">Map and Set classes</a></li>
-<li><a href="#Useful_Operations_on_Tables">Useful Operations on Tables</a></li>
-<li><a href="#Operations_on_two_dimensional_tables">Operations on two-dimensional tables</a></li>
+<li><a href="#Python_style_Lists">Python-style Lists </a></li>
+<li><a href="#Map_and_Set_classes">Map and Set classes </a></li>
+<li><a href="#Useful_Operations_on_Tables">Useful Operations on Tables </a></li>
+<li><a href="#Operations_on_two_dimensional_tables">Operations on two-dimensional tables </a></li>
 </ul>
 
 
@@ -174,7 +174,7 @@ table and <em>not</em> make a copy.</p>
 
 <p>A particular feature of Python lists is <em>slicing</em>. This is fully supported in
 this version of <a href="../classes/pl.List.html#">List</a>, except we use 1-based indexing. So <a href="../classes/pl.List.html#List:slice">List.slice</a> works
-rather like <a href="https://www.lua.org/manual/5.1/manual.html#pdf-string.sub">string.sub</a>:</p>
+rather like <a href="https://www.lua.org/manual/5.2/manual.html#pdf-string.sub">string.sub</a>:</p>
 
 <pre>
 &gt; l = List {<span class="number">10</span>,<span class="number">20</span>,<span class="number">30</span>,<span class="number">40</span>}
@@ -214,7 +214,7 @@ all elements.</p>
 
 <p>The <a href="../classes/pl.List.html#">List</a> constructor can be passed a function. If so, it&rsquo;s assumed that this is
 an iterator function that can be repeatedly called to generate a sequence.  One
-such function is <a href="https://www.lua.org/manual/5.1/manual.html#pdf-io.lines">io.lines</a>; the following short, intense little script counts
+such function is <a href="https://www.lua.org/manual/5.2/manual.html#pdf-io.lines">io.lines</a>; the following short, intense little script counts
 the number of lines in standard input:</p>
 
 <pre>
@@ -241,7 +241,7 @@ strings can be made into lists of character strings very easily.</p>
 instance, you can <em>partition</em> a list into a table of sublists using a function.
 In the simplest form, you use a predicate (a function returning a boolean value)
 to partition the list into two lists, one of elements matching and another of
-elements not matching. But you can use any function; if we use <a href="https://www.lua.org/manual/5.1/manual.html#pdf-type">type</a> then the
+elements not matching. But you can use any function; if we use <a href="https://www.lua.org/manual/5.2/manual.html#pdf-type">type</a> then the
 keys will be the standard Lua type names.</p>
 
 <pre>
@@ -389,7 +389,7 @@ are fruits and colours but not both?&rsquo;</p>
 
 <p>Adding elements to a set is simply <code>fruit[&apos;peach&apos;] = true</code> and removing is
 <code>fruit[&apos;apple&apos;] = nil</code> . To make this simplicity work properly, the <a href="../libraries/pl.Set.html#">Set</a> class has no
-methods &ndash; either you use the operator forms or explicitly use <code>Set.intersect</code>
+methods - either you use the operator forms or explicitly use <code>Set.intersect</code>
 etc. In this way we avoid the ambiguity that plagues <a href="../classes/pl.Map.html#">Map</a>.</p>
 
 <p>(See <a href="../classes/pl.Map.html#">pl.Map</a> and <a href="../libraries/pl.Set.html#">pl.Set</a>)</p>
@@ -407,7 +407,7 @@ implementation used; it is more accurate to say that a Lua table is an
 associative map which happens to be particularly efficient at acting like an
 array.)</p>
 
-<p>The functions provided in <a href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a> provide all the basic manipulations on Lua
+<p>The functions provided in <a href="https://www.lua.org/manual/5.2/manual.html#6.5">table</a> provide all the basic manipulations on Lua
 tables, but as we saw with the <a href="../classes/pl.List.html#">List</a> class, it is useful to build higher-level
 operations on top of those functions. For instance, to copy a table involves this
 kind of loop:</p>
@@ -454,7 +454,7 @@ copy into a map-like table, use <a href="../libraries/pl.tablex.html#update">upd
 <a href="../libraries/pl.tablex.html#icopy">icopy</a>, and <a href="../libraries/pl.tablex.html#move">move</a> if you are updating a range in the destination.</p>
 
 <p>To complete this set of operations, there is <a href="../libraries/pl.tablex.html#insertvalues">insertvalues</a> which works like
-<a href="https://www.lua.org/manual/5.1/manual.html#pdf-table.insert">table.insert</a> except that one provides a table of values to be inserted, and
+<a href="https://www.lua.org/manual/5.2/manual.html#pdf-table.insert">table.insert</a> except that one provides a table of values to be inserted, and
 <a href="../libraries/pl.tablex.html#removevalues">removevalues</a> which removes a range of values.</p>
 
 <pre>
@@ -489,7 +489,7 @@ true only if they have exactly the same values and structure.</p>
 
 
 <p><a href="../libraries/pl.tablex.html#find">find</a> will return the index of a given value in a list-like table. Note that
-like <a href="https://www.lua.org/manual/5.1/manual.html#pdf-string.find">string.find</a> you can specify an index to start searching, so that all
+like <a href="https://www.lua.org/manual/5.2/manual.html#pdf-string.find">string.find</a> you can specify an index to start searching, so that all
 instances can be found. There is an optional fourth argument, which makes the
 search start at the end and go backwards, so we could define <a href="../libraries/pl.tablex.html#rfind">rfind</a> like so:</p>
 
@@ -608,7 +608,7 @@ which is not <code>nil</code> and not <code>false</code> can be usefully passed 
 default equality operator. <a href="../libraries/pl.tablex.html#compare">compare</a> allows you to specify exactly what function
 to use when comparing two list-like tables, and <a href="../libraries/pl.tablex.html#compare_no_order">compare_no_order</a> is true if
 they contain exactly the same elements. Do note that the latter does not need an
-explicit comparison function &ndash; in this case the implementation is actually to
+explicit comparison function - in this case the implementation is actually to
 compare the two sets, as above:</p>
 
 <pre>
@@ -750,7 +750,7 @@ matrix operations, since that is the job for a specialized library, but rather
 provides generalizations of the higher-level operations provided by <a href="../libraries/pl.tablex.html#">pl.tablex</a>
 for one-dimensional arrays.</p>
 
-<p><a href="../libraries/pl.array2d.html#iter">iter</a> is a useful generalization of <a href="https://www.lua.org/manual/5.1/manual.html#pdf-ipairs">ipairs</a>. (The extra parameter determines
+<p><a href="../libraries/pl.array2d.html#iter">iter</a> is a useful generalization of <a href="https://www.lua.org/manual/5.2/manual.html#pdf-ipairs">ipairs</a>. (The extra parameter determines
 whether you want the indices as well.)</p>
 
 <pre>
@@ -818,8 +818,8 @@ data:</p>
 
 <p>Of course, you are not limited to simple arithmetic. Say we have a 2D array of
 strings, and wish to print it out with proper right justification. The first step
-is to create all the string lengths by mapping <a href="https://www.lua.org/manual/5.1/manual.html#pdf-string.len">string.len</a> over the array, the
-second is to reduce this along the columns using <a href="https://www.lua.org/manual/5.1/manual.html#pdf-math.max">math.max</a> to get maximum column
+is to create all the string lengths by mapping <a href="https://www.lua.org/manual/5.2/manual.html#pdf-string.len">string.len</a> over the array, the
+second is to reduce this along the columns using <a href="https://www.lua.org/manual/5.2/manual.html#pdf-math.max">math.max</a> to get maximum column
 widths, and last, apply <a href="../libraries/pl.stringx.html#rjust">stringx.rjust</a> with these widths.</p>
 
 <pre>
@@ -841,7 +841,7 @@ the two arrays.</p>
 <p>There is a set of operations which work in-place on 2D arrays. You can
 <a href="../libraries/pl.array2d.html#swap_rows">swap_rows</a> and <a href="../libraries/pl.array2d.html#swap_cols">swap_cols</a>; the first really is a simple one-liner, but the idea
 here is to give the operation a name. <a href="../libraries/pl.array2d.html#remove_row">remove_row</a> and <a href="../libraries/pl.array2d.html#remove_col">remove_col</a> are
-generalizations of <a href="https://www.lua.org/manual/5.1/manual.html#pdf-table.remove">table.remove</a>. Likewise, <a href="../libraries/pl.array2d.html#extract_rows">extract_rows</a> and <a href="../libraries/pl.array2d.html#extract_cols">extract_cols</a>
+generalizations of <a href="https://www.lua.org/manual/5.2/manual.html#pdf-table.remove">table.remove</a>. Likewise, <a href="../libraries/pl.array2d.html#extract_rows">extract_rows</a> and <a href="../libraries/pl.array2d.html#extract_cols">extract_cols</a>
 are given arrays of indices and discard anything else. So, for instance,
 <code>extract_cols(A,{2,4})</code> will leave just columns 2 and 4 in the array.</p>
 
@@ -863,7 +863,7 @@ generally given a start (row,column) and a end (row,column).</p>
 
 <p>Here <a href="../libraries/pl.array2d.html#write">write</a> is used to print out an array nicely; the second parameter is <code>nil</code>,
 which is the default (stdout) but can be any file object and the third parameter
-is an optional format (as used in <a href="https://www.lua.org/manual/5.1/manual.html#pdf-string.format">string.format</a>).</p>
+is an optional format (as used in <a href="https://www.lua.org/manual/5.2/manual.html#pdf-string.format">string.format</a>).</p>
 
 <p><a href="../libraries/pl.array2d.html#parse_range">parse_range</a> will take a spreadsheet range like &lsquo;A1:B2&rsquo; or &lsquo;R1C1:R2C2&rsquo; and
 return the range as four numbers, which can be passed to <a href="../libraries/pl.array2d.html#slice">slice</a>. The rule is
@@ -900,12 +900,11 @@ created with <a href="../libraries/pl.data.html#new">data.new</a> or <code>matri
 reshaped or sliced, etc.  Data objects have the <a href="../libraries/pl.array2d.html#">array2d</a> functions available as
 methods.</p>
 
-
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.4</a></i>
-<i style="float:right;">Last updated 2016-08-14 19:25:18 </i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2017-07-18 16:28:41 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
