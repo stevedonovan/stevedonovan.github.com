@@ -2,9 +2,9 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>Filesystem and Processes - </title>
+        <title>Filesystem and Processes - A Gentle Introduction to Rust</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
-        <meta name="description" content="">
+        <meta name="description" content="Introduction to the Rust language, standard library and ecosystem">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <base href="">
@@ -59,7 +59,7 @@
                         <i id="theme-toggle" class="fa fa-paint-brush"></i>
                     </div>
 
-                    <h1 class="menu-title"></h1>
+                    <h1 class="menu-title">A Gentle Introduction to Rust</h1>
 
                     <div class="right-buttons">
                         <i id="print-button" class="fa fa-print" title="Print this book"></i>
@@ -134,7 +134,7 @@ place.</p>
 borrowed from <code>buf</code>, and this borrow must finish before we modify <code>buf</code>.  Again,
 Rust is trying to stop us doing something stupid, which is to access <code>line</code> <em>after</em>
 we've cleared the buffer. (The borrow checker can be restrictive sometimes.
-Rust is due to get 'non-lexical lifetimes' this year, where
+Rust is due to get 'non-lexical lifetimes', where
 it will analyze the code and see that <code>line</code> isn't used after <code>buf.clear()</code>.)</p>
 <p>This isn't very pretty. I cannot give you a proper iterator that returns references
 to a buffer, but I can give you something that <em>looks</em> like an iterator.</p>
@@ -193,8 +193,8 @@ we say that the lifetime of this borrowed string is within the lifetime of <code
 But it's easy to see problems if it were compatible; consider <code>collect</code> trying to make
 a vector of these string slices. There's no way this could work, since they're all
 borrowed from the same mutable string! (If you had read <em>all</em> the file into a string, then
-the string's <code>lines</code> iterator works fine because the string slices are all borrowed from
-the original string.)</p>
+the string's <code>lines</code> iterator can return string slices because they are all borrowed from
+<em>distinct</em> parts of the original string.)</p>
 <p>The resulting loop is much cleaner, and the file buffering is invisible to the user.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
@@ -226,7 +226,7 @@ string slice:</p>
 silently stop whenever an error occurs. In particular, it will stop at the first place
 where Rust can't convert a line to UTF-8.  Fine for casual code, bad for production code!</p>
 <a class="header" href="./3-filesystem.html#writing-to-files" name="writing-to-files"><h2>Writing To Files</h2></a>
-<p>We met the <code>write!</code> macro when implementing <code>Display</code> - it also works with anything
+<p>We met the <code>write!</code> macro when implementing <code>Debug</code> - it also works with anything
 that implements <code>Write</code>. So here's a another way of saying <code>print!</code>:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
@@ -239,9 +239,13 @@ that implements <code>Write</code>. So here's a another way of saying <code>prin
 <p>If an error is <em>possible</em>, you must handle it. It may not be
 very <em>likely</em> but it can happen. It's usually fine, because if you
 are doing file i/o you should be in a context where <code>?</code> works.</p>
-<p><code>print!</code> works fine as it is, but for arbitrary files we need <code>write!</code>. The
+<p>But there is a difference: <code>print!</code> locks stdout for each write. This is usually
+what you want for output, because without that locking multithreaded
+programs can mix up that output in interesting ways. But if you are pumping out
+a lot of text, then <code>write!</code> is going to be faster.</p>
+<p>For arbitrary files we need <code>write!</code>. The
 file is closed when <code>out</code> is dropped at the end of <code>write_out</code>, which is
-convenient and often important.</p>
+both convenient and important.</p>
 <pre><pre class="playpen"><code class="language-rust">// file6.rs
 use std::fs::File;
 use std::io;
@@ -257,22 +261,13 @@ fn main() {
   write_out(&quot;test.txt&quot;).expect(&quot;write failed&quot;);
 }
 </code></pre></pre>
-<p>Another place we need it is writing to 'standard error'. There is one input stream
-<code>io::stdin()</code> and <em>two</em> output streams <code>io::stderr()</code> and <code>io::stdout()</code>. If a program
-needs to complain bitterly, the convention is that this output should go to the
-error stream. If the program wants then to stop running, the convention is also to
-return a non-zero exit code.</p>
-<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
-# 
-#fn main() {
-fn quit(msg: &amp;str) -&gt; ! {
-    write!(io::stderr(),&quot;error: {}\n&quot;, msg).expect(&quot;write?&quot;);
-    std::process::exit(1);
-}
-
-#}</code></pre></pre>
-<p>(The <code>!</code> means that function never returns, so you can call <code>quit</code> anywhere
-and there will be no type mismatch complaints)</p>
+<p>If you care about performance, you need to know that Rust files are unbuffered
+by default. So each little write request goes straight to the OS, and this is
+going to be significantly slower. I mention this because this default is different
+from other programming languages, and could lead to the shocking discovery that Rust
+can be left in the dust by scripting languages!
+Just as with <code>Read</code> and <code>io::BufReader</code>, there is <code>io::BufWriter</code> for
+buffering any <code>Write</code>.</p>
 <a class="header" href="./3-filesystem.html#files-paths-and-directories" name="files-paths-and-directories"><h2>Files, Paths and Directories</h2></a>
 <p>Here is a little program for printing out the Cargo directory on a machine. The
 simplest case is that it's '~/.cargo'. This is a Unix shell expansion,
@@ -322,7 +317,7 @@ Real life is a <a href="https://news.ycombinator.com/item?id=10519932">complicat
 particularly see the answer to 'Why are they so hard?'.  To summarize, first there are
 years of ASCII legacy coding, and multiple special encodings for other languages. Second,
 human languages are complicated. For instance 'noël' is <em>five</em> Unicode code points!</p>
-<p>It's true that <em>most</em> of the time
+<p>It's true that most of the time
 with modern operating systems file names will be Unicode (UTF-8 on the Unix side, UTF-16
 for Windows), except when they're not. And Rust must handle that possibility
 rigorously. For instance,
@@ -331,10 +326,12 @@ returns an <code>Option&lt;&amp;str&gt;</code>. Not always possible!</p>
 <p>People have trouble at this point because they have become too attached to 'string' and
 'character' as the only necessary abstractions.  As Einstein could have said, a programming language
 has to be as simple as possible, but no simpler. A systems language <em>needs</em> a
-<code>String/&amp;str</code> distinction (owned versus borrowed: this is also very <em>convenient</em>)
+<code>String/&amp;str</code> distinction (owned versus borrowed: this is also very convenient)
 and if it wishes to standardize on Unicode strings then it needs another type to handle
-text which isn't valid Unicode - hence <code>OsString/&amp;OsStr</code>.</p>
-<p>People are also very used to processing filenames as if they were text, which is why
+text which isn't valid Unicode - hence <code>OsString/&amp;OsStr</code>. Notice that there aren't
+any interesting string-like methods for these types, precisely because we don't know the
+encoding.</p>
+<p>But, people are used to processing filenames as if they were strings, which is why
 Rust makes it easier to manipulate file paths using <code>PathBuf</code> methods.</p>
 <p>You can <code>pop</code> to successively remove path components. Here we start with the
 current directory of the program:</p>
@@ -350,7 +347,7 @@ fn main() {
         }
     }
 }
-// /home/steve/rust/gentle-intro/src
+// /home/steve/rust/gentle-intro/code
 // /home/steve/rust/gentle-intro
 // /home/steve/rust
 // /home/steve
@@ -359,7 +356,7 @@ fn main() {
 </code></pre></pre>
 <p>Here's a useful variation. I have a program which searches for a configuration file,
 and the rule is that it may appear in any subdirectory of the current directory.
-So I create <code>/home/steve/rust/config.txt</code> and start this program up in <code>/home/steve/rust/gentle-intro/src</code>:</p>
+So I create <code>/home/steve/rust/config.txt</code> and start this program up in <code>/home/steve/rust/gentle-intro/code</code>:</p>
 <pre><pre class="playpen"><code class="language-rust">// file9.rs
 use std::env;
 
@@ -467,23 +464,19 @@ metadata. So this is a reasonably elegant compromise that allows cross-platform
 code to be as efficient as possible.</p>
 <p>You can be forgiven for feeling 'error fatigue' at this point. But please note that
 the <em>errors always existed</em> - it's not that Rust is inventing new ones. It's just
-trying its darnedest to make it hard for you to ignore them.  Any call to an
-operating system may fail, but C makes getting errors awkward. You check the return
-code, and if it's not zero you then have to inspect <code>errno</code>
-to find out what the actual error was.
-Quite apart from memory safety, this makes robust C programming harder than most
-C programmers think!</p>
+trying hard to make it impossible for you to ignore them.  Any operating system call
+may fail.</p>
 <p>Languages like Java and Python throw exceptions; languages like Go and Lua return two
 values, where the first is the result and the second is the error: like Rust it is
 considered bad manners for library functions to raise errors. So there is a lot
 of error checking and early-returns from functions.</p>
-<p>Rust uses <code>Result</code> because it's either-or: you cannot get a result <em>and</em> an error.
+<p>Rust uses <code>Result</code> because it's either-or: you cannot get both a result and an error.
 And the question-mark operator makes handling errors much cleaner.</p>
 <a class="header" href="./3-filesystem.html#processes" name="processes"><h2>Processes</h2></a>
 <p>A fundamental need is for programs to run programs, or to <em>launch processes</em>.
 Your program can <em>spawn</em> as many child processes it likes, and as the name
 suggests they have a special relationship with their parent.</p>
-<p>To run a program is straightforward using the <code>Command</code> struct, which <em>builds</em> up
+<p>To run a program is straightforward using the <code>Command</code> struct, which builds up
 arguments to pass to the program:</p>
 <pre><pre class="playpen"><code class="language-rust">use std::process::Command;
 
@@ -515,8 +508,8 @@ cool false code 101
 <li>program ran, but was not successful - non-zero exit code</li>
 <li>program ran, with zero exit code. Success!</li>
 </ul>
-<p>By default, we get the program's output, since its standard output and standard error is
-still going to the terminal.</p>
+<p>By default, the program's standard output and standard error streams
+go to the terminal.</p>
 <p>Often we are very interested in capturing that output, so there's the <code>output</code>
 method.</p>
 <pre><pre class="playpen"><code class="language-rust">// process2.rs
@@ -548,14 +541,15 @@ vectors or bytes - it returns a <code>Result</code> because this conversion may 
 A more sloppy function is <code>String::from_utf8_lossy</code> which will make a good attempt at
 conversion and insert the invalid Unicode mark � where it failed.</p>
 <p>Here is a useful function which runs a program using the shell. This uses the usual
-shell mechanism for joining stderr to stdout:</p>
+shell mechanism for joining stderr to stdout. The name of the shell is different
+on Windows, but otherwise things work as expected.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
 fn shell(cmd: &amp;str) -&gt; (String,bool) {
     let cmd = format!(&quot;{} 2&gt;&amp;1&quot;,cmd);
-    let output = Command::new(&quot;/bin/sh&quot;)
-        .arg(&quot;-c&quot;)
+    let output = Command::new(if cfg!(windows) {&quot;cmd.exe&quot;} else {&quot;/bin/sh&quot;})
+        .arg(if cfg!(windows) {&quot;/c&quot;} else {&quot;-c&quot;})
         .arg(&amp;cmd)
         .output()
         .expect(&quot;no shell?&quot;);
@@ -565,6 +559,7 @@ fn shell(cmd: &amp;str) -&gt; (String,bool) {
     )
 }
 
+
 fn shell_success(cmd: &amp;str) -&gt; Option&lt;String&gt; {
     let (output,success) = shell(cmd);
     if success {Some(output)} else {None}
@@ -573,7 +568,8 @@ fn shell_success(cmd: &amp;str) -&gt; Option&lt;String&gt; {
 #}</code></pre></pre>
 <p>I'm trimming any whitespace from the right so that if you said <code>shell(&quot;which rustc&quot;)</code>
 you will get the path without any extra linefeed.</p>
-<p>You can control the execution of a program by specifying the directory it will run
+<p>You can control the execution of a program launched by <code>Process</code>
+by specifying the directory it will run
 in using the <code>current_dir</code> method and the environment variables it sees using <code>env</code>.</p>
 <p>Up to now, our program simply waits for the child process to finish. If you use
 the <code>spawn</code> method then we return immediately, and must explicitly wait for it to
@@ -599,10 +595,12 @@ we redirect the child's output handles into 'nowhere'. It's equivalent to saying
 <p>Now, it's possible to do these things using the shell (<code>sh</code> or <code>cmd</code>) in Rust, although not in a portable way.
 But this way you get full programmatic control of process creation.</p>
 <p>For example, if we just had <code>.stdout(Stdio::piped())</code> then the child's standard output
-is redirected to a pipe. If we then use <code>wait_with_output</code> instead of <code>wait</code> then
+is redirected to a pipe. Then <code>child.stdout</code> is something you can use to directly
+read the output (i.e. implements <code>Read</code>). Likewise, you can use the <code>.stdout(Stdio::piped())</code>
+method so you can write to <code>child.stdin</code>.</p>
+<p>But we use <code>wait_with_output</code> instead of <code>wait</code> then
 it returns a <code>Result&lt;Output&gt;</code> and the child's output is captured into the <code>stdout</code>
-field of that <code>Output</code> just as before. Alternatively, the <em>child</em>'s <code>stdout</code> field is readable and
-you can manually read the child's output in the usual way.</p>
+field of that <code>Output</code> as a <code>Vec&lt;u8&gt;</code> just as before.</p>
 <p>The <code>Child</code> struct also gives you an explicit <code>kill</code> method.</p>
 
                 </div>

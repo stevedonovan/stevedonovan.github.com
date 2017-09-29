@@ -2,9 +2,9 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>Structs, Enums and Matching - </title>
+        <title>Structs, Enums and Matching - A Gentle Introduction to Rust</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
-        <meta name="description" content="">
+        <meta name="description" content="Introduction to the Rust language, standard library and ecosystem">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <base href="">
@@ -59,7 +59,7 @@
                         <i id="theme-toggle" class="fa fa-paint-brush"></i>
                     </div>
 
-                    <h1 class="menu-title"></h1>
+                    <h1 class="menu-title">A Gentle Introduction to Rust</h1>
 
                     <div class="right-buttons">
                         <i id="print-button" class="fa fa-print" title="Print this book"></i>
@@ -125,7 +125,7 @@ fn dump(s: String) {
 fn main() {
     let s1 = &quot;hello dolly&quot;.to_string();
     dump(s1);
-    println!(&quot;s1 {}&quot;, s1);
+    println!(&quot;s1 {}&quot;, s1); // &lt;---error: 'value used here after move'
 }
 </code></pre></pre>
 <p>Here, you have a choice. You may pass a reference to that string, or
@@ -159,8 +159,12 @@ fn dump(s: &amp;str) {
 }
 
 #}</code></pre></pre>
-<p>And then both <code>dump(&amp;s1)</code> and <code>dump(&quot;hello world&quot;)</code> work properly.</p>
-<a class="header" href="./2-structs-enums-lifetimes.html#lifetimes" name="lifetimes"><h2>Lifetimes</h2></a>
+<p>And then both <code>dump(&amp;s1)</code> and <code>dump(&quot;hello world&quot;)</code> work properly. (Here <code>Deref</code>
+coercion kicks in and Rust will convert <code>&amp;String</code> to <code>&amp;str</code> for you.)</p>
+<p>To summarise, assignment of a non-trivial value moves the value from one location
+to another. Otherwise, Rust would be forced to <em>implicitly</em> do a copy and break its
+promise to make allocations explicit.</p>
+<a class="header" href="./2-structs-enums-lifetimes.html#scope-of-variables" name="scope-of-variables"><h2>Scope of Variables</h2></a>
 <p>So, the rule of thumb is to prefer to keep references to the original data - to 'borrow'
 it.</p>
 <p>But a reference must <em>not</em> outlive the owner!</p>
@@ -175,7 +179,8 @@ block:</p>
     {
         let c = &quot;hello&quot;.to_string();
         // a,b and c are visible
-    } // the string c is dropped
+    }
+    // the string c is dropped
     // a,b are visible
     for i in 0..a {
         let b = &amp;b[1..];
@@ -209,7 +214,7 @@ of its block:</p>
 10 }
 </code></pre></pre>
 <p>We borrow the value of <code>s1</code> and then borrow the value of <code>tmp</code>. But <code>tmp</code>'s value
-does not exist outside that block:</p>
+does not exist outside that block!</p>
 <pre><code>error: `tmp` does not live long enough
   --&gt; ref1.rs:8:5
    |
@@ -226,7 +231,7 @@ Rust is here saving you from the dreaded 'dangling pointer' problem of C -
 a reference that points to stale data.</p>
 <a class="header" href="./2-structs-enums-lifetimes.html#tuples" name="tuples"><h2>Tuples</h2></a>
 <p>It's sometimes very useful to return multiple values from a function. Tuples are
-the solution:</p>
+a convenient solution:</p>
 <pre><pre class="playpen"><code class="language-rust">// tuple1.rs
 
 fn add_mul(x: f64, y: f64) -&gt; (f64,f64) {
@@ -250,8 +255,6 @@ fn main() {
 // add 12 mul 20
 // add 12 mul 20
 </code></pre></pre>
-<p>The <code>let (add,mul) = t</code> construct is similar to that found in Python, except it only works
-with tuple values, not any source of values.</p>
 <p>Tuples may contain <em>different</em> types, which is the main difference from arrays.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
@@ -263,7 +266,7 @@ assert_eq!(tuple.1, 5);
 assert_eq!(tuple.2, 'c');
 
 #}</code></pre></pre>
-<p>They appear in some <code>Iterator</code> methods. This is like the Python generator
+<p>They appear in some <code>Iterator</code> methods. <code>enumerate</code> is like the Python generator
 of the same name:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
@@ -274,15 +277,15 @@ of the same name:</p>
     //  0 zero; 1 one; 2 two;
 
 #}</code></pre></pre>
-<p><code>zip</code> is specifically for combining two iterators into a single iterator of
-tuples containing the values:</p>
+<p><code>zip</code> combines two iterators into a single iterator of
+tuples containing the values from both:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
     let names = [&quot;ten&quot;,&quot;hundred&quot;,&quot;thousand&quot;];
     let nums = [10,100,1000];
-    for (name,num) in names.iter().zip(nums.iter()) {
-        print!(&quot; {} {};&quot;, name,num);
+    for p in names.iter().zip(nums.iter()) {
+        print!(&quot; {} {};&quot;, p.0,p.1);
     }
     //  ten 10; hundred 100; thousand 1000;
 
@@ -307,9 +310,8 @@ fn main() {
 }
 </code></pre></pre>
 <p>The values of a struct will be placed next to each other in memory, although you should
-not assume any particular memory layout - the compiler will organize the memory for
-efficiency, not size, and so there will be padding. A <code>struct</code> should be familiar to C or
-C++ programmers.</p>
+not assume any particular memory layout, since the compiler will organize the memory for
+efficiency, not size, and there may be padding.</p>
 <p>Initializing this struct is a bit clumsy, so we want to move the construction of a <code>Person</code>
 into its own function. This function can be made into a <em>method</em> of <code>Person</code> by putting
 it into a <code>impl</code> block:</p>
@@ -355,8 +357,8 @@ impl Person {
 // fullname John Smith
 
 #}</code></pre></pre>
-<p>The <code>self</code> is used explicitly (unlike the <code>this</code> of C++) and is passed as a reference.
-(You can think of <code>&amp;self</code> as <code>self: &amp;Person</code>.)</p>
+<p>The <code>self</code> is used explicitly and is passed as a reference.
+(You can think of <code>&amp;self</code> as short for <code>self: &amp;Person</code>.)</p>
 <p>The keyword <code>Self</code> refers to the struct type - you can mentally substitute <code>Person</code>
 for <code>Self</code> here:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
@@ -386,6 +388,15 @@ for <code>Self</code> here:</p>
 
 #}</code></pre></pre>
 <p>(Try that with <code>&amp;self</code> - structs will not let go of their data without a fight!)</p>
+<p>Note that after <code>v.to_tuple()</code> is called, then <code>v</code> has moved and is no longer
+available.</p>
+<p>To summarize:</p>
+<ul>
+<li>no <code>self</code> argument: you can associate functions with structs, like the <code>new</code> &quot;constructor&quot;.</li>
+<li><code>&amp;self</code> argument: can use the values of the struct, but not change them</li>
+<li><code>&amp;mut self</code> argument: can modify the values</li>
+<li><code>self</code> argument: will consume the value, which will move.</li>
+</ul>
 <p>If you try to do a debug dump of a <code>Person</code>, you will get an informative error:</p>
 <pre><code>error[E0277]: the trait bound `Person: std::fmt::Debug` is not satisfied
   --&gt; struct2.rs:23:21
@@ -526,14 +537,50 @@ struct A &lt;'a&gt; {
 }
 
 fn main() {
-    let string = &quot;I'm a little string&quot;.to_string();
-    let a = A { s: &amp;string };
+    let s = &quot;I'm a little string&quot;.to_string();
+    let a = A { s: &amp;s };
 
     println!(&quot;{:?}&quot;, a);
 }
 </code></pre></pre>
 <p>Lifetimes are conventionally called 'a','b',etc but you could just as well called it
 'me' here.</p>
+<p>After this point, our <code>a</code> struct and the <code>s</code> string are bound by a strict contract:
+<code>a</code> borrows from <code>s</code>, and cannot outlive it.</p>
+<p>With this struct definition, we would like to write a function that returns an <code>A</code> value:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+fn makes_a() -&gt; A {
+    let string = &quot;I'm a little string&quot;.to_string();
+    A { s: &amp;string }
+}
+
+#}</code></pre></pre>
+<p>But <code>A</code> needs a lifetime - &quot;expected lifetime parameter&quot;:</p>
+<pre><code>  = help: this function's return type contains a borrowed value,
+   but there is no value for it to be borrowed from
+  = help: consider giving it a 'static lifetime
+</code></pre>
+<p><code>rustc</code> is giving advice, so we follow it:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+fn makes_a() -&gt; A&lt;'static&gt; {
+    let string = &quot;I'm a little string&quot;.to_string();
+    A { s: &amp;string }
+}
+
+#}</code></pre></pre>
+<p>And now the error is</p>
+<pre><code>8 |      A { s: &amp;string }
+  |              ^^^^^^ does not live long enough
+9 | }
+  | - borrowed value only lives until here
+</code></pre>
+<p>There is no way that this could safely work, because <code>string</code> will be dropped when the
+function ends, and no reference to <code>string</code> can outlast it.</p>
+<p>You can usefully think of lifetime parameters as being part of the type of a value.</p>
 <p>Sometimes it seems like a good idea for a struct to contain a value <em>and</em> a reference
 that borrows from that value.
 It's basically impossible because structs must be <em>moveable</em>, and any move will
@@ -557,7 +604,7 @@ trait Show {
 
 impl Show for i32 {
     fn show(&amp;self) -&gt; String {
-        format!(&quot;four-byte unsigned {}&quot;, self)
+        format!(&quot;four-byte signed {}&quot;, self)
     }
 }
 
@@ -601,36 +648,19 @@ impl fmt::Debug for Person {
 #}</code></pre></pre>
 <p><code>write!</code> is a very useful macro - here <code>f</code> is anything that implements <code>Write</code>.
 (This would also work with a <code>File</code> - or even a <code>String</code>.)</p>
-<p>Now, with the implementations of <code>Show</code> in <code>trait1.rs</code>, here's a
-little main program with big implications:</p>
-<pre><pre class="playpen"><code class="language-rust">fn main() {
-    let answer = 42;
-    let maybe_pi = 3.14;
-    let v: Vec&lt;&amp;Show&gt; = vec![&amp;answer,&amp;maybe_pi];
-    for d in v.iter() {
-        println!(&quot;show {}&quot;,d.show());
-    }
-}
-// show four-byte signed 42
-// show eight-byte float 3.14
-</code></pre></pre>
-<p>This is a case where Rust needs some type guidance - I specifically want a vector
-of references to anything that implements <code>Show</code>.  Now note that <code>i32</code> and <code>f64</code>
-have no relationship to each other, but they both understand the <code>show</code> method
-because they both implement the same trait. This method is <em>virtual</em>, because
-the actual method has different code for different types, and yet the correct
-method is invoked based on <em>runtime</em> information. These references
-are called <a href="https://doc.rust-lang.org/stable/book/trait-objects.html">trait objects</a>.</p>
-<p>And <em>that</em> is how you can put objects of different types in the same vector. If
-you come from a Java background, you can think of <code>Show</code> as an interface; the
-nearest C++ equivalent is &quot;abstract base class&quot;.</p>
+<p><code>Display</code> controls how values are printed out with &quot;{}&quot; and is implemented
+just like <code>Debug</code>. As a useful side-effect, <code>ToString</code> is automatically
+implemented for anything implementing <code>Display</code>. So if we implement
+<code>Display</code> for <code>Person</code>, then <code>p.to_string()</code> also works.</p>
+<p><code>Clone</code> defines the method <code>clone</code>, and can simply be defined with
+&quot;#[derive(Clone)]&quot; if all the fields themselves implement <code>Clone</code>.</p>
 <a class="header" href="./2-structs-enums-lifetimes.html#example-iterator-over-floating-point-range" name="example-iterator-over-floating-point-range"><h2>Example: iterator over floating-point range</h2></a>
 <p>We have met ranges before (<code>0..n</code>) but they don't work for floating-point values. (You
 can <em>force</em> this but you'll end up with a step of 1.0 which is uninteresting.)</p>
 <p>Recall the informal definition of an iterator; it is an struct with a <code>next</code> method
 which may return <code>Some</code>-thing or <code>None</code>. In the process, the iterator itself gets modified,
 it keeps the state for the iteration (like next index and so forth.) The data that
-is being iterated over doesn't change usually, (But see <code>std::vec::Vec::drain</code> for an
+is being iterated over doesn't change usually, (But see <code>Vec::drain</code> for an
 interesting iterator that does modify its data.)</p>
 <p>And here is the formal definition: the <a href="https://doc.rust-lang.org/std/iter/trait.Iterator.html">Iterator trait</a>.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
@@ -708,54 +738,179 @@ println!(&quot;{:.1} &quot;, x);
 <p>And we get cleaner output (this <a href="https://doc.rust-lang.org/std/fmt/index.html">format</a>
 means 'one decimal after dot'.)</p>
 <p>All of the default iterator methods are available, so we can collect these values into
-a vector:</p>
+a vector, map them, and so forth.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
-    let v: Vec&lt;f64&gt; = range(0.0, 1.0, 0.1).collect();
+    let v: Vec&lt;f64&gt; = range(0.0, 1.0, 0.1).map(|x| x.sin()).collect();
 
 #}</code></pre></pre>
-<p>This is a common pattern and it gets irritating. Fortunately, it's easy to
-add new 'consumers' of iterators. These are those methods that end the chain and
-'pull' all the values of the iterator, like <code>count</code> - or <code>collect</code>.</p>
-<p>We will define a new trait <code>ToVec</code> which has an associated type, just like an <code>Iterator</code>.
-It will be the type contained in the returned vector.</p>
+<a class="header" href="./2-structs-enums-lifetimes.html#generic-functions" name="generic-functions"><h2>Generic Functions</h2></a>
+<p>We want a function which will dump out any value that implements <code>Debug</code>. Here is
+a first attempt at a generic function, where we can pass a reference to <em>any</em> type
+of value. <code>T</code> is a type parameter, which needs to be declared just after the
+function name:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
-trait ToVec {
-    type Item;
+fn dump&lt;T&gt; (value: &amp;T) {
+    println!(&quot;value is {:?}&quot;,value);
+}
 
-    fn to_vec(self) -&gt; Vec&lt;Self::Item&gt;;
+let n = 42;
+dump(&amp;n);
+
+#}</code></pre></pre>
+<p>However, Rust clearly knows nothing about this generic type <code>T</code>:</p>
+<pre><code>error[E0277]: the trait bound `T: std::fmt::Debug` is not satisfied
+...
+   = help: the trait `std::fmt::Debug` is not implemented for `T`
+   = help: consider adding a `where T: std::fmt::Debug` bound
+</code></pre>
+<p>For this to work, Rust needs to be told that <code>T</code> does in fact implement <code>Debug</code>!</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+fn dump&lt;T&gt; (value: &amp;T)
+where T: std::fmt::Debug {
+    println!(&quot;value is {:?}&quot;,value);
+}
+
+let n = 42;
+dump(&amp;n);
+// value is 42
+
+#}</code></pre></pre>
+<p>Rust generic functions need <em>trait bounds</em> on types - we are saying here that
+&quot;T is any type that implements Debug&quot;. <code>rustc</code> is being very helpful, and
+suggests exactly what bound needs to be provided.</p>
+<p>Now that Rust knows the trait bounds for <code>T</code>, it can give you sensible compiler messages:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+struct Foo {
+    name: String
+}
+
+let foo = Foo{name: &quot;hello&quot;.to_string()};
+
+dump(&amp;foo)
+
+#}</code></pre></pre>
+<p>And the error is &quot;the trait <code>std::fmt::Debug</code> is not implemented for <code>Foo</code>&quot;.</p>
+<p>Functions are already generic in dynamic languages because values carry their actual type around,
+and the type checking happens at run-time - or fails miserably. For larger programs, we really
+do want to know about problems at compile-time rather! Rather than sitting down calmly with
+compiler errors, a programmer in these languages has to deal with problems that only
+show up when the program is running. Murphy's Law then implies that these problems
+will tend to happen at the most inconvenient/disastrous time.</p>
+<p>The operation of squaring a number is generic:  <code>x*x</code> will work for integers,
+floats and generally for anything that knows about the multiplication operator <code>*</code>.
+But what are the type bounds?</p>
+<pre><pre class="playpen"><code class="language-rust">// gen1.rs
+
+fn sqr&lt;T&gt; (x: T) -&gt; T {
+    x * x
+}
+
+fn main() {
+    let res = sqr(10.0);
+    println!(&quot;res {}&quot;,res);
+}
+</code></pre></pre>
+<p>The first problem is that Rust does not know that <code>T</code> can be multiplied:</p>
+<pre><code>error[E0369]: binary operation `*` cannot be applied to type `T`
+ --&gt; gen1.rs:4:5
+  |
+4 |     x * x
+  |     ^
+  |
+note: an implementation of `std::ops::Mul` might be missing for `T`
+ --&gt; gen1.rs:4:5
+  |
+4 |     x * x
+  |     ^
+</code></pre>
+<p>Following the advice of the compiler, let's constrain that type parameter using
+<a href="https://doc.rust-lang.org/std/ops/trait.Mul.html">that trait</a>, which is used to implement the multiplication operator <code>*</code>:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+fn sqr&lt;T&gt; (x: T) -&gt; T
+where T: std::ops::Mul {
+    x * x
 }
 
 #}</code></pre></pre>
-<p>And now we'll implement <code>ToVec</code> for <code>Iterator</code>. All that <code>Vec</code> requires of its elements is that they
-have a size. (Traits, being abstract, have no size.) The actual iterator type <code>I</code>
-must implement <code>Iterator</code> with its associated type <code>Item</code> set to <code>T</code>, the element
-type. There is only one free type parameter <code>T</code> since <code>I</code> is defined in terms of <code>T</code>.</p>
-<p>Alternatively: This implementation of <code>ToVec</code> has type parameters <code>T</code> and <code>I</code>. <code>T</code> must implement <code>Size</code> to
-make <code>Vec</code> happy. <code>I</code> is any concrete type that implements an iterator for values of the type <code>T</code>.</p>
-<p>The actual implementation is delegated to the <code>FromIterator</code> trait, which is
-defined for vectors and constructs a vector by consuming an iterator (it's exactly how <code>collect</code> is
-implemented)</p>
+<p>Which still doesn't work:</p>
+<pre><code>rror[E0308]: mismatched types
+ --&gt; gen2.rs:6:5
+  |
+6 |     x * x
+  |     ^^^ expected type parameter, found associated type
+  |
+  = note: expected type `T`
+  = note:    found type `&lt;T as std::ops::Mul&gt;::Output`
+</code></pre>
+<p>What <code>rustc</code> is saying that the type of <code>x*x</code> is the associated type <code>T::Output</code>, not <code>T</code>.
+There's actually no reason that the type of <code>x*x</code> is the same as the type of <code>x</code>, e.g. the dot product
+of two vectors is a scalar.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
-impl &lt;T,I&gt; ToVec for I
-where T: Sized, I: Iterator&lt;Item=T&gt; {
-    type Item = T;
-
-    fn to_vec(self) -&gt; Vec&lt;Self::Item&gt; {
-        FromIterator::from_iter(self)
-    }
+fn sqr&lt;T&gt; (x: T) -&gt; T::Output
+where T: std::ops::Mul {
+    x * x
 }
-    ....
-    let v = range(0.0, 1.0, 0.1).to_vec();
 
 #}</code></pre></pre>
-<p>Et voilà! No more awkwardness! The implementation was a little scary, but familiarity
-breeds acceptance.</p>
+<p>and now the error is:</p>
+<pre><code>error[E0382]: use of moved value: `x`
+ --&gt; gen2.rs:6:7
+  |
+6 |     x * x
+  |     - ^ value used here after move
+  |     |
+  |     value moved here
+  |
+  = note: move occurs because `x` has type `T`, which does not implement the `Copy` trait
+</code></pre>
+<p>So, we need to constrain the type even further!</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+fn sqr&lt;T&gt; (x: T) -&gt; T::Output
+where T: std::ops::Mul + Copy {
+    x * x
+}
+
+#}</code></pre></pre>
+<p>And that (finally) works. Calmly listening to the compiler will often get you closer
+to the magic point when ... things compile cleanly.</p>
+<p>It <em>is</em> a bit simpler in C++:</p>
+<pre><code class="language-cpp">template &lt;typename T&gt;
+T sqr(x: T) {
+    return x * x;
+}
+</code></pre>
+<p>but (to be honest) C++ is adopting cowboy tactics here. C++ template errors are famously
+bad, because all the compiler knows (ultimately) is that some operator or method is
+not defined. The C++ committee knows this is a problem and so they are working
+toward <a href="https://en.wikipedia.org/wiki/Concepts_(C%2B%2B)">concepts</a>, which are pretty
+much like trait-constrained type parameters in Rust.</p>
+<p>Rust generic functions may look a bit overwhelming at first, but being explicit means
+you will know exactly what kind of values you can safely feed it, just by looking at the
+definition.</p>
+<p>These functions are called <em>monomorphic</em>, in constrast to <em>polymorphic</em>. The body of
+the function is compiled separately for each unique type.  With polymorphic functions,
+the same machine code works with each matching type, dynamically <em>dispatching</em>
+the correct method.</p>
+<p>Monomorphic produces faster code,
+specialized for the particular type, and can often be <em>inlined</em>.  So when <code>sqr(x)</code> is
+seen, it's effectively replaced with <code>x*x</code>.  The downside is that large generic
+functions produce a lot of code, for each type used, which can result in <em>code bloat</em>.
+As always, there are trade-offs; an experienced person learns to make the right choice
+for the job.</p>
 <a class="header" href="./2-structs-enums-lifetimes.html#simple-enums" name="simple-enums"><h2>Simple Enums</h2></a>
 <p>Enums are types which have a few definite values. For instance, a direction has
 only four possible values.</p>
@@ -780,19 +935,16 @@ The  <code>match</code> expression is the basic way to handle <code>enum</code> 
 #fn main() {
 impl Direction {
     fn as_str(&amp;self) -&gt; &amp;'static str {
-        match *self {
-        Direction::Up =&gt; &quot;Up&quot;,
-        Direction::Down =&gt; &quot;Down&quot;,
-        Direction::Left =&gt; &quot;Left&quot;,
-        Direction::Right =&gt; &quot;Right&quot;
+        match *self { // *self has type Direction
+            Direction::Up =&gt; &quot;Up&quot;,
+            Direction::Down =&gt; &quot;Down&quot;,
+            Direction::Left =&gt; &quot;Left&quot;,
+            Direction::Right =&gt; &quot;Right&quot;
         }
     }
 }
 
 #}</code></pre></pre>
-<p>Both the typename and <code>self</code> are explicit in Rust, unlike C++. This is generally a
-good idea, because the baroque way C++ resolves names is a little too clever for normal
-humans. (And there is a shortcut, as we will see.)</p>
 <p>Punctuation matters. Note that <code>*</code> before <code>self</code>. It's easy to forget, because often
 Rust will assume it (we said <code>self.first_name</code>, not <code>(*self).first_name</code>). However,
 matching is a more exact business. Leaving it out would give a whole spew of messages,
@@ -820,13 +972,13 @@ very handy <em>wildcard use</em> temporarily puts the enum names into the method
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
-    fn inc(&amp;self) -&gt; Direction {
+    fn next(&amp;self) -&gt; Direction {
         use Direction::*;
         match *self {
-        Up =&gt; Right,
-        Right =&gt; Down,
-        Down =&gt; Left,
-        Left =&gt; Up
+            Up =&gt; Right,
+            Right =&gt; Down,
+            Down =&gt; Left,
+            Left =&gt; Up
         }
     }
     ...
@@ -834,7 +986,7 @@ very handy <em>wildcard use</em> temporarily puts the enum names into the method
     let mut d = start;
     for _ in 0..8 {
         println!(&quot;d {:?}&quot;, d);
-        d = d.inc();
+        d = d.next();
     }
     // d Left
     // d Up
@@ -848,7 +1000,7 @@ very handy <em>wildcard use</em> temporarily puts the enum names into the method
 #}</code></pre></pre>
 <p>So this will cycle endlessly through the various directions in this particular, arbitrary,
 order. It is (in fact) a very simple <em>state machine</em>.</p>
-<p>Out of the box, these values can't be compared:</p>
+<p>These enum values can't be compared:</p>
 <pre><code>assert_eq!(start, Direction::Left);
 
 error[E0369]: binary operation `==` cannot be applied to type `Direction`
@@ -883,9 +1035,19 @@ fn main() {
 }
 </code></pre></pre>
 <p>They are initialized with an integer value, and can be converted into that integer
-with a type cast. It's essentially a convenient way to create a set of constants.</p>
-<p>Like with C enums, you only need to give the first name a value, and thereafter the
-value goes up by one each time.</p>
+with a type cast.</p>
+<p>You only need to give the first name a value, and thereafter the
+value goes up by one each time:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+enum Difficulty {
+    Easy = 1,
+    Medium,  // is 2
+    Hard   // is 3
+}
+
+#}</code></pre></pre>
 <p>By the way, 'name' is too vague, like saying 'thingy' all the time. The proper term here
 is <em>variant</em> - <code>Speed</code> has variants <code>Slow</code>,<code>Medium</code> and <code>Fast</code>.</p>
 <p>These enums <em>do</em> have a natural ordering, but you have to ask nicely.
@@ -915,26 +1077,44 @@ fn main() {
 </code></pre></pre>
 <p>Again, this enum can only contain <em>one</em> of these values; its size will be the size of
 the largest variant.</p>
-<p>So far, not really a supercar, although it's cool that they know how to print themselves
+<p>So far, not really a supercar, although it's cool that enums know how to print themselves
 out. But they also know how <em>what kind</em> of value they contain, and <em>that</em> is the
-superpower of <code>match</code>.</p>
-<p>Let me give you a function with a mistake. We want to print out a custom string based
-on the <em>Value</em>'s contained type, and we want to pass it as a reference, because otherwise
-a move would take place and the value would be eaten:</p>
+superpower of <code>match</code>:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+fn eat_and_dump(v: Value) {
+    use Value::*;
+    match v {
+        Number(n) =&gt; println!(&quot;number is {}&quot;, n),
+        Str(s) =&gt; println!(&quot;string is '{}'&quot;, s),
+        Bool(b) =&gt; println!(&quot;boolean is {}&quot;, b)
+    }
+}
+....
+eat_and_dump(n);
+eat_and_dump(s);
+eat_and_dump(b);
+//number is 2.3
+//string is 'hello'
+//boolean is true
+
+#}</code></pre></pre>
+<p>We like this <code>eat_and_dump</code> function, but we want to pass the value as a reference, because currently
+a move takes place and the value is 'eaten':</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
 fn dump(v: &amp;Value) {
     use Value::*;
-    match *v {
+    match *v {  // type of *v is Value
         Number(n) =&gt; println!(&quot;number is {}&quot;, n),
         Str(s) =&gt; println!(&quot;string is '{}'&quot;, s),
         Bool(b) =&gt; println!(&quot;boolean is {}&quot;, b)
     }
 }
 
-#}</code></pre></pre>
-<pre><code>error[E0507]: cannot move out of borrowed content
+error[E0507]: cannot move out of borrowed content
   --&gt; enum3.rs:12:11
    |
 12 |     match *v {
@@ -942,7 +1122,8 @@ fn dump(v: &amp;Value) {
 13 |     Number(n) =&gt; println!(&quot;number is {}&quot;,n),
 14 |     Str(s) =&gt; println!(&quot;string is '{}'&quot;,s),
    |         - hint: to prevent move, use `ref s` or `ref mut s`
-</code></pre>
+
+#}</code></pre></pre>
 <p>There are things you cannot do with borrowed references. Rust is not letting
 you <em>extract</em> the string contained in the original value. It did not complain about <code>Number</code>
 because it's happy to copy <code>f64</code>, but <code>String</code> does not implement <code>Copy</code>.</p>
@@ -982,12 +1163,8 @@ You must either borrow with <code>&amp;v[0]</code> or clone with <code>v[0].clon
 (often called a <em>binding</em>) is created.  Often that inferred type is cool, when you
 eat up a value and extract its contents. But here we really needed is <code>s: &amp;String</code>, and the
 <code>ref</code> is a hint that ensures this: we just want to borrow that string.</p>
-<p>Here is a method that really does eat up a <code>Value</code>. It's a classic use of <code>Option</code>,
-because either that value contained a string, or it didn't.</p>
-<p>Look carefully (punctuation matters!) - the method signature is now plain <code>self</code>, and
-the <code>*</code> has dropped. The <code>self</code> argument is <em>moved</em> into the method.</p>
 <p>Here we do want to extract that string, and don't care about
-the enum value afterwards.</p>
+the enum value afterwards. <code>_</code> as usual will match anything.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
@@ -1005,7 +1182,7 @@ impl Value {
     // println!(&quot;{:?}&quot;, s) // error! s has moved...
 
 #}</code></pre></pre>
-<p>Naming also matters - this is called <code>to_str</code>, not <code>as_str</code>. You can write a
+<p>Naming matters - this is called <code>to_str</code>, not <code>as_str</code>. You can write a
 method that just borrows that string as an <code>Option&lt;&amp;String&gt;</code> (The reference will need
 the same lifetime as the enum value.)  But you would not call it <code>to_str</code>.</p>
 <p>You can write <code>to_str</code> like this - it is completely equivalent:</p>
@@ -1036,7 +1213,8 @@ the same lifetime as the enum value.)  But you would not call it <code>to_str</c
 <p>This is a special case of <em>destructuring</em>; we have some
 data and wish to either pull it apart (like here) or just borrow its values.
 Either way, we get the parts of a structure.</p>
-<p>The syntax used for borrowing is just like that used in <code>match</code>.</p>
+<p>The syntax is like that used in <code>match</code>. Here
+we are explicitly borrowing the values.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
@@ -1063,11 +1241,11 @@ Either way, we get the parts of a structure.</p>
 #}</code></pre></pre>
 <p>Time to revisit <code>match</code> with some new patterns. The first two patterns are exactly like <code>let</code>
 destructuring - it only matches tuples with first element zero, but <em>any</em> string;
-the second adds an <code>if</code> so that it only matches <code>(1,&quot;hello&quot;)</code>.</p>
-<p>Finally, just a variable matches <em>anything</em>. This is useful if the <code>match</code> applies
+the second adds an <code>if</code> so that it only matches <code>(1,&quot;hello&quot;)</code>.
+Finally, just a variable matches <em>anything</em>. This is useful if the <code>match</code> applies
 to an expression and you don't want to bind a variable to that expression. <code>_</code> works
-like a variable but is ignored (<code>_</code> behaves rather like it does in Go.) It's a common
-way to finish off a <code>match</code>, like <code>default</code> in C <code>switch</code> statements.</p>
+like a variable but is ignored. It's a common
+way to finish off a <code>match</code>.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
@@ -1076,7 +1254,7 @@ fn match_tuple(t: (i32,String)) {
         (0, s) =&gt; format!(&quot;zero {}&quot;, s),
         (1, ref s) if s == &quot;hello&quot; =&gt; format!(&quot;hello one!&quot;),
         tt =&gt; format!(&quot;no match {:?}&quot;, tt),
-        // or say _ =&gt; format!(&quot;no match&quot;) if you're not interested in the value  
+        // or say _ =&gt; format!(&quot;no match&quot;) if you're not interested in the value
      };
     println!(&quot;{}&quot;, text);
 }
@@ -1201,34 +1379,29 @@ Here we evaluate a linear function:</p>
 #}</code></pre></pre>
 <p>You cannot do this with the explicit <code>fn</code> form - it does not know about variables
 in the enclosing scope. The closure has <em>borrowed</em> <code>m</code> and <code>c</code> from its context.</p>
-<p>The usual Rules of Borrowing apply. This example works fine - our little closure is borrowing
-<code>answer</code> mutably. Note here that the mutable borrow of <code>answer</code> by <code>set</code> has to take
-place in a block, so it ends before we do an <em>immutable</em> borrow of <code>answer</code> in
-the assert statement. (The borrow checker can be a little ... picky, and using blocks
-to control scopes of borrows is common.)</p>
+<p>Now, what's the type of <code>lin</code>? Only <code>rustc</code> knows.
+Under the hood, a closure is a <em>struct</em> that is callable ('implements the call operator').
+It behaves as if it was written out like this:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
-let mut answer = 42;
-
-{
-    let mut set = |v| answer = v;
-
-    //let get = || answer;
-
-    set(58);
+struct MyAnonymousClosure1&lt;'a&gt; {
+    m: &amp;'a f64,
+    c: &amp;'a f64
 }
 
-assert_eq!(answer, 58);
+impl MyAnonymousClosure1 {
+    fn call(&amp;self, x: f64) {
+        self.m * x  + self.c
+    }
+}
 
 #}</code></pre></pre>
-<p>But uncomment <code>let get ...</code> and you get a borrowing error:
-&quot;cannot borrow <code>answer</code> as immutable because it is also borrowed as mutable&quot;</p>
-<p>Now, what's the type of <code>lin</code>? Only <code>rustc</code> knows. Exactly the same situation applies
-to C++ lambdas, and for exactly the same version. Under the hood, a closure is a <em>struct</em>
-that implements the call operator. All closures are unique types,
-but they have traits in common.</p>
-<p>So even though we don't know the exact type, we know the generic constraint:</p>
+<p>The compiler is certainly being helpful, turning simple closure syntax into all
+that code! You do need to know that a closure is a <em>struct</em> and it <em>borrows</em> values
+from its environment. And that therefore it has a <em>lifetime</em>.</p>
+<p>All closures are unique types, but they have traits in common.
+So even though we don't know the exact type, we know the generic constraint:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
@@ -1260,10 +1433,9 @@ error[E0382]: use of moved value: `lin`
 
 </code></pre>
 <p>That's it, <code>apply</code> ate our closure. And there's the actual type of the struct that
-<code>rustc</code> made up to implement it. Thinking of closures as structs is useful because they
-are <em>values</em> and it's important to know what happens when values move.</p>
-<p>Thinking of calling a closure as a <em>method call</em> makes it easy to understand the
-three kinds of function traits - they are the three kinds of methods:</p>
+<code>rustc</code> made up to implement it. Always thinking of closures as structs is helpful.</p>
+<p>Calling a closure is a <em>method call</em>:  the three kinds of function traits
+correspond to the three kinds of methods:</p>
 <ul>
 <li><code>Fn</code> struct passed as <code>&amp;self</code></li>
 <li><code>FnMut</code> struct passed as <code>&amp;mut self</code></li>
@@ -1283,49 +1455,41 @@ three kinds of function traits - they are the three kinds of methods:</p>
 
 #}</code></pre></pre>
 <p>Note that <code>mut</code> - <code>f</code> needs to be mutable for this to work.</p>
+<p>However, you cannot escape the rules for borrowing. Consider this:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+let mut s = &quot;world&quot;;
+
+// closure does a mutable borrow of s
+let mut changer = || s = &quot;world&quot;;
+
+changer();
+// does an immutable borrow of s
+assert_eq!(s, &quot;world&quot;);
+
+#}</code></pre></pre>
+<p>Can't be done! The error is that we cannot borrow <code>s</code>
+in the assert statement, because it has been previously borrowed by the
+closure <code>changer</code> as mutable. As long as that closure lives, no other
+code can access <code>s</code>, so the solution is to control that lifetime by
+putting the closure in a limited scope:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+let mut s = &quot;world&quot;;
+{
+    let mut changer = || s = &quot;world&quot;;
+    changer();
+}
+assert_eq!(s, &quot;world&quot;);
+
+#}</code></pre></pre>
 <p>At this point, if you are used to languages like JavaScript or Lua, you may wonder at the
-apparent complexity of closures compared with how straightforward they are in those languages.
+complexity of Rust closures compared with how straightforward they are in those languages.
 This is the necessary cost of Rust's promise to not sneakily make any allocations. In JavaScript,
 the equivalent <code>mutate(function() {s = &quot;hello&quot;;})</code> will always result in a dynamically
 allocated closure.</p>
-<p>You can of course explicitly create a dynamically allocated closure in Rust using <code>Box::new</code>.
-This solves the problem of keeping a collection of different closures that implement the
-same trait.  The <code>Box</code> struct is fed a
-value, allocates enough memory for it on the heap, and moves that value to the heap.
-A <code>Box</code> always has the same size (it's basically a smart pointer.) so we're good to go.</p>
-<p>Here's a first try:</p>
-<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
-# 
-#fn main() {
-    let mut v = Vec::new();
-    v.push(Box::new(|x| x * x));
-    v.push(Box::new(|x| x / 2.0));
-
-    for f in v.iter() {
-        let res = f(1.0);
-        println!(&quot;res {}&quot;, res);
-    }
-
-#}</code></pre></pre>
-<p>We get a very definite error on the second push:</p>
-<pre><code>  = note: expected type `[closure@closure4.rs:4:21: 4:28]`
-  = note:    found type `[closure@closure4.rs:5:21: 5:28]`
-note: no two closures, even if identical, have the same type
-</code></pre>
-<p><code>rustc</code> has deduced a type which is too specific, so it's necessary to force that
-vector to have the <em>boxed trait type</em> before things just work:</p>
-<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
-# 
-#fn main() {
-    let mut v: Vec&lt;Box&lt;Fn(f64)-&gt;f64&gt;&gt; = Vec::new();
-
-#}</code></pre></pre>
-<p>You can use these boxed closures to implement callbacks and so forth. If you want to keep
-these boxed closures in a struct, then you will need a lifetime annotation, because
-<em>closures borrow variables</em> and so their lifetime is tied to the lifetime of those
-variables.</p>
-<p>(Unfortunately, you can't use <code>type</code> to declare a shorthand for function trait types; it's definitely a
-place where I miss a <code>typedef</code> statement.)</p>
 <p>Sometimes you don't want a closure to borrow those variables, but instead <em>move</em> them.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
@@ -1350,11 +1514,13 @@ here - if we <em>did</em> want to keep <code>name</code> alive - is to move a cl
     let cname = name.to_string();
     let c = move || {
         println!(&quot;name {} age {}&quot;,cname,age);
-    }
+    };
 
 #}</code></pre></pre>
 <p>Why are moved closures needed? Because we might need to call them at a point where
-the original context no longer exists. A classic case is when creating a <em>thread</em>.</p>
+the original context no longer exists.
+A classic case is when creating a <em>thread</em>.
+A moved closure does not borrow, so does not have a lifetime.</p>
 <p>A major use of closures is within iterator methods. Recall the <code>range</code> iterator we
 defined to go over a range of floating-point numbers. It's straightforward to operate
 on this (or any other iterator) using closures:</p>
@@ -1373,7 +1539,9 @@ sum, no temporary objects are created:</p>
  let sum: f64 = range(0.0,1.0,0.1).map(|x| x.sin()).sum();
 
 #}</code></pre></pre>
-<p>It will (in fact) be as fast as writing it out as an explicit loop!</p>
+<p>It will (in fact) be as fast as writing it out as an explicit loop! That performance
+guarantee would be impossible if Rust closures were as 'frictionless'
+as Javascript closures.</p>
 <p><code>filter</code> is another useful iterator method - it only lets through values that match
 a condition:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
@@ -1426,7 +1594,9 @@ the iterator item type is <code>&amp;String</code>. Note that <code>filter</code
 # 
 #fn main() {
 for n in vec.iter().map(|x: &amp;String| x.len()) {...} // n is usize
-for s in vec.iter().filter(|x: &amp;&amp;String| x.len() &gt; 2) {...}
+for s in vec.iter().filter(|x: &amp;&amp;String| x.len() &gt; 2) { // s is &amp;String
+...
+}
 
 #}</code></pre></pre>
 <p>When calling methods, Rust will derefence automatically, so the problem isn't obvious.
@@ -1541,7 +1711,7 @@ fn main() {
 <p>Now, what happens when <code>root</code> is dropped? All fields are dropped; if the 'branches' of
 the tree are dropped, they drop <em>their</em> fields and so on. <code>Box::new</code> may be the
 closest you will get to a <code>new</code> keyword, but we have no need for <code>delete</code> or <code>free</code>.</p>
-<p>We must now work out what use such a tree is. Note that strings can be ordered:
+<p>We must now work out a use for this tree. Note that strings can be ordered:
 'bar' &lt; 'foo', 'abba' &gt; 'aardvark'; so-called 'alphabetical order'. (Strictly speaking, this
 is <em>lexical order</em>, since human languages are very diverse and have strange rules.)</p>
 <p>Here is a method which inserts nodes in lexical order of the strings. We compare the new data
@@ -1627,124 +1797,10 @@ the node, and then visit the right.</p>
 #}</code></pre></pre>
 <p>So we're visiting the strings in order! Please note the reappearance of <code>ref</code> - <code>if let</code>
 uses exactly the same rules as <code>match</code>.</p>
-<a class="header" href="./2-structs-enums-lifetimes.html#generic-functions" name="generic-functions"><h2>Generic Functions</h2></a>
-<p>The operation of squaring a number is <em>generic</em> in that <code>x*x</code> will work for integers,
-floats and generally for anything that knows about the multiplication operator <code>*</code>.</p>
-<p>This Just Happens in dynamic languages because the arguments carry their type, and the
-runtime will then call the appropriate multiply operator - or fail miserably.
-(Which is always the painful thing about dynamic languages.)</p>
-<p>The Rust solution is a <em>generic function</em>, which has <em>type parameters</em>.</p>
-<pre><pre class="playpen"><code class="language-rust">// gen1.rs
-
-fn sqr&lt;T&gt; (x: T) -&gt; T {
-    x * x
-}
-
-fn main() {
-    let res = sqr(10.0);
-    println!(&quot;res {}&quot;,res);
-}
-</code></pre></pre>
-<p>However, Rust is not C++ - it's not going to let you do this without knowing <em>something</em>
-about <code>T</code>:</p>
-<pre><code>error[E0369]: binary operation `*` cannot be applied to type `T`
- --&gt; gen1.rs:4:5
-  |
-4 |     x * x
-  |     ^
-  |
-note: an implementation of `std::ops::Mul` might be missing for `T`
- --&gt; gen1.rs:4:5
-  |
-4 |     x * x
-  |     ^
-</code></pre>
-<p>Following the advice of the compiler, let's <em>constrain</em> that type parameter using
-<a href="https://doc.rust-lang.org/std/ops/trait.Mul.html">that trait</a>, which is used to implement the multiplication operator <code>*</code>:
-(<code>T: Mul</code> means 'any type T that implements Mul')</p>
-<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
-# 
-#fn main() {
-use std::ops::Mul;
-
-fn sqr&lt;T: Mul&gt; (x: T) -&gt; T {
-    x * x
-}
-
-#}</code></pre></pre>
-<p>Which still doesn't work:</p>
-<pre><code>rror[E0308]: mismatched types
- --&gt; gen2.rs:6:5
-  |
-6 |     x * x
-  |     ^^^ expected type parameter, found associated type
-  |
-  = note: expected type `T`
-  = note:    found type `&lt;T as std::ops::Mul&gt;::Output`
-</code></pre>
-<p>What <code>rustc</code> is saying that the type of <code>x*x</code> is the associated type <code>T::Output</code>, not <code>T</code>.
-There's actually no reason that the type of <code>x*x</code> is the same as the type of <code>x</code>, e.g. the dot product
-of two vectors is a scalar.</p>
-<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
-# 
-#fn main() {
-fn sqr&lt;T: Mul&gt; (x: T) -&gt; T::Output {
-    x * x
-}
-
-#}</code></pre></pre>
-<p>and now the error is:</p>
-<pre><code>error[E0382]: use of moved value: `x`
- --&gt; gen2.rs:6:7
-  |
-6 |     x * x
-  |     - ^ value used here after move
-  |     |
-  |     value moved here
-  |
-  = note: move occurs because `x` has type `T`, which does not implement the `Copy` trait
-</code></pre>
-<p>So, we need to constrain the type even further!</p>
-<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
-# 
-#fn main() {
-fn sqr&lt;T: Mul + Copy&gt; (x: T) -&gt; T::Output {
-    x * x
-}
-
-#}</code></pre></pre>
-<p>And that (finally) works. Calmly listening to the compiler will often get you closer
-to the magic point when ... things compile cleanly.</p>
-<p>It <em>is</em> a bit simpler in C++:</p>
-<pre><code class="language-cpp">template &lt;typename T&gt;
-T sqr(x: T) {
-    return x * x;
-}
-</code></pre>
-<p>but (to be honest) C++ is adopting cowboy tactics here. C++ template errors are famously
-bad, because all the compiler knows (ultimately) is that some operator or method is
-not defined. The C++ committee knows this is a problem and so they are working
-toward <a href="https://en.wikipedia.org/wiki/Concepts_(C%2B%2B)">concepts</a>, which are pretty
-much like trait-constrained type parameters in Rust.</p>
-<p>Rust generic functions may look a bit overwhelming at first, but being explicit means
-you will know exactly what kind of values you can safely feed it, just by looking at the
-definition.</p>
-<p>These functions are called <em>monomorphic</em>, in constrast to <em>polymorphic</em>. The body of
-the function is compiled separately for each unique type.  With polymorphic functions,
-the same machine code works with each matching type, dynamically <em>dispatching</em>
-the correct method.</p>
-<p>Monomorphic produces faster code,
-specialized for the particular type, and can often be <em>inlined</em>.  So when <code>sqr(x)</code> is
-seen, it's effectively replaced with <code>x*x</code>.  The downside is that large generic
-functions produce a lot of code, for each type used, which can result in <em>code bloat</em>.
-As always, there are trade-offs; an experienced person learns to make the right choice
-for the job.</p>
 <a class="header" href="./2-structs-enums-lifetimes.html#generic-structs" name="generic-structs"><h2>Generic Structs</h2></a>
-<p>Consider the example of a binary tree. It would be <em>seriously irritating</em> to
-have to rewrite it for all possible kinds of payload. Before C++ templates, people
-would do truly awful things with the C preprocessor to write 'generic' classes.</p>
-<p>So here's our generic <code>Node</code> with its <em>type parameter</em> <code>T</code>. It's fairly similar to
-a C++ template struct.</p>
+<p>Consider the previous example of a binary tree. It would be <em>seriously irritating</em> to
+have to rewrite it for all possible kinds of payload.
+So here's our generic <code>Node</code> with its type parameter <code>T</code>.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
@@ -1781,13 +1837,13 @@ The type parameter must be declared in the <code>impl</code> block with its cons
     fn insert(&amp;mut self, data: T) {
         if data &lt; self.payload {
             match self.left {
-            Some(ref mut n) =&gt; n.insert(data),
-            None =&gt; self.set_left(Self::new(data)),
+                Some(ref mut n) =&gt; n.insert(data),
+                None =&gt; self.set_left(Self::new(data)),
             }
         } else {
             match self.right {
-            Some(ref mut n) =&gt; n.insert(data),
-            None =&gt; self.set_right(Self::new(data)),
+                Some(ref mut n) =&gt; n.insert(data),
+                None =&gt; self.set_right(Self::new(data)),
             }
         }
     }
@@ -1804,8 +1860,11 @@ fn main() {
 }
 </code></pre></pre>
 <p>So generic structs need their type parameter(s) specified
-in angle brackets, like C++. Unlike C++, Rust is usually smart enough to work out
-that type parameter from context. But you do need to constrain that type appropriately!</p>
+in angle brackets, like C++. Rust is usually smart enough to work out
+that type parameter from context - it knows it has a <code>Node&lt;T&gt;</code>, and knows
+that its <code>insert</code> method is passed <code>T</code>. The first call of <code>insert</code> nails
+down <code>T</code> to be <code>String</code>. If any further calls are inconsistent it will complain.</p>
+<p>But you do need to constrain that type appropriately!</p>
 
                 </div>
 

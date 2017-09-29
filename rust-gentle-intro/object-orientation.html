@@ -2,9 +2,9 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>Object-Oriented Programming - </title>
+        <title>Object-Oriented Programming - A Gentle Introduction to Rust</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
-        <meta name="description" content="">
+        <meta name="description" content="Introduction to the Rust language, standard library and ecosystem">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <base href="">
@@ -59,7 +59,7 @@
                         <i id="theme-toggle" class="fa fa-paint-brush"></i>
                     </div>
 
-                    <h1 class="menu-title"></h1>
+                    <h1 class="menu-title">A Gentle Introduction to Rust</h1>
 
                     <div class="right-buttons">
                         <i id="print-button" class="fa fa-print" title="Print this book"></i>
@@ -87,7 +87,8 @@ with methods.</li>
 object-orientation: it comes as a shock, because Rust data aggregates (structs, enums
 and tuples) are dumb. You can define methods on them, and make the data itself private,
 all the usual tactics of encapsulation, but they are all <em>unrelated types</em>.
-There is no subtyping and no inheritance of data.</p>
+There is no subtyping and no inheritance of data (apart from the specialized
+case of <code>Deref</code> coercions.)</p>
 <p>The relationships between various data types in Rust are
 established using <em>traits</em>.  A large part of learning Rust is understanding how the
 standard library traits operate, because that's the web of meaning that glues all the
@@ -95,53 +96,67 @@ data types together.</p>
 <p>Traits are interesting because there's no one-to-one correspondence between them and concepts
 from mainstream languages. It depends if you're thinking dynamically or statically. In the
 dynamic case, they're rather like Java or Go interfaces.</p>
-<p>For instance,  it becomes automatic to slap a <code>#[derive(Debug)]</code>
-on any new types, because the innards of those types can be printed out using <code>{:?}</code>. All
-stdlib types implement <code>Debug</code>:</p>
+<a class="header" href="./object-orientation.html#trait-objects" name="trait-objects"><h3>Trait Objects</h3></a>
+<p>Consider the example first used to introduce traits:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
-let question = &quot;everything&quot;;
-let answer = 42;
-
-let debugables: Vec&lt;&amp;Debug&gt; = vec![&amp;question,&amp;answer];
-for d in &amp;debugables {
-    println!(&quot;{:?}&quot;,d);
+trait Show {
+    fn show(&amp;self) -&gt; String;
 }
-// &quot;everything&quot;
-// 42
+
+impl Show for i32 {
+    fn show(&amp;self) -&gt; String {
+        format!(&quot;four-byte signed {}&quot;, self)
+    }
+}
+
+impl Show for f64 {
+    fn show(&amp;self) -&gt; String {
+        format!(&quot;eight-byte float {}&quot;, self)
+    }
+}
 
 #}</code></pre></pre>
-<p>Now, we could just use <code>{:?}</code> to dump the innards of the vector directly, but I want
-to emphasize we are iterating over references that are all guaranteed to have the <code>fmt</code>
-method defined. A vector of references to values implementing <code>Debug</code> can be printed out.
-That's a clunky thing  to say often, so they are called <code>Debug</code> <em>trait objects</em>.
-Now integers and strings otherwise don't have much in common, but here we've found a common denominator;
-they know how to print out their innards.
-And this is how you get traditional dynamic dispatch in Rust, because that <code>fmt</code> method
-defined by the <code>Debug</code> trait is called as a virtual method.</p>
-<p>'virtual' method is a concept that only applies to statically-compiled languages; they are the
-<em>default</em> in Java, unless you sternly say <code>final</code>. In a language like Python, the object has
-all of its class information attached, and the interpreter will look up <code>fmt</code> in the class
-object at runtime.</p>
+<p>Here's a little program with big implications:</p>
+<pre><pre class="playpen"><code class="language-rust">fn main() {
+    let answer = 42;
+    let maybe_pi = 3.14;
+    let v: Vec&lt;&amp;Show&gt; = vec![&amp;answer,&amp;maybe_pi];
+    for d in v.iter() {
+        println!(&quot;show {}&quot;,d.show());
+    }
+}
+// show four-byte signed 42
+// show eight-byte float 3.14
+</code></pre></pre>
+<p>This is a case where Rust needs some type guidance - I specifically want a vector
+of references to anything that implements <code>Show</code>.  Now note that <code>i32</code> and <code>f64</code>
+have no relationship to each other, but they both understand the <code>show</code> method
+because they both implement the same trait. This method is <em>virtual</em>, because
+the actual method has different code for different types, and yet the correct
+method is invoked based on <em>runtime</em> information. These references
+are called <a href="https://doc.rust-lang.org/stable/book/trait-objects.html">trait objects</a>.</p>
+<p>And <em>that</em> is how you can put objects of different types in the same vector. If
+you come from a Java or Go background, you can think of <code>Show</code> as acting like an interface.</p>
 <p>A little refinement of this example - we <em>box</em> the values. A box contains a reference to data
 allocated on the heap, and acts very much like a reference - it's a <em>smart pointer</em>. When boxes
 go out of scope and <code>Drop</code> kicks in, then that memory is released.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
-    let question = Box::new(&quot;everything&quot;);
-    let answer = Box::new(42);
+let answer = Box::new(42);
+let maybe_pi = Box::new(3.14);
 
-    let debugables: Vec&lt;Box&lt;Debug&gt;&gt; = vec![question,answer];
-    for d in &amp;debugables {
-        println!(&quot;{:?}&quot;,d);
-    }
+let show_list: Vec&lt;Box&lt;Show&gt;&gt; = vec![question,answer];
+for d in &amp;show_list {
+    println!(&quot;show {}&quot;,d.show());
+}
 
 #}</code></pre></pre>
-<p>The difference is that you can take this vector, pass it as a reference, give it away, without
-having to track any borrowed references. When the vector is dropped, the boxes will be dropped,
-and all memory is reclaimed.</p>
+<p>The difference is that you can now take this vector, pass it as a
+reference or give it away without having to track any borrowed references.
+When the vector is dropped, the boxes will be dropped, and all memory is reclaimed.</p>
 <a class="header" href="./object-orientation.html#animals" name="animals"><h2>Animals</h2></a>
 <p>For some reason, any discussion of OOP and inheritance seems to end up talking about animals. It
 makes for a nice story: &quot;See, a Cat is a Carnivore. And a Carnivore is an Animal&quot;. But I'll start
@@ -194,8 +209,7 @@ for d in &amp;ducks {
 <p>Here we have two completely different types (one is so dumb it doesn't even have data), and yes,
 they all <code>quack()</code>. One is behaving a little odd (for a duck) but they share the same method name
 and Rust can keep a collection of such objects in a type-safe way.</p>
-<p>Rust is a little over-obsessed with memory safety (since that's the <em>big thing</em> it brings to
-system languages) but type safety is a fantastic thing.  Without static typing, you might insert
+<p>Type safety is a fantastic thing.  Without static typing, you could insert
 a <em>cat</em> into that collection of Quackers, resulting in run-time chaos.</p>
 <p>Here's a funny one:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
@@ -215,7 +229,9 @@ let int = 4;
 
 let ducks: Vec&lt;&amp;Quack&gt; = vec![&amp;duck1,&amp;duck2,&amp;parrot,&amp;int];
 ...
-// ...
+// quack!
+// quack!
+// squawk!
 // quack 0 quack 1 quack 2 quack 3
 
 #}</code></pre></pre>
@@ -247,7 +263,8 @@ take on the quacking business - if there's a Go interface <code>Quack</code>, an
 then that type satisfies <code>Quack</code> without any need for explicit definition. This also breaks the
 baked-into-definition Java model, and allows compile-time duck-typing, at the cost of some
 clarity and type-safety.</p>
-<p>But there is a problem with duck-typing. One of the signs of bad OOP is too many methods which have some
+<p>But there is a problem with duck-typing.
+One of the signs of bad OOP is too many methods which have some
 generic name like <code>run</code>. &quot;If it has run(), it must be Runnable&quot; doesn't sound so catchy as
 the original!  So it is possible for a Go interface to be <em>accidentally</em> valid. In Rust,
 both the <code>Debug</code> and <code>Display</code> traits define <code>fmt</code> methods, but they really mean different
@@ -265,11 +282,43 @@ he explained that the real problem wasn't classes per se, but rather implementat
 (the extends relationship). Interface inheritance (the implements relationship) is preferable.
 You should avoid implementation inheritance whenever possible</p>
 </blockquote>
-<p>So even in Java, you've probably been doing it wrong!</p>
+<p>So even in Java, you've probably been overdoing classes!</p>
 <p>Implementation inheritance has some serious problems. But it does feel so very
 <em>convenient</em>. There's this fat base class called <code>Animal</code> and it has loads of useful
 functionality (it may even expose its innards!) which our derived class <code>Cat</code> can use. That is,
 it is a form of code reuse. But code reuse is a separate concern.</p>
+<p>Getting the distinction between implementation and interface inheritance is important when
+understanding Rust.</p>
+<p>Note that traits may have <em>provided</em> methods. Consider <code>Iterator</code> - you only <em>have</em> to override
+<code>next</code>, but get a whole host of methods free.  This is similar to 'default' methods of modern
+Java interfaces. Here we only define <code>name</code> and <code>upper_case</code> is defined for us. We <em>could</em>
+override <code>upper_case</code> as well, but it isn't <em>required</em>.</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+trait Named {
+    fn name(&amp;self) -&gt; String;
+
+    fn upper_case(&amp;self) -&gt; String {
+        self.name().to_uppercase()
+    }
+}
+
+struct Boo();
+
+impl Named for Boo {
+    fn name(&amp;self) -&gt; String {
+        &quot;boo&quot;.to_string()
+    }
+}
+
+let f = Boo();
+
+assert_eq!(f.name(),&quot;boo&quot;.to_string());
+assert_eq!(f.upper_case(),&quot;BOO&quot;.to_string());
+
+#}</code></pre></pre>
+<p>This is a <em>kind</em> of code reuse, true, but note that it does not apply to the data, only the interface!</p>
 <a class="header" href="./object-orientation.html#ducks-and-generics" name="ducks-and-generics"><h2>Ducks and Generics</h2></a>
 <p>An example of generic-friendly duck function in Rust would be this trivial one:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
@@ -285,7 +334,8 @@ quack(&amp;d);
 
 #}</code></pre></pre>
 <p>The type parameter is <em>any</em> type which implements <code>Quack</code>. There's an important difference
-between <code>quack</code> and <code>quack_ref</code>.  The body of this function is compiled for <em>each</em> of the calling
+between <code>quack</code> and the <code>quack_ref</code> defined in the last section.
+The body of this function is compiled for <em>each</em> of the calling
 types and no virtual method is needed; such functions can be completely inlined. It
 uses the trait <code>Quack</code> in a different way, as a <em>constraint</em> on generic types.</p>
 <p>This is the C++ equivalent to the generic <code>quack</code> (note the <code>const</code>):</p>
@@ -328,8 +378,9 @@ quack_everyone(ducks.into_iter());
 <p>Iterators in Rust aren't duck-typed but are types that must implement <code>Iterator</code>, and in
 this case the iterator provides boxes of <code>Quack</code>.  There's no ambiguity about the types
 involved, and the values must satisfy <code>Quack</code>. Often the function signature is the most challenging
-thing about a generic Rust function, which is why I recommend reading the source - the
-implementation is often much simpler. Here the only type parameter is the actual iterator type,
+thing about a generic Rust function, which is why I recommend reading
+the source of the standard library - the implementation is often much simpler than the declaration!
+Here the only type parameter is the actual iterator type,
 which means that this will work with anything that can deliver a sequence of boxes, not just
 a vector iterator.</p>
 <a class="header" href="./object-orientation.html#inheritance" name="inheritance"><h2>Inheritance</h2></a>
@@ -348,8 +399,66 @@ diesel, diesel-electric, etc), cargo-or-people, and so forth.  Any fixed hierarc
 you create based on one aspect ignores all other aspects. That is, there are multiple possible
 classifications of vehicles!</p>
 <p>Composition is more important in Rust for the obvious reason that you can't inherit functionality
-in a lazy way from the base class.</p>
-<p>But there is <em>trait inheritance</em>:</p>
+in a lazy way from a base class.</p>
+<p>Composition is also important because the borrow checker is smart enough
+to know that borrowing different struct fields are separate borrows. You can have
+a mutable borrow of one field while having an immutable borrow of another field,
+and so forth. Rust cannot tell that a method only accesses one field, so the
+fields should be structs with their own methods for implementation convenience.
+(The <em>external</em> interface of the struct can be anything you like using suitable traits.)</p>
+<p>A concrete example of 'split borrrowing' will make this clearer. We have a struct that
+owns some strings, with a method for borrowing the first string mutably.</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+struct Foo {
+    one: String,
+    two: String
+}
+
+impl Foo {
+    fn borrow_one_mut(&amp;mut self) -&gt; &amp;mut String {
+        &amp;mut self.one
+    }
+    ....
+}
+
+#}</code></pre></pre>
+<p>(This is an example of a Rust naming convention - such methods should end in <code>_mut</code>)</p>
+<p>Now, a method for borrowing both strings, reusing the first method:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    fn borrow_both(&amp;self) -&gt; (&amp;str,&amp;str) {
+        (self.borrow_one_mut(), &amp;self.two)
+    }
+
+#}</code></pre></pre>
+<p>Which can't work!  We've borrrowed mutably from <code>self</code> and <em>also</em> borrowed immmutably from <code>self</code>.
+If Rust allowed situations like this, then that immmutable reference can't be guaranteed not to
+change.</p>
+<p>The solution is simple:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    fn borrow_both(&amp;self) -&gt; (&amp;str,&amp;str) {
+        (&amp;self.one, &amp;self.two)
+    }
+
+#}</code></pre></pre>
+<p>And this is fine, because the borrow checker considers these to be independent borrows. So imagine
+that the fields were some arbitrary types, and you can see that methods called on these fields
+will not cause borrowing problems.</p>
+<p>There is a restricted but very important kind of
+'inheritance' with <a href="https://rust-lang.github.io/book/second-edition/ch15-02-deref.html">Deref</a>,
+which is the trait for the 'dereference' operator <code>*</code>.
+<code>String</code> implements <code>Deref&lt;Target=str&gt;</code> and so all the methods defined on <code>&amp;str</code> are automatically
+available for <code>String</code> as well!  In a similar way, the methods of <code>Foo</code> can be directly
+called on <code>Box&lt;Foo&gt;</code>.  Some find this a little ... magical, but it is tremendously convenient.
+There is a simpler language inside modern Rust, but it would not be half as pleasant to use.
+It really should be used for cases where there is an owned, mutable type and a simpler borrowed
+type.</p>
+<p>Generally in Rust there is <em>trait inheritance</em>:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
@@ -364,10 +473,13 @@ trait Location {
 trait ShowTell: Show + Location {}
 
 #}</code></pre></pre>
-<p>The last trait simply combines our two distinct traits into one, although it can specify
+<p>The last trait simply combines our two distinct traits into one, although it could specify
 other methods.</p>
 <p>Things now proceed as before:</p>
-<pre><code>#[derive(Debug)]
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+#[derive(Debug)]
 struct Foo {
     name: String,
     location: String
@@ -396,7 +508,8 @@ impl Location for Foo {
 
 impl ShowTell for Foo {}
 
-</code></pre>
+
+#}</code></pre></pre>
 <p>Now, if I have a value <code>foo</code> of type <code>Foo</code>, then a reference to that value will
 satisfy <code>&amp;Show</code>, <code>&amp;Location</code> or <code>&amp;ShowTell</code> (which implies both.)</p>
 <p>Here's a useful little macro:</p>
@@ -456,21 +569,25 @@ check whether a given object is an instance of a class and then to do a
 dynamic cast to that type. It isn't really a good idea in general, and specifically
 cannot work in Rust because that <code>Show</code> reference has 'forgotten' that it was originally
 a <code>ShowTell</code> reference.</p>
-<p>Composition is also important in Rust because the borrow checker is smart enough
-to know that borrowing different struct fields are separate borrows. You can have
-a mutable borrow of one field while having an immutable borrow of another field,
-and so forth. Rust cannot tell that a method only accesses one field, so the
-fields should be structs with their own methods for implementation convenience.
-(The <em>external</em> interface of the struct can be anything you like using suitable traits.)</p>
 <p>You always have a choice: polymorphic, via trait objects, or monomorphic, via generics
 constrainted by traits. Modern C++ and the Rust standard library tends to take the generic
 route, but the polymorphic route is not obselete. You do have to understand the different
 trade-offs - generics generate the fastest code, which can be inlined. This may lead
 to code bloat. But not everything needs to be as <em>fast as possible</em> - it may only happen
 a 'few' times in the lifetime of a typical program fun.</p>
+<p>So, here's a summary:</p>
+<ul>
+<li>the role played by <code>class</code> is shared between data and traits</li>
+<li>structs and enums are dumb, although you can define methods and do data hiding</li>
+<li>a <em>limited</em> form of subtyping is possible on data using the <code>Deref</code> trait</li>
+<li>traits don't have any data, but can be implemented for any type (not just structs)</li>
+<li>traits can inherit from other traits</li>
+<li>traits can have provided methods, allowing interface code re-use</li>
+<li>traits give you both virtual methods (polymorphism) and generic constraints (monomorphism)</li>
+</ul>
 <a class="header" href="./object-orientation.html#example-windows-api" name="example-windows-api"><h2>Example: Windows API</h2></a>
-<p>One of the areas where traditional OOP is used extensively is GUI toolkits. An EditControl or a ListWindow
-is-a Window, and so forth. This makes writing Rust bindings to GUI toolkits more difficult
+<p>One of the areas where traditional OOP is used extensively is GUI toolkits. An <code>EditControl</code> or a <code>ListWindow</code>
+is-a <code>Window</code>, and so forth. This makes writing Rust bindings to GUI toolkits more difficult
 than it needs to be.</p>
 <p>Win32 programming can be done <a href="https://www.codeproject.com/Tips/1053658/Win-GUI-Programming-In-Rust-Language">directly</a>
 in Rust, and it's a little less awkward than the original C. As soon as I graduated from C

@@ -2,9 +2,9 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>Parsing with Nom - </title>
+        <title>Parsing with Nom - A Gentle Introduction to Rust</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
-        <meta name="description" content="">
+        <meta name="description" content="Introduction to the Rust language, standard library and ecosystem">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <base href="">
@@ -59,7 +59,7 @@
                         <i id="theme-toggle" class="fa fa-paint-brush"></i>
                     </div>
 
-                    <h1 class="menu-title"></h1>
+                    <h1 class="menu-title">A Gentle Introduction to Rust</h1>
 
                     <div class="right-buttons">
                         <i id="print-button" class="fa fa-print" title="Print this book"></i>
@@ -86,7 +86,9 @@ in hilly country and I will point out some interesting rock formations on the wa
 with only a few geology lectures. There will be some uphill but the view will be
 inspiring; the community is unusually pleasant and happy to help.
 There is the <a href="https://users.rust-lang.org/">Rust Users Forum</a> and an active
-<a href="https://www.reddit.com/r/rust/">subreddit</a> which is unusually well-moderated.</p>
+<a href="https://www.reddit.com/r/rust/">subreddit</a> which is unusually well-moderated.
+The <a href="https://www.rust-lang.org/en-US/faq.html">FAQ</a> is a good resource if
+you have specific questions.</p>
 <p>First, why learn a new programming language? It is an investment of time and energy
 and that needs some justification. Even if you do not immediately land
 a cool job using that language, it stretches the mental muscles and makes you a
@@ -126,12 +128,13 @@ the result:</p>
 <pre><code>$ curl https://sh.rustup.rs -sSf | sh
 $ rustup component add rust-docs
 </code></pre>
-<p>I would recommend getting the default stable version; it's easy to switch later.</p>
-<p><code>rustup</code> is the command you use to manage your Rust installation - this 'component add' command
-downloads the Rust documentation so you can view it locally. When a new stable release
-appears, you just have to say <code>rustup update</code> to upgrade.</p>
+<p>I would recommend getting the default stable version; it's easy to download
+unstable versions later and to switch between.</p>
 <p>This gets the compiler, the Cargo package manager, the API documentation, and the Rust Book.
 The journey of a thousand miles starts with one step, and this first step is painless.</p>
+<p><code>rustup</code> is the command you use to manage your Rust installation. When a new stable release
+appears, you just have to say <code>rustup update</code> to upgrade. <code>rustup doc</code> will open
+the offline documentation in your browser.</p>
 <p>You will probably already have an editor you like, and <a href="https://areweideyet.com/">basic Rust support</a>
 is good. I'd suggest you start out with basic syntax highlighting at first, and
 work up as your programs get larger.</p>
@@ -150,7 +153,7 @@ feel the strain, but don't over-strain. You are not building dumb muscle here.</
 <p>I'd like to thank the many contributors who caught bad English or bad Rust for me,
 and thanks to David Marino for his cool characterization
 of Rust as a friendly-but-hardcore no-nonsense knight in shining armour.</p>
-<p>Steve Donovan © 2017 MIT license version 0.2.0</p>
+<p>Steve Donovan © 2017 MIT license version 0.3.0</p>
 <a class="header" href="print.html#basics" name="basics"><h1>Basics</h1></a>
 <a class="header" href="print.html#hello-world" name="hello-world"><h2>Hello, World!</h2></a>
 <p>The original purpose of &quot;hello world&quot;, ever since the first C version was written,
@@ -359,9 +362,9 @@ fn main() {
 <p>Rust goes back to an
 older style of argument declaration, where the type follows the name. This is
 how it was done in Algol-derived languages like Pascal.</p>
-<p>Again, no integer-to-float conversions - if you replace the <code>0.0</code> with <code>0</code> then we
+<p>Again, no integer-to-float conversions - if you replace the <code>2.0</code> with <code>2</code> then we
 get a clear error:</p>
-<pre><code>8 |     let res = sqr(0);
+<pre><code>8 |     let res = sqr(2);
   |                   ^ expected f64, found integral variable
   |
 </code></pre>
@@ -572,7 +575,7 @@ an underlying array of values. They otherwise behave very much like an array, an
 <p>Note two important things here - how to write a slice's type, and that
 you have to use <code>&amp;</code> to pass it to the function.</p>
 <pre><pre class="playpen"><code class="language-rust">// array2.rs
-// read as: slice of i32 array
+// read as: slice of i32
 fn sum(values: &amp;[i32]) -&gt; i32 {
     let mut res = 0;
     for i in 0..values.len() {
@@ -637,6 +640,7 @@ let var: () = [1.1, 1.2];
   = note: expected type `()`
   = note:    found type `[{float}; 2]`
 </code></pre>
+<p>(<code>{float}</code> means 'some floating-point type which is not fully specified yet')</p>
 <p>Slices give you different <em>views</em> of the <em>same</em> array:</p>
 <pre><pre class="playpen"><code class="language-rust">// slice1.rs
 fn main() {
@@ -681,7 +685,7 @@ fn main() {
 // first Some(1)
 // last None
 </code></pre></pre>
-<p><code>last</code> failed (forgot zero-based indexing), but returned something called <code>None</code>.
+<p><code>last</code> failed (we forgot about zero-based indexing), but returned something called <code>None</code>.
 <code>first</code> is fine, but appears as a value wrapped in <code>Some</code>.  Welcome to the <code>Option</code>
 type!  It may be <em>either</em> <code>Some</code> or <code>None</code>.</p>
 <p>The <code>Option</code> type has some useful methods:</p>
@@ -712,17 +716,22 @@ type!  It may be <em>either</em> <code>Some</code> or <code>None</code>.</p>
 #}</code></pre></pre>
 <p>Note the <code>*</code> - the precise type inside the <code>Some</code> is <code>&amp;i32</code>, which is a reference. We need
 to dereference this to get back to a <code>i32</code> value.</p>
-<p>Which is long-winded, so there's a shortcut (the <code>&amp;</code> is because <code>get</code> always
-returns a reference, and <code>*</code> is to get the value as <code>i32</code>):</p>
+<p>Which is long-winded, so there's a shortcut - <code>unwrap_or</code> will return the value it
+is given if the <code>Option</code> was <code>None</code>. The types must match up - <code>get</code> returns
+a referemce. so you have to make up a <code>&amp;i32</code> with <code>&amp;-1</code>. Finally, again use <code>*</code>
+to get the value as <code>i32</code>.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
     let last = *slice.get(5).unwrap_or(&amp;-1);
 
 #}</code></pre></pre>
+<p>It's easy to miss the <code>&amp;</code>, but the compiler has your back here. If it was <code>-1</code>,
+<code>rustc</code> says 'expected &amp;{integer}, found integral variable' and then
+'help: try with <code>&amp;-1</code>'.</p>
 <p>You can think of <code>Option</code> as a box which may contain a value, or nothing (<code>None</code>).
 (It is called <code>Maybe</code> in Haskell). It may contain <em>any</em> kind of value, which is
-its <em>type parameter</em>. In this case, the full type is <code>Option&lt;i32&gt;</code>, using
+its <em>type parameter</em>. In this case, the full type is <code>Option&lt;&amp;i32&gt;</code>, using
 C++-style notation for <em>generics</em>.  Unwrapping this box may cause an explosion,
 but unlike Schroedinger's Cat, we know if it contains a value up-front.</p>
 <p>It is very common for Rust functions/methods to return such maybe-boxes, so learn
@@ -777,7 +786,7 @@ fn main() {
 }
 </code></pre></pre>
 <p>That little, so-important borrow operator <code>&amp;</code> is <em>coercing</em> the vector into a
-slice. And it makes complete sense, because the vector is looking after an array of
+slice. And it makes complete sense, because the vector is also looking after an array of
 values, with the difference that the array is allocated <em>dynamically</em>.</p>
 <p>If you come from a dynamic language, now is time for that little talk. In systems
 languages, program memory comes in two kinds: the stack and the heap. It is very fast
@@ -795,7 +804,7 @@ in his Mom's basement in Minsk.</p>
 <p>The first C program I wrote (on an DOS PC)
 took out the whole computer. Unix systems always behaved better, and only the process died
 with a <em>segfault</em>. Why is this worse than a Rust (or Go) program panicking?
-Because the panic happens when the original problem happens, not when the program
+Because a panic happens when the original problem happens, not when the program
 has become hopelessly confused and eaten all your homework. Panics are <em>memory safe</em>
 because they happen before any illegal access to memory. This is a common cause of
 security problems in C, because all memory accesses are unsafe and a cunning attacker
@@ -812,7 +821,7 @@ cleaning. Roberto Ierusalimschy, the chief designer of Lua (one of the most eleg
 dynamic languages ever) said that he would not like to fly on an airplane that
 relied on garbage-collected software.</p>
 <p>Back to vectors: when a vector is modified or created, it allocates from the heap and becomes
-the <em>owner</em> of that memory. The slice <em>borrows</em> the array from the vector.
+the <em>owner</em> of that memory. The slice <em>borrows</em> the memory from the vector.
 When the vector dies or <em>drops</em>, it lets the memory go.</p>
 <a class="header" href="print.html#iterators" name="iterators"><h2>Iterators</h2></a>
 <p>We have got so far without mentioning a key part of the Rust puzzle - iterators.
@@ -832,10 +841,7 @@ fn main() {
 </code></pre></pre>
 <p>And that is exactly what <code>for var in iter {}</code> does.</p>
 <p>This may seem an inefficient way to define a for-loop, but <code>rustc</code> does crazy-ass
-optimizations in release mode and it will be just as fast as a <code>while</code> loop. (Contrast
-with the situation on the JVM, where iterators always require allocation. The consequence
-is that funky functional stuff in Scala is <em>always</em> going to be significantly slower
-than in Rust).</p>
+optimizations in release mode and it will be just as fast as a <code>while</code> loop.</p>
 <p>Here is the first attempt to iterate over an array:</p>
 <pre><pre class="playpen"><code class="language-rust">// iter2.rs
 fn main() {
@@ -861,7 +867,7 @@ fn main() {
         println!(&quot;{}&quot;, i);
     }
 
-    // slices can be converted implicitly to iterators...
+    // slices will be converted implicitly to iterators...
     let slice = &amp;arr;
     for i in slice {
         println!(&quot;{}&quot;, i);
@@ -887,10 +893,11 @@ the <em>type</em> of the variable, since otherwise Rust doesn't have enough info
 Here we do sums with two different integer sizes, no problem. (It is also no
 problem to create a new variable of the same name if you run out of names to
 give things.)</p>
-<p>With this background, some more of the slice methods will make more sense.
-Another documentation tip; on the right-hand side of every page there's a '[-]' which you can
+<p>With this background, some more of the <a href="https://doc.rust-lang.org/std/primitive.slice.html">slice methods</a>
+will make more sense.
+(Another documentation tip; on the right-hand side of every doc page there's a '[-]' which you can
 click to collapse the method list. You can then expand the details of anything
-that looks interesting. (Anything that looks too weird, just ignore for now.)</p>
+that looks interesting. Anything that looks too weird, just ignore for now.)</p>
 <p>The <code>windows</code> method gives you an iterator of slices - overlapping windows of
 values!</p>
 <pre><pre class="playpen"><code class="language-rust">// slice4.rs
@@ -958,13 +965,14 @@ fn main() {
 }
 </code></pre></pre>
 <a class="header" href="print.html#strings" name="strings"><h2>Strings</h2></a>
-<p>Strings in Rust are a little more involved than in dynamic languages; the <code>String</code> type,
+<p>Strings in Rust are a little more involved than in otherlanguages; the <code>String</code> type,
 like <code>Vec</code>, allocates dynamically and is resizeable. (So it's like C++'s <code>std::string</code>
-but not like the immutable strings of Java and Python.) A program may contain a lot
+but not like the immutable strings of Java and Python.) But a program may contain a lot
 of <em>string literals</em> (like &quot;hello&quot;) and a system language should be able to store
 these statically in the executable itself. In embedded micros, that could mean putting
 them in cheap ROM rather than expensive RAM (for low-power devices, RAM is
-also expensive in terms of power consumption.)</p>
+also expensive in terms of power consumption.) A <em>system</em> language has to have
+two kinds of string, allocated or static.</p>
 <p>So &quot;hello&quot; is not of type <code>String</code>. It is of type <code>&amp;str</code> (pronounced 'string slice').
 It's like the distinction between <code>const char*</code> and <code>std::string</code> in C++, except
 <code>&amp;str</code> is much more intelligent.  In fact, <code>&amp;str</code> and <code>String</code> have a very
@@ -984,12 +992,9 @@ fn main() {
 </code></pre></pre>
 <p>Again, the borrow operator can coerce <code>String</code> into <code>&amp;str</code>, just as <code>Vec</code> could
 be coerced into <code>&amp;[]</code>.</p>
-<p>In C++, char pointers can become strings implicitly through the constructor and
-through assignment,  but you need the ugly <code>c_str</code>
-method to get the owned char pointer of the string. And that's an important difference
-in emphasis; Rust is making the <em>allocation</em> obvious, but makes it easier to borrow
-the characters as a string slice.</p>
-<p>Like a vector, you can <code>push</code> a character and <code>pop</code> one off the end.</p>
+<p>Under the hood, <code>String</code> is basically a <code>Vec&lt;u8&gt;</code> and <code>&amp;str</code> is <code>&amp;[u8]</code>, but
+those bytes <em>must</em> represent valid UTF-8 text.</p>
+<p>Like a vector, you can <code>push</code> a character and <code>pop</code> one off the end of <code>String</code>:</p>
 <pre><pre class="playpen"><code class="language-rust">// string5.rs
 fn main() {
     let mut s = String::new();
@@ -1005,7 +1010,7 @@ fn main() {
 }
 </code></pre></pre>
 <p>You can convert many types to strings using <code>to_string</code>
-(essentially, if you can display them with '{}' then they can be converted).
+(if you can display them with '{}' then they can be converted).
 The <code>format!</code> macro is a very useful way to build
 up more complicated strings using the same format strings as <code>println!</code>.</p>
 <pre><pre class="playpen"><code class="language-rust">// string6.rs
@@ -1042,8 +1047,6 @@ fn main() {
 }
 // slices &quot;tatic&quot; &quot;na&quot;
 </code></pre></pre>
-<p>Again, this is superior to the C++ approach, which is to use the <code>substr</code>
-method - which <em>makes a copy</em>. In the Rust case, it's just a borrow.</p>
 <p>But, you cannot index strings!  This is because they use the One True Encoding,
 UTF-8, where a 'character' may be a number of bytes.</p>
 <pre><pre class="playpen"><code class="language-rust">// string3.rs
@@ -1083,8 +1086,9 @@ careful to only slice strings using valid offsets that come from string methods.
 
 #}</code></pre></pre>
 <p>Breaking up strings is a popular and useful pastime. The string <code>split_whitespace</code>
-method returns an <em>iterator</em>, and we then choose what to do with it. <code>collect</code>
-is very general and so needs some clues about <em>what</em> it is collecting - hence
+method returns an <em>iterator</em>, and we then choose what to do with it. A common need
+is to create a vector of the split substrings.</p>
+<p><code>collect</code> is very general and so needs some clues about <em>what</em> it is collecting - hence
 the explicit type.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
@@ -1102,9 +1106,9 @@ the explicit type.</p>
     words.extend(text.split_whitespace());
 
 #}</code></pre></pre>
-<p>If written in C++, we would have to make these <em>allocated strings</em>, whereas
-here each slice in the vector is borrowing from the original string. All we
-allocate is the space to keep the slices.</p>
+<p>In most languages, we would have to make these <em>separately allocated strings</em>,
+whereas here each slice in the vector is borrowing from the original string.
+All we allocate is the space to keep the slices.</p>
 <p>Have a look at this cute two-liner; we get an iterator over the chars,
 and only take those characters which are not space. Again, <code>collect</code> needs
 a clue (we may have wanted a vector of chars, say):</p>
@@ -1112,11 +1116,11 @@ a clue (we may have wanted a vector of chars, say):</p>
 # 
 #fn main() {
     let stripped: String = text.chars()
-        .filter(|ch| !ch.is_whitespace()).collect();
+        .filter(|ch| ! ch.is_whitespace()).collect();
     // theredfoxandthelazydog
 
 #}</code></pre></pre>
-<p>The <code>filter</code> method takes a <em>closure</em>, which is Rust-speak for what C++ calls
+<p>The <code>filter</code> method takes a <em>closure</em>, which is Rust-speak for
 lambdas or anonymous functions.  Here the argument type is clear from the
 context, so the explicit rule is relaxed.</p>
 <p>Yes, you can do this as an explicit loop over chars, pushing the returned slices
@@ -1166,7 +1170,7 @@ fn main() {
     // do your magic
 }
 </code></pre></pre>
-<p><code>nth(1)</code> gives you the second argument from the iterator, and <code>expect</code>
+<p><code>nth(1)</code> gives you the second value of the iterator, and <code>expect</code>
 is like an <code>unwrap</code> with a readable message.</p>
 <p>Converting a string into a number is straightforward, but you do need to specify
 the type of the value - how else could <code>parse</code> know?</p>
@@ -1221,7 +1225,8 @@ can return a value:</p>
 <p>The <code>_</code> is like C <code>default</code> - it's a fall-back case. If you don't provide one then
 <code>rustc</code> will consider it an error. (In C++ the best you can expect is a warning, which
 says a lot about the respective languages).</p>
-<p>Rust <code>match</code> statements are more powerful than <code>switch</code>:</p>
+<p>Rust <code>match</code> statements can also match on ranges. Note that these ranges have
+<em>three</em> dots and are inclusive ranges, so that the first condition would match 3.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
@@ -1235,7 +1240,7 @@ says a lot about the respective languages).</p>
 <a class="header" href="print.html#reading-from-files" name="reading-from-files"><h2>Reading from Files</h2></a>
 <p>The next step to exposing our programs to the world is to <em>reading files</em>.</p>
 <p>Recall that <code>expect</code> is like <code>unwrap</code> but gives a custom error message. We are
-going to throw any a few errors here:</p>
+going to throw away a few errors here:</p>
 <pre><pre class="playpen"><code class="language-rust">// file1.rs
 use std::env;
 use std::fs::File;
@@ -1276,7 +1281,8 @@ want to put this code into a function, knowing that it could so easily crash
 the whole program.  So now we have to talk about exactly what <code>File::open</code> returns.
 If <code>Option</code> is a value that may contain something or nothing, then <code>Result</code> is a value
 that may contain something or an error. They both understand <code>unwrap</code> (and its cousin
-<code>expect</code>) but they are quite different.</p>
+<code>expect</code>) but they are quite different. <code>Result</code> is defined by <em>two</em> type parameters,
+for the <code>Ok</code> value and the <code>Err</code> value.</p>
 <p>This version defines a function that does not crash. It passes on a <code>Result</code> and
 it is the <em>caller</em> who must decide how to handle the error.</p>
 <pre><pre class="playpen"><code class="language-rust">// file2.rs
@@ -1285,7 +1291,7 @@ use std::fs::File;
 use std::io::Read;
 use std::io;
 
-fn read_to_string(filename: &amp;str) -&gt; io::Result&lt;String&gt; {
+fn read_to_string(filename: &amp;str) -&gt; Result&lt;String,io::Error&gt; {
     let mut file = match File::open(&amp;filename) {
         Ok(f) =&gt; f,
         Err(e) =&gt; return Err(e),
@@ -1316,7 +1322,9 @@ it with <code>_</code>.</p>
 the 'happy path' gets lost. Go tends to have this problem, with lots of
 explicit early returns, or just <em>ignoring errors</em>.  (That is, by the way,
 the closest thing to evil in the Rust universe.)</p>
-<p>Fortunately, there is a shortcut:</p>
+<p>Fortunately, there is a shortcut.</p>
+<p>The <code>std::io</code> module defines a type alias <code>io::Result&lt;T&gt;</code> which is exactly
+the same as <code>Result&lt;T,io::Error&gt;</code> and easier to type.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
@@ -1328,9 +1336,10 @@ fn read_to_string(filename: &amp;str) -&gt; io::Result&lt;String&gt; {
 }
 
 #}</code></pre></pre>
-<p>That <code>?</code> operator does almost exactly what the first match did; if the
-result was an error, then it will immediately return that error. At the end, we
-still need to wrap up the string as a result.</p>
+<p>That <code>?</code> operator does almost exactly what the match on <code>File::open</code> does;
+if the result was an error, then it will immediately return that error.
+Otherwise, it returns the <code>Ok</code> result.
+At the end, we still need to wrap up the string as a result.</p>
 <p>It's been a good year in Rust, and <code>?</code> was one of the cool things that
 became stable recently. You will still see the macro <code>try!</code> used in older code:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
@@ -1404,7 +1413,7 @@ fn dump(s: String) {
 fn main() {
     let s1 = &quot;hello dolly&quot;.to_string();
     dump(s1);
-    println!(&quot;s1 {}&quot;, s1);
+    println!(&quot;s1 {}&quot;, s1); // &lt;---error: 'value used here after move'
 }
 </code></pre></pre>
 <p>Here, you have a choice. You may pass a reference to that string, or
@@ -1438,8 +1447,12 @@ fn dump(s: &amp;str) {
 }
 
 #}</code></pre></pre>
-<p>And then both <code>dump(&amp;s1)</code> and <code>dump(&quot;hello world&quot;)</code> work properly.</p>
-<a class="header" href="print.html#lifetimes" name="lifetimes"><h2>Lifetimes</h2></a>
+<p>And then both <code>dump(&amp;s1)</code> and <code>dump(&quot;hello world&quot;)</code> work properly. (Here <code>Deref</code>
+coercion kicks in and Rust will convert <code>&amp;String</code> to <code>&amp;str</code> for you.)</p>
+<p>To summarise, assignment of a non-trivial value moves the value from one location
+to another. Otherwise, Rust would be forced to <em>implicitly</em> do a copy and break its
+promise to make allocations explicit.</p>
+<a class="header" href="print.html#scope-of-variables" name="scope-of-variables"><h2>Scope of Variables</h2></a>
 <p>So, the rule of thumb is to prefer to keep references to the original data - to 'borrow'
 it.</p>
 <p>But a reference must <em>not</em> outlive the owner!</p>
@@ -1454,7 +1467,8 @@ block:</p>
     {
         let c = &quot;hello&quot;.to_string();
         // a,b and c are visible
-    } // the string c is dropped
+    }
+    // the string c is dropped
     // a,b are visible
     for i in 0..a {
         let b = &amp;b[1..];
@@ -1488,7 +1502,7 @@ of its block:</p>
 10 }
 </code></pre></pre>
 <p>We borrow the value of <code>s1</code> and then borrow the value of <code>tmp</code>. But <code>tmp</code>'s value
-does not exist outside that block:</p>
+does not exist outside that block!</p>
 <pre><code>error: `tmp` does not live long enough
   --&gt; ref1.rs:8:5
    |
@@ -1505,7 +1519,7 @@ Rust is here saving you from the dreaded 'dangling pointer' problem of C -
 a reference that points to stale data.</p>
 <a class="header" href="print.html#tuples" name="tuples"><h2>Tuples</h2></a>
 <p>It's sometimes very useful to return multiple values from a function. Tuples are
-the solution:</p>
+a convenient solution:</p>
 <pre><pre class="playpen"><code class="language-rust">// tuple1.rs
 
 fn add_mul(x: f64, y: f64) -&gt; (f64,f64) {
@@ -1529,8 +1543,6 @@ fn main() {
 // add 12 mul 20
 // add 12 mul 20
 </code></pre></pre>
-<p>The <code>let (add,mul) = t</code> construct is similar to that found in Python, except it only works
-with tuple values, not any source of values.</p>
 <p>Tuples may contain <em>different</em> types, which is the main difference from arrays.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
@@ -1542,7 +1554,7 @@ assert_eq!(tuple.1, 5);
 assert_eq!(tuple.2, 'c');
 
 #}</code></pre></pre>
-<p>They appear in some <code>Iterator</code> methods. This is like the Python generator
+<p>They appear in some <code>Iterator</code> methods. <code>enumerate</code> is like the Python generator
 of the same name:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
@@ -1553,15 +1565,15 @@ of the same name:</p>
     //  0 zero; 1 one; 2 two;
 
 #}</code></pre></pre>
-<p><code>zip</code> is specifically for combining two iterators into a single iterator of
-tuples containing the values:</p>
+<p><code>zip</code> combines two iterators into a single iterator of
+tuples containing the values from both:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
     let names = [&quot;ten&quot;,&quot;hundred&quot;,&quot;thousand&quot;];
     let nums = [10,100,1000];
-    for (name,num) in names.iter().zip(nums.iter()) {
-        print!(&quot; {} {};&quot;, name,num);
+    for p in names.iter().zip(nums.iter()) {
+        print!(&quot; {} {};&quot;, p.0,p.1);
     }
     //  ten 10; hundred 100; thousand 1000;
 
@@ -1586,9 +1598,8 @@ fn main() {
 }
 </code></pre></pre>
 <p>The values of a struct will be placed next to each other in memory, although you should
-not assume any particular memory layout - the compiler will organize the memory for
-efficiency, not size, and so there will be padding. A <code>struct</code> should be familiar to C or
-C++ programmers.</p>
+not assume any particular memory layout, since the compiler will organize the memory for
+efficiency, not size, and there may be padding.</p>
 <p>Initializing this struct is a bit clumsy, so we want to move the construction of a <code>Person</code>
 into its own function. This function can be made into a <em>method</em> of <code>Person</code> by putting
 it into a <code>impl</code> block:</p>
@@ -1634,8 +1645,8 @@ impl Person {
 // fullname John Smith
 
 #}</code></pre></pre>
-<p>The <code>self</code> is used explicitly (unlike the <code>this</code> of C++) and is passed as a reference.
-(You can think of <code>&amp;self</code> as <code>self: &amp;Person</code>.)</p>
+<p>The <code>self</code> is used explicitly and is passed as a reference.
+(You can think of <code>&amp;self</code> as short for <code>self: &amp;Person</code>.)</p>
 <p>The keyword <code>Self</code> refers to the struct type - you can mentally substitute <code>Person</code>
 for <code>Self</code> here:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
@@ -1665,6 +1676,15 @@ for <code>Self</code> here:</p>
 
 #}</code></pre></pre>
 <p>(Try that with <code>&amp;self</code> - structs will not let go of their data without a fight!)</p>
+<p>Note that after <code>v.to_tuple()</code> is called, then <code>v</code> has moved and is no longer
+available.</p>
+<p>To summarize:</p>
+<ul>
+<li>no <code>self</code> argument: you can associate functions with structs, like the <code>new</code> &quot;constructor&quot;.</li>
+<li><code>&amp;self</code> argument: can use the values of the struct, but not change them</li>
+<li><code>&amp;mut self</code> argument: can modify the values</li>
+<li><code>self</code> argument: will consume the value, which will move.</li>
+</ul>
 <p>If you try to do a debug dump of a <code>Person</code>, you will get an informative error:</p>
 <pre><code>error[E0277]: the trait bound `Person: std::fmt::Debug` is not satisfied
   --&gt; struct2.rs:23:21
@@ -1805,14 +1825,50 @@ struct A &lt;'a&gt; {
 }
 
 fn main() {
-    let string = &quot;I'm a little string&quot;.to_string();
-    let a = A { s: &amp;string };
+    let s = &quot;I'm a little string&quot;.to_string();
+    let a = A { s: &amp;s };
 
     println!(&quot;{:?}&quot;, a);
 }
 </code></pre></pre>
 <p>Lifetimes are conventionally called 'a','b',etc but you could just as well called it
 'me' here.</p>
+<p>After this point, our <code>a</code> struct and the <code>s</code> string are bound by a strict contract:
+<code>a</code> borrows from <code>s</code>, and cannot outlive it.</p>
+<p>With this struct definition, we would like to write a function that returns an <code>A</code> value:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+fn makes_a() -&gt; A {
+    let string = &quot;I'm a little string&quot;.to_string();
+    A { s: &amp;string }
+}
+
+#}</code></pre></pre>
+<p>But <code>A</code> needs a lifetime - &quot;expected lifetime parameter&quot;:</p>
+<pre><code>  = help: this function's return type contains a borrowed value,
+   but there is no value for it to be borrowed from
+  = help: consider giving it a 'static lifetime
+</code></pre>
+<p><code>rustc</code> is giving advice, so we follow it:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+fn makes_a() -&gt; A&lt;'static&gt; {
+    let string = &quot;I'm a little string&quot;.to_string();
+    A { s: &amp;string }
+}
+
+#}</code></pre></pre>
+<p>And now the error is</p>
+<pre><code>8 |      A { s: &amp;string }
+  |              ^^^^^^ does not live long enough
+9 | }
+  | - borrowed value only lives until here
+</code></pre>
+<p>There is no way that this could safely work, because <code>string</code> will be dropped when the
+function ends, and no reference to <code>string</code> can outlast it.</p>
+<p>You can usefully think of lifetime parameters as being part of the type of a value.</p>
 <p>Sometimes it seems like a good idea for a struct to contain a value <em>and</em> a reference
 that borrows from that value.
 It's basically impossible because structs must be <em>moveable</em>, and any move will
@@ -1836,7 +1892,7 @@ trait Show {
 
 impl Show for i32 {
     fn show(&amp;self) -&gt; String {
-        format!(&quot;four-byte unsigned {}&quot;, self)
+        format!(&quot;four-byte signed {}&quot;, self)
     }
 }
 
@@ -1880,36 +1936,19 @@ impl fmt::Debug for Person {
 #}</code></pre></pre>
 <p><code>write!</code> is a very useful macro - here <code>f</code> is anything that implements <code>Write</code>.
 (This would also work with a <code>File</code> - or even a <code>String</code>.)</p>
-<p>Now, with the implementations of <code>Show</code> in <code>trait1.rs</code>, here's a
-little main program with big implications:</p>
-<pre><pre class="playpen"><code class="language-rust">fn main() {
-    let answer = 42;
-    let maybe_pi = 3.14;
-    let v: Vec&lt;&amp;Show&gt; = vec![&amp;answer,&amp;maybe_pi];
-    for d in v.iter() {
-        println!(&quot;show {}&quot;,d.show());
-    }
-}
-// show four-byte signed 42
-// show eight-byte float 3.14
-</code></pre></pre>
-<p>This is a case where Rust needs some type guidance - I specifically want a vector
-of references to anything that implements <code>Show</code>.  Now note that <code>i32</code> and <code>f64</code>
-have no relationship to each other, but they both understand the <code>show</code> method
-because they both implement the same trait. This method is <em>virtual</em>, because
-the actual method has different code for different types, and yet the correct
-method is invoked based on <em>runtime</em> information. These references
-are called <a href="https://doc.rust-lang.org/stable/book/trait-objects.html">trait objects</a>.</p>
-<p>And <em>that</em> is how you can put objects of different types in the same vector. If
-you come from a Java background, you can think of <code>Show</code> as an interface; the
-nearest C++ equivalent is &quot;abstract base class&quot;.</p>
+<p><code>Display</code> controls how values are printed out with &quot;{}&quot; and is implemented
+just like <code>Debug</code>. As a useful side-effect, <code>ToString</code> is automatically
+implemented for anything implementing <code>Display</code>. So if we implement
+<code>Display</code> for <code>Person</code>, then <code>p.to_string()</code> also works.</p>
+<p><code>Clone</code> defines the method <code>clone</code>, and can simply be defined with
+&quot;#[derive(Clone)]&quot; if all the fields themselves implement <code>Clone</code>.</p>
 <a class="header" href="print.html#example-iterator-over-floating-point-range" name="example-iterator-over-floating-point-range"><h2>Example: iterator over floating-point range</h2></a>
 <p>We have met ranges before (<code>0..n</code>) but they don't work for floating-point values. (You
 can <em>force</em> this but you'll end up with a step of 1.0 which is uninteresting.)</p>
 <p>Recall the informal definition of an iterator; it is an struct with a <code>next</code> method
 which may return <code>Some</code>-thing or <code>None</code>. In the process, the iterator itself gets modified,
 it keeps the state for the iteration (like next index and so forth.) The data that
-is being iterated over doesn't change usually, (But see <code>std::vec::Vec::drain</code> for an
+is being iterated over doesn't change usually, (But see <code>Vec::drain</code> for an
 interesting iterator that does modify its data.)</p>
 <p>And here is the formal definition: the <a href="https://doc.rust-lang.org/std/iter/trait.Iterator.html">Iterator trait</a>.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
@@ -1987,54 +2026,179 @@ println!(&quot;{:.1} &quot;, x);
 <p>And we get cleaner output (this <a href="https://doc.rust-lang.org/std/fmt/index.html">format</a>
 means 'one decimal after dot'.)</p>
 <p>All of the default iterator methods are available, so we can collect these values into
-a vector:</p>
+a vector, map them, and so forth.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
-    let v: Vec&lt;f64&gt; = range(0.0, 1.0, 0.1).collect();
+    let v: Vec&lt;f64&gt; = range(0.0, 1.0, 0.1).map(|x| x.sin()).collect();
 
 #}</code></pre></pre>
-<p>This is a common pattern and it gets irritating. Fortunately, it's easy to
-add new 'consumers' of iterators. These are those methods that end the chain and
-'pull' all the values of the iterator, like <code>count</code> - or <code>collect</code>.</p>
-<p>We will define a new trait <code>ToVec</code> which has an associated type, just like an <code>Iterator</code>.
-It will be the type contained in the returned vector.</p>
+<a class="header" href="print.html#generic-functions" name="generic-functions"><h2>Generic Functions</h2></a>
+<p>We want a function which will dump out any value that implements <code>Debug</code>. Here is
+a first attempt at a generic function, where we can pass a reference to <em>any</em> type
+of value. <code>T</code> is a type parameter, which needs to be declared just after the
+function name:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
-trait ToVec {
-    type Item;
+fn dump&lt;T&gt; (value: &amp;T) {
+    println!(&quot;value is {:?}&quot;,value);
+}
 
-    fn to_vec(self) -&gt; Vec&lt;Self::Item&gt;;
+let n = 42;
+dump(&amp;n);
+
+#}</code></pre></pre>
+<p>However, Rust clearly knows nothing about this generic type <code>T</code>:</p>
+<pre><code>error[E0277]: the trait bound `T: std::fmt::Debug` is not satisfied
+...
+   = help: the trait `std::fmt::Debug` is not implemented for `T`
+   = help: consider adding a `where T: std::fmt::Debug` bound
+</code></pre>
+<p>For this to work, Rust needs to be told that <code>T</code> does in fact implement <code>Debug</code>!</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+fn dump&lt;T&gt; (value: &amp;T)
+where T: std::fmt::Debug {
+    println!(&quot;value is {:?}&quot;,value);
+}
+
+let n = 42;
+dump(&amp;n);
+// value is 42
+
+#}</code></pre></pre>
+<p>Rust generic functions need <em>trait bounds</em> on types - we are saying here that
+&quot;T is any type that implements Debug&quot;. <code>rustc</code> is being very helpful, and
+suggests exactly what bound needs to be provided.</p>
+<p>Now that Rust knows the trait bounds for <code>T</code>, it can give you sensible compiler messages:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+struct Foo {
+    name: String
+}
+
+let foo = Foo{name: &quot;hello&quot;.to_string()};
+
+dump(&amp;foo)
+
+#}</code></pre></pre>
+<p>And the error is &quot;the trait <code>std::fmt::Debug</code> is not implemented for <code>Foo</code>&quot;.</p>
+<p>Functions are already generic in dynamic languages because values carry their actual type around,
+and the type checking happens at run-time - or fails miserably. For larger programs, we really
+do want to know about problems at compile-time rather! Rather than sitting down calmly with
+compiler errors, a programmer in these languages has to deal with problems that only
+show up when the program is running. Murphy's Law then implies that these problems
+will tend to happen at the most inconvenient/disastrous time.</p>
+<p>The operation of squaring a number is generic:  <code>x*x</code> will work for integers,
+floats and generally for anything that knows about the multiplication operator <code>*</code>.
+But what are the type bounds?</p>
+<pre><pre class="playpen"><code class="language-rust">// gen1.rs
+
+fn sqr&lt;T&gt; (x: T) -&gt; T {
+    x * x
+}
+
+fn main() {
+    let res = sqr(10.0);
+    println!(&quot;res {}&quot;,res);
+}
+</code></pre></pre>
+<p>The first problem is that Rust does not know that <code>T</code> can be multiplied:</p>
+<pre><code>error[E0369]: binary operation `*` cannot be applied to type `T`
+ --&gt; gen1.rs:4:5
+  |
+4 |     x * x
+  |     ^
+  |
+note: an implementation of `std::ops::Mul` might be missing for `T`
+ --&gt; gen1.rs:4:5
+  |
+4 |     x * x
+  |     ^
+</code></pre>
+<p>Following the advice of the compiler, let's constrain that type parameter using
+<a href="https://doc.rust-lang.org/std/ops/trait.Mul.html">that trait</a>, which is used to implement the multiplication operator <code>*</code>:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+fn sqr&lt;T&gt; (x: T) -&gt; T
+where T: std::ops::Mul {
+    x * x
 }
 
 #}</code></pre></pre>
-<p>And now we'll implement <code>ToVec</code> for <code>Iterator</code>. All that <code>Vec</code> requires of its elements is that they
-have a size. (Traits, being abstract, have no size.) The actual iterator type <code>I</code>
-must implement <code>Iterator</code> with its associated type <code>Item</code> set to <code>T</code>, the element
-type. There is only one free type parameter <code>T</code> since <code>I</code> is defined in terms of <code>T</code>.</p>
-<p>Alternatively: This implementation of <code>ToVec</code> has type parameters <code>T</code> and <code>I</code>. <code>T</code> must implement <code>Size</code> to
-make <code>Vec</code> happy. <code>I</code> is any concrete type that implements an iterator for values of the type <code>T</code>.</p>
-<p>The actual implementation is delegated to the <code>FromIterator</code> trait, which is
-defined for vectors and constructs a vector by consuming an iterator (it's exactly how <code>collect</code> is
-implemented)</p>
+<p>Which still doesn't work:</p>
+<pre><code>rror[E0308]: mismatched types
+ --&gt; gen2.rs:6:5
+  |
+6 |     x * x
+  |     ^^^ expected type parameter, found associated type
+  |
+  = note: expected type `T`
+  = note:    found type `&lt;T as std::ops::Mul&gt;::Output`
+</code></pre>
+<p>What <code>rustc</code> is saying that the type of <code>x*x</code> is the associated type <code>T::Output</code>, not <code>T</code>.
+There's actually no reason that the type of <code>x*x</code> is the same as the type of <code>x</code>, e.g. the dot product
+of two vectors is a scalar.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
-impl &lt;T,I&gt; ToVec for I
-where T: Sized, I: Iterator&lt;Item=T&gt; {
-    type Item = T;
-
-    fn to_vec(self) -&gt; Vec&lt;Self::Item&gt; {
-        FromIterator::from_iter(self)
-    }
+fn sqr&lt;T&gt; (x: T) -&gt; T::Output
+where T: std::ops::Mul {
+    x * x
 }
-    ....
-    let v = range(0.0, 1.0, 0.1).to_vec();
 
 #}</code></pre></pre>
-<p>Et voilà! No more awkwardness! The implementation was a little scary, but familiarity
-breeds acceptance.</p>
+<p>and now the error is:</p>
+<pre><code>error[E0382]: use of moved value: `x`
+ --&gt; gen2.rs:6:7
+  |
+6 |     x * x
+  |     - ^ value used here after move
+  |     |
+  |     value moved here
+  |
+  = note: move occurs because `x` has type `T`, which does not implement the `Copy` trait
+</code></pre>
+<p>So, we need to constrain the type even further!</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+fn sqr&lt;T&gt; (x: T) -&gt; T::Output
+where T: std::ops::Mul + Copy {
+    x * x
+}
+
+#}</code></pre></pre>
+<p>And that (finally) works. Calmly listening to the compiler will often get you closer
+to the magic point when ... things compile cleanly.</p>
+<p>It <em>is</em> a bit simpler in C++:</p>
+<pre><code class="language-cpp">template &lt;typename T&gt;
+T sqr(x: T) {
+    return x * x;
+}
+</code></pre>
+<p>but (to be honest) C++ is adopting cowboy tactics here. C++ template errors are famously
+bad, because all the compiler knows (ultimately) is that some operator or method is
+not defined. The C++ committee knows this is a problem and so they are working
+toward <a href="https://en.wikipedia.org/wiki/Concepts_(C%2B%2B)">concepts</a>, which are pretty
+much like trait-constrained type parameters in Rust.</p>
+<p>Rust generic functions may look a bit overwhelming at first, but being explicit means
+you will know exactly what kind of values you can safely feed it, just by looking at the
+definition.</p>
+<p>These functions are called <em>monomorphic</em>, in constrast to <em>polymorphic</em>. The body of
+the function is compiled separately for each unique type.  With polymorphic functions,
+the same machine code works with each matching type, dynamically <em>dispatching</em>
+the correct method.</p>
+<p>Monomorphic produces faster code,
+specialized for the particular type, and can often be <em>inlined</em>.  So when <code>sqr(x)</code> is
+seen, it's effectively replaced with <code>x*x</code>.  The downside is that large generic
+functions produce a lot of code, for each type used, which can result in <em>code bloat</em>.
+As always, there are trade-offs; an experienced person learns to make the right choice
+for the job.</p>
 <a class="header" href="print.html#simple-enums" name="simple-enums"><h2>Simple Enums</h2></a>
 <p>Enums are types which have a few definite values. For instance, a direction has
 only four possible values.</p>
@@ -2059,19 +2223,16 @@ The  <code>match</code> expression is the basic way to handle <code>enum</code> 
 #fn main() {
 impl Direction {
     fn as_str(&amp;self) -&gt; &amp;'static str {
-        match *self {
-        Direction::Up =&gt; &quot;Up&quot;,
-        Direction::Down =&gt; &quot;Down&quot;,
-        Direction::Left =&gt; &quot;Left&quot;,
-        Direction::Right =&gt; &quot;Right&quot;
+        match *self { // *self has type Direction
+            Direction::Up =&gt; &quot;Up&quot;,
+            Direction::Down =&gt; &quot;Down&quot;,
+            Direction::Left =&gt; &quot;Left&quot;,
+            Direction::Right =&gt; &quot;Right&quot;
         }
     }
 }
 
 #}</code></pre></pre>
-<p>Both the typename and <code>self</code> are explicit in Rust, unlike C++. This is generally a
-good idea, because the baroque way C++ resolves names is a little too clever for normal
-humans. (And there is a shortcut, as we will see.)</p>
 <p>Punctuation matters. Note that <code>*</code> before <code>self</code>. It's easy to forget, because often
 Rust will assume it (we said <code>self.first_name</code>, not <code>(*self).first_name</code>). However,
 matching is a more exact business. Leaving it out would give a whole spew of messages,
@@ -2099,13 +2260,13 @@ very handy <em>wildcard use</em> temporarily puts the enum names into the method
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
-    fn inc(&amp;self) -&gt; Direction {
+    fn next(&amp;self) -&gt; Direction {
         use Direction::*;
         match *self {
-        Up =&gt; Right,
-        Right =&gt; Down,
-        Down =&gt; Left,
-        Left =&gt; Up
+            Up =&gt; Right,
+            Right =&gt; Down,
+            Down =&gt; Left,
+            Left =&gt; Up
         }
     }
     ...
@@ -2113,7 +2274,7 @@ very handy <em>wildcard use</em> temporarily puts the enum names into the method
     let mut d = start;
     for _ in 0..8 {
         println!(&quot;d {:?}&quot;, d);
-        d = d.inc();
+        d = d.next();
     }
     // d Left
     // d Up
@@ -2127,7 +2288,7 @@ very handy <em>wildcard use</em> temporarily puts the enum names into the method
 #}</code></pre></pre>
 <p>So this will cycle endlessly through the various directions in this particular, arbitrary,
 order. It is (in fact) a very simple <em>state machine</em>.</p>
-<p>Out of the box, these values can't be compared:</p>
+<p>These enum values can't be compared:</p>
 <pre><code>assert_eq!(start, Direction::Left);
 
 error[E0369]: binary operation `==` cannot be applied to type `Direction`
@@ -2162,9 +2323,19 @@ fn main() {
 }
 </code></pre></pre>
 <p>They are initialized with an integer value, and can be converted into that integer
-with a type cast. It's essentially a convenient way to create a set of constants.</p>
-<p>Like with C enums, you only need to give the first name a value, and thereafter the
-value goes up by one each time.</p>
+with a type cast.</p>
+<p>You only need to give the first name a value, and thereafter the
+value goes up by one each time:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+enum Difficulty {
+    Easy = 1,
+    Medium,  // is 2
+    Hard   // is 3
+}
+
+#}</code></pre></pre>
 <p>By the way, 'name' is too vague, like saying 'thingy' all the time. The proper term here
 is <em>variant</em> - <code>Speed</code> has variants <code>Slow</code>,<code>Medium</code> and <code>Fast</code>.</p>
 <p>These enums <em>do</em> have a natural ordering, but you have to ask nicely.
@@ -2194,26 +2365,44 @@ fn main() {
 </code></pre></pre>
 <p>Again, this enum can only contain <em>one</em> of these values; its size will be the size of
 the largest variant.</p>
-<p>So far, not really a supercar, although it's cool that they know how to print themselves
+<p>So far, not really a supercar, although it's cool that enums know how to print themselves
 out. But they also know how <em>what kind</em> of value they contain, and <em>that</em> is the
-superpower of <code>match</code>.</p>
-<p>Let me give you a function with a mistake. We want to print out a custom string based
-on the <em>Value</em>'s contained type, and we want to pass it as a reference, because otherwise
-a move would take place and the value would be eaten:</p>
+superpower of <code>match</code>:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+fn eat_and_dump(v: Value) {
+    use Value::*;
+    match v {
+        Number(n) =&gt; println!(&quot;number is {}&quot;, n),
+        Str(s) =&gt; println!(&quot;string is '{}'&quot;, s),
+        Bool(b) =&gt; println!(&quot;boolean is {}&quot;, b)
+    }
+}
+....
+eat_and_dump(n);
+eat_and_dump(s);
+eat_and_dump(b);
+//number is 2.3
+//string is 'hello'
+//boolean is true
+
+#}</code></pre></pre>
+<p>We like this <code>eat_and_dump</code> function, but we want to pass the value as a reference, because currently
+a move takes place and the value is 'eaten':</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
 fn dump(v: &amp;Value) {
     use Value::*;
-    match *v {
+    match *v {  // type of *v is Value
         Number(n) =&gt; println!(&quot;number is {}&quot;, n),
         Str(s) =&gt; println!(&quot;string is '{}'&quot;, s),
         Bool(b) =&gt; println!(&quot;boolean is {}&quot;, b)
     }
 }
 
-#}</code></pre></pre>
-<pre><code>error[E0507]: cannot move out of borrowed content
+error[E0507]: cannot move out of borrowed content
   --&gt; enum3.rs:12:11
    |
 12 |     match *v {
@@ -2221,7 +2410,8 @@ fn dump(v: &amp;Value) {
 13 |     Number(n) =&gt; println!(&quot;number is {}&quot;,n),
 14 |     Str(s) =&gt; println!(&quot;string is '{}'&quot;,s),
    |         - hint: to prevent move, use `ref s` or `ref mut s`
-</code></pre>
+
+#}</code></pre></pre>
 <p>There are things you cannot do with borrowed references. Rust is not letting
 you <em>extract</em> the string contained in the original value. It did not complain about <code>Number</code>
 because it's happy to copy <code>f64</code>, but <code>String</code> does not implement <code>Copy</code>.</p>
@@ -2261,12 +2451,8 @@ You must either borrow with <code>&amp;v[0]</code> or clone with <code>v[0].clon
 (often called a <em>binding</em>) is created.  Often that inferred type is cool, when you
 eat up a value and extract its contents. But here we really needed is <code>s: &amp;String</code>, and the
 <code>ref</code> is a hint that ensures this: we just want to borrow that string.</p>
-<p>Here is a method that really does eat up a <code>Value</code>. It's a classic use of <code>Option</code>,
-because either that value contained a string, or it didn't.</p>
-<p>Look carefully (punctuation matters!) - the method signature is now plain <code>self</code>, and
-the <code>*</code> has dropped. The <code>self</code> argument is <em>moved</em> into the method.</p>
 <p>Here we do want to extract that string, and don't care about
-the enum value afterwards.</p>
+the enum value afterwards. <code>_</code> as usual will match anything.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
@@ -2284,7 +2470,7 @@ impl Value {
     // println!(&quot;{:?}&quot;, s) // error! s has moved...
 
 #}</code></pre></pre>
-<p>Naming also matters - this is called <code>to_str</code>, not <code>as_str</code>. You can write a
+<p>Naming matters - this is called <code>to_str</code>, not <code>as_str</code>. You can write a
 method that just borrows that string as an <code>Option&lt;&amp;String&gt;</code> (The reference will need
 the same lifetime as the enum value.)  But you would not call it <code>to_str</code>.</p>
 <p>You can write <code>to_str</code> like this - it is completely equivalent:</p>
@@ -2315,7 +2501,8 @@ the same lifetime as the enum value.)  But you would not call it <code>to_str</c
 <p>This is a special case of <em>destructuring</em>; we have some
 data and wish to either pull it apart (like here) or just borrow its values.
 Either way, we get the parts of a structure.</p>
-<p>The syntax used for borrowing is just like that used in <code>match</code>.</p>
+<p>The syntax is like that used in <code>match</code>. Here
+we are explicitly borrowing the values.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
@@ -2342,11 +2529,11 @@ Either way, we get the parts of a structure.</p>
 #}</code></pre></pre>
 <p>Time to revisit <code>match</code> with some new patterns. The first two patterns are exactly like <code>let</code>
 destructuring - it only matches tuples with first element zero, but <em>any</em> string;
-the second adds an <code>if</code> so that it only matches <code>(1,&quot;hello&quot;)</code>.</p>
-<p>Finally, just a variable matches <em>anything</em>. This is useful if the <code>match</code> applies
+the second adds an <code>if</code> so that it only matches <code>(1,&quot;hello&quot;)</code>.
+Finally, just a variable matches <em>anything</em>. This is useful if the <code>match</code> applies
 to an expression and you don't want to bind a variable to that expression. <code>_</code> works
-like a variable but is ignored (<code>_</code> behaves rather like it does in Go.) It's a common
-way to finish off a <code>match</code>, like <code>default</code> in C <code>switch</code> statements.</p>
+like a variable but is ignored. It's a common
+way to finish off a <code>match</code>.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
@@ -2355,7 +2542,7 @@ fn match_tuple(t: (i32,String)) {
         (0, s) =&gt; format!(&quot;zero {}&quot;, s),
         (1, ref s) if s == &quot;hello&quot; =&gt; format!(&quot;hello one!&quot;),
         tt =&gt; format!(&quot;no match {:?}&quot;, tt),
-        // or say _ =&gt; format!(&quot;no match&quot;) if you're not interested in the value  
+        // or say _ =&gt; format!(&quot;no match&quot;) if you're not interested in the value
      };
     println!(&quot;{}&quot;, text);
 }
@@ -2480,34 +2667,29 @@ Here we evaluate a linear function:</p>
 #}</code></pre></pre>
 <p>You cannot do this with the explicit <code>fn</code> form - it does not know about variables
 in the enclosing scope. The closure has <em>borrowed</em> <code>m</code> and <code>c</code> from its context.</p>
-<p>The usual Rules of Borrowing apply. This example works fine - our little closure is borrowing
-<code>answer</code> mutably. Note here that the mutable borrow of <code>answer</code> by <code>set</code> has to take
-place in a block, so it ends before we do an <em>immutable</em> borrow of <code>answer</code> in
-the assert statement. (The borrow checker can be a little ... picky, and using blocks
-to control scopes of borrows is common.)</p>
+<p>Now, what's the type of <code>lin</code>? Only <code>rustc</code> knows.
+Under the hood, a closure is a <em>struct</em> that is callable ('implements the call operator').
+It behaves as if it was written out like this:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
-let mut answer = 42;
-
-{
-    let mut set = |v| answer = v;
-
-    //let get = || answer;
-
-    set(58);
+struct MyAnonymousClosure1&lt;'a&gt; {
+    m: &amp;'a f64,
+    c: &amp;'a f64
 }
 
-assert_eq!(answer, 58);
+impl MyAnonymousClosure1 {
+    fn call(&amp;self, x: f64) {
+        self.m * x  + self.c
+    }
+}
 
 #}</code></pre></pre>
-<p>But uncomment <code>let get ...</code> and you get a borrowing error:
-&quot;cannot borrow <code>answer</code> as immutable because it is also borrowed as mutable&quot;</p>
-<p>Now, what's the type of <code>lin</code>? Only <code>rustc</code> knows. Exactly the same situation applies
-to C++ lambdas, and for exactly the same version. Under the hood, a closure is a <em>struct</em>
-that implements the call operator. All closures are unique types,
-but they have traits in common.</p>
-<p>So even though we don't know the exact type, we know the generic constraint:</p>
+<p>The compiler is certainly being helpful, turning simple closure syntax into all
+that code! You do need to know that a closure is a <em>struct</em> and it <em>borrows</em> values
+from its environment. And that therefore it has a <em>lifetime</em>.</p>
+<p>All closures are unique types, but they have traits in common.
+So even though we don't know the exact type, we know the generic constraint:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
@@ -2539,10 +2721,9 @@ error[E0382]: use of moved value: `lin`
 
 </code></pre>
 <p>That's it, <code>apply</code> ate our closure. And there's the actual type of the struct that
-<code>rustc</code> made up to implement it. Thinking of closures as structs is useful because they
-are <em>values</em> and it's important to know what happens when values move.</p>
-<p>Thinking of calling a closure as a <em>method call</em> makes it easy to understand the
-three kinds of function traits - they are the three kinds of methods:</p>
+<code>rustc</code> made up to implement it. Always thinking of closures as structs is helpful.</p>
+<p>Calling a closure is a <em>method call</em>:  the three kinds of function traits
+correspond to the three kinds of methods:</p>
 <ul>
 <li><code>Fn</code> struct passed as <code>&amp;self</code></li>
 <li><code>FnMut</code> struct passed as <code>&amp;mut self</code></li>
@@ -2562,49 +2743,41 @@ three kinds of function traits - they are the three kinds of methods:</p>
 
 #}</code></pre></pre>
 <p>Note that <code>mut</code> - <code>f</code> needs to be mutable for this to work.</p>
+<p>However, you cannot escape the rules for borrowing. Consider this:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+let mut s = &quot;world&quot;;
+
+// closure does a mutable borrow of s
+let mut changer = || s = &quot;world&quot;;
+
+changer();
+// does an immutable borrow of s
+assert_eq!(s, &quot;world&quot;);
+
+#}</code></pre></pre>
+<p>Can't be done! The error is that we cannot borrow <code>s</code>
+in the assert statement, because it has been previously borrowed by the
+closure <code>changer</code> as mutable. As long as that closure lives, no other
+code can access <code>s</code>, so the solution is to control that lifetime by
+putting the closure in a limited scope:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+let mut s = &quot;world&quot;;
+{
+    let mut changer = || s = &quot;world&quot;;
+    changer();
+}
+assert_eq!(s, &quot;world&quot;);
+
+#}</code></pre></pre>
 <p>At this point, if you are used to languages like JavaScript or Lua, you may wonder at the
-apparent complexity of closures compared with how straightforward they are in those languages.
+complexity of Rust closures compared with how straightforward they are in those languages.
 This is the necessary cost of Rust's promise to not sneakily make any allocations. In JavaScript,
 the equivalent <code>mutate(function() {s = &quot;hello&quot;;})</code> will always result in a dynamically
 allocated closure.</p>
-<p>You can of course explicitly create a dynamically allocated closure in Rust using <code>Box::new</code>.
-This solves the problem of keeping a collection of different closures that implement the
-same trait.  The <code>Box</code> struct is fed a
-value, allocates enough memory for it on the heap, and moves that value to the heap.
-A <code>Box</code> always has the same size (it's basically a smart pointer.) so we're good to go.</p>
-<p>Here's a first try:</p>
-<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
-# 
-#fn main() {
-    let mut v = Vec::new();
-    v.push(Box::new(|x| x * x));
-    v.push(Box::new(|x| x / 2.0));
-
-    for f in v.iter() {
-        let res = f(1.0);
-        println!(&quot;res {}&quot;, res);
-    }
-
-#}</code></pre></pre>
-<p>We get a very definite error on the second push:</p>
-<pre><code>  = note: expected type `[closure@closure4.rs:4:21: 4:28]`
-  = note:    found type `[closure@closure4.rs:5:21: 5:28]`
-note: no two closures, even if identical, have the same type
-</code></pre>
-<p><code>rustc</code> has deduced a type which is too specific, so it's necessary to force that
-vector to have the <em>boxed trait type</em> before things just work:</p>
-<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
-# 
-#fn main() {
-    let mut v: Vec&lt;Box&lt;Fn(f64)-&gt;f64&gt;&gt; = Vec::new();
-
-#}</code></pre></pre>
-<p>You can use these boxed closures to implement callbacks and so forth. If you want to keep
-these boxed closures in a struct, then you will need a lifetime annotation, because
-<em>closures borrow variables</em> and so their lifetime is tied to the lifetime of those
-variables.</p>
-<p>(Unfortunately, you can't use <code>type</code> to declare a shorthand for function trait types; it's definitely a
-place where I miss a <code>typedef</code> statement.)</p>
 <p>Sometimes you don't want a closure to borrow those variables, but instead <em>move</em> them.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
@@ -2629,11 +2802,13 @@ here - if we <em>did</em> want to keep <code>name</code> alive - is to move a cl
     let cname = name.to_string();
     let c = move || {
         println!(&quot;name {} age {}&quot;,cname,age);
-    }
+    };
 
 #}</code></pre></pre>
 <p>Why are moved closures needed? Because we might need to call them at a point where
-the original context no longer exists. A classic case is when creating a <em>thread</em>.</p>
+the original context no longer exists.
+A classic case is when creating a <em>thread</em>.
+A moved closure does not borrow, so does not have a lifetime.</p>
 <p>A major use of closures is within iterator methods. Recall the <code>range</code> iterator we
 defined to go over a range of floating-point numbers. It's straightforward to operate
 on this (or any other iterator) using closures:</p>
@@ -2652,7 +2827,9 @@ sum, no temporary objects are created:</p>
  let sum: f64 = range(0.0,1.0,0.1).map(|x| x.sin()).sum();
 
 #}</code></pre></pre>
-<p>It will (in fact) be as fast as writing it out as an explicit loop!</p>
+<p>It will (in fact) be as fast as writing it out as an explicit loop! That performance
+guarantee would be impossible if Rust closures were as 'frictionless'
+as Javascript closures.</p>
 <p><code>filter</code> is another useful iterator method - it only lets through values that match
 a condition:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
@@ -2705,7 +2882,9 @@ the iterator item type is <code>&amp;String</code>. Note that <code>filter</code
 # 
 #fn main() {
 for n in vec.iter().map(|x: &amp;String| x.len()) {...} // n is usize
-for s in vec.iter().filter(|x: &amp;&amp;String| x.len() &gt; 2) {...}
+for s in vec.iter().filter(|x: &amp;&amp;String| x.len() &gt; 2) { // s is &amp;String
+...
+}
 
 #}</code></pre></pre>
 <p>When calling methods, Rust will derefence automatically, so the problem isn't obvious.
@@ -2820,7 +2999,7 @@ fn main() {
 <p>Now, what happens when <code>root</code> is dropped? All fields are dropped; if the 'branches' of
 the tree are dropped, they drop <em>their</em> fields and so on. <code>Box::new</code> may be the
 closest you will get to a <code>new</code> keyword, but we have no need for <code>delete</code> or <code>free</code>.</p>
-<p>We must now work out what use such a tree is. Note that strings can be ordered:
+<p>We must now work out a use for this tree. Note that strings can be ordered:
 'bar' &lt; 'foo', 'abba' &gt; 'aardvark'; so-called 'alphabetical order'. (Strictly speaking, this
 is <em>lexical order</em>, since human languages are very diverse and have strange rules.)</p>
 <p>Here is a method which inserts nodes in lexical order of the strings. We compare the new data
@@ -2906,124 +3085,10 @@ the node, and then visit the right.</p>
 #}</code></pre></pre>
 <p>So we're visiting the strings in order! Please note the reappearance of <code>ref</code> - <code>if let</code>
 uses exactly the same rules as <code>match</code>.</p>
-<a class="header" href="print.html#generic-functions" name="generic-functions"><h2>Generic Functions</h2></a>
-<p>The operation of squaring a number is <em>generic</em> in that <code>x*x</code> will work for integers,
-floats and generally for anything that knows about the multiplication operator <code>*</code>.</p>
-<p>This Just Happens in dynamic languages because the arguments carry their type, and the
-runtime will then call the appropriate multiply operator - or fail miserably.
-(Which is always the painful thing about dynamic languages.)</p>
-<p>The Rust solution is a <em>generic function</em>, which has <em>type parameters</em>.</p>
-<pre><pre class="playpen"><code class="language-rust">// gen1.rs
-
-fn sqr&lt;T&gt; (x: T) -&gt; T {
-    x * x
-}
-
-fn main() {
-    let res = sqr(10.0);
-    println!(&quot;res {}&quot;,res);
-}
-</code></pre></pre>
-<p>However, Rust is not C++ - it's not going to let you do this without knowing <em>something</em>
-about <code>T</code>:</p>
-<pre><code>error[E0369]: binary operation `*` cannot be applied to type `T`
- --&gt; gen1.rs:4:5
-  |
-4 |     x * x
-  |     ^
-  |
-note: an implementation of `std::ops::Mul` might be missing for `T`
- --&gt; gen1.rs:4:5
-  |
-4 |     x * x
-  |     ^
-</code></pre>
-<p>Following the advice of the compiler, let's <em>constrain</em> that type parameter using
-<a href="https://doc.rust-lang.org/std/ops/trait.Mul.html">that trait</a>, which is used to implement the multiplication operator <code>*</code>:
-(<code>T: Mul</code> means 'any type T that implements Mul')</p>
-<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
-# 
-#fn main() {
-use std::ops::Mul;
-
-fn sqr&lt;T: Mul&gt; (x: T) -&gt; T {
-    x * x
-}
-
-#}</code></pre></pre>
-<p>Which still doesn't work:</p>
-<pre><code>rror[E0308]: mismatched types
- --&gt; gen2.rs:6:5
-  |
-6 |     x * x
-  |     ^^^ expected type parameter, found associated type
-  |
-  = note: expected type `T`
-  = note:    found type `&lt;T as std::ops::Mul&gt;::Output`
-</code></pre>
-<p>What <code>rustc</code> is saying that the type of <code>x*x</code> is the associated type <code>T::Output</code>, not <code>T</code>.
-There's actually no reason that the type of <code>x*x</code> is the same as the type of <code>x</code>, e.g. the dot product
-of two vectors is a scalar.</p>
-<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
-# 
-#fn main() {
-fn sqr&lt;T: Mul&gt; (x: T) -&gt; T::Output {
-    x * x
-}
-
-#}</code></pre></pre>
-<p>and now the error is:</p>
-<pre><code>error[E0382]: use of moved value: `x`
- --&gt; gen2.rs:6:7
-  |
-6 |     x * x
-  |     - ^ value used here after move
-  |     |
-  |     value moved here
-  |
-  = note: move occurs because `x` has type `T`, which does not implement the `Copy` trait
-</code></pre>
-<p>So, we need to constrain the type even further!</p>
-<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
-# 
-#fn main() {
-fn sqr&lt;T: Mul + Copy&gt; (x: T) -&gt; T::Output {
-    x * x
-}
-
-#}</code></pre></pre>
-<p>And that (finally) works. Calmly listening to the compiler will often get you closer
-to the magic point when ... things compile cleanly.</p>
-<p>It <em>is</em> a bit simpler in C++:</p>
-<pre><code class="language-cpp">template &lt;typename T&gt;
-T sqr(x: T) {
-    return x * x;
-}
-</code></pre>
-<p>but (to be honest) C++ is adopting cowboy tactics here. C++ template errors are famously
-bad, because all the compiler knows (ultimately) is that some operator or method is
-not defined. The C++ committee knows this is a problem and so they are working
-toward <a href="https://en.wikipedia.org/wiki/Concepts_(C%2B%2B)">concepts</a>, which are pretty
-much like trait-constrained type parameters in Rust.</p>
-<p>Rust generic functions may look a bit overwhelming at first, but being explicit means
-you will know exactly what kind of values you can safely feed it, just by looking at the
-definition.</p>
-<p>These functions are called <em>monomorphic</em>, in constrast to <em>polymorphic</em>. The body of
-the function is compiled separately for each unique type.  With polymorphic functions,
-the same machine code works with each matching type, dynamically <em>dispatching</em>
-the correct method.</p>
-<p>Monomorphic produces faster code,
-specialized for the particular type, and can often be <em>inlined</em>.  So when <code>sqr(x)</code> is
-seen, it's effectively replaced with <code>x*x</code>.  The downside is that large generic
-functions produce a lot of code, for each type used, which can result in <em>code bloat</em>.
-As always, there are trade-offs; an experienced person learns to make the right choice
-for the job.</p>
 <a class="header" href="print.html#generic-structs" name="generic-structs"><h2>Generic Structs</h2></a>
-<p>Consider the example of a binary tree. It would be <em>seriously irritating</em> to
-have to rewrite it for all possible kinds of payload. Before C++ templates, people
-would do truly awful things with the C preprocessor to write 'generic' classes.</p>
-<p>So here's our generic <code>Node</code> with its <em>type parameter</em> <code>T</code>. It's fairly similar to
-a C++ template struct.</p>
+<p>Consider the previous example of a binary tree. It would be <em>seriously irritating</em> to
+have to rewrite it for all possible kinds of payload.
+So here's our generic <code>Node</code> with its type parameter <code>T</code>.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
@@ -3060,13 +3125,13 @@ The type parameter must be declared in the <code>impl</code> block with its cons
     fn insert(&amp;mut self, data: T) {
         if data &lt; self.payload {
             match self.left {
-            Some(ref mut n) =&gt; n.insert(data),
-            None =&gt; self.set_left(Self::new(data)),
+                Some(ref mut n) =&gt; n.insert(data),
+                None =&gt; self.set_left(Self::new(data)),
             }
         } else {
             match self.right {
-            Some(ref mut n) =&gt; n.insert(data),
-            None =&gt; self.set_right(Self::new(data)),
+                Some(ref mut n) =&gt; n.insert(data),
+                None =&gt; self.set_right(Self::new(data)),
             }
         }
     }
@@ -3083,8 +3148,11 @@ fn main() {
 }
 </code></pre></pre>
 <p>So generic structs need their type parameter(s) specified
-in angle brackets, like C++. Unlike C++, Rust is usually smart enough to work out
-that type parameter from context. But you do need to constrain that type appropriately!</p>
+in angle brackets, like C++. Rust is usually smart enough to work out
+that type parameter from context - it knows it has a <code>Node&lt;T&gt;</code>, and knows
+that its <code>insert</code> method is passed <code>T</code>. The first call of <code>insert</code> nails
+down <code>T</code> to be <code>String</code>. If any further calls are inconsistent it will complain.</p>
+<p>But you do need to constrain that type appropriately!</p>
 <a class="header" href="print.html#filesystem-and-processes" name="filesystem-and-processes"><h1>Filesystem and Processes</h1></a>
 <a class="header" href="print.html#another-look-at-reading-files" name="another-look-at-reading-files"><h2>Another look at Reading Files</h2></a>
 <p>At the end of Part 1, I showed how to read a whole file into a string. Naturally
@@ -3152,7 +3220,7 @@ place.</p>
 borrowed from <code>buf</code>, and this borrow must finish before we modify <code>buf</code>.  Again,
 Rust is trying to stop us doing something stupid, which is to access <code>line</code> <em>after</em>
 we've cleared the buffer. (The borrow checker can be restrictive sometimes.
-Rust is due to get 'non-lexical lifetimes' this year, where
+Rust is due to get 'non-lexical lifetimes', where
 it will analyze the code and see that <code>line</code> isn't used after <code>buf.clear()</code>.)</p>
 <p>This isn't very pretty. I cannot give you a proper iterator that returns references
 to a buffer, but I can give you something that <em>looks</em> like an iterator.</p>
@@ -3211,8 +3279,8 @@ we say that the lifetime of this borrowed string is within the lifetime of <code
 But it's easy to see problems if it were compatible; consider <code>collect</code> trying to make
 a vector of these string slices. There's no way this could work, since they're all
 borrowed from the same mutable string! (If you had read <em>all</em> the file into a string, then
-the string's <code>lines</code> iterator works fine because the string slices are all borrowed from
-the original string.)</p>
+the string's <code>lines</code> iterator can return string slices because they are all borrowed from
+<em>distinct</em> parts of the original string.)</p>
 <p>The resulting loop is much cleaner, and the file buffering is invisible to the user.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
@@ -3244,7 +3312,7 @@ string slice:</p>
 silently stop whenever an error occurs. In particular, it will stop at the first place
 where Rust can't convert a line to UTF-8.  Fine for casual code, bad for production code!</p>
 <a class="header" href="print.html#writing-to-files" name="writing-to-files"><h2>Writing To Files</h2></a>
-<p>We met the <code>write!</code> macro when implementing <code>Display</code> - it also works with anything
+<p>We met the <code>write!</code> macro when implementing <code>Debug</code> - it also works with anything
 that implements <code>Write</code>. So here's a another way of saying <code>print!</code>:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
@@ -3257,9 +3325,13 @@ that implements <code>Write</code>. So here's a another way of saying <code>prin
 <p>If an error is <em>possible</em>, you must handle it. It may not be
 very <em>likely</em> but it can happen. It's usually fine, because if you
 are doing file i/o you should be in a context where <code>?</code> works.</p>
-<p><code>print!</code> works fine as it is, but for arbitrary files we need <code>write!</code>. The
+<p>But there is a difference: <code>print!</code> locks stdout for each write. This is usually
+what you want for output, because without that locking multithreaded
+programs can mix up that output in interesting ways. But if you are pumping out
+a lot of text, then <code>write!</code> is going to be faster.</p>
+<p>For arbitrary files we need <code>write!</code>. The
 file is closed when <code>out</code> is dropped at the end of <code>write_out</code>, which is
-convenient and often important.</p>
+both convenient and important.</p>
 <pre><pre class="playpen"><code class="language-rust">// file6.rs
 use std::fs::File;
 use std::io;
@@ -3275,22 +3347,13 @@ fn main() {
   write_out(&quot;test.txt&quot;).expect(&quot;write failed&quot;);
 }
 </code></pre></pre>
-<p>Another place we need it is writing to 'standard error'. There is one input stream
-<code>io::stdin()</code> and <em>two</em> output streams <code>io::stderr()</code> and <code>io::stdout()</code>. If a program
-needs to complain bitterly, the convention is that this output should go to the
-error stream. If the program wants then to stop running, the convention is also to
-return a non-zero exit code.</p>
-<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
-# 
-#fn main() {
-fn quit(msg: &amp;str) -&gt; ! {
-    write!(io::stderr(),&quot;error: {}\n&quot;, msg).expect(&quot;write?&quot;);
-    std::process::exit(1);
-}
-
-#}</code></pre></pre>
-<p>(The <code>!</code> means that function never returns, so you can call <code>quit</code> anywhere
-and there will be no type mismatch complaints)</p>
+<p>If you care about performance, you need to know that Rust files are unbuffered
+by default. So each little write request goes straight to the OS, and this is
+going to be significantly slower. I mention this because this default is different
+from other programming languages, and could lead to the shocking discovery that Rust
+can be left in the dust by scripting languages!
+Just as with <code>Read</code> and <code>io::BufReader</code>, there is <code>io::BufWriter</code> for
+buffering any <code>Write</code>.</p>
 <a class="header" href="print.html#files-paths-and-directories" name="files-paths-and-directories"><h2>Files, Paths and Directories</h2></a>
 <p>Here is a little program for printing out the Cargo directory on a machine. The
 simplest case is that it's '~/.cargo'. This is a Unix shell expansion,
@@ -3340,7 +3403,7 @@ Real life is a <a href="https://news.ycombinator.com/item?id=10519932">complicat
 particularly see the answer to 'Why are they so hard?'.  To summarize, first there are
 years of ASCII legacy coding, and multiple special encodings for other languages. Second,
 human languages are complicated. For instance 'noël' is <em>five</em> Unicode code points!</p>
-<p>It's true that <em>most</em> of the time
+<p>It's true that most of the time
 with modern operating systems file names will be Unicode (UTF-8 on the Unix side, UTF-16
 for Windows), except when they're not. And Rust must handle that possibility
 rigorously. For instance,
@@ -3349,10 +3412,12 @@ returns an <code>Option&lt;&amp;str&gt;</code>. Not always possible!</p>
 <p>People have trouble at this point because they have become too attached to 'string' and
 'character' as the only necessary abstractions.  As Einstein could have said, a programming language
 has to be as simple as possible, but no simpler. A systems language <em>needs</em> a
-<code>String/&amp;str</code> distinction (owned versus borrowed: this is also very <em>convenient</em>)
+<code>String/&amp;str</code> distinction (owned versus borrowed: this is also very convenient)
 and if it wishes to standardize on Unicode strings then it needs another type to handle
-text which isn't valid Unicode - hence <code>OsString/&amp;OsStr</code>.</p>
-<p>People are also very used to processing filenames as if they were text, which is why
+text which isn't valid Unicode - hence <code>OsString/&amp;OsStr</code>. Notice that there aren't
+any interesting string-like methods for these types, precisely because we don't know the
+encoding.</p>
+<p>But, people are used to processing filenames as if they were strings, which is why
 Rust makes it easier to manipulate file paths using <code>PathBuf</code> methods.</p>
 <p>You can <code>pop</code> to successively remove path components. Here we start with the
 current directory of the program:</p>
@@ -3368,7 +3433,7 @@ fn main() {
         }
     }
 }
-// /home/steve/rust/gentle-intro/src
+// /home/steve/rust/gentle-intro/code
 // /home/steve/rust/gentle-intro
 // /home/steve/rust
 // /home/steve
@@ -3377,7 +3442,7 @@ fn main() {
 </code></pre></pre>
 <p>Here's a useful variation. I have a program which searches for a configuration file,
 and the rule is that it may appear in any subdirectory of the current directory.
-So I create <code>/home/steve/rust/config.txt</code> and start this program up in <code>/home/steve/rust/gentle-intro/src</code>:</p>
+So I create <code>/home/steve/rust/config.txt</code> and start this program up in <code>/home/steve/rust/gentle-intro/code</code>:</p>
 <pre><pre class="playpen"><code class="language-rust">// file9.rs
 use std::env;
 
@@ -3485,23 +3550,19 @@ metadata. So this is a reasonably elegant compromise that allows cross-platform
 code to be as efficient as possible.</p>
 <p>You can be forgiven for feeling 'error fatigue' at this point. But please note that
 the <em>errors always existed</em> - it's not that Rust is inventing new ones. It's just
-trying its darnedest to make it hard for you to ignore them.  Any call to an
-operating system may fail, but C makes getting errors awkward. You check the return
-code, and if it's not zero you then have to inspect <code>errno</code>
-to find out what the actual error was.
-Quite apart from memory safety, this makes robust C programming harder than most
-C programmers think!</p>
+trying hard to make it impossible for you to ignore them.  Any operating system call
+may fail.</p>
 <p>Languages like Java and Python throw exceptions; languages like Go and Lua return two
 values, where the first is the result and the second is the error: like Rust it is
 considered bad manners for library functions to raise errors. So there is a lot
 of error checking and early-returns from functions.</p>
-<p>Rust uses <code>Result</code> because it's either-or: you cannot get a result <em>and</em> an error.
+<p>Rust uses <code>Result</code> because it's either-or: you cannot get both a result and an error.
 And the question-mark operator makes handling errors much cleaner.</p>
 <a class="header" href="print.html#processes" name="processes"><h2>Processes</h2></a>
 <p>A fundamental need is for programs to run programs, or to <em>launch processes</em>.
 Your program can <em>spawn</em> as many child processes it likes, and as the name
 suggests they have a special relationship with their parent.</p>
-<p>To run a program is straightforward using the <code>Command</code> struct, which <em>builds</em> up
+<p>To run a program is straightforward using the <code>Command</code> struct, which builds up
 arguments to pass to the program:</p>
 <pre><pre class="playpen"><code class="language-rust">use std::process::Command;
 
@@ -3533,8 +3594,8 @@ cool false code 101
 <li>program ran, but was not successful - non-zero exit code</li>
 <li>program ran, with zero exit code. Success!</li>
 </ul>
-<p>By default, we get the program's output, since its standard output and standard error is
-still going to the terminal.</p>
+<p>By default, the program's standard output and standard error streams
+go to the terminal.</p>
 <p>Often we are very interested in capturing that output, so there's the <code>output</code>
 method.</p>
 <pre><pre class="playpen"><code class="language-rust">// process2.rs
@@ -3566,14 +3627,15 @@ vectors or bytes - it returns a <code>Result</code> because this conversion may 
 A more sloppy function is <code>String::from_utf8_lossy</code> which will make a good attempt at
 conversion and insert the invalid Unicode mark � where it failed.</p>
 <p>Here is a useful function which runs a program using the shell. This uses the usual
-shell mechanism for joining stderr to stdout:</p>
+shell mechanism for joining stderr to stdout. The name of the shell is different
+on Windows, but otherwise things work as expected.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
 fn shell(cmd: &amp;str) -&gt; (String,bool) {
     let cmd = format!(&quot;{} 2&gt;&amp;1&quot;,cmd);
-    let output = Command::new(&quot;/bin/sh&quot;)
-        .arg(&quot;-c&quot;)
+    let output = Command::new(if cfg!(windows) {&quot;cmd.exe&quot;} else {&quot;/bin/sh&quot;})
+        .arg(if cfg!(windows) {&quot;/c&quot;} else {&quot;-c&quot;})
         .arg(&amp;cmd)
         .output()
         .expect(&quot;no shell?&quot;);
@@ -3583,6 +3645,7 @@ fn shell(cmd: &amp;str) -&gt; (String,bool) {
     )
 }
 
+
 fn shell_success(cmd: &amp;str) -&gt; Option&lt;String&gt; {
     let (output,success) = shell(cmd);
     if success {Some(output)} else {None}
@@ -3591,7 +3654,8 @@ fn shell_success(cmd: &amp;str) -&gt; Option&lt;String&gt; {
 #}</code></pre></pre>
 <p>I'm trimming any whitespace from the right so that if you said <code>shell(&quot;which rustc&quot;)</code>
 you will get the path without any extra linefeed.</p>
-<p>You can control the execution of a program by specifying the directory it will run
+<p>You can control the execution of a program launched by <code>Process</code>
+by specifying the directory it will run
 in using the <code>current_dir</code> method and the environment variables it sees using <code>env</code>.</p>
 <p>Up to now, our program simply waits for the child process to finish. If you use
 the <code>spawn</code> method then we return immediately, and must explicitly wait for it to
@@ -3617,10 +3681,12 @@ we redirect the child's output handles into 'nowhere'. It's equivalent to saying
 <p>Now, it's possible to do these things using the shell (<code>sh</code> or <code>cmd</code>) in Rust, although not in a portable way.
 But this way you get full programmatic control of process creation.</p>
 <p>For example, if we just had <code>.stdout(Stdio::piped())</code> then the child's standard output
-is redirected to a pipe. If we then use <code>wait_with_output</code> instead of <code>wait</code> then
+is redirected to a pipe. Then <code>child.stdout</code> is something you can use to directly
+read the output (i.e. implements <code>Read</code>). Likewise, you can use the <code>.stdout(Stdio::piped())</code>
+method so you can write to <code>child.stdin</code>.</p>
+<p>But we use <code>wait_with_output</code> instead of <code>wait</code> then
 it returns a <code>Result&lt;Output&gt;</code> and the child's output is captured into the <code>stdout</code>
-field of that <code>Output</code> just as before. Alternatively, the <em>child</em>'s <code>stdout</code> field is readable and
-you can manually read the child's output in the usual way.</p>
+field of that <code>Output</code> as a <code>Vec&lt;u8&gt;</code> just as before.</p>
 <p>The <code>Child</code> struct also gives you an explicit <code>kill</code> method.</p>
 <a class="header" href="print.html#modules-and-cargo" name="modules-and-cargo"><h1>Modules and Cargo</h1></a>
 <a class="header" href="print.html#modules" name="modules"><h2>Modules</h2></a>
@@ -3629,11 +3695,12 @@ and put functions and types in different <em>namespaces</em>.
 The Rust solution for both of these is <em>modules</em>.</p>
 <p>C does the first, and not
 the second, so you end up with awful names like <code>primitive_display_set_width</code> and
-so forth. In Rust the full name would look like <code>primitive::display::set_width</code>,
+so forth. The actual filenames can be named arbitrarily.</p>
+<p>In Rust the full name would look like <code>primitive::display::set_width</code>,
 and after saying <code>use primitive::display</code> you can then refer to it as <code>display::set_width</code>.
 You can even say <code>use primitive::display::set_width</code> and then just say <code>set_width</code>, but
 it's not a good idea to get carried away with this. <code>rustc</code> will not be confused, but <em>you</em>
-may get confused later.</p>
+may get confused later. But for this to work, filenames must follow some simple rules.</p>
 <p>A new keyword <code>mod</code> is used to define a module as a block
 where Rust types or functions can be written:</p>
 <pre><pre class="playpen"><code class="language-rust">mod foo {
@@ -3746,10 +3813,12 @@ fn main() {
 <p>So far, there's <code>mod3.rs</code>, containing <code>main</code>, a module <code>foo.rs</code> and a directory <code>boo</code> containing
 <code>mod.rs</code>.  The usual convention is that the file containing <code>main</code> is just called <code>main.rs</code>.</p>
 <p>Why two ways to do the same thing? Because <code>boo/mod.rs</code> can refer to other modules defined in <code>boo</code>,
-Update <code>boo/mod.rs</code> and add a new module - note that this is explicitly exported.</p>
+Update <code>boo/mod.rs</code> and add a new module - note that this is explicitly exported. (Without the <code>pub</code>,
+<code>bar</code> can only be seen inside the <code>boo</code> module.)</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
+// boo/mod.rs
 pub fn answer()-&gt;u32 {
     42
 }
@@ -3761,14 +3830,35 @@ pub mod bar {
 }
 
 #}</code></pre></pre>
-<p>and then we have the question corresponding to the answer:</p>
+<p>and then we have the question corresponding to the answer (the <code>bar</code> module is inside <code>boo</code>):</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
 let q = boo::bar::question();
 
 #}</code></pre></pre>
-<p>That module block can be pulled out as <code>boo/bar.rs</code> and so on.</p>
+<p>That module block can be pulled out as <code>boo/bar.rs</code>:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+// boo/bar.rs
+pub fn question() -&gt; &amp;'static str {
+    &quot;the meaning of everything&quot;
+}
+
+#}</code></pre></pre>
+<p>And <code>boo/mod.rs</code> becomes:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+// boo/mod.rs
+pub fn answer()-&gt;u32 {
+    42
+}
+
+pub mod bar;
+
+#}</code></pre></pre>
 <p>In summary, modules are about organization and visibility,
 and this may or may not involve separate files.</p>
 <p>Please note that <code>use</code> has nothing to do with importing, and simply specifies visibility
@@ -3989,7 +4079,7 @@ extern crate json;
 nature of JSON and the structured, static nature of Rust. (The readme explicitly speaks of 'friction')
 So if you <em>did</em> want to map JSON to Rust data structures, you would end up doing a lot of checking,
 because you can not assume that the received structure matches your structs! For that, a better
-solution is <a href="https://github.com/serde-rs/json">serde-json</a> where you <em>serialize</em> Rust data structures
+solution is <a href="https://github.com/serde-rs/json">serde_json</a> where you <em>serialize</em> Rust data structures
 into JSON and <em>deserialize</em> JSON into Rust.</p>
 <p>For this, create a another Cargo binary project with <code>cargo new --bin test-serde-json</code>, go into
 the <code>test-serde-json</code> directory and edit <code>Cargo.toml</code>. Edit it like so:</p>
@@ -4048,7 +4138,10 @@ Person {
 code, mostly error handling. Tedious, easy to mess up, and not where you want to put effort anyway.</p>
 <p>This is clearly the best solution if you are processing well-structured JSON from outside sources (it's
 possible to remap field names if needed) and provides a robust way for Rust programs to share data
-with other programs over the network (since everything understands JSON these days.)</p>
+with other programs over the network (since everything understands JSON these days.) The cool thing
+about <code>serde</code> (for SERialization DEserialization) is that other file formats are also supported, such
+as <code>toml</code>, which is the popular configuration-friendly format used in Cargo. So your program can read .toml
+files into structs, and write those structs out as .json.</p>
 <p>Serialization is an important technique and similar solutions exist for Java and Go - but with a big
 difference. In those languages the structure of the data is found at <em>run-time</em> using <em>reflection</em>, but
 in this case the serialization code is generated at <em>compile-time</em> - altogether more efficient!</p>
@@ -4060,7 +4153,7 @@ C++ is somewhat unique in its painfullness here, so we should compare this with
 other languages' package managers. npm (for JavaScript) and pip (for Python) manage dependencies
 and downloads for you, but the distribution story is harder, since the user of your program
 needs NodeJS or Python installed.
-But these programs are statically linked against their dependencies, so again it can be handed
+But Rust programs are statically linked against their dependencies, so again they can be handed
 out to your buddies without external dependencies.</p>
 <a class="header" href="print.html#more-gems" name="more-gems"><h2>More Gems</h2></a>
 <p>When processing anything except simple text, regular expressions make your life much easier.
@@ -4124,7 +4217,7 @@ fn main() {
 }
 // date was 2010-03-14+02:00
 </code></pre></pre>
-<p>However, this isn't recommended because feeding it bad dates will cause a panic! (try the bogus date
+<p>However, this isn't recommended because feeding it bad dates will cause a panic! (try a bogus date
 to see this.) The method you need here is <code>ymd_opt</code> which returns <code>LocalResult&lt;Date&gt;</code></p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
@@ -4509,7 +4602,7 @@ the stdlib) then such implemention would not be allowed. In this way, you are
 saved from creating confusion.</p>
 <p>Before congratulating ourselves on such a clever, convenient shortcut, you should be
 aware of the consequences. If <code>make_set</code> was written so, so that these are sets
-of owned strings, then the actual type of <code>intersect</code> could come as a sunrise:</p>
+of owned strings, then the actual type of <code>intersect</code> could come as a surprise:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
@@ -4539,28 +4632,44 @@ which I invite you to try out.</p>
 <p>It's often useful to have an interactive session with a program. Each line is read in and
 split into words; the command is looked up on the first word, and the rest of the words
 are passed as an argument to that command.</p>
-<p>A natural implementation is a map from command names to closures. It's tempting as
-first to make them <code>FnMut</code> - that is, they can modify any captured variables. But we will
-have more than one command, each with its own closure, and you cannot then mutably borrow
-the same variables.</p>
+<p>A natural implementation is a map from command names to closures. But how do we store
+closures, given that they will all have different sizes? Boxing them will copy them
+onto the heap:</p>
+<p>Here's a first try:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
-// this is a no-no
-let mut a = 10;
-let set = |n| a = n;
-let get = || a;  // can't borrow `a` again!
+    let mut v = Vec::new();
+    v.push(Box::new(|x| x * x));
+    v.push(Box::new(|x| x / 2.0));
+
+    for f in v.iter() {
+        let res = f(1.0);
+        println!(&quot;res {}&quot;, res);
+    }
 
 #}</code></pre></pre>
+<p>We get a very definite error on the second push:</p>
+<pre><code>  = note: expected type `[closure@closure4.rs:4:21: 4:28]`
+  = note:    found type `[closure@closure4.rs:5:21: 5:28]`
+note: no two closures, even if identical, have the same type
+</code></pre>
+<p><code>rustc</code> has deduced a type which is too specific, so it's necessary to force that
+vector to have the <em>boxed trait type</em> before things just work:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    let mut v: Vec&lt;Box&lt;Fn(f64)-&gt;f64&gt;&gt; = Vec::new();
+
+#}</code></pre></pre>
+<p>We can now use the same trick and keep these boxed closures in a <code>HashMap</code>. We still
+have to watch out for lifetimes, since closures can borrow from their environment.</p>
+<p>It's tempting as first to make them <code>FnMut</code> - that is, they can modify any captured variables. But we will
+have more than one command, each with its own closure, and you cannot then mutably borrow
+the same variables.</p>
 <p>So the closures are passed a <em>mutable reference</em> as an argument, plus
 a slice of string slices (<code>&amp;[&amp;str]</code>) representing the command arguments.
 They will return some <code>Result</code> - We'll use <code>String</code> errors at first.</p>
-<p>Recall that all closures
-implementing a particular function signature are all distinct types, and are (in fact)
-compiler-generated structs that <em>borrow</em> variables from the environment of the closure.
-They are different types and may well have different sizes, so we put them in a <code>Box</code>.</p>
-<p>Any struct that borrows references needs an explicit lifetime, since Rust needs
-assurance that these references outlive our <code>Cli</code> struct - so closures have lifetimes.</p>
 <p><code>D</code> is the data type, which can be anything with a size.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
@@ -4595,7 +4704,9 @@ their environment!</p>
 #fn main() {
     fn process(&amp;mut self,line: &amp;str) -&gt; CliResult {
         let parts: Vec&lt;_&gt; = line.split_whitespace().collect();
-        if parts.len() == 0 { return Ok(&quot;&quot;.to_string()); }
+        if parts.len() == 0 {
+            return Ok(&quot;&quot;.to_string());
+        }
         match self.callbacks.get(parts[0]) {
             Some(callback) =&gt; callback(&amp;mut self.data,&amp;parts[1..]),
             None =&gt; Err(&quot;no such command&quot;.to_string())
@@ -4668,8 +4779,8 @@ fn main() {
 <p>The error handling is a bit clunky here, and we'll later see how to use the question
 mark operator in cases like this.
 Basically, the particular error <code>std::num::ParseIntError</code> implements
-the trait <code>std::error::Error</code>, which we must bring into scope - Rust doesn't let traits
-operate unless they're visible.</p>
+the trait <code>std::error::Error</code>, which we must bring into scope to use the <code>description</code>
+method - Rust doesn't let traits operate unless they're visible.</p>
 <p>And in action:</p>
 <pre><code>Welcome to the Interactive Prompt!
 go 32
@@ -4774,7 +4885,7 @@ fn raises_my_error(yes: bool) -&gt; Result&lt;(),MyError&gt; {
 
 #}</code></pre></pre>
 <p>Typing <code>Result&lt;T,MyError&gt;</code> gets tedious and many Rust modules define their own
-<code>Result</code> - e.g. <code>io::Result&lt;T&gt;</code> is short for <code>io::Result&lt;T,io::Error&gt;</code>.</p>
+<code>Result</code> - e.g. <code>io::Result&lt;T&gt;</code> is short for <code>Result&lt;T,io::Error&gt;</code>.</p>
 <p>In this next example we need to handle the specific error when a string can't be parsed
 as a floating-point number.</p>
 <p>Now the way that <code>?</code> works
@@ -4820,7 +4931,7 @@ second <code>?</code> will convert the <code>ParseFloatError</code> to <code>MyE
 <p>Not too complicated, although a little long-winded. The tedious bit is having to
 write <code>From</code> conversions for all the other error types that need to play nice
 with <code>MyError</code> - or you simply lean on <code>Box&lt;Error&gt;</code>. Newcomers get confused
-by the multitude of ways to do the same thing in Rust; there always is another
+by the multitude of ways to do the same thing in Rust; there is always another
 way to peel the avocado (or skin the cat, if you're feeling bloodthirsty). The price
 of flexibility is having many options. Error-handling for a 200 line program can afford
 to be simpler than for a large application. And if you ever want to package your precious
@@ -5137,8 +5248,8 @@ usual is called <em>inherited mutability</em>: if I have a struct value <code>v<
 write to a field <code>v.a</code> if <code>v</code> itself is writeable. <code>Cell</code> values relax this rule, since
 we can change the value contained within them with <code>set</code> even if the cell itself is
 not mutable.</p>
-<p>However, <code>Cell</code> only works with values that can be copied, that is, they implement <code>Copy</code>,
-like primitive types and structs containing them marked as 'derive(Copy)'.</p>
+<p>However, <code>Cell</code> only works with <code>Copy</code> types
+(e.g primitive types and user types deriving the <code>Copy</code> trait).</p>
 <p>For other values, we have to get a reference we can work on, either mutable or immutable.
 This is what <code>RefCell</code> provides - you ask it explicitly for a reference to the contained
 value:</p>
@@ -5156,9 +5267,10 @@ fn main() {
     assert_eq!(*greeting.borrow(), &quot;hola&quot;);
 }
 </code></pre></pre>
-<p>The explicit dereference operator <code>*</code> can be a little bit confusing in Rust, because
+<p>Again, <code>greeting</code> was not declared as mutable!</p>
+<p>The explicit dereference operator <code>*</code> can be a bit confusing in Rust, because
 often you don't need it - for instance <code>greeting.borrow().len()</code> is fine since method
-calls will deference implicitly.  But you <em>do</em> need <code>*</code> to pull out the underlying
+calls will dereference implicitly.  But you <em>do</em> need <code>*</code> to pull out the underlying
 <code>&amp;String</code> from <code>greeting.borrow()</code> or the <code>&amp;mut String</code> from <code>greeting.borrow_mut()</code>.</p>
 <p>Using a <code>RefCell</code> isn't always safe, because any references returned from these
 methods must follow the usual rules.</p>
@@ -5300,34 +5412,6 @@ thread '&lt;unnamed&gt;' panicked at 'I give up!', thread2.rs:7
 note: Run with `RUST_BACKTRACE=1` for a backtrace.
 wait Err(Any)
 </code></pre>
-<a class="header" href="print.html#threads-dont-borrow" name="threads-dont-borrow"><h2>Threads Don't Borrow</h2></a>
-<p>It's possible for the thread closure to capture values, but by <em>moving</em>,  not by <em>borrowing</em>!</p>
-<pre><pre class="playpen"><code class="language-rust">// thread3.rs
-use std::thread;
-
-fn main() {
-    let name = &quot;dolly&quot;.to_string();
-    let t = thread::spawn(|| {
-        println!(&quot;hello {}&quot;, name);
-    });
-    println!(&quot;wait {:?}&quot;, t.join());
-}
-</code></pre></pre>
-<p>And here's the helpful error message:</p>
-<pre><code>error[E0373]: closure may outlive the current function, but it borrows `name`, which is owned by the current function
- --&gt; thread3.rs:6:27
-  |
-6 |     let t = thread::spawn(|| {
-  |                           ^^ may outlive borrowed value `name`
-7 |         println!(&quot;hello {}&quot;, name);
-  |                             ---- `name` is borrowed here
-  |
-help: to force the closure to take ownership of `name` (and any other referenced variables), use the `move` keyword, as shown:
-  |     let t = thread::spawn(move || {
-</code></pre>
-<p>That's fair enough! Imagine spawning this thread from a function - it will exist
-after the function call has finished and <code>name</code> gets dropped.  So adding <code>move</code> solves our
-problem.</p>
 <p>The returned objects can be used to keep track of multiple threads:</p>
 <pre><pre class="playpen"><code class="language-rust">// thread4.rs
 use std::thread;
@@ -5360,26 +5444,82 @@ error, retry etc)</p>
 for different runs), and this is key - they really are <em>independent threads of execution</em>.
 Multithreading is easy; what's hard is <em>concurrency</em> - managing and synchronizing multiple
 threads of execution.</p>
+<a class="header" href="print.html#threads-dont-borrow" name="threads-dont-borrow"><h2>Threads Don't Borrow</h2></a>
+<p>It's possible for the thread closure to capture values, but by <em>moving</em>,  not by <em>borrowing</em>!</p>
+<pre><pre class="playpen"><code class="language-rust">// thread3.rs
+use std::thread;
+
+fn main() {
+    let name = &quot;dolly&quot;.to_string();
+    let t = thread::spawn(|| {
+        println!(&quot;hello {}&quot;, name);
+    });
+    println!(&quot;wait {:?}&quot;, t.join());
+}
+</code></pre></pre>
+<p>And here's the helpful error message:</p>
+<pre><code>error[E0373]: closure may outlive the current function, but it borrows `name`, which is owned by the current function
+ --&gt; thread3.rs:6:27
+  |
+6 |     let t = thread::spawn(|| {
+  |                           ^^ may outlive borrowed value `name`
+7 |         println!(&quot;hello {}&quot;, name);
+  |                             ---- `name` is borrowed here
+  |
+help: to force the closure to take ownership of `name` (and any other referenced variables), use the `move` keyword, as shown:
+  |     let t = thread::spawn(move || {
+</code></pre>
+<p>That's fair enough! Imagine spawning this thread from a function - it will exist
+after the function call has finished and <code>name</code> gets dropped.  So adding <code>move</code> solves our
+problem.</p>
+<p>But this is a <em>move</em>, so <code>name</code> may only appear in one thread! I'd like to emphasize
+that it <em>is</em> possible to share references, but they need to have <code>static</code> lifetime:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+let name = &quot;dolly&quot;;
+let t1 = thread::spawn(move || {
+    println!(&quot;hello {}&quot;, name);
+});
+let t2 = thread::spawn(move || {
+    println!(&quot;goodbye {}&quot;, name);
+});
+
+#}</code></pre></pre>
+<p><code>name</code> exists for the whole duration of the program (<code>static</code>), so
+<code>rustc</code> is satisfied that the closure will never outlive <code>name</code>. However, most interesting
+references do not have <code>static</code> lifetimes!</p>
 <p>Threads can't share the same environment - by <em>design</em> in Rust. In particular,
 they cannot share regular references because the closures move their captured variables.</p>
-<p><em>shared references</em> are fine however - but you cannot use <code>Rc</code> for this. This is because
-<code>Rc</code> is not <em>thread safe</em> - it's optimized to be fast for the non-threaded case. For
-threads, you need <code>std::sync::Arc</code> - 'Arc' stands for 'Atomic Reference Counting'. That
-is, it guarantees that the reference count will be modified in one logical operation. To
-make this guarantee, it must ensure that the operation is locked so that only the current
-thread has access.</p>
+<p><em>shared references</em> are fine however, because their lifetime is 'as long as needed' -
+but you cannot use <code>Rc</code> for this. This is because
+<code>Rc</code> is not <em>thread safe</em> - it's optimized to be fast for the non-threaded case.
+Fortunately it is a compile error to use <code>Rc</code> here; the compiler is watching your
+back as always.</p>
+<p>For threads, you need <code>std::sync::Arc</code> - 'Arc' stands for 'Atomic Reference Counting'.
+That is, it guarantees that the reference count will be modified in one logical operation.
+To make this guarantee, it must ensure that the operation is locked so that only the current
+thread has access. <code>clone</code> is still much cheaper than actually making a copy however.</p>
 <pre><pre class="playpen"><code class="language-rust">// thread5.rs
 use std::thread;
 use std::sync::Arc;
 
+struct MyString(String);
+
+impl MyString {
+    fn new(s: &amp;str) -&gt; MyString {
+        MyString(s.to_string())
+    }
+}
+
 fn main() {
     let mut threads = Vec::new();
-    let name = Arc::new(&quot;dolly&quot;.to_string());
+    let name = Arc::new(MyString::new(&quot;dolly&quot;));
 
     for i in 0..5 {
         let tname = name.clone();
         let t = thread::spawn(move || {
-            println!(&quot;hello {} count {}&quot;, tname,i);
+            println!(&quot;hello {} count {}&quot;, tname.0, i);
         });
         threads.push(t);
     }
@@ -5389,7 +5529,9 @@ fn main() {
     }
 }
 </code></pre></pre>
-<p>So the shared reference <code>name</code> is passed to each new thread by making a new reference
+<p>I&quot;ve deliberately created a wrapper type for <code>String</code> here (a 'newtype') since
+our <code>MyString</code> does not implement <code>Clone</code>. But the <em>shared reference</em> can be cloned!</p>
+<p>The shared reference <code>name</code> is passed to each new thread by making a new reference
 with <code>clone</code> and moving it into the closure. It's a little verbose, but this is a safe
 pattern. Safety is important in concurrency precisely because the problems are so
 unpredictable. A program may run fine on your machine, but occasionally crash on the
@@ -5401,6 +5543,8 @@ is done in Rust using <em>channels</em>. <code>std::sync::mpsc::channel()</code>
 of the <em>receiver</em> channel and the <em>sender</em> channel. Each thread is passed a copy
 of the sender with <code>clone</code>, and calls <code>send</code>. Meanwhile the main thread calls
 <code>recv</code> on the receiver.</p>
+<p>'MPSC' stands for 'Multiple Producer Single Consumer'. We create multiple threads
+which attempt to send to the channel, and the main thread 'consumes' the channel.</p>
 <pre><pre class="playpen"><code class="language-rust">// thread9.rs
 use std::thread;
 use std::sync::mpsc;
@@ -5510,8 +5654,8 @@ fn main() {
 of resumable <code>join</code> and useful when you need to farm off pieces of a job to
 different threads and want to take some action when all the pieces are finished.</p>
 <a class="header" href="print.html#shared-state" name="shared-state"><h2>Shared State</h2></a>
-<p>But how can threads <em>modify</em> shared state?</p>
-<p>Recall the <code>Rc&lt;RefCell&gt;</code> strategy for <em>dynamically</em> doing a
+<p>How can threads <em>modify</em> shared state?</p>
+<p>Recall the <code>Rc&lt;RefCell&lt;T&gt;&gt;</code> strategy for <em>dynamically</em> doing a
 mutable borrow on shared references.  The threading equivalent to <code>RefCell</code> is
 <code>Mutex</code> - you may get your mutable reference by calling <code>lock</code>. While this reference
 exists, no other thread can access it. <code>mutex</code> stands for 'Mutual Exclusion' - we lock
@@ -5567,13 +5711,23 @@ on the values in parallel.</p>
 use pipeliner::Pipeline;
 
 fn main() {
-    for result in (0..50).with_threads(10).map(|x| x + 1) {
+    for result in (0..10).with_threads(4).map(|x| x + 1) {
         println!(&quot;result: {}&quot;, result);
     }
 }
+// result: 1
+// result: 2
+// result: 5
+// result: 3
+// result: 6
+// result: 7
+// result: 8
+// result: 9
+// result: 10
+// result: 4
 </code></pre></pre>
-<p>It's silly of course, because the operation is so cheap to calculate, but shows how simple it is
-to collect parallel results.</p>
+<p>It's a silly example of course, because the operation is so cheap to calculate, but shows how easy it is
+to run code in parallel.</p>
 <p>Here's something more useful. Doing network operations in parallel is very useful, because they can
 take time, and you don't want to wait for them <em>all</em> to finish before starting to do work.</p>
 <p>This example is pretty crude (believe me, there are better ways of doing it) but here we want to focus
@@ -5678,7 +5832,8 @@ fn main() {
 it a list of actual domain names the DNS lookup could take some time, hence the importance of parallelism.</p>
 <p>Suprisingly, it sort-of Just Works. The fact that everything in the standard library implements <code>Debug</code>
 is great for exploration as well as debugging.  The iterator is returning <code>Result</code> (hence <code>Ok</code>) and
-in that <code>Result</code> is an <code>IntoIter</code> into a <code>SocketAddr</code> which is an enum with either a IPV4 or a IPV6 address.</p>
+in that <code>Result</code> is an <code>IntoIter</code> into a <code>SocketAddr</code> which is an enum with either a ipv4 or a ipv6 address.
+Why <code>IntoIter</code>? Because a socket may have multiple addresses (e.g. both ipv4 and ipv6).</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
@@ -5699,7 +5854,7 @@ bad typically when we give a nonsense address (like an address name without a po
 <p>Rust provides a straightforward interface to the most commonly used network protocol, TCP.
 It is very fault-resistant and is the base on which our networked world is built - <em>packets</em> of
 data are sent and received, with acknowledgement. By contrast, UDP sends packets out into the wild
-without much error correction - there's a joke that goes &quot;I could tell you a joke about UDP but you
+without acknowledgement - there's a joke that goes &quot;I could tell you a joke about UDP but you
 might not get it.&quot;
 (Jokes about networking are only funny for a specialized meaning of the word 'funny')</p>
 <p>However, error handling is <em>very</em> important with networking, because anything can happen, and will,
@@ -5791,7 +5946,7 @@ fn main() {
 <p>One-way communications like this are certainly useful - for instance. a set of services across a
 network which want to collect their status reports together in one central place. But it's
 reasonable to expect a polite reply, even if just 'ok'!</p>
-<p>A simple example is an 'echo' server. The client writes some text ending in a newline to the
+<p>A simple example is a basic 'echo' server. The client writes some text ending in a newline to the
 server, and receives the same text back with a newline - the stream is readable and writeable.</p>
 <pre><pre class="playpen"><code class="language-rust">// client_echo.rs
 use std::io::prelude::*;
@@ -5847,7 +6002,8 @@ with methods.</li>
 object-orientation: it comes as a shock, because Rust data aggregates (structs, enums
 and tuples) are dumb. You can define methods on them, and make the data itself private,
 all the usual tactics of encapsulation, but they are all <em>unrelated types</em>.
-There is no subtyping and no inheritance of data.</p>
+There is no subtyping and no inheritance of data (apart from the specialized
+case of <code>Deref</code> coercions.)</p>
 <p>The relationships between various data types in Rust are
 established using <em>traits</em>.  A large part of learning Rust is understanding how the
 standard library traits operate, because that's the web of meaning that glues all the
@@ -5855,53 +6011,67 @@ data types together.</p>
 <p>Traits are interesting because there's no one-to-one correspondence between them and concepts
 from mainstream languages. It depends if you're thinking dynamically or statically. In the
 dynamic case, they're rather like Java or Go interfaces.</p>
-<p>For instance,  it becomes automatic to slap a <code>#[derive(Debug)]</code>
-on any new types, because the innards of those types can be printed out using <code>{:?}</code>. All
-stdlib types implement <code>Debug</code>:</p>
+<a class="header" href="print.html#trait-objects" name="trait-objects"><h3>Trait Objects</h3></a>
+<p>Consider the example first used to introduce traits:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
-let question = &quot;everything&quot;;
-let answer = 42;
-
-let debugables: Vec&lt;&amp;Debug&gt; = vec![&amp;question,&amp;answer];
-for d in &amp;debugables {
-    println!(&quot;{:?}&quot;,d);
+trait Show {
+    fn show(&amp;self) -&gt; String;
 }
-// &quot;everything&quot;
-// 42
+
+impl Show for i32 {
+    fn show(&amp;self) -&gt; String {
+        format!(&quot;four-byte signed {}&quot;, self)
+    }
+}
+
+impl Show for f64 {
+    fn show(&amp;self) -&gt; String {
+        format!(&quot;eight-byte float {}&quot;, self)
+    }
+}
 
 #}</code></pre></pre>
-<p>Now, we could just use <code>{:?}</code> to dump the innards of the vector directly, but I want
-to emphasize we are iterating over references that are all guaranteed to have the <code>fmt</code>
-method defined. A vector of references to values implementing <code>Debug</code> can be printed out.
-That's a clunky thing  to say often, so they are called <code>Debug</code> <em>trait objects</em>.
-Now integers and strings otherwise don't have much in common, but here we've found a common denominator;
-they know how to print out their innards.
-And this is how you get traditional dynamic dispatch in Rust, because that <code>fmt</code> method
-defined by the <code>Debug</code> trait is called as a virtual method.</p>
-<p>'virtual' method is a concept that only applies to statically-compiled languages; they are the
-<em>default</em> in Java, unless you sternly say <code>final</code>. In a language like Python, the object has
-all of its class information attached, and the interpreter will look up <code>fmt</code> in the class
-object at runtime.</p>
+<p>Here's a little program with big implications:</p>
+<pre><pre class="playpen"><code class="language-rust">fn main() {
+    let answer = 42;
+    let maybe_pi = 3.14;
+    let v: Vec&lt;&amp;Show&gt; = vec![&amp;answer,&amp;maybe_pi];
+    for d in v.iter() {
+        println!(&quot;show {}&quot;,d.show());
+    }
+}
+// show four-byte signed 42
+// show eight-byte float 3.14
+</code></pre></pre>
+<p>This is a case where Rust needs some type guidance - I specifically want a vector
+of references to anything that implements <code>Show</code>.  Now note that <code>i32</code> and <code>f64</code>
+have no relationship to each other, but they both understand the <code>show</code> method
+because they both implement the same trait. This method is <em>virtual</em>, because
+the actual method has different code for different types, and yet the correct
+method is invoked based on <em>runtime</em> information. These references
+are called <a href="https://doc.rust-lang.org/stable/book/trait-objects.html">trait objects</a>.</p>
+<p>And <em>that</em> is how you can put objects of different types in the same vector. If
+you come from a Java or Go background, you can think of <code>Show</code> as acting like an interface.</p>
 <p>A little refinement of this example - we <em>box</em> the values. A box contains a reference to data
 allocated on the heap, and acts very much like a reference - it's a <em>smart pointer</em>. When boxes
 go out of scope and <code>Drop</code> kicks in, then that memory is released.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
-    let question = Box::new(&quot;everything&quot;);
-    let answer = Box::new(42);
+let answer = Box::new(42);
+let maybe_pi = Box::new(3.14);
 
-    let debugables: Vec&lt;Box&lt;Debug&gt;&gt; = vec![question,answer];
-    for d in &amp;debugables {
-        println!(&quot;{:?}&quot;,d);
-    }
+let show_list: Vec&lt;Box&lt;Show&gt;&gt; = vec![question,answer];
+for d in &amp;show_list {
+    println!(&quot;show {}&quot;,d.show());
+}
 
 #}</code></pre></pre>
-<p>The difference is that you can take this vector, pass it as a reference, give it away, without
-having to track any borrowed references. When the vector is dropped, the boxes will be dropped,
-and all memory is reclaimed.</p>
+<p>The difference is that you can now take this vector, pass it as a
+reference or give it away without having to track any borrowed references.
+When the vector is dropped, the boxes will be dropped, and all memory is reclaimed.</p>
 <a class="header" href="print.html#animals" name="animals"><h2>Animals</h2></a>
 <p>For some reason, any discussion of OOP and inheritance seems to end up talking about animals. It
 makes for a nice story: &quot;See, a Cat is a Carnivore. And a Carnivore is an Animal&quot;. But I'll start
@@ -5954,8 +6124,7 @@ for d in &amp;ducks {
 <p>Here we have two completely different types (one is so dumb it doesn't even have data), and yes,
 they all <code>quack()</code>. One is behaving a little odd (for a duck) but they share the same method name
 and Rust can keep a collection of such objects in a type-safe way.</p>
-<p>Rust is a little over-obsessed with memory safety (since that's the <em>big thing</em> it brings to
-system languages) but type safety is a fantastic thing.  Without static typing, you might insert
+<p>Type safety is a fantastic thing.  Without static typing, you could insert
 a <em>cat</em> into that collection of Quackers, resulting in run-time chaos.</p>
 <p>Here's a funny one:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
@@ -5975,7 +6144,9 @@ let int = 4;
 
 let ducks: Vec&lt;&amp;Quack&gt; = vec![&amp;duck1,&amp;duck2,&amp;parrot,&amp;int];
 ...
-// ...
+// quack!
+// quack!
+// squawk!
 // quack 0 quack 1 quack 2 quack 3
 
 #}</code></pre></pre>
@@ -6007,7 +6178,8 @@ take on the quacking business - if there's a Go interface <code>Quack</code>, an
 then that type satisfies <code>Quack</code> without any need for explicit definition. This also breaks the
 baked-into-definition Java model, and allows compile-time duck-typing, at the cost of some
 clarity and type-safety.</p>
-<p>But there is a problem with duck-typing. One of the signs of bad OOP is too many methods which have some
+<p>But there is a problem with duck-typing.
+One of the signs of bad OOP is too many methods which have some
 generic name like <code>run</code>. &quot;If it has run(), it must be Runnable&quot; doesn't sound so catchy as
 the original!  So it is possible for a Go interface to be <em>accidentally</em> valid. In Rust,
 both the <code>Debug</code> and <code>Display</code> traits define <code>fmt</code> methods, but they really mean different
@@ -6025,11 +6197,43 @@ he explained that the real problem wasn't classes per se, but rather implementat
 (the extends relationship). Interface inheritance (the implements relationship) is preferable.
 You should avoid implementation inheritance whenever possible</p>
 </blockquote>
-<p>So even in Java, you've probably been doing it wrong!</p>
+<p>So even in Java, you've probably been overdoing classes!</p>
 <p>Implementation inheritance has some serious problems. But it does feel so very
 <em>convenient</em>. There's this fat base class called <code>Animal</code> and it has loads of useful
 functionality (it may even expose its innards!) which our derived class <code>Cat</code> can use. That is,
 it is a form of code reuse. But code reuse is a separate concern.</p>
+<p>Getting the distinction between implementation and interface inheritance is important when
+understanding Rust.</p>
+<p>Note that traits may have <em>provided</em> methods. Consider <code>Iterator</code> - you only <em>have</em> to override
+<code>next</code>, but get a whole host of methods free.  This is similar to 'default' methods of modern
+Java interfaces. Here we only define <code>name</code> and <code>upper_case</code> is defined for us. We <em>could</em>
+override <code>upper_case</code> as well, but it isn't <em>required</em>.</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+trait Named {
+    fn name(&amp;self) -&gt; String;
+
+    fn upper_case(&amp;self) -&gt; String {
+        self.name().to_uppercase()
+    }
+}
+
+struct Boo();
+
+impl Named for Boo {
+    fn name(&amp;self) -&gt; String {
+        &quot;boo&quot;.to_string()
+    }
+}
+
+let f = Boo();
+
+assert_eq!(f.name(),&quot;boo&quot;.to_string());
+assert_eq!(f.upper_case(),&quot;BOO&quot;.to_string());
+
+#}</code></pre></pre>
+<p>This is a <em>kind</em> of code reuse, true, but note that it does not apply to the data, only the interface!</p>
 <a class="header" href="print.html#ducks-and-generics" name="ducks-and-generics"><h2>Ducks and Generics</h2></a>
 <p>An example of generic-friendly duck function in Rust would be this trivial one:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
@@ -6045,7 +6249,8 @@ quack(&amp;d);
 
 #}</code></pre></pre>
 <p>The type parameter is <em>any</em> type which implements <code>Quack</code>. There's an important difference
-between <code>quack</code> and <code>quack_ref</code>.  The body of this function is compiled for <em>each</em> of the calling
+between <code>quack</code> and the <code>quack_ref</code> defined in the last section.
+The body of this function is compiled for <em>each</em> of the calling
 types and no virtual method is needed; such functions can be completely inlined. It
 uses the trait <code>Quack</code> in a different way, as a <em>constraint</em> on generic types.</p>
 <p>This is the C++ equivalent to the generic <code>quack</code> (note the <code>const</code>):</p>
@@ -6088,8 +6293,9 @@ quack_everyone(ducks.into_iter());
 <p>Iterators in Rust aren't duck-typed but are types that must implement <code>Iterator</code>, and in
 this case the iterator provides boxes of <code>Quack</code>.  There's no ambiguity about the types
 involved, and the values must satisfy <code>Quack</code>. Often the function signature is the most challenging
-thing about a generic Rust function, which is why I recommend reading the source - the
-implementation is often much simpler. Here the only type parameter is the actual iterator type,
+thing about a generic Rust function, which is why I recommend reading
+the source of the standard library - the implementation is often much simpler than the declaration!
+Here the only type parameter is the actual iterator type,
 which means that this will work with anything that can deliver a sequence of boxes, not just
 a vector iterator.</p>
 <a class="header" href="print.html#inheritance" name="inheritance"><h2>Inheritance</h2></a>
@@ -6108,8 +6314,66 @@ diesel, diesel-electric, etc), cargo-or-people, and so forth.  Any fixed hierarc
 you create based on one aspect ignores all other aspects. That is, there are multiple possible
 classifications of vehicles!</p>
 <p>Composition is more important in Rust for the obvious reason that you can't inherit functionality
-in a lazy way from the base class.</p>
-<p>But there is <em>trait inheritance</em>:</p>
+in a lazy way from a base class.</p>
+<p>Composition is also important because the borrow checker is smart enough
+to know that borrowing different struct fields are separate borrows. You can have
+a mutable borrow of one field while having an immutable borrow of another field,
+and so forth. Rust cannot tell that a method only accesses one field, so the
+fields should be structs with their own methods for implementation convenience.
+(The <em>external</em> interface of the struct can be anything you like using suitable traits.)</p>
+<p>A concrete example of 'split borrrowing' will make this clearer. We have a struct that
+owns some strings, with a method for borrowing the first string mutably.</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+struct Foo {
+    one: String,
+    two: String
+}
+
+impl Foo {
+    fn borrow_one_mut(&amp;mut self) -&gt; &amp;mut String {
+        &amp;mut self.one
+    }
+    ....
+}
+
+#}</code></pre></pre>
+<p>(This is an example of a Rust naming convention - such methods should end in <code>_mut</code>)</p>
+<p>Now, a method for borrowing both strings, reusing the first method:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    fn borrow_both(&amp;self) -&gt; (&amp;str,&amp;str) {
+        (self.borrow_one_mut(), &amp;self.two)
+    }
+
+#}</code></pre></pre>
+<p>Which can't work!  We've borrrowed mutably from <code>self</code> and <em>also</em> borrowed immmutably from <code>self</code>.
+If Rust allowed situations like this, then that immmutable reference can't be guaranteed not to
+change.</p>
+<p>The solution is simple:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    fn borrow_both(&amp;self) -&gt; (&amp;str,&amp;str) {
+        (&amp;self.one, &amp;self.two)
+    }
+
+#}</code></pre></pre>
+<p>And this is fine, because the borrow checker considers these to be independent borrows. So imagine
+that the fields were some arbitrary types, and you can see that methods called on these fields
+will not cause borrowing problems.</p>
+<p>There is a restricted but very important kind of
+'inheritance' with <a href="https://rust-lang.github.io/book/second-edition/ch15-02-deref.html">Deref</a>,
+which is the trait for the 'dereference' operator <code>*</code>.
+<code>String</code> implements <code>Deref&lt;Target=str&gt;</code> and so all the methods defined on <code>&amp;str</code> are automatically
+available for <code>String</code> as well!  In a similar way, the methods of <code>Foo</code> can be directly
+called on <code>Box&lt;Foo&gt;</code>.  Some find this a little ... magical, but it is tremendously convenient.
+There is a simpler language inside modern Rust, but it would not be half as pleasant to use.
+It really should be used for cases where there is an owned, mutable type and a simpler borrowed
+type.</p>
+<p>Generally in Rust there is <em>trait inheritance</em>:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
@@ -6124,10 +6388,13 @@ trait Location {
 trait ShowTell: Show + Location {}
 
 #}</code></pre></pre>
-<p>The last trait simply combines our two distinct traits into one, although it can specify
+<p>The last trait simply combines our two distinct traits into one, although it could specify
 other methods.</p>
 <p>Things now proceed as before:</p>
-<pre><code>#[derive(Debug)]
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+#[derive(Debug)]
 struct Foo {
     name: String,
     location: String
@@ -6156,7 +6423,8 @@ impl Location for Foo {
 
 impl ShowTell for Foo {}
 
-</code></pre>
+
+#}</code></pre></pre>
 <p>Now, if I have a value <code>foo</code> of type <code>Foo</code>, then a reference to that value will
 satisfy <code>&amp;Show</code>, <code>&amp;Location</code> or <code>&amp;ShowTell</code> (which implies both.)</p>
 <p>Here's a useful little macro:</p>
@@ -6216,21 +6484,25 @@ check whether a given object is an instance of a class and then to do a
 dynamic cast to that type. It isn't really a good idea in general, and specifically
 cannot work in Rust because that <code>Show</code> reference has 'forgotten' that it was originally
 a <code>ShowTell</code> reference.</p>
-<p>Composition is also important in Rust because the borrow checker is smart enough
-to know that borrowing different struct fields are separate borrows. You can have
-a mutable borrow of one field while having an immutable borrow of another field,
-and so forth. Rust cannot tell that a method only accesses one field, so the
-fields should be structs with their own methods for implementation convenience.
-(The <em>external</em> interface of the struct can be anything you like using suitable traits.)</p>
 <p>You always have a choice: polymorphic, via trait objects, or monomorphic, via generics
 constrainted by traits. Modern C++ and the Rust standard library tends to take the generic
 route, but the polymorphic route is not obselete. You do have to understand the different
 trade-offs - generics generate the fastest code, which can be inlined. This may lead
 to code bloat. But not everything needs to be as <em>fast as possible</em> - it may only happen
 a 'few' times in the lifetime of a typical program fun.</p>
+<p>So, here's a summary:</p>
+<ul>
+<li>the role played by <code>class</code> is shared between data and traits</li>
+<li>structs and enums are dumb, although you can define methods and do data hiding</li>
+<li>a <em>limited</em> form of subtyping is possible on data using the <code>Deref</code> trait</li>
+<li>traits don't have any data, but can be implemented for any type (not just structs)</li>
+<li>traits can inherit from other traits</li>
+<li>traits can have provided methods, allowing interface code re-use</li>
+<li>traits give you both virtual methods (polymorphism) and generic constraints (monomorphism)</li>
+</ul>
 <a class="header" href="print.html#example-windows-api" name="example-windows-api"><h2>Example: Windows API</h2></a>
-<p>One of the areas where traditional OOP is used extensively is GUI toolkits. An EditControl or a ListWindow
-is-a Window, and so forth. This makes writing Rust bindings to GUI toolkits more difficult
+<p>One of the areas where traditional OOP is used extensively is GUI toolkits. An <code>EditControl</code> or a <code>ListWindow</code>
+is-a <code>Window</code>, and so forth. This makes writing Rust bindings to GUI toolkits more difficult
 than it needs to be.</p>
 <p>Win32 programming can be done <a href="https://www.codeproject.com/Tips/1053658/Win-GUI-Programming-In-Rust-Language">directly</a>
 in Rust, and it's a little less awkward than the original C. As soon as I graduated from C
@@ -6279,14 +6551,15 @@ caught at compile-time.</p>
 of The Rust Programming Language book has a very good discussion on what 'object-oriented'
 means in Rust.</p>
 <a class="header" href="print.html#parsing-text-with-nom" name="parsing-text-with-nom"><h2>Parsing Text with Nom</h2></a>
-<p><a href="https://github.com/Geal/nom">nom</a> is a parser library for Rust which is well worth
-the initial time investment. If you have to parse a known data format, like CSV or JSON, then
+<p><a href="https://github.com/Geal/nom">Nom</a>, <a href="https://docs.rs/nom">(documented here)</a> is a parser library
+for Rust which is well worth the initial time investment.</p>
+<p>If you have to parse a known data format, like CSV or JSON, then
 it's best to use a specialized library like <a href="https://github.com/BurntSushi/rust-csv">Rust CSV</a> or
 the JSON libraries discussed in <a href="4-modules.html#cargo">Section 4</a>.</p>
 <p>Likewise, for configuration files
 use dedicated parsers like <a href="https://docs.rs/rust-ini/0.10.0/ini/">ini</a> or
 <a href="http://alexcrichton.com/toml-rs/toml/index.html">toml</a>. (The last one is particularly cool since
-it integrates with the Serde framework, just as we saw with <strong>serde-json</strong>).</p>
+it integrates with the Serde framework, just as we saw with <a href="https://docs.rs/serde_json">serde_json</a>.</p>
 <p>But if the text is not regular, or some made-up format, then you need to scan that text without
 writing a lot of tedious string-processing code. The suggested go-to is often <a href="https://github.com/rust-lang/regex">regex</a>,
 but regexes can be frustratingly opaque when sufficiently involved. Nom provides a way to parse
@@ -6296,83 +6569,64 @@ but you <em>could</em> use Nom to parse HTML.  If you ever had the itch to write
 language, Nom is a good place for you start on that hard road to obscurity.</p>
 <p>There are some excellent tutorials for learning Nom, but I want to start at the hello-world
 level to build some initial familiarity. The basic things you need to know - first, Nom is macros all the
-way down, and second, Nom works with byte slices, not strings. The first means that you have to
+way down, and second, Nom prefers to work with byte slices, not strings. The first means that you have to
 be especially careful to get Nom expressions right, because the error messages are not going to be
 friendly. And the second means that Nom can be used for <em>any</em> data format, not just text. People
-have used Nom to decode binary protocols and file headers.</p>
-<p>So for text there will be a little friction, because
-you feed a Nom parser byte slices and the basic parsers return byte slices, which need to be converted.</p>
+have used Nom to decode binary protocols and file headers. It can also work with 'text'
+in encodings other than UTF-8.</p>
+<p>Recent versions of Nom work fine with string slices, although you need to use the macros that
+end with <code>_s</code>.</p>
 <pre><pre class="playpen"><code class="language-rust">#[macro_use]
 extern crate nom;
 
-named!(get_greeting&lt;&amp;[u8]&gt;,
-    tag!(&quot;hi&quot;)
+named!(get_greeting&lt;&amp;str,&amp;str&gt;,
+    tag_s!(&quot;hi&quot;)
 );
 
 fn main() {
-    let res = get_greeting(&quot;hi &quot;.as_bytes());
+    let res = get_greeting(&quot;hi there&quot;);
     println!(&quot;{:?}&quot;,res);
 }
-// Done([32], [104, 105])
+// Done(&quot; there&quot;, &quot;hi&quot;)
+
 </code></pre></pre>
-<p>The <code>named!</code> macro creates functions which take byte slices (<code>&amp;[u8]</code>) and return the type in
-angle brackets.  <code>tag!</code> matches a literal string in that stream of bytes, and its value is
-a byte slice representing that literal.</p>
-<p>We call the defined parser <code>get_greeting</code> with a <code>&amp;str</code> converted to <code>&amp;[u8]</code>, and
+<p>The <code>named!</code> macro creates functions which take some input type (<code>&amp;[u8]</code> by default)
+and return the second type in angle brackets.
+<code>tag_s!</code> matches a literal string in the stream of characters, and its value is
+a string slice representing that literal.  (If you wanted to work with <code>&amp;[u8]</code> then
+use the <code>tag!</code> macro.)</p>
+<p>We call the defined parser <code>get_greeting</code> with a <code>&amp;str</code> and
 get back an <a href="http://rust.unhandledexpression.com/nom/enum.IResult.html">IResult</a>.
-And indeed that <code>[104, 105]</code> is &quot;hi&quot; in ASCII!</p>
-<p>Look at <code>[32]</code> - that's a space in ASCII. This represents the <em>remainder</em> of the bytes left
-over from the scan.</p>
-<p>Now we want to ignore whitespace. By just wrapping the <code>tag!</code> in <code>ws!</code> we can match &quot;hi&quot; anywhere
+And indeed we get back the matching value.</p>
+<p>Look at &quot; there&quot; - This is the string slice left over after matching..</p>
+<p>We want to ignore whitespace. By just wrapping the <code>tag!</code> in <code>ws!</code> we can match &quot;hi&quot; anywhere
 among spaces, tabs or newlines:</p>
-<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
-# 
-#fn main() {
-    named!(get_greeting&lt;&amp;[u8]&gt;,
-        ws!(tag!(&quot;hi&quot;))
-    );
-    let res = get_greeting(&quot; hi  hi&quot;.as_bytes());
-    println!(&quot;{:?}&quot;,res);
-// Done([104, 105], [104, 105])
+<pre><pre class="playpen"><code class="language-rust">named!(get_greeting&lt;&amp;str,&amp;str&gt;,
+    ws!(tag_s!(&quot;hi&quot;))
+);
 
-#}</code></pre></pre>
-<p>The result is &quot;hi&quot; as before, and the remaining bytes are also &quot;hi&quot;! The spaces have been skipped.</p>
-<p>It's irritating to work in bytes when we know for a fact that they are valid UTF-8, since this
-is what we fed the parser.  <a href="https://doc.rust-lang.org/std/str/fn.from_utf8.html">from_utf8</a>
-will convert bytes to a string, but may of course fail.
-The macro <code>map_res!</code> applies a function to something,  returning a <code>Result</code>, and <em>unwraps</em> the value.
-We redeclare <code>get_greeting</code> to reflect the new string return type.</p>
-<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
-# 
-#fn main() {
-    use std::str::from_utf8;
-    named!(get_greeting&lt;&amp;str&gt;,
-        ws!(map_res!(tag!(&quot;hi&quot;),from_utf8))
-    );
-    let res = get_greeting(&quot; hi  hi&quot;.as_bytes());
+fn main() {
+    let res = get_greeting(&quot;hi there&quot;);
     println!(&quot;{:?}&quot;,res);
-// Done([104, 105], &quot;hi&quot;)
-
-#}</code></pre></pre>
-<p>By now you should be suspicious of anything that can throw away errors (<code>map_res!</code> does not
-panic) but this seems safe for now: flag it mentally with a warning.</p>
-<p>&quot;hi&quot; is now rendered nicely as a string, although it this doesn't tell us much.
+}
+// Done(&quot;there&quot;, &quot;hi&quot;)
+</code></pre></pre>
+<p>The result is &quot;hi&quot; as before, and the remaining string is &quot;there&quot;! The spaces have been skipped.</p>
+<p>&quot;hi&quot; is matching nicely, although this isn't very useful yet.
 Let's match <em>either</em> &quot;hi&quot; or &quot;bye&quot;. The <code>alt!</code> macro (&quot;alternate&quot;) takes parser expressions
 separated by <code>|</code> and matches <em>any</em> of them. Note that you can use whitespace here to make
 the parser function easier to read:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
-    named!(get_greeting&lt;&amp;str&gt;,
-        ws!(map_res!(
-            alt!( tag!(&quot;hi&quot;) | tag!(&quot;bye&quot;))
-        ,from_utf8))
-    );
-    println!(&quot;{:?}&quot;, get_greeting(&quot; hi &quot;.as_bytes()));
-    println!(&quot;{:?}&quot;, get_greeting(&quot; bye &quot;.as_bytes()));
-    println!(&quot;{:?}&quot;, get_greeting(&quot;  hola &quot;.as_bytes()));
-// Done([], &quot;hi&quot;)
-// Done([], &quot;bye&quot;)
+named!(get_greeting&lt;&amp;str&gt;,
+    ws!(alt!(tag_s!(&quot;hi&quot;) | tag_s!(&quot;bye&quot;)))
+);
+println!(&quot;{:?}&quot;, get_greeting(&quot; hi &quot;));
+println!(&quot;{:?}&quot;, get_greeting(&quot; bye &quot;));
+println!(&quot;{:?}&quot;, get_greeting(&quot;  hola &quot;));
+// Done(&quot;&quot;, &quot;hi&quot;)
+// Done(&quot;&quot;, &quot;bye&quot;)
 // Error(Alt)
 
 #}</code></pre></pre>
@@ -6388,18 +6642,19 @@ with the regex solution:</p>
 // Captures({0: Some(&quot; hi &quot;), 1: Some(&quot;hi&quot;)})
 
 #}</code></pre></pre>
-<p>Regular expressions are certainly more <em>compact</em> and there is no bytes vs strings conversion needed.
+<p>Regular expressions are certainly more <em>compact</em>!.
 We needed to put '()' around the two possibilities
 separated by '|' so that we will <em>capture</em> the greeting and nothing else. The first result is the
 whole string, the second is the matched capture. ('|' is the so-called 'alternation' operator in
 regexes, which is the motivation for the <code>alt!</code> macro syntax.)</p>
-<p>But this is a very simple regex, and they get complicated fast. Being a text mini-language, you
+<p>But this is a very simple regex, and they get complicated very quickly. Being a text mini-language, you
 have to escape significant characters like <code>*</code> and <code>(</code>. If I wanted to match &quot;(hi)&quot; or
 &quot;(bye)&quot; the regex becomes &quot;\s*((hi|bye))\s*&quot; but the Nom parser simply becomes
-<code>alt!(tag!(&quot;(hi)&quot;) | tag!(&quot;(bye)&quot;))</code>.</p>
+<code>alt!(tag_s!(&quot;(hi)&quot;) | tag_s!(&quot;(bye)&quot;))</code>.</p>
 <p>It's also a heavy-weight dependency. On this fairly feeble i5 laptop, Nom examples take about 0.55
 seconds to compile, which is not much more than &quot;Hello world&quot;. But the regex examples take about
-0.90s. And the stripped executable of the Nom example is about 0.3Mb; the regex example 2.0Mb.</p>
+0.90s. And the stripped release build executable of the Nom example is about 0.3Mb (which is about
+as small as statically linked Rust programs go) versus 0.8Mb for the regex example.</p>
 <a class="header" href="print.html#what-a-nom-parser-returns" name="what-a-nom-parser-returns"><h2>What a Nom Parser returns</h2></a>
 <p><a href="http://rust.unhandledexpression.com/nom/enum.IResult.html">IResult</a> has an interesting difference
 from the standard <code>Result</code> type - there are three possibilities:</p>
@@ -6417,9 +6672,9 @@ use nom::IResult;
 use std::str::from_utf8;
 use std::fmt::Debug;
 
-fn dump&lt;T: Debug&gt;(res: IResult&lt;&amp;[u8],T&gt;) {
+fn dump&lt;T: Debug&gt;(res: IResult&lt;&amp;str,T&gt;) {
     match res {
-      IResult::Done(bytes, value) =&gt; {println!(&quot;Done {:?} {:?}&quot;,from_utf8(bytes),value)},
+      IResult::Done(rest, value) =&gt; {println!(&quot;Done {:?} {:?}&quot;,rest,value)},
       IResult::Error(err) =&gt; {println!(&quot;Err {:?}&quot;,err)},
       IResult::Incomplete(needed) =&gt; {println!(&quot;Needed {:?}&quot;,needed)}
     }
@@ -6427,52 +6682,40 @@ fn dump&lt;T: Debug&gt;(res: IResult&lt;&amp;[u8],T&gt;) {
 
 
 fn main() {
-    named!(get_greeting&lt;&amp;str&gt;,
-        ws!(map_res!(
-            alt!( tag!(&quot;hi&quot;) | tag!(&quot;bye&quot;))
-        ,from_utf8))
+    named!(get_greeting&lt;&amp;str,&amp;str&gt;,
+        ws!(
+            alt!( tag_s!(&quot;hi&quot;) | tag_s!(&quot;bye&quot;))
+        )
     );
 
-    dump(get_greeting(&quot; hi &quot;.as_bytes()));
-    dump(get_greeting(&quot; bye hi&quot;.as_bytes()));
-    dump(get_greeting(&quot;  hola &quot;.as_bytes()));
+    dump(get_greeting(&quot; hi &quot;));
+    dump(get_greeting(&quot; bye hi&quot;));
+    dump(get_greeting(&quot;  hola &quot;));
 
-    println!(&quot;result {:?}&quot;, get_greeting(&quot; bye  &quot;.as_bytes()).to_result());
+    println!(&quot;result {:?}&quot;, get_greeting(&quot; bye  &quot;).to_result());
 }
 // Done Ok(&quot;&quot;) &quot;hi&quot;
 // Done Ok(&quot;hi&quot;) &quot;bye&quot;
 // Err Alt
 // result Ok(&quot;bye&quot;)
 </code></pre></pre>
-<p>Parsers returning any unparsed bytes, and being able to indicate that they don't have enough
-input bytes to decide, is very useful for stream parsing. But usually <code>to_result</code> is your friend.</p>
-<p>And hey, while we're going macro-crazy here, can always write a helper macro:</p>
-<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
-# 
-#fn main() {
-macro_rules! nom_res {
-    ($p:expr,$t:expr) =&gt; ($p($t.as_bytes()).to_result())
-}
-
-println!(&quot;result {:?}&quot;, nom_res!(get_greeting, &quot; bye  &quot;));
-
-#}</code></pre></pre>
+<p>Parsers returning any unparsed text, and being able to indicate that they don't have enough
+input characters to decide, is very useful for stream parsing. But usually <code>to_result</code> is your friend.</p>
 <a class="header" href="print.html#combining-parsers" name="combining-parsers"><h2>Combining Parsers</h2></a>
 <p>Let's continue the greeting example and imagine that a greeting consists of &quot;hi&quot; or &quot;bye&quot;, plus
-a name. <code>nom::alpha</code> matches a series of alphabetical ASCII bytes, which we can convert safely
-to a string using <code>from_utf8</code>.  The <code>pair!</code> macro will collect the result of matching two
-parsers as a tuple:</p>
+a name. <code>nom::alpha</code> matches a series of alphabetical characters.
+The <code>pair!</code> macro will collect the result of matching two parsers as a tuple:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
-    named!(full_greeting&lt;(&amp;str,&amp;str)&gt;,
+    named!(full_greeting&lt;&amp;str,(&amp;str,&amp;str)&gt;,
         pair!(
             get_greeting,
-            map_res!(nom::alpha,from_utf8)
+            nom::alpha
         )
     );
 
-    println!(&quot;result {:?}&quot;, nom_res!(full_greeting, &quot; hi Bob  &quot;));
+    println!(&quot;result {:?}&quot;, full_greeting(&quot; hi Bob  &quot;).to_result());
 // result Ok((&quot;hi&quot;, &quot;Bob&quot;))
 
 #}</code></pre></pre>
@@ -6481,15 +6724,15 @@ let us make the name optional. Naturally, the second value of the tuple becomes 
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
-    named!(full_greeting&lt;(&amp;str,Option&lt;&amp;str&gt;)&gt;,
+    named!(full_greeting&lt;&amp;str, (&amp;str,Option&lt;&amp;str&gt;)&gt;,
         pair!(
             get_greeting,
-            opt!(map_res!(nom::alpha,from_utf8))
+            opt!(nom::alpha)
         )
     );
 
-    println!(&quot;result {:?}&quot;, nom_res!(full_greeting, &quot; hi Bob  &quot;));
-    println!(&quot;result {:?}&quot;, nom_res!(full_greeting, &quot; bye ?&quot;));
+    println!(&quot;result {:?}&quot;, full_greeting(&quot; hi Bob  &quot;).to_result());
+    println!(&quot;result {:?}&quot;, full_greeting(&quot; bye ?&quot;).to_result());
 // result Ok((&quot;hi&quot;, Some(&quot;Bob&quot;)))
 // result Ok((&quot;bye&quot;, None))
 
@@ -6499,73 +6742,74 @@ that picks up names, and then it was easy to make that name optional. This is th
 and it's why it's called a &quot;parser combinator library&quot;.  You can build up your complicated
 parsers from simpler parsers, which you can test individually. (At this point, the equivalent
 regex is starting to look like a Perl program: regexes do not combine well.)</p>
-<p>However, we are not yet home and dry!  <code>nom_res!(full_greeting, &quot; bye &quot;)</code> will fail with an
+<p>However, we are not yet home and dry!  <code>full_greeting(&quot; bye &quot;)</code> will fail with an
 <code>Imcomplete</code> error. Nom knows that &quot;bye&quot; may be followed by a name and wants us to give it more
 data. This is how a <em>streaming</em> parser needs to work, so you can feed it a file chunk by chunk,
 but here we need to tell Nom that the input is complete.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
-    named!(full_greeting&lt;(&amp;str,Option&lt;&amp;str&gt;)&gt;,
+    named!(full_greeting&lt;&amp;str,(&amp;str,Option&lt;&amp;str&gt;)&gt;,
         pair!(
             get_greeting,
-            opt!(complete!(map_res!(alpha,from_utf8)))
+            opt!(complete!(nom::alpha))
         )
     );
 
-    println!(&quot;result {:?}&quot;, nom_res!(full_greeting, &quot; bye &quot;));
+    println!(&quot;result {:?}&quot;, full_greeting(&quot; bye &quot;).to_result());
 // result Ok((&quot;bye&quot;, None))
 
 #}</code></pre></pre>
 <a class="header" href="print.html#parsing-numbers" name="parsing-numbers"><h2>Parsing Numbers</h2></a>
-<p>Nom provides a function <code>digit</code> which matches a series of numerical digits. We do the usual
-<code>map_res!</code> to get a <code>&amp;str</code>, and then can convert this to the particular integer type using the
-<code>FromStr</code> trait. However, using <code>map_res!</code> here is definitely bad - we could overflow our integer.
-So use <code>map!</code> and return the full <code>Result</code> type:</p>
+<p>Nom provides a function <code>digit</code> which matches a series of numerical digits.
+So we use <code>map!</code>, to convert the string into an integer,
+and return the full <code>Result</code> type.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
-   use nom::digit;
-   use std::str::FromStr;
+use nom::digit;
+use std::str::FromStr;
+use std::num::ParseIntError;
 
-    type IntResult&lt;N&gt; = Result&lt;N,std::num::ParseIntError&gt;;
+named!(int8 &lt;&amp;str, Result&lt;i8,ParseIntError&gt;&gt;,
+    map!(digit, FromStr::from_str)
+);
 
-    named!(digits&lt;&amp;str&gt;,
-        map_res!(digit,from_utf8)
-    );
+named!(int32 &lt;&amp;str, Result&lt;i32,ParseIntError&gt;&gt;,
+    map!(digit, FromStr::from_str)
+);
 
-    named!(int8&lt; IntResult&lt;i8&gt; &gt;,
-        map!(digits, FromStr::from_str)
-    );
+println!(&quot;{:?}&quot;, int8(&quot;120&quot;));
+println!(&quot;{:?}&quot;, int8(&quot;1200&quot;));
+println!(&quot;{:?}&quot;, int8(&quot;x120&quot;));
+println!(&quot;{:?}&quot;, int32(&quot;1202&quot;));
 
-    println!(&quot;int {:?}&quot;, nom_res!(int8, &quot;120&quot;));
-    println!(&quot;int {:?}&quot;, nom_res!(int8, &quot;1200&quot;));
-    println!(&quot;int {:?}&quot;, nom_res!(int8, &quot;x120&quot;));
-
-//int Ok(Ok(120))
-//int Ok(Err(ParseIntError { kind: Overflow }))
-//int Err(Digit)
+// Done(&quot;&quot;, Ok(120))
+// Done(&quot;&quot;, Err(ParseIntError { kind: Overflow }))
+// Error(Digit)
+// Done(&quot;&quot;, Ok(1202))
 
 #}</code></pre></pre>
-<p>So what we get is a parser <code>Result</code> containing a conversion <code>Result</code> - and sure enough, there
-is more than one way to fail here. I've spread out the definition since you know have something
-reuseable for other integer types, and everything gets inlined in a release build anyway.</p>
-<p>Integers may have a sign. This is a case where you don't want the values of the individual matches!</p>
+<p>So what we get is a parser <code>IResult</code> containing a conversion <code>Result</code> - and sure enough, there
+is more than one way to fail here. Note that the body of our converting function has exactly
+the same code; the actual conversion depends on the return type of the function.</p>
+<p>Integers may have a sign. We can capture integers as a pair, where the first
+value may be a sign, and the second value would be any digits following.</p>
 <p>Consider:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
-    named!(signed_digits&lt;(Option&lt;&amp;[u8]&gt;,&amp;[u8])&gt;,
-        pair!(
-            opt!(alt!(tag!(&quot;+&quot;) | tag!(&quot;-&quot;))),  // maybe sign?
-            digit
-        )
-    );
+named!(signed_digits&lt;&amp;str, (Option&lt;&amp;str&gt;,&amp;str)&gt;,
+    pair!(
+        opt!(alt!(tag_s!(&quot;+&quot;) | tag_s!(&quot;-&quot;))),  // maybe sign?
+        digit
+    )
+);
 
-    println!(&quot;signed {:?}&quot;, nom_res!(signed_digits, &quot;4&quot;));
-    println!(&quot;signed {:?}&quot;, nom_res!(signed_digits, &quot;+12&quot;));
-//signed Ok((None, [52]))
-//signed Ok((Some([43]), [49, 50]))
+println!(&quot;signed {:?}&quot;, signed_digits(&quot;4&quot;));
+println!(&quot;signed {:?}&quot;, signed_digits(&quot;+12&quot;));
+// signed Done(&quot;&quot;, (None, &quot;4&quot;))
+// signed Done(&quot;&quot;, (Some(&quot;+&quot;), &quot;12&quot;))
 
 #}</code></pre></pre>
 <p>When we aren't interested in the intermediate results, but just want all the matching
@@ -6573,56 +6817,59 @@ input, then <code>recognize!</code> is what you need.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
-    named!(maybe_signed_digits&lt;&amp;[u8]&gt;,
-        recognize!(signed_digits)
-    );
+named!(maybe_signed_digits&lt;&amp;str,&amp;str&gt;,
+    recognize!(signed_digits)
+);
 
-    println!(&quot;signed {:?}&quot;, nom_res!(maybe_signed_digits, &quot;+12&quot;));
-
-//signed Ok([43, 49, 50])
+println!(&quot;signed {:?}&quot;, maybe_signed_digits(&quot;+12&quot;));
+// signed Done(&quot;&quot;, &quot;+12&quot;)
 
 #}</code></pre></pre>
 <p>With this technique, we can recognize floating-point numbers. Again we map to string slice
 from the byte slice over all these matches. <code>tuple!</code> is the generalization of <code>pair!</code>,
 although we aren't interested in the generated tuple here. <code>complete!</code> is needed to resolve
-the same problem we had with incomplete greetings - &quot;12&quot; is a valid floating point number.</p>
+the same problem we had with incomplete greetings - &quot;12&quot; is a valid number without the
+optional floating-point part.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
-    named!(floating_point&lt;&amp;str&gt;,
-        map_res!(recognize!(
-            tuple!(
-                maybe_signed_digits,
-                opt!(complete!(pair!(
-                    tag!(&quot;.&quot;),
-                    digits
-                ))),
-                opt!(complete!(pair!(
-                    alt!(tag!(&quot;e&quot;) | tag!(&quot;E&quot;)),
-                    maybe_signed_digits
-                )))
-            )
-        ),from_utf8)
-    );
+named!(floating_point&lt;&amp;str,&amp;str&gt;,
+    recognize!(
+        tuple!(
+            maybe_signed_digits,
+            opt!(complete!(pair!(
+                tag_s!(&quot;.&quot;),
+                digit
+            ))),
+            opt!(complete!(pair!(
+                alt!(tag_s!(&quot;e&quot;) | tag_s!(&quot;E&quot;)),
+                maybe_signed_digits
+            )))
+        )
+    )
+);
 
 #}</code></pre></pre>
-<p>By defining a little helper macro, we get some passing tests:</p>
+<p>By defining a little helper macro, we get some passing tests. The test
+passes if <code>floating_point</code> matches all of the string that it is given.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
-    macro_rules! nom_eq {
-        ($p:expr,$e:expr) =&gt; (assert_eq!(nom_res!($p, $e).unwrap(), $e))
-    }
+macro_rules! nom_eq {
+    ($p:expr,$e:expr) =&gt; (
+        assert_eq!($p($e).to_result().unwrap(), $e)
+    )
+}
 
-    nom_eq!(floating_point, &quot;+2343&quot;);
-    nom_eq!(floating_point, &quot;-2343&quot;);
-    nom_eq!(floating_point, &quot;2343&quot;);
-    nom_eq!(floating_point, &quot;2343.23&quot;);
-    nom_eq!(floating_point, &quot;2e20&quot;);
-    nom_eq!(floating_point, &quot;2.0e-6&quot;);
+nom_eq!(floating_point, &quot;+2343&quot;);
+nom_eq!(floating_point, &quot;-2343&quot;);
+nom_eq!(floating_point, &quot;2343&quot;);
+nom_eq!(floating_point, &quot;2343.23&quot;);
+nom_eq!(floating_point, &quot;2e20&quot;);
+nom_eq!(floating_point, &quot;2.0e-6&quot;);
 
 #}</code></pre></pre>
-<p>Although sometimes macros feel a little dirty, making your tests pretty is a fine thing.</p>
+<p>(Although sometimes macros feel a <em>little</em> dirty, making your tests pretty is a fine thing.)</p>
 <p>And then we can parse and convert floating point numbers. Here I'll throw caution to the
 winds and throw away the error:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
@@ -6633,15 +6880,20 @@ winds and throw away the error:</p>
     );
 
 #}</code></pre></pre>
-<p>Please note how it's possible to build up pretty complicated parsers step by step, testing each
-little part first.  That's a strong advantage of parser combinators over regexes.</p>
+<p>Please note how it's possible to build up complicated parsers step by step, testing each
+part in isolation first. That's a strong advantage of parser combinators over regexes.
+It is very much the classic programming tactic of divide-and-rule.</p>
 <a class="header" href="print.html#operations-over-multiple-matches" name="operations-over-multiple-matches"><h2>Operations over Multiple Matches</h2></a>
 <p>We've met <code>pairs!</code> and <code>tuple!</code> which capture a fixed number of matches as Rust tuples.</p>
 <p>There is also <code>many0</code> and <code>many1</code> - they both capture indefinite numbers of matches as vectors.
 The difference is that the first may capture 'zero or many' and the second 'one or many' (like the
-difference between the regex <code>*</code> versus <code>+</code> modifiers.)</p>
-<p><code>fold_many0</code> is a <em>reducing</em> operation. The match values are combined into a single value.
-For instance, this is how Rust people did sums over iterators before <code>sum</code> was added:</p>
+difference between the regex <code>*</code> versus <code>+</code> modifiers.)  So <code>many1!(ws!(float64))</code> would
+parse &quot;1 2 3&quot; into  <code>vec![1.0,2.0,3.0]</code>, but will fail on the empty string.</p>
+<p><code>fold_many0</code> is a <em>reducing</em> operation. The match values are combined into a single value,
+using a binary operator.
+For instance, this is how Rust people did sums over iterators before <code>sum</code> was added; this fold
+starts with an initial value (here zero) for the <em>accumulator</em> and keeps adding values to
+that accumulator using <code>+</code>.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
@@ -6654,7 +6906,7 @@ For instance, this is how Rust people did sums over iterators before <code>sum</
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
-    named!(fold_sum&lt;f64&gt;,
+    named!(fold_sum&lt;&amp;str,f64&gt;,
         fold_many1!(
             ws!(float64),
             0.0,
@@ -6662,7 +6914,7 @@ For instance, this is how Rust people did sums over iterators before <code>sum</
         )
     );
 
-    println!(&quot;fold {}&quot;, nom_res!(fold_sum,&quot;1 2 3&quot;).unwrap());
+    println!(&quot;fold {}&quot;, fold_sum(&quot;1 2 3&quot;).to_result().unwrap());
     //fold 6
 
 #}</code></pre></pre>
@@ -6673,17 +6925,17 @@ For instance, this is how Rust people did sums over iterators before <code>sum</
     named!(pointf&lt;(f64,&amp;[u8],f64)&gt;,
         tuple!(
             float64,
-            tag!(&quot;,&quot;),
+            tag_s!(&quot;,&quot;),
             float64
         )
     );
 
     println!(&quot;got {:?}&quot;, nom_res!(pointf,&quot;20,52.2&quot;).unwrap());
- //got (20, [44], 52.2)
+ //got (20, &quot;,&quot;, 52.2)
 
 #}</code></pre></pre>
 <p>For more complicated expressions, capturing the results of all the parsers leads to
-rather untidy types!</p>
+rather untidy types!  We can do better.</p>
 <p><code>do_parse!</code> lets you extract only the values you're interested in. The matches are separated
 with <code>&gt;&gt;</code> - the matches of interest are of the form <code>name: parser</code>. Finally, there's a code
 block in parentheses.</p>
@@ -6699,7 +6951,7 @@ block in parentheses.</p>
     named!(pointf&lt;Point&gt;,
         do_parse!(
             first: float64 &gt;&gt;
-            tag!(&quot;,&quot;) &gt;&gt;
+            tag_s!(&quot;,&quot;) &gt;&gt;
             second: float64
             &gt;&gt;
             (Point{x: first, y: second})
@@ -6710,51 +6962,52 @@ block in parentheses.</p>
 // got Point { x: 20, y: 52.2 }
 
 #}</code></pre></pre>
-<p>We're not interested in that tag (it can only be a comma) but we assign the two float values
+<p>We're not interested in that tag's value (it can only be a comma) but we assign the two float values
 to temporary values which are used to build a struct. The code at the end can be any Rust
 expression.</p>
 <a class="header" href="print.html#parsing-arithmetic-expressions" name="parsing-arithmetic-expressions"><h2>Parsing Arithmetic Expressions</h2></a>
-<p>With the necessary background established, I can explain the example on the front page of
-the Nom documentation.
-This is a good example of something that really can't be done with regexes (together with the
-obvious hilarious example of HTML).</p>
+<p>With the necessary background established, we can do simple arithmetic expressions.
+This is a good example of something that really can't be done with regexes.</p>
 <p>The idea is to build up expressions from the bottom up. Expressions consist of <em>terms</em>, which are
 added or subtracted. Terms consist of <em>factors</em>, which are multiplied or divided. And (for now)
 factors are just floating-point numbers:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
-    named!(factor&lt;f64&gt;, ws!(float64));
+    named!(factor&lt;f64&gt;,
+        ws!(float64)
+    );
 
-    named!(term&lt;f64&gt;, do_parse!(
+    named!(term&lt;&amp;str,f64&gt;, do_parse!(
         init: factor &gt;&gt;
         res: fold_many0!(
             tuple!(
-                alt!(tag!(&quot;*&quot;) | tag!(&quot;/&quot;)),
+                alt!(tag_s!(&quot;*&quot;) | tag_s!(&quot;/&quot;)),
                 factor
             ),
             init,
             |acc, v:(_,f64)| {
-                if v.0 == b&quot;*&quot; {acc * v.1} else {acc / v.1}
+                if v.0 == &quot;*&quot; {acc * v.1} else {acc / v.1}
             }
         )
         &gt;&gt; (res)
     ));
 
-    named!(expr&lt;f64&gt;, do_parse!(
+    named!(expr&lt;&amp;str,f64&gt;, do_parse!(
         init: term &gt;&gt;
         res: fold_many0!(
             tuple!(
-                alt!(tag!(&quot;+&quot;) | tag!(&quot;-&quot;)),
+                alt!(tag_s!(&quot;+&quot;) | tag_s!(&quot;-&quot;)),
                 term
             ),
             init,
             |acc, v:(_,f64)| {
-                if v.0 == b&quot;+&quot; {acc + v.1} else {acc - v.1}
+                if v.0 == &quot;+&quot; {acc + v.1} else {acc - v.1}
             }
         )
         &gt;&gt; (res)
     ));
+
 
 #}</code></pre></pre>
 <p>This expresses our definitions more precisely - an expression consists of at least one term, and then
@@ -6770,18 +7023,18 @@ wins over <code>+</code> and so forth.</p>
 #[macro_use]
 extern crate approx;
 ...
-    assert_relative_eq!(nom_res!(fold_sum,&quot;1 2 3&quot;).unwrap(), 6.0);
+    assert_relative_eq!(fold_sum(&quot;1 2 3&quot;).to_result().unwrap(), 6.0);
 
 #}</code></pre></pre>
-<p>Let's define a convenient little testing macro - <code>stringify!</code> turns the expression into a string
-literal which we can feed into <code>nom_res!</code> and then compare the result with how Rust would
+<p>Let's define a convenient little testing macro. <code>stringify!</code> turns the expression into a string
+literal which we can feed into <code>expr</code> and then compare the result with how Rust would
 evaluate it.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
     macro_rules! expr_eq {
         ($e:expr) =&gt; (assert_relative_eq!(
-            nom_res!(expr,stringify!($e)).unwrap(),
+            expr(stringify!($e).to_result().unwrap(),
             $e)
         )
     }
@@ -6797,10 +7050,10 @@ parentheses:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
-    named!(factor&lt;f64&gt;,
+    named!(factor&lt;&amp;str,f64&gt;,
         alt!(
             ws!(float64) |
-            ws!(delimited!( tag!(&quot;(&quot;), expr, tag!(&quot;)&quot;) ))
+            ws!(delimited!( tag_s!(&quot;(&quot;), expr, tag_s!(&quot;)&quot;) ))
         )
     );
 
@@ -6812,7 +7065,7 @@ parentheses:</p>
 <p>The particular magic of <code>delimited!</code> is that parentheses may be nested - Nom makes sure
 the brackets match up.</p>
 <p>We are now way past the capabilities of regular expressions, and the stripped executable at 0.5Mb
-is still a quarter of the size of a &quot;hello world&quot; regex program.</p>
+is still half the size of a &quot;hello world&quot; regex program.</p>
 
                 </div>
 

@@ -2,9 +2,9 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>Parsing with Nom - </title>
+        <title>Parsing with Nom - A Gentle Introduction to Rust</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
-        <meta name="description" content="">
+        <meta name="description" content="Introduction to the Rust language, standard library and ecosystem">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <base href="">
@@ -59,7 +59,7 @@
                         <i id="theme-toggle" class="fa fa-paint-brush"></i>
                     </div>
 
-                    <h1 class="menu-title"></h1>
+                    <h1 class="menu-title">A Gentle Introduction to Rust</h1>
 
                     <div class="right-buttons">
                         <i id="print-button" class="fa fa-print" title="Print this book"></i>
@@ -68,14 +68,15 @@
 
                 <div id="content" class="content">
                     <a class="header" href="./nom-intro.html#parsing-text-with-nom" name="parsing-text-with-nom"><h2>Parsing Text with Nom</h2></a>
-<p><a href="https://github.com/Geal/nom">nom</a> is a parser library for Rust which is well worth
-the initial time investment. If you have to parse a known data format, like CSV or JSON, then
+<p><a href="https://github.com/Geal/nom">Nom</a>, <a href="https://docs.rs/nom">(documented here)</a> is a parser library
+for Rust which is well worth the initial time investment.</p>
+<p>If you have to parse a known data format, like CSV or JSON, then
 it's best to use a specialized library like <a href="https://github.com/BurntSushi/rust-csv">Rust CSV</a> or
 the JSON libraries discussed in <a href="4-modules.html#cargo">Section 4</a>.</p>
 <p>Likewise, for configuration files
 use dedicated parsers like <a href="https://docs.rs/rust-ini/0.10.0/ini/">ini</a> or
 <a href="http://alexcrichton.com/toml-rs/toml/index.html">toml</a>. (The last one is particularly cool since
-it integrates with the Serde framework, just as we saw with <strong>serde-json</strong>).</p>
+it integrates with the Serde framework, just as we saw with <a href="https://docs.rs/serde_json">serde_json</a>.</p>
 <p>But if the text is not regular, or some made-up format, then you need to scan that text without
 writing a lot of tedious string-processing code. The suggested go-to is often <a href="https://github.com/rust-lang/regex">regex</a>,
 but regexes can be frustratingly opaque when sufficiently involved. Nom provides a way to parse
@@ -85,83 +86,64 @@ but you <em>could</em> use Nom to parse HTML.  If you ever had the itch to write
 language, Nom is a good place for you start on that hard road to obscurity.</p>
 <p>There are some excellent tutorials for learning Nom, but I want to start at the hello-world
 level to build some initial familiarity. The basic things you need to know - first, Nom is macros all the
-way down, and second, Nom works with byte slices, not strings. The first means that you have to
+way down, and second, Nom prefers to work with byte slices, not strings. The first means that you have to
 be especially careful to get Nom expressions right, because the error messages are not going to be
 friendly. And the second means that Nom can be used for <em>any</em> data format, not just text. People
-have used Nom to decode binary protocols and file headers.</p>
-<p>So for text there will be a little friction, because
-you feed a Nom parser byte slices and the basic parsers return byte slices, which need to be converted.</p>
+have used Nom to decode binary protocols and file headers. It can also work with 'text'
+in encodings other than UTF-8.</p>
+<p>Recent versions of Nom work fine with string slices, although you need to use the macros that
+end with <code>_s</code>.</p>
 <pre><pre class="playpen"><code class="language-rust">#[macro_use]
 extern crate nom;
 
-named!(get_greeting&lt;&amp;[u8]&gt;,
-    tag!(&quot;hi&quot;)
+named!(get_greeting&lt;&amp;str,&amp;str&gt;,
+    tag_s!(&quot;hi&quot;)
 );
 
 fn main() {
-    let res = get_greeting(&quot;hi &quot;.as_bytes());
+    let res = get_greeting(&quot;hi there&quot;);
     println!(&quot;{:?}&quot;,res);
 }
-// Done([32], [104, 105])
+// Done(&quot; there&quot;, &quot;hi&quot;)
+
 </code></pre></pre>
-<p>The <code>named!</code> macro creates functions which take byte slices (<code>&amp;[u8]</code>) and return the type in
-angle brackets.  <code>tag!</code> matches a literal string in that stream of bytes, and its value is
-a byte slice representing that literal.</p>
-<p>We call the defined parser <code>get_greeting</code> with a <code>&amp;str</code> converted to <code>&amp;[u8]</code>, and
+<p>The <code>named!</code> macro creates functions which take some input type (<code>&amp;[u8]</code> by default)
+and return the second type in angle brackets.
+<code>tag_s!</code> matches a literal string in the stream of characters, and its value is
+a string slice representing that literal.  (If you wanted to work with <code>&amp;[u8]</code> then
+use the <code>tag!</code> macro.)</p>
+<p>We call the defined parser <code>get_greeting</code> with a <code>&amp;str</code> and
 get back an <a href="http://rust.unhandledexpression.com/nom/enum.IResult.html">IResult</a>.
-And indeed that <code>[104, 105]</code> is &quot;hi&quot; in ASCII!</p>
-<p>Look at <code>[32]</code> - that's a space in ASCII. This represents the <em>remainder</em> of the bytes left
-over from the scan.</p>
-<p>Now we want to ignore whitespace. By just wrapping the <code>tag!</code> in <code>ws!</code> we can match &quot;hi&quot; anywhere
+And indeed we get back the matching value.</p>
+<p>Look at &quot; there&quot; - This is the string slice left over after matching..</p>
+<p>We want to ignore whitespace. By just wrapping the <code>tag!</code> in <code>ws!</code> we can match &quot;hi&quot; anywhere
 among spaces, tabs or newlines:</p>
-<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
-# 
-#fn main() {
-    named!(get_greeting&lt;&amp;[u8]&gt;,
-        ws!(tag!(&quot;hi&quot;))
-    );
-    let res = get_greeting(&quot; hi  hi&quot;.as_bytes());
-    println!(&quot;{:?}&quot;,res);
-// Done([104, 105], [104, 105])
+<pre><pre class="playpen"><code class="language-rust">named!(get_greeting&lt;&amp;str,&amp;str&gt;,
+    ws!(tag_s!(&quot;hi&quot;))
+);
 
-#}</code></pre></pre>
-<p>The result is &quot;hi&quot; as before, and the remaining bytes are also &quot;hi&quot;! The spaces have been skipped.</p>
-<p>It's irritating to work in bytes when we know for a fact that they are valid UTF-8, since this
-is what we fed the parser.  <a href="https://doc.rust-lang.org/std/str/fn.from_utf8.html">from_utf8</a>
-will convert bytes to a string, but may of course fail.
-The macro <code>map_res!</code> applies a function to something,  returning a <code>Result</code>, and <em>unwraps</em> the value.
-We redeclare <code>get_greeting</code> to reflect the new string return type.</p>
-<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
-# 
-#fn main() {
-    use std::str::from_utf8;
-    named!(get_greeting&lt;&amp;str&gt;,
-        ws!(map_res!(tag!(&quot;hi&quot;),from_utf8))
-    );
-    let res = get_greeting(&quot; hi  hi&quot;.as_bytes());
+fn main() {
+    let res = get_greeting(&quot;hi there&quot;);
     println!(&quot;{:?}&quot;,res);
-// Done([104, 105], &quot;hi&quot;)
-
-#}</code></pre></pre>
-<p>By now you should be suspicious of anything that can throw away errors (<code>map_res!</code> does not
-panic) but this seems safe for now: flag it mentally with a warning.</p>
-<p>&quot;hi&quot; is now rendered nicely as a string, although it this doesn't tell us much.
+}
+// Done(&quot;there&quot;, &quot;hi&quot;)
+</code></pre></pre>
+<p>The result is &quot;hi&quot; as before, and the remaining string is &quot;there&quot;! The spaces have been skipped.</p>
+<p>&quot;hi&quot; is matching nicely, although this isn't very useful yet.
 Let's match <em>either</em> &quot;hi&quot; or &quot;bye&quot;. The <code>alt!</code> macro (&quot;alternate&quot;) takes parser expressions
 separated by <code>|</code> and matches <em>any</em> of them. Note that you can use whitespace here to make
 the parser function easier to read:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
-    named!(get_greeting&lt;&amp;str&gt;,
-        ws!(map_res!(
-            alt!( tag!(&quot;hi&quot;) | tag!(&quot;bye&quot;))
-        ,from_utf8))
-    );
-    println!(&quot;{:?}&quot;, get_greeting(&quot; hi &quot;.as_bytes()));
-    println!(&quot;{:?}&quot;, get_greeting(&quot; bye &quot;.as_bytes()));
-    println!(&quot;{:?}&quot;, get_greeting(&quot;  hola &quot;.as_bytes()));
-// Done([], &quot;hi&quot;)
-// Done([], &quot;bye&quot;)
+named!(get_greeting&lt;&amp;str&gt;,
+    ws!(alt!(tag_s!(&quot;hi&quot;) | tag_s!(&quot;bye&quot;)))
+);
+println!(&quot;{:?}&quot;, get_greeting(&quot; hi &quot;));
+println!(&quot;{:?}&quot;, get_greeting(&quot; bye &quot;));
+println!(&quot;{:?}&quot;, get_greeting(&quot;  hola &quot;));
+// Done(&quot;&quot;, &quot;hi&quot;)
+// Done(&quot;&quot;, &quot;bye&quot;)
 // Error(Alt)
 
 #}</code></pre></pre>
@@ -177,18 +159,19 @@ with the regex solution:</p>
 // Captures({0: Some(&quot; hi &quot;), 1: Some(&quot;hi&quot;)})
 
 #}</code></pre></pre>
-<p>Regular expressions are certainly more <em>compact</em> and there is no bytes vs strings conversion needed.
+<p>Regular expressions are certainly more <em>compact</em>!.
 We needed to put '()' around the two possibilities
 separated by '|' so that we will <em>capture</em> the greeting and nothing else. The first result is the
 whole string, the second is the matched capture. ('|' is the so-called 'alternation' operator in
 regexes, which is the motivation for the <code>alt!</code> macro syntax.)</p>
-<p>But this is a very simple regex, and they get complicated fast. Being a text mini-language, you
+<p>But this is a very simple regex, and they get complicated very quickly. Being a text mini-language, you
 have to escape significant characters like <code>*</code> and <code>(</code>. If I wanted to match &quot;(hi)&quot; or
 &quot;(bye)&quot; the regex becomes &quot;\s*((hi|bye))\s*&quot; but the Nom parser simply becomes
-<code>alt!(tag!(&quot;(hi)&quot;) | tag!(&quot;(bye)&quot;))</code>.</p>
+<code>alt!(tag_s!(&quot;(hi)&quot;) | tag_s!(&quot;(bye)&quot;))</code>.</p>
 <p>It's also a heavy-weight dependency. On this fairly feeble i5 laptop, Nom examples take about 0.55
 seconds to compile, which is not much more than &quot;Hello world&quot;. But the regex examples take about
-0.90s. And the stripped executable of the Nom example is about 0.3Mb; the regex example 2.0Mb.</p>
+0.90s. And the stripped release build executable of the Nom example is about 0.3Mb (which is about
+as small as statically linked Rust programs go) versus 0.8Mb for the regex example.</p>
 <a class="header" href="./nom-intro.html#what-a-nom-parser-returns" name="what-a-nom-parser-returns"><h2>What a Nom Parser returns</h2></a>
 <p><a href="http://rust.unhandledexpression.com/nom/enum.IResult.html">IResult</a> has an interesting difference
 from the standard <code>Result</code> type - there are three possibilities:</p>
@@ -206,9 +189,9 @@ use nom::IResult;
 use std::str::from_utf8;
 use std::fmt::Debug;
 
-fn dump&lt;T: Debug&gt;(res: IResult&lt;&amp;[u8],T&gt;) {
+fn dump&lt;T: Debug&gt;(res: IResult&lt;&amp;str,T&gt;) {
     match res {
-      IResult::Done(bytes, value) =&gt; {println!(&quot;Done {:?} {:?}&quot;,from_utf8(bytes),value)},
+      IResult::Done(rest, value) =&gt; {println!(&quot;Done {:?} {:?}&quot;,rest,value)},
       IResult::Error(err) =&gt; {println!(&quot;Err {:?}&quot;,err)},
       IResult::Incomplete(needed) =&gt; {println!(&quot;Needed {:?}&quot;,needed)}
     }
@@ -216,52 +199,40 @@ fn dump&lt;T: Debug&gt;(res: IResult&lt;&amp;[u8],T&gt;) {
 
 
 fn main() {
-    named!(get_greeting&lt;&amp;str&gt;,
-        ws!(map_res!(
-            alt!( tag!(&quot;hi&quot;) | tag!(&quot;bye&quot;))
-        ,from_utf8))
+    named!(get_greeting&lt;&amp;str,&amp;str&gt;,
+        ws!(
+            alt!( tag_s!(&quot;hi&quot;) | tag_s!(&quot;bye&quot;))
+        )
     );
 
-    dump(get_greeting(&quot; hi &quot;.as_bytes()));
-    dump(get_greeting(&quot; bye hi&quot;.as_bytes()));
-    dump(get_greeting(&quot;  hola &quot;.as_bytes()));
+    dump(get_greeting(&quot; hi &quot;));
+    dump(get_greeting(&quot; bye hi&quot;));
+    dump(get_greeting(&quot;  hola &quot;));
 
-    println!(&quot;result {:?}&quot;, get_greeting(&quot; bye  &quot;.as_bytes()).to_result());
+    println!(&quot;result {:?}&quot;, get_greeting(&quot; bye  &quot;).to_result());
 }
 // Done Ok(&quot;&quot;) &quot;hi&quot;
 // Done Ok(&quot;hi&quot;) &quot;bye&quot;
 // Err Alt
 // result Ok(&quot;bye&quot;)
 </code></pre></pre>
-<p>Parsers returning any unparsed bytes, and being able to indicate that they don't have enough
-input bytes to decide, is very useful for stream parsing. But usually <code>to_result</code> is your friend.</p>
-<p>And hey, while we're going macro-crazy here, can always write a helper macro:</p>
-<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
-# 
-#fn main() {
-macro_rules! nom_res {
-    ($p:expr,$t:expr) =&gt; ($p($t.as_bytes()).to_result())
-}
-
-println!(&quot;result {:?}&quot;, nom_res!(get_greeting, &quot; bye  &quot;));
-
-#}</code></pre></pre>
+<p>Parsers returning any unparsed text, and being able to indicate that they don't have enough
+input characters to decide, is very useful for stream parsing. But usually <code>to_result</code> is your friend.</p>
 <a class="header" href="./nom-intro.html#combining-parsers" name="combining-parsers"><h2>Combining Parsers</h2></a>
 <p>Let's continue the greeting example and imagine that a greeting consists of &quot;hi&quot; or &quot;bye&quot;, plus
-a name. <code>nom::alpha</code> matches a series of alphabetical ASCII bytes, which we can convert safely
-to a string using <code>from_utf8</code>.  The <code>pair!</code> macro will collect the result of matching two
-parsers as a tuple:</p>
+a name. <code>nom::alpha</code> matches a series of alphabetical characters.
+The <code>pair!</code> macro will collect the result of matching two parsers as a tuple:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
-    named!(full_greeting&lt;(&amp;str,&amp;str)&gt;,
+    named!(full_greeting&lt;&amp;str,(&amp;str,&amp;str)&gt;,
         pair!(
             get_greeting,
-            map_res!(nom::alpha,from_utf8)
+            nom::alpha
         )
     );
 
-    println!(&quot;result {:?}&quot;, nom_res!(full_greeting, &quot; hi Bob  &quot;));
+    println!(&quot;result {:?}&quot;, full_greeting(&quot; hi Bob  &quot;).to_result());
 // result Ok((&quot;hi&quot;, &quot;Bob&quot;))
 
 #}</code></pre></pre>
@@ -270,15 +241,15 @@ let us make the name optional. Naturally, the second value of the tuple becomes 
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
-    named!(full_greeting&lt;(&amp;str,Option&lt;&amp;str&gt;)&gt;,
+    named!(full_greeting&lt;&amp;str, (&amp;str,Option&lt;&amp;str&gt;)&gt;,
         pair!(
             get_greeting,
-            opt!(map_res!(nom::alpha,from_utf8))
+            opt!(nom::alpha)
         )
     );
 
-    println!(&quot;result {:?}&quot;, nom_res!(full_greeting, &quot; hi Bob  &quot;));
-    println!(&quot;result {:?}&quot;, nom_res!(full_greeting, &quot; bye ?&quot;));
+    println!(&quot;result {:?}&quot;, full_greeting(&quot; hi Bob  &quot;).to_result());
+    println!(&quot;result {:?}&quot;, full_greeting(&quot; bye ?&quot;).to_result());
 // result Ok((&quot;hi&quot;, Some(&quot;Bob&quot;)))
 // result Ok((&quot;bye&quot;, None))
 
@@ -288,73 +259,74 @@ that picks up names, and then it was easy to make that name optional. This is th
 and it's why it's called a &quot;parser combinator library&quot;.  You can build up your complicated
 parsers from simpler parsers, which you can test individually. (At this point, the equivalent
 regex is starting to look like a Perl program: regexes do not combine well.)</p>
-<p>However, we are not yet home and dry!  <code>nom_res!(full_greeting, &quot; bye &quot;)</code> will fail with an
+<p>However, we are not yet home and dry!  <code>full_greeting(&quot; bye &quot;)</code> will fail with an
 <code>Imcomplete</code> error. Nom knows that &quot;bye&quot; may be followed by a name and wants us to give it more
 data. This is how a <em>streaming</em> parser needs to work, so you can feed it a file chunk by chunk,
 but here we need to tell Nom that the input is complete.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
-    named!(full_greeting&lt;(&amp;str,Option&lt;&amp;str&gt;)&gt;,
+    named!(full_greeting&lt;&amp;str,(&amp;str,Option&lt;&amp;str&gt;)&gt;,
         pair!(
             get_greeting,
-            opt!(complete!(map_res!(alpha,from_utf8)))
+            opt!(complete!(nom::alpha))
         )
     );
 
-    println!(&quot;result {:?}&quot;, nom_res!(full_greeting, &quot; bye &quot;));
+    println!(&quot;result {:?}&quot;, full_greeting(&quot; bye &quot;).to_result());
 // result Ok((&quot;bye&quot;, None))
 
 #}</code></pre></pre>
 <a class="header" href="./nom-intro.html#parsing-numbers" name="parsing-numbers"><h2>Parsing Numbers</h2></a>
-<p>Nom provides a function <code>digit</code> which matches a series of numerical digits. We do the usual
-<code>map_res!</code> to get a <code>&amp;str</code>, and then can convert this to the particular integer type using the
-<code>FromStr</code> trait. However, using <code>map_res!</code> here is definitely bad - we could overflow our integer.
-So use <code>map!</code> and return the full <code>Result</code> type:</p>
+<p>Nom provides a function <code>digit</code> which matches a series of numerical digits.
+So we use <code>map!</code>, to convert the string into an integer,
+and return the full <code>Result</code> type.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
-   use nom::digit;
-   use std::str::FromStr;
+use nom::digit;
+use std::str::FromStr;
+use std::num::ParseIntError;
 
-    type IntResult&lt;N&gt; = Result&lt;N,std::num::ParseIntError&gt;;
+named!(int8 &lt;&amp;str, Result&lt;i8,ParseIntError&gt;&gt;,
+    map!(digit, FromStr::from_str)
+);
 
-    named!(digits&lt;&amp;str&gt;,
-        map_res!(digit,from_utf8)
-    );
+named!(int32 &lt;&amp;str, Result&lt;i32,ParseIntError&gt;&gt;,
+    map!(digit, FromStr::from_str)
+);
 
-    named!(int8&lt; IntResult&lt;i8&gt; &gt;,
-        map!(digits, FromStr::from_str)
-    );
+println!(&quot;{:?}&quot;, int8(&quot;120&quot;));
+println!(&quot;{:?}&quot;, int8(&quot;1200&quot;));
+println!(&quot;{:?}&quot;, int8(&quot;x120&quot;));
+println!(&quot;{:?}&quot;, int32(&quot;1202&quot;));
 
-    println!(&quot;int {:?}&quot;, nom_res!(int8, &quot;120&quot;));
-    println!(&quot;int {:?}&quot;, nom_res!(int8, &quot;1200&quot;));
-    println!(&quot;int {:?}&quot;, nom_res!(int8, &quot;x120&quot;));
-
-//int Ok(Ok(120))
-//int Ok(Err(ParseIntError { kind: Overflow }))
-//int Err(Digit)
+// Done(&quot;&quot;, Ok(120))
+// Done(&quot;&quot;, Err(ParseIntError { kind: Overflow }))
+// Error(Digit)
+// Done(&quot;&quot;, Ok(1202))
 
 #}</code></pre></pre>
-<p>So what we get is a parser <code>Result</code> containing a conversion <code>Result</code> - and sure enough, there
-is more than one way to fail here. I've spread out the definition since you know have something
-reuseable for other integer types, and everything gets inlined in a release build anyway.</p>
-<p>Integers may have a sign. This is a case where you don't want the values of the individual matches!</p>
+<p>So what we get is a parser <code>IResult</code> containing a conversion <code>Result</code> - and sure enough, there
+is more than one way to fail here. Note that the body of our converting function has exactly
+the same code; the actual conversion depends on the return type of the function.</p>
+<p>Integers may have a sign. We can capture integers as a pair, where the first
+value may be a sign, and the second value would be any digits following.</p>
 <p>Consider:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
-    named!(signed_digits&lt;(Option&lt;&amp;[u8]&gt;,&amp;[u8])&gt;,
-        pair!(
-            opt!(alt!(tag!(&quot;+&quot;) | tag!(&quot;-&quot;))),  // maybe sign?
-            digit
-        )
-    );
+named!(signed_digits&lt;&amp;str, (Option&lt;&amp;str&gt;,&amp;str)&gt;,
+    pair!(
+        opt!(alt!(tag_s!(&quot;+&quot;) | tag_s!(&quot;-&quot;))),  // maybe sign?
+        digit
+    )
+);
 
-    println!(&quot;signed {:?}&quot;, nom_res!(signed_digits, &quot;4&quot;));
-    println!(&quot;signed {:?}&quot;, nom_res!(signed_digits, &quot;+12&quot;));
-//signed Ok((None, [52]))
-//signed Ok((Some([43]), [49, 50]))
+println!(&quot;signed {:?}&quot;, signed_digits(&quot;4&quot;));
+println!(&quot;signed {:?}&quot;, signed_digits(&quot;+12&quot;));
+// signed Done(&quot;&quot;, (None, &quot;4&quot;))
+// signed Done(&quot;&quot;, (Some(&quot;+&quot;), &quot;12&quot;))
 
 #}</code></pre></pre>
 <p>When we aren't interested in the intermediate results, but just want all the matching
@@ -362,56 +334,59 @@ input, then <code>recognize!</code> is what you need.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
-    named!(maybe_signed_digits&lt;&amp;[u8]&gt;,
-        recognize!(signed_digits)
-    );
+named!(maybe_signed_digits&lt;&amp;str,&amp;str&gt;,
+    recognize!(signed_digits)
+);
 
-    println!(&quot;signed {:?}&quot;, nom_res!(maybe_signed_digits, &quot;+12&quot;));
-
-//signed Ok([43, 49, 50])
+println!(&quot;signed {:?}&quot;, maybe_signed_digits(&quot;+12&quot;));
+// signed Done(&quot;&quot;, &quot;+12&quot;)
 
 #}</code></pre></pre>
 <p>With this technique, we can recognize floating-point numbers. Again we map to string slice
 from the byte slice over all these matches. <code>tuple!</code> is the generalization of <code>pair!</code>,
 although we aren't interested in the generated tuple here. <code>complete!</code> is needed to resolve
-the same problem we had with incomplete greetings - &quot;12&quot; is a valid floating point number.</p>
+the same problem we had with incomplete greetings - &quot;12&quot; is a valid number without the
+optional floating-point part.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
-    named!(floating_point&lt;&amp;str&gt;,
-        map_res!(recognize!(
-            tuple!(
-                maybe_signed_digits,
-                opt!(complete!(pair!(
-                    tag!(&quot;.&quot;),
-                    digits
-                ))),
-                opt!(complete!(pair!(
-                    alt!(tag!(&quot;e&quot;) | tag!(&quot;E&quot;)),
-                    maybe_signed_digits
-                )))
-            )
-        ),from_utf8)
-    );
+named!(floating_point&lt;&amp;str,&amp;str&gt;,
+    recognize!(
+        tuple!(
+            maybe_signed_digits,
+            opt!(complete!(pair!(
+                tag_s!(&quot;.&quot;),
+                digit
+            ))),
+            opt!(complete!(pair!(
+                alt!(tag_s!(&quot;e&quot;) | tag_s!(&quot;E&quot;)),
+                maybe_signed_digits
+            )))
+        )
+    )
+);
 
 #}</code></pre></pre>
-<p>By defining a little helper macro, we get some passing tests:</p>
+<p>By defining a little helper macro, we get some passing tests. The test
+passes if <code>floating_point</code> matches all of the string that it is given.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
-    macro_rules! nom_eq {
-        ($p:expr,$e:expr) =&gt; (assert_eq!(nom_res!($p, $e).unwrap(), $e))
-    }
+macro_rules! nom_eq {
+    ($p:expr,$e:expr) =&gt; (
+        assert_eq!($p($e).to_result().unwrap(), $e)
+    )
+}
 
-    nom_eq!(floating_point, &quot;+2343&quot;);
-    nom_eq!(floating_point, &quot;-2343&quot;);
-    nom_eq!(floating_point, &quot;2343&quot;);
-    nom_eq!(floating_point, &quot;2343.23&quot;);
-    nom_eq!(floating_point, &quot;2e20&quot;);
-    nom_eq!(floating_point, &quot;2.0e-6&quot;);
+nom_eq!(floating_point, &quot;+2343&quot;);
+nom_eq!(floating_point, &quot;-2343&quot;);
+nom_eq!(floating_point, &quot;2343&quot;);
+nom_eq!(floating_point, &quot;2343.23&quot;);
+nom_eq!(floating_point, &quot;2e20&quot;);
+nom_eq!(floating_point, &quot;2.0e-6&quot;);
 
 #}</code></pre></pre>
-<p>Although sometimes macros feel a little dirty, making your tests pretty is a fine thing.</p>
+<p>(Although sometimes macros feel a <em>little</em> dirty, making your tests pretty is a fine thing.)</p>
 <p>And then we can parse and convert floating point numbers. Here I'll throw caution to the
 winds and throw away the error:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
@@ -422,15 +397,20 @@ winds and throw away the error:</p>
     );
 
 #}</code></pre></pre>
-<p>Please note how it's possible to build up pretty complicated parsers step by step, testing each
-little part first.  That's a strong advantage of parser combinators over regexes.</p>
+<p>Please note how it's possible to build up complicated parsers step by step, testing each
+part in isolation first. That's a strong advantage of parser combinators over regexes.
+It is very much the classic programming tactic of divide-and-rule.</p>
 <a class="header" href="./nom-intro.html#operations-over-multiple-matches" name="operations-over-multiple-matches"><h2>Operations over Multiple Matches</h2></a>
 <p>We've met <code>pairs!</code> and <code>tuple!</code> which capture a fixed number of matches as Rust tuples.</p>
 <p>There is also <code>many0</code> and <code>many1</code> - they both capture indefinite numbers of matches as vectors.
 The difference is that the first may capture 'zero or many' and the second 'one or many' (like the
-difference between the regex <code>*</code> versus <code>+</code> modifiers.)</p>
-<p><code>fold_many0</code> is a <em>reducing</em> operation. The match values are combined into a single value.
-For instance, this is how Rust people did sums over iterators before <code>sum</code> was added:</p>
+difference between the regex <code>*</code> versus <code>+</code> modifiers.)  So <code>many1!(ws!(float64))</code> would
+parse &quot;1 2 3&quot; into  <code>vec![1.0,2.0,3.0]</code>, but will fail on the empty string.</p>
+<p><code>fold_many0</code> is a <em>reducing</em> operation. The match values are combined into a single value,
+using a binary operator.
+For instance, this is how Rust people did sums over iterators before <code>sum</code> was added; this fold
+starts with an initial value (here zero) for the <em>accumulator</em> and keeps adding values to
+that accumulator using <code>+</code>.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
@@ -443,7 +423,7 @@ For instance, this is how Rust people did sums over iterators before <code>sum</
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
-    named!(fold_sum&lt;f64&gt;,
+    named!(fold_sum&lt;&amp;str,f64&gt;,
         fold_many1!(
             ws!(float64),
             0.0,
@@ -451,7 +431,7 @@ For instance, this is how Rust people did sums over iterators before <code>sum</
         )
     );
 
-    println!(&quot;fold {}&quot;, nom_res!(fold_sum,&quot;1 2 3&quot;).unwrap());
+    println!(&quot;fold {}&quot;, fold_sum(&quot;1 2 3&quot;).to_result().unwrap());
     //fold 6
 
 #}</code></pre></pre>
@@ -462,17 +442,17 @@ For instance, this is how Rust people did sums over iterators before <code>sum</
     named!(pointf&lt;(f64,&amp;[u8],f64)&gt;,
         tuple!(
             float64,
-            tag!(&quot;,&quot;),
+            tag_s!(&quot;,&quot;),
             float64
         )
     );
 
     println!(&quot;got {:?}&quot;, nom_res!(pointf,&quot;20,52.2&quot;).unwrap());
- //got (20, [44], 52.2)
+ //got (20, &quot;,&quot;, 52.2)
 
 #}</code></pre></pre>
 <p>For more complicated expressions, capturing the results of all the parsers leads to
-rather untidy types!</p>
+rather untidy types!  We can do better.</p>
 <p><code>do_parse!</code> lets you extract only the values you're interested in. The matches are separated
 with <code>&gt;&gt;</code> - the matches of interest are of the form <code>name: parser</code>. Finally, there's a code
 block in parentheses.</p>
@@ -488,7 +468,7 @@ block in parentheses.</p>
     named!(pointf&lt;Point&gt;,
         do_parse!(
             first: float64 &gt;&gt;
-            tag!(&quot;,&quot;) &gt;&gt;
+            tag_s!(&quot;,&quot;) &gt;&gt;
             second: float64
             &gt;&gt;
             (Point{x: first, y: second})
@@ -499,51 +479,52 @@ block in parentheses.</p>
 // got Point { x: 20, y: 52.2 }
 
 #}</code></pre></pre>
-<p>We're not interested in that tag (it can only be a comma) but we assign the two float values
+<p>We're not interested in that tag's value (it can only be a comma) but we assign the two float values
 to temporary values which are used to build a struct. The code at the end can be any Rust
 expression.</p>
 <a class="header" href="./nom-intro.html#parsing-arithmetic-expressions" name="parsing-arithmetic-expressions"><h2>Parsing Arithmetic Expressions</h2></a>
-<p>With the necessary background established, I can explain the example on the front page of
-the Nom documentation.
-This is a good example of something that really can't be done with regexes (together with the
-obvious hilarious example of HTML).</p>
+<p>With the necessary background established, we can do simple arithmetic expressions.
+This is a good example of something that really can't be done with regexes.</p>
 <p>The idea is to build up expressions from the bottom up. Expressions consist of <em>terms</em>, which are
 added or subtracted. Terms consist of <em>factors</em>, which are multiplied or divided. And (for now)
 factors are just floating-point numbers:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
-    named!(factor&lt;f64&gt;, ws!(float64));
+    named!(factor&lt;f64&gt;,
+        ws!(float64)
+    );
 
-    named!(term&lt;f64&gt;, do_parse!(
+    named!(term&lt;&amp;str,f64&gt;, do_parse!(
         init: factor &gt;&gt;
         res: fold_many0!(
             tuple!(
-                alt!(tag!(&quot;*&quot;) | tag!(&quot;/&quot;)),
+                alt!(tag_s!(&quot;*&quot;) | tag_s!(&quot;/&quot;)),
                 factor
             ),
             init,
             |acc, v:(_,f64)| {
-                if v.0 == b&quot;*&quot; {acc * v.1} else {acc / v.1}
+                if v.0 == &quot;*&quot; {acc * v.1} else {acc / v.1}
             }
         )
         &gt;&gt; (res)
     ));
 
-    named!(expr&lt;f64&gt;, do_parse!(
+    named!(expr&lt;&amp;str,f64&gt;, do_parse!(
         init: term &gt;&gt;
         res: fold_many0!(
             tuple!(
-                alt!(tag!(&quot;+&quot;) | tag!(&quot;-&quot;)),
+                alt!(tag_s!(&quot;+&quot;) | tag_s!(&quot;-&quot;)),
                 term
             ),
             init,
             |acc, v:(_,f64)| {
-                if v.0 == b&quot;+&quot; {acc + v.1} else {acc - v.1}
+                if v.0 == &quot;+&quot; {acc + v.1} else {acc - v.1}
             }
         )
         &gt;&gt; (res)
     ));
+
 
 #}</code></pre></pre>
 <p>This expresses our definitions more precisely - an expression consists of at least one term, and then
@@ -559,18 +540,18 @@ wins over <code>+</code> and so forth.</p>
 #[macro_use]
 extern crate approx;
 ...
-    assert_relative_eq!(nom_res!(fold_sum,&quot;1 2 3&quot;).unwrap(), 6.0);
+    assert_relative_eq!(fold_sum(&quot;1 2 3&quot;).to_result().unwrap(), 6.0);
 
 #}</code></pre></pre>
-<p>Let's define a convenient little testing macro - <code>stringify!</code> turns the expression into a string
-literal which we can feed into <code>nom_res!</code> and then compare the result with how Rust would
+<p>Let's define a convenient little testing macro. <code>stringify!</code> turns the expression into a string
+literal which we can feed into <code>expr</code> and then compare the result with how Rust would
 evaluate it.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
     macro_rules! expr_eq {
         ($e:expr) =&gt; (assert_relative_eq!(
-            nom_res!(expr,stringify!($e)).unwrap(),
+            expr(stringify!($e).to_result().unwrap(),
             $e)
         )
     }
@@ -586,10 +567,10 @@ parentheses:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
-    named!(factor&lt;f64&gt;,
+    named!(factor&lt;&amp;str,f64&gt;,
         alt!(
             ws!(float64) |
-            ws!(delimited!( tag!(&quot;(&quot;), expr, tag!(&quot;)&quot;) ))
+            ws!(delimited!( tag_s!(&quot;(&quot;), expr, tag_s!(&quot;)&quot;) ))
         )
     );
 
@@ -601,7 +582,7 @@ parentheses:</p>
 <p>The particular magic of <code>delimited!</code> is that parentheses may be nested - Nom makes sure
 the brackets match up.</p>
 <p>We are now way past the capabilities of regular expressions, and the stripped executable at 0.5Mb
-is still a quarter of the size of a &quot;hello world&quot; regex program.</p>
+is still half the size of a &quot;hello world&quot; regex program.</p>
 
                 </div>
 

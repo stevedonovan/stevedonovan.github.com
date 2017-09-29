@@ -2,9 +2,9 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>Threads, Networking and Sharing - </title>
+        <title>Threads, Networking and Sharing - A Gentle Introduction to Rust</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
-        <meta name="description" content="">
+        <meta name="description" content="Introduction to the Rust language, standard library and ecosystem">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <base href="">
@@ -59,7 +59,7 @@
                         <i id="theme-toggle" class="fa fa-paint-brush"></i>
                     </div>
 
-                    <h1 class="menu-title"></h1>
+                    <h1 class="menu-title">A Gentle Introduction to Rust</h1>
 
                     <div class="right-buttons">
                         <i id="print-button" class="fa fa-print" title="Print this book"></i>
@@ -92,8 +92,8 @@ usual is called <em>inherited mutability</em>: if I have a struct value <code>v<
 write to a field <code>v.a</code> if <code>v</code> itself is writeable. <code>Cell</code> values relax this rule, since
 we can change the value contained within them with <code>set</code> even if the cell itself is
 not mutable.</p>
-<p>However, <code>Cell</code> only works with values that can be copied, that is, they implement <code>Copy</code>,
-like primitive types and structs containing them marked as 'derive(Copy)'.</p>
+<p>However, <code>Cell</code> only works with <code>Copy</code> types
+(e.g primitive types and user types deriving the <code>Copy</code> trait).</p>
 <p>For other values, we have to get a reference we can work on, either mutable or immutable.
 This is what <code>RefCell</code> provides - you ask it explicitly for a reference to the contained
 value:</p>
@@ -111,9 +111,10 @@ fn main() {
     assert_eq!(*greeting.borrow(), &quot;hola&quot;);
 }
 </code></pre></pre>
-<p>The explicit dereference operator <code>*</code> can be a little bit confusing in Rust, because
+<p>Again, <code>greeting</code> was not declared as mutable!</p>
+<p>The explicit dereference operator <code>*</code> can be a bit confusing in Rust, because
 often you don't need it - for instance <code>greeting.borrow().len()</code> is fine since method
-calls will deference implicitly.  But you <em>do</em> need <code>*</code> to pull out the underlying
+calls will dereference implicitly.  But you <em>do</em> need <code>*</code> to pull out the underlying
 <code>&amp;String</code> from <code>greeting.borrow()</code> or the <code>&amp;mut String</code> from <code>greeting.borrow_mut()</code>.</p>
 <p>Using a <code>RefCell</code> isn't always safe, because any references returned from these
 methods must follow the usual rules.</p>
@@ -255,34 +256,6 @@ thread '&lt;unnamed&gt;' panicked at 'I give up!', thread2.rs:7
 note: Run with `RUST_BACKTRACE=1` for a backtrace.
 wait Err(Any)
 </code></pre>
-<a class="header" href="./7-shared-and-networking.html#threads-dont-borrow" name="threads-dont-borrow"><h2>Threads Don't Borrow</h2></a>
-<p>It's possible for the thread closure to capture values, but by <em>moving</em>,  not by <em>borrowing</em>!</p>
-<pre><pre class="playpen"><code class="language-rust">// thread3.rs
-use std::thread;
-
-fn main() {
-    let name = &quot;dolly&quot;.to_string();
-    let t = thread::spawn(|| {
-        println!(&quot;hello {}&quot;, name);
-    });
-    println!(&quot;wait {:?}&quot;, t.join());
-}
-</code></pre></pre>
-<p>And here's the helpful error message:</p>
-<pre><code>error[E0373]: closure may outlive the current function, but it borrows `name`, which is owned by the current function
- --&gt; thread3.rs:6:27
-  |
-6 |     let t = thread::spawn(|| {
-  |                           ^^ may outlive borrowed value `name`
-7 |         println!(&quot;hello {}&quot;, name);
-  |                             ---- `name` is borrowed here
-  |
-help: to force the closure to take ownership of `name` (and any other referenced variables), use the `move` keyword, as shown:
-  |     let t = thread::spawn(move || {
-</code></pre>
-<p>That's fair enough! Imagine spawning this thread from a function - it will exist
-after the function call has finished and <code>name</code> gets dropped.  So adding <code>move</code> solves our
-problem.</p>
 <p>The returned objects can be used to keep track of multiple threads:</p>
 <pre><pre class="playpen"><code class="language-rust">// thread4.rs
 use std::thread;
@@ -315,26 +288,82 @@ error, retry etc)</p>
 for different runs), and this is key - they really are <em>independent threads of execution</em>.
 Multithreading is easy; what's hard is <em>concurrency</em> - managing and synchronizing multiple
 threads of execution.</p>
+<a class="header" href="./7-shared-and-networking.html#threads-dont-borrow" name="threads-dont-borrow"><h2>Threads Don't Borrow</h2></a>
+<p>It's possible for the thread closure to capture values, but by <em>moving</em>,  not by <em>borrowing</em>!</p>
+<pre><pre class="playpen"><code class="language-rust">// thread3.rs
+use std::thread;
+
+fn main() {
+    let name = &quot;dolly&quot;.to_string();
+    let t = thread::spawn(|| {
+        println!(&quot;hello {}&quot;, name);
+    });
+    println!(&quot;wait {:?}&quot;, t.join());
+}
+</code></pre></pre>
+<p>And here's the helpful error message:</p>
+<pre><code>error[E0373]: closure may outlive the current function, but it borrows `name`, which is owned by the current function
+ --&gt; thread3.rs:6:27
+  |
+6 |     let t = thread::spawn(|| {
+  |                           ^^ may outlive borrowed value `name`
+7 |         println!(&quot;hello {}&quot;, name);
+  |                             ---- `name` is borrowed here
+  |
+help: to force the closure to take ownership of `name` (and any other referenced variables), use the `move` keyword, as shown:
+  |     let t = thread::spawn(move || {
+</code></pre>
+<p>That's fair enough! Imagine spawning this thread from a function - it will exist
+after the function call has finished and <code>name</code> gets dropped.  So adding <code>move</code> solves our
+problem.</p>
+<p>But this is a <em>move</em>, so <code>name</code> may only appear in one thread! I'd like to emphasize
+that it <em>is</em> possible to share references, but they need to have <code>static</code> lifetime:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+let name = &quot;dolly&quot;;
+let t1 = thread::spawn(move || {
+    println!(&quot;hello {}&quot;, name);
+});
+let t2 = thread::spawn(move || {
+    println!(&quot;goodbye {}&quot;, name);
+});
+
+#}</code></pre></pre>
+<p><code>name</code> exists for the whole duration of the program (<code>static</code>), so
+<code>rustc</code> is satisfied that the closure will never outlive <code>name</code>. However, most interesting
+references do not have <code>static</code> lifetimes!</p>
 <p>Threads can't share the same environment - by <em>design</em> in Rust. In particular,
 they cannot share regular references because the closures move their captured variables.</p>
-<p><em>shared references</em> are fine however - but you cannot use <code>Rc</code> for this. This is because
-<code>Rc</code> is not <em>thread safe</em> - it's optimized to be fast for the non-threaded case. For
-threads, you need <code>std::sync::Arc</code> - 'Arc' stands for 'Atomic Reference Counting'. That
-is, it guarantees that the reference count will be modified in one logical operation. To
-make this guarantee, it must ensure that the operation is locked so that only the current
-thread has access.</p>
+<p><em>shared references</em> are fine however, because their lifetime is 'as long as needed' -
+but you cannot use <code>Rc</code> for this. This is because
+<code>Rc</code> is not <em>thread safe</em> - it's optimized to be fast for the non-threaded case.
+Fortunately it is a compile error to use <code>Rc</code> here; the compiler is watching your
+back as always.</p>
+<p>For threads, you need <code>std::sync::Arc</code> - 'Arc' stands for 'Atomic Reference Counting'.
+That is, it guarantees that the reference count will be modified in one logical operation.
+To make this guarantee, it must ensure that the operation is locked so that only the current
+thread has access. <code>clone</code> is still much cheaper than actually making a copy however.</p>
 <pre><pre class="playpen"><code class="language-rust">// thread5.rs
 use std::thread;
 use std::sync::Arc;
 
+struct MyString(String);
+
+impl MyString {
+    fn new(s: &amp;str) -&gt; MyString {
+        MyString(s.to_string())
+    }
+}
+
 fn main() {
     let mut threads = Vec::new();
-    let name = Arc::new(&quot;dolly&quot;.to_string());
+    let name = Arc::new(MyString::new(&quot;dolly&quot;));
 
     for i in 0..5 {
         let tname = name.clone();
         let t = thread::spawn(move || {
-            println!(&quot;hello {} count {}&quot;, tname,i);
+            println!(&quot;hello {} count {}&quot;, tname.0, i);
         });
         threads.push(t);
     }
@@ -344,7 +373,9 @@ fn main() {
     }
 }
 </code></pre></pre>
-<p>So the shared reference <code>name</code> is passed to each new thread by making a new reference
+<p>I&quot;ve deliberately created a wrapper type for <code>String</code> here (a 'newtype') since
+our <code>MyString</code> does not implement <code>Clone</code>. But the <em>shared reference</em> can be cloned!</p>
+<p>The shared reference <code>name</code> is passed to each new thread by making a new reference
 with <code>clone</code> and moving it into the closure. It's a little verbose, but this is a safe
 pattern. Safety is important in concurrency precisely because the problems are so
 unpredictable. A program may run fine on your machine, but occasionally crash on the
@@ -356,6 +387,8 @@ is done in Rust using <em>channels</em>. <code>std::sync::mpsc::channel()</code>
 of the <em>receiver</em> channel and the <em>sender</em> channel. Each thread is passed a copy
 of the sender with <code>clone</code>, and calls <code>send</code>. Meanwhile the main thread calls
 <code>recv</code> on the receiver.</p>
+<p>'MPSC' stands for 'Multiple Producer Single Consumer'. We create multiple threads
+which attempt to send to the channel, and the main thread 'consumes' the channel.</p>
 <pre><pre class="playpen"><code class="language-rust">// thread9.rs
 use std::thread;
 use std::sync::mpsc;
@@ -465,8 +498,8 @@ fn main() {
 of resumable <code>join</code> and useful when you need to farm off pieces of a job to
 different threads and want to take some action when all the pieces are finished.</p>
 <a class="header" href="./7-shared-and-networking.html#shared-state" name="shared-state"><h2>Shared State</h2></a>
-<p>But how can threads <em>modify</em> shared state?</p>
-<p>Recall the <code>Rc&lt;RefCell&gt;</code> strategy for <em>dynamically</em> doing a
+<p>How can threads <em>modify</em> shared state?</p>
+<p>Recall the <code>Rc&lt;RefCell&lt;T&gt;&gt;</code> strategy for <em>dynamically</em> doing a
 mutable borrow on shared references.  The threading equivalent to <code>RefCell</code> is
 <code>Mutex</code> - you may get your mutable reference by calling <code>lock</code>. While this reference
 exists, no other thread can access it. <code>mutex</code> stands for 'Mutual Exclusion' - we lock
@@ -522,13 +555,23 @@ on the values in parallel.</p>
 use pipeliner::Pipeline;
 
 fn main() {
-    for result in (0..50).with_threads(10).map(|x| x + 1) {
+    for result in (0..10).with_threads(4).map(|x| x + 1) {
         println!(&quot;result: {}&quot;, result);
     }
 }
+// result: 1
+// result: 2
+// result: 5
+// result: 3
+// result: 6
+// result: 7
+// result: 8
+// result: 9
+// result: 10
+// result: 4
 </code></pre></pre>
-<p>It's silly of course, because the operation is so cheap to calculate, but shows how simple it is
-to collect parallel results.</p>
+<p>It's a silly example of course, because the operation is so cheap to calculate, but shows how easy it is
+to run code in parallel.</p>
 <p>Here's something more useful. Doing network operations in parallel is very useful, because they can
 take time, and you don't want to wait for them <em>all</em> to finish before starting to do work.</p>
 <p>This example is pretty crude (believe me, there are better ways of doing it) but here we want to focus
@@ -633,7 +676,8 @@ fn main() {
 it a list of actual domain names the DNS lookup could take some time, hence the importance of parallelism.</p>
 <p>Suprisingly, it sort-of Just Works. The fact that everything in the standard library implements <code>Debug</code>
 is great for exploration as well as debugging.  The iterator is returning <code>Result</code> (hence <code>Ok</code>) and
-in that <code>Result</code> is an <code>IntoIter</code> into a <code>SocketAddr</code> which is an enum with either a IPV4 or a IPV6 address.</p>
+in that <code>Result</code> is an <code>IntoIter</code> into a <code>SocketAddr</code> which is an enum with either a ipv4 or a ipv6 address.
+Why <code>IntoIter</code>? Because a socket may have multiple addresses (e.g. both ipv4 and ipv6).</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
@@ -654,7 +698,7 @@ bad typically when we give a nonsense address (like an address name without a po
 <p>Rust provides a straightforward interface to the most commonly used network protocol, TCP.
 It is very fault-resistant and is the base on which our networked world is built - <em>packets</em> of
 data are sent and received, with acknowledgement. By contrast, UDP sends packets out into the wild
-without much error correction - there's a joke that goes &quot;I could tell you a joke about UDP but you
+without acknowledgement - there's a joke that goes &quot;I could tell you a joke about UDP but you
 might not get it.&quot;
 (Jokes about networking are only funny for a specialized meaning of the word 'funny')</p>
 <p>However, error handling is <em>very</em> important with networking, because anything can happen, and will,
@@ -746,7 +790,7 @@ fn main() {
 <p>One-way communications like this are certainly useful - for instance. a set of services across a
 network which want to collect their status reports together in one central place. But it's
 reasonable to expect a polite reply, even if just 'ok'!</p>
-<p>A simple example is an 'echo' server. The client writes some text ending in a newline to the
+<p>A simple example is a basic 'echo' server. The client writes some text ending in a newline to the
 server, and receives the same text back with a newline - the stream is readable and writeable.</p>
 <pre><pre class="playpen"><code class="language-rust">// client_echo.rs
 use std::io::prelude::*;

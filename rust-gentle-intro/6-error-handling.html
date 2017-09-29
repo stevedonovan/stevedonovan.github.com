@@ -2,9 +2,9 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>Error Handling - </title>
+        <title>Error Handling - A Gentle Introduction to Rust</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
-        <meta name="description" content="">
+        <meta name="description" content="Introduction to the Rust language, standard library and ecosystem">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <base href="">
@@ -59,7 +59,7 @@
                         <i id="theme-toggle" class="fa fa-paint-brush"></i>
                     </div>
 
-                    <h1 class="menu-title"></h1>
+                    <h1 class="menu-title">A Gentle Introduction to Rust</h1>
 
                     <div class="right-buttons">
                         <i id="print-button" class="fa fa-print" title="Print this book"></i>
@@ -151,7 +151,7 @@ fn raises_my_error(yes: bool) -&gt; Result&lt;(),MyError&gt; {
 
 #}</code></pre></pre>
 <p>Typing <code>Result&lt;T,MyError&gt;</code> gets tedious and many Rust modules define their own
-<code>Result</code> - e.g. <code>io::Result&lt;T&gt;</code> is short for <code>io::Result&lt;T,io::Error&gt;</code>.</p>
+<code>Result</code> - e.g. <code>io::Result&lt;T&gt;</code> is short for <code>Result&lt;T,io::Error&gt;</code>.</p>
 <p>In this next example we need to handle the specific error when a string can't be parsed
 as a floating-point number.</p>
 <p>Now the way that <code>?</code> works
@@ -197,7 +197,7 @@ second <code>?</code> will convert the <code>ParseFloatError</code> to <code>MyE
 <p>Not too complicated, although a little long-winded. The tedious bit is having to
 write <code>From</code> conversions for all the other error types that need to play nice
 with <code>MyError</code> - or you simply lean on <code>Box&lt;Error&gt;</code>. Newcomers get confused
-by the multitude of ways to do the same thing in Rust; there always is another
+by the multitude of ways to do the same thing in Rust; there is always another
 way to peel the avocado (or skin the cat, if you're feeling bloodthirsty). The price
 of flexibility is having many options. Error-handling for a 200 line program can afford
 to be simpler than for a large application. And if you ever want to package your precious

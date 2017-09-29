@@ -2,9 +2,9 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>Standard Library Containers - </title>
+        <title>Standard Library Containers - A Gentle Introduction to Rust</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
-        <meta name="description" content="">
+        <meta name="description" content="Introduction to the Rust language, standard library and ecosystem">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <base href="">
@@ -59,7 +59,7 @@
                         <i id="theme-toggle" class="fa fa-paint-brush"></i>
                     </div>
 
-                    <h1 class="menu-title"></h1>
+                    <h1 class="menu-title">A Gentle Introduction to Rust</h1>
 
                     <div class="right-buttons">
                         <i id="print-button" class="fa fa-print" title="Print this book"></i>
@@ -428,7 +428,7 @@ the stdlib) then such implemention would not be allowed. In this way, you are
 saved from creating confusion.</p>
 <p>Before congratulating ourselves on such a clever, convenient shortcut, you should be
 aware of the consequences. If <code>make_set</code> was written so, so that these are sets
-of owned strings, then the actual type of <code>intersect</code> could come as a sunrise:</p>
+of owned strings, then the actual type of <code>intersect</code> could come as a surprise:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
@@ -458,28 +458,44 @@ which I invite you to try out.</p>
 <p>It's often useful to have an interactive session with a program. Each line is read in and
 split into words; the command is looked up on the first word, and the rest of the words
 are passed as an argument to that command.</p>
-<p>A natural implementation is a map from command names to closures. It's tempting as
-first to make them <code>FnMut</code> - that is, they can modify any captured variables. But we will
-have more than one command, each with its own closure, and you cannot then mutably borrow
-the same variables.</p>
+<p>A natural implementation is a map from command names to closures. But how do we store
+closures, given that they will all have different sizes? Boxing them will copy them
+onto the heap:</p>
+<p>Here's a first try:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
-// this is a no-no
-let mut a = 10;
-let set = |n| a = n;
-let get = || a;  // can't borrow `a` again!
+    let mut v = Vec::new();
+    v.push(Box::new(|x| x * x));
+    v.push(Box::new(|x| x / 2.0));
+
+    for f in v.iter() {
+        let res = f(1.0);
+        println!(&quot;res {}&quot;, res);
+    }
 
 #}</code></pre></pre>
+<p>We get a very definite error on the second push:</p>
+<pre><code>  = note: expected type `[closure@closure4.rs:4:21: 4:28]`
+  = note:    found type `[closure@closure4.rs:5:21: 5:28]`
+note: no two closures, even if identical, have the same type
+</code></pre>
+<p><code>rustc</code> has deduced a type which is too specific, so it's necessary to force that
+vector to have the <em>boxed trait type</em> before things just work:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    let mut v: Vec&lt;Box&lt;Fn(f64)-&gt;f64&gt;&gt; = Vec::new();
+
+#}</code></pre></pre>
+<p>We can now use the same trick and keep these boxed closures in a <code>HashMap</code>. We still
+have to watch out for lifetimes, since closures can borrow from their environment.</p>
+<p>It's tempting as first to make them <code>FnMut</code> - that is, they can modify any captured variables. But we will
+have more than one command, each with its own closure, and you cannot then mutably borrow
+the same variables.</p>
 <p>So the closures are passed a <em>mutable reference</em> as an argument, plus
 a slice of string slices (<code>&amp;[&amp;str]</code>) representing the command arguments.
 They will return some <code>Result</code> - We'll use <code>String</code> errors at first.</p>
-<p>Recall that all closures
-implementing a particular function signature are all distinct types, and are (in fact)
-compiler-generated structs that <em>borrow</em> variables from the environment of the closure.
-They are different types and may well have different sizes, so we put them in a <code>Box</code>.</p>
-<p>Any struct that borrows references needs an explicit lifetime, since Rust needs
-assurance that these references outlive our <code>Cli</code> struct - so closures have lifetimes.</p>
 <p><code>D</code> is the data type, which can be anything with a size.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
@@ -514,7 +530,9 @@ their environment!</p>
 #fn main() {
     fn process(&amp;mut self,line: &amp;str) -&gt; CliResult {
         let parts: Vec&lt;_&gt; = line.split_whitespace().collect();
-        if parts.len() == 0 { return Ok(&quot;&quot;.to_string()); }
+        if parts.len() == 0 {
+            return Ok(&quot;&quot;.to_string());
+        }
         match self.callbacks.get(parts[0]) {
             Some(callback) =&gt; callback(&amp;mut self.data,&amp;parts[1..]),
             None =&gt; Err(&quot;no such command&quot;.to_string())
@@ -587,8 +605,8 @@ fn main() {
 <p>The error handling is a bit clunky here, and we'll later see how to use the question
 mark operator in cases like this.
 Basically, the particular error <code>std::num::ParseIntError</code> implements
-the trait <code>std::error::Error</code>, which we must bring into scope - Rust doesn't let traits
-operate unless they're visible.</p>
+the trait <code>std::error::Error</code>, which we must bring into scope to use the <code>description</code>
+method - Rust doesn't let traits operate unless they're visible.</p>
 <p>And in action:</p>
 <pre><code>Welcome to the Interactive Prompt!
 go 32

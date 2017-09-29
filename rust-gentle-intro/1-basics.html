@@ -2,9 +2,9 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>Basics - </title>
+        <title>Basics - A Gentle Introduction to Rust</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
-        <meta name="description" content="">
+        <meta name="description" content="Introduction to the Rust language, standard library and ecosystem">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <base href="">
@@ -59,7 +59,7 @@
                         <i id="theme-toggle" class="fa fa-paint-brush"></i>
                     </div>
 
-                    <h1 class="menu-title"></h1>
+                    <h1 class="menu-title">A Gentle Introduction to Rust</h1>
 
                     <div class="right-buttons">
                         <i id="print-button" class="fa fa-print" title="Print this book"></i>
@@ -275,9 +275,9 @@ fn main() {
 <p>Rust goes back to an
 older style of argument declaration, where the type follows the name. This is
 how it was done in Algol-derived languages like Pascal.</p>
-<p>Again, no integer-to-float conversions - if you replace the <code>0.0</code> with <code>0</code> then we
+<p>Again, no integer-to-float conversions - if you replace the <code>2.0</code> with <code>2</code> then we
 get a clear error:</p>
-<pre><code>8 |     let res = sqr(0);
+<pre><code>8 |     let res = sqr(2);
   |                   ^ expected f64, found integral variable
   |
 </code></pre>
@@ -488,7 +488,7 @@ an underlying array of values. They otherwise behave very much like an array, an
 <p>Note two important things here - how to write a slice's type, and that
 you have to use <code>&amp;</code> to pass it to the function.</p>
 <pre><pre class="playpen"><code class="language-rust">// array2.rs
-// read as: slice of i32 array
+// read as: slice of i32
 fn sum(values: &amp;[i32]) -&gt; i32 {
     let mut res = 0;
     for i in 0..values.len() {
@@ -553,6 +553,7 @@ let var: () = [1.1, 1.2];
   = note: expected type `()`
   = note:    found type `[{float}; 2]`
 </code></pre>
+<p>(<code>{float}</code> means 'some floating-point type which is not fully specified yet')</p>
 <p>Slices give you different <em>views</em> of the <em>same</em> array:</p>
 <pre><pre class="playpen"><code class="language-rust">// slice1.rs
 fn main() {
@@ -597,7 +598,7 @@ fn main() {
 // first Some(1)
 // last None
 </code></pre></pre>
-<p><code>last</code> failed (forgot zero-based indexing), but returned something called <code>None</code>.
+<p><code>last</code> failed (we forgot about zero-based indexing), but returned something called <code>None</code>.
 <code>first</code> is fine, but appears as a value wrapped in <code>Some</code>.  Welcome to the <code>Option</code>
 type!  It may be <em>either</em> <code>Some</code> or <code>None</code>.</p>
 <p>The <code>Option</code> type has some useful methods:</p>
@@ -628,17 +629,22 @@ type!  It may be <em>either</em> <code>Some</code> or <code>None</code>.</p>
 #}</code></pre></pre>
 <p>Note the <code>*</code> - the precise type inside the <code>Some</code> is <code>&amp;i32</code>, which is a reference. We need
 to dereference this to get back to a <code>i32</code> value.</p>
-<p>Which is long-winded, so there's a shortcut (the <code>&amp;</code> is because <code>get</code> always
-returns a reference, and <code>*</code> is to get the value as <code>i32</code>):</p>
+<p>Which is long-winded, so there's a shortcut - <code>unwrap_or</code> will return the value it
+is given if the <code>Option</code> was <code>None</code>. The types must match up - <code>get</code> returns
+a referemce. so you have to make up a <code>&amp;i32</code> with <code>&amp;-1</code>. Finally, again use <code>*</code>
+to get the value as <code>i32</code>.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
     let last = *slice.get(5).unwrap_or(&amp;-1);
 
 #}</code></pre></pre>
+<p>It's easy to miss the <code>&amp;</code>, but the compiler has your back here. If it was <code>-1</code>,
+<code>rustc</code> says 'expected &amp;{integer}, found integral variable' and then
+'help: try with <code>&amp;-1</code>'.</p>
 <p>You can think of <code>Option</code> as a box which may contain a value, or nothing (<code>None</code>).
 (It is called <code>Maybe</code> in Haskell). It may contain <em>any</em> kind of value, which is
-its <em>type parameter</em>. In this case, the full type is <code>Option&lt;i32&gt;</code>, using
+its <em>type parameter</em>. In this case, the full type is <code>Option&lt;&amp;i32&gt;</code>, using
 C++-style notation for <em>generics</em>.  Unwrapping this box may cause an explosion,
 but unlike Schroedinger's Cat, we know if it contains a value up-front.</p>
 <p>It is very common for Rust functions/methods to return such maybe-boxes, so learn
@@ -693,7 +699,7 @@ fn main() {
 }
 </code></pre></pre>
 <p>That little, so-important borrow operator <code>&amp;</code> is <em>coercing</em> the vector into a
-slice. And it makes complete sense, because the vector is looking after an array of
+slice. And it makes complete sense, because the vector is also looking after an array of
 values, with the difference that the array is allocated <em>dynamically</em>.</p>
 <p>If you come from a dynamic language, now is time for that little talk. In systems
 languages, program memory comes in two kinds: the stack and the heap. It is very fast
@@ -711,7 +717,7 @@ in his Mom's basement in Minsk.</p>
 <p>The first C program I wrote (on an DOS PC)
 took out the whole computer. Unix systems always behaved better, and only the process died
 with a <em>segfault</em>. Why is this worse than a Rust (or Go) program panicking?
-Because the panic happens when the original problem happens, not when the program
+Because a panic happens when the original problem happens, not when the program
 has become hopelessly confused and eaten all your homework. Panics are <em>memory safe</em>
 because they happen before any illegal access to memory. This is a common cause of
 security problems in C, because all memory accesses are unsafe and a cunning attacker
@@ -728,7 +734,7 @@ cleaning. Roberto Ierusalimschy, the chief designer of Lua (one of the most eleg
 dynamic languages ever) said that he would not like to fly on an airplane that
 relied on garbage-collected software.</p>
 <p>Back to vectors: when a vector is modified or created, it allocates from the heap and becomes
-the <em>owner</em> of that memory. The slice <em>borrows</em> the array from the vector.
+the <em>owner</em> of that memory. The slice <em>borrows</em> the memory from the vector.
 When the vector dies or <em>drops</em>, it lets the memory go.</p>
 <a class="header" href="./1-basics.html#iterators" name="iterators"><h2>Iterators</h2></a>
 <p>We have got so far without mentioning a key part of the Rust puzzle - iterators.
@@ -748,10 +754,7 @@ fn main() {
 </code></pre></pre>
 <p>And that is exactly what <code>for var in iter {}</code> does.</p>
 <p>This may seem an inefficient way to define a for-loop, but <code>rustc</code> does crazy-ass
-optimizations in release mode and it will be just as fast as a <code>while</code> loop. (Contrast
-with the situation on the JVM, where iterators always require allocation. The consequence
-is that funky functional stuff in Scala is <em>always</em> going to be significantly slower
-than in Rust).</p>
+optimizations in release mode and it will be just as fast as a <code>while</code> loop.</p>
 <p>Here is the first attempt to iterate over an array:</p>
 <pre><pre class="playpen"><code class="language-rust">// iter2.rs
 fn main() {
@@ -777,7 +780,7 @@ fn main() {
         println!(&quot;{}&quot;, i);
     }
 
-    // slices can be converted implicitly to iterators...
+    // slices will be converted implicitly to iterators...
     let slice = &amp;arr;
     for i in slice {
         println!(&quot;{}&quot;, i);
@@ -803,10 +806,11 @@ the <em>type</em> of the variable, since otherwise Rust doesn't have enough info
 Here we do sums with two different integer sizes, no problem. (It is also no
 problem to create a new variable of the same name if you run out of names to
 give things.)</p>
-<p>With this background, some more of the slice methods will make more sense.
-Another documentation tip; on the right-hand side of every page there's a '[-]' which you can
+<p>With this background, some more of the <a href="https://doc.rust-lang.org/std/primitive.slice.html">slice methods</a>
+will make more sense.
+(Another documentation tip; on the right-hand side of every doc page there's a '[-]' which you can
 click to collapse the method list. You can then expand the details of anything
-that looks interesting. (Anything that looks too weird, just ignore for now.)</p>
+that looks interesting. Anything that looks too weird, just ignore for now.)</p>
 <p>The <code>windows</code> method gives you an iterator of slices - overlapping windows of
 values!</p>
 <pre><pre class="playpen"><code class="language-rust">// slice4.rs
@@ -874,13 +878,14 @@ fn main() {
 }
 </code></pre></pre>
 <a class="header" href="./1-basics.html#strings" name="strings"><h2>Strings</h2></a>
-<p>Strings in Rust are a little more involved than in dynamic languages; the <code>String</code> type,
+<p>Strings in Rust are a little more involved than in otherlanguages; the <code>String</code> type,
 like <code>Vec</code>, allocates dynamically and is resizeable. (So it's like C++'s <code>std::string</code>
-but not like the immutable strings of Java and Python.) A program may contain a lot
+but not like the immutable strings of Java and Python.) But a program may contain a lot
 of <em>string literals</em> (like &quot;hello&quot;) and a system language should be able to store
 these statically in the executable itself. In embedded micros, that could mean putting
 them in cheap ROM rather than expensive RAM (for low-power devices, RAM is
-also expensive in terms of power consumption.)</p>
+also expensive in terms of power consumption.) A <em>system</em> language has to have
+two kinds of string, allocated or static.</p>
 <p>So &quot;hello&quot; is not of type <code>String</code>. It is of type <code>&amp;str</code> (pronounced 'string slice').
 It's like the distinction between <code>const char*</code> and <code>std::string</code> in C++, except
 <code>&amp;str</code> is much more intelligent.  In fact, <code>&amp;str</code> and <code>String</code> have a very
@@ -900,12 +905,9 @@ fn main() {
 </code></pre></pre>
 <p>Again, the borrow operator can coerce <code>String</code> into <code>&amp;str</code>, just as <code>Vec</code> could
 be coerced into <code>&amp;[]</code>.</p>
-<p>In C++, char pointers can become strings implicitly through the constructor and
-through assignment,  but you need the ugly <code>c_str</code>
-method to get the owned char pointer of the string. And that's an important difference
-in emphasis; Rust is making the <em>allocation</em> obvious, but makes it easier to borrow
-the characters as a string slice.</p>
-<p>Like a vector, you can <code>push</code> a character and <code>pop</code> one off the end.</p>
+<p>Under the hood, <code>String</code> is basically a <code>Vec&lt;u8&gt;</code> and <code>&amp;str</code> is <code>&amp;[u8]</code>, but
+those bytes <em>must</em> represent valid UTF-8 text.</p>
+<p>Like a vector, you can <code>push</code> a character and <code>pop</code> one off the end of <code>String</code>:</p>
 <pre><pre class="playpen"><code class="language-rust">// string5.rs
 fn main() {
     let mut s = String::new();
@@ -921,7 +923,7 @@ fn main() {
 }
 </code></pre></pre>
 <p>You can convert many types to strings using <code>to_string</code>
-(essentially, if you can display them with '{}' then they can be converted).
+(if you can display them with '{}' then they can be converted).
 The <code>format!</code> macro is a very useful way to build
 up more complicated strings using the same format strings as <code>println!</code>.</p>
 <pre><pre class="playpen"><code class="language-rust">// string6.rs
@@ -958,8 +960,6 @@ fn main() {
 }
 // slices &quot;tatic&quot; &quot;na&quot;
 </code></pre></pre>
-<p>Again, this is superior to the C++ approach, which is to use the <code>substr</code>
-method - which <em>makes a copy</em>. In the Rust case, it's just a borrow.</p>
 <p>But, you cannot index strings!  This is because they use the One True Encoding,
 UTF-8, where a 'character' may be a number of bytes.</p>
 <pre><pre class="playpen"><code class="language-rust">// string3.rs
@@ -999,8 +999,9 @@ careful to only slice strings using valid offsets that come from string methods.
 
 #}</code></pre></pre>
 <p>Breaking up strings is a popular and useful pastime. The string <code>split_whitespace</code>
-method returns an <em>iterator</em>, and we then choose what to do with it. <code>collect</code>
-is very general and so needs some clues about <em>what</em> it is collecting - hence
+method returns an <em>iterator</em>, and we then choose what to do with it. A common need
+is to create a vector of the split substrings.</p>
+<p><code>collect</code> is very general and so needs some clues about <em>what</em> it is collecting - hence
 the explicit type.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
@@ -1018,9 +1019,9 @@ the explicit type.</p>
     words.extend(text.split_whitespace());
 
 #}</code></pre></pre>
-<p>If written in C++, we would have to make these <em>allocated strings</em>, whereas
-here each slice in the vector is borrowing from the original string. All we
-allocate is the space to keep the slices.</p>
+<p>In most languages, we would have to make these <em>separately allocated strings</em>,
+whereas here each slice in the vector is borrowing from the original string.
+All we allocate is the space to keep the slices.</p>
 <p>Have a look at this cute two-liner; we get an iterator over the chars,
 and only take those characters which are not space. Again, <code>collect</code> needs
 a clue (we may have wanted a vector of chars, say):</p>
@@ -1028,11 +1029,11 @@ a clue (we may have wanted a vector of chars, say):</p>
 # 
 #fn main() {
     let stripped: String = text.chars()
-        .filter(|ch| !ch.is_whitespace()).collect();
+        .filter(|ch| ! ch.is_whitespace()).collect();
     // theredfoxandthelazydog
 
 #}</code></pre></pre>
-<p>The <code>filter</code> method takes a <em>closure</em>, which is Rust-speak for what C++ calls
+<p>The <code>filter</code> method takes a <em>closure</em>, which is Rust-speak for
 lambdas or anonymous functions.  Here the argument type is clear from the
 context, so the explicit rule is relaxed.</p>
 <p>Yes, you can do this as an explicit loop over chars, pushing the returned slices
@@ -1082,7 +1083,7 @@ fn main() {
     // do your magic
 }
 </code></pre></pre>
-<p><code>nth(1)</code> gives you the second argument from the iterator, and <code>expect</code>
+<p><code>nth(1)</code> gives you the second value of the iterator, and <code>expect</code>
 is like an <code>unwrap</code> with a readable message.</p>
 <p>Converting a string into a number is straightforward, but you do need to specify
 the type of the value - how else could <code>parse</code> know?</p>
@@ -1137,7 +1138,8 @@ can return a value:</p>
 <p>The <code>_</code> is like C <code>default</code> - it's a fall-back case. If you don't provide one then
 <code>rustc</code> will consider it an error. (In C++ the best you can expect is a warning, which
 says a lot about the respective languages).</p>
-<p>Rust <code>match</code> statements are more powerful than <code>switch</code>:</p>
+<p>Rust <code>match</code> statements can also match on ranges. Note that these ranges have
+<em>three</em> dots and are inclusive ranges, so that the first condition would match 3.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
@@ -1151,7 +1153,7 @@ says a lot about the respective languages).</p>
 <a class="header" href="./1-basics.html#reading-from-files" name="reading-from-files"><h2>Reading from Files</h2></a>
 <p>The next step to exposing our programs to the world is to <em>reading files</em>.</p>
 <p>Recall that <code>expect</code> is like <code>unwrap</code> but gives a custom error message. We are
-going to throw any a few errors here:</p>
+going to throw away a few errors here:</p>
 <pre><pre class="playpen"><code class="language-rust">// file1.rs
 use std::env;
 use std::fs::File;
@@ -1192,7 +1194,8 @@ want to put this code into a function, knowing that it could so easily crash
 the whole program.  So now we have to talk about exactly what <code>File::open</code> returns.
 If <code>Option</code> is a value that may contain something or nothing, then <code>Result</code> is a value
 that may contain something or an error. They both understand <code>unwrap</code> (and its cousin
-<code>expect</code>) but they are quite different.</p>
+<code>expect</code>) but they are quite different. <code>Result</code> is defined by <em>two</em> type parameters,
+for the <code>Ok</code> value and the <code>Err</code> value.</p>
 <p>This version defines a function that does not crash. It passes on a <code>Result</code> and
 it is the <em>caller</em> who must decide how to handle the error.</p>
 <pre><pre class="playpen"><code class="language-rust">// file2.rs
@@ -1201,7 +1204,7 @@ use std::fs::File;
 use std::io::Read;
 use std::io;
 
-fn read_to_string(filename: &amp;str) -&gt; io::Result&lt;String&gt; {
+fn read_to_string(filename: &amp;str) -&gt; Result&lt;String,io::Error&gt; {
     let mut file = match File::open(&amp;filename) {
         Ok(f) =&gt; f,
         Err(e) =&gt; return Err(e),
@@ -1232,7 +1235,9 @@ it with <code>_</code>.</p>
 the 'happy path' gets lost. Go tends to have this problem, with lots of
 explicit early returns, or just <em>ignoring errors</em>.  (That is, by the way,
 the closest thing to evil in the Rust universe.)</p>
-<p>Fortunately, there is a shortcut:</p>
+<p>Fortunately, there is a shortcut.</p>
+<p>The <code>std::io</code> module defines a type alias <code>io::Result&lt;T&gt;</code> which is exactly
+the same as <code>Result&lt;T,io::Error&gt;</code> and easier to type.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
@@ -1244,9 +1249,10 @@ fn read_to_string(filename: &amp;str) -&gt; io::Result&lt;String&gt; {
 }
 
 #}</code></pre></pre>
-<p>That <code>?</code> operator does almost exactly what the first match did; if the
-result was an error, then it will immediately return that error. At the end, we
-still need to wrap up the string as a result.</p>
+<p>That <code>?</code> operator does almost exactly what the match on <code>File::open</code> does;
+if the result was an error, then it will immediately return that error.
+Otherwise, it returns the <code>Ok</code> result.
+At the end, we still need to wrap up the string as a result.</p>
 <p>It's been a good year in Rust, and <code>?</code> was one of the cool things that
 became stable recently. You will still see the macro <code>try!</code> used in older code:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
