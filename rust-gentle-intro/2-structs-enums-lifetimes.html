@@ -102,19 +102,25 @@ and copying the characters. Rust will not do this silently.</p>
 just has the address in memory of the text, its size, and how big the allocated block is.
 Copying this is going to be expensive, because that memory is allocated on the heap and
 the copy will need its own allocated block.</p>
-<pre><code>    | addr | ---------&gt; Call me Ishmael.....
+<pre><code>    String
+    | addr | ---------&gt; Call me Ishmael.....
     | size |                    |
     | cap  |                    |
                                 |
+    &amp;str                        |
     | addr | -------------------|
     | size |
 
+    f64
     | 8 bytes |
 </code></pre>
 <p>The second value is a string slice (<code>&amp;str</code>) which refers to the same memory as the string,
 with a size - just the guy's name. Cheap to copy!</p>
 <p>The third value is an <code>f64</code> - just 8 bytes. It does not refer to any other memory, so
 it's just as cheap to copy as to move.</p>
+<p><code>Copy</code> values are only defined by their representation in memory, and when
+Rust copies, it just copies those bytes elsewhere. Similarly, a non-<code>Copy</code> value
+is also <em>just moved</em>.  There is no cleverness in copying and moving, unlike in C++.</p>
 <p>Re-writing with a function call reveals exactly the same error:</p>
 <pre><pre class="playpen"><code class="language-rust">// move2.rs
 
@@ -161,7 +167,7 @@ fn dump(s: &amp;str) {
 #}</code></pre></pre>
 <p>And then both <code>dump(&amp;s1)</code> and <code>dump(&quot;hello world&quot;)</code> work properly. (Here <code>Deref</code>
 coercion kicks in and Rust will convert <code>&amp;String</code> to <code>&amp;str</code> for you.)</p>
-<p>To summarise, assignment of a non-trivial value moves the value from one location
+<p>To summarise, assignment of a non-Copy value moves the value from one location
 to another. Otherwise, Rust would be forced to <em>implicitly</em> do a copy and break its
 promise to make allocations explicit.</p>
 <a class="header" href="./2-structs-enums-lifetimes.html#scope-of-variables" name="scope-of-variables"><h2>Scope of Variables</h2></a>
@@ -271,8 +277,8 @@ of the same name:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
-    for (i,s) in [&quot;zero&quot;,&quot;one&quot;,&quot;two&quot;].iter().enumerate() {
-        print!(&quot; {} {};&quot;,i,s);
+    for t in [&quot;zero&quot;,&quot;one&quot;,&quot;two&quot;].iter().enumerate() {
+        print!(&quot; {} {};&quot;,t.0,t.1);
     }
     //  0 zero; 1 one; 2 two;
 
@@ -313,7 +319,7 @@ fn main() {
 not assume any particular memory layout, since the compiler will organize the memory for
 efficiency, not size, and there may be padding.</p>
 <p>Initializing this struct is a bit clumsy, so we want to move the construction of a <code>Person</code>
-into its own function. This function can be made into a <em>method</em> of <code>Person</code> by putting
+into its own function. This function can be made into an <em>associated function</em> of <code>Person</code> by putting
 it into a <code>impl</code> block:</p>
 <pre><pre class="playpen"><code class="language-rust">// struct2.rs
 
@@ -340,7 +346,7 @@ fn main() {
 </code></pre></pre>
 <p>There is nothing magic or reserved about the name <code>new</code> here. Note that it's accessed
 using a C++-like notation using double-colon <code>::</code>.</p>
-<p>Here's a another <code>Person</code> method, but with a <em>reference self</em> argument:</p>
+<p>Here's a <code>Person</code> <em>method</em> , that takes a <em>reference self</em> argument:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
@@ -1100,6 +1106,7 @@ eat_and_dump(b);
 //boolean is true
 
 #}</code></pre></pre>
+<p>(And that's what <code>Option</code> and <code>Result</code> are - enums.)</p>
 <p>We like this <code>eat_and_dump</code> function, but we want to pass the value as a reference, because currently
 a move takes place and the value is 'eaten':</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
@@ -1390,8 +1397,8 @@ struct MyAnonymousClosure1&lt;'a&gt; {
     c: &amp;'a f64
 }
 
-impl MyAnonymousClosure1 {
-    fn call(&amp;self, x: f64) {
+impl &lt;'a&gt;MyAnonymousClosure1&lt;'a&gt; {
+    fn call(&amp;self, x: f64) -&gt; f64 {
         self.m * x  + self.c
     }
 }
@@ -1594,6 +1601,9 @@ the iterator item type is <code>&amp;String</code>. Note that <code>filter</code
 # 
 #fn main() {
 for n in vec.iter().map(|x: &amp;String| x.len()) {...} // n is usize
+....
+}
+
 for s in vec.iter().filter(|x: &amp;&amp;String| x.len() &gt; 2) { // s is &amp;String
 ...
 }
@@ -1608,7 +1618,7 @@ into a <code>&amp;String</code> which <em>does</em> match.</p>
 # 
 #fn main() {
 for s in vec.iter().filter(|x: &amp;&amp;String| *x == &quot;one&quot;) {...}
-// same as
+// same as implicit form:
 for s in vec.iter().filter(|x| *x == &quot;one&quot;) {...}
 
 #}</code></pre></pre>

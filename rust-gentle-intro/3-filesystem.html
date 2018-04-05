@@ -548,8 +548,10 @@ on Windows, but otherwise things work as expected.</p>
 #fn main() {
 fn shell(cmd: &amp;str) -&gt; (String,bool) {
     let cmd = format!(&quot;{} 2&gt;&amp;1&quot;,cmd);
-    let output = Command::new(if cfg!(windows) {&quot;cmd.exe&quot;} else {&quot;/bin/sh&quot;})
-        .arg(if cfg!(windows) {&quot;/c&quot;} else {&quot;-c&quot;})
+    let shell = if cfg!(windows) {&quot;cmd.exe&quot;} else {&quot;/bin/sh&quot;};
+    let flag = if cfg!(windows) {&quot;/c&quot;} else {&quot;-c&quot;};
+    let output = Command::new(shell)
+        .arg(flag)
         .arg(&amp;cmd)
         .output()
         .expect(&quot;no shell?&quot;);
@@ -591,14 +593,14 @@ fn main() {
 </code></pre></pre>
 <p>By default, the child 'inherits' the standard input and output of the parent. In this case,
 we redirect the child's output handles into 'nowhere'. It's equivalent to saying
-<code>&gt; /dev/null &gt; /dev/null 2&gt; /dev/null</code> in the Unix shell.</p>
-<p>Now, it's possible to do these things using the shell (<code>sh</code> or <code>cmd</code>) in Rust, although not in a portable way.
+<code>&gt; /dev/null 2&gt; /dev/null</code> in the Unix shell.</p>
+<p>Now, it's possible to do these things using the shell (<code>sh</code> or <code>cmd</code>) in Rust.
 But this way you get full programmatic control of process creation.</p>
 <p>For example, if we just had <code>.stdout(Stdio::piped())</code> then the child's standard output
 is redirected to a pipe. Then <code>child.stdout</code> is something you can use to directly
 read the output (i.e. implements <code>Read</code>). Likewise, you can use the <code>.stdout(Stdio::piped())</code>
 method so you can write to <code>child.stdin</code>.</p>
-<p>But we use <code>wait_with_output</code> instead of <code>wait</code> then
+<p>But if we used <code>wait_with_output</code> instead of <code>wait</code> then
 it returns a <code>Result&lt;Output&gt;</code> and the child's output is captured into the <code>stdout</code>
 field of that <code>Output</code> as a <code>Vec&lt;u8&gt;</code> just as before.</p>
 <p>The <code>Child</code> struct also gives you an explicit <code>kill</code> method.</p>

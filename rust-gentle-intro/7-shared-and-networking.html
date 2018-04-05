@@ -421,7 +421,7 @@ return an error if the sender channel is disconnected. <code>recv_timeout</code>
 for a given time period, and may return a timeout error as well.</p>
 <p><code>send</code> never blocks, which is useful because threads can push out data without waiting
 for the receiver to process. In addition, the channel is buffered so multiple
-send` operations can take place, which will be received in order.</p>
+send operations can take place, which will be received in order.</p>
 <p>However, not blocking means that <code>Ok</code> does not automatically mean 'successfully delivered message'!</p>
 <p>A <code>sync_channel</code> <em>does</em> block on send. With an argument of zero, the send blocks until the
 recv happens. The threads must meet up or <em>rendezvous</em> (on the sound principle that most things

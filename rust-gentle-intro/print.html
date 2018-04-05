@@ -68,8 +68,8 @@
 
                 <div id="content" class="content">
                     <a class="header" href="print.html#a-gentle-introduction-to-rust" name="a-gentle-introduction-to-rust"><h1>A Gentle Introduction To Rust</h1></a>
-<p><img src="PPrustS.png" alt="Rust" />
-<a href="http://leftoversalad.com/c/015_programmingpeople/">thanks to David Marino</a></p>
+<p><img src="PPrustS.png" alt="Rust" /></p>
+<p><a href="http://leftoversalad.com/c/015_programmingpeople/">thanks to David Marino</a></p>
 <a class="header" href="print.html#why-learn-a-new-programming-language" name="why-learn-a-new-programming-language"><h2>Why learn a new Programming Language?</h2></a>
 <p>The aim of this tutorial is to take you to a place where you can read and write
 enough Rust to fully appreciate the excellent learning resources available
@@ -153,7 +153,7 @@ feel the strain, but don't over-strain. You are not building dumb muscle here.</
 <p>I'd like to thank the many contributors who caught bad English or bad Rust for me,
 and thanks to David Marino for his cool characterization
 of Rust as a friendly-but-hardcore no-nonsense knight in shining armour.</p>
-<p>Steve Donovan © 2017 MIT license version 0.3.0</p>
+<p>Steve Donovan © 2017-2018 MIT license version 0.4.0</p>
 <a class="header" href="print.html#basics" name="basics"><h1>Basics</h1></a>
 <a class="header" href="print.html#hello-world" name="hello-world"><h2>Hello, World!</h2></a>
 <p>The original purpose of &quot;hello world&quot;, ever since the first C version was written,
@@ -497,15 +497,15 @@ single and double-precision floating point numbers.  It is defined on the
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
-let pi = 3.1416f64;
+let pi: f64 = 3.1416;
 let x = pi/2.0;
 let cosine = x.cos();
 
 #}</code></pre></pre>
 <p>And the result will be sort-of zero; we obviously need a more authoritative source
 of pi-ness!</p>
-<p>(Why do we need an explicit <code>f64</code> prefix? Because without it, the constant could
-be either <code>f32</code> or <code>f64</code>, and these are very different types.)</p>
+<p>(Why do we need an explicit <code>f64</code> type? Because without it, the constant could
+be either <code>f32</code> or <code>f64</code>, and these are very different.)</p>
 <p>Let me quote the example given for <code>cos</code>, but written as a complete program
 ( <code>assert!</code> is a cousin of <code>assert_eq!</code>; the expression must be true):</p>
 <pre><pre class="playpen"><code class="language-rust">fn main() {
@@ -534,7 +534,7 @@ fn main() {
 </code></pre></pre>
 <p>Why haven't we needed to do this up to now?
 This is because Rust helpfully makes a lot of basic functionality visible without
-explicit <code>use</code> statements.</p>
+explicit <code>use</code> statements through the Rust <em>prelude</em>.</p>
 <a class="header" href="print.html#arrays-and-slices" name="arrays-and-slices"><h2>Arrays and Slices</h2></a>
 <p>All statically-typed languages have <em>arrays</em>, which are values packed nose to tail
 in memory. Arrays are <em>indexed</em> from zero:</p>
@@ -568,7 +568,7 @@ cannot add new elements.</p>
 <p>Arrays are not used that often in Rust, because the type of an array includes its
 size.  The type of the array in the example is
 <code>[i32; 4]</code>; the type of <code>[10, 20]</code> would be <code>[i32; 2]</code> and so forth: they
-have <em>different types</em>.  So they are basically bastards to pass around as
+have <em>different types</em>.  So they are bastards to pass around as
 function arguments.</p>
 <p>What <em>are</em> used often are <em>slices</em>. You can think of these as <em>views</em> into
 an underlying array of values. They otherwise behave very much like an array, and
@@ -734,7 +734,7 @@ to get the value as <code>i32</code>.</p>
 (It is called <code>Maybe</code> in Haskell). It may contain <em>any</em> kind of value, which is
 its <em>type parameter</em>. In this case, the full type is <code>Option&lt;&amp;i32&gt;</code>, using
 C++-style notation for <em>generics</em>.  Unwrapping this box may cause an explosion,
-but unlike Schroedinger's Cat, we know if it contains a value up-front.</p>
+but unlike Schroedinger's Cat, we can know in advance if it contains a value.</p>
 <p>It is very common for Rust functions/methods to return such maybe-boxes, so learn
 how to <a href="https://doc.rust-lang.org/std/option/enum.Option.html">use them</a> comfortably.</p>
 <a class="header" href="print.html#vectors" name="vectors"><h2>Vectors</h2></a>
@@ -966,7 +966,7 @@ fn main() {
 }
 </code></pre></pre>
 <a class="header" href="print.html#strings" name="strings"><h2>Strings</h2></a>
-<p>Strings in Rust are a little more involved than in otherlanguages; the <code>String</code> type,
+<p>Strings in Rust are a little more involved than in other languages; the <code>String</code> type,
 like <code>Vec</code>, allocates dynamically and is resizeable. (So it's like C++'s <code>std::string</code>
 but not like the immutable strings of Java and Python.) But a program may contain a lot
 of <em>string literals</em> (like &quot;hello&quot;) and a system language should be able to store
@@ -991,8 +991,8 @@ fn main() {
     dump(&amp;s);
 }
 </code></pre></pre>
-<p>Again, the borrow operator can coerce <code>String</code> into <code>&amp;str</code>, just as <code>Vec</code> could
-be coerced into <code>&amp;[]</code>.</p>
+<p>Again, the borrow operator can coerce <code>String</code> into <code>&amp;str</code>, just as <code>Vec&lt;T&gt;</code> could
+be coerced into <code>&amp;[T]</code>.</p>
 <p>Under the hood, <code>String</code> is basically a <code>Vec&lt;u8&gt;</code> and <code>&amp;str</code> is <code>&amp;[u8]</code>, but
 those bytes <em>must</em> represent valid UTF-8 text.</p>
 <p>Like a vector, you can <code>push</code> a character and <code>pop</code> one off the end of <code>String</code>:</p>
@@ -1136,7 +1136,7 @@ over the arguments as strings, including the program name.</p>
 <pre><pre class="playpen"><code class="language-rust">// args0.rs
 fn main() {
     for arg in std::env::args() {
-        println!(&quot;'{}&quot;, arg);
+        println!(&quot;'{}'&quot;, arg);
     }
 }
 </code></pre></pre>
@@ -1283,8 +1283,34 @@ the whole program.  So now we have to talk about exactly what <code>File::open</
 If <code>Option</code> is a value that may contain something or nothing, then <code>Result</code> is a value
 that may contain something or an error. They both understand <code>unwrap</code> (and its cousin
 <code>expect</code>) but they are quite different. <code>Result</code> is defined by <em>two</em> type parameters,
-for the <code>Ok</code> value and the <code>Err</code> value.</p>
-<p>This version defines a function that does not crash. It passes on a <code>Result</code> and
+for the <code>Ok</code> value and the <code>Err</code> value.
+The <code>Result</code> 'box' has two compartments, one labelled <code>Ok</code> and the other <code>Err</code>.</p>
+<pre><code>fn good_or_bad(good: bool) -&gt; Result&lt;i32,String&gt; {
+    if good {
+        Ok(42)
+    } else {
+        Err(&quot;bad&quot;.to_string())
+    }
+}
+
+fn main() {
+    println!(&quot;{:?}&quot;,good_or_bad(true));
+    //Ok(42)
+    println!(&quot;{:?}&quot;,good_or_bad(false));
+    //Err(&quot;bad&quot;)
+
+    match good_or_bad(true) {
+        Ok(n) =&gt; println!(&quot;Cool, I got {}&quot;,n),
+        Err(e) =&gt; println!(&quot;Huh, I just got {}&quot;,e)
+    }
+    // Cool, I got 42
+
+}
+</code></pre>
+<p>(The actual 'error' type is arbitrary - a lot of people use strings until
+they are comfortable with Rust error types.) It's a convenient way to <em>either</em>
+return one value <em>or</em> another.</p>
+<p>This version of the file reading function does not crash. It returns a <code>Result</code> and
 it is the <em>caller</em> who must decide how to handle the error.</p>
 <pre><pre class="playpen"><code class="language-rust">// file2.rs
 use std::env;
@@ -1312,11 +1338,10 @@ fn main() {
     println!(&quot;file had {} bytes&quot;, text.len());
 }
 </code></pre></pre>
-<p>The <code>Result</code> 'box' has two compartments, one labelled <code>Ok</code>
-and the other <code>Err</code>.</p>
 <p>The first match safely extracts the value from <code>Ok</code>, which
-becomes the value of the match. If it's <code>Err</code> it just returns the error.
-The second match returns the string, wrapped up as an <code>Ok</code>, otherwise
+becomes the value of the match. If it's <code>Err</code> it returns the error,
+rewrapped as an <code>Err</code>.</p>
+<p>The second match returns the string, wrapped up as an <code>Ok</code>, otherwise
 (again) the error. The actual value in the <code>Ok</code> is unimportant, so we ignore
 it with <code>_</code>.</p>
 <p>This is not so pretty; when most of a function is error handling, then
@@ -1341,8 +1366,8 @@ fn read_to_string(filename: &amp;str) -&gt; io::Result&lt;String&gt; {
 if the result was an error, then it will immediately return that error.
 Otherwise, it returns the <code>Ok</code> result.
 At the end, we still need to wrap up the string as a result.</p>
-<p>It's been a good year in Rust, and <code>?</code> was one of the cool things that
-became stable recently. You will still see the macro <code>try!</code> used in older code:</p>
+<p>2017 was a good year for Rust, and <code>?</code> was one of the cool things that
+became stable. You will still see the macro <code>try!</code> used in older code:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
@@ -1391,19 +1416,25 @@ and copying the characters. Rust will not do this silently.</p>
 just has the address in memory of the text, its size, and how big the allocated block is.
 Copying this is going to be expensive, because that memory is allocated on the heap and
 the copy will need its own allocated block.</p>
-<pre><code>    | addr | ---------&gt; Call me Ishmael.....
+<pre><code>    String
+    | addr | ---------&gt; Call me Ishmael.....
     | size |                    |
     | cap  |                    |
                                 |
+    &amp;str                        |
     | addr | -------------------|
     | size |
 
+    f64
     | 8 bytes |
 </code></pre>
 <p>The second value is a string slice (<code>&amp;str</code>) which refers to the same memory as the string,
 with a size - just the guy's name. Cheap to copy!</p>
 <p>The third value is an <code>f64</code> - just 8 bytes. It does not refer to any other memory, so
 it's just as cheap to copy as to move.</p>
+<p><code>Copy</code> values are only defined by their representation in memory, and when
+Rust copies, it just copies those bytes elsewhere. Similarly, a non-<code>Copy</code> value
+is also <em>just moved</em>.  There is no cleverness in copying and moving, unlike in C++.</p>
 <p>Re-writing with a function call reveals exactly the same error:</p>
 <pre><pre class="playpen"><code class="language-rust">// move2.rs
 
@@ -1450,7 +1481,7 @@ fn dump(s: &amp;str) {
 #}</code></pre></pre>
 <p>And then both <code>dump(&amp;s1)</code> and <code>dump(&quot;hello world&quot;)</code> work properly. (Here <code>Deref</code>
 coercion kicks in and Rust will convert <code>&amp;String</code> to <code>&amp;str</code> for you.)</p>
-<p>To summarise, assignment of a non-trivial value moves the value from one location
+<p>To summarise, assignment of a non-Copy value moves the value from one location
 to another. Otherwise, Rust would be forced to <em>implicitly</em> do a copy and break its
 promise to make allocations explicit.</p>
 <a class="header" href="print.html#scope-of-variables" name="scope-of-variables"><h2>Scope of Variables</h2></a>
@@ -1560,8 +1591,8 @@ of the same name:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
-    for (i,s) in [&quot;zero&quot;,&quot;one&quot;,&quot;two&quot;].iter().enumerate() {
-        print!(&quot; {} {};&quot;,i,s);
+    for t in [&quot;zero&quot;,&quot;one&quot;,&quot;two&quot;].iter().enumerate() {
+        print!(&quot; {} {};&quot;,t.0,t.1);
     }
     //  0 zero; 1 one; 2 two;
 
@@ -1602,7 +1633,7 @@ fn main() {
 not assume any particular memory layout, since the compiler will organize the memory for
 efficiency, not size, and there may be padding.</p>
 <p>Initializing this struct is a bit clumsy, so we want to move the construction of a <code>Person</code>
-into its own function. This function can be made into a <em>method</em> of <code>Person</code> by putting
+into its own function. This function can be made into an <em>associated function</em> of <code>Person</code> by putting
 it into a <code>impl</code> block:</p>
 <pre><pre class="playpen"><code class="language-rust">// struct2.rs
 
@@ -1629,7 +1660,7 @@ fn main() {
 </code></pre></pre>
 <p>There is nothing magic or reserved about the name <code>new</code> here. Note that it's accessed
 using a C++-like notation using double-colon <code>::</code>.</p>
-<p>Here's a another <code>Person</code> method, but with a <em>reference self</em> argument:</p>
+<p>Here's a <code>Person</code> <em>method</em> , that takes a <em>reference self</em> argument:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
@@ -2389,6 +2420,7 @@ eat_and_dump(b);
 //boolean is true
 
 #}</code></pre></pre>
+<p>(And that's what <code>Option</code> and <code>Result</code> are - enums.)</p>
 <p>We like this <code>eat_and_dump</code> function, but we want to pass the value as a reference, because currently
 a move takes place and the value is 'eaten':</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
@@ -2679,8 +2711,8 @@ struct MyAnonymousClosure1&lt;'a&gt; {
     c: &amp;'a f64
 }
 
-impl MyAnonymousClosure1 {
-    fn call(&amp;self, x: f64) {
+impl &lt;'a&gt;MyAnonymousClosure1&lt;'a&gt; {
+    fn call(&amp;self, x: f64) -&gt; f64 {
         self.m * x  + self.c
     }
 }
@@ -2883,6 +2915,9 @@ the iterator item type is <code>&amp;String</code>. Note that <code>filter</code
 # 
 #fn main() {
 for n in vec.iter().map(|x: &amp;String| x.len()) {...} // n is usize
+....
+}
+
 for s in vec.iter().filter(|x: &amp;&amp;String| x.len() &gt; 2) { // s is &amp;String
 ...
 }
@@ -2897,7 +2932,7 @@ into a <code>&amp;String</code> which <em>does</em> match.</p>
 # 
 #fn main() {
 for s in vec.iter().filter(|x: &amp;&amp;String| *x == &quot;one&quot;) {...}
-// same as
+// same as implicit form:
 for s in vec.iter().filter(|x| *x == &quot;one&quot;) {...}
 
 #}</code></pre></pre>
@@ -3635,8 +3670,10 @@ on Windows, but otherwise things work as expected.</p>
 #fn main() {
 fn shell(cmd: &amp;str) -&gt; (String,bool) {
     let cmd = format!(&quot;{} 2&gt;&amp;1&quot;,cmd);
-    let output = Command::new(if cfg!(windows) {&quot;cmd.exe&quot;} else {&quot;/bin/sh&quot;})
-        .arg(if cfg!(windows) {&quot;/c&quot;} else {&quot;-c&quot;})
+    let shell = if cfg!(windows) {&quot;cmd.exe&quot;} else {&quot;/bin/sh&quot;};
+    let flag = if cfg!(windows) {&quot;/c&quot;} else {&quot;-c&quot;};
+    let output = Command::new(shell)
+        .arg(flag)
         .arg(&amp;cmd)
         .output()
         .expect(&quot;no shell?&quot;);
@@ -3678,14 +3715,14 @@ fn main() {
 </code></pre></pre>
 <p>By default, the child 'inherits' the standard input and output of the parent. In this case,
 we redirect the child's output handles into 'nowhere'. It's equivalent to saying
-<code>&gt; /dev/null &gt; /dev/null 2&gt; /dev/null</code> in the Unix shell.</p>
-<p>Now, it's possible to do these things using the shell (<code>sh</code> or <code>cmd</code>) in Rust, although not in a portable way.
+<code>&gt; /dev/null 2&gt; /dev/null</code> in the Unix shell.</p>
+<p>Now, it's possible to do these things using the shell (<code>sh</code> or <code>cmd</code>) in Rust.
 But this way you get full programmatic control of process creation.</p>
 <p>For example, if we just had <code>.stdout(Stdio::piped())</code> then the child's standard output
 is redirected to a pipe. Then <code>child.stdout</code> is something you can use to directly
 read the output (i.e. implements <code>Read</code>). Likewise, you can use the <code>.stdout(Stdio::piped())</code>
 method so you can write to <code>child.stdin</code>.</p>
-<p>But we use <code>wait_with_output</code> instead of <code>wait</code> then
+<p>But if we used <code>wait_with_output</code> instead of <code>wait</code> then
 it returns a <code>Result&lt;Output&gt;</code> and the child's output is captured into the <code>stdout</code>
 field of that <code>Output</code> as a <code>Vec&lt;u8&gt;</code> just as before.</p>
 <p>The <code>Child</code> struct also gives you an explicit <code>kill</code> method.</p>
@@ -4811,7 +4848,7 @@ from Cargo.</p>
 <p>Error handling in Rust can be clumsy if you can't use the question-mark operator.
 To achieve happiness, we need to return a <code>Result</code> which can accept any error.
 All errors implement the trait <code>std::error::Error</code>, and
-<em>any</em> error can convert into a <code>Box&lt;Error&gt;</code>.</p>
+so <em>any</em> error can convert into a <code>Box&lt;Error&gt;</code>.</p>
 <p>Say we needed to handle <em>both</em> i/o errors and errors from converting
 strings into numbers:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
@@ -5582,7 +5619,7 @@ return an error if the sender channel is disconnected. <code>recv_timeout</code>
 for a given time period, and may return a timeout error as well.</p>
 <p><code>send</code> never blocks, which is useful because threads can push out data without waiting
 for the receiver to process. In addition, the channel is buffered so multiple
-send` operations can take place, which will be received in order.</p>
+send operations can take place, which will be received in order.</p>
 <p>However, not blocking means that <code>Ok</code> does not automatically mean 'successfully delivered message'!</p>
 <p>A <code>sync_channel</code> <em>does</em> block on send. With an argument of zero, the send blocks until the
 recv happens. The threads must meet up or <em>rendezvous</em> (on the sound principle that most things
@@ -6301,7 +6338,7 @@ involved, and the values must satisfy <code>Quack</code>. Often the function sig
 thing about a generic Rust function, which is why I recommend reading
 the source of the standard library - the implementation is often much simpler than the declaration!
 Here the only type parameter is the actual iterator type,
-which means that this will work with anything that can deliver a sequence of boxes, not just
+which means that this will work with anything that can deliver a sequence of <code>Box&lt;Duck&gt;</code>, not just
 a vector iterator.</p>
 <a class="header" href="print.html#inheritance" name="inheritance"><h2>Inheritance</h2></a>
 <p>A common problem with object-oriented design is trying to force things into a <em>is-a</em> relationship,

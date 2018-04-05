@@ -410,15 +410,15 @@ single and double-precision floating point numbers.  It is defined on the
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
-let pi = 3.1416f64;
+let pi: f64 = 3.1416;
 let x = pi/2.0;
 let cosine = x.cos();
 
 #}</code></pre></pre>
 <p>And the result will be sort-of zero; we obviously need a more authoritative source
 of pi-ness!</p>
-<p>(Why do we need an explicit <code>f64</code> prefix? Because without it, the constant could
-be either <code>f32</code> or <code>f64</code>, and these are very different types.)</p>
+<p>(Why do we need an explicit <code>f64</code> type? Because without it, the constant could
+be either <code>f32</code> or <code>f64</code>, and these are very different.)</p>
 <p>Let me quote the example given for <code>cos</code>, but written as a complete program
 ( <code>assert!</code> is a cousin of <code>assert_eq!</code>; the expression must be true):</p>
 <pre><pre class="playpen"><code class="language-rust">fn main() {
@@ -447,7 +447,7 @@ fn main() {
 </code></pre></pre>
 <p>Why haven't we needed to do this up to now?
 This is because Rust helpfully makes a lot of basic functionality visible without
-explicit <code>use</code> statements.</p>
+explicit <code>use</code> statements through the Rust <em>prelude</em>.</p>
 <a class="header" href="./1-basics.html#arrays-and-slices" name="arrays-and-slices"><h2>Arrays and Slices</h2></a>
 <p>All statically-typed languages have <em>arrays</em>, which are values packed nose to tail
 in memory. Arrays are <em>indexed</em> from zero:</p>
@@ -481,7 +481,7 @@ cannot add new elements.</p>
 <p>Arrays are not used that often in Rust, because the type of an array includes its
 size.  The type of the array in the example is
 <code>[i32; 4]</code>; the type of <code>[10, 20]</code> would be <code>[i32; 2]</code> and so forth: they
-have <em>different types</em>.  So they are basically bastards to pass around as
+have <em>different types</em>.  So they are bastards to pass around as
 function arguments.</p>
 <p>What <em>are</em> used often are <em>slices</em>. You can think of these as <em>views</em> into
 an underlying array of values. They otherwise behave very much like an array, and
@@ -647,7 +647,7 @@ to get the value as <code>i32</code>.</p>
 (It is called <code>Maybe</code> in Haskell). It may contain <em>any</em> kind of value, which is
 its <em>type parameter</em>. In this case, the full type is <code>Option&lt;&amp;i32&gt;</code>, using
 C++-style notation for <em>generics</em>.  Unwrapping this box may cause an explosion,
-but unlike Schroedinger's Cat, we know if it contains a value up-front.</p>
+but unlike Schroedinger's Cat, we can know in advance if it contains a value.</p>
 <p>It is very common for Rust functions/methods to return such maybe-boxes, so learn
 how to <a href="https://doc.rust-lang.org/std/option/enum.Option.html">use them</a> comfortably.</p>
 <a class="header" href="./1-basics.html#vectors" name="vectors"><h2>Vectors</h2></a>
@@ -879,7 +879,7 @@ fn main() {
 }
 </code></pre></pre>
 <a class="header" href="./1-basics.html#strings" name="strings"><h2>Strings</h2></a>
-<p>Strings in Rust are a little more involved than in otherlanguages; the <code>String</code> type,
+<p>Strings in Rust are a little more involved than in other languages; the <code>String</code> type,
 like <code>Vec</code>, allocates dynamically and is resizeable. (So it's like C++'s <code>std::string</code>
 but not like the immutable strings of Java and Python.) But a program may contain a lot
 of <em>string literals</em> (like &quot;hello&quot;) and a system language should be able to store
@@ -904,8 +904,8 @@ fn main() {
     dump(&amp;s);
 }
 </code></pre></pre>
-<p>Again, the borrow operator can coerce <code>String</code> into <code>&amp;str</code>, just as <code>Vec</code> could
-be coerced into <code>&amp;[]</code>.</p>
+<p>Again, the borrow operator can coerce <code>String</code> into <code>&amp;str</code>, just as <code>Vec&lt;T&gt;</code> could
+be coerced into <code>&amp;[T]</code>.</p>
 <p>Under the hood, <code>String</code> is basically a <code>Vec&lt;u8&gt;</code> and <code>&amp;str</code> is <code>&amp;[u8]</code>, but
 those bytes <em>must</em> represent valid UTF-8 text.</p>
 <p>Like a vector, you can <code>push</code> a character and <code>pop</code> one off the end of <code>String</code>:</p>
@@ -1049,7 +1049,7 @@ over the arguments as strings, including the program name.</p>
 <pre><pre class="playpen"><code class="language-rust">// args0.rs
 fn main() {
     for arg in std::env::args() {
-        println!(&quot;'{}&quot;, arg);
+        println!(&quot;'{}'&quot;, arg);
     }
 }
 </code></pre></pre>
@@ -1196,8 +1196,34 @@ the whole program.  So now we have to talk about exactly what <code>File::open</
 If <code>Option</code> is a value that may contain something or nothing, then <code>Result</code> is a value
 that may contain something or an error. They both understand <code>unwrap</code> (and its cousin
 <code>expect</code>) but they are quite different. <code>Result</code> is defined by <em>two</em> type parameters,
-for the <code>Ok</code> value and the <code>Err</code> value.</p>
-<p>This version defines a function that does not crash. It passes on a <code>Result</code> and
+for the <code>Ok</code> value and the <code>Err</code> value.
+The <code>Result</code> 'box' has two compartments, one labelled <code>Ok</code> and the other <code>Err</code>.</p>
+<pre><code>fn good_or_bad(good: bool) -&gt; Result&lt;i32,String&gt; {
+    if good {
+        Ok(42)
+    } else {
+        Err(&quot;bad&quot;.to_string())
+    }
+}
+
+fn main() {
+    println!(&quot;{:?}&quot;,good_or_bad(true));
+    //Ok(42)
+    println!(&quot;{:?}&quot;,good_or_bad(false));
+    //Err(&quot;bad&quot;)
+
+    match good_or_bad(true) {
+        Ok(n) =&gt; println!(&quot;Cool, I got {}&quot;,n),
+        Err(e) =&gt; println!(&quot;Huh, I just got {}&quot;,e)
+    }
+    // Cool, I got 42
+
+}
+</code></pre>
+<p>(The actual 'error' type is arbitrary - a lot of people use strings until
+they are comfortable with Rust error types.) It's a convenient way to <em>either</em>
+return one value <em>or</em> another.</p>
+<p>This version of the file reading function does not crash. It returns a <code>Result</code> and
 it is the <em>caller</em> who must decide how to handle the error.</p>
 <pre><pre class="playpen"><code class="language-rust">// file2.rs
 use std::env;
@@ -1225,11 +1251,10 @@ fn main() {
     println!(&quot;file had {} bytes&quot;, text.len());
 }
 </code></pre></pre>
-<p>The <code>Result</code> 'box' has two compartments, one labelled <code>Ok</code>
-and the other <code>Err</code>.</p>
 <p>The first match safely extracts the value from <code>Ok</code>, which
-becomes the value of the match. If it's <code>Err</code> it just returns the error.
-The second match returns the string, wrapped up as an <code>Ok</code>, otherwise
+becomes the value of the match. If it's <code>Err</code> it returns the error,
+rewrapped as an <code>Err</code>.</p>
+<p>The second match returns the string, wrapped up as an <code>Ok</code>, otherwise
 (again) the error. The actual value in the <code>Ok</code> is unimportant, so we ignore
 it with <code>_</code>.</p>
 <p>This is not so pretty; when most of a function is error handling, then
@@ -1254,8 +1279,8 @@ fn read_to_string(filename: &amp;str) -&gt; io::Result&lt;String&gt; {
 if the result was an error, then it will immediately return that error.
 Otherwise, it returns the <code>Ok</code> result.
 At the end, we still need to wrap up the string as a result.</p>
-<p>It's been a good year in Rust, and <code>?</code> was one of the cool things that
-became stable recently. You will still see the macro <code>try!</code> used in older code:</p>
+<p>2017 was a good year for Rust, and <code>?</code> was one of the cool things that
+became stable. You will still see the macro <code>try!</code> used in older code:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
