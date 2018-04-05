@@ -47,7 +47,7 @@
         </script>
 
         <div id="sidebar" class="sidebar">
-            <ul class="chapter"><li class="affix"><a href="./readme.html">Introduction</a></li><li><a href="./1-basics.html" class="active"><strong>1.</strong> Basics</a></li><li><a href="./2-structs-enums-lifetimes.html"><strong>2.</strong> Structs, Enums and Matching</a></li><li><a href="./3-filesystem.html"><strong>3.</strong> Filesystem and Processes</a></li><li><a href="./4-modules.html"><strong>4.</strong> Modules and Cargo</a></li><li><a href="./5-stdlib-containers.html"><strong>5.</strong> Standard Library Containers</a></li><li><a href="./6-error-handling.html"><strong>6.</strong> Error Handling</a></li><li><a href="./7-shared-and-networking.html"><strong>7.</strong> Threads, Networking and Sharing</a></li><li><a href="./object-orientation.html"><strong>8.</strong> Object-Oriented Programming</a></li><li><a href="./nom-intro.html"><strong>9.</strong> Parsing with Nom</a></li></ul>
+            <ul class="chapter"><li class="affix"><a href="./readme.html">Introduction</a></li><li><a href="./1-basics.html" class="active"><strong>1.</strong> Basics</a></li><li><a href="./2-structs-enums-lifetimes.html"><strong>2.</strong> Structs, Enums and Matching</a></li><li><a href="./3-filesystem.html"><strong>3.</strong> Filesystem and Processes</a></li><li><a href="./4-modules.html"><strong>4.</strong> Modules and Cargo</a></li><li><a href="./5-stdlib-containers.html"><strong>5.</strong> Standard Library Containers</a></li><li><a href="./6-error-handling.html"><strong>6.</strong> Error Handling</a></li><li><a href="./7-shared-and-networking.html"><strong>7.</strong> Threads, Networking and Sharing</a></li><li><a href="./object-orientation.html"><strong>8.</strong> Object-Oriented Programming</a></li><li><a href="./nom-intro.html"><strong>9.</strong> Parsing with Nom</a></li><li><a href="./pain-points.html"><strong>10.</strong> Pain Points</a></li></ul>
         </div>
 
         <div id="page-wrapper" class="page-wrapper">
@@ -83,7 +83,7 @@ Hello, World!
 <p>Rust is a curly-braces language with semicolons, C++-style comments and a <code>main</code>
 function - so far, so familiar.  The exclamation mark indicates that this is a
 <em>macro</em> call. For C++ programmers, this can be a turn-off, since they are used to
-seriously stupid C macros - but I can ensure you that these are altogether more
+seriously stupid C macros - but I can ensure you that these macros are more
 capable and sane.</p>
 <p>For anybody else,
 it's probably &quot;Great, now I have to remember when to say bang!&quot;.  However, the
@@ -219,7 +219,7 @@ It is also how the word is used in mathematics, like when we say
 <p>There is a reason for declaring variables to be <em>read-only</em> by default. In a larger
 program, it gets hard to track where writes are taking place. So Rust makes things
 like mutability ('write-ability') explicit. There's a lot of cleverness in the
-language, but it never hides anything.</p>
+language, but it tries not to anything.</p>
 <p>Rust is both statically-typed and strongly-typed - these are often confused, but
 think of C (statically but weakly typed) and Python (dynamically but strongly typed).
 In static types the type is known at compile time, and dynamic types are only known
@@ -257,9 +257,8 @@ fn main() {
 <p><em>Functions</em> are one place where the compiler will not work out types for you.
 And this in fact was a deliberate decision, since languages like Haskell have
 such powerful type inference that there are hardly any explicit type names. It's
-a case of the language being somewhat more intelligent than its users, since
-it's good Haskell style to put in a comment giving the function argument types. This feels
-self-defeating.</p>
+actually good Haskell style to put in explicit type signatures for functions.
+Rust requires this always.</p>
 <p>Here is a simple user-defined function:</p>
 <pre><pre class="playpen"><code class="language-rust">// fun1.rs
 
@@ -411,13 +410,15 @@ single and double-precision floating point numbers.  It is defined on the
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
-let pi = 3.1416;
+let pi = 3.1416f64;
 let x = pi/2.0;
 let cosine = x.cos();
 
 #}</code></pre></pre>
 <p>And the result will be sort-of zero; we obviously need a more authoritative source
 of pi-ness!</p>
+<p>(Why do we need an explicit <code>f64</code> prefix? Because without it, the constant could
+be either <code>f32</code> or <code>f64</code>, and these are very different types.)</p>
 <p>Let me quote the example given for <code>cos</code>, but written as a complete program
 ( <code>assert!</code> is a cousin of <code>assert_eq!</code>; the expression must be true):</p>
 <pre><pre class="playpen"><code class="language-rust">fn main() {

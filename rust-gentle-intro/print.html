@@ -2,7 +2,7 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>Parsing with Nom - A Gentle Introduction to Rust</title>
+        <title>Pain Points - A Gentle Introduction to Rust</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="Introduction to the Rust language, standard library and ecosystem">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -47,7 +47,7 @@
         </script>
 
         <div id="sidebar" class="sidebar">
-            <ul class="chapter"><li class="affix"><a href="./readme.html">Introduction</a></li><li><a href="./1-basics.html"><strong>1.</strong> Basics</a></li><li><a href="./2-structs-enums-lifetimes.html"><strong>2.</strong> Structs, Enums and Matching</a></li><li><a href="./3-filesystem.html"><strong>3.</strong> Filesystem and Processes</a></li><li><a href="./4-modules.html"><strong>4.</strong> Modules and Cargo</a></li><li><a href="./5-stdlib-containers.html"><strong>5.</strong> Standard Library Containers</a></li><li><a href="./6-error-handling.html"><strong>6.</strong> Error Handling</a></li><li><a href="./7-shared-and-networking.html"><strong>7.</strong> Threads, Networking and Sharing</a></li><li><a href="./object-orientation.html"><strong>8.</strong> Object-Oriented Programming</a></li><li><a href="./nom-intro.html"><strong>9.</strong> Parsing with Nom</a></li></ul>
+            <ul class="chapter"><li class="affix"><a href="./readme.html">Introduction</a></li><li><a href="./1-basics.html"><strong>1.</strong> Basics</a></li><li><a href="./2-structs-enums-lifetimes.html"><strong>2.</strong> Structs, Enums and Matching</a></li><li><a href="./3-filesystem.html"><strong>3.</strong> Filesystem and Processes</a></li><li><a href="./4-modules.html"><strong>4.</strong> Modules and Cargo</a></li><li><a href="./5-stdlib-containers.html"><strong>5.</strong> Standard Library Containers</a></li><li><a href="./6-error-handling.html"><strong>6.</strong> Error Handling</a></li><li><a href="./7-shared-and-networking.html"><strong>7.</strong> Threads, Networking and Sharing</a></li><li><a href="./object-orientation.html"><strong>8.</strong> Object-Oriented Programming</a></li><li><a href="./nom-intro.html"><strong>9.</strong> Parsing with Nom</a></li><li><a href="./pain-points.html"><strong>10.</strong> Pain Points</a></li></ul>
         </div>
 
         <div id="page-wrapper" class="page-wrapper">
@@ -170,7 +170,7 @@ Hello, World!
 <p>Rust is a curly-braces language with semicolons, C++-style comments and a <code>main</code>
 function - so far, so familiar.  The exclamation mark indicates that this is a
 <em>macro</em> call. For C++ programmers, this can be a turn-off, since they are used to
-seriously stupid C macros - but I can ensure you that these are altogether more
+seriously stupid C macros - but I can ensure you that these macros are more
 capable and sane.</p>
 <p>For anybody else,
 it's probably &quot;Great, now I have to remember when to say bang!&quot;.  However, the
@@ -306,7 +306,7 @@ It is also how the word is used in mathematics, like when we say
 <p>There is a reason for declaring variables to be <em>read-only</em> by default. In a larger
 program, it gets hard to track where writes are taking place. So Rust makes things
 like mutability ('write-ability') explicit. There's a lot of cleverness in the
-language, but it never hides anything.</p>
+language, but it tries not to anything.</p>
 <p>Rust is both statically-typed and strongly-typed - these are often confused, but
 think of C (statically but weakly typed) and Python (dynamically but strongly typed).
 In static types the type is known at compile time, and dynamic types are only known
@@ -344,9 +344,8 @@ fn main() {
 <p><em>Functions</em> are one place where the compiler will not work out types for you.
 And this in fact was a deliberate decision, since languages like Haskell have
 such powerful type inference that there are hardly any explicit type names. It's
-a case of the language being somewhat more intelligent than its users, since
-it's good Haskell style to put in a comment giving the function argument types. This feels
-self-defeating.</p>
+actually good Haskell style to put in explicit type signatures for functions.
+Rust requires this always.</p>
 <p>Here is a simple user-defined function:</p>
 <pre><pre class="playpen"><code class="language-rust">// fun1.rs
 
@@ -498,13 +497,15 @@ single and double-precision floating point numbers.  It is defined on the
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
-let pi = 3.1416;
+let pi = 3.1416f64;
 let x = pi/2.0;
 let cosine = x.cos();
 
 #}</code></pre></pre>
 <p>And the result will be sort-of zero; we obviously need a more authoritative source
 of pi-ness!</p>
+<p>(Why do we need an explicit <code>f64</code> prefix? Because without it, the constant could
+be either <code>f32</code> or <code>f64</code>, and these are very different types.)</p>
 <p>Let me quote the example given for <code>cos</code>, but written as a complete program
 ( <code>assert!</code> is a cousin of <code>assert_eq!</code>; the expression must be true):</p>
 <pre><pre class="playpen"><code class="language-rust">fn main() {
@@ -4243,8 +4244,8 @@ with Cargo. For all practical purposes, these two crates <em>are</em> standard -
 may be folded back into the stdlib at some point.</p>
 <a class="header" href="print.html#standard-library-containers" name="standard-library-containers"><h1>Standard Library Containers</h1></a>
 <a class="header" href="print.html#reading-the-documentation" name="reading-the-documentation"><h2>Reading the Documentation</h2></a>
-<p>In this section I'll briefly introduce some very useful parts of the Rust standard
-library. The documentation (as always) is excellent but a little context and a few examples is
+<p>In this section I'll briefly introduce some common parts of the Rust standard
+library. The documentation is excellent but a little context and a few examples is
 always useful.</p>
 <p>Initially, reading the Rust documentation can be challenging, so I'll go through <code>Vec</code> as an
 example.  A useful tip is to tick the '[-]' box to collapse the docs. (If you download the
@@ -4261,7 +4262,7 @@ This relationship is expressed by <code>Deref&lt;Target=[T]&gt;</code>. This als
 reference to something that expects a slice - this is one of the few places where
 a conversion between types happens automatically. So slice methods like <code>first</code>, which maybe-returns
 a reference to the first element, or <code>last</code>, work for vectors as well. Many of the methods are similar
-to the corresponding string methods, so there's <code>split_at</code> for getting a pair of slices spit at an index,
+to the corresponding string methods, so there's <code>split_at</code> for getting a pair of slices split at an index,
 <code>starts_with</code> to check whether a vector starts with sequence of values, and <code>contains</code> to check whether
 a vector contains a particular value.</p>
 <p>There's no <code>search</code> method for finding the index of a particular value, but here's a rule of thumb:
@@ -4331,7 +4332,8 @@ fail and so returns <code>Result</code>, and then want to collect the results:</
 </code></pre></pre>
 <p>Fair enough, but now you have to unwrap these errors - carefully!.
 But Rust already knows how to do the Right Thing,
-if you ask for the vector to be <em>contained</em> in a <code>Result</code>:</p>
+if you ask for the vector to be <em>contained</em> in a <code>Result</code> - that is,
+either is a vector or an error:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
@@ -4340,7 +4342,10 @@ if you ask for the vector to be <em>contained</em> in a <code>Result</code>:</p>
 
 #}</code></pre></pre>
 <p>And if there was a bad conversion? Then you would just get <code>Err</code> with the first
-error encountered. It's a good example of how extremely flexible <code>convert</code> is.</p>
+error encountered. It's a good example of how extremely flexible <code>convert</code> is.
+(The notation here can be intimidating - <code>Vec&lt;_&gt;</code> means &quot;this is a vector, work
+out the actual type for me<code>and</code>Result&lt;Vec&lt;<em>&gt;,</em>&gt;` is furthermore asking
+Rust to work out the error type as well.)</p>
 <p>So there's a <em>lot</em> of detail in the documentation.
 But it's certainly clearer than what the C++ docs say about <code>std::vector</code></p>
 <blockquote>
@@ -4348,9 +4353,9 @@ But it's certainly clearer than what the C++ docs say about <code>std::vector</c
 on the container. Generally, it is required that element type is a complete type and meets
 the requirements of Erasable, but many member functions impose stricter requirements.</p>
 </blockquote>
-<p>Clearly, you're on your own! The explicitness of Rust is daunting at first, but as you learn to
+<p>With C++, you're on your own. The explicitness of Rust is daunting at first, but as you learn to
 read the constraints you will know exactly what any particular method of <code>Vec</code> requires.</p>
-<p>I would suggest that you do get the source using <code>rustup component add rust-src</code>, since the
+<p>I would suggest that you get the source using <code>rustup component add rust-src</code>, since the
 standard library source is very readable and the method implementations are usually less scary than the
 method declarations.</p>
 <a class="header" href="print.html#maps" name="maps"><h2>Maps</h2></a>
@@ -7066,6 +7071,542 @@ parentheses:</p>
 the brackets match up.</p>
 <p>We are now way past the capabilities of regular expressions, and the stripped executable at 0.5Mb
 is still half the size of a &quot;hello world&quot; regex program.</p>
+<a class="header" href="print.html#pain-points" name="pain-points"><h2>Pain Points</h2></a>
+<p>It is true to say that Rust is a harder language to learn than most
+'mainstream' languages. There are exceptional people who don't find it so
+difficult, but note the strict meaning of 'exceptional' - they are <em>exceptions</em>.
+Many struggle at first, and then succeed. Initial difficulties aren't predictive
+of later competency!</p>
+<p>We all come from somewhere, and in the case of programming languages this
+means previous exposure to mainstream languages like one of the 'dynamic'
+languages like Python or one of the 'static' languages like C++. Either
+way, Rust is sufficiently different to require mental retooling. Clever
+people with experience jump in and are disappointed that their
+cleverness is not immediately rewarded; people with less self-worth
+think they aren't 'clever' enough.</p>
+<p>For those with dynamic language experience (in which I would include
+Java) everything is a reference, and all references are mutable by default.
+And garbage collection <em>does</em> make it easier to write memory-safe
+programs. A lot has gone into making the JVM pretty fast, at the cost
+of memory use and predicability. Often that cost is considered worth it -
+the old new idea that programmer productivity is more important than
+computer performance.</p>
+<p>But most computers in the world - the ones that handle really important
+things like throttle control on cars - don't have the massive resources
+that even a cheap laptop has, and they need to respond to events
+in <em>real time</em>. Likewise, basic software infrastructure needs to be
+correct, robust, and fast (the old engineering trinity). Much of this is
+done in C and C++ which are inherently unsafe - the <em>total cost</em> of
+this unsafety is the thing to look at here. Maybe you knock the program
+together quicker, but <em>then</em> the real development starts.</p>
+<p>System languages can't afford garbage collection, because they
+are the bedrock on which everything rests. They allow you to be free
+to waste resources as you see fit.</p>
+<p>If there is no garbage collection, then memory must be managed in
+other ways. Manual memory management - I grab memory, use it, and
+explicitly give it back - is hard to get right. You can learn enough
+C to be productive and dangerous in a few weeks - but it takes years
+to become a good safe C programmer, checking every possible error condition.</p>
+<p>Rust manages memory like modern C++ - as objects are destroyed, their
+memory is reclaimed. You can allocate memory on the heap with <code>Box</code>, but
+as soon as that box 'goes out of scope' at the end of the function, the
+memory is reclaimed. So there is something like <code>new</code> but nothing like
+<code>delete</code>. You create a <code>File</code> and at the end, the file handle (a precious
+resource) is closed. In Rust this is called <em>dropping</em>.</p>
+<p>You need to share resources - it's very inefficient to make copies of
+everything - and that's where things get interesting. C++ also has
+references, although Rust references are rather more like C pointers -
+you need to say <code>*r</code> to refer to the value, you need to say <code>&amp;</code> to
+pass a value as a reference.</p>
+<p>Rust's <em>borrow checker</em> makes sure that is impossible
+for a reference to exist after the original value is destroyed.</p>
+<a class="header" href="print.html#type-inference" name="type-inference"><h2>Type Inference</h2></a>
+<p>The distinction between 'static' and 'dynamic' isn't everything. Like with
+most things, there are more dimensions in play. C is statically-typed
+(every variable has a type at compile-time) but weakly-typed (e.g. <code>void*</code>
+can point to <em>anything</em>); Python is dynamically-typed (the type is in
+the value, not the variable) but strongly-typed. Java is static/sorta strong
+(with reflection as convenient/dangerous escape valve) and Rust is
+static/strong, with no runtime reflection.</p>
+<p>Java is famous for needing all thoses types <em>typed out</em> in numbing detail,
+Rust likes to <em>infer</em> types. This is generally a good idea, but it does
+mean that you sometimes need to work out what the actual types are. You
+will see <code>let n = 100</code> and wonder - what kind of integer is this? By
+default, it would be <code>i32</code> - a four-byte signed integer. Everyone agrees
+by now that C's unspecified integer types (like <code>int</code> and <code>long</code>) are
+a bad idea; better to be explicit. You can always spell out the type,
+as in <code>let n: u32 = 100</code> or let the literal force the type, as in
+<code>let n = 100u32</code>.  But type inference goes much further than that!
+If you declare <code>let n = 100</code> then all <code>rustc</code> knows that <code>n</code> must be
+<em>some</em> integer type. If you then passed <code>n</code> to a function expecting
+a <code>u64</code> then that must be the type of <code>n</code>!</p>
+<p>After that, you try to pass <code>n</code> to a function expecting <code>u32</code>.
+<code>rustc</code> will not let you do this, because <code>n</code> has been tied down to
+<code>u64</code> and it <em>will not</em> take the easy way out and convert that
+integer for you.  This is strong typing in action - there are none
+of those little conversions and promotions which make your life
+smoother until integer overflow bites your ass suddenly. You would have
+to explicitly pass <code>n</code> as <code>n as u32</code> - a Rust typecast. Fortunately,
+<code>rustc</code> is good at breaking the bad news in an 'actionable' way - that is,
+you can follow the compiler's advice about fixing the problem.</p>
+<p>So, Rust code can be very free of explicit types:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+let mut v = Vec::new();
+// v is deduced to have type Vec&lt;i32&gt;
+v.push(10);
+v.push(20);
+v.push(&quot;hello&quot;) &lt;--- just can't do this, man!
+
+#}</code></pre></pre>
+<p>Not being able to put strings into a vector of integers is a feature,
+not a bug. The flexibility of dynamic typing is also a curse.</p>
+<p>(If you <em>do</em> need to put integers and strings into the same vector, then
+Rust <code>enum</code> types are the way to do it safely.)</p>
+<p>Sometimes you need to at least give a type <em>hint</em>. <code>collect</code> is a
+fantastic iterator method, but it needs a hint. Say I have a
+iterator returning <code>char</code>. Then <code>collect</code>
+can swing two ways:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+// a vector of char ['h','e','l','l','o']
+let v: Vec&lt;_&gt; = &quot;hello&quot;.chars().collect();
+// a string &quot;doy&quot;
+let m: String = &quot;dolly&quot;.chars().filter(|&amp;c| c != 'l').collect();
+
+#}</code></pre></pre>
+<p>When feeling uncertain about the type of a variable, there's always this
+trick, which forces <code>rustc</code> to reveal the actual type name in an
+error message:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+let x: () = var;
+
+#}</code></pre></pre>
+<p><code>rustc</code> may pick an over-specific type. Here we want to put different
+references into a vector as <code>&amp;Debug</code> but need to declare the type
+explicitly.</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+use std::fmt::Debug;
+
+let answer = 42;
+let message = &quot;hello&quot;;
+let float = 2.7212;
+
+let display: Vec&lt;&amp;Debug&gt; = vec![&amp;message, &amp;answer, &amp;float];
+
+for d in display {
+    println!(&quot;got {:?}&quot;, d);
+}
+
+#}</code></pre></pre>
+<a class="header" href="print.html#mutable-references" name="mutable-references"><h2>Mutable References</h2></a>
+<p>The rule is: only one mutable reference at a time. The reason is
+that tracking mutability is hard when it can happen <em>all over the place</em>.
+Not obvious in dinky little programs, but things can get bad in big
+codebases.</p>
+<p>The further constraint is that you can't have immutable references while
+there's a mutable reference out. Otherwise, anybody who has those
+references doesn't have a guarantee that they won't change. C++ also
+has immutable references (e.g. <code>const string&amp;</code>) but does <em>not</em> give
+you this guarantee that someone can't keep a <code>string&amp;</code> reference and modify it
+behind your back.</p>
+<p>This is a challenge if you are used to languages where every reference
+is mutable! Unsafe, 'relaxed' languages depend on people understanding
+their own programs and nobly deciding not to do Bad Things. But
+big programs are written by more than one person and are beyond the
+power of a single individual to understand in detail.</p>
+<p>The <em>irritating</em> thing is that the borrow checker is not as smart as it
+could be.</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+let mut m = HashMap::new();
+m.insert(&quot;one&quot;, 1);
+m.insert(&quot;two&quot;, 2);
+
+if let Some(r) = m.get_mut(&quot;one&quot;) { // &lt;-- mutable borrow of m
+    *r = 10;
+} else {
+    m.insert(&quot;one&quot;, 1); // can't borrow mutably again!
+}
+
+#}</code></pre></pre>
+<p>Clearly this does not <em>really</em> violate the Rules since if we got <code>None</code> we
+haven't actually borrowed anything from the map.</p>
+<p>There are various ugly workarounds:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+let mut found = false;
+if let Some(r) = m.get_mut(&quot;one&quot;) {
+    *r = 10;
+    found = true;
+}
+if ! found {
+    m.insert(&quot;one&quot;, 1);
+}
+
+#}</code></pre></pre>
+<p>Which is yucky, but it works because the bothersome borrow is kept to
+the first if-statement.</p>
+<p>The better way here is to use <code>HashMap</code>'s <a href="https://doc.rust-lang.org/std/collections/hash_map/enum.Entry.html">entry API</a>.</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+use std::collections::hash_map::Entry;
+
+match m.entry(&quot;one&quot;) {
+    Entry::Occupied(e) =&gt; {
+        *e.into_mut() = 10;
+    },
+    Entry::Vacant(e) =&gt; {
+        e.insert(1);
+    }
+};
+
+#}</code></pre></pre>
+<p>The borrow checker will get less frustrating when <em>non-lexical lifetimes</em>
+arrive sometime this year.</p>
+<p>The borrow checker <em>does</em> understand some important cases, however.
+If you have a struct, fields can be independently borrowed. So
+composition is your friend; a big struct should contain smaller
+structs, which have their own methods. Defining all the mutable methods
+on the big struct will lead to a situation where you can't modify
+things, even though the methods might only refer to one field.</p>
+<p>With mutable data, there are special methods for treating parts of the
+data independently. For instance, if you have a mutable slice, then <code>split_at_mut</code>
+will split this into two mutable slices. This is perfectly safe, since Rust
+knows that the slices do not overlap.</p>
+<a class="header" href="print.html#references-and-lifetimes" name="references-and-lifetimes"><h2>References and Lifetimes</h2></a>
+<p>Rust cannot allow a situation where a reference outlives the value. Otherwise
+we would have a 'dangling reference' where it refers to a dead value -
+a segfault is inevitable.</p>
+<p><code>rustc</code> can often make sensible assumptions about lifetimes in functions:</p>
+<pre><pre class="playpen"><code class="language-rust">fn pair(s: &amp;str, ch: char) -&gt; (&amp;str, &amp;str) {
+    if let Some(idx) = s.find(ch) {
+        (&amp;s[0..idx], &amp;s[idx+1..])
+    } else {
+        (s, &quot;&quot;)
+    }
+}
+fn main() {
+    let p = pair(&quot;hello:dolly&quot;, ':');
+    println!(&quot;{:?}&quot;, p);
+}
+// (&quot;hello&quot;, &quot;dolly&quot;)
+</code></pre></pre>
+<p>This is quite safe because we cope with the case where the delimiter isn't found.
+<code>rustc</code> is here assuming that both strings in the tuple are borrowed from the
+string passed as an argument to the function.</p>
+<p>Explicitly, the function definition looks like this:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+fn pair&lt;'a&gt;(s: &amp;'a str, ch: char) -&gt; (&amp;'a str, &amp;'a str) {...}
+
+#}</code></pre></pre>
+<p>What the notation says is that the output strings live <em>at least as long</em> as the
+input string. It's not saying that the lifetimes are the same, we could drop them
+at any time, just that they cannot outlive <code>s</code>.</p>
+<p>So, <code>rustc</code> makes common cases prettier with <em>lifetime ellision</em>.</p>
+<p>Now, if that function received <em>two</em> strings, then you would need to
+explicitly do lifetime annotation to tell Rust what output string is
+borrowed from what input string.</p>
+<p>You always need an explicit lifetime when a struct borrows a reference:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+struct Container&lt;'a&gt; {
+    s: &amp;'a str
+}
+
+#}</code></pre></pre>
+<p>Which is again insisting that the struct cannot outlive the reference.
+For both structs and functions, the lifetime needs to be declared in <code>&lt;&gt;</code>
+like a type parameter.</p>
+<p>Closures are very convenient and a powerful feature - a lot of the power
+of Rust iterators comes from them. But if you store them, you have
+to specify a lifetime. This is because basically a closure is a generated
+struct that can be called, and that by default borrows its environment.
+Here the <code>linear</code> closure has immutable references to <code>m</code> and <code>c</code>.</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+let m = 2.0;
+let c = 0.5;
+
+let linear = |x| m*x + c;
+let sc = |x| m*x.cos()
+...
+
+#}</code></pre></pre>
+<p>Both <code>linear</code> and <code>sc</code> implement <code>Fn(x: f64)-&gt;f64</code> but they are <em>not</em>
+the same animal - they have different types and sizes!  So to store
+them you have to make a <code>Box&lt;Fn(x: f64)-&gt;f64 + 'a&gt;</code>.</p>
+<p>Very irritating if you're used to how fluent closures are in Javascript
+or Lua, but C++ does a similar thing to Rust and needs <code>std::function</code>
+to store different closures, taking a little penalty for the virtual
+call.</p>
+<a class="header" href="print.html#strings" name="strings"><h2>Strings</h2></a>
+<p>It is common to feel irritated with Rust strings in the beginning. There are different
+ways to create them, and they all feel verbose:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+let s1 = &quot;hello&quot;.to_string();
+let s2 = String::from(&quot;dolly&quot;);
+
+#}</code></pre></pre>
+<p>Isn't &quot;hello&quot; <em>already</em> a string? Well, in a way. <code>String</code> is an <em>owned</em> string,
+allocated on the heap; a string literal &quot;hello&quot; is of type <code>&amp;str</code> (&quot;string slice&quot;)
+and might be either baked into the executable (&quot;static&quot;) or borrowed from a <code>String</code>.
+System languages need this distinction - consider a tiny microcontroller, which has
+a little bit of RAM and rather more ROM. Literal strings will get stored in ROM
+(&quot;read-only&quot;) which is both cheaper and consumes much less power.</p>
+<p>But (you may say) it's so simple in C++:</p>
+<pre><code class="language-C">std::string s = &quot;hello&quot;;
+</code></pre>
+<p>Which is shorter yes, but hides the implicit creation of a string object.
+Rust likes to be explicit about memory allocations, hence <code>to_string</code>.
+On the other hand, to borrow from a C++ string requires <code>c_str</code>, and
+C strings are stupid.</p>
+<p>Fortunately, things are better in Rust - <em>once</em> you accept that both <code>String</code> and <code>&amp;str</code>
+are necessary. The methods of <code>String</code> are mostly for changing the string,
+like <code>push</code> adding a char (under the hood it's very much like a <code>Vec&lt;u8&gt;</code>).
+But all the methods of <code>&amp;str</code> are also available. By the same <code>Deref</code>
+mechanism, a <code>String</code> can be passed as <code>&amp;str</code> to a function - which is
+why you rarely see <code>&amp;String</code> in function definitions.</p>
+<p>There are a number of ways to convert <code>&amp;str</code> to <code>String</code>, corresponding
+to various traits. Rust needs these traits to work with types generically.
+As a rule of thumb, anything that implements <code>Display</code> also knows <code>to_string</code>,
+like <code>42.to_string()</code>.</p>
+<p>Some operators may not behave according to intuition:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    let s1 = &quot;hello&quot;.to_string();
+    let s2 = s1.clone();
+    assert!(s1 == s2);  // cool
+    assert!(s1 == &quot;hello&quot;); // fine
+    assert!(s1 == &amp;s2); // WTF?
+
+#}</code></pre></pre>
+<p>Remember, <code>String</code> and <code>&amp;String</code> are different types, and <code>==</code> isn't
+defined for that combination. This might puzzle a C++ person who is
+used to references being almost interchangeable with values.
+Furthermore, <code>&amp;s2</code> doesn't <em>magically</em> become a <code>&amp;str</code>, that's
+a <em>deref coercion</em> which only happens when assigning to a <code>&amp;str</code>
+variable or argument. (The explicit <code>s2.as_str()</code> would work.)</p>
+<p>However, this more genuinely deserves a WTF:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+let s3 = s1 + s2;  // &lt;--- no can do
+
+#}</code></pre></pre>
+<p>You cannot concatenate two <code>String</code> values, but you can concatenate
+a <code>String</code> with a <code>&amp;str</code>.  You furthermore cannot concatenate a
+<code>&amp;str</code> with a <code>String</code>. So mostly people don't use <code>+</code> and use
+the <code>format!</code> macro, which is convenient but not so efficient.</p>
+<p>Some string operations are available but work differently. For instance,
+languages often have a <code>split</code> method for breaking up a string into an array
+of strings. This method for Rust strings returns an <em>iterator</em>, which
+you can <em>then</em> collect into a vector.</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+let parts: Vec&lt;_&gt; = s.split(',').collect();
+
+#}</code></pre></pre>
+<p>This is a bit clumsy if you are in a hurry to get a vector. But
+you can do operations on the parts <em>without</em> allocating a vector!
+For instance, length of largest string in the split?</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+let max = s.split(',').map(|s| s.len()).max().unwrap();
+
+#}</code></pre></pre>
+<p>(The <code>unwrap</code> is because an empty iterator has no maximum and we must
+cover this case.)</p>
+<p>The <code>collect</code> method returns a <code>Vec&lt;&amp;str&gt;</code>, where the parts are
+borrowed from the original string - we only need allocate space
+for the references.  There is no method like this in C++, but until
+recently it would have to individually allocate each substring. (C++ 17
+has <code>std::string_view</code> which behaves like a Rust string slice.)</p>
+<a class="header" href="print.html#a-note-on-semicolons" name="a-note-on-semicolons"><h2>A Note on Semicolons</h2></a>
+<p>Semicolons are <em>not</em> optional, but usually left out in the same places as
+in C, e.g. after <code>{}</code> blocks. They also aren't needed after <code>enum</code> or
+<code>struct</code> (that's a C peculiarity.)  However, if the block must have a
+<em>value</em>, then the semi-colons are dropped:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+    let msg = if ok {&quot;ok&quot;} else {&quot;error&quot;};
+
+#}</code></pre></pre>
+<p>Note that there must be a semi-colon after this <code>let</code> statement!</p>
+<p>If there were semicolons after these string literals then the returned
+value would be <code>()</code> (like <code>Nothing</code> or <code>void</code>). It's common error when
+defining functions:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+fn sqr(x: f64) -&gt; f64 {
+    x * x;
+}
+
+#}</code></pre></pre>
+<p><code>rustc</code> will give you a clear error in this case.</p>
+<a class="header" href="print.html#c-specific-issues" name="c-specific-issues"><h2>C++-specific Issues</h2></a>
+<a class="header" href="print.html#rust-value-semantics-are-different" name="rust-value-semantics-are-different"><h3>Rust value semantics are Different</h3></a>
+<p>In C++, it's possible to define types which behave exactly like primitives
+and copy themselves. In addition, a move constructor can be defined to
+specify how a value can be moved out of a temporary context.</p>
+<p>In Rust, primitives behave as expected, but the <code>Copy</code> trait can only
+be defined if the aggregate type (struct, tuple or enum) itself contains
+only copyable types. Arbitrary types may have <code>Clone</code>, but you have
+to call the <code>clone</code> method on values. Rust requires any allocation
+to be explicit and not hide in copy constructors or assignment operators.</p>
+<p>So, copying and moving is always defined as just moving bits around and is
+not overrideable.</p>
+<p>If <code>s1</code> is a non <code>Copy</code> value type, then <code>s2 = s1;</code> causes a move to happen,
+and this <em>consumes</em> <code>s1</code>!  So, when you really want a copy, use <code>clone</code>.</p>
+<p>Borrowing is often better than copying, but then you must follow the
+rules of borrowing. Fortunately, borrowing <em>is</em> an overridable behaviour.
+For instance, <code>String</code> can be borrowed as <code>&amp;str</code>, and shares all the
+immutable methods of <code>&amp;str</code>. <em>String slices</em> are very powerful compared
+to the analogous C++ 'borrowing' operation, which is to extract a <code>const char*</code>
+using <code>c_str</code>. <code>&amp;str</code> consists of a pointer to some owned bytes (or a string
+literal) and a <em>size</em>. This leads to some very memory-efficient patterns.
+You can have a <code>Vec&lt;&amp;str&gt;</code> where all the strings have been borrowed from
+some underlying string - only space for the vector needs to be allocated:</p>
+<p>For example, splitting by whitespace:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+fn split_whitespace(s: &amp;str) -&gt; Vec&lt;&amp;str&gt; {
+    s.split_whitespace().collect()
+}
+
+#}</code></pre></pre>
+<p>Likewise, a C++ <code>s.substr(0,2)</code> call will always copy the string, but a slice
+will just borrow: <code>&amp;s[0..2]</code>.</p>
+<p>There is an equivalent relationship between <code>Vec&lt;T&gt;</code> and <code>&amp;[T]</code>.</p>
+<a class="header" href="print.html#shared-references" name="shared-references"><h3>Shared References</h3></a>
+<p>Rust has <em>smart pointers</em> like C++ - for instance, the equivalent of
+<code>std::unique_ptr</code> is <code>Box</code>. There's no need for <code>delete</code>, since any
+memory or other resources will be reclaimed when the box goes out of
+scope (Rust very much embraces RAII).</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+let mut answer = Box::new(&quot;hello&quot;.to_string());
+*answer = &quot;world&quot;.to_string();
+answer.push('!');
+println!(&quot;{} {}&quot;, answer, answer.len());
+
+#}</code></pre></pre>
+<p>People find <code>to_string</code> irritating at first, but it is <em>explicit</em>.</p>
+<p>Note the explicit dererefence <code>*</code>, but methods on smart pointers
+don't need any special notation (we do not say <code>(*answer).push('!')</code>)</p>
+<p>Obviously, borrowing only works if there is a clearly defined owner of
+the original content. In many designs this isn't possible.</p>
+<p>In C++, this is where <code>std::shared_ptr</code> is used; copying just involves
+modifying a reference count on the common data. This is not without
+cost, however:</p>
+<ul>
+<li>even if the data is read-only, constantly modifying the reference
+count can cause cache invalidation</li>
+<li><code>std::shared_ptr</code> is designed to be thread-safe and carries locking
+overhead as well</li>
+</ul>
+<p>In Rust, <code>std::rc::Rc</code> also acts like a shared smart pointer using
+reference-counting. However, it is for immutable references only! If you
+want a thread-safe variant, use <code>std::sync::Arc</code> (for 'Atomic Rc').
+So Rust is being a little awkward here in providing two variants, but you
+get to avoid the locking overhead for non-threaded operations.</p>
+<p>These must be immutable references because that is fundamental to Rust's
+memory model. However, there's a get-out card: <code>std::cell::RefCell</code>.
+If you have a shared reference defined as <code>Rc&lt;RefCell&lt;T&gt;&gt;</code> then you
+can mutably borrow using its <code>borrow_mut</code> method. This applies the
+Rust borrowing rules <em>dynamically</em> - so e.g. any attempt to call
+<code>borrow_mut</code> when a borrow was already happening will cause a panic.</p>
+<p>This is still <em>safe</em>. Panics will happen
+<em>before</em> any memory has been touched inappropriately! Like exceptions,
+they unroll the call stack. So it's an unfortunate word for such
+a structured process - it's an ordered withdrawal rather than a
+panicked retreat.</p>
+<p>The full <code>Rc&lt;RefCell&lt;T&gt;&gt;</code> type is clumsy, but the application code isn't
+unpleasant. Here Rust (again) is prefering to be explicit.</p>
+<p>If you wanted thread-safe access to shared state, then <code>Arc&lt;T&gt;</code> is the
+only <em>safe</em> way to go. If you need mutable access, then <code>Arc&lt;Mutex&lt;T&gt;&gt;</code>
+is the equivalent of <code>Rc&lt;RefCell&lt;T&gt;&gt;</code>. <code>Mutex</code> works a little differently
+than how it's usually defined: it is a container for a value. You get
+a <em>lock</em> on the value and can then modify it.</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+let answer = Arc::new(Mutex::new(10));
+
+// in another thread
+..
+{
+  let mut answer_ref = answer.lock().unwrap();
+  *answer_ref = 42;
+}
+
+#}</code></pre></pre>
+<p>Why the <code>unwrap</code>? If the previous holding thread panicked, then
+this <code>lock</code> fails. (It's one place in the documentation where <code>unwrap</code>
+is considered a reasonable thing to do, since clearly things have
+gone seriously wrong. Panics can always be caught on threads.)</p>
+<p>It's important (as always with mutexes) that this exclusive lock is
+held for as little time as possible. So it's common for them to
+happen in a limited scope - then the lock ends when the mutable
+reference goes out of scope.</p>
+<p>Compared with the apparently simpler situation in C++ (&quot;use shared_ptr dude&quot;)
+this seems awkward. But now any <em>modifications</em> of shared state become obvious,
+and the <code>Mutex</code> lock pattern forces thread safety.</p>
+<p>Like everything, use shared references with <a href="https://news.ycombinator.com/item?id=11698784">caution</a>.</p>
+<a class="header" href="print.html#iterators" name="iterators"><h3>Iterators</h3></a>
+<p>Iterators in C++ are defined fairly informally; they involve smart pointers,
+usually starting with <code>c.begin()</code> and ending with <code>c.end()</code>. Operations on
+iterators are then implemented as stand-alone template functions, like <code>std::find_if</code>.</p>
+<p>Rust iterators are defined by the <code>Iterator</code> trait; <code>next</code> returns an <code>Option</code> and when
+the <code>Option</code> is <code>None</code> we are finished.</p>
+<p>The most common operations are now methods.
+Here is the equivalent of <code>find_if</code>. It returns an <code>Option</code> (case
+of not finding is <code>None</code>) and here the <code>if let</code> statement is convenient for
+extracting the non-<code>None</code> case:</p>
+<pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
+# 
+#fn main() {
+let arr = [10, 2, 30, 5];
+if let Some(res) = arr.find(|x| x == 2) {
+    // res is 2
+}
+
+#}</code></pre></pre>
+<a class="header" href="print.html#unsafety-and-linked-lists" name="unsafety-and-linked-lists"><h3>Unsafety and Linked Lists</h3></a>
+<p>It's no secret that parts of the Rust stdlib are implemented using <code>unsafe</code>. This
+does not invalidate the conservative approach of the borrow checker. Remember that
+&quot;unsafe&quot; has a particular meaning - operations which Rust cannot fully verify at
+compile time. From Rust's perspective, C++ operates in unsafe mode all the time!
+So if a large application needs a few dozen lines of unsafe code, then that's fine,
+since these few lines can be carefully checked by a human. Humans are not good at
+checking 100Kloc+ of code.</p>
+<p>I mention this, because there appears to be a pattern:
+an experienced C++ person tries to implement a linked list or a tree structure,
+and gets frustrated. Well, a double-linked list <em>is</em> possible in safe Rust,
+with <code>Rc</code> references going forward, and <code>Weak</code> references going back. But the
+standard library gets more performance out of using... pointers.</p>
 
                 </div>
 

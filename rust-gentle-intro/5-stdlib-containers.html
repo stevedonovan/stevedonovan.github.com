@@ -47,7 +47,7 @@
         </script>
 
         <div id="sidebar" class="sidebar">
-            <ul class="chapter"><li class="affix"><a href="./readme.html">Introduction</a></li><li><a href="./1-basics.html"><strong>1.</strong> Basics</a></li><li><a href="./2-structs-enums-lifetimes.html"><strong>2.</strong> Structs, Enums and Matching</a></li><li><a href="./3-filesystem.html"><strong>3.</strong> Filesystem and Processes</a></li><li><a href="./4-modules.html"><strong>4.</strong> Modules and Cargo</a></li><li><a href="./5-stdlib-containers.html" class="active"><strong>5.</strong> Standard Library Containers</a></li><li><a href="./6-error-handling.html"><strong>6.</strong> Error Handling</a></li><li><a href="./7-shared-and-networking.html"><strong>7.</strong> Threads, Networking and Sharing</a></li><li><a href="./object-orientation.html"><strong>8.</strong> Object-Oriented Programming</a></li><li><a href="./nom-intro.html"><strong>9.</strong> Parsing with Nom</a></li></ul>
+            <ul class="chapter"><li class="affix"><a href="./readme.html">Introduction</a></li><li><a href="./1-basics.html"><strong>1.</strong> Basics</a></li><li><a href="./2-structs-enums-lifetimes.html"><strong>2.</strong> Structs, Enums and Matching</a></li><li><a href="./3-filesystem.html"><strong>3.</strong> Filesystem and Processes</a></li><li><a href="./4-modules.html"><strong>4.</strong> Modules and Cargo</a></li><li><a href="./5-stdlib-containers.html" class="active"><strong>5.</strong> Standard Library Containers</a></li><li><a href="./6-error-handling.html"><strong>6.</strong> Error Handling</a></li><li><a href="./7-shared-and-networking.html"><strong>7.</strong> Threads, Networking and Sharing</a></li><li><a href="./object-orientation.html"><strong>8.</strong> Object-Oriented Programming</a></li><li><a href="./nom-intro.html"><strong>9.</strong> Parsing with Nom</a></li><li><a href="./pain-points.html"><strong>10.</strong> Pain Points</a></li></ul>
         </div>
 
         <div id="page-wrapper" class="page-wrapper">
@@ -69,8 +69,8 @@
                 <div id="content" class="content">
                     <a class="header" href="./5-stdlib-containers.html#standard-library-containers" name="standard-library-containers"><h1>Standard Library Containers</h1></a>
 <a class="header" href="./5-stdlib-containers.html#reading-the-documentation" name="reading-the-documentation"><h2>Reading the Documentation</h2></a>
-<p>In this section I'll briefly introduce some very useful parts of the Rust standard
-library. The documentation (as always) is excellent but a little context and a few examples is
+<p>In this section I'll briefly introduce some common parts of the Rust standard
+library. The documentation is excellent but a little context and a few examples is
 always useful.</p>
 <p>Initially, reading the Rust documentation can be challenging, so I'll go through <code>Vec</code> as an
 example.  A useful tip is to tick the '[-]' box to collapse the docs. (If you download the
@@ -87,7 +87,7 @@ This relationship is expressed by <code>Deref&lt;Target=[T]&gt;</code>. This als
 reference to something that expects a slice - this is one of the few places where
 a conversion between types happens automatically. So slice methods like <code>first</code>, which maybe-returns
 a reference to the first element, or <code>last</code>, work for vectors as well. Many of the methods are similar
-to the corresponding string methods, so there's <code>split_at</code> for getting a pair of slices spit at an index,
+to the corresponding string methods, so there's <code>split_at</code> for getting a pair of slices split at an index,
 <code>starts_with</code> to check whether a vector starts with sequence of values, and <code>contains</code> to check whether
 a vector contains a particular value.</p>
 <p>There's no <code>search</code> method for finding the index of a particular value, but here's a rule of thumb:
@@ -157,7 +157,8 @@ fail and so returns <code>Result</code>, and then want to collect the results:</
 </code></pre></pre>
 <p>Fair enough, but now you have to unwrap these errors - carefully!.
 But Rust already knows how to do the Right Thing,
-if you ask for the vector to be <em>contained</em> in a <code>Result</code>:</p>
+if you ask for the vector to be <em>contained</em> in a <code>Result</code> - that is,
+either is a vector or an error:</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
 #fn main() {
@@ -166,7 +167,10 @@ if you ask for the vector to be <em>contained</em> in a <code>Result</code>:</p>
 
 #}</code></pre></pre>
 <p>And if there was a bad conversion? Then you would just get <code>Err</code> with the first
-error encountered. It's a good example of how extremely flexible <code>convert</code> is.</p>
+error encountered. It's a good example of how extremely flexible <code>convert</code> is.
+(The notation here can be intimidating - <code>Vec&lt;_&gt;</code> means &quot;this is a vector, work
+out the actual type for me<code>and</code>Result&lt;Vec&lt;<em>&gt;,</em>&gt;` is furthermore asking
+Rust to work out the error type as well.)</p>
 <p>So there's a <em>lot</em> of detail in the documentation.
 But it's certainly clearer than what the C++ docs say about <code>std::vector</code></p>
 <blockquote>
@@ -174,9 +178,9 @@ But it's certainly clearer than what the C++ docs say about <code>std::vector</c
 on the container. Generally, it is required that element type is a complete type and meets
 the requirements of Erasable, but many member functions impose stricter requirements.</p>
 </blockquote>
-<p>Clearly, you're on your own! The explicitness of Rust is daunting at first, but as you learn to
+<p>With C++, you're on your own. The explicitness of Rust is daunting at first, but as you learn to
 read the constraints you will know exactly what any particular method of <code>Vec</code> requires.</p>
-<p>I would suggest that you do get the source using <code>rustup component add rust-src</code>, since the
+<p>I would suggest that you get the source using <code>rustup component add rust-src</code>, since the
 standard library source is very readable and the method implementations are usually less scary than the
 method declarations.</p>
 <a class="header" href="./5-stdlib-containers.html#maps" name="maps"><h2>Maps</h2></a>
