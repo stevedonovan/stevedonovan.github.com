@@ -238,7 +238,7 @@ let ducks: Vec&lt;&amp;Quack&gt; = vec![&amp;duck1,&amp;duck2,&amp;parrot,&amp;i
 <p>What can I say? It quacks, it must be a duck. What's interesting is that you can apply your traits
 to any Rust value, not just 'objects'. (Since <code>quack</code> is passed a reference, there's an explicit
 dereference <code>*</code> to get the integer.)</p>
-<p>However, you can't do this with a trait and a type from the same crate, so the standard library
+<p>However, you can only do this with a trait and a type from the same crate, so the standard library
 cannot be 'monkey patched', which is another piece of Ruby folk practice (and not the most wildly
 admired either.)</p>
 <p>Up to this point, the trait <code>Quack</code> was behaving very much like a Java interface, and like
@@ -571,10 +571,10 @@ cannot work in Rust because that <code>Show</code> reference has 'forgotten' tha
 a <code>ShowTell</code> reference.</p>
 <p>You always have a choice: polymorphic, via trait objects, or monomorphic, via generics
 constrainted by traits. Modern C++ and the Rust standard library tends to take the generic
-route, but the polymorphic route is not obselete. You do have to understand the different
+route, but the polymorphic route is not obsolete. You do have to understand the different
 trade-offs - generics generate the fastest code, which can be inlined. This may lead
 to code bloat. But not everything needs to be as <em>fast as possible</em> - it may only happen
-a 'few' times in the lifetime of a typical program fun.</p>
+a 'few' times in the lifetime of a typical program run.</p>
 <p>So, here's a summary:</p>
 <ul>
 <li>the role played by <code>class</code> is shared between data and traits</li>

@@ -219,7 +219,7 @@ It is also how the word is used in mathematics, like when we say
 <p>There is a reason for declaring variables to be <em>read-only</em> by default. In a larger
 program, it gets hard to track where writes are taking place. So Rust makes things
 like mutability ('write-ability') explicit. There's a lot of cleverness in the
-language, but it tries not to anything.</p>
+language, but it tries not to hide anything.</p>
 <p>Rust is both statically-typed and strongly-typed - these are often confused, but
 think of C (statically but weakly typed) and Python (dynamically but strongly typed).
 In static types the type is known at compile time, and dynamic types are only known
@@ -632,7 +632,7 @@ type!  It may be <em>either</em> <code>Some</code> or <code>None</code>.</p>
 to dereference this to get back to a <code>i32</code> value.</p>
 <p>Which is long-winded, so there's a shortcut - <code>unwrap_or</code> will return the value it
 is given if the <code>Option</code> was <code>None</code>. The types must match up - <code>get</code> returns
-a referemce. so you have to make up a <code>&amp;i32</code> with <code>&amp;-1</code>. Finally, again use <code>*</code>
+a reference. so you have to make up a <code>&amp;i32</code> with <code>&amp;-1</code>. Finally, again use <code>*</code>
 to get the value as <code>i32</code>.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
 # 
@@ -1198,7 +1198,7 @@ that may contain something or an error. They both understand <code>unwrap</code>
 <code>expect</code>) but they are quite different. <code>Result</code> is defined by <em>two</em> type parameters,
 for the <code>Ok</code> value and the <code>Err</code> value.
 The <code>Result</code> 'box' has two compartments, one labelled <code>Ok</code> and the other <code>Err</code>.</p>
-<pre><code>fn good_or_bad(good: bool) -&gt; Result&lt;i32,String&gt; {
+<pre><pre class="playpen"><code class="language-rust">fn good_or_bad(good: bool) -&gt; Result&lt;i32,String&gt; {
     if good {
         Ok(42)
     } else {
@@ -1219,7 +1219,7 @@ fn main() {
     // Cool, I got 42
 
 }
-</code></pre>
+</code></pre></pre>
 <p>(The actual 'error' type is arbitrary - a lot of people use strings until
 they are comfortable with Rust error types.) It's a convenient way to <em>either</em>
 return one value <em>or</em> another.</p>
