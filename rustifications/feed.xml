@@ -4,10 +4,10 @@
     <title>Rustifications</title>
     <description>My Rustic Ramblings
 </description>
-    <link>https://stevedonovan.github.io/rustifications/</link>
-    <atom:link href="https://stevedonovan.github.io/rustifications/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Sat, 18 Aug 2018 16:12:00 +0200</pubDate>
-    <lastBuildDate>Sat, 18 Aug 2018 16:12:00 +0200</lastBuildDate>
+    <link>https://stevedonovan.github.io/</link>
+    <atom:link href="https://stevedonovan.github.io/feed.xml" rel="self" type="application/rss+xml" />
+    <pubDate>Sat, 01 Sep 2018 11:00:11 +0200</pubDate>
+    <lastBuildDate>Sat, 01 Sep 2018 11:00:11 +0200</lastBuildDate>
     <generator>Jekyll v3.1.6</generator>
     
       <item>
@@ -195,7 +195,7 @@ closure struct, so you can put these boxes into a vector or a map.&lt;/p&gt;
 calling a &lt;em&gt;virtual method&lt;/em&gt;.  &lt;code class=&quot;highlighter-rouge&quot;&gt;Box&amp;lt;Fn(f64)-&amp;gt;f64&amp;gt;&lt;/code&gt; is a Rust &lt;em&gt;trait object&lt;/em&gt;.&lt;/p&gt;
 
 &lt;p&gt;These are three function traits in Rust, which correspond to the three kinds
-of methods (remember that the calling a closure is executing a method on a struct)&lt;/p&gt;
+of methods (remember that calling a closure is executing a method on a struct)&lt;/p&gt;
 
 &lt;ul&gt;
   &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Fn&lt;/code&gt;  call is &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;amp;self&lt;/code&gt; method&lt;/li&gt;
@@ -320,6 +320,36 @@ crate:&lt;/p&gt;
 the greeting in another thread within the scope you would get the usual “only one mutable
 reference allowed” error. For sharing between threads you will still need &lt;code class=&quot;highlighter-rouge&quot;&gt;Arc&lt;/code&gt;.&lt;/p&gt;
 
+&lt;p&gt;However, when declaring closures that need to run in another thread, you need to reassure
+Rust that it is safe to do so.&lt;/p&gt;
+
+&lt;div class=&quot;language-rust highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;mut&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;greeting&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;((&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;Fn&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;&#39;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;str&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(||&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;hello&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;nn&quot;&gt;crossbeam&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;scope&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(|&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;scope&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;|&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;scope&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;.spawn&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(||&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;res&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;greeting&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+        &lt;span class=&quot;nd&quot;&gt;println!&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;{} thread!&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;res&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;});&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;});&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;Here &lt;code class=&quot;highlighter-rouge&quot;&gt;greeting&lt;/code&gt; is a reference to any closure of no arguments that returns static strings.&lt;/p&gt;
+
+&lt;p&gt;The error is instructive:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;27 |         scope.spawn(|| {
+   |               ^^^^^ `Fn() -&amp;gt; &amp;amp;str` cannot be shared between threads safely
+   |
+   = help: within `&amp;amp;Fn() -&amp;gt; &amp;amp;str`, the trait `Sync` is not implemented for `Fn() -&amp;gt; &amp;amp;str`
+
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;And the problem goes away if we explicitly add this marker trait to the declaration:&lt;/p&gt;
+
+&lt;div class=&quot;language-rust highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;mut&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;greeting&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;((&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;Fn&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;&#39;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;str&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Sync&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(||&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;hello&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
 &lt;h2 id=&quot;higher-order-functions&quot;&gt;Higher-Order Functions&lt;/h2&gt;
 
 &lt;p&gt;These are less elegant than with Lua. Explicit type
@@ -413,8 +443,8 @@ and its interaction with the borrow checker.&lt;/p&gt;
 
 </description>
         <pubDate>Sat, 18 Aug 2018 00:00:00 +0200</pubDate>
-        <link>https://stevedonovan.github.io/rustifications/2018/08/18/rust-closures-are-hard.html</link>
-        <guid isPermaLink="true">https://stevedonovan.github.io/rustifications/2018/08/18/rust-closures-are-hard.html</guid>
+        <link>https://stevedonovan.github.io/2018/08/18/rust-closures-are-hard.html</link>
+        <guid isPermaLink="true">https://stevedonovan.github.io/2018/08/18/rust-closures-are-hard.html</guid>
         
         
       </item>
