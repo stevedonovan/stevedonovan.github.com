@@ -202,7 +202,26 @@ trick to provoke <code class="highlighter-rouge">rustc</code> into telling us th
 is unknown.  (This is one of the reasons why <code class="highlighter-rouge">auto</code> has become so important in
 modern C++, because not all types can be expressed explicitly). With C++ one
 has detailed control about what gets captured by reference or by copy; with Rust
-by default everything is implicitly borrowed.</p>
+by default everything is borrowed <em>unless</em> it will be consumed within the
+closure.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>let a = "hello".to_string();
+let fs = || {
+    let b = a;
+    println!("we got {}", b);
+};
+println!("a is {}", a);
+// 25 |     let fs = || {
+//   |              -- value moved (into closure) here
+//...
+//29 |     println!("a is {}", a);
+//   |                         ^ value used here after move
+</code></pre>
+</div>
+
+<p>In this case, <code class="highlighter-rouge">a</code> <em>has</em> to move into <code class="highlighter-rouge">b</code>, and then gets dropped.</p>
+
+<p>In the case of <code class="highlighter-rouge">|x| m*x + c</code>, we aren’t consuming <code class="highlighter-rouge">m</code> or <code class="highlighter-rouge">c</code>, so these are references.</p>
 
 <p>However, if we said <code class="highlighter-rouge">move |x| m*x + c</code> then the struct would look like this:</p>
 
@@ -465,7 +484,7 @@ that maps a value to another value of that same type:</p>
     <span class="k">move</span> <span class="p">|</span><span class="n">x</span><span class="p">|</span> <span class="nf">f1</span><span class="p">(</span><span class="nf">f2</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
 <span class="p">}</span>
 <span class="k">let</span> <span class="n">g</span> <span class="o">=</span> <span class="nf">compose</span><span class="p">(</span><span class="nn">str</span><span class="p">::</span><span class="n">trim_left</span><span class="p">,</span> <span class="p">|</span><span class="n">s</span><span class="p">|</span> <span class="o">&amp;</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="err">..</span><span class="mi">2</span><span class="p">]);</span>
-<span class="nd">assert_eq!</span><span class="p">(</span><span class="nf">compose</span><span class="p">(</span><span class="s">" hello "</span><span class="p">),</span><span class="s">"h"</span><span class="p">);</span>
+<span class="nd">assert_eq!</span><span class="p">(</span><span class="nf">g</span><span class="p">(</span><span class="s">" hello "</span><span class="p">),</span><span class="s">"h"</span><span class="p">);</span>
 <span class="err">....</span>
 </code></pre>
 </div>
