@@ -9,11 +9,11 @@
     <title>Why Rust Closures are (Somewhat) Hard - Rustifications</title>
     <meta name="description" content="My Rustic Ramblings
 ">
-    <link rel="alternate" type="application/rss+xml" title="Why Rust Closures are (Somewhat) Hard" href="/rustifications/feed.xml" />
-    <link rel="stylesheet" href="/rustifications/css/main.css">
-    <link rel="stylesheet" href="/rustifications/css/center-img.css">
-    <link rel="canonical" href="https://stevedonovan.github.io/rustifications/2018/08/18/rust-closures-are-hard.html">
-    <link rel="shortcut icon" href="/rustifications/favicon.ico">
+    <link rel="alternate" type="application/rss+xml" title="Why Rust Closures are (Somewhat) Hard" href="/feed.xml" />
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/center-img.css">
+    <link rel="canonical" href="https://stevedonovan.github.io/2018/08/18/rust-closures-are-hard.html">
+    <link rel="shortcut icon" href="/favicon.ico">
 
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:site" content="@StevedInJoburg" />
@@ -33,7 +33,7 @@
 
   <div class="wrapper">
 
-    <a class="site-title" href="/rustifications/"><img id="site-logo" src="https://www.rust-lang.org/logos/rust-logo-64x64-blk.png"/> Rustifications</a>
+    <a class="site-title" href="/"><img id="site-logo" src="https://www.rust-lang.org/logos/rust-logo-64x64-blk.png"/> Rustifications</a>
 
     <!--<nav class="site-nav">
       <a href="#" class="menu-icon">
@@ -253,7 +253,7 @@ closure struct, so you can put these boxes into a vector or a map.</p>
 calling a <em>virtual method</em>.  <code class="highlighter-rouge">Box&lt;Fn(f64)-&gt;f64&gt;</code> is a Rust <em>trait object</em>.</p>
 
 <p>These are three function traits in Rust, which correspond to the three kinds
-of methods (remember that the calling a closure is executing a method on a struct)</p>
+of methods (remember that calling a closure is executing a method on a struct)</p>
 
 <ul>
   <li><code class="highlighter-rouge">Fn</code>  call is <code class="highlighter-rouge">&amp;self</code> method</li>
@@ -377,6 +377,36 @@ crate:</p>
 <p>There’s no problem passing a mutable reference either. But, if you tried to mutate
 the greeting in another thread within the scope you would get the usual “only one mutable
 reference allowed” error. For sharing between threads you will still need <code class="highlighter-rouge">Arc</code>.</p>
+
+<p>However, when declaring closures that need to run in another thread, you need to reassure
+Rust that it is safe to do so.</p>
+
+<div class="language-rust highlighter-rouge"><pre class="highlight"><code><span class="k">let</span> <span class="k">mut</span> <span class="n">greeting</span><span class="p">:</span> <span class="o">&amp;</span><span class="p">((</span><span class="nf">Fn</span><span class="p">()</span><span class="k">-&gt;</span><span class="o">&amp;</span><span class="err">'</span><span class="k">static</span> <span class="nb">str</span><span class="p">)</span> <span class="o">=</span> <span class="o">&amp;</span><span class="p">(||</span> <span class="s">"hello"</span><span class="p">);</span>
+<span class="nn">crossbeam</span><span class="p">::</span><span class="nf">scope</span><span class="p">(|</span><span class="n">scope</span><span class="p">|</span> <span class="p">{</span>
+    <span class="n">scope</span><span class="nf">.spawn</span><span class="p">(||</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="n">res</span> <span class="o">=</span> <span class="nf">greeting</span><span class="p">();</span>
+        <span class="nd">println!</span><span class="p">(</span><span class="s">"{} thread!"</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+    <span class="p">});</span>
+<span class="p">});</span>
+</code></pre>
+</div>
+<p>Here <code class="highlighter-rouge">greeting</code> is a reference to any closure of no arguments that returns static strings.</p>
+
+<p>The error is instructive:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>27 |         scope.spawn(|| {
+   |               ^^^^^ `Fn() -&gt; &amp;str` cannot be shared between threads safely
+   |
+   = help: within `&amp;Fn() -&gt; &amp;str`, the trait `Sync` is not implemented for `Fn() -&gt; &amp;str`
+
+</code></pre>
+</div>
+
+<p>And the problem goes away if we explicitly add this marker trait to the declaration:</p>
+
+<div class="language-rust highlighter-rouge"><pre class="highlight"><code><span class="k">let</span> <span class="k">mut</span> <span class="n">greeting</span><span class="p">:</span> <span class="o">&amp;</span><span class="p">((</span><span class="nf">Fn</span><span class="p">()</span><span class="k">-&gt;</span><span class="o">&amp;</span><span class="err">'</span><span class="k">static</span> <span class="nb">str</span> <span class="o">+</span> <span class="n">Sync</span><span class="p">)</span> <span class="o">=</span> <span class="o">&amp;</span><span class="p">(||</span> <span class="s">"hello"</span><span class="p">);</span>
+</code></pre>
+</div>
 
 <h2 id="higher-order-functions">Higher-Order Functions</h2>
 
