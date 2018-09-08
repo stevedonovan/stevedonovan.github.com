@@ -6,9 +6,602 @@
 </description>
     <link>https://stevedonovan.github.io/rustifications/</link>
     <atom:link href="https://stevedonovan.github.io/rustifications/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Sat, 01 Sep 2018 11:31:31 +0200</pubDate>
-    <lastBuildDate>Sat, 01 Sep 2018 11:31:31 +0200</lastBuildDate>
+    <pubDate>Sat, 08 Sep 2018 12:45:43 +0200</pubDate>
+    <lastBuildDate>Sat, 08 Sep 2018 12:45:43 +0200</lastBuildDate>
     <generator>Jekyll v3.1.6</generator>
+    
+      <item>
+        <title>The Common Rust Traits</title>
+        <description>&lt;h2 id=&quot;what-is-a-trait&quot;&gt;What is a Trait?&lt;/h2&gt;
+
+&lt;p&gt;In Rust, data types - primitives, structs, enums and any other ‘aggregate’
+types like tuples and arrays - are dumb. They may have methods but that
+is just a convenience (they are just functions). Types have no
+relationship with each other.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Traits&lt;/em&gt; are the abstract mechanism for adding functionality to types
+and establishing relationships between them.&lt;/p&gt;
+
+&lt;p&gt;They operate in two different modes; in their more familiar guise they act
+like interfaces in Java or C# (and in fact the keyword &lt;em&gt;was&lt;/em&gt; originally
+&lt;code class=&quot;highlighter-rouge&quot;&gt;interface&lt;/code&gt;).
+Interface inheritance is supported, but not &lt;em&gt;implementation inheritance&lt;/em&gt;.
+There is &lt;a href=&quot;https://stevedonovan.github.io/rust-gentle-intro/object-orientation.html&quot;&gt;support for object-orientated programming&lt;/a&gt;
+but it is different enough from the mainstream to cause conceptual confusion.&lt;/p&gt;
+
+&lt;p&gt;But, most characteristically, traits act as generic constraints. A generic function is
+defined over types that implement specific traits.
+That is, the “compile-time duck typing” of C++ templates is avoided. If we are passed a duck, then
+it must implement &lt;code class=&quot;highlighter-rouge&quot;&gt;Duck&lt;/code&gt;. The &lt;code class=&quot;highlighter-rouge&quot;&gt;quack()&lt;/code&gt; method itself is not sufficient, as it is with Go.&lt;/p&gt;
+
+&lt;h2 id=&quot;converting-things-to-strings&quot;&gt;Converting Things to Strings&lt;/h2&gt;
+
+&lt;p&gt;To make this more concrete, consider &lt;a href=&quot;https://doc.rust-lang.org/std/string/trait.ToString.html&quot;&gt;ToString&lt;/a&gt;
+which defines a &lt;code class=&quot;highlighter-rouge&quot;&gt;to_string&lt;/code&gt; method.
+There are two ways to write functions taking references to types that implement it.&lt;/p&gt;
+
+&lt;p&gt;The first is &lt;em&gt;generic&lt;/em&gt; or &lt;em&gt;monomorphic&lt;/em&gt;:&lt;/p&gt;
+
+&lt;div class=&quot;language-rust highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;use&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;std&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;nn&quot;&gt;string&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ToString&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;fn&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;to_string1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;T&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ToString&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;item&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;T&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;item&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;.to_string&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;nd&quot;&gt;println!&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;{}&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;to_string1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;42&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;));&lt;/span&gt;
+&lt;span class=&quot;nd&quot;&gt;println!&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;{}&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;to_string1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;hello&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;));&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;item&lt;/code&gt; is a reference to &lt;em&gt;any&lt;/em&gt; type which implements &lt;code class=&quot;highlighter-rouge&quot;&gt;ToString&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;The second is &lt;em&gt;dynamic&lt;/em&gt; or &lt;em&gt;polymorphic&lt;/em&gt;:&lt;/p&gt;
+
+&lt;div class=&quot;language-rust highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;fn&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;to_string2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;item&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ToString&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;item&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;.to_string&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;nd&quot;&gt;println!&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;{}&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;to_string2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;42&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;));&lt;/span&gt;
+&lt;span class=&quot;nd&quot;&gt;println!&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;{}&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;to_string2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;hello&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;));&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;Now, converting numbers and string slices to owned strings are obviously different operations.
+In the first case, different code is generated for each distinct type, just like with a C++ template.
+This is maximally efficient - &lt;code class=&quot;highlighter-rouge&quot;&gt;to_string&lt;/code&gt; can be inlined.
+In the second case, the code is generated once (it’s an ordinary function) but the actual
+&lt;code class=&quot;highlighter-rouge&quot;&gt;to_string&lt;/code&gt; is called dynamically. Here &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;amp;ToString&lt;/code&gt; is behaving much like a Java interface
+or C++ base class with virtual methods.&lt;/p&gt;
+
+&lt;p&gt;A reference to a concrete type
+becomes a trait object.  It’s non-trivial because the trait object
+has two parts - the original reference and a ‘virtual method table’
+containing the methods of the trait (a so-called “fat pointer”).&lt;/p&gt;
+
+&lt;div class=&quot;language-rust highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;d&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Display&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;A little &lt;em&gt;too&lt;/em&gt; much magic is happening here, and Rust is moving towards a
+more explicit notation for trait objects, &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;amp;dyn ToString&lt;/code&gt; etc.&lt;/p&gt;
+
+&lt;p&gt;How to decide between generic and polymorphic?  The only honest answer is
+“it depends”. Bear in mind that the actual cost of using trait objects
+might be negligible compared to the other work done by a program.  (It’s hard
+to make engineering decisions based on micro-benchmarks.)&lt;/p&gt;
+
+&lt;h2 id=&quot;printing-out-display-and-debug&quot;&gt;Printing Out: Display and Debug&lt;/h2&gt;
+
+&lt;p&gt;For a value to be printed out using &lt;code class=&quot;highlighter-rouge&quot;&gt;&lt;span class=&quot;p&quot;&gt;{}&lt;/span&gt;&lt;/code&gt;, it must implement the &lt;a href=&quot;https://doc.rust-lang.org/std/fmt/trait.Display.html&quot;&gt;Display&lt;/a&gt; trait.
+&lt;code class=&quot;highlighter-rouge&quot;&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;:?&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt; requires that it implement &lt;a href=&quot;https://doc.rust-lang.org/std/fmt/trait.Debug.html&quot;&gt;Debug&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Defining &lt;code class=&quot;highlighter-rouge&quot;&gt;Display&lt;/code&gt; for your own types is straightforward but needs to be
+explicit, since the compiler cannot reasonably guess what the
+output format must be (unlike with &lt;code class=&quot;highlighter-rouge&quot;&gt;Debug&lt;/code&gt;)&lt;/p&gt;
+
+&lt;div class=&quot;language-rust highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;use&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;std&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;fmt&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;// Debug can be auto-generated&lt;/span&gt;
+&lt;span class=&quot;cp&quot;&gt;#[derive(Debug)]&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;struct&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;MyType&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;u32&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;y&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;u32&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;// but not Display&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;impl&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;fmt&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Display&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;MyType&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;fn&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;fmt&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;mut&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;fmt&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Formatter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;fmt&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Result&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;nd&quot;&gt;write!&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;x={},y={}&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;py&quot;&gt;.x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;py&quot;&gt;.y&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;t&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;MyType&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;y&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+&lt;span class=&quot;nd&quot;&gt;println!&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;{}&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;t&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c&quot;&gt;//=&amp;gt; x=1,y=2&lt;/span&gt;
+&lt;span class=&quot;nd&quot;&gt;println!&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;{:?}&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;t&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c&quot;&gt;//=&amp;gt; MyType { x: 1, y: 2 }&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;write!&lt;/code&gt; macro is a relative of our friend &lt;code class=&quot;highlighter-rouge&quot;&gt;println!&lt;/code&gt; where the first
+parameter is anything that implements &lt;code class=&quot;highlighter-rouge&quot;&gt;Write&lt;/code&gt; (more about this very important
+trait later.)&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Debug&lt;/code&gt; is implemented by most standard library types and is a very convenient
+way to get a developer-friendly string representation of your types. But note
+that you have to ask for &lt;code class=&quot;highlighter-rouge&quot;&gt;Debug&lt;/code&gt; to be implemented - Rust is not going to
+make all structs pay the price of the extra code by default.&lt;/p&gt;
+
+&lt;p&gt;Any type that implements &lt;code class=&quot;highlighter-rouge&quot;&gt;Display&lt;/code&gt; &lt;em&gt;automatically&lt;/em&gt; implements &lt;code class=&quot;highlighter-rouge&quot;&gt;ToString&lt;/code&gt;, so
+&lt;code class=&quot;highlighter-rouge&quot;&gt;42.to_string()&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;&quot;hello&quot;.to_string()&lt;/code&gt; all work as expected.&lt;/p&gt;
+
+&lt;p&gt;(Rust traits often hunt in packs.)&lt;/p&gt;
+
+&lt;h2 id=&quot;default&quot;&gt;Default&lt;/h2&gt;
+
+&lt;p&gt;This expresses the intuitive idea that most types have a sensible default value,
+like zero for numbers, empty for vectors, “” for &lt;code class=&quot;highlighter-rouge&quot;&gt;String&lt;/code&gt;, etc.
+Most standard library types
+implement &lt;a href=&quot;https://doc.rust-lang.org/std/default/trait.Default.html&quot;&gt;Default&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Here is a roundabout way to declare an integer variable and set it to zero.
+&lt;code class=&quot;highlighter-rouge&quot;&gt;default&lt;/code&gt; is a generic method that returns some &lt;code class=&quot;highlighter-rouge&quot;&gt;T&lt;/code&gt;, so Rust needs to know that
+&lt;code class=&quot;highlighter-rouge&quot;&gt;T&lt;/code&gt; somehow:&lt;/p&gt;
+
+&lt;div class=&quot;language-rust highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;n&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;u64&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;Default&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;default&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;  &lt;span class=&quot;c&quot;&gt;// declare type explicitly&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Default&lt;/code&gt; is easy to implement for your own structs,
+providing the type of each field implements &lt;code class=&quot;highlighter-rouge&quot;&gt;Default&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-rust highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;err&quot;&gt;#&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;derive&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Default&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)]&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;struct&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;MyStruct&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;age&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;u16&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;err&quot;&gt;..&lt;/span&gt;&lt;span class=&quot;py&quot;&gt;.
+let&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;mine&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;MyStruct&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;Default&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;default&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Rust likes to be explicit so this does not happen automatically, unlike in other
+languages. If you said &lt;code class=&quot;highlighter-rouge&quot;&gt;let n: u64;&lt;/code&gt; then Rust would expect a later initialization,
+or complain bitterly.&lt;/p&gt;
+
+&lt;p&gt;There are no ‘named function parameters’ in Rust, but here is one idiom that achieves
+the same thing. Imagine you have a function which could take a large number of
+configuration arguments - that’s usually not a good idea, so you make up a big struct
+called &lt;code class=&quot;highlighter-rouge&quot;&gt;Config&lt;/code&gt;. If &lt;code class=&quot;highlighter-rouge&quot;&gt;Config&lt;/code&gt; implements &lt;code class=&quot;highlighter-rouge&quot;&gt;Default&lt;/code&gt;, then the function could be called
+like so, without having to specify each and every field in &lt;code class=&quot;highlighter-rouge&quot;&gt;Config&lt;/code&gt;.&lt;/p&gt;
+
+&lt;div class=&quot;language-rust highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nf&quot;&gt;my_function&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Config&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;job_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;test&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;output_dir&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;Path&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;new&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;/tmp&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt;
+    &lt;span class=&quot;err&quot;&gt;..&lt;/span&gt;&lt;span class=&quot;py&quot;&gt;.Default&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;default&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;})&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;conversion-from-and-into&quot;&gt;Conversion: From and Into&lt;/h2&gt;
+
+&lt;p&gt;An important pair of traits is &lt;code class=&quot;highlighter-rouge&quot;&gt;From/Into&lt;/code&gt;. The &lt;a href=&quot;https://doc.rust-lang.org/std/convert/trait.From.html&quot;&gt;From&lt;/a&gt;
+trait expresses the conversion
+of one value into another using the &lt;code class=&quot;highlighter-rouge&quot;&gt;from&lt;/code&gt; method. So we have &lt;code class=&quot;highlighter-rouge&quot;&gt;String::from(&quot;hello&quot;)&lt;/code&gt; .
+If &lt;code class=&quot;highlighter-rouge&quot;&gt;From&lt;/code&gt; is implemented, then the &lt;a href=&quot;https://doc.rust-lang.org/std/convert/trait.Into.html&quot;&gt;Into&lt;/a&gt;
+ trait is auto-implemented.&lt;/p&gt;
+
+&lt;p&gt;Since &lt;code class=&quot;highlighter-rouge&quot;&gt;String&lt;/code&gt; implements &lt;code class=&quot;highlighter-rouge&quot;&gt;From&amp;lt;&amp;amp;str&amp;gt;&lt;/code&gt;, then &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;amp;str&lt;/code&gt; automatically implements &lt;code class=&quot;highlighter-rouge&quot;&gt;Into&amp;lt;String&amp;gt;&lt;/code&gt;.&lt;/p&gt;
+
+&lt;div class=&quot;language-rust highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;from&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;hello&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;  &lt;span class=&quot;c&quot;&gt;// From&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;hello&quot;&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;.into&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt; &lt;span class=&quot;c&quot;&gt;// Into&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;The &lt;a href=&quot;https://docs.rs/json/0.11.13/json/&quot;&gt;json&lt;/a&gt; crate provides a nice example. A JSON object is indexed with strings,
+and new fields can be created by inserting &lt;code class=&quot;highlighter-rouge&quot;&gt;JsonValue&lt;/code&gt; values:&lt;/p&gt;
+
+&lt;div class=&quot;language-rust highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;obj&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;surname&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;JsonValue&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;from&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;Smith&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c&quot;&gt;// From&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;obj&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;name&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;Joe&quot;&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;.into&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt; &lt;span class=&quot;c&quot;&gt;// Into&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;obj&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;age&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;35&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;.into&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt; &lt;span class=&quot;c&quot;&gt;// Into&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;Note how convenient it is to use &lt;code class=&quot;highlighter-rouge&quot;&gt;into()&lt;/code&gt; here, instead of using &lt;code class=&quot;highlighter-rouge&quot;&gt;from()&lt;/code&gt;. We are doing
+a conversion which Rust will not do implicitly. But &lt;code class=&quot;highlighter-rouge&quot;&gt;into()&lt;/code&gt; is a small word,
+easy to type and read.&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;From&lt;/code&gt; expresses a conversion that &lt;em&gt;always&lt;/em&gt; succeeds. It may be relatively expensive, though:
+converting a string slice to a &lt;code class=&quot;highlighter-rouge&quot;&gt;String&lt;/code&gt; will allocate a buffer and copy the bytes. The
+conversion always takes place by value.&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;From/Info&lt;/code&gt; has an intimate relationship with Rust error handling.&lt;/p&gt;
+
+&lt;p&gt;This statement in a function returning &lt;code class=&quot;highlighter-rouge&quot;&gt;Result&amp;lt;T,E&amp;gt;&lt;/code&gt;:&lt;/p&gt;
+
+&lt;div class=&quot;language-rust highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;res&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;returns_some_result&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;?&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;is (in effect) sugar for this:&lt;/p&gt;
+
+&lt;div class=&quot;language-rust highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;res&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;match&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;returns_some_result&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;nf&quot;&gt;Ok&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;nf&quot;&gt;Err&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;e&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;Err&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;e&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;.into&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;())&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;That is, any error type which can convert &lt;em&gt;into&lt;/em&gt; the returned error type &lt;code class=&quot;highlighter-rouge&quot;&gt;E&lt;/code&gt; works.&lt;/p&gt;
+
+&lt;p&gt;A useful strategy for informal error handling is to make the function return
+&lt;code class=&quot;highlighter-rouge&quot;&gt;Result&amp;lt;T,Box&amp;lt;Error&amp;gt;&amp;gt;&lt;/code&gt;.  Any type that implements &lt;code class=&quot;highlighter-rouge&quot;&gt;Error&lt;/code&gt; can be converted
+into the trait object &lt;code class=&quot;highlighter-rouge&quot;&gt;Box&amp;lt;Error&amp;gt;&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;making-copies-clone-and-copy&quot;&gt;Making Copies: Clone and Copy&lt;/h2&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;From&lt;/code&gt; (and its mirror image &lt;code class=&quot;highlighter-rouge&quot;&gt;Into&lt;/code&gt;) describe how distinct types are converted into
+each other. &lt;code class=&quot;highlighter-rouge&quot;&gt;Clone&lt;/code&gt; describes how a new value of the same type can be created.
+Rust likes to make any potentially expensive operation obvious, so &lt;code class=&quot;highlighter-rouge&quot;&gt;val.clone()&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;This can simply involve moving some bits around (“bitwise copy”).
+A number is just a bit pattern in memory.&lt;/p&gt;
+
+&lt;p&gt;But &lt;code class=&quot;highlighter-rouge&quot;&gt;String&lt;/code&gt; is different, since as well as size and capacity fields,
+it has dynamically-allocated string data. To clone a string involves
+allocating that buffer and copying the original bytes into it. There’s &lt;em&gt;depth&lt;/em&gt;
+to the clone operation here.&lt;/p&gt;
+
+&lt;p&gt;Making your types cloneable is easy, as long as every type in a struct or enum
+implements &lt;code class=&quot;highlighter-rouge&quot;&gt;Clone&lt;/code&gt;:&lt;/p&gt;
+
+&lt;div class=&quot;language-rust highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;err&quot;&gt;#&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;derive&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Debug&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Clone&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)]&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;struct&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Person&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;first_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;last_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Copy&lt;/code&gt; is a &lt;em&gt;marker trait&lt;/em&gt; (there are no methods to implement) which says that
+a type may be copied by just moving bits. You can define it for your own
+structs:&lt;/p&gt;
+
+&lt;div class=&quot;language-rust highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;err&quot;&gt;#&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;derive&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Debug&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Clone&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;Copy&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)]&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;struct&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Point&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;f32&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;y&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;f32&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;z&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;f32&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;Again, only possible if all types implement &lt;code class=&quot;highlighter-rouge&quot;&gt;Copy&lt;/code&gt;. You cannot sneak in a
+non-&lt;code class=&quot;highlighter-rouge&quot;&gt;Copy&lt;/code&gt; type like &lt;code class=&quot;highlighter-rouge&quot;&gt;String&lt;/code&gt; here!&lt;/p&gt;
+
+&lt;p&gt;This trait interacts with a key Rust feature: moving. Moving a value is always
+done by simply moving bits around.  If the value is &lt;code class=&quot;highlighter-rouge&quot;&gt;Copy&lt;/code&gt;, then the original
+location remains valid. (The implication is that copying is &lt;em&gt;always bitwise&lt;/em&gt;.)&lt;/p&gt;
+
+&lt;div class=&quot;language-rust highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;n1&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;42&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;n2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;n1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;// n1 is still fine (i32 is Copy)&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;s1&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;hello&quot;&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;.to_string&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;s2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;s1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;// value moved into s2, s1 can no longer be used!&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;Bad things would happen if &lt;code class=&quot;highlighter-rouge&quot;&gt;s1&lt;/code&gt; was still valid - both &lt;code class=&quot;highlighter-rouge&quot;&gt;s1&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;s2&lt;/code&gt; would
+be dropped at the end of scope and their shared buffer would be deallocated twice!
+C++ handles this situation by always copying; in Rust you
+must say &lt;code class=&quot;highlighter-rouge&quot;&gt;s1.clone()&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;fallible-conversions---fromstr&quot;&gt;Fallible Conversions - FromStr&lt;/h2&gt;
+
+&lt;p&gt;If I have the integer &lt;code class=&quot;highlighter-rouge&quot;&gt;42&lt;/code&gt;, then it is safe to convert this to an owned string,
+which is expressed by &lt;code class=&quot;highlighter-rouge&quot;&gt;ToString&lt;/code&gt;.  However, if I have the string “42” then
+the conversion into &lt;code class=&quot;highlighter-rouge&quot;&gt;i32&lt;/code&gt; must be prepared to fail.&lt;/p&gt;
+
+&lt;p&gt;To implement &lt;a href=&quot;https://doc.rust-lang.org/std/str/trait.FromStr.html&quot;&gt;FromStr&lt;/a&gt;
+takes two things; defining the &lt;code class=&quot;highlighter-rouge&quot;&gt;from_str&lt;/code&gt; method
+and setting the associated type &lt;code class=&quot;highlighter-rouge&quot;&gt;Err&lt;/code&gt; to the error type returned when the conversion fails.&lt;/p&gt;
+
+&lt;p&gt;Usually it’s used implicitly through the string &lt;code class=&quot;highlighter-rouge&quot;&gt;parse&lt;/code&gt; method. This is a method with
+a generic output type, which needs to be tied down.&lt;/p&gt;
+
+&lt;p&gt;E.g. using the turbofish operator:&lt;/p&gt;
+
+&lt;div class=&quot;language-rust highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;answer&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;match&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;42&quot;&lt;/span&gt;&lt;span class=&quot;py&quot;&gt;.parse&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;i32&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;nf&quot;&gt;Ok&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;n&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;n&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;nf&quot;&gt;Err&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;e&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;nd&quot;&gt;panic!&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;&#39;42&#39; was not 42!&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Or (more elegantly) in a context where we can use &lt;code class=&quot;highlighter-rouge&quot;&gt;?&lt;/code&gt;:&lt;/p&gt;
+
+&lt;div class=&quot;language-rust highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;answer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;i32&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;42&quot;&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;.parse&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;?&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The Rust standard library defines &lt;code class=&quot;highlighter-rouge&quot;&gt;FromStr&lt;/code&gt; for the numerical types and for network addresses.
+It is of course possible for external crates to define &lt;code class=&quot;highlighter-rouge&quot;&gt;FromStr&lt;/code&gt; for their types and then
+they will work with &lt;code class=&quot;highlighter-rouge&quot;&gt;parse&lt;/code&gt; as well.  This is a cool thing about the standard traits - they
+are all open for further extension.&lt;/p&gt;
+
+&lt;h2 id=&quot;reference-conversions---asref&quot;&gt;Reference Conversions - AsRef&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/convert/trait.AsRef.html&quot;&gt;AsRef&lt;/a&gt; expresses the situation where a cheap &lt;em&gt;reference&lt;/em&gt; conversion is possible
+between two types.&lt;/p&gt;
+
+&lt;p&gt;The most common place you will see it in action is with &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;amp;Path&lt;/code&gt;. In an ideal world,
+all file systems would enforce UTF-8 names and we could just use &lt;code class=&quot;highlighter-rouge&quot;&gt;String&lt;/code&gt; to
+store them. However, we have not yet arrived at Utopia and Rust has a dedicated
+type &lt;code class=&quot;highlighter-rouge&quot;&gt;PathBuf&lt;/code&gt; with specialized path handling methods, backed by &lt;code class=&quot;highlighter-rouge&quot;&gt;OsString&lt;/code&gt;,
+which represents untrusted text from the OS. &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;amp;Path&lt;/code&gt; is the borrowed counterpart
+to &lt;code class=&quot;highlighter-rouge&quot;&gt;PathBuf&lt;/code&gt;. It is cheap to get a &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;amp;Path&lt;/code&gt; reference from regular Rust strings
+so &lt;code class=&quot;highlighter-rouge&quot;&gt;AsRef&lt;/code&gt; is appropriate:&lt;/p&gt;
+
+&lt;div class=&quot;language-rust highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;// asref.rs&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;fn&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;exists&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;p&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;impl&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;AsRef&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Path&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;bool&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;p&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;.as_ref&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;.exists&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;assert&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;exists&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;asref.rs&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;));&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;assert&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;exists&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nn&quot;&gt;Path&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;new&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;asref.rs&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)));&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ps&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;from&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;asref.rs&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;assert&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;exists&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ps&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;));&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;assert&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;exists&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nn&quot;&gt;PathBuf&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;from&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;asref.rs&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)));&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;This allows any function or method working with file system paths to be conveniently
+called with any type that implements &lt;code class=&quot;highlighter-rouge&quot;&gt;AsRef&amp;lt;Path&amp;gt;&lt;/code&gt;.  From the documentation:&lt;/p&gt;
+
+&lt;div class=&quot;language-rust highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;impl&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;AsRef&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Path&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Path&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;impl&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;AsRef&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Path&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;OsStr&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;impl&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;AsRef&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Path&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;OsString&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;impl&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;AsRef&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Path&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;str&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;impl&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;AsRef&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Path&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;String&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;impl&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;AsRef&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Path&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;PathBuf&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Follow this pattern when defining a public API, because people are accustomed to
+this little convenience.&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;AsRef&amp;lt;str&amp;gt;&lt;/code&gt; is implemented for &lt;code class=&quot;highlighter-rouge&quot;&gt;String&lt;/code&gt;, so we can also say:&lt;/p&gt;
+
+&lt;div class=&quot;language-rust highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;fn&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;is_hello&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;impl&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;AsRef&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;str&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;nd&quot;&gt;assert_eq!&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;hello&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;.as_ref&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;());&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;nf&quot;&gt;is_hello&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;hello&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;nf&quot;&gt;is_hello&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nn&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;from&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;hello&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;));&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;This seems attractive, but using this is very much a matter of taste. Idiomatic Rust code
+prefers to declare string arguments as &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;amp;str&lt;/code&gt; and lean on &lt;em&gt;deref coercion&lt;/em&gt;
+for convenient passing of &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;amp;String&lt;/code&gt; references.&lt;/p&gt;
+
+&lt;h2 id=&quot;overloading----deref&quot;&gt;Overloading &lt;code class=&quot;highlighter-rouge&quot;&gt;*&lt;/code&gt; - Deref&lt;/h2&gt;
+
+&lt;p&gt;Many string methods in Rust are not actually defined on &lt;code class=&quot;highlighter-rouge&quot;&gt;String&lt;/code&gt;. The methods
+explicitly defined typically &lt;em&gt;mutate&lt;/em&gt; the string, like &lt;code class=&quot;highlighter-rouge&quot;&gt;push&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;push_str&lt;/code&gt;.
+But something like &lt;code class=&quot;highlighter-rouge&quot;&gt;starts_with&lt;/code&gt; applies to string slices as well.&lt;/p&gt;
+
+&lt;p&gt;At one point in Rust’s history, this had to be done explicitly, so if you
+had a &lt;code class=&quot;highlighter-rouge&quot;&gt;String&lt;/code&gt; called &lt;code class=&quot;highlighter-rouge&quot;&gt;s&lt;/code&gt;, you would have to say &lt;code class=&quot;highlighter-rouge&quot;&gt;s.as_str().starts_with(&quot;hello&quot;)&lt;/code&gt;.
+You will occasionally see &lt;code class=&quot;highlighter-rouge&quot;&gt;as_str()&lt;/code&gt;, but mostly method resolution happens
+through the magic of &lt;em&gt;deref coercion&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;The &lt;a href=&quot;https://doc.rust-lang.org/std/ops/trait.Deref.html&quot;&gt;Deref&lt;/a&gt; trait is actually used to implement the “dereference” operator &lt;code class=&quot;highlighter-rouge&quot;&gt;*&lt;/code&gt;.
+This has the same meaning as in C - extract the value which the reference is
+pointing to - although doesn’t appear explicitly as much. If &lt;code class=&quot;highlighter-rouge&quot;&gt;r&lt;/code&gt; is a reference,
+then you say &lt;code class=&quot;highlighter-rouge&quot;&gt;r.foo()&lt;/code&gt;, but if you did want the value, you have to say &lt;code class=&quot;highlighter-rouge&quot;&gt;*r&lt;/code&gt;
+(In this respect Rust references are more like C pointers than C++ references,
+which try to be behave like C++ values, leading to hidden differences.)&lt;/p&gt;
+
+&lt;p&gt;The most obvious use of &lt;code class=&quot;highlighter-rouge&quot;&gt;Deref&lt;/code&gt; is with “smart pointers” like &lt;code class=&quot;highlighter-rouge&quot;&gt;Box&amp;lt;T&amp;gt;&lt;/code&gt;
+and &lt;code class=&quot;highlighter-rouge&quot;&gt;Rc&amp;lt;T&amp;gt;&lt;/code&gt; - they &lt;em&gt;behave&lt;/em&gt; like references to the values inside them,
+so you can call methods of &lt;code class=&quot;highlighter-rouge&quot;&gt;T&lt;/code&gt; on &lt;code class=&quot;highlighter-rouge&quot;&gt;Box&amp;lt;T&amp;gt;&lt;/code&gt; and so forth.&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;String&lt;/code&gt; implements &lt;code class=&quot;highlighter-rouge&quot;&gt;Deref&lt;/code&gt;; kf &lt;code class=&quot;highlighter-rouge&quot;&gt;s&lt;/code&gt; is &lt;code class=&quot;highlighter-rouge&quot;&gt;String&lt;/code&gt; then the type of &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;amp;*s&lt;/code&gt; is &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;amp;str&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Deref coercion means that &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;amp;String&lt;/code&gt; will implicitly convert into &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;amp;str&lt;/code&gt;:&lt;/p&gt;
+
+&lt;div class=&quot;language-rust highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;hello&quot;&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;.into&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;rs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;str&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;“Coercion” is a strong word, but this is one of the few places in Rust
+where type conversion happens silently. &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;amp;String&lt;/code&gt; is a very
+different type to &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;amp;str&lt;/code&gt;! I still remember my
+confusion when the compiler insisted that these types were distinct,
+especially with operators where the convenience of deref coercion
+does not happen.  The match operator matches types explicitly
+and this is where &lt;code class=&quot;highlighter-rouge&quot;&gt;s.as_str()&lt;/code&gt; is still necessary - &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;amp;s&lt;/code&gt; would not work here:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;let s = &quot;hello&quot;.to_string();
+...
+match s.as_str() {
+    &quot;hello&quot; =&amp;gt; {....},
+    &quot;dolly&quot; =&amp;gt; {....},
+    ....
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;It’s idiomatic to use string slices in function arguments, knowing that
+&lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;amp;String&lt;/code&gt; will convert to &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;amp;str&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Deref coercion is also used to resolve methods - if the method isn’t defined
+on &lt;code class=&quot;highlighter-rouge&quot;&gt;String&lt;/code&gt;, then we try &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;amp;str&lt;/code&gt;.  It acts like a limited kind of inheritance.&lt;/p&gt;
+
+&lt;p&gt;A similar relationship holds between &lt;code class=&quot;highlighter-rouge&quot;&gt;Vec&amp;lt;T&amp;gt;&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;amp;[T]&lt;/code&gt;. Likewise, it’s
+not idiomatic to have &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;amp;Vec&amp;lt;T&amp;gt;&lt;/code&gt; as a function argument type, since &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;amp;[T]&lt;/code&gt;
+is more flexible and &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;amp;Vec&amp;lt;T&amp;gt;&lt;/code&gt; will convert to &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;amp;[T]&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;ownership-borrow&quot;&gt;Ownership: Borrow&lt;/h2&gt;
+
+&lt;p&gt;Ownership is an important concept in Rust; we have types like &lt;code class=&quot;highlighter-rouge&quot;&gt;String&lt;/code&gt; that
+“own” their data, and types like &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;amp;str&lt;/code&gt; that can “borrow” data from
+an owned typed.&lt;/p&gt;
+
+&lt;p&gt;The &lt;a href=&quot;https://doc.rust-lang.org/std/borrow/trait.Borrow.html&quot;&gt;Borrow&lt;/a&gt;
+trait solves a sticky problem with associative maps and sets.
+Typically we would keep owned strings in a &lt;code class=&quot;highlighter-rouge&quot;&gt;HashSet&lt;/code&gt; to avoid borrowing blues.
+But we really don’t want to &lt;em&gt;create&lt;/em&gt; a &lt;code class=&quot;highlighter-rouge&quot;&gt;String&lt;/code&gt; to query set membership!&lt;/p&gt;
+
+&lt;div class=&quot;language-rust highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;mut&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;set&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;HashSet&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;new&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;set&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;.insert&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;one&quot;&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;.to_string&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;());&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;// set is now HashSet&amp;lt;String&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;set&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;.contains&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;two&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;nd&quot;&gt;println!&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;got two!&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;The borrowed type &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;amp;str&lt;/code&gt; can be used instead of &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;amp;String&lt;/code&gt; here.&lt;/p&gt;
+
+&lt;h2 id=&quot;io-read-and-write&quot;&gt;I/O: Read and Write&lt;/h2&gt;
+
+&lt;p&gt;The types &lt;code class=&quot;highlighter-rouge&quot;&gt;std::fs::File&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;std::io::Stdin&lt;/code&gt; are very distinct. Rust does not
+hack stdin as a kind-of file.  What they &lt;em&gt;do&lt;/em&gt; share is the trait &lt;a href=&quot;https://doc.rust-lang.org/std/io/trait.Read.html&quot;&gt;Read&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;The basic method &lt;code class=&quot;highlighter-rouge&quot;&gt;read&lt;/code&gt; will read some bytes into a buffer and return &lt;code class=&quot;highlighter-rouge&quot;&gt;Result&amp;lt;usize&amp;gt;&lt;/code&gt;.
+If there was not an error, this will be the number of bytes read.&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Read&lt;/code&gt; provides the method &lt;code class=&quot;highlighter-rouge&quot;&gt;read_to_string&lt;/code&gt; which will read &lt;em&gt;all&lt;/em&gt; of a file in
+as a &lt;code class=&quot;highlighter-rouge&quot;&gt;String&lt;/code&gt;, or &lt;code class=&quot;highlighter-rouge&quot;&gt;read_to_end&lt;/code&gt; which reads the file as &lt;code class=&quot;highlighter-rouge&quot;&gt;Vec&amp;lt;u8&amp;gt;&lt;/code&gt;. (If a file
+isn’t guaranteed to be UTF-8, it’s better to use &lt;code class=&quot;highlighter-rouge&quot;&gt;read_to_end&lt;/code&gt;.)&lt;/p&gt;
+
+&lt;p&gt;Traits need to be visible to be used, but &lt;code class=&quot;highlighter-rouge&quot;&gt;Read&lt;/code&gt; is not part of the Rust prelude.
+Instead &lt;code class=&quot;highlighter-rouge&quot;&gt;use std::io::prelude::*&lt;/code&gt; to get all of the I/O traits in scope.&lt;/p&gt;
+
+&lt;p&gt;An important thing to remember is that Rust I/O is unbuffered by default.
+So a naive Rust program can be outperformed by a script!&lt;/p&gt;
+
+&lt;p&gt;For instance, if you want the fastest possible way to read from stdin,
+lock it first - the currently executing thread now has exclusive access:&lt;/p&gt;
+
+&lt;div class=&quot;language-rust highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;stdin&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;io&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;stdin&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;mut&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;lockin&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;stdin&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;.lock&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;// lockin is buffered!&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;Locked stdin implements &lt;a href=&quot;https://doc.rust-lang.org/std/io/trait.BufRead.html&quot;&gt;ReadBuf&lt;/a&gt; which defines buffered reading.
+There is a &lt;code class=&quot;highlighter-rouge&quot;&gt;lines()&lt;/code&gt; method which iterates over all lines in the input, but
+it allocates a new string for each line, which is convenient but inefficient.
+For best performance, use &lt;code class=&quot;highlighter-rouge&quot;&gt;read_line&lt;/code&gt; because it allows you to reuse a
+single string buffer.&lt;/p&gt;
+
+&lt;p&gt;Likewise, to get buffered reading from a file:&lt;/p&gt;
+
+&lt;div class=&quot;language-rust highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;mut&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;rdr&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;io&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;BufReader&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;new&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nn&quot;&gt;File&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;file&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;?&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;err&quot;&gt;...&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;This comes across as unnecessarily fiddly at first but bear in mind that Rust
+is a systems language which aims to make things like buffering and allocation explicit.&lt;/p&gt;
+
+&lt;p&gt;For writing, there is the &lt;a href=&quot;https://doc.rust-lang.org/std/io/trait.Write.html&quot;&gt;Write&lt;/a&gt; trait. Files, sockets and standard streams like
+stdout and stderr implement this.  Again, this is unbuffered and &lt;code class=&quot;highlighter-rouge&quot;&gt;io::BufWriter&lt;/code&gt; exists
+to add buffering to any type that implements &lt;code class=&quot;highlighter-rouge&quot;&gt;Write&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;There is a performance cost with the &lt;code class=&quot;highlighter-rouge&quot;&gt;println&lt;/code&gt; macro. It is
+designed for convenient and sensible output, not for speed. It gets an exclusive lock
+before writing out so you do not get scrambled text from different threads.
+So, if you need fast, buffer and use the &lt;code class=&quot;highlighter-rouge&quot;&gt;write&lt;/code&gt; macro.&lt;/p&gt;
+
+&lt;h2 id=&quot;iteration-iterator-and-intoiterator&quot;&gt;Iteration: Iterator and IntoIterator&lt;/h2&gt;
+
+&lt;p&gt;The &lt;a href=&quot;https://doc.rust-lang.org/std/iter/trait.Iterator.html&quot;&gt;Iterator&lt;/a&gt; trait is interesting.
+You are only required to implement
+one method - &lt;code class=&quot;highlighter-rouge&quot;&gt;next()&lt;/code&gt; - and all that method must do is return an
+&lt;code class=&quot;highlighter-rouge&quot;&gt;Option&lt;/code&gt; value each time it’s called. When that value is &lt;code class=&quot;highlighter-rouge&quot;&gt;None&lt;/code&gt; we
+are finished.&lt;/p&gt;
+
+&lt;p&gt;This is the verbose way to use an iterator:&lt;/p&gt;
+
+&lt;div class=&quot;language-rust highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;mut&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;iter&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;20&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;30&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;.iter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;while&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;Some&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;n&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;iter&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;.next&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;nd&quot;&gt;println!&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;got {}&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;n&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;for&lt;/code&gt; statement provides a shortcut:&lt;/p&gt;
+
+&lt;div class=&quot;language-rust highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;n&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;20&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;30&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;.iter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;nd&quot;&gt;println!&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;got {}&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;n&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;The expression here actually is &lt;em&gt;anything that can convert into an iterator&lt;/em&gt;,
+which is expressed by &lt;a href=&quot;https://doc.rust-lang.org/std/iter/trait.IntoIterator.html&quot;&gt;IntoIterator&lt;/a&gt;.
+So &lt;code class=&quot;highlighter-rouge&quot;&gt;for n in &amp;amp;[10, 20, 30] {...}&lt;/code&gt; works
+as well - a slice is definitely not an iterator, but it implements
+&lt;code class=&quot;highlighter-rouge&quot;&gt;IntoIterator&lt;/code&gt;.  Iterators implement &lt;code class=&quot;highlighter-rouge&quot;&gt;IntoIterator&lt;/code&gt;
+(trivially).&lt;/p&gt;
+
+&lt;p&gt;So the &lt;code class=&quot;highlighter-rouge&quot;&gt;for&lt;/code&gt; statement in Rust is specifically tied to a single trait.&lt;/p&gt;
+
+&lt;p&gt;Iterators in Rust are a zero-overhead abstraction, which means that &lt;em&gt;usually&lt;/em&gt;
+you do not pay a run-time penalty for using them. In fact, if you wrote out
+a loop over slice elements explicitly it would be slower because
+of the run-time index range checks.&lt;/p&gt;
+
+&lt;p&gt;There are a lot of &lt;em&gt;provided&lt;/em&gt; methods which have default
+implementations in &lt;code class=&quot;highlighter-rouge&quot;&gt;Iterator&lt;/code&gt;. You get &lt;code class=&quot;highlighter-rouge&quot;&gt;map&lt;/code&gt;,&lt;code class=&quot;highlighter-rouge&quot;&gt;filter&lt;/code&gt;,etc for free.
+I advise people to familiarize themselves with these methods because they are
+very useful. Often you do not need an explicit loop at all.
+For instance, this is the idiomatic way to sum a sequence of numbers,
+and there is no performance penalty whatsoever.&lt;/p&gt;
+
+&lt;div class=&quot;language-rust highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;res&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;i64&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;py&quot;&gt;.n&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;.into_iter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;.sum&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The most general way to pass a sequence of values to a function is
+to use &lt;code class=&quot;highlighter-rouge&quot;&gt;IntoIterator&lt;/code&gt;. Just using &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;amp;[T]&lt;/code&gt; is too limited and requires the caller
+to build up a buffer (which could be both awkward and expensive), &lt;code class=&quot;highlighter-rouge&quot;&gt;Iterator&amp;lt;Item=T&amp;gt;&lt;/code&gt;
+itself requires caller to call &lt;code class=&quot;highlighter-rouge&quot;&gt;iter()&lt;/code&gt; etc.&lt;/p&gt;
+
+&lt;div class=&quot;language-rust highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;fn&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;sum&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ii&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;impl&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;IntoIterator&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Item&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;i32&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;i32&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;ii&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;.into_iter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;.sum&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;nd&quot;&gt;println!&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;{}&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;sum&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;..&lt;span class=&quot;mi&quot;&gt;9&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;));&lt;/span&gt;
+&lt;span class=&quot;nd&quot;&gt;println!&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;{}&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;sum&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nd&quot;&gt;vec!&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]));&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;// cloned() here makes an interator over i32 from an interator over &amp;amp;i32&lt;/span&gt;
+&lt;span class=&quot;nd&quot;&gt;println!&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;{}&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;sum&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;([&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;.iter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;.cloned&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()));&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;conclusion-why-are-there-so-many-ways-to-create-a-string&quot;&gt;Conclusion: Why are there So Many Ways to Create a String?&lt;/h2&gt;
+
+&lt;div class=&quot;language-rust highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;hello&quot;&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;.to_string&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;  &lt;span class=&quot;c&quot;&gt;// ToString&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;from&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;hello&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c&quot;&gt;// From&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;hello&quot;&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;.into&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt; &lt;span class=&quot;c&quot;&gt;// Into&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;hello&quot;&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;.to_owned&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;  &lt;span class=&quot;c&quot;&gt;// ToOwned&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;This is a common complaint - people like to have one idiomatic way of
+doing common operations.  And (curiously enough) none of these are actual
+&lt;code class=&quot;highlighter-rouge&quot;&gt;String&lt;/code&gt; methods!&lt;/p&gt;
+
+&lt;p&gt;But all these traits are needed, since they make generic programming possible;
+when you create strings in code, just pick one way and use it consistently.&lt;/p&gt;
+
+&lt;p&gt;A consequence of Rust’s dependence on traits is that it can take a while
+to &lt;a href=&quot;https://stevedonovan.github.io/rust-gentle-intro/5-stdlib-containers.html&quot;&gt;learn to read the documentation&lt;/a&gt;.
+Knowing what methods can be called on a type depends on what traits are implemented for that type.
+&lt;code class=&quot;highlighter-rouge&quot;&gt;std::fs::File&lt;/code&gt; doesn’t have any methods to actually &lt;em&gt;do&lt;/em&gt; I/O - these capabilities come from
+implementing &lt;code class=&quot;highlighter-rouge&quot;&gt;Read&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;Write&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;However, Rust traits are not sneaky. They have to be brought into scope before they
+can be used. For instance, you need &lt;code class=&quot;highlighter-rouge&quot;&gt;use std::error::Error&lt;/code&gt; before you can
+call &lt;code class=&quot;highlighter-rouge&quot;&gt;description()&lt;/code&gt; on a type implementing &lt;code class=&quot;highlighter-rouge&quot;&gt;Error&lt;/code&gt;. The Rust &lt;em&gt;prelude&lt;/em&gt; brings in
+many common traits so they do not need to be explicitly brought into scope.&lt;/p&gt;
+
+</description>
+        <pubDate>Sat, 08 Sep 2018 00:00:00 +0200</pubDate>
+        <link>https://stevedonovan.github.io/rustifications/2018/09/08/common-rust-traits.html</link>
+        <guid isPermaLink="true">https://stevedonovan.github.io/rustifications/2018/09/08/common-rust-traits.html</guid>
+        
+        
+      </item>
     
       <item>
         <title>Why Rust Closures are (Somewhat) Hard</title>
@@ -144,7 +737,26 @@ trick to provoke &lt;code class=&quot;highlighter-rouge&quot;&gt;rustc&lt;/code&
 is unknown.  (This is one of the reasons why &lt;code class=&quot;highlighter-rouge&quot;&gt;auto&lt;/code&gt; has become so important in
 modern C++, because not all types can be expressed explicitly). With C++ one
 has detailed control about what gets captured by reference or by copy; with Rust
-by default everything is implicitly borrowed.&lt;/p&gt;
+by default everything is borrowed &lt;em&gt;unless&lt;/em&gt; it will be consumed within the
+closure.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;let a = &quot;hello&quot;.to_string();
+let fs = || {
+    let b = a;
+    println!(&quot;we got {}&quot;, b);
+};
+println!(&quot;a is {}&quot;, a);
+// 25 |     let fs = || {
+//   |              -- value moved (into closure) here
+//...
+//29 |     println!(&quot;a is {}&quot;, a);
+//   |                         ^ value used here after move
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;In this case, &lt;code class=&quot;highlighter-rouge&quot;&gt;a&lt;/code&gt; &lt;em&gt;has&lt;/em&gt; to move into &lt;code class=&quot;highlighter-rouge&quot;&gt;b&lt;/code&gt;, and then gets dropped.&lt;/p&gt;
+
+&lt;p&gt;In the case of &lt;code class=&quot;highlighter-rouge&quot;&gt;|x| m*x + c&lt;/code&gt;, we aren’t consuming &lt;code class=&quot;highlighter-rouge&quot;&gt;m&lt;/code&gt; or &lt;code class=&quot;highlighter-rouge&quot;&gt;c&lt;/code&gt;, so these are references.&lt;/p&gt;
 
 &lt;p&gt;However, if we said &lt;code class=&quot;highlighter-rouge&quot;&gt;move |x| m*x + c&lt;/code&gt; then the struct would look like this:&lt;/p&gt;
 
@@ -407,7 +1019,7 @@ that maps a value to another value of that same type:&lt;/p&gt;
     &lt;span class=&quot;k&quot;&gt;move&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;|&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;f1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;f2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
 &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
 &lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;g&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;compose&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nn&quot;&gt;str&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;trim_left&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;|&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;..&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]);&lt;/span&gt;
-&lt;span class=&quot;nd&quot;&gt;assert_eq!&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;compose&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot; hello &quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;h&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;nd&quot;&gt;assert_eq!&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;g&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot; hello &quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;h&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
 &lt;span class=&quot;err&quot;&gt;....&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
