@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>Running Little Rust Snippets with Runner - Rustifications</title>
+    <meta name="description" content="My Rustic Ramblings
+">
+    <link rel="alternate" type="application/rss+xml" title="Running Little Rust Snippets with Runner" href="/rustifications/feed.xml" />
+    <link rel="stylesheet" href="/rustifications/css/main.css">
+    <link rel="stylesheet" href="/rustifications/css/center-img.css">
+    <link rel="canonical" href="https://stevedonovan.github.io/rustifications/2018/09/23/runner.html">
+    <link rel="shortcut icon" href="/rustifications/favicon.ico">
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:site" content="@StevedInJoburg" />
+    <meta name="twitter:title" content="Running Little Rust Snippets with Runner" />
+    
+    <meta name="twitter:description" content="My Rustic Ramblings
+" />
+    
+    <meta name="twitter:url" content="https://check-out-my-awesome-blog.org/2018/09/23/runner.html">
+
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="/rustifications/"><img id="site-logo" src="https://www.rust-lang.org/logos/rust-logo-64x64-blk.png"/> Rustifications</a>
+
+    <!--<nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        
+          
+        
+          
+        
+          
+        
+      </div>
+    </nav>-->
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Running Little Rust Snippets with Runner</h1>
+    <p class="post-meta">Sep 23, 2018 • Steve Donovan</p>
+  </header>
+
+  <article class="post-content">
+    <h2 id="cargo-is-cool-but">Cargo is Cool, But…</h2>
+
+<p>Cargo is an important feature of the Rust ecosystem, providing a central
+repository of versioned packages and ensuring <em>reproducible builds</em>.
+It has learned important lessons from more ad-hoc solutions like Go’s
+‘go get’. It is widely considered one of the great strengths of Rust.</p>
+
+<p>So suggesting that it is not ideal for all situations may come across
+as being difficult.</p>
+
+<p>The recommended go-to tool for testing out snippets is the <a href="https://play.rust-lang.org/">Rust Playground</a>,
+(which is in fact how I got sucked into Rust in the first place). It is
+particularly good for showing other people your illustrative little programs.
+But I have decent hardware and like using my editor of choice, so I prefer
+to run trivial programs locally.</p>
+
+<p>When writing Rust programs, no matter how trivial, the advice to
+beginners is to create a Cargo project:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ cargo new myprog
+$ cd myprog
+$ edit src/main.rs
+$ cargo run
+</code></pre>
+</div>
+<p>You do get a lot for free once something is a Cargo project - <code class="highlighter-rouge">cargo run</code>
+will rebuild if needed, if the source changes or the compiler changes.
+(This is useful in a language where a new stable version comes out
+every six weeks.)  The Rust standard library is deliberately kept
+compact and much functionality is in the <code class="highlighter-rouge">crates.io</code>
+repository. If you have a cargo project, then adding a crate reference
+after “[dependencies]” in <code class="highlighter-rouge">Cargo.toml</code> will cause that dependency to
+be downloaded and built for your project.  By default, it creates a Git repo.</p>
+
+<p>There are some downsides. You will notice with non-trivial
+dependencies (like the <code class="highlighter-rouge">regex</code> crate) that a lot of code is downloaded
+and compiled. The source will be cached, but the compiled libraries
+are not.  So the next dinky program you write that uses <code class="highlighter-rouge">regex</code> will
+require those libraries to be recompiled.  This is pretty much the
+only way you can get the desired state of reproducibility (the problem
+is harder than you might think).</p>
+
+<p>However, if you are willing to relax about reproducibility, those
+“build artifacts” can be made once and thereafter reused to build
+other programs.  Small exploratory programs need not be built with the
+rigour necessary for large-scale systems.</p>
+
+<h2 id="running-snippets">Running ‘Snippets’</h2>
+
+<p><strong>runner</strong> is mostly a clever wrapper around normal Cargo operations.
+To install, just say <code class="highlighter-rouge">cargo install runner</code>.</p>
+
+<p>The word ‘snippet’ here means an abbreviated way to write Rust
+programs. The original inspiration was the form of <em>documentation
+tests</em>. Here is the example for the <code class="highlighter-rouge">len</code> method of the primitive
+<code class="highlighter-rouge">str</code> type:</p>
+
+<div class="language-rust highlighter-rouge"><pre class="highlight"><code><span class="k">let</span> <span class="n">len</span> <span class="o">=</span> <span class="s">"foo"</span><span class="nf">.len</span><span class="p">();</span>
+<span class="nd">assert_eq!</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">len</span><span class="p">);</span>
+
+<span class="k">let</span> <span class="n">len</span> <span class="o">=</span> <span class="s">"ƒoo"</span><span class="nf">.len</span><span class="p">();</span> <span class="c">// fancy f!</span>
+<span class="nd">assert_eq!</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="n">len</span><span class="p">);</span>
+</code></pre>
+</div>
+
+<p><code class="highlighter-rouge">cargo test</code> will make such examples into proper little programs, and
+run them as pass-fail tests.  It’s an elegant way to both test an API
+and ensure that <em>all examples compile</em>.</p>
+
+<p>If I save this as <code class="highlighter-rouge">len.rs</code>, then <strong>runner</strong> will compile and run it directly:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ runner len.rs
+</code></pre>
+</div>
+<p>There’s no output, but if you don’t appreciate the difference between
+bytes and characters and insist that the last line should be
+<code class="highlighter-rouge">assert_eq!(3, len)</code> then the assertion will fail and the result will
+show a runtime panic.</p>
+
+<p>We can communicate with the world in the time-honoured way:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ cat print.rs
+println!("hello world");
+$ runner print.rs
+hello world
+</code></pre>
+</div>
+<p>This certainly involves less typing - <strong>runner</strong> is making up a <code class="highlighter-rouge">main</code>
+function for us. By default, it compiles the program <em>dynamically</em> -
+i.e. not linking in the Rust stdlib statically. The result is not
+portable and not something you can hand out to your friends, but it is
+faster. On my work machine, the default dynamic compile  is 187ms
+versus 374ms for <code class="highlighter-rouge">runner -s print.rs</code>.</p>
+
+<p>Refugees from dynamic ‘scripting’ languages will find this
+refreshingly familiar - <strong>runner</strong> acts like an <em>interpreter</em>.
+There is no forced directory structure, just source.  But
+it’s just using <code class="highlighter-rouge">rustc</code> under the hood in the most direct way
+possible.  If it <em>was</em> a true interpreter, then I could provide you
+with a read-eval-loop (REPL) as with Python. (This would be very cool, but
+also very hard.)  I don’t personally miss having a REPL that much, since
+running snippets is usually fast enough and you can write your code
+in a proper editor.</p>
+
+<p><strong>runner</strong> does more than wrap code in <code class="highlighter-rouge">fn main</code> - it puts the code in
+a function returning a boxed error result. So the question-mark
+operator works, and you can write real little programs without ugly
+<code class="highlighter-rouge">unwrap</code> calls.</p>
+
+<div class="language-rust highlighter-rouge"><pre class="highlight"><code><span class="c">// file.rs</span>
+<span class="k">let</span> <span class="k">mut</span> <span class="n">f</span> <span class="o">=</span> <span class="nn">File</span><span class="p">::</span><span class="nf">open</span><span class="p">(</span><span class="s">"file.rs"</span><span class="p">)</span><span class="err">?</span><span class="p">;</span>
+<span class="k">let</span> <span class="k">mut</span> <span class="n">buf</span> <span class="o">=</span> <span class="nn">String</span><span class="p">::</span><span class="nf">new</span><span class="p">();</span>
+<span class="n">f</span><span class="nf">.read_to_string</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="n">buf</span><span class="p">)</span><span class="err">?</span><span class="p">;</span>
+<span class="nd">println!</span><span class="p">(</span><span class="s">"{}"</span><span class="p">,</span><span class="n">buf</span><span class="p">);</span>
+</code></pre>
+</div>
+
+<p>How is <code class="highlighter-rouge">File</code> available? Because the generated program has a <em>prelude</em>
+written at the top, which you can view (and edit) with <code class="highlighter-rouge">runner
+--edit-prelude</code>.</p>
+
+<p>(If you are curious, the expanded source will be <code class="highlighter-rouge">~/.cargo/.runner/bin/file.rs</code>)</p>
+
+<p>We can get even more concise with the <code class="highlighter-rouge">-e</code> or <code class="highlighter-rouge">--expression</code> flag:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ runner -e '"¡Hola!".len()'
+7
+</code></pre>
+</div>
+<p>On a Unix command-prompt, I need to quote the whole expression in
+single quotes; for Windows (where quoting is mostly broken) you would
+use double-quotes for the expression, and single quoted strings will
+be massaged into double-quotes internally.</p>
+
+<p>For the  <code class="highlighter-rouge">-i</code> or <code class="highlighter-rouge">--iterator</code> flag, the expression is an iterator and
+<strong>runner</strong> will make up a little program to print out all the values
+of the iterator:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ runner -i "(0..4).map(|n| 2*n)"
+0
+2
+4
+6
+</code></pre>
+</div>
+
+<h2 id="keeping-a-cache">Keeping a Cache</h2>
+
+<p><strong>runner</strong> can link in external crates. What it does is keep a <em>static
+cache</em> of crates managed by Cargo.</p>
+
+<p>Say you are curious about the old-fashioned but useful crate <a href="https://docs.rs/time">time</a>.
+You can add <code class="highlighter-rouge">time</code> to the cache with <code class="highlighter-rouge">runner --add time</code> - it will do
+the usual Cargo dance.</p>
+
+<p>Write a little snippet like so, anywhere you like:</p>
+
+<div class="language-rust highlighter-rouge"><pre class="highlight"><code><span class="c">// time.rs</span>
+<span class="k">extern</span> <span class="n">crate</span> <span class="n">time</span><span class="p">;</span>
+
+<span class="nd">println!</span><span class="p">(</span><span class="s">"{:?}"</span><span class="p">,</span> <span class="nn">time</span><span class="p">::</span><span class="nf">now</span><span class="p">());</span>
+</code></pre>
+</div>
+<p>and compile-and-go like so:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ runner -s time.rs
+Tm { tm_sec: 16, tm_min: 39, tm_hour: 10, tm_mday: 15, tm_mon: 11,
+tm_year: 117, tm_wday: 5, tm_yday: 348, tm_isdst: 0,
+tm_utcoff: 7200, tm_nsec: 917431093 }
+</code></pre>
+</div>
+<p>The <code class="highlighter-rouge">-s</code> (or <code class="highlighter-rouge">--static</code>) flag is important, since the crates in the
+cache will be linked in statically to make a program, not the usual
+dynamic default.</p>
+
+<p>The documentation for <code class="highlighter-rouge">time</code> is also built locally, and you can open
+it in your browser with <code class="highlighter-rouge">runner --doc time</code>.</p>
+
+<p>Even less typing - this is almost exactly the same program (<code class="highlighter-rouge">-x</code> or
+<code class="highlighter-rouge">--extern</code> for
+bringing in an external crate.)</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ runner -s -xtime -e 'time::now()'
+...
+</code></pre>
+</div>
+
+<p>This is certainly more convenient.
+But the big time-saving comes from the cache saving built libraries,
+both for debug and for release.</p>
+
+<p>You can now write multiple little programs referencing <code class="highlighter-rouge">time</code> and not have to
+rebuild <code class="highlighter-rouge">time</code> each time as with Cargo projects.</p>
+
+<p>(<strong>runner</strong> will accept proper programs if it detects <code class="highlighter-rouge">fn main</code>, but
+you may have to give it hints with <code class="highlighter-rouge">--extern</code> to resolve crates.)</p>
+
+<p>Furthermore, after filling your cache with interesting and useful
+crates, you can take your laptop on the subway or on your favourite
+connection-challenged getaway, and still play with your programs. The
+built crates are in the cache, and so is the documentation - no
+<em>constant</em> need for internet.  Consider also that many people out
+there simply don’t have the consistent always-on internet connection
+that modern tools now <em>take for granted</em>. This is not necessarily such
+a Third World problem either, considering that corporate firewalls and
+policies are also hostile to such tools.</p>
+
+<p>Rust is otherwise well suited for off-line work, since you get the stdlib
+documentation (and several books!) installed for local browsing. <strong>runner</strong>
+furthermore makes the documentation of all cached crates available through
+<code class="highlighter-rouge">runner --doc</code>, complementing <code class="highlighter-rouge">rustup doc --std</code>.</p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p><strong>runner</strong> makes experimenting with Rust easier.  I use it to
+prototype bits of code, even the nucleus of new projects, which then
+become proper Cargo projects. This particularly matters when dealing with larger projects
+where a build can take many seconds or even minutes. Debugging the logic
+of a tricky dozen lines can then get seriously slow.</p>
+
+<p>It can compile crates dynanically (that is, as DLL or .so files) but
+this is still experimental, and is essentially just an optimization at
+the moment - see <a href="https::/docs.rs/runner">the documentation</a>.</p>
+
+<p>But the main idea is to reduce the amount of boilerplate
+and bureaucracy needed to test out small bits of example code.  I
+would certainly have found this very useful when learning Rust, and
+I hope <strong>runner</strong> will be useful to others as well, whether beginners or
+seasoned pros.</p>
+
+
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+    <div class="footer-col-wrapper">
+      <div class="footer-col  footer-col-1">
+        <h2 class="footer-heading">Rustifications</h2>
+      </div>
+
+      <div class="footer-col  footer-col-2">
+        <ul class="social-media-list">
+          
+          <li>
+            <a href="https://github.com/stevedonovan">
+              <span class="icon  icon--github">
+                <svg viewBox="0 0 16 16">
+                  <path fill="#828282" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761 c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32 c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472 c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037 C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65 c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261 c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082 c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129 c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/>
+                </svg>
+              </span>
+
+              <span class="username">stevedonovan</span>
+            </a>
+          </li>
+          
+
+          
+          <li>
+            <a href="https://twitter.com/StevedInJoburg">
+              <span class="icon  icon--twitter">
+                <svg viewBox="0 0 16 16">
+                  <path fill="#828282" d="M15.969,3.058c-0.586,0.26-1.217,0.436-1.878,0.515c0.675-0.405,1.194-1.045,1.438-1.809
+                  c-0.632,0.375-1.332,0.647-2.076,0.793c-0.596-0.636-1.446-1.033-2.387-1.033c-1.806,0-3.27,1.464-3.27,3.27 c0,0.256,0.029,0.506,0.085,0.745C5.163,5.404,2.753,4.102,1.14,2.124C0.859,2.607,0.698,3.168,0.698,3.767 c0,1.134,0.577,2.135,1.455,2.722C1.616,6.472,1.112,6.325,0.671,6.08c0,0.014,0,0.027,0,0.041c0,1.584,1.127,2.906,2.623,3.206 C3.02,9.402,2.731,9.442,2.433,9.442c-0.211,0-0.416-0.021-0.615-0.059c0.416,1.299,1.624,2.245,3.055,2.271 c-1.119,0.877-2.529,1.4-4.061,1.4c-0.264,0-0.524-0.015-0.78-0.046c1.447,0.928,3.166,1.469,5.013,1.469 c6.015,0,9.304-4.983,9.304-9.304c0-0.142-0.003-0.283-0.009-0.423C14.976,4.29,15.531,3.714,15.969,3.058z"/>
+                </svg>
+              </span>
+
+              <span class="username">StevedInJoburg</span>
+            </a>
+          </li>
+          
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-3">
+        <p class="text">My Rustic Ramblings
+</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

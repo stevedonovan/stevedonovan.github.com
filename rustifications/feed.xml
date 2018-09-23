@@ -6,9 +6,249 @@
 </description>
     <link>https://stevedonovan.github.io/rustifications/</link>
     <atom:link href="https://stevedonovan.github.io/rustifications/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Thu, 13 Sep 2018 18:05:11 +0200</pubDate>
-    <lastBuildDate>Thu, 13 Sep 2018 18:05:11 +0200</lastBuildDate>
+    <pubDate>Sun, 23 Sep 2018 12:16:40 +0200</pubDate>
+    <lastBuildDate>Sun, 23 Sep 2018 12:16:40 +0200</lastBuildDate>
     <generator>Jekyll v3.1.6</generator>
+    
+      <item>
+        <title>Running Little Rust Snippets with Runner</title>
+        <description>&lt;h2 id=&quot;cargo-is-cool-but&quot;&gt;Cargo is Cool, But…&lt;/h2&gt;
+
+&lt;p&gt;Cargo is an important feature of the Rust ecosystem, providing a central
+repository of versioned packages and ensuring &lt;em&gt;reproducible builds&lt;/em&gt;.
+It has learned important lessons from more ad-hoc solutions like Go’s
+‘go get’. It is widely considered one of the great strengths of Rust.&lt;/p&gt;
+
+&lt;p&gt;So suggesting that it is not ideal for all situations may come across
+as being difficult.&lt;/p&gt;
+
+&lt;p&gt;The recommended go-to tool for testing out snippets is the &lt;a href=&quot;https://play.rust-lang.org/&quot;&gt;Rust Playground&lt;/a&gt;,
+(which is in fact how I got sucked into Rust in the first place). It is
+particularly good for showing other people your illustrative little programs.
+But I have decent hardware and like using my editor of choice, so I prefer
+to run trivial programs locally.&lt;/p&gt;
+
+&lt;p&gt;When writing Rust programs, no matter how trivial, the advice to
+beginners is to create a Cargo project:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ cargo new myprog
+$ cd myprog
+$ edit src/main.rs
+$ cargo run
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;You do get a lot for free once something is a Cargo project - &lt;code class=&quot;highlighter-rouge&quot;&gt;cargo run&lt;/code&gt;
+will rebuild if needed, if the source changes or the compiler changes.
+(This is useful in a language where a new stable version comes out
+every six weeks.)  The Rust standard library is deliberately kept
+compact and much functionality is in the &lt;code class=&quot;highlighter-rouge&quot;&gt;crates.io&lt;/code&gt;
+repository. If you have a cargo project, then adding a crate reference
+after “[dependencies]” in &lt;code class=&quot;highlighter-rouge&quot;&gt;Cargo.toml&lt;/code&gt; will cause that dependency to
+be downloaded and built for your project.  By default, it creates a Git repo.&lt;/p&gt;
+
+&lt;p&gt;There are some downsides. You will notice with non-trivial
+dependencies (like the &lt;code class=&quot;highlighter-rouge&quot;&gt;regex&lt;/code&gt; crate) that a lot of code is downloaded
+and compiled. The source will be cached, but the compiled libraries
+are not.  So the next dinky program you write that uses &lt;code class=&quot;highlighter-rouge&quot;&gt;regex&lt;/code&gt; will
+require those libraries to be recompiled.  This is pretty much the
+only way you can get the desired state of reproducibility (the problem
+is harder than you might think).&lt;/p&gt;
+
+&lt;p&gt;However, if you are willing to relax about reproducibility, those
+“build artifacts” can be made once and thereafter reused to build
+other programs.  Small exploratory programs need not be built with the
+rigour necessary for large-scale systems.&lt;/p&gt;
+
+&lt;h2 id=&quot;running-snippets&quot;&gt;Running ‘Snippets’&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;runner&lt;/strong&gt; is mostly a clever wrapper around normal Cargo operations.
+To install, just say &lt;code class=&quot;highlighter-rouge&quot;&gt;cargo install runner&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;The word ‘snippet’ here means an abbreviated way to write Rust
+programs. The original inspiration was the form of &lt;em&gt;documentation
+tests&lt;/em&gt;. Here is the example for the &lt;code class=&quot;highlighter-rouge&quot;&gt;len&lt;/code&gt; method of the primitive
+&lt;code class=&quot;highlighter-rouge&quot;&gt;str&lt;/code&gt; type:&lt;/p&gt;
+
+&lt;div class=&quot;language-rust highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;len&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;foo&quot;&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;.len&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;nd&quot;&gt;assert_eq!&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;len&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;len&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;ƒoo&quot;&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;.len&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt; &lt;span class=&quot;c&quot;&gt;// fancy f!&lt;/span&gt;
+&lt;span class=&quot;nd&quot;&gt;assert_eq!&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;len&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;cargo test&lt;/code&gt; will make such examples into proper little programs, and
+run them as pass-fail tests.  It’s an elegant way to both test an API
+and ensure that &lt;em&gt;all examples compile&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;If I save this as &lt;code class=&quot;highlighter-rouge&quot;&gt;len.rs&lt;/code&gt;, then &lt;strong&gt;runner&lt;/strong&gt; will compile and run it directly:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ runner len.rs
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;There’s no output, but if you don’t appreciate the difference between
+bytes and characters and insist that the last line should be
+&lt;code class=&quot;highlighter-rouge&quot;&gt;assert_eq!(3, len)&lt;/code&gt; then the assertion will fail and the result will
+show a runtime panic.&lt;/p&gt;
+
+&lt;p&gt;We can communicate with the world in the time-honoured way:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ cat print.rs
+println!(&quot;hello world&quot;);
+$ runner print.rs
+hello world
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;This certainly involves less typing - &lt;strong&gt;runner&lt;/strong&gt; is making up a &lt;code class=&quot;highlighter-rouge&quot;&gt;main&lt;/code&gt;
+function for us. By default, it compiles the program &lt;em&gt;dynamically&lt;/em&gt; -
+i.e. not linking in the Rust stdlib statically. The result is not
+portable and not something you can hand out to your friends, but it is
+faster. On my work machine, the default dynamic compile  is 187ms
+versus 374ms for &lt;code class=&quot;highlighter-rouge&quot;&gt;runner -s print.rs&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Refugees from dynamic ‘scripting’ languages will find this
+refreshingly familiar - &lt;strong&gt;runner&lt;/strong&gt; acts like an &lt;em&gt;interpreter&lt;/em&gt;.
+There is no forced directory structure, just source.  But
+it’s just using &lt;code class=&quot;highlighter-rouge&quot;&gt;rustc&lt;/code&gt; under the hood in the most direct way
+possible.  If it &lt;em&gt;was&lt;/em&gt; a true interpreter, then I could provide you
+with a read-eval-loop (REPL) as with Python. (This would be very cool, but
+also very hard.)  I don’t personally miss having a REPL that much, since
+running snippets is usually fast enough and you can write your code
+in a proper editor.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;runner&lt;/strong&gt; does more than wrap code in &lt;code class=&quot;highlighter-rouge&quot;&gt;fn main&lt;/code&gt; - it puts the code in
+a function returning a boxed error result. So the question-mark
+operator works, and you can write real little programs without ugly
+&lt;code class=&quot;highlighter-rouge&quot;&gt;unwrap&lt;/code&gt; calls.&lt;/p&gt;
+
+&lt;div class=&quot;language-rust highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;// file.rs&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;mut&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;f&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;File&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;file.rs&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;?&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;mut&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;buf&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;new&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;.read_to_string&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;mut&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;buf&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;?&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;nd&quot;&gt;println!&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;{}&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;buf&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;How is &lt;code class=&quot;highlighter-rouge&quot;&gt;File&lt;/code&gt; available? Because the generated program has a &lt;em&gt;prelude&lt;/em&gt;
+written at the top, which you can view (and edit) with &lt;code class=&quot;highlighter-rouge&quot;&gt;runner
+--edit-prelude&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;(If you are curious, the expanded source will be &lt;code class=&quot;highlighter-rouge&quot;&gt;~/.cargo/.runner/bin/file.rs&lt;/code&gt;)&lt;/p&gt;
+
+&lt;p&gt;We can get even more concise with the &lt;code class=&quot;highlighter-rouge&quot;&gt;-e&lt;/code&gt; or &lt;code class=&quot;highlighter-rouge&quot;&gt;--expression&lt;/code&gt; flag:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ runner -e &#39;&quot;¡Hola!&quot;.len()&#39;
+7
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;On a Unix command-prompt, I need to quote the whole expression in
+single quotes; for Windows (where quoting is mostly broken) you would
+use double-quotes for the expression, and single quoted strings will
+be massaged into double-quotes internally.&lt;/p&gt;
+
+&lt;p&gt;For the  &lt;code class=&quot;highlighter-rouge&quot;&gt;-i&lt;/code&gt; or &lt;code class=&quot;highlighter-rouge&quot;&gt;--iterator&lt;/code&gt; flag, the expression is an iterator and
+&lt;strong&gt;runner&lt;/strong&gt; will make up a little program to print out all the values
+of the iterator:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ runner -i &quot;(0..4).map(|n| 2*n)&quot;
+0
+2
+4
+6
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;keeping-a-cache&quot;&gt;Keeping a Cache&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;runner&lt;/strong&gt; can link in external crates. What it does is keep a &lt;em&gt;static
+cache&lt;/em&gt; of crates managed by Cargo.&lt;/p&gt;
+
+&lt;p&gt;Say you are curious about the old-fashioned but useful crate &lt;a href=&quot;https://docs.rs/time&quot;&gt;time&lt;/a&gt;.
+You can add &lt;code class=&quot;highlighter-rouge&quot;&gt;time&lt;/code&gt; to the cache with &lt;code class=&quot;highlighter-rouge&quot;&gt;runner --add time&lt;/code&gt; - it will do
+the usual Cargo dance.&lt;/p&gt;
+
+&lt;p&gt;Write a little snippet like so, anywhere you like:&lt;/p&gt;
+
+&lt;div class=&quot;language-rust highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;// time.rs&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;extern&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;crate&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;time&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+&lt;span class=&quot;nd&quot;&gt;println!&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;{:?}&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;time&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;now&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;());&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;and compile-and-go like so:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ runner -s time.rs
+Tm { tm_sec: 16, tm_min: 39, tm_hour: 10, tm_mday: 15, tm_mon: 11,
+tm_year: 117, tm_wday: 5, tm_yday: 348, tm_isdst: 0,
+tm_utcoff: 7200, tm_nsec: 917431093 }
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;-s&lt;/code&gt; (or &lt;code class=&quot;highlighter-rouge&quot;&gt;--static&lt;/code&gt;) flag is important, since the crates in the
+cache will be linked in statically to make a program, not the usual
+dynamic default.&lt;/p&gt;
+
+&lt;p&gt;The documentation for &lt;code class=&quot;highlighter-rouge&quot;&gt;time&lt;/code&gt; is also built locally, and you can open
+it in your browser with &lt;code class=&quot;highlighter-rouge&quot;&gt;runner --doc time&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Even less typing - this is almost exactly the same program (&lt;code class=&quot;highlighter-rouge&quot;&gt;-x&lt;/code&gt; or
+&lt;code class=&quot;highlighter-rouge&quot;&gt;--extern&lt;/code&gt; for
+bringing in an external crate.)&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ runner -s -xtime -e &#39;time::now()&#39;
+...
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;This is certainly more convenient.
+But the big time-saving comes from the cache saving built libraries,
+both for debug and for release.&lt;/p&gt;
+
+&lt;p&gt;You can now write multiple little programs referencing &lt;code class=&quot;highlighter-rouge&quot;&gt;time&lt;/code&gt; and not have to
+rebuild &lt;code class=&quot;highlighter-rouge&quot;&gt;time&lt;/code&gt; each time as with Cargo projects.&lt;/p&gt;
+
+&lt;p&gt;(&lt;strong&gt;runner&lt;/strong&gt; will accept proper programs if it detects &lt;code class=&quot;highlighter-rouge&quot;&gt;fn main&lt;/code&gt;, but
+you may have to give it hints with &lt;code class=&quot;highlighter-rouge&quot;&gt;--extern&lt;/code&gt; to resolve crates.)&lt;/p&gt;
+
+&lt;p&gt;Furthermore, after filling your cache with interesting and useful
+crates, you can take your laptop on the subway or on your favourite
+connection-challenged getaway, and still play with your programs. The
+built crates are in the cache, and so is the documentation - no
+&lt;em&gt;constant&lt;/em&gt; need for internet.  Consider also that many people out
+there simply don’t have the consistent always-on internet connection
+that modern tools now &lt;em&gt;take for granted&lt;/em&gt;. This is not necessarily such
+a Third World problem either, considering that corporate firewalls and
+policies are also hostile to such tools.&lt;/p&gt;
+
+&lt;p&gt;Rust is otherwise well suited for off-line work, since you get the stdlib
+documentation (and several books!) installed for local browsing. &lt;strong&gt;runner&lt;/strong&gt;
+furthermore makes the documentation of all cached crates available through
+&lt;code class=&quot;highlighter-rouge&quot;&gt;runner --doc&lt;/code&gt;, complementing &lt;code class=&quot;highlighter-rouge&quot;&gt;rustup doc --std&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;runner&lt;/strong&gt; makes experimenting with Rust easier.  I use it to
+prototype bits of code, even the nucleus of new projects, which then
+become proper Cargo projects. This particularly matters when dealing with larger projects
+where a build can take many seconds or even minutes. Debugging the logic
+of a tricky dozen lines can then get seriously slow.&lt;/p&gt;
+
+&lt;p&gt;It can compile crates dynanically (that is, as DLL or .so files) but
+this is still experimental, and is essentially just an optimization at
+the moment - see &lt;a href=&quot;https::/docs.rs/runner&quot;&gt;the documentation&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;But the main idea is to reduce the amount of boilerplate
+and bureaucracy needed to test out small bits of example code.  I
+would certainly have found this very useful when learning Rust, and
+I hope &lt;strong&gt;runner&lt;/strong&gt; will be useful to others as well, whether beginners or
+seasoned pros.&lt;/p&gt;
+
+</description>
+        <pubDate>Sun, 23 Sep 2018 00:00:00 +0200</pubDate>
+        <link>https://stevedonovan.github.io/rustifications/2018/09/23/runner.html</link>
+        <guid isPermaLink="true">https://stevedonovan.github.io/rustifications/2018/09/23/runner.html</guid>
+        
+        
+      </item>
     
       <item>
         <title>The Common Rust Traits</title>
