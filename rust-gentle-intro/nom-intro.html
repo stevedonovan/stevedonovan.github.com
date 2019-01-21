@@ -178,7 +178,7 @@ from the standard <code>Result</code> type - there are three possibilities:</p>
 <ul>
 <li><code>Done</code> - success - you get both the result and the remaining bytes</li>
 <li><code>Error</code> - failed to parse - you get an error</li>
-<li><code>Imcomplete</code> - more data needed</li>
+<li><code>Incomplete</code> - more data needed</li>
 </ul>
 <p>We can write a generic <code>dump</code> function that handles any return value that can be debug-printed.
 This also demonstrates the <code>to_result</code> method which returns a regular <code>Result</code> - this is probably
@@ -260,7 +260,7 @@ and it's why it's called a &quot;parser combinator library&quot;.  You can build
 parsers from simpler parsers, which you can test individually. (At this point, the equivalent
 regex is starting to look like a Perl program: regexes do not combine well.)</p>
 <p>However, we are not yet home and dry!  <code>full_greeting(&quot; bye &quot;)</code> will fail with an
-<code>Imcomplete</code> error. Nom knows that &quot;bye&quot; may be followed by a name and wants us to give it more
+<code>Incomplete</code> error. Nom knows that &quot;bye&quot; may be followed by a name and wants us to give it more
 data. This is how a <em>streaming</em> parser needs to work, so you can feed it a file chunk by chunk,
 but here we need to tell Nom that the input is complete.</p>
 <pre><pre class="playpen"><code class="language-rust"># #![allow(unused_variables)]
